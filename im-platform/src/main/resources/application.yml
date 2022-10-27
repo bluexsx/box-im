@@ -1,0 +1,28 @@
+#这是配置服务的端口
+server:
+  port: 8888
+#配置项目的数据源
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lx-im?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: root
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 1
+
+mybatis-plus:
+  configuration:
+    # 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN（下划线命名） 到经典 Java 属性名 aColumn（驼峰命名） 的类似映射
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # mapper
+  mapper-locations:
+    # *.xml的具体路径
+    - classpath*:mapper/*.xml
+
+web-ui:
+  login-page: http://localhost:8080
