@@ -1,0 +1,155 @@
+<template>
+	<el-container>
+		<el-aside width="80px" class="navi-bar">
+			<div class="user-head-image" @click="onClickHeadImage">
+				<head-image :src="$store.state.userStore.userInfo.headImage" > </head-image>
+			</div>
+			
+			<el-menu background-color="#333333" text-color="#ddd" style="margin-top: 30px;" >
+				<el-menu-item title="聊天">
+					<router-link v-bind:to="'/home/chat'">
+						<span class="el-icon-chat-dot-round"></span>
+					</router-link>
+				</el-menu-item >
+				<el-menu-item  title="好友" >
+					<router-link v-bind:to="'/home/friends'">
+						<span class="el-icon-user"></span>
+					</router-link>
+				</el-menu-item>
+				<el-menu-item title="设置" index="/group">
+					<span class="el-icon-setting"></span>
+				</el-menu-item>
+			</el-menu>
+			<div class="exit-box" @click="onExit()" title="退出">
+				<span class="el-icon-circle-close"></span>
+			</div>
+		</el-aside>
+		<el-main class="content-box">
+			<router-view></router-view>
+		</el-main>
+	</el-container>
+</template>
+
+<script>
+	import HeadImage from '../components/HeadImage.vue';
+	
+	export default {
+		components:{HeadImage},
+		methods: {
+			init(userInfo){
+				this.$store.commit("setUserInfo", userInfo);
+				this.$store.commit("initStore");
+				console.log("socket");
+				this.$wsApi.createWebSocket("ws://localhost:8878/im",this.$store);
+				this.$wsApi.onopen(()=>{
+					this.pullUnreadMessage();
+				});
+				this.$wsApi.onmessage((e)=>{
+					console.log(e);
+					if(e.cmd==1){
+						// 插入私聊消息
+						this.handleSingleMessage(e.data);
+					}
+				})
+			},
+			pullUnreadMessage(){
+				this.$http({
+					url: "/api/message/single/pullUnreadMessage",
+					method: 'post'
+				})
+			},
+			handleSingleMessage(msg){
+				// 插入私聊消息
+				let f = this.$store.state.friendsStore.friendsList.find((f)=>f.friendId==msg.sendUserId);
+				let chatInfo = {
+					type: 'single',
+					targetId: f.friendId,
+					showName: f.friendNickName,
+					headImage: f.friendHeadImage
+				};
+				// 打开会话
+				this.$store.commit("openChat",chatInfo);
+				// 插入消息
+				this.$store.commit("insertMessage",msg);
+			},
+			onExit(){
+				this.$http({
+					url: "/api/logout",
+					method: 'get'
+				}).then(()=>{
+					this.$router.push("/login");
+				})
+			},
+			onClickHeadImage(){
+				this.$message.success(JSON.stringify(this.$store.state.userStore.userInfo));
+			}
+		},
+		mounted() {
+			this.$http({
+				url: "/api/user/self",
+				methods: 'get'
+			}).then((userInfo) => {
+				this.init(userInfo);
+			})
+		},
+		unmounted(){
+			this.$wsApi.closeWebSocket();
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.navi-bar {
+		background: #333333;
+		padding: 10px;
+		padding-top: 50px;
+		
+		.user-head-image{
+			position: relative;
+			width: 50px;
+			height: 50px;
+		}
+		
+		.el-menu {
+			border: none;
+			flex: 1;
+			.el-menu-item {
+				margin-top: 20px;
+				.router-link-exact-active span{
+					color: white !important;
+				}
+				
+				span {
+					font-size: 24px !important;
+					color: #aaaaaa;
+					
+					&:hover{
+						color: white !important;
+					}
+				}
+			}
+		}
+		
+		.exit-box {
+			position: absolute;
+			width: 60px;
+			bottom: 40px;	
+			color: #aaaaaa;
+			font-size: 24px;
+			text-align: center;
+			cursor: pointer;
+			&:hover{
+				color: white !important;
+			}
+		}
+	}
+
+	.content-box {
+		padding: 0;
+		background-color: #E9EEF3;
+		color: #333;
+		text-align: center;
+		
+	}
+
+</style>
