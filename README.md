@@ -30,8 +30,5 @@
 后续补充
 
 #### 项目截图
-![输入图片说明](%E6%88%AA%E5%9B%BEimage.png)
+![输入图片说明](%E6%88%AA%E5%9B%BE/%E8%81%8A%E5%A4%A9.png)
 
-![输入图片说明](%E6%88%AA%E5%9B%BEimage.png)
-
-![输入图片说明](%E6%88%AA%E5%9B%BEimage.png)
