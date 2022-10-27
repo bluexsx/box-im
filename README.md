@@ -17,7 +17,7 @@
 | im-common   | 公共包        |
 |-------------|------------|
 | im-platform | 与前端进行api交换 |
-| im-server   |            |
+| im-server   |     推送聊天消息       |
 
 
 
