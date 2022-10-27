@@ -1,4 +1,4 @@
-import httpRequest from '../utils/httpRequest.js'
+import httpRequest from '../api/httpRequest.js'
 
 
 export default {
