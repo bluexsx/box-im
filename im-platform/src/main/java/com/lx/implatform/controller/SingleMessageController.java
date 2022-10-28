@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-@Api(tags = "单发消息相关api")
+@Api(tags = "私聊消息")
 @RestController
 @RequestMapping("/message/single")
 public class SingleMessageController {

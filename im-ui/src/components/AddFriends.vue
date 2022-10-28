@@ -1,22 +1,22 @@
 <template>
-	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="500px" :before-close="onClose">
+	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="350px" :before-close="onClose">
 		<el-input width="200px" placeholder="搜索好友" class="input-with-select" v-model="searchText" @keyup.enter.native="onSearch()">
 			<el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
 		</el-input>
-		<el-scrollbar style="height:600px">
-		<div v-for="(userInfo) in users" :key="userInfo.id">
-			<div class="item">
-				<div class="avatar">
-					<head-image :url="userInfo.headImage"></head-image>
+		<el-scrollbar style="height:400px">
+			<div v-for="(userInfo) in users" :key="userInfo.id">
+				<div class="item">
+					<div class="avatar">
+						<head-image :url="userInfo.headImage"></head-image>
+					</div>
+					<div class="add-friend-text">
+						<div>{{userInfo.nickName}}</div>
+						<div :class="userInfo.online ? 'online-status  online':'online-status'">{{ userInfo.online?"[在线]":"[离线]"}}</div>
+					</div>
+					 <el-button type="success" v-show="!isFriend(userInfo.id)" plain @click="onAddFriends(userInfo)">添加</el-button>
+					 <el-button type="info" v-show="isFriend(userInfo.id)" plain disabled>已添加</el-button>
 				</div>
-				<div class="add-friend-text">
-					<div>{{userInfo.nickName}}</div>
-					<div :class="userInfo.online ? 'online-status  online':'online-status'">{{ userInfo.online?"[在线]":"[离线]"}}</div>
-				</div>
-				 <el-button type="success" v-show="!isFriend(userInfo.id)" plain @click="onAddFriends(userInfo)">添加</el-button>
-				 <el-button type="info" v-show="isFriend(userInfo.id)" plain disabled>已添加</el-button>
 			</div>
-		</div>
 		</el-scrollbar>
 	</el-dialog>
 </template>
@@ -88,6 +88,7 @@
 </script>
 
 <style scoped lang="scss">
+
 	.item {
 		height: 80px;
 		display: flex;

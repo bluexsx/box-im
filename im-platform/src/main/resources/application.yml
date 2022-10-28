@@ -23,6 +23,14 @@ mybatis-plus:
   mapper-locations:
     # *.xml的具体路径
     - classpath*:mapper/*.xml
+minio:
+  endpoint: http://127.0.0.1:9001
+  public: http://127.0.0.1:9001
+  accessKey: admin
+  secretKey: 12345678
+  bucketName: lx-im
+  imagePath: image
+  filePath: file
 
 web-ui:
   login-page: http://localhost:8080

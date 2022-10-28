@@ -41,6 +41,9 @@ export default {
 		},
 		refreshOnlineStatus(state){
 			let userIds = [];
+			if(state.friendsList.length ==0){
+				return; 
+			}
 			state.friendsList.forEach((f)=>{userIds.push(f.friendId)});
 			httpRequest({
 				url: '/api/user/online',

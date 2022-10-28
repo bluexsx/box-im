@@ -32,9 +32,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("uaa service Doc")
-                .description("用户授权服务Api文档")
-                .termsOfServiceUrl("http://www.baidu.com/")
+                .title("IM Platform doc")
+                .description("蓝星IM API文档")
+                .termsOfServiceUrl("http://XXX/")
                 .version("1.0")
                 .build();
     }

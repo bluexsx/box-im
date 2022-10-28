@@ -17,7 +17,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(tags = "好友相关API")
+@Api(tags = "好友")
 @RestController
 @RequestMapping("/friends")
 public class FriendsController {
