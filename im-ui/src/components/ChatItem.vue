@@ -47,6 +47,7 @@
 			}
 		},
 		methods: {
+			
 			onClickClose(){
 				this.$emit("del");
 			}

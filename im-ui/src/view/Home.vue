@@ -2,7 +2,7 @@
 	<el-container>
 		<el-aside width="80px" class="navi-bar">
 			<div class="user-head-image" @click="onClickHeadImage">
-				<head-image :src="$store.state.userStore.userInfo.headImage" > </head-image>
+				<head-image :url="$store.state.userStore.userInfo.headImageThumb" > </head-image>
 			</div>
 			
 			<el-menu background-color="#333333" text-color="#ddd" style="margin-top: 30px;" >
@@ -16,8 +16,8 @@
 						<span class="el-icon-user"></span>
 					</router-link>
 				</el-menu-item>
-				<el-menu-item title="设置" index="/group">
-					<span class="el-icon-setting"></span>
+				<el-menu-item title="设置" @click="onClickSetting()" >
+						<span class="el-icon-setting"></span>
 				</el-menu-item>
 			</el-menu>
 			<div class="exit-box" @click="onExit()" title="退出">
@@ -27,14 +27,21 @@
 		<el-main class="content-box">
 			<router-view></router-view>
 		</el-main>
+		<setting :visible="showSettingDialog" @close="onCloseSetting()"></setting>
 	</el-container>
 </template>
 
 <script>
 	import HeadImage from '../components/HeadImage.vue';
+	import Setting from '../components/setting/Setting.vue';
 	
 	export default {
-		components:{HeadImage},
+		components:{HeadImage,Setting},
+		data(){
+			return {
+				showSettingDialog: false
+			}
+		},
 		methods: {
 			init(userInfo){
 				this.$store.commit("setUserInfo", userInfo);
@@ -82,6 +89,12 @@
 			},
 			onClickHeadImage(){
 				this.$message.success(JSON.stringify(this.$store.state.userStore.userInfo));
+			},
+			onClickSetting(){
+				this.showSettingDialog = true;
+			},
+			onCloseSetting(){
+				this.showSettingDialog = false;
 			}
 		},
 		mounted() {

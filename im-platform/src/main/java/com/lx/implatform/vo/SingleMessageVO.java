@@ -4,6 +4,7 @@ package com.lx.implatform.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -18,6 +19,7 @@ public class SingleMessageVO {
     private Long recvUserId;
 
 
+    @Length(max=1024,message = "内容长度不得大于1024")
     @NotEmpty(message="发送内容不可为空")
     @ApiModelProperty(value = "发送内容")
     private String content;

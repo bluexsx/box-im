@@ -3,6 +3,7 @@ package com.lx.implatform.util;
 
 import com.lx.common.util.DateTimeUtils;
 import io.minio.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class MinioUtil {
 
@@ -28,7 +30,7 @@ public class MinioUtil {
         try {
             found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("查询bucket失败",e);
             return false;
         }
         return found;
@@ -44,7 +46,7 @@ public class MinioUtil {
                     .bucket(bucketName)
                     .build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("创建bucket失败,",e);
             return false;
         }
         return true;
@@ -60,7 +62,7 @@ public class MinioUtil {
                     .bucket(bucketName)
                     .build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("删除bucket失败,",e);
             return false;
         }
         return true;
@@ -87,7 +89,7 @@ public class MinioUtil {
             //文件名称相同会覆盖
             minioClient.putObject(objectArgs);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("上传图片失败,",e);
             return null;
         }
         return objectName;
@@ -113,7 +115,7 @@ public class MinioUtil {
             //文件名称相同会覆盖
             minioClient.putObject(objectArgs);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("上传图片失败,",e);
             return null;
         }
         return objectName;
@@ -132,6 +134,7 @@ public class MinioUtil {
         try {
             minioClient.removeObject( RemoveObjectArgs.builder().bucket(bucketName).object(path+fileName).build());
         }catch (Exception e){
+            log.error("删除图片失败,",e);
             return false;
         }
         return true;

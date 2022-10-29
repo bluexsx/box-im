@@ -52,6 +52,9 @@ public class ImageUtil {
         return imageBytes;
     }
 
+
+
+
     /**
      * 自动调节精度(经验数值)
      *

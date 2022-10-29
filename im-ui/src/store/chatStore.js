@@ -47,6 +47,7 @@ export default {
 				state.activeIndex = state.chats.length-1;
 			}
 		},
+		
 		insertMessage(state, msgInfo) {
 			let targetId = msgInfo.selfSend?msgInfo.recvUserId:msgInfo.sendUserId;
 			let chat = state.chats.find((chat)=>chat.targetId==targetId);
@@ -60,9 +61,11 @@ export default {
 			}
 		},
 		setChatUserInfo(state, userInfo){
+			
+			console.log(userInfo)
 			for(let i in state.chats){
 				if(state.chats[i].targetId == userInfo.id){
-					state.chats[i].headImage = userInfo.headImage;
+					state.chats[i].headImage = userInfo.headImageThumb;
 					state.chats[i].showName = userInfo.nickName;
 					break;
 				}

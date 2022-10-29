@@ -12,5 +12,5 @@ public class UploadImageVO {
     private String originUrl;
 
     @ApiModelProperty(value = "缩略图")
-    private String compressUrl;
+    private String thumbUrl;
 }

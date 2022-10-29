@@ -1,6 +1,6 @@
 <template>
 	<div  class='img-box'>
-		<img src="../assets/default_head.png" style="width: 100%;height: 100%;cursor: pointer;" />
+		<img :src="url" style="width: 100%;height: 100%;cursor: pointer;" />
 	</div>
 </template>
 

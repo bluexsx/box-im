@@ -2,11 +2,14 @@ package com.lx.implatform.service.thirdparty;
 
 import com.lx.common.enums.FileTypeEnum;
 import com.lx.common.enums.ResultCode;
+import com.lx.implatform.util.FileUtil;
 import com.lx.implatform.exception.GlobalException;
+import com.lx.implatform.util.FileUtil;
 import com.lx.implatform.util.ImageUtil;
 import com.lx.implatform.util.MinioUtil;
 import com.lx.implatform.vo.UploadImageVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,14 +50,24 @@ public class FileService {
 
     public UploadImageVO uploadImage(MultipartFile file){
         try {
+            // 图片格式校验
+            if(!FileUtil.isImage(file.getOriginalFilename())){
+                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片格式不合法");
+            }
+            // 上传原图
             UploadImageVO vo = new UploadImageVO();
-
             String fileName = minioUtil.upload(bucketName,imagePath,file);
+            if(StringUtils.isEmpty(fileName)){
+                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+            }
             vo.setOriginUrl(generUrl(FileTypeEnum.IMAGE,fileName));
             // 上传缩略图
             byte[] imageByte = ImageUtil.compressForScale(file.getBytes(),100);
             fileName = minioUtil.upload(bucketName,imagePath,file.getOriginalFilename(),imageByte,file.getContentType());
-            vo.setCompressUrl(generUrl(FileTypeEnum.IMAGE,fileName));
+            if(StringUtils.isEmpty(fileName)){
+                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+            }
+            vo.setThumbUrl(generUrl(FileTypeEnum.IMAGE,fileName));
             return vo;
         } catch (IOException e) {
             log.error("上传图片失败，{}",e.getMessage(),e);

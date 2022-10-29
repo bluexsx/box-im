@@ -21,6 +21,8 @@ public interface IUserService extends IService<User> {
 
     User findUserByName(String username);
 
+    void update(UserVO vo);
+
     List<UserVO> findUserByNickName(String nickname);
 
     List<Long> checkOnline(String userIds);

@@ -10,6 +10,7 @@ import com.lx.implatform.mapper.FriendsMapper;
 import com.lx.implatform.service.IFriendsService;
 import com.lx.implatform.service.IUserService;
 import com.lx.implatform.session.SessionContext;
+import com.lx.implatform.vo.FriendsVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,25 @@ public class FriendsServiceImpl extends ServiceImpl<FriendsMapper, Friends> impl
                 .eq(Friends::getUserId,userId1)
                 .eq(Friends::getFriendId,userId2);
         return  this.count(queryWrapper) > 0;
+    }
+
+
+    @Override
+    public void update(FriendsVO vo) {
+        long userId = SessionContext.getSession().getId();
+        QueryWrapper<Friends> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(Friends::getUserId,userId)
+                .eq(Friends::getFriendId,vo.getFriendId());
+
+        Friends f = this.getOne(queryWrapper);
+        if(f == null){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR,"对方不是您的好友");
+        }
+
+        f.setFriendHeadImage(vo.getFriendHeadImage());
+        f.setFriendNickName(vo.getFriendNickName());
+        this.updateById(f);
     }
 
     private void bindFriends(long userId, long friendsId) {

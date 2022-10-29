@@ -45,11 +45,29 @@ public class User extends Model<User> {
     private String nickName;
 
     /**
-     * 用户名
+     * 性别
+     */
+    @TableField("sex")
+    private Integer sex;
+
+    /**
+     * 头像
      */
     @TableField("head_image")
     private String headImage;
 
+    /**
+     * 头像缩略图
+     */
+    @TableField("head_image_thumb")
+    private String headImageThumb;
+
+
+    /**
+     * 个性签名
+     */
+    @TableField("signature")
+    private String signature;
     /**
      * 密码(明文)
      */

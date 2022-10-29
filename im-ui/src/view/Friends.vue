@@ -10,8 +10,7 @@
 					</el-col>
 					<el-col :span="1"></el-col>
 					<el-col :span="3">
-						<el-button plain icon="el-icon-plus" style="border: none; font-size: 20px;color: black;"
-							title="添加好友" @click="onShowAddFriends"></el-button>
+						<el-button plain icon="el-icon-plus" style="border: none; font-size: 20px;color: black;" title="添加好友" @click="onShowAddFriends"></el-button>
 					</el-col>
 				</el-row>
 				<add-friends :dialogVisible="showAddFriend" @close="onCloseAddFriends" @add="onAddFriend()">
@@ -19,9 +18,8 @@
 			</el-header>
 			<el-main>
 				<div v-for="(friendsInfo,index) in $store.state.friendsStore.friendsList" :key="friendsInfo.id">
-					<friends-item v-show="friendsInfo.friendNickName.startsWith(searchText)" :friendsInfo="friendsInfo"
-						:index="index" :active="index === $store.state.friendsStore.activeIndex"
-						@del="onDelItem(friendsInfo,index)" @click.native="onClickItem(friendsInfo,index)">
+					<friends-item v-show="friendsInfo.friendNickName.startsWith(searchText)" :friendsInfo="friendsInfo" :index="index"
+					 :active="index === $store.state.friendsStore.activeIndex" @del="onDelItem(friendsInfo,index)" @click.native="onClickItem(friendsInfo,index)">
 					</friends-item>
 				</div>
 			</el-main>
@@ -29,14 +27,12 @@
 		<el-container class="r-friend-box">
 			<div v-show="$store.state.friendsStore.activeIndex>=0">
 				<div class="user-detail">
-					<div class="detail-head-image">
-						<head-image :url="$store.state.friendsStore.activeUserInfo.headImage" ></head-image>
-					</div>
+					<head-image class="detail-head-image" :url="activeUserInfo.headImage"></head-image>
 					<div class="info-item">
 						<el-descriptions title="好友信息" class="description" :column="1">
-							<el-descriptions-item label="用户名">{{ $store.state.friendsStore.activeUserInfo.userName }}
+							<el-descriptions-item label="用户名">{{ activeUserInfo.userName }}
 							</el-descriptions-item>
-							<el-descriptions-item label="昵称">{{ $store.state.friendsStore.activeUserInfo.nickName }}
+							<el-descriptions-item label="昵称">{{ activeUserInfo.nickName }}
 							</el-descriptions-item>
 							<el-descriptions-item label="备注">好基友</el-descriptions-item>
 							<el-descriptions-item label="签名">世界这么大，我想去看看</el-descriptions-item>
@@ -55,7 +51,7 @@
 	import FriendsItem from "../components/FriendsItem.vue";
 	import AddFriends from "../components/AddFriends.vue";
 	import HeadImage from "../components/HeadImage.vue";
-	
+
 	export default {
 		name: "friends",
 		components: {
@@ -66,7 +62,8 @@
 		data() {
 			return {
 				searchText: "",
-				showAddFriend: false
+				showAddFriend: false,
+				activeUserInfo: {}
 			}
 		},
 		methods: {
@@ -78,6 +75,17 @@
 			},
 			onClickItem(friendsInfo, index) {
 				this.$store.commit("activeFriends", index);
+				this.$http({
+					url: `/api/user/find/${friendsInfo.friendId}`,
+					method: 'get'
+				}).then((userInfo) => {
+					this.activeUserInfo = userInfo;
+					// 如果发现好友的头像和昵称改了，进行更新
+					if (userInfo.headImageThumb != friendsInfo.friendHeadImage ||
+						userInfo.nickName != friendsInfo.friendNickName) {
+						this.updateFriendInfo(friendsInfo, userInfo,index)
+					}
+				})
 			},
 			onDelItem(friendsInfo, index) {
 				this.$http({
@@ -92,7 +100,7 @@
 				})
 			},
 			onSend() {
-				let userInfo = this.$store.state.friendsStore.activeUserInfo
+				let userInfo = this.activeUserInfo;
 				let chatInfo = {
 					type: 'single',
 					targetId: userInfo.id,
@@ -102,6 +110,18 @@
 				this.$store.commit("openChat", chatInfo);
 				this.$store.commit("activeChat", 0);
 				this.$router.push("/home/chat");
+			},
+			updateFriendInfo(friendsInfo, userInfo,index) {
+				friendsInfo.friendHeadImage = userInfo.headImageThumb;
+				friendsInfo.friendNickName = userInfo.nickName;
+				this.$http({
+					url: "/api/friends/update",
+					method: "put",
+					data: friendsInfo
+				}).then(() => {
+					this.$store.commit("updateFriends",friendsInfo);
+					this.$store.commit("setChatUserInfo",userInfo);
+				})
 			}
 		}
 
@@ -133,7 +153,7 @@
 				padding: 50px 10px 10px 50px;
 				text-align: center;
 				justify-content: space-around;
-					
+
 				.detail-head-image {
 					width: 200px;
 					height: 200px;
@@ -147,7 +167,7 @@
 
 				.description {
 					padding: 20px 20px 0px 20px;
-					
+
 				}
 			}
 

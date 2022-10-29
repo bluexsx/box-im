@@ -2,6 +2,7 @@ package com.lx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lx.implatform.entity.Friends;
+import com.lx.implatform.vo.FriendsVO;
 
 import java.util.List;
 
@@ -22,5 +23,7 @@ public interface IFriendsService extends IService<Friends> {
     void addFriends(long friendId);
 
     void delFriends(long friendId);
+
+    void update(FriendsVO vo);
 
 }

@@ -25,7 +25,7 @@
 							<li v-for="item in messages" :key="item.id"
 								:class="{ 'im-chat-mine': item.sendUserId == $store.state.userStore.userInfo.id }">
 								<div class="head-image">
-									<head-image  :url="headImage" ></head-image>
+									<head-image  :url="headImage(item)" ></head-image>
 								</div>
 								<div class="im-msg-content">
 									<div class="im-msg-top">
@@ -41,7 +41,8 @@
 					
 				</div>
 			</el-main>
-			<el-footer height="150px" class="im-chat-footer">
+			<el-footer height="25%" class="im-chat-footer">
+				<div class="chat-tool-bar"></div>
 				<textarea v-model="messageContent" ref="sendBox" class="textarea" @keyup.enter="onSendMessage()"></textarea>
 				<div class="im-chat-send">
 					<el-button type="primary" @click="onSendMessage()">发送</el-button>
@@ -72,6 +73,19 @@
 		methods: {
 			onClickItem(index) {
 				this.$store.commit("activeChat", index);
+				// 获取对方
+				let userId = this.chatStore.chats[index].targetId;
+				this.$http({
+					url: `/api/user/find/${userId}`,
+					method: 'get'
+				}).then((userInfo) => {
+					// 如果发现好友的头像和昵称改了，进行更新
+					let chat = this.chatStore.chats[index];
+					if (userInfo.headImageThumb != chat.headImage ||
+						userInfo.nickName != chat.showName) {
+						this.updateFriendInfo(userInfo,index)
+					}
+				})
 			},
 			onSendMessage() {
 				let msgInfo = {
@@ -89,8 +103,9 @@
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendUserId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
+					console.log(msgInfo);
 					this.$store.commit("insertMessage", msgInfo);
-					console.log(this.$refs.sendBox)
+					
 					// 保持输入框焦点
 					this.$refs.sendBox.focus();
 					// 滚动到底部
@@ -105,43 +120,67 @@
 			onDelItem(chat,index){
 				this.$store.commit("removeChat",index);
 			},
-			showName(item) {
-				if (item.sendUserId == this.$store.state.userStore.userInfo.id) {
+			updateFriendInfo(userInfo,index){
+				let friendsInfo={
+					friendId: userInfo.id,
+					friendNickName: userInfo.nickName,
+					friendHeadImage: userInfo.headImageThumb
+				};
+				this.$http({
+					url: "/api/friends/update",
+					method: "put",
+					data: friendsInfo
+				}).then(() => {
+					this.$store.commit("updateFriends",friendsInfo);
+					this.$store.commit("setChatUserInfo",userInfo);
+				})
+			},
+			showName(msg) {
+				if (msg.sendUserId == this.$store.state.userStore.userInfo.id) {
 					return this.$store.state.userStore.userInfo.nickName;
 				} else {
 					let index = this.$store.state.chatStore.activeIndex;
 					let chats = this.$store.state.chatStore.chats
 					return chats[index].showName;
 				}
+			},
+			headImage(msg){
+				if(msg.sendUserId == this.$store.state.userStore.userInfo.id){
+					return this.$store.state.userStore.userInfo.headImageThumb;
+				}else{
+					let index = this.$store.state.chatStore.activeIndex;
+					let chats = this.$store.state.chatStore.chats
+					if(index>=0 && chats.length > 0){
+						let chats = this.$store.state.chatStore.chats;
+						return chats[index].headImage;
+					}
+				}
+				return "";
 			}
 		},
 		computed: {
+			chatStore(){
+				return this.$store.state.chatStore;
+			},
 			messages() {
 				let index = this.$store.state.chatStore.activeIndex;
 				let chats = this.$store.state.chatStore.chats
 				if (index >= 0 && chats.length > 0) {
+					console.log(chats[index].messages)
 					return chats[index].messages;
 				}
 				return [];
 			},
 			titleName(){
 				let index = this.$store.state.chatStore.activeIndex;
-				let chats = this.$store.state.chatStore.chats
+				let chats = this.$store.state.chatStore.chats;
 				if(index>=0 && chats.length > 0){
 					let chats = this.$store.state.chatStore.chats;
 					return chats[index].showName;
 				}
 				return "";
-			},
-			headImage(){
-				let index = this.$store.state.chatStore.activeIndex;
-				let chats = this.$store.state.chatStore.chats
-				if(index>=0 && chats.length > 0){
-					let chats = this.$store.state.chatStore.chats;
-					return chats[index].headImage;
-				}
-				return "";
 			}
+			
 		}
 	}
 </script>
@@ -299,7 +338,12 @@
 				display: flex;
 				flex-direction: column;
 				padding: 0;
-					
+				
+				.chat-tool-bar {
+					width: 100%;
+					height: 40px;
+				}
+				
 				textarea {
 					box-sizing: border-box;
 					padding: 5px;

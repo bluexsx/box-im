@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -51,6 +52,15 @@ public class UserController {
         UserVO userVO = BeanUtils.copyProperties(user,UserVO.class);
         return ResultUtils.success(userVO);
     }
+
+    @PutMapping("/update")
+    @ApiOperation(value = "修改用户信息",notes="修改用户信息，仅允许修改登录用户信息")
+    public Result update(@Valid @RequestBody UserVO vo){
+        userService.update(vo);
+        return ResultUtils.success();
+    }
+
+
 
 
     @GetMapping("/findByNickName")

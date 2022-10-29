@@ -5,7 +5,6 @@ export default {
 	state: {
 		friendsList: [],
 		activeIndex: -1,
-		activeUserInfo: {},
 		timer: null
 	},
 	mutations: {
@@ -18,20 +17,20 @@ export default {
 				this.commit("refreshOnlineStatus");
 			})
 		},
-		setActiveUserInfo(state, userInfo){
-			state.activeUserInfo = userInfo;
-		},
+
 		setFriendsList(state, friendsList) {
 			state.friendsList = friendsList;
 		},
+		updateFriends(state,friendsInfo){
+			console.log(friendsInfo)
+			state.friendsList.forEach((f,index)=>{
+				if(f.friendId==friendsInfo.friendId){
+					state.friendsList[index] = friendsInfo;
+				}
+			})
+		},
 		activeFriends(state, index) {
 			state.activeIndex = index;
-			httpRequest({
-				url: `/api/user/find/${state.friendsList[index].friendId}`,
-				method: 'get'
-			}).then((userInfo) => {
-				this.commit("setActiveUserInfo",userInfo);
-			})
 		},
 		removeFriends(state, index) {
 			state.friendsList.splice(index, 1);

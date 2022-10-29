@@ -21,9 +21,9 @@
 				let curTime = new Date();
 				let dayDiff =curTime.getDate() - time.getDate() ;
 				if (time.getDate() === new Date().getDate()) {
-					strtime = time.getHours() < 9 ? "0" + time.getHours() : time.getHours();
+					strtime = time.getHours() <= 9 ? "0" + time.getHours() : time.getHours();
 					strtime += ":"
-					strtime += time.getMinutes() < 9 ? "0" + time.getMinutes() : time.getMinutes();
+					strtime += time.getMinutes() <= 9 ? "0" + time.getMinutes() : time.getMinutes();
 				} else if (dayDiff === 1) {
 					strtime = "昨天";
 				} else if (dayDiff < 7) {

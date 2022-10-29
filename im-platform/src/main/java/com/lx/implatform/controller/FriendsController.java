@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class FriendsController {
 
     @GetMapping("/list")
     @ApiOperation(value = "好友列表",notes="获取好友列表")
-    public Result findFriends(){
+    public Result< List<FriendsVO>> findFriends(){
         List<Friends> friendsList = friendsService.findFriendsByUserId(SessionContext.getSession().getId());
         List<FriendsVO> vos = friendsList.stream().map(f->{
             FriendsVO vo = BeanUtils.copyProperties(f,FriendsVO.class);
@@ -52,6 +53,12 @@ public class FriendsController {
         return ResultUtils.success();
     }
 
+    @PutMapping("/update")
+    @ApiOperation(value = "更新好友信息",notes="更新好友头像或昵称")
+    public Result delFriends(@Valid @RequestBody FriendsVO vo){
+        friendsService.update(vo);
+        return ResultUtils.success();
+    }
 
 
 }

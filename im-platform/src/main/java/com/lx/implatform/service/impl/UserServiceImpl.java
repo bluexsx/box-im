@@ -9,6 +9,8 @@ import com.lx.implatform.entity.User;
 import com.lx.implatform.exception.GlobalException;
 import com.lx.implatform.mapper.UserMapper;
 import com.lx.implatform.service.IUserService;
+import com.lx.implatform.session.SessionContext;
+import com.lx.implatform.session.UserSession;
 import com.lx.implatform.vo.RegisterVO;
 import com.lx.implatform.vo.UserVO;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +60,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 
     @Override
+    public void update(UserVO vo) {
+        UserSession session = SessionContext.getSession();
+        if(session.getId() != vo.getId()){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"不允许修改其他用户的信息!");
+        }
+        User user = this.getById(vo.getId());
+        if(null == user){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"用户不存在");
+        }
+
+        user.setNickName(vo.getNickName());
+        user.setSex(vo.getSex());
+        user.setSignature(vo.getSignature());
+        user.setHeadImage(vo.getHeadImage());
+        user.setHeadImageThumb(vo.getHeadImageThumb());
+        this.updateById(user);
+    }
+
+    @Override
     public List<UserVO> findUserByNickName(String nickname) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
@@ -69,7 +90,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             vo.setOnline(isOnline(u.getId()));
             return vo;
         }).collect(Collectors.toList());
-
         return vos;
     }
 

@@ -1,7 +1,7 @@
 <template>
 	<div class="item" :class="active ? 'active' : ''">
 		<div class="avatar">
-			<head-image :src="friendsInfo.friendHeadImage" :size="40"> </head-image>
+			<head-image :url="friendsInfo.friendHeadImage" > </head-image>
 		</div>
 		<div class="text">
 			<div>{{ friendsInfo.friendNickName}}</div>
