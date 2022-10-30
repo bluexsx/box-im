@@ -18,6 +18,19 @@
 					</div>
 					<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 				</div>
+				<div class="im-msg-file" v-if="msgInfo.type==2">
+					<div class="im-file-box">	
+						<div class="im-file-info">
+							<el-link  class="im-file-name" underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
+							
+							<div class="im-file-size">{{fileSize}}</div>
+						</div>
+						<div class="im-file-icon">
+							<span type="primary" class="el-icon-document"></span>
+						</div>
+					</div>
+				
+				</div>
 			</div>
 		</div>
 	</div>
@@ -58,11 +71,27 @@
 		},
 		computed:{
 			loading(){
-				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loadding";
+				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
 			},
 			loadFail(){
 				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "fail";
-			}
+			},
+			data(){
+				return JSON.parse(this.msgInfo.content)
+			},
+			fileSize(){
+				let size = this.data.size;
+				if (size > 1024 * 1024) {
+					return Math.round(size / 1024 / 1024) + "M";
+				}
+				if (size > 1024) {
+					return Math.round(size / 1024) + "KB";
+				}
+				return size + "B";
+			},
+		},
+		mounted() {
+			//console.log(this.msgInfo);
 		}
 	}
 </script>
@@ -132,8 +161,6 @@
 					flex-wrap: nowrap;
 					flex-direction: row;
 					align-items: center;
-		
-		
 					.send-image{
 						min-width: 300px;
 						min-height: 200px;
@@ -149,6 +176,43 @@
 						cursor: pointer;
 						margin: 0 20px;
 					}
+				}
+				
+				.im-msg-file{
+					display: flex;
+					flex-wrap: nowrap;
+					flex-direction: row;
+					align-items: center;
+					cursor: pointer;
+					
+					.im-file-box{
+						display: flex;
+						flex-wrap: nowrap;
+						align-items: center;
+						width: 20%;
+						min-height: 80px;
+						border: #dddddd solid 1px;
+						border-radius: 3px;
+						background-color: #eeeeee;
+						padding: 10px 15px;
+						.im-file-info{	
+							flex:1;	
+							height: 100%;
+							text-align: left;
+							font-size: 14px;
+							.im-file-name {
+								font-size: 16px;
+								font-weight: 600;
+								margin-bottom: 15px;
+							}
+						}
+						
+						.im-file-icon{
+							font-size: 50px;
+							color: #d42e07;
+						}
+					}
+					
 				}
 			}
 		}
@@ -194,6 +258,10 @@
 					}
 					
 					.im-msg-image {
+						flex-direction: row-reverse;
+					}
+					
+					.im-msg-file {
 						flex-direction: row-reverse;
 					}
 				}

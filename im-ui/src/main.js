@@ -1,12 +1,10 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import axios from 'axios'
-import VueAxios from 'vue-axios'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import httpRequest from './api/httpRequest';
-import * as socketApi from './api/wssocket'	;	
+import * as socketApi from './api/wssocket';
 import store from './store';
 
 

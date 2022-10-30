@@ -1,5 +1,8 @@
 <template>
-	<el-upload  :action="action" :accept="fileTypes.join(',')" :show-file-list="false" :on-success="handleSuccess"
+	<el-upload  :action="action" 
+	 :accept="fileTypes==null?'':fileTypes.join(',')" 
+	 :show-file-list="false" 
+	 :on-success="handleSuccess"
 	 :before-upload="beforeUpload">
 		<slot></slot>
 	</el-upload>
@@ -43,20 +46,20 @@
 			},
 			beforeUpload(file) {
 				// 校验文件类型
-				let fileType = file.type;
-				let t = this.fileTypes.find((t) => t.toLowerCase() === fileType);
-				console.log(t);
-				if (t === undefined) {
-					this.$message.error(`文件格式错误，请上传以下格式的文件：${this.fileTypes.join("、")}`);
-					return false;
+				if(this.fileTypes && this.fileTypes.length > 0){
+					let fileType = file.type;
+					let t = this.fileTypes.find((t) => t.toLowerCase() === fileType);
+					if (t === undefined) {
+						this.$message.error(`文件格式错误，请上传以下格式的文件：${this.fileTypes.join("、")}`);
+						return false;
+					}
 				}
 				// 校验大小
-				let size = file.size;
-				if (size > this.maxSize) {
+				if (this.maxSize && file.size > this.maxSize) {
 					this.$message.error(`文件大小不能超过 ${this.fileSizeStr}!`);
 					return false;
 				}
-
+				// 展示加载条
 				if (this.showLoading) {
 					this.loading = this.$loading({
 						lock: true,
@@ -72,10 +75,10 @@
 		computed: {
 			fileSizeStr() {
 				if (this.maxSize > 1024 * 1024) {
-					return (this.maxSize / 1024 / 1024) + "M";
+					return Math.round(this.maxSize / 1024 / 1024) + "M";
 				}
 				if (this.maxSize > 1024) {
-					return (this.maxSize / 1024) + "KB";
+					return Math.round(this.maxSize / 1024) + "KB";
 				}
 				return this.maxSize + "B";
 			}

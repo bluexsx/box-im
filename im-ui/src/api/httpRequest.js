@@ -1,10 +1,6 @@
 import axios from 'axios'
 import router from '@/router'
-import qs from 'qs'
-import merge from 'lodash/merge'
-import {
-	Message
-} from 'element-ui'
+import {Message} from 'element-ui'
 
 const http = axios.create({
 	timeout: 1000 * 30,

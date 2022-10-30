@@ -37,13 +37,21 @@
 						<file-upload action="/api/image/upload" 
 						:maxSize="5*1024*1024" 
 						:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/gif']"
-						@before="beforeImageUpload"
+						@before="handleImageBefore"
 						@success="handleImageSuccess"
 						@fail="handleImageFail" >
 							<i class="el-icon-picture-outline"></i>
 						</file-upload>
 					</div>
-					<div class="el-icon-wallet"></div>
+					<div>
+						<file-upload action="/api/file/upload"
+						:maxSize="10*1024*1024" 
+						@before="handleFileBefore"
+						@success="handleFileSuccess"
+						@fail="handleFileFail" >
+							<i class="el-icon-wallet"></i>
+						</file-upload>
+					</div>
 					<div class="el-icon-chat-dot-round"></div>
 				</div>
 				<textarea v-model="messageContent" ref="sendBox" class="send-text-area" @keyup.enter="onSendMessage()"></textarea>
@@ -136,8 +144,7 @@
 				}
 				this.$store.commit("handleFileUpload", info);
 			},
-			beforeImageUpload(file) {
-				console.log(file);
+			handleImageBefore(file) {
 				let url = URL.createObjectURL(file);
 				let data = {
 					originUrl : url,
@@ -153,6 +160,66 @@
 					type: 1,
 					loadStatus: "loadding"
 				}
+				// 插入消息
+				this.$store.commit("insertMessage", msgInfo);
+				// 滚动到底部
+				this.scrollToBottom();
+				// 借助file对象保存对方id
+				file.targetId = this.activeChat.targetId;
+			},
+			handleFileSuccess(res, file) {
+				console.log(res.data);
+				let data = {
+					name: file.name, 
+					size: file.size,
+					url: res.data
+				}
+				let msgInfo = {
+					recvUserId: file.raw.targetId,
+					content: JSON.stringify(data),
+					type: 2
+				}
+				this.$http({
+					url: '/api/message/single/send',
+					method: 'post',
+					data: msgInfo
+				}).then(() => {
+					let info = {
+						targetId : file.raw.targetId,
+						fileId: file.raw.uid,
+						content: JSON.stringify(data),
+						loadStatus: "ok"
+					}
+					console.log(info);
+					this.$store.commit("handleFileUpload", info);
+				})
+			},
+			handleFileFail(res, file) {
+				let info = {
+					targetId : file.raw.targetId,
+					fileId: file.raw.uid,
+					loadStatus: "fail"
+				}
+				this.$store.commit("handleFileUpload", info);
+			},
+			handleFileBefore(file) {
+				let url = URL.createObjectURL(file);
+				let data = {
+					name: file.name, 
+					size: file.size,
+					url: url
+				}
+				let msgInfo = {
+					fileId: file.uid,
+					sendUserId: this.$store.state.userStore.userInfo.id,
+					recvUserId: this.activeChat.targetId,
+					content: JSON.stringify(data),
+					sendTime: new Date().getTime(),
+					selfSend: true,
+					type: 2,
+					loadStatus: "loading"
+				}
+				
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部

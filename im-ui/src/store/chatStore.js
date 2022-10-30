@@ -1,6 +1,3 @@
-import httpRequest from '../api/httpRequest.js'
-
-
 export default {
 	
 	state: {
