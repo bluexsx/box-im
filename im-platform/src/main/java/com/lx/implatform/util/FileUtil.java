@@ -21,7 +21,7 @@ public class FileUtil {
      */
     public static boolean isImage(String fileName) {
         String extension = getFileExtension(fileName);
-        String[] imageExtension = new String[]{"jpeg", "jpg", "bmp", "png"};
+        String[] imageExtension = new String[]{"jpeg", "jpg", "bmp", "png","webp"};
         for (String e : imageExtension){
             if (extension.toLowerCase().equals(e)) {
                 return true;
