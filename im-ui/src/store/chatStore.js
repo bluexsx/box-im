@@ -60,9 +60,18 @@ export default {
 				chat.unreadCount++;
 			}
 		},
+		handleFileUpload(state,info){
+			// 文件上传后数据更新
+			let  chat = state.chats.find((c)=>c.targetId === info.targetId);
+			if(chat){
+				let msg = chat.messages.find((m)=>info.fileId==m.fileId);
+				msg.loadStatus = info.loadStatus;
+				if(info.content){
+					msg.content = info.content;
+				}
+			}
+		},
 		setChatUserInfo(state, userInfo){
-			
-			console.log(userInfo)
 			for(let i in state.chats){
 				if(state.chats[i].targetId == userInfo.id){
 					state.chats[i].headImage = userInfo.headImageThumb;

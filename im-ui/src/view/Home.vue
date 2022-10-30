@@ -32,7 +32,7 @@
 </template>
 
 <script>
-	import HeadImage from '../components/HeadImage.vue';
+	import HeadImage from '../components/common/HeadImage.vue';
 	import Setting from '../components/setting/Setting.vue';
 	
 	export default {

@@ -20,7 +20,7 @@ let initWebSocket = () => {
 		isCompleteConnect = false;
 		websock = new WebSocket(wsurl);
 		websock.onmessage = function(e) {
-			let msg = JSON.parse(decodeUnicode(e.data))
+			let msg = JSON.parse(e.data)
 			if (msg.cmd == 0) {
 				if(!isCompleteConnect){
 					// 第一次上传心跳成功才算连接完成
@@ -131,17 +131,6 @@ function onopen(callback) {
 }
 
 
-function decodeUnicode(str) {
-	str = str.replace(/\\/g, "%");
-	//转换中文
-	str = unescape(str);
-	//将其他受影响的转换回原来
-	str = str.replace(/%/g, "\\");
-	//对网址的链接进行处理
-	str = str.replace(/\\/g, "");
-	return str;
-
-}
 
 
 // 将方法暴露出去

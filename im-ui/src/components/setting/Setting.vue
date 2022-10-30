@@ -2,11 +2,16 @@
 	<el-dialog class="setting" title="设置" :visible.sync="visible" width="30%" :before-close="handleClose">
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm">
 			<el-form-item label="头像">
-				<el-upload class="avatar-uploader" action="/api/image/upload" :show-file-list="false" :on-success="handleAvatarSuccess"
-				 :before-upload="beforeAvatarUpload" accept="image/jpeg, image/png, image/jpg">
+				<file-upload  class="avatar-uploader"
+				action="/api/image/upload" 
+				:showLoading="true"
+				:maxSize="maxSize"  
+				@success="handleUploadSuccess"
+				
+				:fileTypes="['image/jpeg', 'image/png', 'image/jpg']">
 					<img v-if="userInfo.headImage" :src="userInfo.headImage" class="avatar">
 					<i v-else class="el-icon-plus avatar-uploader-icon"></i>
-				</el-upload>
+				</file-upload>
 			</el-form-item>
 			<el-form-item label="用户名">
 				<el-input disabled v-model="userInfo.userName" autocomplete="off"></el-input>
@@ -33,18 +38,22 @@
 </template>
 
 <script>
-	import HeadImage from "../HeadImage.vue";
-
+	import HeadImage from "../common/HeadImage.vue";
+	import FileUpload from "../common/FileUpload.vue";
+	
 	export default {
 		name: "setting",
 		components: {
-			HeadImage
+			HeadImage,
+			FileUpload
 		},
 		data() {
 			return {
 				userInfo: {
 
 				},
+				maxSize: 5*1024*1024,
+				action: "/api/image/upload",
 				rules: {
 					nickName: [{
 						required: true,
@@ -57,7 +66,6 @@
 		methods: {
 
 			handleClose() {
-				this.visible = false;
 				this.$emit("close");
 			},
 			handleSubmit() {
@@ -71,39 +79,14 @@
 						data: this.userInfo
 					}).then(()=>{
 						this.$store.commit("setUserInfo",this.userInfo);
-						this.visible = false;
 						this.$emit("close");
 						this.$message.success("修改成功");
 					})	
-
-
 				});
 			},
-			handleAvatarSuccess(res, file) {
-				console.log(res);
-				this.loading.close();
-				if (res.code == 200) {
-					this.userInfo.headImage = res.data.originUrl;
-					this.userInfo.headImageThumb = res.data.thumbUrl;
-				} else {
-					this.$message.error(res.message);
-				}
-
-			},
-			beforeAvatarUpload(file) {
-				const limitSize = file.size * 1024 * 1024;
-				if (file.size > limitSize) {
-					this.$message.error('上传头像图片大小不能超过 5MB!');
-					return false
-				}
-				this.loading = this.$loading({
-					lock: true,
-					text: '正在上传...',
-					spinner: 'el-icon-loading',
-					background: 'rgba(0, 0, 0, 0.7)'
-				});
-
-				return true;
+			handleUploadSuccess(res, file) {
+				this.userInfo.headImage = res.data.originUrl;
+				this.userInfo.headImageThumb = res.data.thumbUrl;
 			}
 		},
 		props: {
@@ -119,7 +102,7 @@
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" >
 	.setting {
 		.avatar-uploader {
 

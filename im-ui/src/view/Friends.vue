@@ -34,8 +34,8 @@
 							</el-descriptions-item>
 							<el-descriptions-item label="昵称">{{ activeUserInfo.nickName }}
 							</el-descriptions-item>
-							<el-descriptions-item label="备注">好基友</el-descriptions-item>
-							<el-descriptions-item label="签名">世界这么大，我想去看看</el-descriptions-item>
+							<el-descriptions-item label="性别">{{ activeUserInfo.sex==0?"男":"女" }}</el-descriptions-item>
+							<el-descriptions-item label="签名">{{ activeUserInfo.signature }}</el-descriptions-item>
 						</el-descriptions>
 					</div>
 				</div>
@@ -48,9 +48,9 @@
 </template>
 
 <script>
-	import FriendsItem from "../components/FriendsItem.vue";
-	import AddFriends from "../components/AddFriends.vue";
-	import HeadImage from "../components/HeadImage.vue";
+	import FriendsItem from "../components/friend/FriendsItem.vue";
+	import AddFriends from "../components/friend/AddFriends.vue";
+	import HeadImage from "../components/common/HeadImage.vue";
 
 	export default {
 		name: "friends",
