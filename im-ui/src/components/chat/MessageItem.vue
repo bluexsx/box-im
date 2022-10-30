@@ -19,17 +19,16 @@
 					<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 				</div>
 				<div class="im-msg-file" v-if="msgInfo.type==2">
-					<div class="im-file-box">	
+					<div class="im-file-box" v-loading="loading">	
 						<div class="im-file-info">
-							<el-link  class="im-file-name" underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
-							
+							<el-link  class="im-file-name" :underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
 							<div class="im-file-size">{{fileSize}}</div>
 						</div>
 						<div class="im-file-icon">
 							<span type="primary" class="el-icon-document"></span>
 						</div>
 					</div>
-				
+					<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 				</div>
 			</div>
 		</div>
@@ -66,7 +65,7 @@
 		},
 		methods:{
 			handleSendFail(){
-				this.$message.error("该文件已上传失败，目前不支持自动重新发送，建议手动重新发送")
+				this.$message.error("该文件已发送失败，目前不支持自动重新发送，建议手动重新发送")
 			}
 		},
 		computed:{
@@ -171,7 +170,7 @@
 					}
 		
 					.send-fail{
-						color: red;
+						color: #e60c0c;
 						font-size: 30px;
 						cursor: pointer;
 						margin: 0 20px;
@@ -211,6 +210,13 @@
 							font-size: 50px;
 							color: #d42e07;
 						}
+					}
+					
+					.send-fail{
+						color: #e60c0c;
+						font-size: 30px;
+						cursor: pointer;
+						margin: 0 20px;
 					}
 					
 				}

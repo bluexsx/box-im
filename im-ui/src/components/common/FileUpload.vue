@@ -3,6 +3,7 @@
 	 :accept="fileTypes==null?'':fileTypes.join(',')" 
 	 :show-file-list="false" 
 	 :on-success="handleSuccess"
+	 :on-error="handleError"
 	 :before-upload="beforeUpload">
 		<slot></slot>
 	</el-upload>
@@ -43,6 +44,9 @@
 					this.$message.error(res.message);
 					this.$emit("fail", res, file);
 				}
+			},
+			handleError(err,file){
+				this.$emit("fail", err, file);
 			},
 			beforeUpload(file) {
 				// 校验文件类型

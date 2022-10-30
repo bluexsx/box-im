@@ -190,7 +190,6 @@
 						content: JSON.stringify(data),
 						loadStatus: "ok"
 					}
-					console.log(info);
 					this.$store.commit("handleFileUpload", info);
 				})
 			},
