@@ -11,13 +11,24 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class WebsocketServer {
 
         public static String LOCAL_SERVER_ID = UUID.randomUUID().toString();
+
+        @Value("${websocket.port}")
+        private int port;
+        @PostConstruct
+        public void init(){
+            this.start(port);
+        }
 
         public void start(int port) {
             // 服务端启动辅助类，用于设置TCP相关参数

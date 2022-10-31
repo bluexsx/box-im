@@ -23,14 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * <p>
- *  单人消息服务实现类
- * </p>
- *
- * @author blue
- * @since 2022-10-01
- */
+
 @Service
 public class SingleMessageServiceImpl extends ServiceImpl<SingleMessageMapper, SingleMessage> implements ISingleMessageService {
 
@@ -41,20 +34,17 @@ public class SingleMessageServiceImpl extends ServiceImpl<SingleMessageMapper, S
 
     @Override
     public void sendMessage(SingleMessageVO vo) {
-
         Long userId = SessionContext.getSession().getId();
         Boolean isFriends = friendsService.isFriends(userId,vo.getRecvUserId());
         if(!isFriends){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"您已不是对方好友，无法发送消息");
         }
-
         // 保存消息
         SingleMessage msg = BeanUtils.copyProperties(vo,SingleMessage.class);
         msg.setSendUserId(userId);
         msg.setStatus(MessageStatusEnum.UNREAD.getCode());
         msg.setSendTime(new Date());
         this.save(msg);
-
         // 获取对方连接的channelId
         String key = RedisKey.IM_USER_SERVER_ID+msg.getRecvUserId();
         String serverId = (String)redisTemplate.opsForValue().get(key);
@@ -80,7 +70,6 @@ public class SingleMessageServiceImpl extends ServiceImpl<SingleMessageMapper, S
         queryWrapper.lambda().eq(SingleMessage::getRecvUserId,userId)
                 .eq(SingleMessage::getStatus,MessageStatusEnum.UNREAD);
         List<SingleMessage> messages = this.list(queryWrapper);
-
         // 上传至redis，等待推送
         if(!messages.isEmpty()){
             List<SingleMessageInfo> infos = messages.stream().map(m->{
@@ -90,6 +79,5 @@ public class SingleMessageServiceImpl extends ServiceImpl<SingleMessageMapper, S
             String sendKey =  RedisKey.IM_UNREAD_MESSAGE + serverId;
             redisTemplate.opsForList().rightPushAll(sendKey,infos.toArray());
         }
-
     }
 }

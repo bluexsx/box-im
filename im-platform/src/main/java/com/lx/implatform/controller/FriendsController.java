@@ -55,7 +55,7 @@ public class FriendsController {
 
     @PutMapping("/update")
     @ApiOperation(value = "更新好友信息",notes="更新好友头像或昵称")
-    public Result delFriends(@Valid @RequestBody FriendsVO vo){
+    public Result modifyFriends(@Valid @RequestBody FriendsVO vo){
         friendsService.update(vo);
         return ResultUtils.success();
     }
