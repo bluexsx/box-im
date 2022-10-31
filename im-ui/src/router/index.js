@@ -34,8 +34,8 @@ export default new VueRouter({
 		  },
 		{
 		  name: "Friends",
-		  path: "/home/friends",
-		  component: () => import("../view/Friends"),
+		  path: "/home/friend",
+		  component: () => import("../view/Friend"),
 		},
 		{
 		  name: "Friends",

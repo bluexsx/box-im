@@ -10,7 +10,7 @@ import com.lx.common.util.BeanUtils;
 import com.lx.implatform.entity.SingleMessage;
 import com.lx.implatform.exception.GlobalException;
 import com.lx.implatform.mapper.SingleMessageMapper;
-import com.lx.implatform.service.IFriendsService;
+import com.lx.implatform.service.IFriendService;
 import com.lx.implatform.service.ISingleMessageService;
 import com.lx.implatform.session.SessionContext;
 import com.lx.implatform.vo.SingleMessageVO;
@@ -28,14 +28,14 @@ import java.util.stream.Collectors;
 public class SingleMessageServiceImpl extends ServiceImpl<SingleMessageMapper, SingleMessage> implements ISingleMessageService {
 
     @Autowired
-    private IFriendsService friendsService;
+    private IFriendService friendService;
     @Autowired
     private  RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void sendMessage(SingleMessageVO vo) {
         Long userId = SessionContext.getSession().getId();
-        Boolean isFriends = friendsService.isFriends(userId,vo.getRecvUserId());
+        Boolean isFriends = friendService.isFriend(userId,vo.getRecvUserId());
         if(!isFriends){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"您已不是对方好友，无法发送消息");
         }

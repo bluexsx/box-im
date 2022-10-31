@@ -27,7 +27,7 @@ public class WebsocketServer {
         private int port;
         @PostConstruct
         public void init(){
-            this.start(port);
+            //this.start(port);
         }
 
         public void start(int port) {

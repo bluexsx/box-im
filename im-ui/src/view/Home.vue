@@ -12,7 +12,7 @@
 					</router-link>
 				</el-menu-item >
 				<el-menu-item  title="好友" >
-					<router-link v-bind:to="'/home/friends'">
+					<router-link v-bind:to="'/home/friend'">
 						<span class="el-icon-user"></span>
 					</router-link>
 				</el-menu-item>
@@ -73,7 +73,7 @@
 			},
 			handleSingleMessage(msg){
 				// 插入私聊消息
-				let f = this.$store.state.friendsStore.friendsList.find((f)=>f.friendId==msg.sendUserId);
+				let f = this.$store.state.friendStore.friends.find((f)=>f.friendId==msg.sendUserId);
 				let chatInfo = {
 					type: 'single',
 					targetId: f.friendId,

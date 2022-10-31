@@ -10,7 +10,7 @@
 			</el-header>
 			<el-main>
 				<div v-for="(chat,index) in chatStore.chats" :key="chat.targetId">
-					<chat-item :chat="chat" :index="index" @click.native="onClickItem(index)" @del="onDelItem(chat,index)" :active="index === chatStore.activeIndex"></chat-item>
+					<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)" :active="index === chatStore.activeIndex"></chat-item>
 				</div>
 			</el-main>
 		</el-aside>
@@ -54,10 +54,10 @@
 					</div>
 					<div class="el-icon-chat-dot-round"></div>
 				</div>
-				<textarea v-model="messageContent" ref="sendBox" class="send-text-area" @keyup.enter="onSendMessage()"></textarea>
+				<textarea v-model="messageContent" ref="sendBox" class="send-text-area" @keyup.enter="handleSendMessage()"></textarea>
 				<div class="im-chat-send">
 					
-					<el-button type="primary" @click="onSendMessage()">发送</el-button>
+					<el-button type="primary" @click="handleSendMessage()">发送</el-button>
 				</div>
 			</el-footer>
 		</el-container>
@@ -87,7 +87,7 @@
 			}
 		},
 		methods: {
-			onClickItem(index) {
+			handleActiveItem(index) {
 				this.$store.commit("activeChat", index);
 				// 获取对方
 				let userId = this.chatStore.chats[index].targetId;
@@ -103,7 +103,7 @@
 					}
 				})
 			},
-			onSendMessage() {
+			handleSendMessage() {
 				let msgInfo = {
 					recvUserId: this.activeChat.targetId,
 					content: this.messageContent,
@@ -112,7 +112,7 @@
 				this.sendMessage(msgInfo);
 
 			},
-			onDelItem(chat, index) {
+			handleDelItem(chat, index) {
 				this.$store.commit("removeChat", index);
 			},
 

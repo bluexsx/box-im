@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel("好友信息VO")
-public class FriendsVO {
+public class FriendVO {
 
     @NotNull(message = "好友id不可为空")
     @ApiModelProperty(value = "好友id")

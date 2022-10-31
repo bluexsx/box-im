@@ -1,7 +1,7 @@
 package com.lx.implatform.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lx.implatform.entity.Friends;
+import com.lx.implatform.entity.Friend;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.lx.implatform.entity.Friends;
  * @author blue
  * @since 2022-10-22
  */
-public interface FriendsMapper extends BaseMapper<Friends> {
+public interface FriendMapper extends BaseMapper<Friend> {
 
 }

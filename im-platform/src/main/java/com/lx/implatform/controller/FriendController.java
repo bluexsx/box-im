@@ -4,10 +4,10 @@ package com.lx.implatform.controller;
 import com.lx.common.result.Result;
 import com.lx.common.result.ResultUtils;
 import com.lx.common.util.BeanUtils;
-import com.lx.implatform.entity.Friends;
-import com.lx.implatform.service.IFriendsService;
+import com.lx.implatform.entity.Friend;
+import com.lx.implatform.service.IFriendService;
 import com.lx.implatform.session.SessionContext;
-import com.lx.implatform.vo.FriendsVO;
+import com.lx.implatform.vo.FriendVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +20,18 @@ import java.util.stream.Collectors;
 
 @Api(tags = "好友")
 @RestController
-@RequestMapping("/friends")
-public class FriendsController {
+@RequestMapping("/friend")
+public class FriendController {
 
     @Autowired
-    private IFriendsService friendsService;
+    private IFriendService friendService;
 
     @GetMapping("/list")
     @ApiOperation(value = "好友列表",notes="获取好友列表")
-    public Result< List<FriendsVO>> findFriends(){
-        List<Friends> friendsList = friendsService.findFriendsByUserId(SessionContext.getSession().getId());
-        List<FriendsVO> vos = friendsList.stream().map(f->{
-            FriendsVO vo = BeanUtils.copyProperties(f,FriendsVO.class);
+    public Result< List<FriendVO>> findFriends(){
+        List<Friend> friends = friendService.findFriendByUserId(SessionContext.getSession().getId());
+        List<FriendVO> vos = friends.stream().map(f->{
+            FriendVO vo = BeanUtils.copyProperties(f, FriendVO.class);
             return vo;
         }).collect(Collectors.toList());
         return ResultUtils.success(vos);
@@ -41,22 +41,22 @@ public class FriendsController {
 
     @PostMapping("/add")
     @ApiOperation(value = "添加好友",notes="双方建立好友关系")
-    public Result addFriends(@NotEmpty(message = "好友id不可为空") @RequestParam("friendId") Long friendId){
-         friendsService.addFriends(friendId);
+    public Result addFriend(@NotEmpty(message = "好友id不可为空") @RequestParam("friendId") Long friendId){
+         friendService.addFriend(friendId);
          return ResultUtils.success();
     }
 
     @DeleteMapping("/delete")
     @ApiOperation(value = "删除好友",notes="解除好友关系")
-    public Result delFriends(@NotEmpty(message = "好友id不可为空") @RequestParam("friendId") Long friendId){
-        friendsService.delFriends(friendId);
+    public Result delFriend(@NotEmpty(message = "好友id不可为空") @RequestParam("friendId") Long friendId){
+        friendService.delFriend(friendId);
         return ResultUtils.success();
     }
 
     @PutMapping("/update")
     @ApiOperation(value = "更新好友信息",notes="更新好友头像或昵称")
-    public Result modifyFriends(@Valid @RequestBody FriendsVO vo){
-        friendsService.update(vo);
+    public Result modifyFriend(@Valid @RequestBody FriendVO vo){
+        friendService.update(vo);
         return ResultUtils.success();
     }
 

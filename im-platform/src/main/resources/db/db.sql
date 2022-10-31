@@ -14,12 +14,12 @@ create table `im_user`(
     key `idx_nick_name`(nick_name)
 ) ENGINE=InnoDB CHARSET=utf8mb3 comment '用户';
 
-create table `im_friends`(
+create table `im_friend`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_id` bigint not null  comment '用户id',
     `friend_id` bigint not null  comment '好友id',
-    `friend_nick_name` varchar(255) not null comment '用户昵称',
-    `friend_head_image` varchar(255) default '' comment '用户头像',
+    `friend_nick_name` varchar(255) not null comment '好友昵称',
+    `friend_head_image` varchar(255) default '' comment '好友头像',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_user_id` (`user_id`),
     key `idx_friend_id` (`friend_id`)

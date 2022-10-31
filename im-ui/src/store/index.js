@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import chatStore from './chatStore.js';
-import friendsStore from './friendsStore.js';
+import friendStore from './friendStore.js';
 import userStore from './userStore.js';
 import VuexPersistence from 'vuex-persist'
 
@@ -14,7 +14,7 @@ const vuexLocal = new VuexPersistence({
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-	modules: {chatStore,friendsStore,userStore},
+	modules: {chatStore,friendStore,userStore},
 	state: {
 		userInfo: {}
 	},
@@ -22,7 +22,7 @@ export default new Vuex.Store({
 	mutations: {
 		initStore(state){
 		
-			this.commit("initFriendsStore");
+			this.commit("initFriendStore");
 		}
 		
 	},

@@ -3,13 +3,13 @@ package com.lx.implatform.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lx.common.enums.ResultCode;
 import com.lx.common.util.BeanUtils;
-import com.lx.implatform.entity.Friends;
+import com.lx.implatform.entity.Friend;
 import com.lx.implatform.entity.Group;
 import com.lx.implatform.entity.GroupMember;
 import com.lx.implatform.entity.User;
 import com.lx.implatform.exception.GlobalException;
 import com.lx.implatform.mapper.GroupMapper;
-import com.lx.implatform.service.IFriendsService;
+import com.lx.implatform.service.IFriendService;
 import com.lx.implatform.service.IGroupMemberService;
 import com.lx.implatform.service.IGroupService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -36,7 +36,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private IGroupMemberService groupMemberService;
 
     @Autowired
-    private IFriendsService friendsService;
+    private IFriendService friendsService;
 
     /**
      * 创建新群聊
@@ -154,8 +154,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "部分用户已经在群中，邀请失败");
         }
         // 找出好友信息
-        List<Friends> friends = friendsService.findFriendsByUserId(session.getId());
-        List<Friends> friendsList = vo.getFriendIds().stream().map(id ->
+        List<Friend> friends = friendsService.findFriendByUserId(session.getId());
+        List<Friend> friendsList = vo.getFriendIds().stream().map(id ->
                 friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get()).collect(Collectors.toList());
         if (friendsList.size() != vo.getFriendIds().size()) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "部分用户不是您的好友，邀请失败");

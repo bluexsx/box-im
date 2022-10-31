@@ -15,12 +15,18 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @ComponentScan(basePackages={"com.lx"})
 @SpringBootApplication
-public class IMServerApp {
+public class IMServerApp implements CommandLineRunner {
+
+    @Value("${websocket.port}")
+    private int port;
 
 
     public static void main(String[] args) {
         SpringApplication.run(IMServerApp.class);
     }
 
-}
 
+    public void run(String... args) throws Exception {
+        new WebsocketServer().start(port);
+    }
+}
