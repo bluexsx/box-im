@@ -16,6 +16,12 @@
 						<span class="el-icon-user"></span>
 					</router-link>
 				</el-menu-item>
+				<el-menu-item  title="群聊" >
+					<router-link v-bind:to="'/home/group'">
+						<span class="el-icon-s-check"></span>
+					</router-link>
+				</el-menu-item>
+				
 				<el-menu-item title="设置" @click="onClickSetting()" >
 						<span class="el-icon-setting"></span>
 				</el-menu-item>

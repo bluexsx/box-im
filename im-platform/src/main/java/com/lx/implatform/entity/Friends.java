@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("friends")
+@TableName("im_friends")
 public class Friends extends Model<Friends> {
 
     private static final long serialVersionUID=1L;

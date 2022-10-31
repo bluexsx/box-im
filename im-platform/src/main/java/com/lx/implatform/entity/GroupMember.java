@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("group_member")
+@TableName("im_group_member")
 public class GroupMember extends Model<GroupMember> {
 
     private static final long serialVersionUID = 1L;
@@ -51,7 +51,7 @@ public class GroupMember extends Model<GroupMember> {
     /**
      *  群内显示名称
      */
-    @TableField("user_id")
+    @TableField("alias_name")
     private String aliasName;
 
     /**
@@ -65,8 +65,8 @@ public class GroupMember extends Model<GroupMember> {
     /**
      * 备注
      */
-    @TableField("remarks")
-    private String remarks;
+    @TableField("remark")
+    private String remark;
 
     /**
      * 创建时间

@@ -1,18 +1,14 @@
 <template>
 	<el-container>
 		<el-aside width="250px" class="l-friend-box">
-			<el-header height="60px">
-				<el-row>
-					<el-col :span="19">
-						<el-input width="200px" placeholder="搜索好友" v-model="searchText">
-							<el-button slot="append" icon="el-icon-search"></el-button>
-						</el-input>
-					</el-col>
-					<el-col :span="1"></el-col>
-					<el-col :span="3">
-						<el-button plain icon="el-icon-plus" style="border: none; font-size: 20px;color: black;" title="添加好友" @click="onShowAddFriends"></el-button>
-					</el-col>
-				</el-row>
+			<el-header class="l-friend-header" height="60px">
+				<div class="l-friend-search">
+					<el-input width="200px" placeholder="搜索好友" v-model="searchText">
+						<el-button slot="append" icon="el-icon-search"></el-button>
+					</el-input>
+				</div>
+				<el-button plain icon="el-icon-plus" style="border: none; padding:12px; font-size: 20px;color: black;" title="添加好友" @click="onShowAddFriends"></el-button>
+
 				<add-friends :dialogVisible="showAddFriend" @close="onCloseAddFriends" @add="onAddFriend()">
 				</add-friends>
 			</el-header>
@@ -83,7 +79,7 @@
 					// 如果发现好友的头像和昵称改了，进行更新
 					if (userInfo.headImageThumb != friendsInfo.friendHeadImage ||
 						userInfo.nickName != friendsInfo.friendNickName) {
-						this.updateFriendInfo(friendsInfo, userInfo,index)
+						this.updateFriendInfo(friendsInfo, userInfo, index)
 					}
 				})
 			},
@@ -111,7 +107,7 @@
 				this.$store.commit("activeChat", 0);
 				this.$router.push("/home/chat");
 			},
-			updateFriendInfo(friendsInfo, userInfo,index) {
+			updateFriendInfo(friendsInfo, userInfo, index) {
 				friendsInfo.friendHeadImage = userInfo.headImageThumb;
 				friendsInfo.friendNickName = userInfo.nickName;
 				this.$http({
@@ -119,8 +115,8 @@
 					method: "put",
 					data: friendsInfo
 				}).then(() => {
-					this.$store.commit("updateFriends",friendsInfo);
-					this.$store.commit("setChatUserInfo",userInfo);
+					this.$store.commit("updateFriends", friendsInfo);
+					this.$store.commit("setChatUserInfo", userInfo);
 				})
 			}
 		}
@@ -134,10 +130,15 @@
 			border: #dddddd solid 1px;
 			background: #eeeeee;
 
-			.el-header {
+			.l-friend-header {
+				display: flex;
+				align-items: center;
 				padding: 5px;
 				background-color: white;
-				line-height: 50px;
+				
+				.l-friend-search{
+					flex: 1;
+				}
 			}
 
 			.el-main {

@@ -8,7 +8,7 @@ export default {
 		timer: null
 	},
 	mutations: {
-		initFriendsStore(state, userInfo) {
+		initFriendsStore(state) {
 			httpRequest({
 				url: '/api/friends/list',
 				method: 'get'

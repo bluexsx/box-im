@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("group")
+@TableName("im_group")
 public class Group extends Model<Group> {
 
     private static final long serialVersionUID = 1L;
@@ -36,6 +36,7 @@ public class Group extends Model<Group> {
     /**
      * 群名字
      */
+    @TableField("name")
     private String name;
 
     /**

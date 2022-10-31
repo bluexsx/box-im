@@ -1,5 +1,5 @@
 use `lx-im`;
-create table `user`(
+create table `im_user`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_name` varchar(255) not null comment '用户名',
     `nick_name` varchar(255) not null comment '用户昵称',
@@ -14,7 +14,7 @@ create table `user`(
     key `idx_nick_name`(nick_name)
 ) ENGINE=InnoDB CHARSET=utf8mb3 comment '用户';
 
-create table `friends`(
+create table `im_friends`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_id` bigint not null  comment '用户id',
     `friend_id` bigint not null  comment '好友id',
@@ -25,7 +25,7 @@ create table `friends`(
     key `idx_friend_id` (`friend_id`)
 ) ENGINE=InnoDB CHARSET=utf8mb3 comment '好友';
 
-create table `single_message`(
+create table `im_single_message`(
     `id` bigint not null auto_increment primary key comment 'id',
     `send_user_id` bigint not null  comment '发送用户id',
     `recv_user_id` bigint not null  comment '接收用户id',
@@ -37,30 +37,30 @@ create table `single_message`(
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '私聊消息';
 
 
-create table `group`(
+create table `im_group`(
     `id` bigint not null auto_increment primary key comment 'id',
     `name` varchar(255) not null comment '群名字',
     `owner_id` bigint not null  comment '群主id',
     `head_image` varchar(255) default '' comment '群头像',
     `head_image_thumb` varchar(255) default '' comment '群头像缩略图',
-    `notice` text   comment '群公告',
+    `notice` varchar(1024)  default '' comment '群公告',
     `remark` varchar(255) default '' comment '群备注',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间'
-)ENGINE=InnoDB  comment '群';
+)ENGINE=InnoDB CHARSET=utf8mb3 comment '群';
 
-create table `group_member`(
+create table `im_group_member`(
     `id` bigint not null auto_increment primary key comment 'id',
     `group_id` bigint not null  comment '群id',
     `user_id` bigint not null  comment '用户id',
     `alias_name` varchar(255) DEFAULT '' comment '组内显示名称',
     `head_image` varchar(255) default '' comment '用户头像',
-    `remarks` varchar(255) DEFAULT '' comment '备注',
+    `remark` varchar(255) DEFAULT '' comment '备注',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_group_id`(`group_id`),
     key `idx_user_id`(`user_id`)
-)ENGINE=InnoDB  comment '群成员';
+)ENGINE=InnoDB CHARSET=utf8mb3 comment '群成员';
 
-create table `group_message`(
+create table `im_group_message`(
     `id` bigint not null auto_increment primary key comment 'id',
     `group_id` bigint not null  comment '群id',
     `send_user_id` bigint not null  comment '发送用户id',
@@ -71,7 +71,7 @@ create table `group_message`(
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';
 
 
-create table `group_message_read_pos`(
+create table `im_group_message_read_pos`(
      `id` bigint not null auto_increment primary key comment 'id',
      `group_id` bigint not null  comment '群id',
      `user_id` bigint not null  comment '用户id',

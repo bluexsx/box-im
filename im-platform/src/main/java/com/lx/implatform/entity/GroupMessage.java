@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("group_message")
+@TableName("im_group_message")
 public class GroupMessage extends Model<GroupMessage> {
 
     private static final long serialVersionUID = 1L;

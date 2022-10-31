@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user")
+@TableName("im_user")
 public class User extends Model<User> {
 
     private static final long serialVersionUID=1L;

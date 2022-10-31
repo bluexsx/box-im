@@ -70,7 +70,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 修改群聊信息
      * 
-     * @Param  GroupVO  群聊信息
+     * @Param  GroupVO 群聊信息
      * @return GroupVO
      **/
     @Override
@@ -91,7 +91,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * 删除群聊
      * 
      * @Param groupId 群聊id
-     * @return void
+     * @return
      **/
     @Transactional
     @Override
@@ -140,8 +140,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 邀请好友进群
      *
-     * @return
      * @Param GroupInviteVO  群id、好友id列表
+     * @return
      **/
     @Override
     public void invite(GroupInviteVO vo) {

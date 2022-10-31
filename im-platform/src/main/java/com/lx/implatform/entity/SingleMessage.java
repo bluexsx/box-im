@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("single_message")
+@TableName("im_single_message")
 public class SingleMessage extends Model<SingleMessage> {
 
     private static final long serialVersionUID=1L;
