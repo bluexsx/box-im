@@ -23,7 +23,7 @@ public class GroupVO {
     @ApiModelProperty(value = "群名称")
     private String name;
 
-    @NotEmpty(message = "群主id不可为空")
+    @NotNull(message = "群主id不可为空")
     @ApiModelProperty(value = "群主id")
     private Long ownerId;
 
@@ -36,8 +36,10 @@ public class GroupVO {
     @ApiModelProperty(value = "群公告")
     private String notice;
 
-    @ApiModelProperty(value = "群备注")
-    private String remark;
+    @ApiModelProperty(value = "用户在群显示昵称")
+    private String aliasName;
 
+    @ApiModelProperty(value = "群聊显示备注")
+    private String remark;
 
 }

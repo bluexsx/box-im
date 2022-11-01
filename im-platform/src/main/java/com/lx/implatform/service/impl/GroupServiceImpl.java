@@ -20,6 +20,7 @@ import com.lx.implatform.session.UserSession;
 import com.lx.implatform.vo.GroupInviteVO;
 import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,17 +77,25 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * @Param  GroupVO 群聊信息
      * @return GroupVO
      **/
+    @Transactional
     @Override
     public GroupVO modifyGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();
         // 校验是不是群主，只有群主能改信息
         Group group = this.getById(vo.getId());
-        if(group.getOwnerId() != session.getId()){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群主,不可修改群信息");
+        // 群主有权修改群基本信息
+        if(group.getOwnerId() == session.getId()){
+            group = BeanUtils.copyProperties(vo,Group.class);
+            this.save(group);
         }
-        // 保存群信息
-        group = BeanUtils.copyProperties(vo,Group.class);
-        this.save(group);
+        // 更新成员信息
+        GroupMember member = groupMemberService.findByGroupAndUserId(vo.getId(),session.getId());
+        if(member == null){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群聊的成员");
+        }
+        member.setAliasName(StringUtils.isEmpty(vo.getAliasName())?session.getNickName():vo.getAliasName());
+        member.setRemark(StringUtils.isEmpty(vo.getRemark())?group.getName():vo.getRemark());
+        groupMemberService.updateById(member);
         return vo;
     }
 
@@ -110,9 +119,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 删除群数据
         this.removeById(groupId);
         // 删除成员数据
-        QueryWrapper<GroupMember> wrapper = new QueryWrapper();
-        wrapper.lambda().eq(GroupMember::getGroupId,groupId);
-        groupMemberService.remove(wrapper);
+        groupMemberService.removeByGroupId(groupId);
     }
 
     /**
@@ -124,9 +131,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public List<GroupVO> findGroups() {
         UserSession session = SessionContext.getSession();
         // 查询当前用户的群id列表
-        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getUserId, session.getId());
-        List<GroupMember> groupMembers = groupMemberService.list(memberWrapper);
+        List<GroupMember> groupMembers = groupMemberService.findByUserId(session.getId());
         if(groupMembers.isEmpty()){
             return Collections.EMPTY_LIST;
         }
@@ -138,6 +143,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 转vo
         List<GroupVO> vos = groups.stream().map(g -> {
             GroupVO vo = BeanUtils.copyProperties(g, GroupVO.class);
+            GroupMember member = groupMembers.stream().filter(m -> g.getId() == m.getGroupId()).findFirst().get();
+            vo.setAliasName(member.getAliasName());
+            vo.setRemark(member.getRemark());
             return vo;
         }).collect(Collectors.toList());
         return vos;
@@ -153,9 +161,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void invite(GroupInviteVO vo) {
         UserSession session = SessionContext.getSession();
         // 群聊人数校验
-        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getGroupId, vo.getGroupId());
-        List<GroupMember> members = groupMemberService.list(memberWrapper);
+        List<GroupMember> members = groupMemberService.findByGroupId(vo.getGroupId());
         if(vo.getFriendIds().size() + members.size() > Constant.MAX_GROUP_MEMBER){
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊人数不能大于"+Constant.MAX_GROUP_MEMBER+"人");
         }
@@ -196,10 +202,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      **/
     @Override
     public List<GroupMemberVO> findGroupMembers(Long groupId) {
-        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getGroupId, groupId);
-        List<GroupMember> members = groupMemberService.list(memberWrapper);
-
+        List<GroupMember> members = groupMemberService.findByGroupId(groupId);
         List<GroupMemberVO> vos = members.stream().map(m->{
             GroupMemberVO vo = BeanUtils.copyProperties(m,GroupMemberVO.class);
             return  vo;

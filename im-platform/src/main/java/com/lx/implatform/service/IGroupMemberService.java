@@ -3,6 +3,8 @@ package com.lx.implatform.service;
 import com.lx.implatform.entity.GroupMember;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 群成员 服务类
@@ -13,4 +15,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IGroupMemberService extends IService<GroupMember> {
 
+
+
+    GroupMember findByGroupAndUserId(Long groupId,Long userId);
+
+    List<GroupMember>  findByUserId(Long userId);
+
+    List<GroupMember>  findByGroupId(Long groupId);
+
+    void removeByGroupId(long groupId);
 }

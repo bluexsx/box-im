@@ -12,14 +12,14 @@
 			</div>
 
 			<div v-for="(group,index) in groupStore.groups" :key="group.id">
-				<group-item v-show="group.name.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
+				<group-item v-show="group.remark.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
 				 @click.native="handleActiveItem(group,index)">
 				</group-item>
 			</div>
 		</el-aside>
 		<el-container class="r-group-box">
 			<div class="r-group-header">
-				{{activeGroup.name}}
+				{{activeGroup.remark}}
 			</div>
 			<div class="r-group-container">
 				<div v-show="groupStore.activeIndex>=0">
@@ -45,28 +45,25 @@
 						</el-form>
 					</div>
 					<div class="btn-group">
-						<el-button class="send-btn" @click="handleSendMessage()">保存</el-button>
+						<el-button class="send-btn" @click="handleSaveGroup()">保存</el-button>
 						<el-button class="send-btn" @click="handleSendMessage()">发消息</el-button>
-						<el-button type="danger"  class="send-btn" @click="handleSendMessage()">退出</el-button>
+						<el-button type="danger" class="send-btn" @click="handleSendMessage()">退出</el-button>
 						<el-button type="danger" class="send-btn" @click="handleSendMessage()">解散</el-button>
 					</div>
 					<el-divider content-position="center"></el-divider>
 					<el-scrollbar style="height:400px;">
 						<div class="r-group-member-list">
-								<div v-for="(member) in groupMembers" :key="member.id">
-									<group-member class="r-group-member" :member="member" :showDel="true"></group-member>
+							<div v-for="(member) in groupMembers" :key="member.id">
+								<group-member class="r-group-member" :member="member" :showDel="true"></group-member>
+							</div>
+							<div class="r-group-invite">
+								<div class="invite-member-btn" title="邀请好友进群聊" @click="handleInviteMember()">
+									<i class="el-icon-plus"></i>
 								</div>
-								<div class="r-group-invite">
-									<div class="invite-member-btn" title="邀请好友进群聊" @click="handleInviteMember()">
-										<i class="el-icon-plus"></i>
-									</div>
-									<div class="invite-member-text">邀请</div>
-									<add-group-member :visible="showAddGroupMember"
-									 :groupId="activeGroup.id"
-									 :members="groupMembers"
-									 @reload="loadGroupMembers"
-									 @close="handleCloseAddGroupMember"></add-group-member>
-								</div>
+								<div class="invite-member-text">邀请</div>
+								<add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id" :members="groupMembers" @reload="loadGroupMembers"
+								 @close="handleCloseAddGroupMember"></add-group-member>
+							</div>
 						</div>
 					</el-scrollbar>
 				</div>
@@ -81,7 +78,7 @@
 	import FileUpload from '../components/common/FileUpload';
 	import GroupMember from '../components/group/GroupMember.vue';
 	import AddGroupMember from '../components/group/AddGroupMember.vue';
-	
+
 	export default {
 		name: "group",
 		components: {
@@ -94,7 +91,11 @@
 			return {
 				searchText: "",
 				maxSize: 5 * 1024 * 1024,
-				groupMembers:[],
+				activeGroup: {
+					empty: true,
+					remark: ""
+				},
+				groupMembers: [],
 				showAddGroupMember: false
 			};
 		},
@@ -109,35 +110,48 @@
 					this.$http({
 						url: `/api/group/create?groupName=${o.value}`,
 						method: 'post'
-					}).then((groupInfo) => {
-						console.log(groupInfo);
+					}).then((group) => {
+						this.$store.commit("addGroup", group);
 					})
 				})
 			},
 			handleActiveItem(group, index) {
 				this.$store.commit("activeGroup", index);
+				// store数据不能直接修改，所以深拷贝一份内存
+				this.activeGroup = JSON.parse(JSON.stringify(group));
 				// 重新加载群成员
 				this.loadGroupMembers();
 			},
-			handleInviteMember(){
+			handleInviteMember() {
 				this.showAddGroupMember = true;
 			},
-			handleCloseAddGroupMember(){
+			handleCloseAddGroupMember() {
 				this.showAddGroupMember = false;
 			},
-	
-			handleUploadSuccess() {
 
+			handleUploadSuccess(res) {
+				this.activeGroup.headImage = res.data.originUrl;
+				this.activeGroup.headImageThumb = res.data.thumbUrl;
+			},
+			handleSaveGroup() {
+				let vo = this.activeGroup;
+				this.$http({
+					url: "/api/group/modify",
+					method: "put",
+					data: vo
+				}).then((group) => {
+					this.$store.commit("updateGroup",group);
+					this.$message.success("修改成功");
+				})
 			},
 			handleSendMessage() {
 
 			},
-			
-			loadGroupMembers(){
+			loadGroupMembers() {
 				this.$http({
 					url: `/api/group/members/${this.activeGroup.id}`,
 					method: "get"
-				}).then((members)=>{
+				}).then((members) => {
 					this.groupMembers = members;
 				})
 			}
@@ -145,18 +159,6 @@
 		computed: {
 			groupStore() {
 				return this.$store.state.groupStore;
-			},
-			activeGroup() {
-				if (this.groupStore.activeIndex >= 0) {
-					return this.groupStore.groups[this.groupStore.activeIndex];
-				}
-				return this.emptyGroup;
-			},
-			emptyGroup() {
-				return {
-					empty: true,
-					name: ""
-				}
 			}
 		}
 	}
@@ -174,6 +176,7 @@
 				align-items: center;
 				padding: 5px;
 				background-color: white;
+
 				.l-group-search {
 					flex: 1;
 				}
@@ -239,23 +242,25 @@
 					}
 				}
 
-				.r-group-member-list{
+				.r-group-member-list {
 					padding: 20px;
 					display: flex;
 					align-items: center;
 					flex-wrap: wrap;
 					font-size: 16px;
 					text-align: center;
+
 					.r-group-member {
-						margin-right: 15px ;
+						margin-right: 15px;
 					}
-					
-					.r-group-invite{
+
+					.r-group-invite {
 						display: flex;
 						flex-direction: column;
 						align-items: center;
 						width: 60px;
-						.invite-member-btn{
+
+						.invite-member-btn {
 							width: 100%;
 							height: 60px;
 							line-height: 60px;
@@ -263,11 +268,12 @@
 							font-size: 25px;
 							cursor: pointer;
 							box-sizing: border-box;
-							&:hover{
+
+							&:hover {
 								border: #aaaaaa solid 1px;
 							}
 						}
-						
+
 						.invite-member-text {
 							font-size: 16px;
 							text-align: center;
@@ -275,11 +281,11 @@
 							height: 30px;
 							line-height: 30px;
 							white-space: nowrap;
-							text-overflow:ellipsis; 
-							overflow:hidden
+							text-overflow: ellipsis;
+							overflow: hidden
 						}
 					}
-					
+
 				}
 			}
 		}

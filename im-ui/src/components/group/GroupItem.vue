@@ -4,7 +4,7 @@
 			<head-image :url="group.headImage"> </head-image>
 		</div>
 		<div class="text">
-			<div>{{group.name}}</div>
+			<div>{{group.remark}}</div>
 		</div>
 	</div>
 </template>

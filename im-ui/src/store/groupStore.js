@@ -20,6 +20,16 @@ export default {
 		},
 		activeGroup(state,index){
 			state.activeIndex = index;
+		},
+		addGroup(state,group){
+			state.groups.unshift(group);
+		},
+		updateGroup(state,group){
+			state.groups.forEach((g,index)=>{
+				if(g.id==group.id){
+					state.groups[index] = group;
+				}
+			})
 		}
 	}	
 }

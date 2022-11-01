@@ -63,11 +63,6 @@ public class Group extends Model<Group> {
     @TableField("notice")
     private String notice;
 
-    /**
-     * 群备注
-     */
-    @TableField("remark")
-    private String remark;
 
     /**
      * 创建时间
