@@ -17,6 +17,9 @@ export default {
 		},
 		setGroups(state,groups){
 			state.groups = groups;
+		},
+		activeGroup(state,index){
+			state.activeIndex = index;
 		}
 	}	
 }

@@ -5,6 +5,7 @@ import com.lx.common.result.Result;
 import com.lx.common.result.ResultUtils;
 import com.lx.implatform.service.IGroupService;
 import com.lx.implatform.vo.GroupInviteVO;
+import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,5 +55,13 @@ public class GroupController {
         groupService.invite(vo);
         return ResultUtils.success();
     }
+
+    @ApiOperation(value = "查询群聊成员",notes="查询群聊成员")
+    @GetMapping("/members/{groupId}")
+    public Result<List<GroupMemberVO>> findGroupMembers(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
+        return ResultUtils.success(groupService.findGroupMembers(groupId));
+    }
+
+
 }
 

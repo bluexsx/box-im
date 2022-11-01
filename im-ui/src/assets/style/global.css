@@ -17,7 +17,9 @@ section {
 	  height: 100%;
 }
 
-
+.el-dialog__body{
+	padding: 10px 15px !important;
+}
 
 ::-webkit-scrollbar {
   width: 6px;

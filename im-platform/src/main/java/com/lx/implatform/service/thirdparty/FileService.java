@@ -1,6 +1,6 @@
 package com.lx.implatform.service.thirdparty;
 
-import com.lx.common.contant.Contant;
+import com.lx.common.contant.Constant;
 import com.lx.common.enums.FileTypeEnum;
 import com.lx.common.enums.ResultCode;
 import com.lx.implatform.exception.GlobalException;
@@ -51,7 +51,7 @@ public class FileService {
 
     public String uploadFile(MultipartFile file){
         // 大小校验
-        if(file.getSize() > Contant.MAX_FILE_SIZE){
+        if(file.getSize() > Constant.MAX_FILE_SIZE){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"文件大小不能超过10M");
         }
         // 上传
@@ -65,7 +65,7 @@ public class FileService {
     public UploadImageVO uploadImage(MultipartFile file){
         try {
             // 大小校验
-            if(file.getSize() > Contant.MAX_IMAGE_SIZE){
+            if(file.getSize() > Constant.MAX_IMAGE_SIZE){
                 throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片大小不能超过5M");
             }
             // 图片格式校验

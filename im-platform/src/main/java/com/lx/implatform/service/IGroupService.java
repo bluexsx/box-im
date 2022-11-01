@@ -3,6 +3,7 @@ package com.lx.implatform.service;
 import com.lx.implatform.entity.Group;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lx.implatform.vo.GroupInviteVO;
+import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface IGroupService extends IService<Group> {
     List<GroupVO>  findGroups();
 
     void invite(GroupInviteVO vo);
+
+    List<GroupMemberVO> findGroupMembers(Long groupId);
 }

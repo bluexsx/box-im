@@ -7,7 +7,7 @@ create table `im_user`(
     `head_image_thumb` varchar(255) default '' comment '用户头像缩略图',
     `password` varchar(255) not null comment '密码(明文)',
     `sex`  tinyint(1) default 0 comment '性别 0:男 1::女',
-    `signature` varchar(1024) not null comment '个性签名',
+    `signature` varchar(1024) default '' comment '个性签名',
     `last_login_time`  datetime DEFAULT null comment '最后登录时间',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     unique key `idx_user_name`(user_name),

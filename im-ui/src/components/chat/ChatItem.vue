@@ -13,7 +13,6 @@
 		</div>
 		<div class="right ">
 			<div @click.stop="onClickClose()"><i class="el-icon-close close" style="border: none; font-size: 20px;color: black;" title="关闭"></i></div>
-
 			<div class="msg-time">
 				<chat-time :time="chat.lastSendTime"></chat-time>
 			</div>
@@ -64,14 +63,14 @@
 		padding-left: 15px;
 		align-items: center;
 		padding-right: 5px;
-		background-color: #eeeeee;
+		background-color: #fafafa;
 
 		&:hover {
-			background-color: #dddddd;
+			background-color: #eeeeee;
 		}
 
 		&.active {
-			background-color: #cccccc;
+			background-color: #dddddd;
 		}
 
 
@@ -159,7 +158,4 @@
 		}
 	}
 
-	.active {
-		background-color: #eeeeee;
-	}
 </style>

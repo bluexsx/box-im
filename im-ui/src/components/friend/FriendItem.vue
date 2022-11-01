@@ -1,5 +1,5 @@
 <template>
-	<div class="item" :class="active ? 'active' : ''">
+	<div class="friend-item" :class="active ? 'active' : ''">
 		<div class="avatar">
 			<head-image :url="friend.headImage"> </head-image>
 		</div>
@@ -7,9 +7,10 @@
 			<div>{{ friend.nickName}}</div>
 			<div :class="online ? 'online-status  online':'online-status'">{{ online?"[在线]":"[离线]"}}</div>
 		</div>
-		<div class="close" @click.stop="$emit('del',friend,index)">
+		<div v-if="showDelete" class="close" @click.stop="handleDel()">
 			<i class="el-icon-close" style="border: none; font-size: 20px;color: black;" title="添加好友"></i>
 		</div>
+		<slot></slot>
 	</div>
 </template>
 
@@ -24,6 +25,12 @@
 		data() {
 			return {}
 		},
+		methods:{
+			handleDel(){
+				console.log("11111111111111111111")
+				this.$emit('del',this.friend,this.index)
+			}
+		},
 		props: {
 			friend: {
 				type: Object
@@ -33,6 +40,10 @@
 			},
 			index: {
 				type: Number
+			},
+			showDelete:{
+				type: Boolean,
+				default: true
 			}
 		},
 		computed: {
@@ -44,7 +55,7 @@
 </script>
 
 <style scope lang="scss">
-	.item {
+	.friend-item {
 		height: 65px;
 		display: flex;
 		margin-bottom: 1px;
@@ -52,14 +63,14 @@
 		padding-left: 15px;
 		align-items: center;
 		padding-right: 5px;
-		background-color: #eeeeee;
+		background-color: #fafafa;
 
 		&:hover {
-			background-color: #dddddd;
+			background-color: #eeeeee;
 		}
 
 		&.active {
-			background-color: #cccccc;
+			background-color: #dddddd;
 		}
 
 
@@ -88,7 +99,7 @@
 
 		.text {
 			margin-left: 15px;
-			flex: 3;
+			flex: 1;
 			display: flex;
 			flex-direction: column;
 			justify-content: space-around;
@@ -110,9 +121,5 @@
 				}
 			}
 		}
-	}
-
-	.active {
-		background-color: #eeeeee;
 	}
 </style>

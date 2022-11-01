@@ -1,6 +1,7 @@
 package com.lx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lx.common.contant.Constant;
 import com.lx.common.enums.ResultCode;
 import com.lx.common.util.BeanUtils;
 import com.lx.implatform.entity.Friend;
@@ -17,11 +18,13 @@ import com.lx.implatform.service.IUserService;
 import com.lx.implatform.session.SessionContext;
 import com.lx.implatform.session.UserSession;
 import com.lx.implatform.vo.GroupInviteVO;
+import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -124,6 +127,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
         memberWrapper.lambda().eq(GroupMember::getUserId, session.getId());
         List<GroupMember> groupMembers = groupMemberService.list(memberWrapper);
+        if(groupMembers.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
         // 拉取群信息
         List<Long> ids = groupMembers.stream().map((gm -> gm.getGroupId())).collect(Collectors.toList());
         QueryWrapper<Group> groupWrapper = new QueryWrapper();
@@ -146,11 +152,18 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public void invite(GroupInviteVO vo) {
         UserSession session = SessionContext.getSession();
+        // 群聊人数校验
+        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
+        memberWrapper.lambda().eq(GroupMember::getGroupId, vo.getGroupId());
+        List<GroupMember> members = groupMemberService.list(memberWrapper);
+        if(vo.getFriendIds().size() + members.size() > Constant.MAX_GROUP_MEMBER){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊人数不能大于"+Constant.MAX_GROUP_MEMBER+"人");
+        }
         // 已经在群里面用户，不可重复加入
-        QueryWrapper<GroupMember> wrapper = new QueryWrapper();
-        wrapper.lambda().eq(GroupMember::getId, vo.getGroupId())
-                .in(GroupMember::getUserId, vo.getFriendIds());
-        if(groupMemberService.count(wrapper)>0){
+        Boolean flag = vo.getFriendIds().stream().anyMatch(id->{
+           return  members.stream().anyMatch(m->m.getUserId()==id);
+        });
+        if(flag){
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "部分用户已经在群中，邀请失败");
         }
         // 找出好友信息
@@ -173,5 +186,24 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if(!groupMembers.isEmpty()) {
             groupMemberService.saveBatch(groupMembers);
         }
+    }
+
+    /**
+     * 查询群成员
+     *
+     * @Param groupId 群聊id
+     * @return List<GroupMemberVO>
+     **/
+    @Override
+    public List<GroupMemberVO> findGroupMembers(Long groupId) {
+        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
+        memberWrapper.lambda().eq(GroupMember::getGroupId, groupId);
+        List<GroupMember> members = groupMemberService.list(memberWrapper);
+
+        List<GroupMemberVO> vos = members.stream().map(m->{
+            GroupMemberVO vo = BeanUtils.copyProperties(m,GroupMemberVO.class);
+            return  vo;
+        }).collect(Collectors.toList());
+        return vos;
     }
 }

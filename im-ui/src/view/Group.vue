@@ -1,7 +1,7 @@
 <template>
 	<el-container class="im-group-box">
 		<el-aside width="250px" class="l-group-box">
-			<el-header class="l-group-header" height="60px">
+			<div class="l-group-header">
 				<div class="l-group-search">
 					<el-input width="200px" placeholder="搜索群聊" v-model="searchText">
 						<el-button slot="append" icon="el-icon-search"></el-button>
@@ -9,19 +9,68 @@
 				</div>
 				<el-button plain icon="el-icon-plus" style="border: none; padding: 12px; font-size: 20px;color: black;" title="创建群聊"
 				 @click="handleCreateGroup()"></el-button>
-			</el-header>
-			<el-main>
-				<el-main>
-					<div v-for="(group,index) in groupStore.groups" :key="group.id">
-						<group-item v-show="group.name.startsWith(searchText)" :group="group" :index="index" :active="index === groupStore.activeIndex"
-						 @click.native="handleActiveItem(group,index)">
-						</group-item>
-					</div>
-				</el-main>
-			</el-main>
+			</div>
+
+			<div v-for="(group,index) in groupStore.groups" :key="group.id">
+				<group-item v-show="group.name.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
+				 @click.native="handleActiveItem(group,index)">
+				</group-item>
+			</div>
 		</el-aside>
-		<el-container class="r-chat-box">
-			group
+		<el-container class="r-group-box">
+			<div class="r-group-header">
+				{{activeGroup.name}}
+			</div>
+			<div class="r-group-container">
+				<div v-show="groupStore.activeIndex>=0">
+					<div class="r-group-info">
+						<file-upload class="avatar-uploader" action="/api/image/upload" :showLoading="true" :maxSize="maxSize" @success="handleUploadSuccess"
+						 :fileTypes="['image/jpeg', 'image/png', 'image/jpg']">
+							<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
+							<i v-else class="el-icon-plus avatar-uploader-icon"></i>
+						</file-upload>
+						<el-form class="r-group-form" label-width="130px" :model="activeGroup">
+							<el-form-item label="群聊名称">
+								<el-input v-model="activeGroup.name"></el-input>
+							</el-form-item>
+							<el-form-item label="备注">
+								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见"></el-input>
+							</el-form-item>
+							<el-form-item label="我在本群的昵称">
+								<el-input v-model="activeGroup.aliasName" placeholder=""></el-input>
+							</el-form-item>
+							<el-form-item label="群公告">
+								<el-input v-model="activeGroup.notice" type="textarea" placeholder="群主未设置"></el-input>
+							</el-form-item>
+						</el-form>
+					</div>
+					<div class="btn-group">
+						<el-button class="send-btn" @click="handleSendMessage()">保存</el-button>
+						<el-button class="send-btn" @click="handleSendMessage()">发消息</el-button>
+						<el-button type="danger"  class="send-btn" @click="handleSendMessage()">退出</el-button>
+						<el-button type="danger" class="send-btn" @click="handleSendMessage()">解散</el-button>
+					</div>
+					<el-divider content-position="center"></el-divider>
+					<el-scrollbar style="height:400px;">
+						<div class="r-group-member-list">
+								<div v-for="(member) in groupMembers" :key="member.id">
+									<group-member class="r-group-member" :member="member" :showDel="true"></group-member>
+								</div>
+								<div class="r-group-invite">
+									<div class="invite-member-btn" title="邀请好友进群聊" @click="handleInviteMember()">
+										<i class="el-icon-plus"></i>
+									</div>
+									<div class="invite-member-text">邀请</div>
+									<add-group-member :visible="showAddGroupMember"
+									 :groupId="activeGroup.id"
+									 :members="groupMembers"
+									 @reload="loadGroupMembers"
+									 @close="handleCloseAddGroupMember"></add-group-member>
+								</div>
+						</div>
+					</el-scrollbar>
+				</div>
+			</div>
 		</el-container>
 	</el-container>
 </template>
@@ -29,15 +78,24 @@
 
 <script>
 	import GroupItem from '../components/group/GroupItem';
-
+	import FileUpload from '../components/common/FileUpload';
+	import GroupMember from '../components/group/GroupMember.vue';
+	import AddGroupMember from '../components/group/AddGroupMember.vue';
+	
 	export default {
 		name: "group",
 		components: {
-			GroupItem
+			GroupItem,
+			GroupMember,
+			FileUpload,
+			AddGroupMember
 		},
 		data() {
 			return {
-				searchText: ""
+				searchText: "",
+				maxSize: 5 * 1024 * 1024,
+				groupMembers:[],
+				showAddGroupMember: false
 			};
 		},
 		methods: {
@@ -58,11 +116,47 @@
 			},
 			handleActiveItem(group, index) {
 				this.$store.commit("activeGroup", index);
+				// 重新加载群成员
+				this.loadGroupMembers();
+			},
+			handleInviteMember(){
+				this.showAddGroupMember = true;
+			},
+			handleCloseAddGroupMember(){
+				this.showAddGroupMember = false;
+			},
+	
+			handleUploadSuccess() {
+
+			},
+			handleSendMessage() {
+
+			},
+			
+			loadGroupMembers(){
+				this.$http({
+					url: `/api/group/members/${this.activeGroup.id}`,
+					method: "get"
+				}).then((members)=>{
+					this.groupMembers = members;
+				})
 			}
 		},
 		computed: {
 			groupStore() {
 				return this.$store.state.groupStore;
+			},
+			activeGroup() {
+				if (this.groupStore.activeIndex >= 0) {
+					return this.groupStore.groups[this.groupStore.activeIndex];
+				}
+				return this.emptyGroup;
+			},
+			emptyGroup() {
+				return {
+					empty: true,
+					name: ""
+				}
 			}
 		}
 	}
@@ -72,16 +166,120 @@
 	.im-group-box {
 		.l-group-box {
 			border: #dddddd solid 1px;
-			background: #eeeeee;
+			background: white;
 
 			.l-group-header {
+				height: 50px;
 				display: flex;
 				align-items: center;
 				padding: 5px;
 				background-color: white;
-
 				.l-group-search {
 					flex: 1;
+				}
+			}
+		}
+
+		.r-group-box {
+			display: flex;
+			flex-direction: column;
+			border: #dddddd solid 1px;
+
+			.r-group-header {
+				width: 100%;
+				height: 50px;
+				padding: 5px;
+				line-height: 50px;
+				font-size: 22px;
+				background-color: white;
+				border: #dddddd solid 1px;
+			}
+
+			.r-group-container {
+				padding: 20px;
+
+				.r-group-info {
+					display: flex;
+					padding: 20px;
+
+					.r-group-form {
+						flex: 1;
+						padding-left: 20px;
+					}
+
+					.avatar-uploader {
+						text-align: left;
+
+						.el-upload {
+							border: 1px dashed #d9d9d9 !important;
+							border-radius: 6px;
+							cursor: pointer;
+							position: relative;
+							overflow: hidden;
+						}
+
+						.el-upload:hover {
+							border-color: #409EFF;
+						}
+
+						.avatar-uploader-icon {
+							font-size: 28px;
+							color: #8c939d;
+							width: 178px;
+							height: 178px;
+							line-height: 178px;
+							text-align: center;
+						}
+
+						.avatar {
+							width: 178px;
+							height: 178px;
+							display: block;
+						}
+					}
+				}
+
+				.r-group-member-list{
+					padding: 20px;
+					display: flex;
+					align-items: center;
+					flex-wrap: wrap;
+					font-size: 16px;
+					text-align: center;
+					.r-group-member {
+						margin-right: 15px ;
+					}
+					
+					.r-group-invite{
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						width: 60px;
+						.invite-member-btn{
+							width: 100%;
+							height: 60px;
+							line-height: 60px;
+							border: #cccccc solid 1px;
+							font-size: 25px;
+							cursor: pointer;
+							box-sizing: border-box;
+							&:hover{
+								border: #aaaaaa solid 1px;
+							}
+						}
+						
+						.invite-member-text {
+							font-size: 16px;
+							text-align: center;
+							width: 100%;
+							height: 30px;
+							line-height: 30px;
+							white-space: nowrap;
+							text-overflow:ellipsis; 
+							overflow:hidden
+						}
+					}
+					
 				}
 			}
 		}

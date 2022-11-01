@@ -4,7 +4,7 @@
 			<el-button slot="append" icon="el-icon-search" @click="handleSearch()"></el-button>
 		</el-input>
 		<el-scrollbar style="height:400px">
-			<div v-for="(user) in users" :key="user.id">
+			<div v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
 				<div class="item">
 					<div class="avatar">
 						<head-image :url="user.headImage"></head-image>

@@ -1,18 +1,14 @@
 <template>
 	<el-container>
 		<el-aside width="250px" class="l-chat-box">
-			<el-header height="60px">
-				<el-row>
-					<el-input width="200px" placeholder="搜索" v-model="searchText">
-						<el-button slot="append" icon="el-icon-search"></el-button>
-					</el-input>
-				</el-row>
-			</el-header>
-			<el-main>
-				<div v-for="(chat,index) in chatStore.chats" :key="chat.targetId">
-					<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)" :active="index === chatStore.activeIndex"></chat-item>
-				</div>
-			</el-main>
+			<div class="l-chat-header">
+				<el-input width="200px" placeholder="搜索" v-model="searchText">
+					<el-button slot="append" icon="el-icon-search"></el-button>
+				</el-input>
+			</div>
+			<div v-for="(chat,index) in chatStore.chats" :key="chat.targetId">
+				<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)" :active="index === chatStore.activeIndex"></chat-item>
+			</div>
 		</el-aside>
 		<el-container class="r-chat-box">
 			<el-header height="60px">
@@ -308,37 +304,28 @@
 
 <style lang="scss">
 	.el-container {
-
 		.l-chat-box {
 			border: #dddddd solid 1px;
-			background: #eeeeee;
+			background: white;
 			width: 3rem;
-
-			.el-header {
+			.l-chat-header {
 				padding: 5px;
 				background-color: white;
 				line-height: 50px;
-			}
-
-			.el-main {
-				padding: 0
 			}
 		}
 
 		.r-chat-box {
 			background: white;
 			border: #dddddd solid 1px;
-
 			.el-header {
 				padding: 5px;
 				background-color: white;
 				line-height: 50px;
 			}
-
 			.im-chat-main {
 				padding: 0;
 				border: #dddddd solid 1px;
-
 				.im-chat-box {
 					ul {
 						padding: 20px;

@@ -1,8 +1,6 @@
 <template>
-	<div  class='img-box'>
-		<img :src="url" 
-		 style="width: 100%;height: 100%;cursor: pointer;" />
-	</div>
+	<img :src="url" 
+	 :style="{width: size+'px',height: size+'px',cursor: 'pointer'}" />
 </template>
 
 <script>
@@ -27,28 +25,19 @@
 </script>
 
 <style scoped lang="scss">
-	.img-box {
-		width: 100%;
-		height: 100%;
-		display: inline-block;
-		border-radius: 3px;
-		background-color: #c0c4cc;
-		overflow: hidden;
-		
 		img {
 		  position: relative;
+		  overflow: hidden;
+		  border-radius: 5%;
 		}
 		
 		img:before { 
-		 
 		    content: '';
 		    display: block;
 		    width: 100%;
 		    height: 100%;
 		    background:url('../../assets/default_head.png') no-repeat 0 0;
 		    background-size: 100%;
-			
-	
 		}
-	}
+	
 </style>
