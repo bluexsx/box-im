@@ -31,7 +31,10 @@ public class FriendController {
     public Result< List<FriendVO>> findFriends(){
         List<Friend> friends = friendService.findFriendByUserId(SessionContext.getSession().getId());
         List<FriendVO> vos = friends.stream().map(f->{
-            FriendVO vo = BeanUtils.copyProperties(f, FriendVO.class);
+            FriendVO vo = new FriendVO();
+            vo.setId(f.getFriendId());
+            vo.setHeadImage(f.getFriendHeadImage());
+            vo.setNickName(f.getFriendNickName());
             return vo;
         }).collect(Collectors.toList());
         return ResultUtils.success(vos);

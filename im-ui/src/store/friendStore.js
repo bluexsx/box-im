@@ -21,10 +21,10 @@ export default {
 		setFriends(state, friends) {
 			state.friends = friends;
 		},
-		updateFriend(state,friendInfo){
+		updateFriend(state,friend){
 			state.friends.forEach((f,index)=>{
-				if(f.friendId==friendInfo.friendId){
-					state.friends[index] = friendInfo;
+				if(f.id==friend.id){
+					state.friends[index] = friend;
 				}
 			})
 		},
@@ -34,15 +34,15 @@ export default {
 		removeFriend(state, index) {
 			state.friends.splice(index, 1);
 		},
-		addFriend(state, friendInfo) {
-			state.friends.push(friendInfo);
+		addFriend(state, friend) {
+			state.friends.push(friend);
 		},
 		refreshOnlineStatus(state){
 			let userIds = [];
 			if(state.friends.length ==0){
 				return; 
 			}
-			state.friends.forEach((f)=>{userIds.push(f.friendId)});
+			state.friends.forEach((f)=>{userIds.push(f.id)});
 			httpRequest({
 				url: '/api/user/online',
 				method: 'get',
@@ -59,7 +59,7 @@ export default {
 		},
 		setOnlineStatus(state,onlineIds){
 			state.friends.forEach((f)=>{
-				let onlineFriend = onlineIds.find((id)=> f.friendId==id);
+				let onlineFriend = onlineIds.find((id)=> f.id==id);
 				f.online = onlineFriend != undefined;
 			});
 			
@@ -77,7 +77,7 @@ export default {
 			// 重新排序后，activeIndex指向的好友可能会变化，需要重新指定
 			if(state.activeIndex >=0){
 				state.friends.forEach((f,i)=>{
-					if(f.friendId == activeFriend.friendId){
+					if(f.id == activeFriend.id){
 						state.activeIndex = i;
 					}
 				})

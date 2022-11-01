@@ -94,12 +94,12 @@
 				this.$http({
 					url: `/api/user/find/${userId}`,
 					method: 'get'
-				}).then((userInfo) => {
+				}).then((user) => {
 					// 如果发现好友的头像和昵称改了，进行更新
 					let chat = this.chatStore.chats[index];
-					if (userInfo.headImageThumb != chat.headImage ||
-						userInfo.nickName != chat.showName) {
-						this.updateFriendInfo(userInfo, index)
+					if (user.headImageThumb != chat.headImage ||
+						user.nickName != chat.showName) {
+						this.updateFriendInfo(user, index)
 					}
 				})
 			},
@@ -245,19 +245,19 @@
 					this.scrollToBottom();
 				})
 			},
-			updateFriendInfo(userInfo, index) {
-				let friendsInfo = {
-					friendId: userInfo.id,
-					friendNickName: userInfo.nickName,
-					friendHeadImage: userInfo.headImageThumb
+			updateFriendInfo(user, index) {
+				let friendInfo = {
+					id: user.id,
+					nickName: user.nickName,
+					headImage: user.headImageThumb
 				};
 				this.$http({
 					url: "/api/friends/update",
 					method: "put",
-					data: friendsInfo
+					data: friendInfo
 				}).then(() => {
-					this.$store.commit("updateFriends", friendsInfo);
-					this.$store.commit("setChatUserInfo", userInfo);
+					this.$store.commit("updateFriend", friendInfo);
+					this.$store.commit("updateChatFromUser", user);
 				})
 			},
 			showName(msg) {

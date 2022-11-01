@@ -10,7 +10,6 @@ export default {
 			let chat = null;
 			for(let i in state.chats){
 				if(state.chats[i].targetId === chatInfo.targetId){
-			
 					chat = state.chats[i];
 					// 放置头部
 					state.chats.splice(i,1);
@@ -68,11 +67,11 @@ export default {
 				}
 			}
 		},
-		setChatUserInfo(state, userInfo){
+		updateChatFromUser(state, user){
 			for(let i in state.chats){
-				if(state.chats[i].targetId == userInfo.id){
-					state.chats[i].headImage = userInfo.headImageThumb;
-					state.chats[i].showName = userInfo.nickName;
+				if(state.chats[i].targetId == user.id){
+					state.chats[i].headImage = user.headImageThumb;
+					state.chats[i].showName = user.nickName;
 					break;
 				}
 			}

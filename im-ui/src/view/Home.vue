@@ -73,12 +73,12 @@
 			},
 			handleSingleMessage(msg){
 				// 插入私聊消息
-				let f = this.$store.state.friendStore.friends.find((f)=>f.friendId==msg.sendUserId);
+				let f = this.$store.state.friendStore.friends.find((f)=>f.id==msg.sendUserId);
 				let chatInfo = {
 					type: 'single',
-					targetId: f.friendId,
-					showName: f.friendNickName,
-					headImage: f.friendHeadImage
+					targetId: f.id,
+					showName: f.nickName,
+					headImage: f.headImage
 				};
 				// 打开会话
 				this.$store.commit("openChat",chatInfo);

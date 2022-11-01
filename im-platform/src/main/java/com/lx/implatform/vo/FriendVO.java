@@ -13,13 +13,13 @@ public class FriendVO {
 
     @NotNull(message = "好友id不可为空")
     @ApiModelProperty(value = "好友id")
-    private Long friendId;
+    private Long id;
 
     @NotNull(message = "好友昵称不可为空")
     @ApiModelProperty(value = "好友昵称")
-    private String friendNickName;
+    private String nickName;
 
 
     @ApiModelProperty(value = "好友头像")
-    private String friendHeadImage;
+    private String headImage;
 }

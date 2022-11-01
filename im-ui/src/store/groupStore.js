@@ -7,13 +7,16 @@ export default {
 		activeIndex: -1,
 	},
 	mutations: {
-		initGroupStore(state, userInfo) {
+		initGroupStore(state) {
 			httpRequest({
-				url: '/api/friends/list',
+				url: '/api/group/list',
 				method: 'get'
-			}).then((friendsList) => {
-				this.commit("setFriendsList",friendsList);
-				this.commit("refreshOnlineStatus");
+			}).then((groups) => {
+				this.commit("setGroups",groups);
 			})
 		},
+		setGroups(state,groups){
+			state.groups = groups;
+		}
+	}	
 }

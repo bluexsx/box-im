@@ -13,9 +13,9 @@
 				</add-friend>
 			</el-header>
 			<el-main>
-				<div v-for="(friendInfo,index) in $store.state.friendStore.friends" :key="friendInfo.id">
-					<friend-item v-show="friendInfo.friendNickName.startsWith(searchText)" :friendInfo="friendInfo" :index="index"
-					 :active="index === $store.state.friendStore.activeIndex" @del="handleDelItem(friendInfo,index)" @click.native="handleActiveItem(friendInfo,index)">
+				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="friend.id">
+					<friend-item v-show="friend.nickName.startsWith(searchText)" :friend="friend" :index="index"
+					 :active="index === $store.state.friendStore.activeIndex" @del="handleDelItem(friend,index)" @click.native="handleActiveItem(friend,index)">
 					</friend-item>
 				</div>
 			</el-main>
@@ -23,15 +23,15 @@
 		<el-container class="r-friend-box">
 			<div v-show="$store.state.friendStore.activeIndex>=0">
 				<div class="user-detail">
-					<head-image class="detail-head-image" :url="activeUserInfo.headImage"></head-image>
+					<head-image class="detail-head-image" :url="activeUser.headImage"></head-image>
 					<div class="info-item">
 						<el-descriptions title="好友信息" class="description" :column="1">
-							<el-descriptions-item label="用户名">{{ activeUserInfo.userName }}
+							<el-descriptions-item label="用户名">{{ activeUser.userName }}
 							</el-descriptions-item>
-							<el-descriptions-item label="昵称">{{ activeUserInfo.nickName }}
+							<el-descriptions-item label="昵称">{{ activeUser.nickName }}
 							</el-descriptions-item>
-							<el-descriptions-item label="性别">{{ activeUserInfo.sex==0?"男":"女" }}</el-descriptions-item>
-							<el-descriptions-item label="签名">{{ activeUserInfo.signature }}</el-descriptions-item>
+							<el-descriptions-item label="性别">{{ activeUser.sex==0?"男":"女" }}</el-descriptions-item>
+							<el-descriptions-item label="签名">{{ activeUser.signature }}</el-descriptions-item>
 						</el-descriptions>
 					</div>
 				</div>
@@ -59,7 +59,7 @@
 			return {
 				searchText: "",
 				showAddFriend: false,
-				activeUserInfo: {}
+				activeUser: {}
 			}
 		},
 		methods: {
@@ -69,26 +69,26 @@
 			handleCloseAddFriend() {
 				this.showAddFriend = false;
 			},
-			handleActiveItem(friendInfo, index) {
+			handleActiveItem(friend, index) {
 				this.$store.commit("activeFriend", index);
 				this.$http({
-					url: `/api/user/find/${friendInfo.friendId}`,
+					url: `/api/user/find/${friend.id}`,
 					method: 'get'
-				}).then((userInfo) => {
-					this.activeUserInfo = userInfo;
+				}).then((user) => {
+					this.activeUser = user;
 					// 如果发现好友的头像和昵称改了，进行更新
-					if (userInfo.headImageThumb != friendInfo.friendHeadImage ||
-						userInfo.nickName != friendInfo.friendNickName) {
-						this.updateFriendInfo(friendInfo, userInfo, index)
+					if (user.headImageThumb != friend.headImage ||
+						user.nickName != friend.nickName) {
+						this.updateFriendInfo(friend, user, index)
 					}
 				})
 			},
-			handleDelItem(friendInfo, index) {
+			handleDelItem(friend, index) {
 				this.$http({
 					url: '/api/friend/delete',
 					method: 'delete',
 					params: {
-						friendId: friendInfo.friendId
+						friendId: friend.id
 					}
 				}).then((data) => {
 					this.$message.success("删除好友成功");
@@ -96,27 +96,27 @@
 				})
 			},
 			handleSendMessage() {
-				let userInfo = this.activeUserInfo;
-				let chatInfo = {
+				let user = this.activeUser;
+				let chat = {
 					type: 'single',
-					targetId: userInfo.id,
-					showName: userInfo.nickName,
-					headImage: userInfo.headImage,
+					targetId: user.id,
+					showName: user.nickName,
+					headImage: user.headImage,
 				};
-				this.$store.commit("openChat", chatInfo);
+				this.$store.commit("openChat", chat);
 				this.$store.commit("activeChat", 0);
 				this.$router.push("/home/chat");
 			},
-			updateFriendInfo(friendInfo, userInfo, index) {
-				friendInfo.friendHeadImage = userInfo.headImageThumb;
-				friendInfo.friendNickName = userInfo.nickName;
+			updateFriendInfo(friend, user, index) {
+				friend.headImage = user.headImageThumb;
+				friend.nickName = user.nickName;
 				this.$http({
 					url: "/api/friend/update",
 					method: "put",
-					data: friendInfo
+					data: friend
 				}).then(() => {
-					this.$store.commit("updateFriend", friendInfo);
-					this.$store.commit("setChatUserInfo", userInfo);
+					this.$store.commit("updateFriend", friend);
+					this.$store.commit("updateChatFromUser", user);
 				})
 			}
 		}

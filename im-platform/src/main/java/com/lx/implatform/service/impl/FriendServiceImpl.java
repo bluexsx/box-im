@@ -80,15 +80,15 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(Friend::getUserId,userId)
-                .eq(Friend::getFriendId,vo.getFriendId());
+                .eq(Friend::getFriendId,vo.getId());
 
         Friend f = this.getOne(queryWrapper);
         if(f == null){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"对方不是您的好友");
         }
 
-        f.setFriendHeadImage(vo.getFriendHeadImage());
-        f.setFriendNickName(vo.getFriendNickName());
+        f.setFriendHeadImage(vo.getHeadImage());
+        f.setFriendNickName(vo.getNickName());
         this.updateById(f);
     }
 

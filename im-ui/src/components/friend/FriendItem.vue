@@ -1,13 +1,13 @@
 <template>
 	<div class="item" :class="active ? 'active' : ''">
 		<div class="avatar">
-			<head-image :url="friendInfo.friendHeadImage" > </head-image>
+			<head-image :url="friend.headImage"> </head-image>
 		</div>
 		<div class="text">
-			<div>{{ friendInfo.friendNickName}}</div>
+			<div>{{ friend.nickName}}</div>
 			<div :class="online ? 'online-status  online':'online-status'">{{ online?"[在线]":"[离线]"}}</div>
 		</div>
-		<div class="close" @click.stop="$emit('del',friendInfo,index)">
+		<div class="close" @click.stop="$emit('del',friend,index)">
 			<i class="el-icon-close" style="border: none; font-size: 20px;color: black;" title="添加好友"></i>
 		</div>
 	</div>
@@ -15,27 +15,28 @@
 
 <script>
 	import HeadImage from '../common/HeadImage.vue';
-	
+
 	export default {
 		name: "frinedItem",
-		components: {HeadImage},
+		components: {
+			HeadImage
+		},
 		data() {
-			return {
-}
+			return {}
 		},
 		props: {
-			friendInfo: {
+			friend: {
 				type: Object
 			},
-			active:{
+			active: {
 				type: Boolean
 			},
-			index:{
+			index: {
 				type: Number
 			}
 		},
-		computed:{
-			online(){
+		computed: {
+			online() {
 				return this.$store.state.friendStore.friends[this.index].online;
 			}
 		}
@@ -52,15 +53,16 @@
 		align-items: center;
 		padding-right: 5px;
 		background-color: #eeeeee;
+
 		&:hover {
 			background-color: #dddddd;
 		}
-		
-		&.active{
+
+		&.active {
 			background-color: #cccccc;
 		}
-		
-		
+
+
 		.close {
 			width: 1.5rem;
 			height: 1.5rem;
@@ -93,15 +95,17 @@
 			height: 100%;
 			flex-shrink: 0;
 			overflow: hidden;
+
 			&>div {
 				display: flex;
 				justify-content: flex-start;
 			}
-			
-			.online-status{
+
+			.online-status {
 				font-size: 12px;
 				font-weight: 600;
-				&.online{
+
+				&.online {
 					color: #5fb878;
 				}
 			}

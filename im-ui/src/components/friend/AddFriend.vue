@@ -4,17 +4,17 @@
 			<el-button slot="append" icon="el-icon-search" @click="handleSearch()"></el-button>
 		</el-input>
 		<el-scrollbar style="height:400px">
-			<div v-for="(userInfo) in users" :key="userInfo.id">
+			<div v-for="(user) in users" :key="user.id">
 				<div class="item">
 					<div class="avatar">
-						<head-image :url="userInfo.headImage"></head-image>
+						<head-image :url="user.headImage"></head-image>
 					</div>
 					<div class="add-friend-text">
-						<div>{{userInfo.nickName}}</div>
-						<div :class="userInfo.online ? 'online-status  online':'online-status'">{{ userInfo.online?"[在线]":"[离线]"}}</div>
+						<div>{{user.nickName}}</div>
+						<div :class="user.online ? 'online-status  online':'online-status'">{{ user.online?"[在线]":"[离线]"}}</div>
 					</div>
-					 <el-button type="success" v-show="!isFriend(userInfo.id)" plain @click="onAddFriend(userInfo)">添加</el-button>
-					 <el-button type="info" v-show="isFriend(userInfo.id)" plain disabled>已添加</el-button>
+					 <el-button type="success" v-show="!isFriend(user.id)" plain @click="handleAddFriend(user)">添加</el-button>
+					 <el-button type="info" v-show="isFriend(user.id)" plain disabled>已添加</el-button>
 				</div>
 			</div>
 		</el-scrollbar>
@@ -54,27 +54,27 @@
 					this.users = data;
 				})
 			},
-			handleAddFriend(userInfo){
+			handleAddFriend(user){
 				this.$http({
 					url: "/api/friend/add",
 					method: "post",
 					params: {
-						friendId: userInfo.id
+						friendId: user.id
 					}
 				}).then((data) => {
 					this.$message.success("添加成功，对方已成为您的好友");
-					let friendInfo = {
-						friendId:userInfo.id,
-						friendNickName: userInfo.nickName,
-						friendHeadImage: userInfo.headImage,
-						online: userInfo.online
+					let friend = {
+						id:user.id,
+						nickName: user.nickName,
+						headImage: user.headImage,
+						online: user.online
 					}
-					this.$store.commit("addFriend",friendInfo);
+					this.$store.commit("addFriend",friend);
 				})
 			},
 			isFriend(userId){
 				let friends = this.$store.state.friendStore.friends;
-				let friend = friends.find((f)=> f.friendId==userId);			
+				let friend = friends.find((f)=> f.id==userId);			
 				return friend != undefined;
 			}
 		},
