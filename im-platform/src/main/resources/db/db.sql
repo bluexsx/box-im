@@ -25,10 +25,10 @@ create table `im_friend`(
     key `idx_friend_id` (`friend_id`)
 ) ENGINE=InnoDB CHARSET=utf8mb3 comment '好友';
 
-create table `im_single_message`(
+create table `im_private_message`(
     `id` bigint not null auto_increment primary key comment 'id',
-    `send_user_id` bigint not null  comment '发送用户id',
-    `recv_user_id` bigint not null  comment '接收用户id',
+    `send_id` bigint not null  comment '发送用户id',
+    `recv_id` bigint not null  comment '接收用户id',
     `content` text   comment '发送内容',
     `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件',
     `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 ',

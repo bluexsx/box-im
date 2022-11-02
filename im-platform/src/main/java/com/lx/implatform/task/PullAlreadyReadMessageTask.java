@@ -3,8 +3,8 @@ package com.lx.implatform.task;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.lx.common.contant.RedisKey;
 import com.lx.common.enums.MessageStatusEnum;
-import com.lx.implatform.entity.SingleMessage;
-import com.lx.implatform.service.ISingleMessageService;
+import com.lx.implatform.entity.PrivateMessage;
+import com.lx.implatform.service.IPrivateMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,7 +27,7 @@ public class PullAlreadyReadMessageTask {
     private RedisTemplate<String,Object> redisTemplate;
 
     @Autowired
-    private ISingleMessageService singleMessageService;
+    private IPrivateMessageService privateMessageService;
 
     @PostConstruct
     public void init(){
@@ -43,10 +43,10 @@ public class PullAlreadyReadMessageTask {
                 String key = RedisKey.IM_ALREADY_READED_MESSAGE;
                 Integer msgId =  (Integer)redisTemplate.opsForList().leftPop(key,1, TimeUnit.SECONDS);
                 if(msgId!=null){
-                    UpdateWrapper<SingleMessage> updateWrapper = new UpdateWrapper<>();
-                    updateWrapper.lambda().eq(SingleMessage::getId,msgId)
-                            .set(SingleMessage::getStatus, MessageStatusEnum.ALREADY_READ.getCode());
-                    singleMessageService.update(updateWrapper);
+                    UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
+                    updateWrapper.lambda().eq(PrivateMessage::getId,msgId)
+                            .set(PrivateMessage::getStatus, MessageStatusEnum.ALREADY_READ.getCode());
+                    privateMessageService.update(updateWrapper);
                     log.info("消息已读，id:{}",msgId);
                 }
             }catch (Exception e){

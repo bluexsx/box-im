@@ -11,12 +11,12 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel("单发消息VO")
-public class SingleMessageVO {
+public class PrivateMessageVO {
 
 
     @NotNull(message="接收用户id不可为空")
     @ApiModelProperty(value = "接收用户id")
-    private Long recvUserId;
+    private Long recvId;
 
 
     @Length(max=1024,message = "内容长度不得大于1024")

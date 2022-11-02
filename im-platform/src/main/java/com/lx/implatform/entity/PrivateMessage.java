@@ -21,8 +21,8 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("im_single_message")
-public class SingleMessage extends Model<SingleMessage> {
+@TableName("im_private_message")
+public class PrivateMessage extends Model<PrivateMessage> {
 
     private static final long serialVersionUID=1L;
 
@@ -35,14 +35,14 @@ public class SingleMessage extends Model<SingleMessage> {
     /**
      * 发送用户id
      */
-    @TableField("send_user_id")
-    private Long sendUserId;
+    @TableField("send_id")
+    private Long sendId;
 
     /**
      * 接收用户id
      */
-    @TableField("recv_user_id")
-    private Long recvUserId;
+    @TableField("recv_id")
+    private Long recvId;
 
     /**
      * 发送内容
