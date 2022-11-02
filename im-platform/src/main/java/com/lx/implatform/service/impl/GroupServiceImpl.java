@@ -2,6 +2,7 @@ package com.lx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lx.common.contant.Constant;
+import com.lx.common.contant.RedisKey;
 import com.lx.common.enums.ResultCode;
 import com.lx.common.util.BeanUtils;
 import com.lx.implatform.entity.Friend;
@@ -22,14 +23,20 @@ import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Member;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
+@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
 
@@ -41,6 +48,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
     @Autowired
     private IFriendService friendsService;
+
 
     /**
      * 创建新群聊
@@ -77,6 +85,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * @Param  GroupVO 群聊信息
      * @return GroupVO
      **/
+    @CacheEvict(value = "#vo.getId()")
     @Transactional
     @Override
     public GroupVO modifyGroup(GroupVO vo) {
@@ -86,7 +95,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 群主有权修改群基本信息
         if(group.getOwnerId() == session.getId()){
             group = BeanUtils.copyProperties(vo,Group.class);
-            this.save(group);
+            this.updateById(group);
         }
         // 更新成员信息
         GroupMember member = groupMemberService.findByGroupAndUserId(vo.getId(),session.getId());
@@ -106,6 +115,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * @return
      **/
     @Transactional
+    @CacheEvict(value = "#groupId")
     @Override
     public void deleteGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
@@ -120,6 +130,38 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         this.removeById(groupId);
         // 删除成员数据
         groupMemberService.removeByGroupId(groupId);
+    }
+
+    /**
+     *退出群聊
+     *
+     * @param groupId 群聊id
+     * @return
+     */
+    @Override
+    public void quitGroup(Long groupId) {
+        UserSession session = SessionContext.getSession();
+        Group group = this.getById(groupId);
+        if(group == null){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组不存在");
+        }
+        if(group.getOwnerId() == session.getId()){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您是群主，不可退出群聊");
+        }
+        // 删除群聊成员
+        groupMemberService.removeByGroupAndUserId(groupId,session.getId());
+    }
+
+    /**
+     *根据id查找群聊，并进行缓存
+     *
+     * @param groupId 群聊id
+     * @return
+     */
+    @Cacheable(value = "#groupId")
+    @Override
+    public  Group findById(Long groupId){
+        return super.getById(groupId);
     }
 
     /**
@@ -160,6 +202,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public void invite(GroupInviteVO vo) {
         UserSession session = SessionContext.getSession();
+        Group group = this.getById(vo.getGroupId());
+        if(group == null){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊不存在");
+        }
         // 群聊人数校验
         List<GroupMember> members = groupMemberService.findByGroupId(vo.getGroupId());
         if(vo.getFriendIds().size() + members.size() > Constant.MAX_GROUP_MEMBER){
@@ -186,11 +232,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
                     groupMember.setGroupId(vo.getGroupId());
                     groupMember.setUserId(f.getFriendId());
                     groupMember.setAliasName(f.getFriendNickName());
+                    groupMember.setRemark(group.getName());
                     groupMember.setHeadImage(f.getFriendHeadImage());
                     return groupMember;
                 }).collect(Collectors.toList());
         if(!groupMembers.isEmpty()) {
-            groupMemberService.saveBatch(groupMembers);
+            groupMemberService.saveBatch(group.getId(),groupMembers);
         }
     }
 
@@ -209,4 +256,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }).collect(Collectors.toList());
         return vos;
     }
+
+
 }

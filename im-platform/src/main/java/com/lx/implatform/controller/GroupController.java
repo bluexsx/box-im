@@ -36,7 +36,7 @@ public class GroupController {
         return ResultUtils.success(groupService.modifyGroup(vo));
     }
 
-    @ApiOperation(value = "修改群聊信息",notes="修改群聊信息")
+    @ApiOperation(value = "解散群聊",notes="解散群聊")
     @DeleteMapping("/delete/{groupId}")
     public Result<GroupVO> deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
         groupService.deleteGroup(groupId);
@@ -62,6 +62,12 @@ public class GroupController {
         return ResultUtils.success(groupService.findGroupMembers(groupId));
     }
 
+    @ApiOperation(value = "退出群聊",notes="退出群聊")
+    @DeleteMapping("/quit/{groupId}")
+    public Result<GroupVO> quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
+        groupService.quitGroup(groupId);
+        return ResultUtils.success();
+    }
 
 }
 

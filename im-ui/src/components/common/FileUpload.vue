@@ -4,6 +4,7 @@
 	 :show-file-list="false" 
 	 :on-success="handleSuccess"
 	 :on-error="handleError"
+	 :disabled="disabled"
 	 :before-upload="beforeUpload">
 		<slot></slot>
 	</el-upload>
@@ -31,6 +32,10 @@
 				default: null
 			},
 			showLoading: {
+				type: Boolean,
+				default: false
+			},
+			disabled: {
 				type: Boolean,
 				default: false
 			}

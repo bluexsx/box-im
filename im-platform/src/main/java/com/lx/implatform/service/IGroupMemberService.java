@@ -3,6 +3,7 @@ package com.lx.implatform.service;
 import com.lx.implatform.entity.GroupMember;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,11 +18,17 @@ public interface IGroupMemberService extends IService<GroupMember> {
 
 
 
-    GroupMember findByGroupAndUserId(Long groupId,Long userId);
+    GroupMember findByGroupAndUserId(long groupId,long userId);
 
-    List<GroupMember>  findByUserId(Long userId);
+    List<GroupMember>  findByUserId(long userId);
 
-    List<GroupMember>  findByGroupId(Long groupId);
+    List<GroupMember>  findByGroupId(long groupId);
+
+    boolean save(GroupMember member);
+
+    boolean saveBatch(long groupId,List<GroupMember> members);
 
     void removeByGroupId(long groupId);
+
+    void removeByGroupAndUserId(long groupId,long userId);
 }

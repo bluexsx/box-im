@@ -1,7 +1,7 @@
 <template>
 	<div class="group-member">
 		<head-image :url="member.headImage" :size="60" class=""></head-image>
-		<div class="member-name">{{member.aliasName}}121212121212</div>
+		<div class="member-name">{{member.aliasName}}</div>
 	</div>
 </template>
 
@@ -34,7 +34,7 @@
 		align-items: center;
 		width: 60px;
 		.member-name {
-			font-size: 16px;
+			font-size: 12px;
 			text-align: center;
 			width: 100%;
 			height: 30px;

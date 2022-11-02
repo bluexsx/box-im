@@ -98,7 +98,7 @@ public class RedisConfig extends CachingConfigurerSupport {
         RedisCacheConfiguration cacheConfiguration =
                 RedisCacheConfiguration.defaultCacheConfig()
                         .disableCachingNullValues()
-                        .entryTtl(Duration.ofMinutes(15))
+                        .entryTtl(Duration.ofMinutes(10))
                         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer()));
         return RedisCacheManager.builder(factory).cacheDefaults(cacheConfiguration).build();
 

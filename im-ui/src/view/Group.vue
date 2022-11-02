@@ -18,20 +18,26 @@
 			</div>
 		</el-aside>
 		<el-container class="r-group-box">
-			<div class="r-group-header">
-				{{activeGroup.remark}}
+			<div class="r-group-header" v-show="groupStore.activeIndex>=0">
+				{{activeGroup.remark}}({{groupMembers.length}})
 			</div>
 			<div class="r-group-container">
 				<div v-show="groupStore.activeIndex>=0">
 					<div class="r-group-info">
-						<file-upload class="avatar-uploader" action="/api/image/upload" :showLoading="true" :maxSize="maxSize" @success="handleUploadSuccess"
-						 :fileTypes="['image/jpeg', 'image/png', 'image/jpg']">
-							<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
-							<i v-else class="el-icon-plus avatar-uploader-icon"></i>
-						</file-upload>
-						<el-form class="r-group-form" label-width="130px" :model="activeGroup">
-							<el-form-item label="群聊名称">
-								<el-input v-model="activeGroup.name"></el-input>
+						<div>
+							<file-upload class="avatar-uploader" action="/api/image/upload" :disabled="!isOwner" :showLoading="true"
+							 :maxSize="maxSize" @success="handleUploadSuccess" :fileTypes="['image/jpeg', 'image/png', 'image/jpg']">
+								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
+								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
+							</file-upload>
+							<el-button class="send-btn" @click="handleSendMessage()">发送消息</el-button>
+						</div>
+						<el-form class="r-group-form" label-width="130px" :model="activeGroup" :rules="rules" ref="groupForm">
+							<el-form-item label="群聊名称" prop="name">
+								<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="50"></el-input>
+							</el-form-item>
+							<el-form-item label="群主">
+								<el-input :value="ownerName" disabled maxlength="50"></el-input>
 							</el-form-item>
 							<el-form-item label="备注">
 								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见"></el-input>
@@ -40,16 +46,16 @@
 								<el-input v-model="activeGroup.aliasName" placeholder=""></el-input>
 							</el-form-item>
 							<el-form-item label="群公告">
-								<el-input v-model="activeGroup.notice" type="textarea" placeholder="群主未设置"></el-input>
+								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" placeholder="群主未设置"></el-input>
 							</el-form-item>
+							<div class="btn-group">
+								<el-button type="success" @click="handleSaveGroup()">提交</el-button>
+								<el-button type="danger" v-show="!isOwner" @click="handleQuit()">退出群聊</el-button>
+								<el-button type="danger" v-show="isOwner" @click="handleDissolve()">解散群聊</el-button>
+							</div>
 						</el-form>
 					</div>
-					<div class="btn-group">
-						<el-button class="send-btn" @click="handleSaveGroup()">保存</el-button>
-						<el-button class="send-btn" @click="handleSendMessage()">发消息</el-button>
-						<el-button type="danger" class="send-btn" @click="handleSendMessage()">退出</el-button>
-						<el-button type="danger" class="send-btn" @click="handleSendMessage()">解散</el-button>
-					</div>
+
 					<el-divider content-position="center"></el-divider>
 					<el-scrollbar style="height:400px;">
 						<div class="r-group-member-list">
@@ -96,7 +102,14 @@
 					remark: ""
 				},
 				groupMembers: [],
-				showAddGroupMember: false
+				showAddGroupMember: false,
+				rules: {
+					name: [{
+						required: true,
+						message: '请输入群聊名称',
+						trigger: 'blur'
+					}]
+				}
 			};
 		},
 		methods: {
@@ -128,21 +141,56 @@
 			handleCloseAddGroupMember() {
 				this.showAddGroupMember = false;
 			},
-
 			handleUploadSuccess(res) {
 				this.activeGroup.headImage = res.data.originUrl;
 				this.activeGroup.headImageThumb = res.data.thumbUrl;
 			},
 			handleSaveGroup() {
-				let vo = this.activeGroup;
-				this.$http({
-					url: "/api/group/modify",
-					method: "put",
-					data: vo
-				}).then((group) => {
-					this.$store.commit("updateGroup",group);
-					this.$message.success("修改成功");
+				this.$refs['groupForm'].validate((valid) => {
+					if (valid) {
+						let vo = this.activeGroup;
+						this.$http({
+							url: "/api/group/modify",
+							method: "put",
+							data: vo
+						}).then((group) => {
+							this.$store.commit("updateGroup", group);
+							this.$message.success("修改成功");
+						})
+					}
+				});
+			},
+			handleDissolve() {
+				this.$confirm('确认要解散群聊吗?', '确认解散?', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.$http({
+						url: `/api/group/delete/${this.activeGroup.id}`,
+						method: 'delete'
+					}).then(() => {
+						this.$store.commit("removeGroup", this.groupStore.activeIndex);
+						this.$store.commit("activeGroup", -1);
+					});
 				})
+
+			},
+			handleQuit() {
+				this.$confirm('退出群聊后将不再接受群里的消息，确认退出吗？', '确认退出?', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.$http({
+						url: `/api/group/quit/${this.activeGroup.id}`,
+						method: 'delete'
+					}).then(() => {
+						this.$store.commit("removeGroup", this.groupStore.activeIndex);
+						this.$store.commit("activeGroup", -1);
+					});
+				})
+				
 			},
 			handleSendMessage() {
 
@@ -159,6 +207,22 @@
 		computed: {
 			groupStore() {
 				return this.$store.state.groupStore;
+			},
+			ownerName() {
+				let member = this.groupMembers.find((m) => m.userId == this.activeGroup.ownerId);
+				return member && member.aliasName;
+			},
+			isOwner() {
+				return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
+			}
+		},
+		mounted() {
+			if(this.groupStore.activeIndex>=0){
+				let activeGroup = this.groupStore.groups[this.groupStore.activeIndex];
+				// store数据不能直接修改，所以深拷贝一份内存
+				this.activeGroup = JSON.parse(JSON.stringify(activeGroup));
+				// 加载群成员
+				this.loadGroupMembers();
 			}
 		}
 	}
@@ -193,7 +257,9 @@
 				height: 50px;
 				padding: 5px;
 				line-height: 50px;
-				font-size: 22px;
+				font-size: 20px;
+				text-align: left;
+				text-indent: 10px;
 				background-color: white;
 				border: #dddddd solid 1px;
 			}
@@ -207,7 +273,8 @@
 
 					.r-group-form {
 						flex: 1;
-						padding-left: 20px;
+						padding-left: 40px;
+						max-width: 800px;
 					}
 
 					.avatar-uploader {
@@ -228,15 +295,15 @@
 						.avatar-uploader-icon {
 							font-size: 28px;
 							color: #8c939d;
-							width: 178px;
-							height: 178px;
-							line-height: 178px;
+							width: 200px;
+							height: 200px;
+							line-height: 200px;
 							text-align: center;
 						}
 
 						.avatar {
-							width: 178px;
-							height: 178px;
+							width: 200px;
+							height: 200px;
 							display: block;
 						}
 					}

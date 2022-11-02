@@ -248,7 +248,7 @@
 					headImage: user.headImageThumb
 				};
 				this.$http({
-					url: "/api/friends/update",
+					url: "/api/friend/update",
 					method: "put",
 					data: friendInfo
 				}).then(() => {

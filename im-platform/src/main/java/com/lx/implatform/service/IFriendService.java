@@ -16,13 +16,13 @@ import java.util.List;
  */
 public interface IFriendService extends IService<Friend> {
 
-    Boolean isFriend(Long userId1, long userId2);
+    Boolean isFriend(Long userId1, Long userId2);
 
-    List<Friend> findFriendByUserId(long UserId);
+    List<Friend> findFriendByUserId(Long UserId);
 
-    void addFriend(long friendId);
+    void addFriend(Long friendId);
 
-    void delFriend(long friendId);
+    void delFriend(Long friendId);
 
     void update(FriendVO vo);
 

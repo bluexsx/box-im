@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author blue
@@ -24,48 +24,48 @@ import java.util.Date;
 @TableName("im_friend")
 public class Friend extends Model<Friend> {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
-      /**
+    /**
      * id
      */
-      @TableId(value = "id", type = IdType.AUTO)
-      private Long id;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
-      /**
+    /**
      * 用户id
      */
-      @TableField("user_id")
+    @TableField("user_id")
     private Long userId;
 
-      /**
+    /**
      * 好友id
      */
-      @TableField("friend_id")
+    @TableField("friend_id")
     private Long friendId;
 
-      /**
+    /**
      * 用户昵称
      */
-      @TableField("friend_nick_name")
+    @TableField("friend_nick_name")
     private String friendNickName;
 
-      /**
+    /**
      * 用户头像
      */
-      @TableField("friend_head_image")
+    @TableField("friend_head_image")
     private String friendHeadImage;
 
-      /**
+    /**
      * 创建时间
      */
-      @TableField("created_time")
+    @TableField("created_time")
     private Date createdTime;
 
 
     @Override
     protected Serializable pkVal() {
-          return this.id;
-      }
+        return this.id;
+    }
 
 }

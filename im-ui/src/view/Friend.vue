@@ -20,17 +20,17 @@
 			</div>
 		</el-aside>
 		<el-container class="r-friend-box">
-			<div v-show="activeUser.id">
+			<div v-show="userInfo.id">
 				<div class="user-detail">
-					<head-image class="detail-head-image" :size="200" :url="activeUser.headImage"></head-image>
+					<head-image class="detail-head-image" :size="200" :url="userInfo.headImage"></head-image>
 					<div class="info-item">
 						<el-descriptions title="好友信息" class="description" :column="1">
-							<el-descriptions-item label="用户名">{{ activeUser.userName }}
+							<el-descriptions-item label="用户名">{{ userInfo.userName }}
 							</el-descriptions-item>
-							<el-descriptions-item label="昵称">{{ activeUser.nickName }}
+							<el-descriptions-item label="昵称">{{ userInfo.nickName }}
 							</el-descriptions-item>
-							<el-descriptions-item label="性别">{{ activeUser.sex==0?"男":"女" }}</el-descriptions-item>
-							<el-descriptions-item label="签名">{{ activeUser.signature }}</el-descriptions-item>
+							<el-descriptions-item label="性别">{{ userInfo.sex==0?"男":"女" }}</el-descriptions-item>
+							<el-descriptions-item label="签名">{{ userInfo.signature }}</el-descriptions-item>
 						</el-descriptions>
 					</div>
 				</div>
@@ -58,7 +58,7 @@
 			return {
 				searchText: "",
 				showAddFriend: false,
-				activeUser: {}
+				userInfo: {}
 			}
 		},
 		methods: {
@@ -70,17 +70,7 @@
 			},
 			handleActiveItem(friend, index) {
 				this.$store.commit("activeFriend", index);
-				this.$http({
-					url: `/api/user/find/${friend.id}`,
-					method: 'get'
-				}).then((user) => {
-					this.activeUser = user;
-					// 如果发现好友的头像和昵称改了，进行更新
-					if (user.headImageThumb != friend.headImage ||
-						user.nickName != friend.nickName) {
-						this.updateFriendInfo(friend, user, index)
-					}
-				})
+				this.loadUserInfo(friend,index);
 			},
 			handleDelItem(friend, index) {
 				this.$http({
@@ -95,7 +85,7 @@
 				})
 			},
 			handleSendMessage() {
-				let user = this.activeUser;
+				let user = this.userInfo;
 				let chat = {
 					type: 'single',
 					targetId: user.id,
@@ -108,6 +98,8 @@
 				this.$router.push("/home/chat");
 			},
 			updateFriendInfo(friend, user, index) {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				friend = JSON.parse(JSON.stringify(friend));
 				friend.headImage = user.headImageThumb;
 				friend.nickName = user.nickName;
 				this.$http({
@@ -118,6 +110,30 @@
 					this.$store.commit("updateFriend", friend);
 					this.$store.commit("updateChatFromUser", user);
 				})
+			},
+			loadUserInfo(friend,index){
+				this.$http({
+					url: `/api/user/find/${friend.id}`,
+					method: 'get'
+				}).then((user) => {
+					this.userInfo = user;
+					// 如果发现好友的头像和昵称改了，进行更新
+					if (user.headImageThumb != friend.headImage ||
+						user.nickName != friend.nickName) {
+						this.updateFriendInfo(friend, user, index)
+					}
+				})
+			}
+		},
+		computed:{
+			friendStore(){
+				return this.$store.state.friendStore;
+			}
+		},
+		mounted() {
+			if(this.friendStore.activeIndex>=0){
+				let friend = this.friendStore.friends[this.friendStore.activeIndex];
+				this.loadUserInfo(friend,this.friendStore.activeIndex);
 			}
 		}
 

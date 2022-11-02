@@ -2,6 +2,7 @@ package com.lx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lx.common.contant.RedisKey;
 import com.lx.common.enums.ResultCode;
 import com.lx.implatform.entity.Friend;
 import com.lx.implatform.entity.User;
@@ -11,7 +12,11 @@ import com.lx.implatform.service.IFriendService;
 import com.lx.implatform.service.IUserService;
 import com.lx.implatform.session.SessionContext;
 import com.lx.implatform.vo.FriendVO;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +30,7 @@ import java.util.List;
  * @author blue
  * @since 2022-10-22
  */
+@CacheConfig(cacheNames= RedisKey.IM_CACHE_FRIEND)
 @Service
 public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements IFriendService {
 
@@ -32,7 +38,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     private IUserService userService;
 
     @Override
-    public List<Friend> findFriendByUserId(long UserId) {
+    public List<Friend> findFriendByUserId(Long UserId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Friend::getUserId,UserId);
         List<Friend> friends = this.list(queryWrapper);
@@ -42,7 +48,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Transactional
     @Override
-    public void addFriend(long friendId) {
+    public void addFriend(Long friendId) {
         long userId = SessionContext.getSession().getId();
         if(userId == friendId){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"不允许添加自己为好友");
@@ -55,17 +61,18 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Transactional
     @Override
-    public void delFriend(long friendId) {
+    public void delFriend(Long friendId) {
         long userId = SessionContext.getSession().getId();
         // 互相解除好友关系
-        unbindFriend(userId,friendId);
-        unbindFriend(friendId,userId);
+        FriendServiceImpl proxy = (FriendServiceImpl)AopContext.currentProxy();
+        proxy.unbindFriend(userId,friendId);
+        proxy.unbindFriend(friendId,userId);
     }
 
 
-
+    @Cacheable(key="#userId1+':'+#userId2")
     @Override
-    public Boolean isFriend(Long userId1, long userId2) {
+    public Boolean isFriend(Long userId1, Long userId2) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(Friend::getUserId,userId1)
@@ -92,7 +99,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         this.updateById(f);
     }
 
-    private void bindFriend(long userId, long friendId) {
+    public void bindFriend(Long userId, Long friendId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(Friend::getUserId,userId)
@@ -108,8 +115,8 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         }
     }
 
-
-    private void unbindFriend(long userId, long friendId) {
+    @CacheEvict(key="#userId+':'+#friendId")
+    public void unbindFriend(Long userId, Long friendId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(Friend::getUserId,userId)
