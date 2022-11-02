@@ -8,13 +8,14 @@ import com.lx.implatform.service.IGroupMemberService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
-@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER)
+@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER_ID)
 @Service
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements IGroupMemberService {
 
@@ -41,7 +42,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      */
     @CacheEvict(key="#groupId")
     @Override
-    public boolean saveBatch(long groupId,List<GroupMember> members) {
+    public boolean saveBatch(Long groupId,List<GroupMember> members) {
         return super.saveBatch(members);
     }
 
@@ -53,7 +54,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * @return
      */
     @Override
-    public GroupMember findByGroupAndUserId(long groupId, long userId) {
+    public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(GroupMember::getGroupId,groupId)
                 .eq(GroupMember::getUserId,userId);
@@ -67,7 +68,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * @return
      */
     @Override
-    public List<GroupMember> findByUserId(long userId) {
+    public List<GroupMember> findByUserId(Long userId) {
         QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
         memberWrapper.lambda().eq(GroupMember::getUserId, userId);
         return this.list(memberWrapper);
@@ -80,10 +81,18 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * @return
      */
     @Override
-    public List<GroupMember> findByGroupId(long groupId) {
+    public List<GroupMember> findByGroupId(Long groupId) {
         QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
         memberWrapper.lambda().eq(GroupMember::getGroupId, groupId);
         return this.list(memberWrapper);
+    }
+
+
+    @Cacheable(key="#groupId")
+    @Override
+    public List<Long> findUserIdsByGroupId(Long groupId) {
+        List<GroupMember> members = this.findByGroupId(groupId);
+        return members.stream().map(m->m.getUserId()).collect(Collectors.toList());
     }
 
     /**
@@ -94,7 +103,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      */
     @CacheEvict(key = "#groupId")
     @Override
-    public void removeByGroupId(long groupId) {
+    public void removeByGroupId(Long groupId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper();
         wrapper.lambda().eq(GroupMember::getGroupId,groupId);
         this.remove(wrapper);
@@ -109,7 +118,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      */
     @CacheEvict(key = "#groupId")
     @Override
-    public void removeByGroupAndUserId(long groupId, long userId) {
+    public void removeByGroupAndUserId(Long groupId, Long userId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(GroupMember::getGroupId,groupId)
                 .eq(GroupMember::getUserId,userId);

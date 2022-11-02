@@ -2,6 +2,7 @@ package com.lx.implatform.imserver;
 
 
 import com.lx.implatform.imserver.websocket.WebsocketServer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +21,8 @@ public class IMServerApp implements CommandLineRunner {
     @Value("${websocket.port}")
     private int port;
 
+    @Autowired
+    private WebsocketServer WSServer;
 
     public static void main(String[] args) {
         SpringApplication.run(IMServerApp.class);
@@ -27,6 +30,6 @@ public class IMServerApp implements CommandLineRunner {
 
 
     public void run(String... args) throws Exception {
-        new WebsocketServer().start(port);
+        WSServer.start(port);
     }
 }

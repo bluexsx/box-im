@@ -1,5 +1,6 @@
 package com.lx.implatform.imserver.websocket;
 
+import com.lx.common.contant.RedisKey;
 import com.lx.implatform.imserver.websocket.endecode.MessageProtocolDecoder;
 import com.lx.implatform.imserver.websocket.endecode.MessageProtocolEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -11,7 +12,9 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,13 +24,27 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class WebsocketServer {
 
-        public static String LOCAL_SERVER_ID = UUID.randomUUID().toString();
+        public static long serverId = 0;
 
-        @Value("${websocket.port}")
-        private int port;
+        @Autowired
+        RedisTemplate<String,Object> redisTemplate;
+
+        private volatile boolean ready = false;
+
+
         @PostConstruct
         public void init(){
-            //this.start(port);
+            // 初始化SERVER_ID
+            String key = RedisKey.IM_MAX_SERVER_ID;
+            serverId =  redisTemplate.opsForValue().increment(key,1);
+        }
+
+        public boolean isReady(){
+            return ready;
+        }
+
+        public long getServerId(){
+            return serverId;
         }
 
         public void start(int port) {
@@ -64,10 +81,12 @@ public class WebsocketServer {
                     .option(ChannelOption.SO_BACKLOG, 5)
                     // 表示连接保活，相当于心跳机制，默认为7200s
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-
+            // 就绪标志
+            this.ready = true;
             try {
                 // 绑定端口，启动select线程，轮询监听channel事件，监听到事件之后就会交给从线程池处理
                 Channel channel = bootstrap.bind(port).sync().channel();
+
                 // 等待服务端口关闭
                 channel.closeFuture().sync();
             } catch (InterruptedException e) {

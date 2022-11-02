@@ -3,15 +3,18 @@ package com.lx.common.model.im;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
-public class SingleMessageInfo {
+public class GroupMessageInfo {
 
-    private long id;
+    private Long id;
 
-    private Long sendUserId;
+    private Long groupId;
 
-    private Long recvUserId;
+    private Long sendId;
+
+    private List<Long> recvIds;
 
     private String content;
 

@@ -6,6 +6,9 @@ export default {
 	},
 	
 	mutations: {
+		initChatStore(state) {
+			state.activeIndex = -1;
+		},
 		openChat(state,chatInfo){
 			let chat = null;
 			for(let i in state.chats){
@@ -45,7 +48,7 @@ export default {
 		},
 		
 		insertMessage(state, msgInfo) {
-			let targetId = msgInfo.selfSend?msgInfo.recvUserId:msgInfo.sendUserId;
+			let targetId = msgInfo.selfSend?msgInfo.recvId:msgInfo.sendId;
 			let chat = state.chats.find((chat)=>chat.targetId==targetId);
 		
 			chat.lastContent = msgInfo.content;

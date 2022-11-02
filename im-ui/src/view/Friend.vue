@@ -87,12 +87,11 @@
 			handleSendMessage() {
 				let user = this.userInfo;
 				let chat = {
-					type: 'single',
+					type: 'PRIVATE',
 					targetId: user.id,
 					showName: user.nickName,
 					headImage: user.headImage,
 				};
-				console.log(chat);
 				this.$store.commit("openChat", chat);
 				this.$store.commit("activeChat", 0);
 				this.$router.push("/home/chat");

@@ -3,7 +3,7 @@ package com.lx.common.enums;
 public enum WSCmdEnum {
 
     HEARTBEAT(0,"心跳"),
-    SINGLE_MESSAGE(1,"单发消息"),
+    PRIVATE_MESSAGE(1,"私聊消息"),
     GROUP_MESSAGE(2,"群发消息");
 
 

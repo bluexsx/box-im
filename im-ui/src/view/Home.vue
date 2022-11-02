@@ -61,21 +61,21 @@
 					console.log(e);
 					if(e.cmd==1){
 						// 插入私聊消息
-						this.handleSingleMessage(e.data);
+						this.handlePrivateMessage(e.data);
 					}
 				})
 			},
 			pullUnreadMessage(){
 				this.$http({
-					url: "/api/message/single/pullUnreadMessage",
+					url: "/api/message/private/pullUnreadMessage",
 					method: 'post'
 				})
 			},
-			handleSingleMessage(msg){
+			handlePrivateMessage(msg){
 				// 插入私聊消息
-				let f = this.$store.state.friendStore.friends.find((f)=>f.id==msg.sendUserId);
+				let f = this.$store.state.friendStore.friends.find((f)=>f.id==msg.sendId);
 				let chatInfo = {
-					type: 'single',
+					type: 'PRIVATE',
 					targetId: f.id,
 					showName: f.nickName,
 					headImage: f.headImage

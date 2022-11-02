@@ -6,5 +6,4 @@ public interface MessageProcessor<T> {
 
     void process(ChannelHandlerContext ctx,T data);
 
-    T transform(Object o);
 }

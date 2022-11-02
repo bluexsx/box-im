@@ -32,6 +32,12 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     @Autowired
     private  RedisTemplate<String, Object> redisTemplate;
 
+    /**
+     * 发送私聊消息
+     *
+     * @param vo
+     * @return
+     */
     @Override
     public void sendMessage(PrivateMessageVO vo) {
         Long userId = SessionContext.getSession().getId();
@@ -47,22 +53,27 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         this.save(msg);
         // 获取对方连接的channelId
         String key = RedisKey.IM_USER_SERVER_ID+msg.getRecvId();
-        String serverId = (String)redisTemplate.opsForValue().get(key);
+        Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
         // 如果对方在线，将数据存储至redis，等待拉取推送
-        if(!StringUtils.isEmpty(serverId)){
-            String sendKey =  RedisKey.IM_UNREAD_MESSAGE + serverId;
+        if(serverId != null){
+            String sendKey =  RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
             PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
             redisTemplate.opsForList().rightPush(sendKey,msgInfo);
         }
     }
 
+    /**
+     * 异步拉取私聊消息，通过websocket异步推送
+     *
+     * @return
+     */
     @Override
     public void pullUnreadMessage() {
         // 获取当前连接的channelId
         Long userId = SessionContext.getSession().getId();
         String key = RedisKey.IM_USER_SERVER_ID+userId;
-        String serverId = (String)redisTemplate.opsForValue().get(key);
-        if(StringUtils.isEmpty(serverId)){
+        Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
+        if(serverId == null){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"用户未建立连接");
         }
         // 获取当前用户所有未读消息
@@ -76,7 +87,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 PrivateMessageInfo msgInfo = BeanUtils.copyProperties(m, PrivateMessageInfo.class);
                 return  msgInfo;
             }).collect(Collectors.toList());
-            String sendKey =  RedisKey.IM_UNREAD_MESSAGE + serverId;
+            String sendKey =  RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
             redisTemplate.opsForList().rightPushAll(sendKey,infos.toArray());
         }
     }

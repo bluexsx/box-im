@@ -45,8 +45,8 @@ public class GroupMessage extends Model<GroupMessage> {
     /**
      * 发送用户id
      */
-    @TableField("send_user_id")
-    private Long sendUserId;
+    @TableField("send_id")
+    private Long sendId;
 
     /**
      * 发送内容

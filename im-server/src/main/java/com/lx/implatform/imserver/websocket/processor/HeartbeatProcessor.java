@@ -21,12 +21,17 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class HeartbeatProcessor implements  MessageProcessor<HeartbeatInfo> {
 
+
+    @Autowired
+    private WebsocketServer WSServer;
+
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public void process(ChannelHandlerContext ctx, HeartbeatInfo beatInfo) {
-        log.info("接收到心跳，channelId:{},userId:{}",ctx.channel().id().asLongText(),beatInfo.getUserId());
+        log.info("接收到心跳，userId:{}",beatInfo.getUserId());
+
         // 绑定用户和channel
         WebsocketChannelCtxHloder.addChannelCtx(beatInfo.getUserId(),ctx);
         // 设置属性
@@ -35,7 +40,7 @@ public class HeartbeatProcessor implements  MessageProcessor<HeartbeatInfo> {
 
         // 在redis上记录每个user的channelId，15秒没有心跳，则自动过期
         String key = RedisKey.IM_USER_SERVER_ID+beatInfo.getUserId();
-        redisTemplate.opsForValue().set(key, WebsocketServer.LOCAL_SERVER_ID,15, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, WSServer.getServerId(),15, TimeUnit.SECONDS);
 
         // 响应ws
         SendInfo sendInfo = new SendInfo();
@@ -43,9 +48,4 @@ public class HeartbeatProcessor implements  MessageProcessor<HeartbeatInfo> {
         ctx.channel().writeAndFlush(sendInfo);
     }
 
-    public HeartbeatInfo transform(Object o){
-        HashMap map = (HashMap)o;
-        HeartbeatInfo beatInfo =BeanUtil.fillBeanWithMap(map, new HeartbeatInfo(), false);
-        return  beatInfo;
-    }
 }

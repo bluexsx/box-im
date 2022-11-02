@@ -11,8 +11,8 @@ public class ProcessorFactory {
             case HEARTBEAT:
                 processor = (MessageProcessor) SpringContextHolder.getApplicationContext().getBean("heartbeatProcessor");
                 break;
-            case SINGLE_MESSAGE:
-                processor = (MessageProcessor)SpringContextHolder.getApplicationContext().getBean("singleMessageProcessor");
+            case PRIVATE_MESSAGE:
+                processor = (MessageProcessor)SpringContextHolder.getApplicationContext().getBean("privateMessageProcessor");
                 break;
             default:
                 break;

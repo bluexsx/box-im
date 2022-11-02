@@ -18,17 +18,19 @@ public interface IGroupMemberService extends IService<GroupMember> {
 
 
 
-    GroupMember findByGroupAndUserId(long groupId,long userId);
+    GroupMember findByGroupAndUserId(Long groupId,Long userId);
 
-    List<GroupMember>  findByUserId(long userId);
+    List<GroupMember>  findByUserId(Long userId);
 
-    List<GroupMember>  findByGroupId(long groupId);
+    List<GroupMember>  findByGroupId(Long groupId);
+
+    List<Long> findUserIdsByGroupId(Long groupId);
 
     boolean save(GroupMember member);
 
-    boolean saveBatch(long groupId,List<GroupMember> members);
+    boolean saveBatch(Long groupId,List<GroupMember> members);
 
-    void removeByGroupId(long groupId);
+    void removeByGroupId(Long groupId);
 
-    void removeByGroupAndUserId(long groupId,long userId);
+    void removeByGroupAndUserId(Long groupId,Long userId);
 }

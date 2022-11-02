@@ -24,6 +24,7 @@ export default new Vuex.Store({
 		initStore(state){
 			this.commit("initFriendStore");
 			this.commit("initGroupStore");
+			this.commit("initChatStore");
 		}
 		
 	},

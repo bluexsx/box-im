@@ -109,7 +109,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     private boolean isOnline(Long userId){
         String key = RedisKey.IM_USER_SERVER_ID + userId;
-        String serverId = (String) redisTemplate.opsForValue().get(key);
-        return StringUtils.isNotEmpty(serverId);
+        Integer serverId = (Integer) redisTemplate.opsForValue().get(key);
+        return serverId!=null && serverId>=0;
     }
 }

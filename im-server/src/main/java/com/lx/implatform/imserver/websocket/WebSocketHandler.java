@@ -1,7 +1,9 @@
 package com.lx.implatform.imserver.websocket;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.lx.common.contant.RedisKey;
 import com.lx.common.enums.WSCmdEnum;
+import com.lx.common.model.im.HeartbeatInfo;
 import com.lx.common.model.im.SendInfo;
 import com.lx.common.util.SpringContextHolder;
 import com.lx.implatform.imserver.websocket.processor.MessageProcessor;
@@ -13,6 +15,8 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+
+import java.util.HashMap;
 
 
 /**
@@ -27,8 +31,10 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<SendInfo> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SendInfo sendInfo) throws Exception {
         // 创建处理器进行处理
+        HashMap map = (HashMap)sendInfo.getData();
+        HeartbeatInfo beatInfo = BeanUtil.fillBeanWithMap(map, new HeartbeatInfo(), false);
         MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.fromCode(sendInfo.getCmd()));
-        processor.process(ctx,processor.transform(sendInfo.getData()));
+        processor.process(ctx,beatInfo);
     }
 
     /**

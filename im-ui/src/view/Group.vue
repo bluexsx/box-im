@@ -193,7 +193,15 @@
 				
 			},
 			handleSendMessage() {
-
+				let chat = {
+					type: 'GROUP',
+					targetId: this.activeGroup.id,
+					showName: this.activeGroup.remark,
+					headImage: this.activeGroup.headImage,
+				};
+				this.$store.commit("openChat", chat);
+				this.$store.commit("activeChat", 0);
+				this.$router.push("/home/chat");
 			},
 			loadGroupMembers() {
 				this.$http({

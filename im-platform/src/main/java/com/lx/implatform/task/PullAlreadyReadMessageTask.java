@@ -40,7 +40,7 @@ public class PullAlreadyReadMessageTask {
         @Override
         public void run() {
             try {
-                String key = RedisKey.IM_ALREADY_READED_MESSAGE;
+                String key = RedisKey.IM_READED_PRIVATE_MESSAGE_ID;
                 Integer msgId =  (Integer)redisTemplate.opsForList().leftPop(key,1, TimeUnit.SECONDS);
                 if(msgId!=null){
                     UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
