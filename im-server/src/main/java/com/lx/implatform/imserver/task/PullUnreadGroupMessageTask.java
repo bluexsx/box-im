@@ -36,7 +36,7 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);
             GroupMessageInfo messageInfo = (GroupMessageInfo)o;
-            MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.PRIVATE_MESSAGE);
+            MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.GROUP_MESSAGE);
             processor.process(null,messageInfo);
         }
     }

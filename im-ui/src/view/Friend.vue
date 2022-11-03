@@ -73,15 +73,19 @@
 				this.loadUserInfo(friend,index);
 			},
 			handleDelItem(friend, index) {
-				this.$http({
-					url: '/api/friend/delete',
-					method: 'delete',
-					params: {
-						friendId: friend.id
-					}
-				}).then((data) => {
-					this.$message.success("删除好友成功");
-					this.$store.commit("removeFriend", index);
+				this.$confirm(`确认要解除与 '${friend.nickName}'的好友关系吗?`, '确认解除?', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.$http({
+						url: `/api/friend/delete/${friend.id}`,
+						method: 'delete'
+					}).then((data) => {
+						this.$message.success("删除好友成功");
+						this.$store.commit("removeFriend", index);
+						this.$store.commit("removePrivateChat", friend.id);
+					})
 				})
 			},
 			handleSendMessage() {

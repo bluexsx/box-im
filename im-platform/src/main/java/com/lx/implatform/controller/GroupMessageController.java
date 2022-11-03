@@ -19,7 +19,7 @@ import javax.validation.Valid;
 
 
 @RestController
-@RequestMapping("/group/message")
+@RequestMapping("/message/group")
 public class GroupMessageController {
 
     @Autowired
@@ -30,6 +30,14 @@ public class GroupMessageController {
     @ApiOperation(value = "发送群聊消息",notes="发送群聊消息")
     public Result register(@Valid @RequestBody GroupMessageVO vo){
         groupMessageService.sendMessage(vo);
+        return ResultUtils.success();
+    }
+
+
+    @PostMapping("/pullUnreadMessage")
+    @ApiOperation(value = "拉取未读消息",notes="拉取未读消息")
+    public Result pullUnreadMessage(){
+        groupMessageService.pullUnreadMessage();
         return ResultUtils.success();
     }
 

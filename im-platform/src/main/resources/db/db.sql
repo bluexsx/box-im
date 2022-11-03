@@ -45,6 +45,7 @@ create table `im_group`(
     `head_image_thumb` varchar(255) default '' comment '群头像缩略图',
     `notice` varchar(1024)  default '' comment '群公告',
     `remark` varchar(255) default '' comment '群备注',
+    `deleted` tinyint(1) DEFAULT 0   comment '是否已删除',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群';
 
@@ -55,6 +56,7 @@ create table `im_group_member`(
     `alias_name` varchar(255) DEFAULT '' comment '组内显示名称',
     `head_image` varchar(255) default '' comment '用户头像',
     `remark` varchar(255) DEFAULT '' comment '备注',
+    `quit` tinyint(1) DEFAULT 0  comment '是否已退出',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_group_id`(`group_id`),
     key `idx_user_id`(`user_id`)
@@ -63,7 +65,7 @@ create table `im_group_member`(
 create table `im_group_message`(
     `id` bigint not null auto_increment primary key comment 'id',
     `group_id` bigint not null  comment '群id',
-    `send_user_id` bigint not null  comment '发送用户id',
+    `send_id` bigint not null  comment '发送用户id',
     `content` text   comment '发送内容',
     `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',

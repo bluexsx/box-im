@@ -63,6 +63,11 @@ public class Group extends Model<Group> {
     @TableField("notice")
     private String notice;
 
+    /**
+     * 是否已删除
+     */
+    @TableField("deleted")
+    private Boolean deleted;
 
     /**
      * 创建时间

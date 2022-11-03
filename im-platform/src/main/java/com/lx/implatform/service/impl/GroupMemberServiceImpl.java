@@ -1,6 +1,7 @@
 package com.lx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.lx.common.contant.RedisKey;
 import com.lx.implatform.entity.GroupMember;
 import com.lx.implatform.mapper.GroupMemberMapper;
@@ -42,8 +43,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      */
     @CacheEvict(key="#groupId")
     @Override
-    public boolean saveBatch(Long groupId,List<GroupMember> members) {
-        return super.saveBatch(members);
+    public boolean saveOrUpdateBatch(Long groupId,List<GroupMember> members) {
+        return super.saveOrUpdateBatch(members);
     }
 
     /**
@@ -70,12 +71,13 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public List<GroupMember> findByUserId(Long userId) {
         QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getUserId, userId);
+        memberWrapper.lambda().eq(GroupMember::getUserId, userId)
+                .eq(GroupMember::getQuit,false);
         return this.list(memberWrapper);
     }
 
     /**
-     * 根据群聊id查询群聊成员
+     * 根据群聊id查询群聊成员（包括已退出）
      *
      * @param groupId 群聊id
      * @return
@@ -87,16 +89,26 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.list(memberWrapper);
     }
 
-
+    /**
+     * 根据群聊id查询没有退出的群聊成员id
+     *
+     * @param groupId 群聊id
+     * @return
+     */
     @Cacheable(key="#groupId")
     @Override
     public List<Long> findUserIdsByGroupId(Long groupId) {
-        List<GroupMember> members = this.findByGroupId(groupId);
+        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
+        memberWrapper.lambda().eq(GroupMember::getGroupId, groupId)
+                .eq(GroupMember::getQuit,false);
+        List<GroupMember> members = this.list(memberWrapper);
         return members.stream().map(m->m.getUserId()).collect(Collectors.toList());
     }
 
+
+
     /**
-     *根据群聊id删除成员信息
+     *根据群聊id删除移除成员
      *
      * @param groupId  群聊id
      * @return
@@ -104,13 +116,14 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @CacheEvict(key = "#groupId")
     @Override
     public void removeByGroupId(Long groupId) {
-        QueryWrapper<GroupMember> wrapper = new QueryWrapper();
-        wrapper.lambda().eq(GroupMember::getGroupId,groupId);
-        this.remove(wrapper);
+        UpdateWrapper<GroupMember> wrapper = new UpdateWrapper();
+        wrapper.lambda().eq(GroupMember::getGroupId,groupId)
+                .set(GroupMember::getQuit,true);
+        this.update(wrapper);
     }
 
     /**
-     *根据群聊id和用户id删除成员信息
+     *根据群聊id和用户id移除成员
      *
      * @param groupId  群聊id
      * @param userId  用户id
@@ -119,9 +132,10 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @CacheEvict(key = "#groupId")
     @Override
     public void removeByGroupAndUserId(Long groupId, Long userId) {
-        QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
+        UpdateWrapper<GroupMember> wrapper = new UpdateWrapper<>();
         wrapper.lambda().eq(GroupMember::getGroupId,groupId)
-                .eq(GroupMember::getUserId,userId);
-        this.remove(wrapper);
+                .eq(GroupMember::getUserId,userId)
+                .set(GroupMember::getQuit,true);
+        this.update(wrapper);
     }
 }

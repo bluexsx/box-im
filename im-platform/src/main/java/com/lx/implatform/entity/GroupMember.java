@@ -69,6 +69,13 @@ public class GroupMember extends Model<GroupMember> {
     private String remark;
 
     /**
+     * 是否已离开群聊
+     */
+    @TableField("quit")
+    private Boolean quit;
+
+
+    /**
      * 创建时间
      */
     @TableField("created_time")

@@ -31,10 +31,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<SendInfo> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SendInfo sendInfo) throws Exception {
         // 创建处理器进行处理
-        HashMap map = (HashMap)sendInfo.getData();
-        HeartbeatInfo beatInfo = BeanUtil.fillBeanWithMap(map, new HeartbeatInfo(), false);
         MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.fromCode(sendInfo.getCmd()));
-        processor.process(ctx,beatInfo);
+        processor.process(ctx,processor.transForm(sendInfo.getData()));
     }
 
     /**
@@ -64,16 +62,19 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<SendInfo> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-
         AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
         Long userId = ctx.channel().attr(attr).get();
-        // 移除channel
-        WebsocketChannelCtxHloder.removeChannelCtx(userId);
-        // 用户下线
-        RedisTemplate redisTemplate = SpringContextHolder.getBean("redisTemplate");
-        String key = RedisKey.IM_USER_SERVER_ID + userId;
-        redisTemplate.delete(key);
-        log.info(ctx.channel().id().asLongText() + "断开连接");
+        ChannelHandlerContext context = WebsocketChannelCtxHloder.getChannelCtx(userId);
+        // 判断一下，避免异地登录导致的误删
+        if(context != null && ctx.channel().id().equals(context.channel().id())){
+            // 移除channel
+            WebsocketChannelCtxHloder.removeChannelCtx(userId);
+            // 用户下线
+            RedisTemplate redisTemplate = SpringContextHolder.getBean("redisTemplate");
+            String key = RedisKey.IM_USER_SERVER_ID + userId;
+            redisTemplate.delete(key);
+            log.info("断开连接,userId:{}",userId);
+        }
     }
 
     @Override

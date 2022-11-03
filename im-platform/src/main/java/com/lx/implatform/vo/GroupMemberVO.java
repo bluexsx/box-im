@@ -18,6 +18,9 @@ public class GroupMemberVO {
     @ApiModelProperty("头像")
     private String headImage;
 
+    @ApiModelProperty("是否已退出")
+    private Boolean quit;
+
     @ApiModelProperty("备注")
     private String remark;
 

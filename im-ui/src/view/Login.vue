@@ -1,10 +1,7 @@
 <template>
 	<div class="login-view">
-		
-			
-			
-			<el-form :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px" class="web-ruleForm">
-				<div class="login-brand">欢迎登陆fly-chat</div>
+			<el-form :model="loginForm"  status-icon :rules="rules" ref="loginForm" label-width="60px" class="web-ruleForm">
+				<div class="login-brand">欢迎登陆</div>
 				<el-form-item label="用户名" prop="username">
 					<el-input type="username" v-model="loginForm.username" autocomplete="off"></el-input>
 
@@ -95,7 +92,6 @@
 		height: 100%;
 		background:  linear-gradient(#65807a, #182e3c); 
 		background-size: cover;
-
 		
 		.web-ruleForm {
 			height: 340px;
@@ -114,6 +110,7 @@
 				font-weight: 600;
 				letter-spacing: 2px;
 				text-transform: uppercase;
+				text-align: center;
 			}
 			
 			.register {

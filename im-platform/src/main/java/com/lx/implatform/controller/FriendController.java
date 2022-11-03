@@ -49,9 +49,16 @@ public class FriendController {
          return ResultUtils.success();
     }
 
-    @DeleteMapping("/delete")
+    @GetMapping("/find/{friendId}")
+    @ApiOperation(value = "查找好友信息",notes="查找好友信息")
+    public Result<FriendVO> findFriend(@NotEmpty(message = "好友id不可为空") @PathVariable("friendId") Long friendId){
+        return ResultUtils.success(friendService.findFriend(friendId));
+    }
+
+
+    @DeleteMapping("/delete/{friendId}")
     @ApiOperation(value = "删除好友",notes="解除好友关系")
-    public Result delFriend(@NotEmpty(message = "好友id不可为空") @RequestParam("friendId") Long friendId){
+    public Result delFriend(@NotEmpty(message = "好友id不可为空") @PathVariable("friendId") Long friendId){
         friendService.delFriend(friendId);
         return ResultUtils.success();
     }

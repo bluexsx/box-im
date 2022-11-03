@@ -26,7 +26,7 @@
 					<div class="r-group-info">
 						<div>
 							<file-upload class="avatar-uploader" action="/api/image/upload" :disabled="!isOwner" :showLoading="true"
-							 :maxSize="maxSize" @success="handleUploadSuccess" :fileTypes="['image/jpeg', 'image/png', 'image/jpg']">
+							 :maxSize="maxSize" @success="handleUploadSuccess" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
 								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 							</file-upload>
@@ -34,19 +34,19 @@
 						</div>
 						<el-form class="r-group-form" label-width="130px" :model="activeGroup" :rules="rules" ref="groupForm">
 							<el-form-item label="群聊名称" prop="name">
-								<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="50"></el-input>
+								<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="群主">
-								<el-input :value="ownerName" disabled maxlength="50"></el-input>
+								<el-input :value="ownerName" disabled ></el-input>
 							</el-form-item>
 							<el-form-item label="备注">
-								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见"></el-input>
+								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见" maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="我在本群的昵称">
-								<el-input v-model="activeGroup.aliasName" placeholder=""></el-input>
+								<el-input v-model="activeGroup.aliasName" placeholder="" maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="群公告">
-								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" placeholder="群主未设置"></el-input>
+								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" maxlength="1024" placeholder="群主未设置"></el-input>
 							</el-form-item>
 							<div class="btn-group">
 								<el-button type="success" @click="handleSaveGroup()">提交</el-button>
@@ -172,6 +172,7 @@
 					}).then(() => {
 						this.$store.commit("removeGroup", this.groupStore.activeIndex);
 						this.$store.commit("activeGroup", -1);
+						this.$store.commit("removeGroupChat", this.activeGroup.id);
 					});
 				})
 
@@ -188,6 +189,7 @@
 					}).then(() => {
 						this.$store.commit("removeGroup", this.groupStore.activeIndex);
 						this.$store.commit("activeGroup", -1);
+						this.$store.commit("removeGroupChat", this.activeGroup.id);
 					});
 				})
 				
@@ -208,7 +210,7 @@
 					url: `/api/group/members/${this.activeGroup.id}`,
 					method: "get"
 				}).then((members) => {
-					this.groupMembers = members;
+					this.groupMembers = members.filter((m)=>!m.quit);
 				})
 			}
 		},

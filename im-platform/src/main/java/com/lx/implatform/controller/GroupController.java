@@ -3,10 +3,13 @@ package com.lx.implatform.controller;
 
 import com.lx.common.result.Result;
 import com.lx.common.result.ResultUtils;
+import com.lx.common.util.BeanUtils;
+import com.lx.implatform.entity.Group;
 import com.lx.implatform.service.IGroupService;
 import com.lx.implatform.vo.GroupInviteVO;
 import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
+import com.lx.implatform.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +18,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 @RestController
@@ -41,6 +45,12 @@ public class GroupController {
     public Result<GroupVO> deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
         groupService.deleteGroup(groupId);
         return ResultUtils.success();
+    }
+
+    @ApiOperation(value = "查询群聊",notes="查询单个群聊信息")
+    @GetMapping("/find/{groupId}")
+    public Result<GroupVO> findGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
+        return ResultUtils.success(groupService.findById(groupId));
     }
 
     @ApiOperation(value = "查询群聊列表",notes="查询群聊列表")

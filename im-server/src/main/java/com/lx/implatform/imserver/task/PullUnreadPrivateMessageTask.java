@@ -30,18 +30,16 @@ public class PullUnreadPrivateMessageTask extends  AbstractPullMessageTask {
 
     @Override
     public void pullMessage() {
-        log.info(Thread.currentThread().getName());
         // 从redis拉取未读消息
         String key = RedisKey.IM_UNREAD_PRIVATE_MESSAGE + WSServer.getServerId();
         List messageInfos = redisTemplate.opsForList().range(key,0,-1);
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);
             PrivateMessageInfo messageInfo = (PrivateMessageInfo)o;
-            ChannelHandlerContext ctx = WebsocketChannelCtxHloder.getChannelCtx(messageInfo.getRecvId());
-            if(ctx != null){
+
                 MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.PRIVATE_MESSAGE);
-                processor.process(ctx,messageInfo);
-            }
+                processor.process(null,messageInfo);
+
         }
     }
 

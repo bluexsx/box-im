@@ -26,7 +26,7 @@
 						<span class="el-icon-setting"></span>
 				</el-menu-item>
 			</el-menu>
-			<div class="exit-box" @click="onExit()" title="退出">
+			<div class="exit-box" @click="handleExit()" title="退出">
 				<span class="el-icon-circle-close"></span>
 			</div>
 		</el-aside>
@@ -55,42 +55,105 @@
 				console.log("socket");
 				this.$wsApi.createWebSocket("ws://localhost:8878/im",this.$store);
 				this.$wsApi.onopen(()=>{
+					console.log("pullUnreadMessage")
 					this.pullUnreadMessage();
 				});
 				this.$wsApi.onmessage((e)=>{
 					console.log(e);
-					if(e.cmd==1){
+					if(e.cmd == 2){
+						// 异地登录，强制下线
+						this.$message.error("您已在其他地方登陆，将被强制下线");
+						setTimeout(()=>{
+							location.href="/";
+						},1000)
+						
+					}
+					else if(e.cmd==3){
 						// 插入私聊消息
 						this.handlePrivateMessage(e.data);
+					}else if(e.cmd == 4){
+						// 插入群聊消息
+						this.handleGroupMessage(e.data);
 					}
 				})
 			},
 			pullUnreadMessage(){
+				// 拉取未读私聊消息
 				this.$http({
 					url: "/api/message/private/pullUnreadMessage",
 					method: 'post'
-				})
+				});
+				// 拉取未读群聊消息
+				this.$http({
+					url: "/api/message/group/pullUnreadMessage",
+					method: 'post'
+				});
 			},
 			handlePrivateMessage(msg){
-				// 插入私聊消息
-				let f = this.$store.state.friendStore.friends.find((f)=>f.id==msg.sendId);
+				// 好友列表存在好友信息，直接插入私聊消息
+				let friend = this.$store.state.friendStore.friends.find((f)=>f.id==msg.sendId);
+				if(friend){
+					this.insertPrivateMessage(friend,msg);
+					return;
+				}
+				// 好友列表不存在好友信息，则发请求获取好友信息
+				this.$http({
+					url: `/api/friend/find/${msg.sendId}`,
+					method: 'get'
+				}).then((friend)=>{
+					this.insertPrivateMessage(friend,msg);
+					this.$store.commit("addFriend",friend);
+				})
+				
+				
+			},
+			insertPrivateMessage(friend,msg){
 				let chatInfo = {
 					type: 'PRIVATE',
-					targetId: f.id,
-					showName: f.nickName,
-					headImage: f.headImage
+					targetId: friend.id,
+					showName: friend.nickName,
+					headImage: friend.headImage
 				};
 				// 打开会话
 				this.$store.commit("openChat",chatInfo);
 				// 插入消息
 				this.$store.commit("insertMessage",msg);
 			},
-			onExit(){
+			handleGroupMessage(msg){
+				// 群聊缓存存在，直接插入群聊消息
+				let group = this.$store.state.groupStore.groups.find((g)=>g.id==msg.groupId);
+				if(group){
+					this.insertGroupMessage(group,msg);
+					return;
+				}
+				// 群聊缓存存在，直接插入群聊消息
+				this.$http({
+					url: `/api/group/find/${msg.groupId}`,
+					method: 'get'
+				}).then((group)=>{
+					this.insertGroupMessage(group,msg);
+					this.$store.commit("addGroup",group);
+				})
+			},
+			insertGroupMessage(group,msg){
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: group.id,
+					showName: group.remark,
+					headImage: group.headImageThumb
+				};
+				// 打开会话
+				this.$store.commit("openChat",chatInfo);
+				// 插入消息
+				this.$store.commit("insertMessage",msg);
+			},
+			handleExit(){
 				this.$http({
 					url: "/api/logout",
 					method: 'get'
 				}).then(()=>{
-					this.$router.push("/login");
+					this.$wsApi.closeWebSocket();
+					location.href="/";
 				})
 			},
 			onClickHeadImage(){

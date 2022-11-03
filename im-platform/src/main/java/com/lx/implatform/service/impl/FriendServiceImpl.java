@@ -11,6 +11,7 @@ import com.lx.implatform.mapper.FriendMapper;
 import com.lx.implatform.service.IFriendService;
 import com.lx.implatform.service.IUserService;
 import com.lx.implatform.session.SessionContext;
+import com.lx.implatform.session.UserSession;
 import com.lx.implatform.vo.FriendVO;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,9 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"不允许添加自己为好友");
         }
         // 互相绑定好友关系
-        bindFriend(userId,friendId);
-        bindFriend(friendId,userId);
+        FriendServiceImpl proxy = (FriendServiceImpl)AopContext.currentProxy();
+        proxy.bindFriend(userId,friendId);
+        proxy.bindFriend(friendId,userId);
     }
 
 
@@ -99,6 +101,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         this.updateById(f);
     }
 
+    @CacheEvict(key="#userId+':'+#friendId")
     public void bindFriend(Long userId, Long friendId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
@@ -128,4 +131,21 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
+    @Override
+    public FriendVO findFriend(Long friendId) {
+        UserSession session = SessionContext.getSession();
+        QueryWrapper<Friend> wrapper = new QueryWrapper<>();
+        wrapper.lambda()
+                .eq(Friend::getUserId,session.getId())
+                .eq(Friend::getFriendId,friendId);
+        Friend friend = this.getOne(wrapper);
+        if(friend == null){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR,"对方不是您的好友");
+        }
+        FriendVO vo = new FriendVO();
+        vo.setId(friend.getFriendId());
+        vo.setHeadImage(friend.getFriendHeadImage());
+        vo.setNickName(friend.getFriendNickName());
+        return  vo;
+    }
 }

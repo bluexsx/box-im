@@ -13,7 +13,7 @@ public class RedisKey {
     // 已读私聊消息id队列
     public final static String IM_READED_PRIVATE_MESSAGE_ID = "im:readed:private:id";
     // 已读群聊消息位置(已读最大id)
-    public final static String IM_GROUP_READED_POSITION = "im:readed:group:position";
+    public final static String IM_GROUP_READED_POSITION = "im:readed:group:position:";
     // 缓存前缀
     public final static String  IM_CACHE = "im:cache:";
     // 缓存是否好友：bool

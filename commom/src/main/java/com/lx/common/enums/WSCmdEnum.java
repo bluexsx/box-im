@@ -2,9 +2,11 @@ package com.lx.common.enums;
 
 public enum WSCmdEnum {
 
-    HEARTBEAT(0,"心跳"),
-    PRIVATE_MESSAGE(1,"私聊消息"),
-    GROUP_MESSAGE(2,"群发消息");
+    LOGIN(0,"登陆"),
+    HEART_BEAT(1,"心跳"),
+    FORCE_LOGUT(2,"强制下线"),
+    PRIVATE_MESSAGE(3,"私聊消息"),
+    GROUP_MESSAGE(4,"群发消息");
 
 
     private Integer code;

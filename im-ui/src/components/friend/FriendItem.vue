@@ -64,7 +64,7 @@
 		align-items: center;
 		padding-right: 5px;
 		background-color: #fafafa;
-
+		white-space: nowrap;
 		&:hover {
 			background-color: #eeeeee;
 		}

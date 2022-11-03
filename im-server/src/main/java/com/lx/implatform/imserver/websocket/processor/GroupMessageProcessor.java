@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class GroupMessageProcessor implements  MessageProcessor<GroupMessageInfo> {
+public class GroupMessageProcessor extends  MessageProcessor<GroupMessageInfo> {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -24,7 +24,7 @@ public class GroupMessageProcessor implements  MessageProcessor<GroupMessageInfo
     @Async
     @Override
     public void process(ChannelHandlerContext ctx, GroupMessageInfo data) {
-        log.info("接收到群消息，发送者:{},群id:{}，内容:{}",data.getSendId(),data.getGroupId(),data.getContent());
+        log.info("接收到群消息，发送者:{},群id:{},接收id:{}，内容:{}",data.getSendId(),data.getGroupId(),data.getRecvIds(),data.getContent());
         List<Long> recvIds = data.getRecvIds();
         // 接收者id列表不需要传输，节省带宽
         data.setRecvIds(null);
@@ -37,9 +37,12 @@ public class GroupMessageProcessor implements  MessageProcessor<GroupMessageInfo
                 sendInfo.setData(data);
                 channelCtx.channel().writeAndFlush(sendInfo);
                 // 设置已读最大id
-                String key = RedisKey.IM_GROUP_READED_POSITION + data.getGroupId();
+                String key = RedisKey.IM_GROUP_READED_POSITION + data.getGroupId()+":"+recvId;
                 redisTemplate.opsForValue().set(key,data.getId());
+            }else {
+                log.error("未找到WS连接,发送者:{},群id:{},接收id:{}，内容:{}",data.getSendId(),data.getGroupId(),data.getRecvIds());
             }
+
         }
     }
 

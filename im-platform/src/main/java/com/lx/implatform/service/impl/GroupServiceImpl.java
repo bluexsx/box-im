@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Member;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -126,11 +127,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if(group.getOwnerId() != session.getId()){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"只有群主才有权限解除群聊");
         }
-        // 删除群数据
-        this.removeById(groupId);
-        // 删除成员数据
-        groupMemberService.removeByGroupId(groupId);
+        // 逻辑删除群数据
+        group.setDeleted(true);
+        this.updateById(group);
     }
+
 
     /**
      *退出群聊
@@ -152,6 +153,24 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         groupMemberService.removeByGroupAndUserId(groupId,session.getId());
     }
 
+
+    @Override
+    public GroupVO findById(Long groupId) {
+        UserSession session = SessionContext.getSession();
+        Group group = super.getById(groupId);
+        if(group == null){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群聊不存在");
+        }
+        GroupMember member = groupMemberService.findByGroupAndUserId(groupId,session.getId());
+        if(member == null){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您未加入群聊");
+        }
+        GroupVO vo = BeanUtils.copyProperties(group,GroupVO.class);
+        vo.setAliasName(member.getAliasName());
+        vo.setRemark(member.getRemark());
+        return  vo;
+    }
+
     /**
      *根据id查找群聊，并进行缓存
      *
@@ -160,9 +179,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      */
     @Cacheable(value = "#groupId")
     @Override
-    public  Group findById(Long groupId){
+    public  Group GetById(Long groupId){
         return super.getById(groupId);
     }
+
+
 
     /**
      * 查询当前用户的所有群聊
@@ -208,16 +229,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
         // 群聊人数校验
         List<GroupMember> members = groupMemberService.findByGroupId(vo.getGroupId());
-        if(vo.getFriendIds().size() + members.size() > Constant.MAX_GROUP_MEMBER){
+        long size = members.stream().filter(m->!m.getQuit()).count();
+        if(vo.getFriendIds().size() + size > Constant.MAX_GROUP_MEMBER){
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊人数不能大于"+Constant.MAX_GROUP_MEMBER+"人");
         }
-        // 已经在群里面用户，不可重复加入
-        Boolean flag = vo.getFriendIds().stream().anyMatch(id->{
-           return  members.stream().anyMatch(m->m.getUserId()==id);
-        });
-        if(flag){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "部分用户已经在群中，邀请失败");
-        }
+
         // 找出好友信息
         List<Friend> friends = friendsService.findFriendByUserId(session.getId());
         List<Friend> friendsList = vo.getFriendIds().stream().map(id ->
@@ -228,16 +244,18 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 批量保存成员数据
         List<GroupMember> groupMembers = friendsList.stream()
                 .map(f -> {
-                    GroupMember groupMember = new GroupMember();
+                    Optional<GroupMember> optional =  members.stream().filter(m->m.getUserId()==f.getFriendId()).findFirst();
+                    GroupMember groupMember = optional.isPresent()? optional.get():new GroupMember();
                     groupMember.setGroupId(vo.getGroupId());
                     groupMember.setUserId(f.getFriendId());
                     groupMember.setAliasName(f.getFriendNickName());
                     groupMember.setRemark(group.getName());
                     groupMember.setHeadImage(f.getFriendHeadImage());
+                    groupMember.setQuit(false);
                     return groupMember;
                 }).collect(Collectors.toList());
         if(!groupMembers.isEmpty()) {
-            groupMemberService.saveBatch(group.getId(),groupMembers);
+            groupMemberService.saveOrUpdateBatch(group.getId(),groupMembers);
         }
     }
 

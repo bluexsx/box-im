@@ -6,13 +6,14 @@
 					<el-button slot="append" icon="el-icon-search"></el-button>
 				</el-input>
 			</div>
-			<div v-for="(chat,index) in chatStore.chats" :key="chat.targetId">
+			<div v-for="(chat,index) in chatStore.chats" :key="chat.type+chat.targetId">
 				<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)"
 				 :active="index === chatStore.activeIndex"></chat-item>
 			</div>
 		</el-aside>
 		<el-container class="r-chat-box">
-			<chat-private :chat="activeChat"></chat-private>
+			<chat-private :chat="activeChat" v-if="activeChat.type=='PRIVATE'"></chat-private>
+			<chat-Group :chat="activeChat" v-if="activeChat.type=='GROUP'"></chat-Group>
 		</el-container>
 	</el-container>
 </template>
@@ -24,7 +25,8 @@
 	import HeadImage from "../components/common/HeadImage.vue";
 	import FileUpload from "../components/common/FileUpload.vue";
 	import ChatPrivate from "../components/chat/ChatPrivate.vue";
-
+	import ChatGroup from "../components/chat/ChatGroup.vue";
+	
 	export default {
 		name: "chat",
 		components: {
@@ -33,25 +35,24 @@
 			HeadImage,
 			FileUpload,
 			MessageItem,
-			ChatPrivate
+			ChatPrivate,
+			ChatGroup
 		},
 		data() {
 			return {
 				searchText: "",
-				messageContent: ""
+				messageContent: "",
+				group: {},
+				groupMembers: [] 
 			}
 		},
 		methods: {
 			handleActiveItem(index) {
 				this.$store.commit("activeChat", index);
 				let chat = this.chatStore.chats[index];
-				if (chat.type == "GROUP") {
-					let groupId = this.chatStore.chats[index].targetId;
-
-				} else {
+				if (chat.type == "PRIVATE") {
 					this.refreshNameAndHeadImage(chat);
-				}
-
+				} 
 			},
 			handleDelItem(chat, index) {
 				this.$store.commit("removeChat", index);
@@ -107,7 +108,8 @@
 				}).then(() => {
 					this.$store.commit("updateFriend", friendInfo);
 				})
-			},
+			}
+			
 		},
 		computed: {
 			chatStore() {

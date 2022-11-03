@@ -58,7 +58,7 @@ public class GroupMessage extends Model<GroupMessage> {
      * 消息类型 0:文字 1:图片 2:文件
      */
     @TableField("type")
-    private Boolean type;
+    private Integer type;
 
     /**
      * 发送时间

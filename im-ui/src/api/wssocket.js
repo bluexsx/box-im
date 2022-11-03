@@ -1,12 +1,11 @@
 var websock = null;
 let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
 let isConnect = false; //连接标识 避免重复连接
-let isCompleteConnect = false; //完全连接标识（接收到心跳）
 let wsurl = "";
 let $store = null;
 let messageCallBack = null;
 let openCallBack = null;
-
+let hasLogin = false;
 
 let createWebSocket = (url, store) => {
 	$store = store;
@@ -17,16 +16,19 @@ let createWebSocket = (url, store) => {
 let initWebSocket = () => {
 	try {
 		console.log("初始化WebSocket");
-		isCompleteConnect = false;
+		hasLogin = false;
 		websock = new WebSocket(wsurl);
 		websock.onmessage = function(e) {
 			let msg = JSON.parse(e.data)
 			if (msg.cmd == 0) {
-				if(!isCompleteConnect){
-					// 第一次上传心跳成功才算连接完成
-					isCompleteConnect = true;
-					openCallBack && openCallBack();
-				}
+				hasLogin = true;
+				heartCheck.start()
+				console.log('WebSocket登录成功')
+				// 登录成功才算连接完成
+				openCallBack && openCallBack();
+			}
+			else if(msg.cmd==1){
+				// 重新开启心跳定时
 				heartCheck.reset();
 			} else {
 				// 其他消息转发出去
@@ -36,12 +38,17 @@ let initWebSocket = () => {
 		websock.onclose = function(e) {
 			console.log('WebSocket连接关闭')
 			isConnect = false; //断开后修改标识
-			reConnect();
 		}
 		websock.onopen = function() {
 			console.log("WebSocket连接成功");
 			isConnect = true;
-			heartCheck.start()
+			// 发送登录命令
+			let loginInfo = {
+				cmd: 0,
+				data: {userId: $store.state.userStore.userInfo.id}
+			};
+			websock.send(JSON.stringify(loginInfo));
+			
 		}
 
 		// 连接发生错误的回调方法
@@ -69,6 +76,8 @@ let reConnect = () => {
 let closeWebSocket = () => {
 	websock.close();
 };
+
+
 //心跳设置
 var heartCheck = {
 	timeout: 5000, //每段时间发送一次心跳包 这里设置为20s
@@ -77,14 +86,13 @@ var heartCheck = {
 		if(isConnect){
 			console.log('发送WebSocket心跳')
 			let heartBeat = {
-				cmd: 0,
+				cmd: 1,
 				data: {
 					userId: $store.state.userStore.userInfo.id
 				}
 			};
 			websock.send(JSON.stringify(heartBeat))
 		}
-		
 	},
 
 	reset: function(){
@@ -125,7 +133,7 @@ function onmessage(callback) {
 
 function onopen(callback) {
 	openCallBack = callback;
-	if (isCompleteConnect) {
+	if (hasLogin) {
 		openCallBack();
 	}
 }

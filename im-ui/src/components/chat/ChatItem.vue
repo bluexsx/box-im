@@ -1,6 +1,6 @@
 <template>
 
-	<div class="item" :class="active ? 'active' : ''">
+	<div class="chat-item" :class="active ? 'active' : ''">
 		<div class="left">
 			<head-image :url="chat.headImage" :size="40">
 				
@@ -55,7 +55,7 @@
 </script>
 
 <style scode lang="scss">
-	.item {
+	.chat-item {
 		height: 65px; 
 		display: flex;
 		margin-bottom: 1px;
@@ -64,7 +64,8 @@
 		align-items: center;
 		padding-right: 5px;
 		background-color: #fafafa;
-
+		white-space: nowrap;
+		
 		&:hover {
 			background-color: #eeeeee;
 		}

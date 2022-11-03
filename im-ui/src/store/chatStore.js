@@ -1,21 +1,22 @@
 export default {
-	
+
 	state: {
 		activeIndex: -1,
 		chats: []
 	},
-	
+
 	mutations: {
 		initChatStore(state) {
 			state.activeIndex = -1;
 		},
-		openChat(state,chatInfo){
+		openChat(state, chatInfo) {
 			let chat = null;
-			for(let i in state.chats){
-				if(state.chats[i].targetId === chatInfo.targetId){
+			for (let i in state.chats) {
+				if (state.chats[i].type == chatInfo.type &&
+					state.chats[i].targetId === chatInfo.targetId) {
 					chat = state.chats[i];
 					// 放置头部
-					state.chats.splice(i,1);
+					state.chats.splice(i, 1);
 					state.chats.unshift(chat);
 					break;
 				}
@@ -35,55 +36,87 @@ export default {
 				state.chats.unshift(chat);
 			}
 
-		},	
-		activeChat(state,idx){
+		},
+		activeChat(state, idx) {
 			state.activeIndex = idx;
-			state.chats[idx].unreadCount=0;
+			state.chats[idx].unreadCount = 0;
 		},
-		removeChat(state,idx){
+		removeChat(state, idx) {
 			state.chats.splice(idx, 1);
-			if(state.activeIndex  >= state.chats.length){
-				state.activeIndex = state.chats.length-1;
+			if (state.activeIndex >= state.chats.length) {
+				state.activeIndex = state.chats.length - 1;
 			}
 		},
-		
-		insertMessage(state, msgInfo) {
-			let targetId = msgInfo.selfSend?msgInfo.recvId:msgInfo.sendId;
-			let chat = state.chats.find((chat)=>chat.targetId==targetId);
-		
-			chat.lastContent = msgInfo.content;
-			chat.lastSendTime = msgInfo.sendTime;
-			chat.messages.push(msgInfo);
-			// 如果不是当前会话，未读加1
-			if(state.activeIndex == -1 || state.chats[state.activeIndex].targetId != targetId){
-				chat.unreadCount++;
-			}
-		},
-		handleFileUpload(state,info){
-			// 文件上传后数据更新
-			let  chat = state.chats.find((c)=>c.targetId === info.targetId);
-			if(chat){
-				let msg = chat.messages.find((m)=>info.fileId==m.fileId);
-				msg.loadStatus = info.loadStatus;
-				if(info.content){
-					msg.content = info.content;
+		removeGroupChat(state, groupId) {
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == 'GROUP' &&
+					state.chats[idx].targetId == groupId) {
+					this.commit("removeChat", idx);
 				}
 			}
 		},
-		updateChatFromUser(state, user){
-			for(let i in state.chats){
-				if(state.chats[i].targetId == user.id){
-					state.chats[i].headImage = user.headImageThumb;
-					state.chats[i].showName = user.nickName;
+		removePrivateChat(state, userId) {
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == 'PRIVATE' &&
+					state.chats[idx].targetId == userId) {
+					this.commit("removeChat", idx);
+				}
+			}
+		},
+		insertMessage(state, msgInfo) {
+			// 获取对方id或群id
+			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
+			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
+			let chat = null;
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == type &&
+					state.chats[idx].targetId === targetId) {
+					chat = state.chats[idx];
+					break;
+				}
+			}
+			chat.lastContent = msgInfo.type == 1 ? "[图片]" : msgInfo.type == 2 ? "[文件]" : msgInfo.content;
+			chat.lastSendTime = msgInfo.sendTime;
+			chat.messages.push(msgInfo);
+			// 如果不是当前会话，未读加1
+			chat.unreadCount++;
+			if(msgInfo.selfSend){
+				chat.unreadCount=0;
+			}
+		},
+		handleFileUpload(state, info) {
+			// 文件上传后数据更新
+			let chat = state.chats.find((c) => c.type==info.type && c.targetId === info.targetId);
+			let msg = chat.messages.find((m) => info.fileId == m.fileId);
+			msg.loadStatus = info.loadStatus;
+			if (info.content) {
+				msg.content = info.content;
+			}
+		},
+		updateChatFromUser(state, user) {
+			for (let i in state.chats) {
+				let chat = state.chats[i];
+				if (chat.type=='PRIVATE' && chat.targetId == user.id) {
+					chat.headImage = user.headImageThumb;
+					chat.showName = user.nickName;
 					break;
 				}
 			}
 		},
-		resetChatStore(state){
-			console.log("清空store")
+		updateChatFromGroup(state, group) {
+			for (let i in state.chats) {
+				let chat = state.chats[i];
+				if (chat.type=='GROUP' && chat.targetId == group.id) {
+					chat.headImage = group.headImageThumb;
+					chat.showName = group.remark;
+					break;
+				}
+			}
+		},
+		resetChatStore(state) {
 			state.activeIndex = -1;
 			state.chats = [];
 		}
 	},
-	
+
 }
