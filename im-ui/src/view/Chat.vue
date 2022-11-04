@@ -164,6 +164,7 @@
 				padding: 5px;
 				background-color: white;
 				line-height: 50px;
+				border: #dddddd solid 1px;
 			}
 
 			.im-chat-main {
@@ -185,7 +186,7 @@
 				display: flex;
 				flex-direction: column;
 				padding: 0;
-
+				border: #dddddd solid 1px;	
 				.chat-tool-bar {
 
 					display: flex;
@@ -193,6 +194,7 @@
 					width: 100%;
 					height: 40px;
 					text-align: left;
+					box-sizing: border-box;
 					border: #dddddd solid 1px;
 
 					>div {

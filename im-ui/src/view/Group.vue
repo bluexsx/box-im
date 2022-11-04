@@ -56,7 +56,6 @@
 							</div>
 						</el-form>
 					</div>
-
 					<el-divider content-position="center"></el-divider>
 					<el-scrollbar style="height:400px;">
 						<div class="r-group-member-list">
@@ -169,7 +168,7 @@
 						url: `/api/group/delete/${this.activeGroup.id}`,
 						method: 'delete'
 					}).then(() => {
-						this.$store.commit("removeGroup", this.groupStore.activeIndex);
+						this.$store.commit("removeGroup", this.activeGroup.id);
 						this.$store.commit("activeGroup", -1);
 						this.$store.commit("removeGroupChat", this.activeGroup.id);
 					});
@@ -205,7 +204,7 @@
 						url: `/api/group/quit/${this.activeGroup.id}`,
 						method: 'delete'
 					}).then(() => {
-						this.$store.commit("removeGroup", this.groupStore.activeIndex);
+						this.$store.commit("removeGroup", this.activeGroup.id);
 						this.$store.commit("activeGroup", -1);
 						this.$store.commit("removeGroupChat", this.activeGroup.id);
 					});

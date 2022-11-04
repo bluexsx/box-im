@@ -24,17 +24,22 @@ export default {
 		addGroup(state,group){
 			state.groups.unshift(group);
 		},
-		removeGroup(state,index){
-			state.groups.splice(index, 1);
-			if(state.activeIndex  >= state.groups.length){
-				state.activeIndex = state.groups.length-1;
-			}
+		removeGroup(state,groupId){
+			state.groups.forEach((g,index)=>{
+				if(g.id==groupId){
+					state.groups.splice(index, 1);
+					if(state.activeIndex  >= state.groups.length){
+						state.activeIndex = state.groups.length-1;
+					}
+				}
+			})
+			
 		},
 		updateGroup(state,group){
-			state.groups.forEach((g,index)=>{
+			state.groups.forEach((g,idx)=>{
 				if(g.id==group.id){
 					// 拷贝属性
-					state.groups[index] = Object.assign(state.groups[index], group);
+					state.groups[idx] = Object.assign(state.groups[idx], group);
 				}
 			})
 		}

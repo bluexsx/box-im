@@ -1,6 +1,6 @@
 <template>
 	<div class="group-member">
-		<head-image :url="member.headImage" :size="60" class="">
+		<head-image :url="member.headImage" :size="50" class="">
 			<div  v-if="showDel" @click.stop="handleDelete()" class="btn-kick el-icon-error"></div>
 		</head-image>
 		<div class="member-name">{{member.aliasName}}</div>
@@ -39,7 +39,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		width: 60px;
+		width: 50px;
 		.member-name {
 			font-size: 12px;
 			text-align: center;
