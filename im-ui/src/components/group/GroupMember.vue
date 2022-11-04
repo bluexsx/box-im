@@ -4,7 +4,7 @@
 			<div  v-if="showDel" @click.stop="handleDelete()" class="btn-kick el-icon-error"></div>
 		</head-image>
 		<div class="member-name">{{member.aliasName}}</div>
-		
+
 	</div>
 </template>
 

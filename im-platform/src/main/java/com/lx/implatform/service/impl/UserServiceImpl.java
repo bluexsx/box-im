@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lx.common.contant.RedisKey;
 import com.lx.common.enums.ResultCode;
 import com.lx.common.util.BeanUtils;
+import com.lx.implatform.entity.Friend;
+import com.lx.implatform.entity.GroupMember;
 import com.lx.implatform.entity.User;
 import com.lx.implatform.exception.GlobalException;
 import com.lx.implatform.mapper.UserMapper;
+import com.lx.implatform.service.IFriendService;
+import com.lx.implatform.service.IGroupMemberService;
 import com.lx.implatform.service.IUserService;
 import com.lx.implatform.session.SessionContext;
 import com.lx.implatform.session.UserSession;
@@ -18,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +45,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private IGroupMemberService groupMemberService;
+
+    @Autowired
+    private IFriendService friendService;
+
     @Override
     public void register(RegisterVO vo) {
         User user = findUserByName(vo.getUserName());
@@ -58,7 +69,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return this.getOne(queryWrapper);
     }
 
-
+    @Transactional
     @Override
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
@@ -69,7 +80,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(null == user){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"用户不存在");
         }
-
+        // 更新好友昵称和头像
+        if(!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())){
+            QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(Friend::getFriendId,session.getId());
+            List<Friend> friends = friendService.list(queryWrapper);
+            for(Friend friend: friends){
+                friend.setFriendNickName(vo.getNickName());
+                friend.setFriendHeadImage(vo.getHeadImageThumb());
+            }
+            friendService.updateBatchById(friends);
+        }
+        // 更新群聊中的头像
+        if(!user.getHeadImageThumb().equals(vo.getHeadImageThumb())){
+            List<GroupMember> members = groupMemberService.findByUserId(session.getId());
+            for(GroupMember member:members){
+                member.setHeadImage(vo.getHeadImageThumb());
+            }
+            groupMemberService.updateBatchById(members);
+        }
+        // 更新用户信息
         user.setNickName(vo.getNickName());
         user.setSex(vo.getSex());
         user.setSignature(vo.getSignature());
