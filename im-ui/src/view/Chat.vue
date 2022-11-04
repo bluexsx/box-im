@@ -6,10 +6,12 @@
 					<el-button slot="append" icon="el-icon-search"></el-button>
 				</el-input>
 			</div>
-			<div v-for="(chat,index) in chatStore.chats" :key="chat.type+chat.targetId">
-				<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)"
-				 :active="index === chatStore.activeIndex"></chat-item>
-			</div>
+			<el-scrollbar class="l-chat-list" >
+				<div v-for="(chat,index) in chatStore.chats" :key="chat.type+chat.targetId">
+					<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)"
+					 :active="index === chatStore.activeIndex"></chat-item>
+				</div>
+			</el-scrollbar>
 		</el-aside>
 		<el-container class="r-chat-box">
 			<chat-private :chat="activeChat" v-if="activeChat.type=='PRIVATE'"></chat-private>
@@ -137,6 +139,8 @@
 <style lang="scss">
 	.el-container {
 		.l-chat-box {
+			display: flex;
+			flex-direction: column;
 			border: #dddddd solid 1px;
 			background: white;
 			width: 3rem;
@@ -145,6 +149,10 @@
 				padding: 5px;
 				background-color: white;
 				line-height: 50px;
+			}
+			
+			.l-friend-ist{
+				flex: 1;
 			}
 		}
 

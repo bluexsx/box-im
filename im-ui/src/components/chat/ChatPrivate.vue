@@ -215,7 +215,8 @@
 			}
 		},
 		mounted() {
-			console.log(this.chat);
+			console.log("private mount...")
+			this.scrollToBottom();
 		}
 	}
 </script>

@@ -1,6 +1,6 @@
 <template>
 	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-		<el-input  placeholder="搜索好友" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">
+		<el-input  placeholder="输入好友昵称,最多展示10条" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">
 			<el-button slot="append" icon="el-icon-search" @click="handleSearch()"></el-button>
 		</el-input>
 		<el-scrollbar style="height:400px">

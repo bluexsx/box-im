@@ -10,19 +10,20 @@
 				<el-button plain icon="el-icon-plus" style="border: none; padding: 12px; font-size: 20px;color: black;" title="创建群聊"
 				 @click="handleCreateGroup()"></el-button>
 			</div>
-
-			<div v-for="(group,index) in groupStore.groups" :key="group.id">
-				<group-item v-show="group.remark.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
-				 @click.native="handleActiveItem(group,index)">
-				</group-item>
-			</div>
+			<el-scrollbar class="l-group-list">
+				<div v-for="(group,index) in groupStore.groups" :key="group.id">
+					<group-item v-show="group.remark.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
+					 @click.native="handleActiveItem(group,index)">
+					</group-item>
+				</div>
+			</el-scrollbar>
 		</el-aside>
 		<el-container class="r-group-box">
-			<div class="r-group-header" v-show="groupStore.activeIndex>=0">
+			<div class="r-group-header" v-show="activeGroup.id">
 				{{activeGroup.remark}}({{groupMembers.length}})
 			</div>
 			<div class="r-group-container">
-				<div v-show="groupStore.activeIndex>=0">
+				<div v-show="activeGroup.id">
 					<div class="r-group-info">
 						<div>
 							<file-upload class="avatar-uploader" action="/api/image/upload" :disabled="!isOwner" :showLoading="true"
@@ -37,7 +38,7 @@
 								<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="群主">
-								<el-input :value="ownerName" disabled ></el-input>
+								<el-input :value="ownerName" disabled></el-input>
 							</el-form-item>
 							<el-form-item label="备注">
 								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见" maxlength="20"></el-input>
@@ -60,7 +61,8 @@
 					<el-scrollbar style="height:400px;">
 						<div class="r-group-member-list">
 							<div v-for="(member) in groupMembers" :key="member.id">
-								<group-member class="r-group-member" :member="member" :showDel="true"></group-member>
+								<group-member v-show="!member.quit" class="r-group-member" :member="member" :showDel="isOwner&&member.userId!=activeGroup.ownerId"
+								 @del="handleKick"></group-member>
 							</div>
 							<div class="r-group-invite">
 								<div class="invite-member-btn" title="邀请好友进群聊" @click="handleInviteMember()">
@@ -97,10 +99,7 @@
 			return {
 				searchText: "",
 				maxSize: 5 * 1024 * 1024,
-				activeGroup: {
-					empty: true,
-					remark: ""
-				},
+				activeGroup: {},
 				groupMembers: [],
 				showAddGroupMember: false,
 				rules: {
@@ -177,6 +176,25 @@
 				})
 
 			},
+			handleKick(member) {
+				this.$confirm(`确定将成员'${member.aliasName}'移出群聊吗？`, '确认移出?', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.$http({
+						url: `/api/group/kick/${this.activeGroup.id}`,
+						method: 'delete',
+						params: {
+							userId: member.userId
+						}
+					}).then(() => {
+						this.$message.success(`已将${member.aliasName}移出群聊`);
+						member.quit = true;
+					});
+				})
+
+			},
 			handleQuit() {
 				this.$confirm('退出群聊后将不再接受群里的消息，确认退出吗？', '确认退出?', {
 					confirmButtonText: '确定',
@@ -192,7 +210,7 @@
 						this.$store.commit("removeGroupChat", this.activeGroup.id);
 					});
 				})
-				
+
 			},
 			handleSendMessage() {
 				let chat = {
@@ -210,7 +228,7 @@
 					url: `/api/group/members/${this.activeGroup.id}`,
 					method: "get"
 				}).then((members) => {
-					this.groupMembers = members.filter((m)=>!m.quit);
+					this.groupMembers = members;
 				})
 			}
 		},
@@ -227,7 +245,7 @@
 			}
 		},
 		mounted() {
-			if(this.groupStore.activeIndex>=0){
+			if (this.groupStore.activeIndex >= 0) {
 				let activeGroup = this.groupStore.groups[this.groupStore.activeIndex];
 				// store数据不能直接修改，所以深拷贝一份内存
 				this.activeGroup = JSON.parse(JSON.stringify(activeGroup));
@@ -241,6 +259,8 @@
 <style lang="scss">
 	.im-group-box {
 		.l-group-box {
+			display: flex;
+			flex-direction: column;
 			border: #dddddd solid 1px;
 			background: white;
 
@@ -254,6 +274,10 @@
 				.l-group-search {
 					flex: 1;
 				}
+			}
+			
+			.l-group-ist{
+				flex: 1;
 			}
 		}
 
@@ -316,6 +340,10 @@
 							height: 200px;
 							display: block;
 						}
+					}
+
+					.send-btn {
+						margin-top: 10px;
 					}
 				}
 

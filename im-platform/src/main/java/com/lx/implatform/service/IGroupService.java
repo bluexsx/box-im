@@ -27,6 +27,8 @@ public interface IGroupService extends IService<Group> {
 
     void quitGroup(Long groupId);
 
+    void kickGroup(Long groupId,Long userId);
+
     List<GroupVO>  findGroups();
 
     void invite(GroupInviteVO vo);

@@ -79,5 +79,13 @@ public class GroupController {
         return ResultUtils.success();
     }
 
+    @ApiOperation(value = "踢出群聊",notes="将用户踢出群聊")
+    @DeleteMapping("/kick/{groupId}")
+    public Result<GroupVO> kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,
+                                     @NotNull(message = "用户id不能为空") @RequestParam Long userId){
+        groupService.kickGroup(groupId,userId);
+        return ResultUtils.success();
+    }
+
 }
 

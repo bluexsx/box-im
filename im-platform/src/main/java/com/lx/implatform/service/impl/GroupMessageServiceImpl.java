@@ -65,10 +65,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
 
         userIds.parallelStream().forEach(id->{
-            if(id == userId){
-                // 自己不需要推送给自己
-                return;
-            }
+
             String key = RedisKey.IM_USER_SERVER_ID + id;
             Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
             if(serverId != null){

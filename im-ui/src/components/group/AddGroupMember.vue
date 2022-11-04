@@ -7,9 +7,8 @@
 				</el-input>
 				<el-scrollbar style="height:500px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
-						<friend-item v-show="friend.nickName.startsWith(searchText)" 
-						:showDelete="false" @click.native="handleSwitchCheck(friend)" :friend="friend"
-						:index="index" :active="index === activeIndex">
+						<friend-item v-show="friend.nickName.startsWith(searchText)" :showDelete="false" @click.native="handleSwitchCheck(friend)"
+						 :friend="friend" :index="index" :active="index === activeIndex">
 							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="agm-friend-checkbox" v-model="friend.isCheck"
 							 size="medium"></el-checkbox>
 						</friend-item>
@@ -106,7 +105,8 @@
 					this.friends = [];
 					this.$store.state.friendStore.friends.forEach((f) => {
 						let friend = JSON.parse(JSON.stringify(f))
-						let m = this.members.find((m) => m.userId == f.id);
+						let m = this.members.filter((m) => !m.quit)
+							.find((m) => m.userId == f.id);
 						console.log(m);
 						if (m) {
 							// 好友已经在群里

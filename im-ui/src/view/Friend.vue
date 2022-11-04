@@ -1,7 +1,7 @@
 <template>
 	<el-container>
 		<el-aside width="250px" class="l-friend-box">
-			<div class="l-friend-header" height="60px">
+			<div class="l-friend-header" height="5%">
 				<div class="l-friend-search">
 					<el-input width="200px" placeholder="搜索好友" v-model="searchText">
 						<el-button slot="append" icon="el-icon-search"></el-button>
@@ -9,17 +9,21 @@
 				</div>
 				<el-button plain icon="el-icon-plus" style="border: none; padding:12px; font-size: 20px;color: black;" title="添加好友"
 				 @click="handleShowAddFriend()"></el-button>
-
 				<add-friend :dialogVisible="showAddFriend" @close="handleCloseAddFriend">
 				</add-friend>
 			</div>
-			<div v-for="(friend,index) in $store.state.friendStore.friends" :key="friend.id">
-				<friend-item v-show="friend.nickName.startsWith(searchText)" :friend="friend" :index="index" :active="index === $store.state.friendStore.activeIndex"
-				 @del="handleDelItem(friend,index)" @click.native="handleActiveItem(friend,index)">
-				</friend-item>
-			</div>
+			<el-scrollbar class="l-friend-list" >
+				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="friend.id">
+					<friend-item v-show="friend.nickName.startsWith(searchText)" :friend="friend" :index="index" :active="index === $store.state.friendStore.activeIndex"
+					 @del="handleDelItem(friend,index)" @click.native="handleActiveItem(friend,index)">
+					</friend-item>
+				</div>
+			</el-scrollbar>
 		</el-aside>
 		<el-container class="r-friend-box">
+			<div class="r-friend-header" v-show="userInfo.id">
+				{{userInfo.nickName}}
+			</div>
 			<div v-show="userInfo.id">
 				<div class="user-detail">
 					<head-image class="detail-head-image" :size="200" :url="userInfo.headImage"></head-image>
@@ -146,6 +150,8 @@
 <style scoped lang="scss">
 	.el-container {
 		.l-friend-box {
+			display: flex;
+			flex-direction: column;
 			border: #dddddd solid 1px;
 			background: white;
 			.l-friend-header {
@@ -158,18 +164,38 @@
 					flex: 1;
 				}
 			}
+			
+			.l-friend-ist{
+				flex: 1;
+			}
 		}
 
 		.r-friend-box {
+			display: flex;
+			flex-direction: column;
+			border: #dddddd solid 1px;
+			.r-friend-header {
+				width: 100%;
+				height: 50px;
+				padding: 5px;
+				line-height: 50px;
+				font-size: 20px;
+				text-align: left;
+				text-indent: 10px;
+				background-color: white;
+				border: #dddddd solid 1px;
+			}
+			
 			.user-detail {
 				width: 100%;
 				display: flex;
 				padding: 50px 10px 10px 50px;
 				text-align: center;
-				justify-content: space-around;
+				
 				.info-item {
 					width: 400px;
 					height: 200px;
+					margin-left: 20px;
 					background-color: #ffffff;
 				}
 				.description {

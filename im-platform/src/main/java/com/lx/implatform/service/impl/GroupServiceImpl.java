@@ -23,14 +23,11 @@ import com.lx.implatform.vo.GroupMemberVO;
 import com.lx.implatform.vo.GroupVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.reflect.Member;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -80,6 +77,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return vo;
     }
 
+
     /**
      * 修改群聊信息
      * 
@@ -109,6 +107,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return vo;
     }
 
+
     /**
      * 删除群聊
      * 
@@ -121,9 +120,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void deleteGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group == null){
-            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组不存在");
-        }
         if(group.getOwnerId() != session.getId()){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"只有群主才有权限解除群聊");
         }
@@ -134,7 +130,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
 
     /**
-     *退出群聊
+     * 退出群聊
      *
      * @param groupId 群聊id
      * @return
@@ -143,9 +139,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void quitGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group == null){
-            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组不存在");
-        }
         if(group.getOwnerId() == session.getId()){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您是群主，不可退出群聊");
         }
@@ -154,13 +147,31 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
 
+    /**
+     * 将用户踢出群聊
+     *
+     * @param groupId 群聊id
+     * @param userId 用户id
+     * @return
+     */
+    @Override
+    public void kickGroup(Long groupId, Long userId) {
+        UserSession session = SessionContext.getSession();
+        Group group = this.getById(groupId);
+        if(group.getOwnerId() != session.getId()){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群主，没有权限踢人");
+        }
+        if(userId == session.getId()){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"亲，不能自己踢自己哟");
+        }
+        // 删除群聊成员
+        groupMemberService.removeByGroupAndUserId(groupId,userId);
+    }
+
     @Override
     public GroupVO findById(Long groupId) {
         UserSession session = SessionContext.getSession();
-        Group group = super.getById(groupId);
-        if(group == null){
-            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群聊不存在");
-        }
+        Group group = this.getById(groupId);
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId,session.getId());
         if(member == null){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您未加入群聊");
@@ -172,7 +183,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
     /**
-     *根据id查找群聊，并进行缓存
+     * 根据id查找群聊，并进行缓存
      *
      * @param groupId 群聊id
      * @return
@@ -180,7 +191,14 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Cacheable(value = "#groupId")
     @Override
     public  Group GetById(Long groupId){
-        return super.getById(groupId);
+        Group group = super.getById(groupId);
+        if(group == null){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组不存在");
+        }
+        if(group.getDeleted()){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组已解散");
+        }
+        return group;
     }
 
 
@@ -274,6 +292,5 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }).collect(Collectors.toList());
         return vos;
     }
-
 
 }

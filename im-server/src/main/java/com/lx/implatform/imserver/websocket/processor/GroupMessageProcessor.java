@@ -31,11 +31,14 @@ public class GroupMessageProcessor extends  MessageProcessor<GroupMessageInfo> {
         for(Long recvId:recvIds){
             ChannelHandlerContext channelCtx = WebsocketChannelCtxHloder.getChannelCtx(recvId);
             if(channelCtx != null){
-                // 推送消息到用户
-                SendInfo sendInfo = new SendInfo();
-                sendInfo.setCmd(WSCmdEnum.GROUP_MESSAGE.getCode());
-                sendInfo.setData(data);
-                channelCtx.channel().writeAndFlush(sendInfo);
+                // 自己发的消息不用推送
+                if(recvId != data.getSendId()){
+                    // 推送消息到用户
+                    SendInfo sendInfo = new SendInfo();
+                    sendInfo.setCmd(WSCmdEnum.GROUP_MESSAGE.getCode());
+                    sendInfo.setData(data);
+                    channelCtx.channel().writeAndFlush(sendInfo);
+                }
                 // 设置已读最大id
                 String key = RedisKey.IM_GROUP_READED_POSITION + data.getGroupId()+":"+recvId;
                 redisTemplate.opsForValue().set(key,data.getId());

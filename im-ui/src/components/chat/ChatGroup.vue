@@ -250,16 +250,10 @@
 			}
 
 		},
-		watch: {
-			'chat.targetId': {
-				handler: function(newGroupId, oldGroupId) {
-					this.loadGroup(newGroupId);
-				},
-				immediate: true
-			}
-		},
 		mounted() {
-			//	this.loadGroup(this.chat.targetId);
+			console.log("group mount...")
+			this.loadGroup(this.chat.targetId);
+			this.scrollToBottom();
 		}
 	}
 </script>

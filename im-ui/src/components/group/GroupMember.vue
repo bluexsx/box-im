@@ -1,6 +1,8 @@
 <template>
 	<div class="group-member">
-		<head-image :url="member.headImage" :size="60" class=""></head-image>
+		<head-image :url="member.headImage" :size="60" class="">
+			<div  v-if="showDel" @click.stop="handleDelete()" class="btn-kick el-icon-error"></div>
+		</head-image>
 		<div class="member-name">{{member.aliasName}}</div>
 	</div>
 </template>
@@ -21,7 +23,12 @@
 			},
 			showDel:{
 				type: Boolean,
-				default: true
+				default: false
+			}
+		},
+		methods:{
+			handleDelete(){
+				this.$emit("del",this.member);
 			}
 		}
 	}
@@ -42,6 +49,21 @@
 			white-space: nowrap;
 			text-overflow:ellipsis; 
 			overflow:hidden
+		}
+		
+		.btn-kick {
+			display: none;
+			position: absolute;
+			right: -8px;
+			top: -8px;
+			color: darkred;
+			font-size: 20px;
+			cursor: pointer;
+		}
+		
+		&:hover .btn-kick{
+			display: block;
+			color: #ce1818;
 		}
 	}
 </style>
