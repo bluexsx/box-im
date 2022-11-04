@@ -26,7 +26,8 @@
 			</div>
 			<div v-show="userInfo.id">
 				<div class="user-detail">
-					<head-image class="detail-head-image" :size="200" :url="userInfo.headImage"></head-image>
+					<head-image class="detail-head-image" :size="200" 
+					:url="userInfo.headImage" @click.native="showFullImage()"></head-image>
 					<div class="info-item">
 						<el-descriptions title="好友信息" class="description" :column="1">
 							<el-descriptions-item label="用户名">{{ userInfo.userName }}
@@ -103,6 +104,12 @@
 				this.$store.commit("openChat", chat);
 				this.$store.commit("activeChat", 0);
 				this.$router.push("/home/chat");
+			},
+			showFullImage(){
+				if(this.userInfo.headImage){
+					this.$store.commit('showFullImageBox',this.userInfo.headImage);
+				}
+				
 			},
 			updateFriendInfo(friend, user, index) {
 				// store的数据不能直接修改，深拷贝一份store的数据

@@ -1,15 +1,15 @@
 <template>
 	<div class="group-member">
-		<head-image :url="member.headImage" :size="50" class="">
+		<head-image :url="member.headImage" :size="50" :id="member.userId">
 			<div  v-if="showDel" @click.stop="handleDelete()" class="btn-kick el-icon-error"></div>
 		</head-image>
 		<div class="member-name">{{member.aliasName}}</div>
+		
 	</div>
 </template>
 
 <script>
 	import HeadImage from "../common/HeadImage.vue";
-	
 	export default{
 		name: "groupMember",
 		components:{HeadImage},

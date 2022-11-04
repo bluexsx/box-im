@@ -1,24 +1,40 @@
 <template>
-	<div class="head-image">
+	<div class="head-image" @click="showUserInfo($event)">
 		<img :src="url" :style="{width: size+'px',height: size+'px',cursor: 'pointer'}" />
 		<slot></slot>
 	</div>
 </template>
 
 <script>
+
 	export default {
 		name: "headImage",
 		data() {
 			return {}
 		},
-		methods: {},
 		props: {
+			id:{
+				type: Number
+			},
 			size: {
 				type: Number,
 				default: 50
 			},
 			url: {
 				type: String
+			}
+		},
+		methods:{
+			showUserInfo(e){
+				if(this.id && this.id>0){
+					this.$http({
+						url: `/api/user/find/${this.id}`,
+						method: 'get'
+					}).then((user) => {
+						this.$store.commit("setUserInfoBoxPos",e);
+						this.$store.commit("showUserInfoBox",user);
+					})
+				}
 			}
 		}
 	}

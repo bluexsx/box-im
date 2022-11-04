@@ -284,4 +284,10 @@
 			font-size: 30px;
 		}
 	}
+	
+
+	.chat-group-side-box{
+		border: #dddddd solid 1px;
+		animation: rtl-drawer-in .3s 1ms;
+	}
 </style>

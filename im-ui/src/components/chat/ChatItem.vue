@@ -2,9 +2,7 @@
 
 	<div class="chat-item" :class="active ? 'active' : ''">
 		<div class="left">
-			<head-image :url="chat.headImage" :size="40">
-				
-			</head-image>
+			<head-image :url="chat.headImage" :size="40" :id="chat.type=='PRIVATE'?chat.targetId:0"></head-image>
 			<div v-show="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</div>
 		</div>
 		<div class="mid">
