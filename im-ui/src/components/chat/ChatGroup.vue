@@ -2,7 +2,7 @@
 	<el-container class="r-chat-box">
 		<el-header height="60px">
 			<span>{{title}}</span>
-			<span class="btn-side el-icon-more" @click="showSide=!showSide"></span>
+			<span title="群聊信息" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
 		</el-header>
 		<el-container>
 			<el-container class="content-box">
@@ -19,20 +19,20 @@
 				</el-main>
 				<el-footer height="25%" class="im-chat-footer">
 					<div class="chat-tool-bar">
-						<div class="el-icon-service"></div>
-						<div>
-							<file-upload action="/api/image/upload" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/gif']"
+						<div title="表情" class="el-icon-service" @click="$message.error('还不支持发表情符号呢')"></div>
+						<div title="发送图片" >
+							<file-upload action="/api/image/upload" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
 							 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 								<i class="el-icon-picture-outline"></i>
 							</file-upload>
 						</div>
-						<div>
+						<div title="发送文件">
 							<file-upload action="/api/file/upload" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
 							 @fail="handleFileFail">
 								<i class="el-icon-wallet"></i>
 							</file-upload>
 						</div>
-						<div class="el-icon-chat-dot-round"></div>
+						<div title="聊天记录" class="el-icon-chat-dot-round"></div>
 					</div>
 					<textarea v-model="sendText" ref="sendBox" class="send-text-area" @keydown.enter="sendTextMessage()"></textarea>
 					<div class="im-chat-send">

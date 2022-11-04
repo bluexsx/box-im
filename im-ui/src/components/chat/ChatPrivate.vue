@@ -18,7 +18,7 @@
 			<div class="chat-tool-bar">
 				<div class="el-icon-service"></div>
 				<div>
-					<file-upload action="/api/image/upload" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/gif']"
+					<file-upload action="/api/image/upload" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp', 'image/gif']"
 					 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 						<i class="el-icon-picture-outline"></i>
 					</file-upload>

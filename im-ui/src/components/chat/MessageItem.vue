@@ -1,7 +1,7 @@
 <template>
 	<div class="im-msg-item" :class="{'im-chat-mine':mine}">
 		<div class="head-image">
-			<head-image :url="headImage"></head-image>
+			<head-image :url="headImage" :id="msgInfo.sendId"></head-image>
 		</div>
 		<div class="im-msg-content">
 			<div class="im-msg-top">
