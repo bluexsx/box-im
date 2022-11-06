@@ -60,8 +60,5 @@ public  abstract class AbstractPullMessageTask{
         executorService.shutdown();
     }
 
-
     public abstract void pullMessage();
-
-
 }

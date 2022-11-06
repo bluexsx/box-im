@@ -1,7 +1,9 @@
 /.idea/
-
-
 /lx-im.iml
 /im-server/im-server.iml
 /im-platform/im-platform.iml
 /commom/commom.iml
+/im-platform/src/main/resources/application-prod.yml
+/im-platform/src/main/resources/logback-prod.xml
+/im-server/src/main/resources/application-prod.yml
+/im-server/src/main/resources/logback-prod.xml
