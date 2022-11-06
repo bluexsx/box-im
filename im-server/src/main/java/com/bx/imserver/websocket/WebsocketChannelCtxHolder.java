@@ -18,16 +18,16 @@ public class WebsocketChannelCtxHolder {
     }
 
     public static void  removeChannelCtx(Long userId){
-        channelMap.remove(userId);
+        if(userId != null){
+            channelMap.remove(userId);
+        }
     }
 
     public static ChannelHandlerContext  getChannelCtx(Long userId){
+        if(userId == null){
+            return  null;
+        }
         return channelMap.get(userId);
     }
-
-    public static Set<Long> getAllChannelIds(){
-        return channelMap.keySet();
-    }
-
 
 }
