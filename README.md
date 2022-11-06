@@ -13,9 +13,32 @@
 | im-common   |公共包  
 
 
-#### 安装教程
+#### 本地快速部署
+1.安装运行环境
+- 安装node:v14.16.0
+- 安装jdk:1.8
+- 安装maven:3.6.3
+- 安装mysql:5.7,密码分别为root/root
+- 安装redis:4.0
+- 安装minio，命令端口使用9001，并创建一个名为"box-im"的bucket，并设置为公开
 
-后续补充
+
+2.运行后端服务
+```
+mvn clean package
+java -jar ./im-platform/target/im-platform.jar
+java -jar ./im-server/target/im-server.jar
+```
+
+3.运行前端ui
+
+```
+cd im-ui
+npm install
+npm run serve
+```
+
+
 
 
 #### 页面截图
