@@ -1,5 +1,5 @@
 <template>
-	<el-dialog class="setting" title="设置" :visible.sync="visible" width="30%" :before-close="handleClose">
+	<el-dialog class="setting" title="设置" :visible.sync="visible"  width="30%" :before-close="handleClose">
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm">
 			<el-form-item label="头像">
 				<file-upload  class="avatar-uploader"
@@ -99,10 +99,12 @@
 				return `${process.env.VUE_APP_BASE_API}/image/upload`;
 			}
 		},
-		mounted() {
-			// 深拷贝
-			let mine = this.$store.state.userStore.userInfo;
-			this.userInfo = JSON.parse(JSON.stringify(mine));
+		watch: {
+			visible: function(newData, oldData) {
+				// 深拷贝
+				let mine = this.$store.state.userStore.userInfo;
+				this.userInfo = JSON.parse(JSON.stringify(mine));
+			}
 		}
 	}
 </script>

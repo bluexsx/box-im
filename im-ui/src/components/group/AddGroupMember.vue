@@ -1,5 +1,5 @@
 <template>
-	<el-dialog title="邀请好友" :visible.sync="visible" v-if="visible" width="50%" :before-close="handleClose">
+	<el-dialog title="邀请好友" :visible.sync="visible"  width="50%" :before-close="handleClose">
 		<div class="agm-container">
 			<div class="agm-l-box">
 				<el-input width="200px" placeholder="搜索好友" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">

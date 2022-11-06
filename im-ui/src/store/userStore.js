@@ -11,7 +11,7 @@ export default {
 				console.log("用户切换")
 				this.commit("resetChatStore");
 			}
-			state.userInfo = Object.assign(state.userInfo, userInfo);
+			state.userInfo = userInfo;
 		}
 	}
 	

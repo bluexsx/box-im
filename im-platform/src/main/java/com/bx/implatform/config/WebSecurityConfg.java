@@ -42,8 +42,6 @@ import java.io.PrintWriter;
 public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
 
 
-    @Value("${web-ui.login-page}")
-    private String loginPage;
 
     @Qualifier("securityUserDetailsServiceImpl")
     @Autowired
@@ -62,7 +60,6 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
             .and()
             //2、登录配置表单认证方式
             .formLogin()
-            .loginPage(loginPage)//自定义登录页面的url
             .usernameParameter("username")//设置登录账号参数，与表单参数一致
             .passwordParameter("password")//设置登录密码参数，与表单参数一致
             .loginProcessingUrl("/login")//配置默认登录入口
@@ -77,7 +74,6 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
             .and()
             //4、session管理
             .sessionManagement()
-            .invalidSessionUrl(loginPage) //失效后跳转到登陆页面
             .and()
             //5、禁用跨站csrf攻击防御
             .csrf()
