@@ -1,4 +1,4 @@
-use `lx-im`;
+use `box-im`;
 create table `im_user`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_name` varchar(255) not null comment '用户名',
@@ -33,7 +33,7 @@ create table `im_private_message`(
     `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件',
     `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 ',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
-    key `idx_send_recv_user_id` (`send_user_id`,`recv_user_id`)
+    key `idx_send_recv_id` (`send_id`,`recv_id`)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '私聊消息';
 
 
@@ -71,13 +71,3 @@ create table `im_group_message`(
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_group_id` (group_id)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';
-
-
-create table `im_group_message_read_pos`(
-     `id` bigint not null auto_increment primary key comment 'id',
-     `group_id` bigint not null  comment '群id',
-     `user_id` bigint not null  comment '用户id',
-     `read_pos` bigint default 0  comment '已读取消息的最大消息id',
-     `last_read_time` datetime DEFAULT CURRENT_TIMESTAMP comment '最后读取时间',
-     key `idx_user_id`(`user_id`)
-)ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息读取位置';

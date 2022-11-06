@@ -63,7 +63,7 @@
 			},
 			handleAddFriend() {
 				this.$http({
-					url: "/api/friend/add",
+					url: "/friend/add",
 					method: "post",
 					params: {
 						friendId: this.user.id

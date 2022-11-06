@@ -40,7 +40,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Override
     public List<Friend> findFriendByUserId(Long UserId) {
-        QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<Friend> queryWrapper = new QueryWrapper();
         queryWrapper.lambda().eq(Friend::getUserId,UserId);
         List<Friend> friends = this.list(queryWrapper);
         return friends;

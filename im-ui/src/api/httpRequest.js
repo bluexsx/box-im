@@ -3,6 +3,7 @@ import router from '@/router'
 import {Message} from 'element-ui'
 
 const http = axios.create({
+	baseURL: process.env.VUE_APP_BASE_API,
 	timeout: 1000 * 30,
 	withCredentials: true,
 	headers: {

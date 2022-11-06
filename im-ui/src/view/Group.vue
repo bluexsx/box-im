@@ -26,7 +26,7 @@
 				<div v-show="activeGroup.id">
 					<div class="r-group-info">
 						<div>
-							<file-upload class="avatar-uploader" action="/api/image/upload" :disabled="!isOwner" :showLoading="true"
+							<file-upload class="avatar-uploader" :action="imageAction" :disabled="!isOwner" :showLoading="true"
 							 :maxSize="maxSize" @success="handleUploadSuccess" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
 								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -119,7 +119,7 @@
 					inputErrorMessage: '请输入群聊名称'
 				}).then((o) => {
 					this.$http({
-						url: `/api/group/create?groupName=${o.value}`,
+						url: `/group/create?groupName=${o.value}`,
 						method: 'post'
 					}).then((group) => {
 						this.$store.commit("addGroup", group);
@@ -148,7 +148,7 @@
 					if (valid) {
 						let vo = this.activeGroup;
 						this.$http({
-							url: "/api/group/modify",
+							url: "/group/modify",
 							method: "put",
 							data: vo
 						}).then((group) => {
@@ -165,7 +165,7 @@
 					type: 'warning'
 				}).then(() => {
 					this.$http({
-						url: `/api/group/delete/${this.activeGroup.id}`,
+						url: `/group/delete/${this.activeGroup.id}`,
 						method: 'delete'
 					}).then(() => {
 						this.$store.commit("removeGroup", this.activeGroup.id);
@@ -182,7 +182,7 @@
 					type: 'warning'
 				}).then(() => {
 					this.$http({
-						url: `/api/group/kick/${this.activeGroup.id}`,
+						url: `/group/kick/${this.activeGroup.id}`,
 						method: 'delete',
 						params: {
 							userId: member.userId
@@ -201,7 +201,7 @@
 					type: 'warning'
 				}).then(() => {
 					this.$http({
-						url: `/api/group/quit/${this.activeGroup.id}`,
+						url: `/group/quit/${this.activeGroup.id}`,
 						method: 'delete'
 					}).then(() => {
 						this.$store.commit("removeGroup", this.activeGroup.id);
@@ -224,7 +224,7 @@
 			},
 			loadGroupMembers() {
 				this.$http({
-					url: `/api/group/members/${this.activeGroup.id}`,
+					url: `/group/members/${this.activeGroup.id}`,
 					method: "get"
 				}).then((members) => {
 					this.groupMembers = members;
@@ -241,6 +241,9 @@
 			},
 			isOwner() {
 				return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
+			},
+			imageAction(){
+				return `${process.env.VUE_APP_BASE_API}/image/upload`;
 			}
 		},
 		mounted() {

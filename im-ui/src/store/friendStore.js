@@ -10,7 +10,7 @@ export default {
 	mutations: {
 		initFriendStore(state) {
 			httpRequest({
-				url: '/api/friend/list',
+				url: '/friend/list',
 				method: 'get'
 			}).then((friends) => {
 				this.commit("setFriends",friends);
@@ -48,7 +48,7 @@ export default {
 			}
 			state.friends.forEach((f)=>{userIds.push(f.id)});
 			httpRequest({
-				url: '/api/user/online',
+				url: '/user/online',
 				method: 'get',
 				params: {userIds: userIds.join(',')}
 			}).then((onlineIds) => {

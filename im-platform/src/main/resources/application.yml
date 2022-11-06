@@ -29,8 +29,8 @@ mybatis-plus:
     # *.xml的具体路径
     - classpath*:mapper/*.xml
 minio:
-  endpoint: http://127.0.0.1:9001
-  public: http://127.0.0.1:9001
+  endpoint: http://127.0.0.1:9001 #内网地址
+  public: http://3xagfu.natappfree.cc/file  #外网访问地址
   accessKey: admin
   secretKey: 12345678
   bucketName: lx-im

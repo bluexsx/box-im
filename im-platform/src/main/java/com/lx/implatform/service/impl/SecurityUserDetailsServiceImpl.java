@@ -31,7 +31,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户不存在");
         }
         //定义权限列表.
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        List<GrantedAuthority> authorities = new ArrayList();
         // 用户可以访问的资源名称（或者说用户所拥有的权限） 注意：必须"ROLE_"开头
         authorities.add(new SimpleGrantedAuthority("ROLE_XX"));
 

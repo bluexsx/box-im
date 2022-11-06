@@ -80,7 +80,7 @@
 			},
 			loadGroupMembers() {
 				this.$http({
-					url: `/api/group/members/${this.group.id}`,
+					url: `/group/members/${this.group.id}`,
 					method: "get"
 				}).then((members) => {
 					this.groupMembers = members;
@@ -89,7 +89,7 @@
 			handleSaveGroup() {
 				let vo = this.group;
 				this.$http({
-					url: "/api/group/modify",
+					url: "/group/modify",
 					method: "put",
 					data: vo
 				}).then((group) => {
@@ -105,7 +105,7 @@
 					type: 'warning'
 				}).then(() => {
 					this.$http({
-						url: `/api/group/quit/${this.group.id}`,
+						url: `/group/quit/${this.group.id}`,
 						method: 'delete'
 					}).then(() => {
 						this.$store.commit("removeGroup", this.group.id);
@@ -124,6 +124,7 @@
 			isOwner() {
 				return this.group.ownerId == this.$store.state.userStore.userInfo.id;
 			}
+			
 		}
 	}
 </script>

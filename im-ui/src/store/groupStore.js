@@ -9,7 +9,7 @@ export default {
 	mutations: {
 		initGroupStore(state) {
 			httpRequest({
-				url: '/api/group/list',
+				url: '/group/list',
 				method: 'get'
 			}).then((groups) => {
 				this.commit("setGroups",groups);

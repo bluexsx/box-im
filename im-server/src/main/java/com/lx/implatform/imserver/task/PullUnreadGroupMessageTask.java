@@ -28,6 +28,7 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
     private RedisTemplate<String,Object> redisTemplate;
 
 
+
     @Override
     public void pullMessage() {
         // 从redis拉取未读消息

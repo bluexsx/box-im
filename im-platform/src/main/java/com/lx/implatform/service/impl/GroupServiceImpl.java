@@ -71,9 +71,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         groupMember.setGroupId(group.getId());
         groupMember.setUserId(user.getId());
         groupMember.setAliasName(user.getNickName());
+        groupMember.setRemark(groupName);
         groupMember.setHeadImage(user.getHeadImageThumb());
         groupMemberService.save(groupMember);
         GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
+        vo.setAliasName(user.getNickName());
+        vo.setRemark(groupName);
         return vo;
     }
 

@@ -149,6 +149,7 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
     AuthenticationEntryPoint entryPoint(){
         return (request, response, exception) -> {
             response.setContentType("application/json;charset=utf-8");
+            log.info(request.getRequestURI());
             PrintWriter out = response.getWriter();
             Result result = ResultUtils.error(ResultCode.NO_LOGIN);
             out.write(new ObjectMapper().writeValueAsString(result));

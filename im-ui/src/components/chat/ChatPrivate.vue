@@ -18,13 +18,13 @@
 			<div class="chat-tool-bar">
 				<div class="el-icon-service"></div>
 				<div>
-					<file-upload action="/api/image/upload" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp', 'image/gif']"
+					<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp', 'image/gif']"
 					 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 						<i class="el-icon-picture-outline"></i>
 					</file-upload>
 				</div>
 				<div>
-					<file-upload action="/api/file/upload" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
+					<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
 					 @fail="handleFileFail">
 						<i class="el-icon-wallet"></i>
 					</file-upload>
@@ -67,7 +67,7 @@
 					type: 1
 				}
 				this.$http({
-					url: '/api/message/private/send',
+					url: '/message/private/send',
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
@@ -126,7 +126,7 @@
 					type: 2
 				}
 				this.$http({
-					url: '/api/message/private/send',
+					url: '/message/private/send',
 					method: 'post',
 					data: msgInfo
 				}).then(() => {
@@ -180,7 +180,7 @@
 					type: 0
 				}
 				this.$http({
-					url: '/api/message/private/send',
+					url: '/message/private/send',
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
@@ -212,6 +212,12 @@
 		computed: {
 			mine() {
 				return this.$store.state.userStore.userInfo;
+			},
+			imageAction(){
+				return `${process.env.VUE_APP_BASE_API}/image/upload`;
+			},
+			fileAction(){
+				return `${process.env.VUE_APP_BASE_API}/file/upload`;
 			}
 		},
 		mounted() {

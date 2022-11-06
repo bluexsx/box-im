@@ -64,7 +64,7 @@
 				})
 				if (inviteVO.friendIds.length > 0) {
 					this.$http({
-						url: "/api/group/invite",
+						url: "/group/invite",
 						method: 'post',
 						data: inviteVO
 					}).then(() => {

@@ -84,7 +84,7 @@
 					type: 'warning'
 				}).then(() => {
 					this.$http({
-						url: `/api/friend/delete/${friend.id}`,
+						url: `/friend/delete/${friend.id}`,
 						method: 'delete'
 					}).then((data) => {
 						this.$message.success("删除好友成功");
@@ -117,7 +117,7 @@
 				friend.headImage = user.headImageThumb;
 				friend.nickName = user.nickName;
 				this.$http({
-					url: "/api/friend/update",
+					url: "/friend/update",
 					method: "put",
 					data: friend
 				}).then(() => {
@@ -127,7 +127,7 @@
 			},
 			loadUserInfo(friend,index){
 				this.$http({
-					url: `/api/user/find/${friend.id}`,
+					url: `/user/find/${friend.id}`,
 					method: 'get'
 				}).then((user) => {
 					this.userInfo = user;

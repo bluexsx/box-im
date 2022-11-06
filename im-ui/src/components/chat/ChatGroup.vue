@@ -21,13 +21,13 @@
 					<div class="chat-tool-bar">
 						<div title="表情" class="el-icon-service" @click="$message.error('还不支持发表情符号呢')"></div>
 						<div title="发送图片" >
-							<file-upload action="/api/image/upload" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
+							<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
 							 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 								<i class="el-icon-picture-outline"></i>
 							</file-upload>
 						</div>
 						<div title="发送文件">
-							<file-upload action="/api/file/upload" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
+							<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
 							 @fail="handleFileFail">
 								<i class="el-icon-wallet"></i>
 							</file-upload>
@@ -80,7 +80,7 @@
 					type: 1
 				}
 				this.$http({
-					url: '/api/message/group/send',
+					url: '/message/group/send',
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
@@ -138,7 +138,7 @@
 					type: 2
 				}
 				this.$http({
-					url: '/api/message/group/send',
+					url: '/message/group/send',
 					method: 'post',
 					data: msgInfo
 				}).then(() => {
@@ -200,7 +200,7 @@
 					type: 0
 				}
 				this.$http({
-					url: '/api/message/group/send',
+					url: '/message/group/send',
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
@@ -224,7 +224,7 @@
 			},
 			loadGroup(groupId) {
 				this.$http({
-					url: `/api/group/find/${groupId}`,
+					url: `/group/find/${groupId}`,
 					method: 'get'
 				}).then((group) => {
 					this.group = group;
@@ -232,7 +232,7 @@
 				});
 
 				this.$http({
-					url: `/api/group/members/${groupId}`,
+					url: `/group/members/${groupId}`,
 					method: 'get'
 				}).then((groupMembers) => {
 					this.groupMembers = groupMembers;
@@ -261,6 +261,12 @@
 			title() {
 				let size = this.groupMembers.filter(m => !m.quit).length;
 				return `${this.chat.showName}(${size})`;
+			},
+			imageAction(){
+				return `${process.env.VUE_APP_BASE_API}/image/upload`;
+			},
+			fileAction(){
+				return `${process.env.VUE_APP_BASE_API}/file/upload`;
 			}
 
 		},

@@ -95,7 +95,7 @@
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						this.$http({
-								url: "/api/register",
+								url: "/register",
 								method: 'post',
 								data: this.registerForm
 							})

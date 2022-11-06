@@ -45,7 +45,7 @@
 			},
 			handleSearch() {
 				this.$http({
-					url: "/api/user/findByNickName",
+					url: "/user/findByNickName",
 					method: "get",
 					params: {
 						nickName: this.searchText
@@ -56,7 +56,7 @@
 			},
 			handleAddFriend(user){
 				this.$http({
-					url: "/api/friend/add",
+					url: "/friend/add",
 					method: "post",
 					params: {
 						friendId: user.id

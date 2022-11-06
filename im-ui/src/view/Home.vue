@@ -68,7 +68,7 @@
 			init(userInfo) {
 				this.$store.commit("setUserInfo", userInfo);
 				this.$store.commit("initStore");
-				this.$wsApi.createWebSocket("ws://localhost:8878/im", this.$store);
+				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, this.$store);
 				this.$wsApi.onopen(() => {
 					this.pullUnreadMessage();
 				});
@@ -92,12 +92,12 @@
 			pullUnreadMessage() {
 				// 拉取未读私聊消息
 				this.$http({
-					url: "/api/message/private/pullUnreadMessage",
+					url: "/message/private/pullUnreadMessage",
 					method: 'post'
 				});
 				// 拉取未读群聊消息
 				this.$http({
-					url: "/api/message/group/pullUnreadMessage",
+					url: "/message/group/pullUnreadMessage",
 					method: 'post'
 				});
 			},
@@ -110,7 +110,7 @@
 				}
 				// 好友列表不存在好友信息，则发请求获取好友信息
 				this.$http({
-					url: `/api/friend/find/${msg.sendId}`,
+					url: `/friend/find/${msg.sendId}`,
 					method: 'get'
 				}).then((friend) => {
 					this.insertPrivateMessage(friend, msg);
@@ -138,7 +138,7 @@
 				}
 				// 群聊缓存存在，直接插入群聊消息
 				this.$http({
-					url: `/api/group/find/${msg.groupId}`,
+					url: `/group/find/${msg.groupId}`,
 					method: 'get'
 				}).then((group) => {
 					this.insertGroupMessage(group, msg);
@@ -159,7 +159,7 @@
 			},
 			handleExit() {
 				this.$http({
-					url: "/api/logout",
+					url: "/logout",
 					method: 'get'
 				}).then(() => {
 					this.$wsApi.closeWebSocket();
@@ -180,7 +180,7 @@
 		},
 		mounted() {
 			this.$http({
-				url: "/api/user/self",
+				url: "/user/self",
 				methods: 'get'
 			}).then((userInfo) => {
 				this.init(userInfo);

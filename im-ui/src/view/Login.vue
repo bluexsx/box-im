@@ -63,7 +63,7 @@
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						this.$http({
-								url: "/api/login",
+								url: "/login",
 								method: 'post',
 								params: this.loginForm
 							})

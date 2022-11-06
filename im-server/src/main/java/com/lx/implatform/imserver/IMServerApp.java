@@ -25,7 +25,7 @@ public class IMServerApp implements CommandLineRunner {
     private WebsocketServer WSServer;
 
     public static void main(String[] args) {
-        SpringApplication.run(IMServerApp.class);
+        SpringApplication.run(IMServerApp.class,args);
     }
 
 

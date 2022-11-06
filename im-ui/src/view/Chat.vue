@@ -66,7 +66,7 @@
 					type: 0
 				}
 				this.$http({
-					url: '/api/message/group/send',
+					url: '/message/group/send',
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
@@ -86,7 +86,7 @@
 				// 获取对方最新信息
 				let userId = chat.targetId;
 				this.$http({
-					url: `/api/user/find/${userId}`,
+					url: `/user/find/${userId}`,
 					method: 'get'
 				}).then((user) => {
 					// 如果发现好友的头像和昵称改了，进行更新
@@ -104,7 +104,7 @@
 					headImage: user.headImageThumb
 				};
 				this.$http({
-					url: "/api/friend/update",
+					url: "/friend/update",
 					method: "put",
 					data: friendInfo
 				}).then(() => {

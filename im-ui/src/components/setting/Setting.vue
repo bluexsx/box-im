@@ -3,7 +3,7 @@
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm">
 			<el-form-item label="头像">
 				<file-upload  class="avatar-uploader"
-				action="/api/image/upload" 
+				:action="imageAction" 
 				:showLoading="true"
 				:maxSize="maxSize"  
 				@success="handleUploadSuccess"
@@ -53,7 +53,7 @@
 
 				},
 				maxSize: 5*1024*1024,
-				action: "/api/image/upload",
+				action: "/image/upload",
 				rules: {
 					nickName: [{
 						required: true,
@@ -74,7 +74,7 @@
 						return false;
 					}
 					this.$http({
-						url: "/api/user/update",
+						url: "/user/update",
 						method: "put",
 						data: this.userInfo
 					}).then(()=>{
@@ -94,11 +94,16 @@
 				type: Boolean
 			}
 		},
+		computed:{
+			imageAction(){
+				return `${process.env.VUE_APP_BASE_API}/image/upload`;
+			}
+		},
 		mounted() {
-			this.userInfo = this.$store.state.userStore.userInfo;
-			console.log(this.userInfo)
+			// 深拷贝
+			let mine = this.$store.state.userStore.userInfo;
+			this.userInfo = JSON.parse(JSON.stringify(mine));
 		}
-
 	}
 </script>
 
