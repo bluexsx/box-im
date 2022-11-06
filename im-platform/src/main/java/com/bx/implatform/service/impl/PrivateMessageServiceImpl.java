@@ -7,13 +7,13 @@ import com.bx.common.enums.MessageStatusEnum;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.model.im.PrivateMessageInfo;
 import com.bx.common.util.BeanUtils;
+import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.exception.GlobalException;
+import com.bx.implatform.mapper.PrivateMessageMapper;
+import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.PrivateMessageVO;
-import com.bx.implatform.entity.PrivateMessage;
-import com.bx.implatform.mapper.PrivateMessageMapper;
-import com.bx.implatform.service.IFriendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     /**
      * 发送私聊消息
      *
-     * @param vo
+     * @param vo 私聊消息vo
      * @return
      */
     @Override

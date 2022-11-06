@@ -4,15 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.ResultCode;
-import com.bx.implatform.exception.GlobalException;
-import com.bx.implatform.vo.FriendVO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.User;
+import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FriendMapper;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
+import com.bx.implatform.vo.FriendVO;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -23,14 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * <p>
- *  好友服务实现类
- * </p>
- *
- * @author blue
- * @since 2022-10-22
- */
+
 @CacheConfig(cacheNames= RedisKey.IM_CACHE_FRIEND)
 @Service
 public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements IFriendService {
@@ -38,6 +31,12 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Autowired
     private IUserService userService;
 
+    /**
+     * 查询用户的所有好友
+     *
+     * @param UserId   用户id
+     * @return
+     */
     @Override
     public List<Friend> findFriendByUserId(Long UserId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper();
@@ -47,6 +46,12 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
+    /**
+     * 添加好友，互相建立好友关系
+     *
+     * @param friendId 好友的用户id
+     * @return
+     */
     @Transactional
     @Override
     public void addFriend(Long friendId) {
@@ -61,6 +66,12 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
+    /**
+     * 删除好友，双方都会解除好友关系
+     *
+     * @param friendId 好友的用户id
+     * @return
+     */
     @Transactional
     @Override
     public void delFriend(Long friendId) {
@@ -72,6 +83,13 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
+    /**
+     * 判断用户2是否用户1的好友
+     *
+     * @param userId1 用户1的id
+     * @param userId2 用户2的id
+     * @return
+     */
     @Cacheable(key="#userId1+':'+#userId2")
     @Override
     public Boolean isFriend(Long userId1, Long userId2) {
@@ -83,6 +101,12 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
+    /**
+     * 更新好友信息，主要是头像和昵称
+     *
+     * @param vo  好友vo
+     * @return
+     */
     @Override
     public void update(FriendVO vo) {
         long userId = SessionContext.getSession().getId();
@@ -101,6 +125,14 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         this.updateById(f);
     }
 
+
+    /**
+     * 单向绑定好友关系
+     *
+     * @param userId  用户id
+     * @param friendId  好友的用户id
+     * @return
+     */
     @CacheEvict(key="#userId+':'+#friendId")
     public void bindFriend(Long userId, Long friendId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
@@ -118,6 +150,14 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         }
     }
 
+
+    /**
+     * 单向解除好友关系
+     *
+     * @param userId  用户id
+     * @param friendId  好友的用户id
+     * @return
+     */
     @CacheEvict(key="#userId+':'+#friendId")
     public void unbindFriend(Long userId, Long friendId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
@@ -131,6 +171,12 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
+    /**
+     * 查询指定的某个好友信息
+     *
+     * @param friendId 好友的用户id
+     * @return
+     */
     @Override
     public FriendVO findFriend(Long friendId) {
         UserSession session = SessionContext.getSession();

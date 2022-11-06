@@ -33,8 +33,8 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("IM Platform doc")
-                .description("蓝星IM API文档")
-                .termsOfServiceUrl("http://XXX/")
+                .description("盒子IM API文档")
+                .termsOfServiceUrl("http://8.134.92.70/")
                 .version("1.0")
                 .build();
     }

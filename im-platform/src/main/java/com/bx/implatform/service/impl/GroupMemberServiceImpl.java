@@ -2,11 +2,11 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.RedisKey;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.mapper.GroupMemberMapper;
 import com.bx.implatform.service.IGroupMemberService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -62,6 +62,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.getOne(wrapper);
     }
 
+
     /**
      * 根据用户id查询群聊成员
      *
@@ -76,6 +77,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.list(memberWrapper);
     }
 
+
     /**
      * 根据群聊id查询群聊成员（包括已退出）
      *
@@ -88,6 +90,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         memberWrapper.lambda().eq(GroupMember::getGroupId, groupId);
         return this.list(memberWrapper);
     }
+
 
     /**
      * 根据群聊id查询没有退出的群聊成员id
@@ -104,7 +107,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         List<GroupMember> members = this.list(memberWrapper);
         return members.stream().map(m->m.getUserId()).collect(Collectors.toList());
     }
-
 
 
     /**

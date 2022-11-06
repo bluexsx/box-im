@@ -1,18 +1,11 @@
 package com.bx.implatform.service;
 
-import com.bx.implatform.entity.GroupMember;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.entity.GroupMember;
 
 import java.util.List;
 
-/**
- * <p>
- * 群成员 服务类
- * </p>
- *
- * @author blue
- * @since 2022-10-31
- */
+
 public interface IGroupMemberService extends IService<GroupMember> {
 
 

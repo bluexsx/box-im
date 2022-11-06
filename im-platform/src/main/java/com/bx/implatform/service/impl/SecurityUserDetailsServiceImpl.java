@@ -23,7 +23,13 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private IUserService userService;
 
-
+    /**
+     * 加载用户数据，用户登录时，由spring security调用
+     *
+     * @param username 用户名
+     * @throws UsernameNotFoundException  用户不存在时抛出
+     * @return
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userService.findUserByName(username);

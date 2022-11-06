@@ -1,16 +1,15 @@
 package com.bx.implatform.config;
 
 import com.alibaba.fastjson.JSON;
-import com.bx.implatform.service.IUserService;
-import com.bx.implatform.session.UserSession;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.result.Result;
 import com.bx.common.result.ResultUtils;
+import com.bx.implatform.service.IUserService;
+import com.bx.implatform.session.UserSession;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.*;
@@ -32,6 +31,7 @@ import java.io.PrintWriter;
 
 /*
  * SpringSecurity安全框架配置
+ *
  * @Author Blue
  * @Date 2022/10/21
  */
@@ -58,7 +58,7 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
             .anyRequest() //任何其它请求
             .authenticated() //都需要身份认证
             .and()
-            //2、登录配置表单认证方式
+            // 登录配置表单认证方式
             .formLogin()
             .usernameParameter("username")//设置登录账号参数，与表单参数一致
             .passwordParameter("password")//设置登录密码参数，与表单参数一致
@@ -66,24 +66,22 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
             .successHandler(successHandler())
             .failureHandler(failureHandler())
             .and()
-            //3、注销
+            // 注销
             .logout()
             .logoutUrl("/logout")
             .logoutSuccessHandler(logoutHandler())
             .permitAll()
             .and()
-            //4、session管理
+            // session管理
             .sessionManagement()
             .and()
-            //5、禁用跨站csrf攻击防御
+            // 禁用跨站csrf攻击防御
             .csrf()
             .disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(entryPoint());
 
     }
-
-
 
     @Bean
     AuthenticationFailureHandler failureHandler(){
@@ -111,6 +109,10 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
     @Bean
     AuthenticationSuccessHandler successHandler(){
         return (request, response, authentication) -> {
+            User useDetail = (User)authentication.getPrincipal();
+            String strJson = useDetail.getUsername();
+            UserSession userSession = JSON.parseObject(strJson,UserSession.class);
+            log.info("用户 '{}' 登录,id:{},昵称:{}",userSession.getUserName(),userSession.getId(),userSession.getNickName());
             // 响应
             response.setContentType("application/json;charset=utf-8");
             PrintWriter out = response.getWriter();
@@ -118,6 +120,7 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
             out.write(new ObjectMapper().writeValueAsString(result));
             out.flush();
             out.close();
+
         };
     }
 
@@ -125,12 +128,10 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
     @Bean
     LogoutSuccessHandler logoutHandler(){
         return (request, response, authentication) -> {
-
             User useDetail = (User)authentication.getPrincipal();
             String strJson = useDetail.getUsername();
             UserSession userSession = JSON.parseObject(strJson,UserSession.class);
-            log.info("{}退出", userSession.getUserName());
-
+            log.info("用户 '{}' 退出,id:{},昵称:{}",userSession.getUserName(),userSession.getId(),userSession.getNickName());
             // 响应
             response.setContentType("application/json;charset=utf-8");
             PrintWriter out = response.getWriter();
@@ -145,7 +146,6 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
     AuthenticationEntryPoint entryPoint(){
         return (request, response, exception) -> {
             response.setContentType("application/json;charset=utf-8");
-            log.info(request.getRequestURI());
             PrintWriter out = response.getWriter();
             Result result = ResultUtils.error(ResultCode.NO_LOGIN);
             out.write(new ObjectMapper().writeValueAsString(result));
@@ -156,18 +156,13 @@ public class WebSecurityConfg extends WebSecurityConfigurerAdapter {
 
 
 
-
     @Bean
     public PasswordEncoder passwordEncoder(){
         // 使用BCrypt加密密码
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * 密码加密
-     * @param auth
-     * @throws Exception
-     */
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());

@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class WebsocketServer {
 
@@ -62,7 +64,6 @@ public class WebsocketServer {
                         protected void initChannel(Channel ch) throws Exception {
                             // 获取职责链
                             ChannelPipeline pipeline = ch.pipeline();
-                            //
                             pipeline.addLast(new IdleStateHandler(15, 0, 0, TimeUnit.SECONDS));
                             pipeline.addLast("http-codec", new HttpServerCodec());
                             pipeline.addLast("aggregator", new HttpObjectAggregator(65535));
@@ -79,12 +80,13 @@ public class WebsocketServer {
                     .option(ChannelOption.SO_BACKLOG, 5)
                     // 表示连接保活，相当于心跳机制，默认为7200s
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-            // 就绪标志
-            this.ready = true;
+
             try {
                 // 绑定端口，启动select线程，轮询监听channel事件，监听到事件之后就会交给从线程池处理
                 Channel channel = bootstrap.bind(port).sync().channel();
-
+                // 就绪标志
+                this.ready = true;
+                log.info("websocket server 初始化完成....");
                 // 等待服务端口关闭
                 channel.closeFuture().sync();
             } catch (InterruptedException e) {

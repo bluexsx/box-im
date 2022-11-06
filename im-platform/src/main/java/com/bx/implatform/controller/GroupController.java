@@ -3,10 +3,11 @@ package com.bx.implatform.controller;
 
 import com.bx.common.result.Result;
 import com.bx.common.result.ResultUtils;
+import com.bx.implatform.service.IGroupService;
 import com.bx.implatform.vo.GroupInviteVO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
-import com.bx.implatform.service.IGroupService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
+@Api(tags = "群聊")
 @RestController
 @RequestMapping("/group")
 public class GroupController {

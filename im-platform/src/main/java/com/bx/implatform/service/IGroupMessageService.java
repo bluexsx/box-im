@@ -1,8 +1,8 @@
 package com.bx.implatform.service;
 
-import com.bx.implatform.vo.GroupMessageVO;
-import com.bx.implatform.entity.GroupMessage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.entity.GroupMessage;
+import com.bx.implatform.vo.GroupMessageVO;
 
 
 public interface IGroupMessageService extends IService<GroupMessage> {

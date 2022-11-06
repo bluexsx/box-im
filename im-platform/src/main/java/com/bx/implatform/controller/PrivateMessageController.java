@@ -3,8 +3,8 @@ package com.bx.implatform.controller;
 
 import com.bx.common.result.Result;
 import com.bx.common.result.ResultUtils;
-import com.bx.implatform.vo.PrivateMessageVO;
 import com.bx.implatform.service.IPrivateMessageService;
+import com.bx.implatform.vo.PrivateMessageVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

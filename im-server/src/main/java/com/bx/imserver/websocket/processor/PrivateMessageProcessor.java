@@ -4,7 +4,7 @@ import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.WSCmdEnum;
 import com.bx.common.model.im.SendInfo;
 import com.bx.common.model.im.PrivateMessageInfo;
-import com.bx.imserver.websocket.WebsocketChannelCtxHloder;
+import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +19,10 @@ public class PrivateMessageProcessor extends  MessageProcessor<PrivateMessageInf
     private RedisTemplate<String,Object> redisTemplate;
 
     @Override
-    public void process(ChannelHandlerContext ctx, PrivateMessageInfo data) {
+    public void process(PrivateMessageInfo data) {
         log.info("接收到消息，发送者:{},接收者:{}，内容:{}",data.getSendId(),data.getRecvId(),data.getContent());
         // 一个用户可以同时登陆，所以有多个channel
-        ChannelHandlerContext channelCtx = WebsocketChannelCtxHloder.getChannelCtx(data.getRecvId());
+        ChannelHandlerContext channelCtx = WebsocketChannelCtxHolder.getChannelCtx(data.getRecvId());
         if(channelCtx != null ){
             // 推送消息到用户
             SendInfo sendInfo = new SendInfo();

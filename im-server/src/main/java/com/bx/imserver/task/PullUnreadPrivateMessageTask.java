@@ -33,9 +33,8 @@ public class PullUnreadPrivateMessageTask extends  AbstractPullMessageTask {
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);
             PrivateMessageInfo messageInfo = (PrivateMessageInfo)o;
-
-                MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.PRIVATE_MESSAGE);
-                processor.process(null,messageInfo);
+            MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.PRIVATE_MESSAGE);
+            processor.process(messageInfo);
 
         }
     }

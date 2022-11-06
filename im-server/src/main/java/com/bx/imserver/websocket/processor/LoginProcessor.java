@@ -5,7 +5,7 @@ import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.WSCmdEnum;
 import com.bx.common.model.im.LoginInfo;
 import com.bx.common.model.im.SendInfo;
-import com.bx.imserver.websocket.WebsocketChannelCtxHloder;
+import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import com.bx.imserver.websocket.WebsocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -30,16 +30,15 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
     @Override
     synchronized public void process(ChannelHandlerContext ctx, LoginInfo loginInfo) {
         log.info("用户登录，userId:{}",loginInfo.getUserId());
-        ChannelHandlerContext context = WebsocketChannelCtxHloder.getChannelCtx(loginInfo.getUserId());
+        ChannelHandlerContext context = WebsocketChannelCtxHolder.getChannelCtx(loginInfo.getUserId());
         if(context != null){
             // 不允许多地登录,强制下线
             SendInfo sendInfo = new SendInfo();
             sendInfo.setCmd(WSCmdEnum.FORCE_LOGUT.getCode());
             context.channel().writeAndFlush(sendInfo);
         }
-
         // 绑定用户和channel
-        WebsocketChannelCtxHloder.addChannelCtx(loginInfo.getUserId(),ctx);
+        WebsocketChannelCtxHolder.addChannelCtx(loginInfo.getUserId(),ctx);
         // 设置属性
         AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
         ctx.channel().attr(attr).set(loginInfo.getUserId());

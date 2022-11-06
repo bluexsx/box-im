@@ -3,10 +3,10 @@ package com.bx.implatform.controller;
 
 import com.bx.common.result.Result;
 import com.bx.common.result.ResultUtils;
-import com.bx.implatform.vo.FriendVO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.session.SessionContext;
+import com.bx.implatform.vo.FriendVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

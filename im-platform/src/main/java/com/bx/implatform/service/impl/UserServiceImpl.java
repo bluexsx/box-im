@@ -5,18 +5,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.util.BeanUtils;
+import com.bx.implatform.entity.Friend;
+import com.bx.implatform.entity.GroupMember;
+import com.bx.implatform.entity.User;
 import com.bx.implatform.exception.GlobalException;
+import com.bx.implatform.mapper.UserMapper;
+import com.bx.implatform.service.IFriendService;
+import com.bx.implatform.service.IGroupMemberService;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.vo.RegisterVO;
 import com.bx.implatform.vo.UserVO;
-import com.bx.implatform.entity.Friend;
-import com.bx.implatform.entity.GroupMember;
-import com.bx.implatform.entity.User;
-import com.bx.implatform.mapper.UserMapper;
-import com.bx.implatform.service.IFriendService;
-import com.bx.implatform.service.IGroupMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,14 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * <p>
- *  用户服务实现类
- * </p>
- *
- * @author blue
- * @since 2022-10-01
- */
+
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
@@ -50,6 +43,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Autowired
     private IFriendService friendService;
 
+    /**
+     * 用户注册
+     *
+     * @param vo 注册vo
+     * @return
+     */
     @Override
     public void register(RegisterVO vo) {
         User user = findUserByName(vo.getUserName());
@@ -61,6 +60,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         this.save(user);
     }
 
+    /**
+     * 根据用户名查询用户
+     *
+     * @param username 用户名
+     * @return
+     */
     @Override
     public User findUserByName(String username) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -68,6 +73,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return this.getOne(queryWrapper);
     }
 
+    /**
+     * 更新用户信息，好友昵称和群聊昵称等冗余信息也会更新
+     *
+     * @param vo 用户信息vo
+     * @return
+     */
     @Transactional
     @Override
     public void update(UserVO vo) {
@@ -107,12 +118,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         this.updateById(user);
     }
 
+
+    /**
+     * 根据用户昵称查询用户，最多返回20条数据
+     *
+     * @param nickname 用户昵称
+     * @return
+     */
     @Override
     public List<UserVO> findUserByNickName(String nickname) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .like(User::getNickName,nickname)
-                .last("limit 10");
+                .last("limit 20");
         List<User> users = this.list(queryWrapper);
         List<UserVO> vos = users.stream().map(u-> {
             UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
@@ -123,6 +141,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 
+    /**
+     * 判断用户是否在线，返回在线的用户id列表
+     *
+     * @param userIds 用户id，多个用‘,’分割
+     * @return
+     */
     @Override
     public List<Long> checkOnline(String userIds) {
         String[] idArr = userIds.split(",");

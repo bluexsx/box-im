@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * <p>
- *
+ * 好友
  * </p>
  *
  * @author blue

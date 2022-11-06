@@ -26,7 +26,6 @@ public class RedisConfig {
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
-
         // 设置值（value）的序列化采用jackson2JsonRedisSerializer
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer());
         redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer());

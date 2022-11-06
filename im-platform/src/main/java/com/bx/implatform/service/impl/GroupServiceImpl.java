@@ -1,26 +1,26 @@
 package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.util.BeanUtils;
-import com.bx.implatform.exception.GlobalException;
-import com.bx.implatform.vo.GroupInviteVO;
-import com.bx.implatform.vo.GroupMemberVO;
-import com.bx.implatform.vo.GroupVO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.Group;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;
+import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.GroupMapper;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IGroupMemberService;
 import com.bx.implatform.service.IGroupService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
+import com.bx.implatform.vo.GroupInviteVO;
+import com.bx.implatform.vo.GroupMemberVO;
+import com.bx.implatform.vo.GroupVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -28,6 +28,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +52,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 创建新群聊
      *
-     * @return GroupVO
      * @Param groupName 群聊名称
+     * @return
      **/
     @Transactional
     @Override
@@ -85,7 +86,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * 修改群聊信息
      * 
      * @Param  GroupVO 群聊信息
-     * @return GroupVO
+     * @return
      **/
     @CacheEvict(value = "#vo.getId()")
     @Transactional
@@ -209,7 +210,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 查询当前用户的所有群聊
      *
-     * @return List<GroupVO>
+     * @return
      **/
     @Override
     public List<GroupVO> findGroups() {

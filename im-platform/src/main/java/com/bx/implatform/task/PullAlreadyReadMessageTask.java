@@ -64,7 +64,9 @@ public class PullAlreadyReadMessageTask {
                 Thread.sleep(200);
             }finally {
                 // 下一次循环
-                executorService.submit(this);
+                if(executorService.isShutdown()){
+                    executorService.submit(this);
+                }
             }
         }
     }

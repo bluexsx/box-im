@@ -27,10 +27,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import javax.annotation.Resource;
 import java.time.Duration;
 
-/**
- * redis配置
- * @author zsq
- */
+
 @EnableCaching
 @Configuration
 public class RedisConfig extends CachingConfigurerSupport {
@@ -38,17 +35,6 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Resource
     private RedisConnectionFactory factory;
 
-
-    /**
-     * 重写Redis序列化方式，使用Json方式:
-     * 当我们的数据存储到Redis的时候，我们的键（key）和值（value）都是通过Spring提供的Serializer序列化到数据库的。RedisTemplate默认使用的是JdkSerializationRedisSerializer，StringRedisTemplate默认使用的是StringRedisSerializer。
-     * Spring Data JPA为我们提供了下面的Serializer：
-     * GenericToStringSerializer、Jackson2JsonRedisSerializer、JacksonJsonRedisSerializer、JdkSerializationRedisSerializer、OxmSerializer、StringRedisSerializer。
-     * 在此我们将自己配置RedisTemplate并定义Serializer。
-     *
-     * @param redisConnectionFactory
-     * @return
-     */
     @Primary
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
@@ -95,12 +81,12 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Bean
     @Override
     public CacheManager cacheManager() {
+        // 设置redis缓存管理器
         RedisCacheConfiguration cacheConfiguration =
                 RedisCacheConfiguration.defaultCacheConfig()
                         .disableCachingNullValues()
                         .entryTtl(Duration.ofMinutes(10))
                         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer()));
         return RedisCacheManager.builder(factory).cacheDefaults(cacheConfiguration).build();
-
     }
 }

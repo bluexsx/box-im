@@ -4,7 +4,7 @@ import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.WSCmdEnum;
 import com.bx.common.model.im.GroupMessageInfo;
 import com.bx.common.model.im.SendInfo;
-import com.bx.imserver.websocket.WebsocketChannelCtxHloder;
+import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,13 @@ public class GroupMessageProcessor extends  MessageProcessor<GroupMessageInfo> {
 
     @Async
     @Override
-    public void process(ChannelHandlerContext ctx, GroupMessageInfo data) {
+    public void process(GroupMessageInfo data) {
         log.info("接收到群消息，发送者:{},群id:{},接收id:{}，内容:{}",data.getSendId(),data.getGroupId(),data.getRecvIds(),data.getContent());
         List<Long> recvIds = data.getRecvIds();
         // 接收者id列表不需要传输，节省带宽
         data.setRecvIds(null);
         for(Long recvId:recvIds){
-            ChannelHandlerContext channelCtx = WebsocketChannelCtxHloder.getChannelCtx(recvId);
+            ChannelHandlerContext channelCtx = WebsocketChannelCtxHolder.getChannelCtx(recvId);
             if(channelCtx != null){
                 // 自己发的消息不用推送
                 if(recvId != data.getSendId()){

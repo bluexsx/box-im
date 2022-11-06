@@ -1,21 +1,21 @@
 package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.model.im.GroupMessageInfo;
 import com.bx.common.util.BeanUtils;
-import com.bx.implatform.exception.GlobalException;
-import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.entity.Group;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.GroupMessage;
+import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.GroupMessageMapper;
 import com.bx.implatform.service.IGroupMemberService;
 import com.bx.implatform.service.IGroupMessageService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.service.IGroupService;
 import com.bx.implatform.session.SessionContext;
+import com.bx.implatform.vo.GroupMessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,15 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         Long userId = SessionContext.getSession().getId();
         Group group = groupService.getById(vo.getGroupId());
         if(group == null){
-            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群聊不存在或已解散");
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群聊不存在");
+        }
+        if(group.getDeleted()){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群聊已解散");
+        }
+        // 判断是否在群里
+        List<Long> userIds = groupMemberService.findUserIdsByGroupId(group.getId());
+        if(!userIds.contains(userId)){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您已不在群聊里面，无法发送消息");
         }
         // 保存消息
         GroupMessage msg = BeanUtils.copyProperties(vo, GroupMessage.class);
@@ -58,13 +66,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         this.save(msg);
         // 根据群聊每个成员所连的IM-server，进行分组
         Map<Integer,List<Long>> serverMap = new ConcurrentHashMap<>();
-        List<Long> userIds = groupMemberService.findUserIdsByGroupId(group.getId());
-        if(!userIds.contains(userId)){
-            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您已不在群聊里面，无法发送消息");
-        }
-
         userIds.parallelStream().forEach(id->{
-
             String key = RedisKey.IM_USER_SERVER_ID + id;
             Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
             if(serverId != null){

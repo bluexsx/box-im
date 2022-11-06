@@ -15,13 +15,10 @@ public class MinIoClientConfig {
     @Value("${minio.secretKey}")
     private String secretKey;
 
-    /**
-     * 注入minio 客户端
-     * @return
-     */
+
     @Bean
     public MinioClient minioClient(){
-
+        // 注入minio 客户端
         MinioClient client =  MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(accessKey, secretKey)
