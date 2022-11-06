@@ -42,19 +42,21 @@
 
 
 
-2.运行后端服务
+2.启动后端服务
 ```
 mvn clean package
 java -jar ./im-platform/target/im-platform.jar
 java -jar ./im-server/target/im-server.jar
 ```
 
-3.运行前端ui
+3.启动前端ui
 ```
 cd im-ui
 npm install
 npm run serve
 ```
+
+4.访问localhost:8080
 
 
 
