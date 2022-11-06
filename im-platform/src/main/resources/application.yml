@@ -5,7 +5,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/simple-im?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/box-im?useUnicode=true&characterEncoding=utf-8
     username: root
     password: root
 
@@ -33,7 +33,7 @@ minio:
   public: http://3xagfu.natappfree.cc/file  #外网访问地址
   accessKey: admin
   secretKey: 12345678
-  bucketName: lx-im
+  bucketName: box-im
   imagePath: image
   filePath: file
 
