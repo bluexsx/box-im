@@ -11,6 +11,7 @@ export default {
 		},
 		openChat(state, chatInfo) {
 			let chat = null;
+			let activeChat = state.activeIndex>=0?state.chats[state.activeIndex]:null;
 			for (let i in state.chats) {
 				if (state.chats[i].type == chatInfo.type &&
 					state.chats[i].targetId === chatInfo.targetId) {
@@ -35,7 +36,15 @@ export default {
 				};
 				state.chats.unshift(chat);
 			}
-
+			// 选中会话保持不变
+			if(activeChat){
+				state.chats.forEach((chat,idx)=>{
+					if(activeChat.type == chat.type
+					&& activeChat.targetId == chat.targetId){
+						state.activeIndex = idx;
+					}
+				})
+			}
 		},
 		activeChat(state, idx) {
 			state.activeIndex = idx;
