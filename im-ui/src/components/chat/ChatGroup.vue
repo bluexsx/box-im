@@ -19,8 +19,10 @@
 				</el-main>
 				<el-footer height="25%" class="im-chat-footer">
 					<div class="chat-tool-bar">
-						<div title="表情" class="el-icon-service" @click="$message.error('还不支持发表情符号呢')"></div>
-						<div title="发送图片" >
+						<div title="表情" class="el-icon-service" ref="emotion" @click="switchEmotionBox()">
+							<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
+						</div>
+						<div title="发送图片">
 							<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
 							 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 								<i class="el-icon-picture-outline"></i>
@@ -42,7 +44,7 @@
 			</el-container>
 			<el-aside class="chat-group-side-box" width="20%" v-show="showSide">
 				<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)"></chat-group-side>
-			</el-aside>	
+			</el-aside>
 		</el-container>
 	</el-container>
 </template>
@@ -51,13 +53,15 @@
 	import ChatGroupSide from "./ChatGroupSide.vue";
 	import MessageItem from "./MessageItem.vue";
 	import FileUpload from "../common/FileUpload.vue";
-
+	import Emotion from "../common/Emotion.vue";
+	
 	export default {
 		name: "chatPrivate",
 		components: {
 			MessageItem,
 			FileUpload,
-			ChatGroupSide
+			ChatGroupSide,
+			Emotion
 		},
 		props: {
 			chat: {
@@ -69,7 +73,12 @@
 				sendText: "",
 				showSide: false,
 				group: {},
-				groupMembers: []
+				groupMembers: [],
+				showEmotion: false,
+				emoBoxPos: {
+					x: 0,
+					y: 0
+				}
 			}
 		},
 		methods: {
@@ -188,6 +197,17 @@
 			handleCloseSide() {
 				this.showSide = false;
 			},
+			switchEmotionBox() {
+				this.showEmotion = !this.showEmotion;
+				let width = this.$refs.emotion.offsetWidth;
+				let left = this.$elm.fixLeft(this.$refs.emotion);
+				let top = this.$elm.fixTop(this.$refs.emotion);
+				this.emoBoxPos.y = top;
+				this.emoBoxPos.x = left + width / 2;
+			},
+			handleEmotion(emoText) {
+				this.sendText += emoText;
+			},
 			sendTextMessage() {
 
 				if (!this.sendText.trim()) {
@@ -262,10 +282,10 @@
 				let size = this.groupMembers.filter(m => !m.quit).length;
 				return `${this.chat.showName}(${size})`;
 			},
-			imageAction(){
+			imageAction() {
 				return `${process.env.VUE_APP_BASE_API}/image/upload`;
 			},
-			fileAction(){
+			fileAction() {
 				return `${process.env.VUE_APP_BASE_API}/file/upload`;
 			}
 
@@ -285,14 +305,14 @@
 		line-height: 60px;
 		font-size: 22px;
 		cursor: pointer;
-		
+
 		&:hover {
 			font-size: 30px;
 		}
 	}
-	
 
-	.chat-group-side-box{
+
+	.chat-group-side-box {
 		border: #dddddd solid 1px;
 		animation: rtl-drawer-in .3s 1ms;
 	}
