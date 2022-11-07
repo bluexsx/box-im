@@ -9,7 +9,7 @@
 				<chat-time :time="msgInfo.sendTime"></chat-time>
 			</div>
 			<div class="im-msg-bottom">
-				<span class="im-msg-text" v-if="msgInfo.type==0" >{{msgInfo.content}}</span>
+				<span class="im-msg-text" v-if="msgInfo.type==0" v-html="$emo.transform(msgInfo.content)"></span>
 				<div class="im-msg-image"   v-if="msgInfo.type==1">
 					<div class="img-load-box" v-loading="loading"  
 					element-loading-text="上传中.."
@@ -140,7 +140,7 @@
 					color: #333;
 					display: inline-block;
 					font-size: 14px;
-
+						
 					&:after {
 						content: "";
 						position: absolute;

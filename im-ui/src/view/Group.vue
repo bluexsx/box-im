@@ -294,6 +294,7 @@
 				padding: 5px;
 				line-height: 50px;
 				font-size: 20px;
+				font-weight: 600;
 				text-align: left;
 				text-indent: 10px;
 				background-color: white;

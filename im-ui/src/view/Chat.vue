@@ -164,6 +164,8 @@
 				padding: 5px;
 				background-color: white;
 				line-height: 50px;
+				font-size: 20px;
+				font-weight: 600;
 				border: #dddddd solid 1px;
 			}
 

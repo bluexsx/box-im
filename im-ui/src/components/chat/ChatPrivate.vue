@@ -16,7 +16,9 @@
 		</el-main>
 		<el-footer height="25%" class="im-chat-footer">
 			<div class="chat-tool-bar">
-				<div class="el-icon-service"></div>
+				<div class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
+					<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
+				</div>
 				<div>
 					<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp', 'image/gif']"
 					 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
@@ -42,12 +44,14 @@
 <script>
 	import MessageItem from "./MessageItem.vue";
 	import FileUpload from "../common/FileUpload.vue";
+	import Emotion from "../common/Emotion.vue";
 
 	export default {
 		name: "chatPrivate",
 		components: {
 			MessageItem,
-			FileUpload
+			FileUpload,
+			Emotion
 		},
 		props: {
 			chat: {
@@ -56,7 +60,12 @@
 		},
 		data() {
 			return {
-				sendText: ""
+				sendText: "",
+				showEmotion: false,
+				emoBoxPos: {
+					x: 0,
+					y: 0
+				}
 			}
 		},
 		methods: {
@@ -173,6 +182,17 @@
 				// 借助file对象保存对方id
 				file.targetId = this.chat.targetId;
 			},
+			switchEmotionBox() {
+				this.showEmotion = !this.showEmotion;
+				let width = this.$refs.emotion.offsetWidth;
+				let left = this.$elm.fixLeft(this.$refs.emotion);
+				let top = this.$elm.fixTop(this.$refs.emotion);
+				this.emoBoxPos.y = top;
+				this.emoBoxPos.x = left + width/2;
+			},
+			handleEmotion(emoText) {
+				this.sendText += emoText;
+			},
 			sendTextMessage() {
 				let msgInfo = {
 					recvId: this.chat.targetId,
@@ -213,10 +233,10 @@
 			mine() {
 				return this.$store.state.userStore.userInfo;
 			},
-			imageAction(){
+			imageAction() {
 				return `${process.env.VUE_APP_BASE_API}/image/upload`;
 			},
-			fileAction(){
+			fileAction() {
 				return `${process.env.VUE_APP_BASE_API}/file/upload`;
 			}
 		},

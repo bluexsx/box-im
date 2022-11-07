@@ -190,6 +190,7 @@
 				font-size: 20px;
 				text-align: left;
 				text-indent: 10px;
+				font-weight: 600;
 				background-color: white;
 				border: #dddddd solid 1px;
 			}

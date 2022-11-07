@@ -7,7 +7,7 @@
 		</div>
 		<div class="mid">
 			<div>{{ chat.showName}}</div>
-			<div class="msg-text">{{chat.lastContent}}</div>
+			<div class="msg-text" v-html="$emo.transform(chat.lastContent)"></div>
 		</div>
 		<div class="right ">
 			<div @click.stop="onClickClose()"><i class="el-icon-close close" style="border: none; font-size: 20px;color: black;" title="关闭"></i></div>
