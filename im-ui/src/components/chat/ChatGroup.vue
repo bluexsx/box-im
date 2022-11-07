@@ -19,7 +19,7 @@
 				</el-main>
 				<el-footer height="25%" class="im-chat-footer">
 					<div class="chat-tool-bar">
-						<div title="表情" class="el-icon-service" ref="emotion" @click="switchEmotionBox()">
+						<div title="表情" class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
 							<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
 						</div>
 						<div title="发送图片">
