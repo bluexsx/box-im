@@ -32,6 +32,9 @@
 					</div>
 					<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 				</div>
+				<div class="im-msg-voice" v-if="msgInfo.type==3" @click="handlePlayVoice()">
+					<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -65,6 +68,12 @@
 				required: true
 			}
 		},
+		data(){
+			return {
+				audioPlayState: 'STOP',
+			}
+			
+		},
 		methods:{
 			handleSendFail(){
 				this.$message.error("该文件已发送失败，目前不支持自动重新发送，建议手动重新发送")
@@ -74,7 +83,15 @@
 				if(imageUrl){
 					this.$store.commit('showFullImageBox',imageUrl);
 				}
-			}	
+			},
+			handlePlayVoice(){
+				if(!this.audio){
+					this.audio = new Audio();
+				}
+				this.audio.src = JSON.parse(this.msgInfo.content).url;
+				this.audio.play();
+				this.handlePlayVoice = 'RUNNING';
+			}
 		},
 		computed:{
 			loading(){
@@ -228,6 +245,11 @@
 						margin: 0 20px;
 					}
 					
+				}
+				
+				.im-msg-voice {
+					font-size: 14px;
+					cursor: pointer;
 				}
 			}
 		}

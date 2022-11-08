@@ -48,7 +48,7 @@
 			</el-aside>
 		</el-container>
 		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
-		<chat-voice :visible="showVoice" @close="closeVoiceBox()"></chat-voice>
+		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
 	</el-container>
 </template>
 
@@ -230,6 +230,31 @@
 			},
 			closeVoiceBox(){
 				this.showVoice = false;
+			},
+			handleSendVoice(data){
+				let msgInfo = {
+					content: JSON.stringify(data),
+					type: 3
+				}
+				// 填充对方id
+				this.setTargetId(msgInfo, this.chat.targetId);
+				this.$http({
+					url: this.messageAction,
+					method: 'post',
+					data: msgInfo
+				}).then(() => {
+					this.$message.success("发送成功");
+					msgInfo.sendTime = new Date().getTime();
+					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
+					msgInfo.selfSend = true;
+					this.$store.commit("insertMessage", msgInfo);
+					// 保持输入框焦点
+					this.$refs.sendBox.focus();
+					// 滚动到底部
+					this.scrollToBottom();
+					// 关闭录音窗口
+					this.showVoice = false;
+				})
 			},
 			setTargetId(msgInfo, targetId) {
 				if (this.chat.type == "GROUP") {
