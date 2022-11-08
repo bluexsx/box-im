@@ -9,7 +9,7 @@
 				<el-main class="im-chat-main" id="chatScrollBox">
 					<div class="im-chat-box">
 						<ul>
-							<li v-for="msgInfo in chat.messages" :key="msgInfo.id">
+							<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
 								<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
 								 :msgInfo="msgInfo">
 								</message-item>
