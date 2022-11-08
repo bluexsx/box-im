@@ -102,12 +102,12 @@ export default {
 				msg.content = info.content;
 			}
 		},
-		updateChatFromUser(state, user) {
+		updateChatFromFriend(state, friend) {
 			for (let i in state.chats) {
 				let chat = state.chats[i];
-				if (chat.type=='PRIVATE' && chat.targetId == user.id) {
-					chat.headImage = user.headImageThumb;
-					chat.showName = user.nickName;
+				if (chat.type=='PRIVATE' && chat.targetId == friend.id) {
+					chat.headImage = friend.headImageThumb;
+					chat.showName = friend.nickName;
 					break;
 				}
 			}

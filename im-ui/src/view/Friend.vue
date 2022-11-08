@@ -122,7 +122,7 @@
 					data: friend
 				}).then(() => {
 					this.$store.commit("updateFriend", friend);
-					this.$store.commit("updateChatFromUser", user);
+					this.$store.commit("updateChatFromFriend", user);
 				})
 			},
 			loadUserInfo(friend,index){

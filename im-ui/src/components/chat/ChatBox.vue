@@ -2,7 +2,7 @@
 	<el-container class="r-chat-box">
 		<el-header height="60px">
 			<span>{{title}}</span>
-			<span title="群聊信息" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
+			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
 		</el-header>
 		<el-container>
 			<el-container class="content-box">
@@ -54,7 +54,7 @@
 	import MessageItem from "./MessageItem.vue";
 	import FileUpload from "../common/FileUpload.vue";
 	import Emotion from "../common/Emotion.vue";
-	
+
 	export default {
 		name: "chatPrivate",
 		components: {
@@ -70,12 +70,13 @@
 		},
 		data() {
 			return {
-				sendText: "",
-				showSide: false,
+				friend: {},
 				group: {},
 				groupMembers: [],
-				showEmotion: false,
-				emoBoxPos: {
+				sendText: "",
+				showSide: false, // 是否显示群聊信息栏
+				showEmotion: false, // 是否显示emoji表情
+				emoBoxPos: { // emoji表情弹出位置
 					x: 0,
 					y: 0
 				}
@@ -84,17 +85,19 @@
 		methods: {
 			handleImageSuccess(res, file) {
 				let msgInfo = {
-					groupId: file.raw.targetId,
+					recvId: file.raw.targetId,
 					content: JSON.stringify(res.data),
 					type: 1
 				}
+				// 填充对方id
+				this.setTargetId(msgInfo, this.chat.targetId);
 				this.$http({
-					url: '/message/group/send',
+					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
 					let info = {
-						type: 'GROUP',
+						type: this.chat.type,
 						targetId: file.raw.targetId,
 						fileId: file.raw.uid,
 						content: JSON.stringify(res.data),
@@ -105,7 +108,7 @@
 			},
 			handleImageFail(res, file) {
 				let info = {
-					type: 'GROUP',
+					type: this.chat.type,
 					targetId: file.raw.targetId,
 					fileId: file.raw.uid,
 					loadStatus: "fail"
@@ -121,13 +124,14 @@
 				let msgInfo = {
 					fileId: file.uid,
 					sendId: this.mine.id,
-					groupId: this.chat.targetId,
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: 1,
 					loadStatus: "loading"
 				}
+				// 填充对方id
+				this.setTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
@@ -142,17 +146,18 @@
 					url: res.data
 				}
 				let msgInfo = {
-					groupId: file.raw.targetId,
 					content: JSON.stringify(data),
 					type: 2
 				}
+				// 填充对方id
+				this.setTargetId(msgInfo, this.chat.targetId);
 				this.$http({
-					url: '/message/group/send',
+					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
 				}).then(() => {
 					let info = {
-						type: 'GROUP',
+						type: this.chat.type,
 						targetId: file.raw.targetId,
 						fileId: file.raw.uid,
 						content: JSON.stringify(data),
@@ -163,7 +168,7 @@
 			},
 			handleFileFail(res, file) {
 				let info = {
-					type: 'GROUP',
+					type: this.chat.type,
 					targetId: file.raw.targetId,
 					fileId: file.raw.uid,
 					loadStatus: "fail"
@@ -180,13 +185,14 @@
 				let msgInfo = {
 					fileId: file.uid,
 					sendId: this.mine.id,
-					groupId: this.chat.targetId,
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: 2,
 					loadStatus: "loading"
 				}
+				// 填充对方id
+				this.setTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
@@ -207,6 +213,15 @@
 			},
 			handleEmotion(emoText) {
 				this.sendText += emoText;
+				// 保持输入框焦点
+				this.$refs.sendBox.focus();
+			},
+			setTargetId(msgInfo, targetId) {
+				if (this.chat.type == "GROUP") {
+					msgInfo.groupId = targetId;
+				} else {
+					msgInfo.recvId = targetId;
+				}
 			},
 			sendTextMessage() {
 
@@ -215,12 +230,13 @@
 					return
 				}
 				let msgInfo = {
-					groupId: this.chat.targetId,
 					content: this.sendText,
 					type: 0
 				}
+				// 填充对方id
+				this.setTargetId(msgInfo, this.chat.targetId);
 				this.$http({
-					url: '/message/group/send',
+					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
 				}).then((data) => {
@@ -235,7 +251,7 @@
 					// 滚动到底部
 					this.scrollToBottom();
 				})
-				const e = window.event || arguments[0]
+				const e = window.event || arguments[0];
 				if (e.key === 'Enter' || e.code === 'Enter' || e.keyCode === 13) {
 					e.returnValue = false;
 					e.preventDefault();
@@ -249,6 +265,8 @@
 				}).then((group) => {
 					this.group = group;
 					this.$store.commit("updateChatFromGroup", group);
+					this.$store.commit("updateGroup", group);
+
 				});
 
 				this.$http({
@@ -257,15 +275,34 @@
 				}).then((groupMembers) => {
 					this.groupMembers = groupMembers;
 				});
-
+			},
+			loadFriend(friendId) {
+				// 获取对方最新信息
+				this.$http({
+					url: `/user/find/${friendId}`,
+					method: 'get'
+				}).then((friend) => {
+					this.friend = friend;
+					this.$store.commit("updateChatFromFriend", friend);
+					this.$store.commit("updateFriend", friend);
+				})
 			},
 			showName(msgInfo) {
-				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
-				return member ? member.aliasName : "";
+				if (this.chat.type == 'Group') {
+					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
+					return member ? member.aliasName : "";
+				} else {
+					return msgInfo.sendId == this.mine.id ? this.mine.nickName : this.chat.showName
+				}
+
 			},
 			headImage(msgInfo) {
-				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
-				return member ? member.headImage : "";
+				if (this.chat.type == 'Group') {
+					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
+					return member ? member.headImage : "";
+				} else {
+					return msgInfo.sendId == this.mine.id ? this.mine.headImageThumb : this.chat.headImage
+				}
 			},
 			scrollToBottom() {
 				this.$nextTick(() => {
@@ -279,41 +316,134 @@
 				return this.$store.state.userStore.userInfo;
 			},
 			title() {
-				let size = this.groupMembers.filter(m => !m.quit).length;
-				return `${this.chat.showName}(${size})`;
+				let title = this.chat.showName;
+				if (this.chat.type == "GROUP") {
+					let size = this.groupMembers.filter(m => !m.quit).length;
+					title += `(${size})`;
+				}
+				return title;
 			},
 			imageAction() {
 				return `${process.env.VUE_APP_BASE_API}/image/upload`;
 			},
 			fileAction() {
 				return `${process.env.VUE_APP_BASE_API}/file/upload`;
+			},
+			messageAction() {
+				return `/message/${this.chat.type.toLowerCase()}/send`;
 			}
-
 		},
-		mounted() {
-			console.log("group mount...")
-			this.loadGroup(this.chat.targetId);
-			this.scrollToBottom();
+		watch: {
+			chat: {
+				handler(newChat, oldChat) {
+					if(newChat.type != oldChat.type || newChat.targetId != oldChat.targetId){
+						if (this.chat.type == "GROUP") {
+							this.loadGroup(this.chat.targetId);
+						} else {
+							this.loadFriend(this.chat.targetId);
+						}
+						this.scrollToBottom();
+						this.sendText = "";
+						// 保持输入框焦点
+						this.$refs.sendBox.focus();
+					}		
+				},
+				deep: true // 深度监听
+			}
 		}
 	}
 </script>
 
-<style>
-	.btn-side {
-		position: absolute;
-		right: 20px;
-		line-height: 60px;
-		font-size: 22px;
-		cursor: pointer;
-
-		&:hover {
-			font-size: 30px;
-		}
-	}
-
-
-	.chat-group-side-box {
+<style lang="scss">
+	.r-chat-box {
+		background: white;
 		border: #dddddd solid 1px;
-		animation: rtl-drawer-in .3s 1ms;
+
+		.el-header {
+			padding: 5px;
+			background-color: white;
+			line-height: 50px;
+			font-size: 20px;
+			font-weight: 600;
+			border: #dddddd solid 1px;
+
+			.btn-side {
+				position: absolute;
+				right: 20px;
+				line-height: 60px;
+				font-size: 22px;
+				cursor: pointer;
+
+				&:hover {
+					font-size: 30px;
+				}
+			}
+		}
+
+		.im-chat-main {
+			padding: 0;
+			border: #dddddd solid 1px;
+
+			.im-chat-box {
+				ul {
+					padding: 20px;
+
+					li {
+						list-style-type: none;
+					}
+				}
+			}
+		}
+
+		.im-chat-footer {
+			display: flex;
+			flex-direction: column;
+			padding: 0;
+			border: #dddddd solid 1px;
+
+			.chat-tool-bar {
+
+				display: flex;
+				position: relative;
+				width: 100%;
+				height: 40px;
+				text-align: left;
+				box-sizing: border-box;
+				border: #dddddd solid 1px;
+
+				>div {
+					margin-left: 10px;
+					font-size: 22px;
+					cursor: pointer;
+					color: #333333;
+					line-height: 40px;
+
+					&:hover {
+						color: black;
+					}
+				}
+			}
+
+			.send-text-area {
+				box-sizing: border-box;
+				padding: 5px;
+				width: 100%;
+				flex: 1;
+				resize: none;
+				background-color: #f8f8f8 !important;
+				outline-color: rgba(83, 160, 231, 0.61);
+			}
+
+			.im-chat-send {
+				text-align: right;
+				padding: 7px;
+			}
+		}
+
+
+		.chat-group-side-box {
+			border: #dddddd solid 1px;
+			animation: rtl-drawer-in .3s 1ms;
+		}
 	}
 </style>
