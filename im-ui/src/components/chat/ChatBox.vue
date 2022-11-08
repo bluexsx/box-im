@@ -20,7 +20,6 @@
 				<el-footer height="25%" class="im-chat-footer">
 					<div class="chat-tool-bar">
 						<div title="表情" class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
-							<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
 						</div>
 						<div title="发送图片">
 							<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
@@ -34,6 +33,8 @@
 								<i class="el-icon-wallet"></i>
 							</file-upload>
 						</div>
+						<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
+						</div>
 						<div title="聊天记录" class="el-icon-chat-dot-round"></div>
 					</div>
 					<textarea v-model="sendText" ref="sendBox" class="send-text-area" @keydown.enter="sendTextMessage()"></textarea>
@@ -46,6 +47,8 @@
 				<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)"></chat-group-side>
 			</el-aside>
 		</el-container>
+		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
+		<chat-voice :visible="showVoice" @close="closeVoiceBox()"></chat-voice>
 	</el-container>
 </template>
 
@@ -54,6 +57,7 @@
 	import MessageItem from "./MessageItem.vue";
 	import FileUpload from "../common/FileUpload.vue";
 	import Emotion from "../common/Emotion.vue";
+	import ChatVoice from "./ChatVoice.vue";
 
 	export default {
 		name: "chatPrivate",
@@ -61,7 +65,8 @@
 			MessageItem,
 			FileUpload,
 			ChatGroupSide,
-			Emotion
+			Emotion,
+			ChatVoice
 		},
 		props: {
 			chat: {
@@ -74,6 +79,7 @@
 				group: {},
 				groupMembers: [],
 				sendText: "",
+				showVoice: false, // 是否显示语音录制弹窗
 				showSide: false, // 是否显示群聊信息栏
 				showEmotion: false, // 是否显示emoji表情
 				emoBoxPos: { // emoji表情弹出位置
@@ -83,6 +89,7 @@
 			}
 		},
 		methods: {
+
 			handleImageSuccess(res, file) {
 				let msgInfo = {
 					recvId: file.raw.targetId,
@@ -213,8 +220,16 @@
 			},
 			handleEmotion(emoText) {
 				this.sendText += emoText;
+				this.showEmotion = false;
 				// 保持输入框焦点
 				this.$refs.sendBox.focus();
+			},
+			showVoiceBox() {
+				this.showVoice = true;
+
+			},
+			closeVoiceBox(){
+				this.showVoice = false;
 			},
 			setTargetId(msgInfo, targetId) {
 				if (this.chat.type == "GROUP") {
@@ -336,7 +351,7 @@
 		watch: {
 			chat: {
 				handler(newChat, oldChat) {
-					if(newChat.targetId > 0 && (newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)){
+					if (newChat.targetId > 0 && (newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)) {
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
@@ -346,7 +361,7 @@
 						this.sendText = "";
 						// 保持输入框焦点
 						this.$refs.sendBox.focus();
-					}		
+					}
 				},
 				deep: true
 			}
