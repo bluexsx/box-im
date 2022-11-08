@@ -7,7 +7,7 @@
 				</el-input>
 			</div>
 			<el-scrollbar class="l-chat-list" >
-				<div v-for="(chat,index) in chatStore.chats" :key="chat.type+chat.targetId">
+				<div v-for="(chat,index) in chatStore.chats" :key="index">
 					<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)"
 					 :active="index === chatStore.activeIndex"></chat-item>
 				</div>
