@@ -14,7 +14,9 @@
 					<div class="img-load-box" v-loading="loading"  
 					element-loading-text="上传中.."
 					element-loading-background="rgba(0, 0, 0, 0.4)">
-						<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"/>	
+						<img class="send-image" 
+						:src="JSON.parse(msgInfo.content).thumbUrl"
+						@click="showFullImageBox()"/>	
 					</div>
 					<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 				</div>
@@ -66,7 +68,13 @@
 		methods:{
 			handleSendFail(){
 				this.$message.error("该文件已发送失败，目前不支持自动重新发送，建议手动重新发送")
-			}
+			},
+			showFullImageBox(){
+				let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
+				if(imageUrl){
+					this.$store.commit('showFullImageBox',imageUrl);
+				}
+			}	
 		},
 		computed:{
 			loading(){
@@ -160,6 +168,7 @@
 					flex-wrap: nowrap;
 					flex-direction: row;
 					align-items: center;
+					
 					.send-image{
 						min-width: 300px;
 						min-height: 200px;

@@ -1,11 +1,13 @@
 <template>
-	<div class="emotion-box" :style="{'left':x+'px','top':y+'px'}">
-		<el-scrollbar style="height:200px">
-			<div class="emotion-item-list">
-				<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="clickHandler(emoText)" v-html="$emo.textToImg(emoText)">
+	<div class="emotion-mask" @click="$emit('emotion','')">
+		<div class="emotion-box" :style="{'left':x+'px','top':y+'px'}">
+			<el-scrollbar style="height:200px">
+				<div class="emotion-item-list">
+					<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="clickHandler(emoText)" v-html="$emo.textToImg(emoText)">
+					</div>
 				</div>
-			</div>
-		</el-scrollbar>
+			</el-scrollbar>
+		</div>
 	</div>
 </template>
 
@@ -37,6 +39,16 @@
 	}
 </script>
 <style scoped lang="scss">
+	.emotion-mask {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+	}
+	
 	.emotion-box {
 		position: fixed;
 		width: 400px;

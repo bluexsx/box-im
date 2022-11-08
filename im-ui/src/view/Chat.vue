@@ -14,7 +14,7 @@
 			</el-scrollbar>
 		</el-aside>
 		<el-container class="r-chat-box">
-			<chat-box :chat="activeChat"></chat-box>
+			<chat-box v-show="activeChat.targetId>0" :chat="activeChat"></chat-box>
 		</el-container>
 	</el-container>
 </template>

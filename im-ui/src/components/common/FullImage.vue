@@ -1,5 +1,5 @@
 <template>
-	<el-dialog width="30%" :visible.sync="visible"   :before-close="handleClose">
+	<el-dialog width="40%" :visible.sync="visible"   :before-close="handleClose">
 		<img class="full-img" :src="url" />
 	</el-dialog>
 </template>

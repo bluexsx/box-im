@@ -1,5 +1,5 @@
 <template>
-	<el-container class="r-chat-box">
+	<el-container class="chat-box">
 		<el-header height="60px">
 			<span>{{title}}</span>
 			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
@@ -336,7 +336,7 @@
 		watch: {
 			chat: {
 				handler(newChat, oldChat) {
-					if(newChat.type != oldChat.type || newChat.targetId != oldChat.targetId){
+					if(newChat.targetId > 0 && (newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)){
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
@@ -348,14 +348,14 @@
 						this.$refs.sendBox.focus();
 					}		
 				},
-				deep: true // 深度监听
+				deep: true
 			}
 		}
 	}
 </script>
 
 <style lang="scss">
-	.r-chat-box {
+	.chat-box {
 		background: white;
 		border: #dddddd solid 1px;
 
@@ -439,7 +439,6 @@
 				padding: 7px;
 			}
 		}
-
 
 		.chat-group-side-box {
 			border: #dddddd solid 1px;
