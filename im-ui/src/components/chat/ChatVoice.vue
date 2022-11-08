@@ -48,7 +48,8 @@
 		methods: {
 			handleClose() {
 				// 关闭前清除数据
-				this.rc.stop();
+				this.rc.destroy();
+				this.rc = new Recorder();
 				this.audio.pause();
 				this.mode = 'RECORD';
 				this.state = 'STOP';
@@ -118,6 +119,7 @@
 						url: url
 					}
 					this.$emit("send", data);
+					this.handleClose();
 				})
 			}
 		}

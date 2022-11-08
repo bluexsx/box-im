@@ -85,7 +85,7 @@
 				let reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
 				let arr = document.cookie.match(reg)
 			    if (arr){
-					 return (arr[2]);
+					 return unescape(arr[2]);
 				}
 			    return '';
 			 },
