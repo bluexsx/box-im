@@ -11,7 +11,7 @@
 				 @click="handleCreateGroup()"></el-button>
 			</div>
 			<el-scrollbar class="l-group-list">
-				<div v-for="(group,index) in groupStore.groups" :key="group.id">
+				<div v-for="(group,index) in groupStore.groups" :key="index">
 					<group-item v-show="group.remark.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
 					 @click.native="handleActiveItem(group,index)">
 					</group-item>

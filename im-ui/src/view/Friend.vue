@@ -13,7 +13,7 @@
 				</add-friend>
 			</div>
 			<el-scrollbar class="l-friend-list" >
-				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="friend.id">
+				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
 					<friend-item v-show="friend.nickName.startsWith(searchText)" :friend="friend" :index="index" :active="index === $store.state.friendStore.activeIndex"
 					 @del="handleDelItem(friend,index)" @click.native="handleActiveItem(friend,index)">
 					</friend-item>
