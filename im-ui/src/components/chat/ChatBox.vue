@@ -328,8 +328,9 @@
 				})
 			},
 			showName(msgInfo) {
-				if (this.chat.type == 'Group') {
+				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
+					console.log(member.aliasName)
 					return member ? member.aliasName : "";
 				} else {
 					return msgInfo.sendId == this.mine.id ? this.mine.nickName : this.chat.showName
@@ -337,7 +338,7 @@
 
 			},
 			headImage(msgInfo) {
-				if (this.chat.type == 'Group') {
+				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
 					return member ? member.headImage : "";
 				} else {
