@@ -16,6 +16,7 @@ import com.bx.implatform.service.IGroupMessageService;
 import com.bx.implatform.service.IGroupService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.GroupMessageVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, GroupMessage> implements IGroupMessageService {
 
@@ -86,6 +87,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             String key = RedisKey.IM_UNREAD_GROUP_MESSAGE +entry.getKey();
             redisTemplate.opsForList().rightPush(key,msgInfo);
         }
+        log.info("发送群聊消息，发送id:{},群聊id:{}",userId,vo.getGroupId());
     }
 
     /**
