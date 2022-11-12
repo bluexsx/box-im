@@ -22,7 +22,7 @@
 			<div class="r-group-header" v-show="activeGroup.id">
 				{{activeGroup.remark}}({{groupMembers.length}})
 			</div>
-			<div class="r-group-container">
+			<el-scrollbar class="r-group-container">
 				<div v-show="activeGroup.id">
 					<div class="r-group-info">
 						<div>
@@ -74,7 +74,7 @@
 						</div>
 					</el-scrollbar>
 				</div>
-			</div>
+			</el-scrollbar>
 		</el-container>
 	</el-container>
 </template>
@@ -306,7 +306,7 @@
 
 				.r-group-info {
 					display: flex;
-					padding: 20px;
+					padding: 5px 20px;
 
 					.r-group-form {
 						flex: 1;
@@ -351,7 +351,7 @@
 				}
 
 				.r-group-member-list {
-					padding: 20px;
+					padding: 5px 20px;
 					display: flex;
 					align-items: center;
 					flex-wrap: wrap;

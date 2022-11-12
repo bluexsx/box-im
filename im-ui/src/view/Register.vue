@@ -3,7 +3,7 @@
 		<div>
 			
 			<el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" label-width="80px" class="web-ruleForm">
-				<div class="register-brand">欢迎注册成为FLY CHAT用户</div>
+				<div class="register-brand">欢迎注册</div>
 				<el-form-item label="用户名" prop="userName">
 					<el-input type="userName" v-model="registerForm.userName" autocomplete="off"></el-input>
 				</el-form-item>
@@ -142,6 +142,7 @@
 				font-size: 22px;
 				font-weight: 600;
 				letter-spacing: 2px;
+				text-align: center;
 				text-transform: uppercase;
 			}
 			
