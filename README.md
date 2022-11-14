@@ -29,6 +29,16 @@
 | im-common   | 公共包  |
 
 
+### 集群化方案
+![输入图片说明](%E6%88%AA%E5%9B%BE/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E9%9B%86%E7%BE%A4%E5%8C%96.jpg)
+
+
+
+- 利用了redis的list类型数据实现生产/消息模型，其中key为im:unread:${serverid},每个im-server只会消费属于自己serverid的数据
+- redis还会记录每个用户的websocket连接的是哪个im-server,发送消息时，im-platform将根据所连接的im-server的id,决定将消息推向哪个"队列
+"
+
+
 
 #### 本地快速部署
 1.安装运行环境
