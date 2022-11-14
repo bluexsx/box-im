@@ -10,4 +10,6 @@ public class Constant {
     public static final long MAX_FILE_SIZE = 10*1024*1024;
     // 群聊最大人数
     public static final long MAX_GROUP_MEMBER = 500;
+    // 在线状态过期时间 600s
+    public static final long ONLINE_TIMEOUT_SECOND = 600;
 }

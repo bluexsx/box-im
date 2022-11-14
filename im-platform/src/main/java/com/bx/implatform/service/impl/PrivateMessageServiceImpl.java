@@ -14,6 +14,7 @@ import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.PrivateMessageVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements IPrivateMessageService {
 
@@ -59,6 +60,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
             redisTemplate.opsForList().rightPush(sendKey,msgInfo);
         }
+        log.info("发送私聊消息，发送id:{},接收id:{}",userId,vo.getRecvId());
     }
 
     /**

@@ -4,7 +4,9 @@ public enum FileTypeEnum {
 
     FILE(0,"文件"),
     IMAGE(1,"图片"),
-    VIDEO(2,"视频");
+    VIDEO(2,"视频"),
+    AUDIO(3,"声音");
+
 
 
     private Integer code;

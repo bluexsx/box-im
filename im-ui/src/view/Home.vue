@@ -23,7 +23,7 @@
 					</router-link>
 				</el-menu-item>
 
-				<el-menu-item title="设置" @click="onClickSetting()">
+				<el-menu-item title="设置" @click="showSetting()">
 					<span class="el-icon-setting"></span>
 				</el-menu-item>
 			</el-menu>
@@ -34,7 +34,7 @@
 		<el-main class="content-box">
 			<router-view></router-view>
 		</el-main>
-		<setting :visible="showSettingDialog" @close="onCloseSetting()"></setting>
+		<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
 		<user-info v-show="uiStore.userInfo.show" 
 		:pos="uiStore.userInfo.pos" 
 		:user="uiStore.userInfo.user"
@@ -166,10 +166,10 @@
 					location.href = "/";
 				})
 			},
-			onClickSetting() {
+			showSetting() {
 				this.showSettingDialog = true;
 			},
-			onCloseSetting() {
+			closeSetting() {
 				this.showSettingDialog = false;
 			}
 		},

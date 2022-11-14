@@ -2,7 +2,6 @@ const emoTextList =  ['微笑', '撇嘴', '色', '发呆', '得意', '流泪', '
 
 
 let transform = (content) => {
-	console.log(content)
 	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, textToImg);
 }
 

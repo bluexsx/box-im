@@ -1,5 +1,5 @@
 <template>
-	<el-dialog class="setting" title="设置" :visible.sync="visible"  width="30%" :before-close="handleClose">
+	<el-dialog class="setting" title="设置" :visible.sync="visible"  width="500px" :before-close="handleClose">
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm">
 			<el-form-item label="头像">
 				<file-upload  class="avatar-uploader"

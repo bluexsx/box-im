@@ -1,6 +1,7 @@
 package com.bx.imserver.websocket.processor;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.WSCmdEnum;
 import com.bx.common.model.im.LoginInfo;
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -39,12 +41,15 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         }
         // 绑定用户和channel
         WebsocketChannelCtxHolder.addChannelCtx(loginInfo.getUserId(),ctx);
-        // 设置属性
+        // 设置用户id属性
         AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
         ctx.channel().attr(attr).set(loginInfo.getUserId());
+        // 心跳次数
+        attr = AttributeKey.valueOf("HEARTBEAt_TIMES");
+        ctx.channel().attr(attr).set(0L);
         // 在redis上记录每个user的channelId，15秒没有心跳，则自动过期
         String key = RedisKey.IM_USER_SERVER_ID+loginInfo.getUserId();
-        redisTemplate.opsForValue().set(key, WSServer.getServerId());
+        redisTemplate.opsForValue().set(key, WSServer.getServerId(), Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         SendInfo sendInfo = new SendInfo();
         sendInfo.setCmd(WSCmdEnum.LOGIN.getCode());

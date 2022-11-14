@@ -84,7 +84,16 @@ export default {
 					break;
 				}
 			}
-			chat.lastContent = msgInfo.type == 1 ? "[图片]" : msgInfo.type == 2 ? "[文件]" : msgInfo.content;
+			console.log(msgInfo.type)
+			if(msgInfo.type == 1){
+				chat.lastContent =  "[图片]";
+			}else if(msgInfo.type == 2){
+				chat.lastContent = "[文件]";
+			}else if(msgInfo.type == 3){
+				chat.lastContent = "[语音]";
+			}else{
+				chat.lastContent =  msgInfo.content;
+			}
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.messages.push(msgInfo);
 			// 如果不是当前会话，未读加1
@@ -102,12 +111,12 @@ export default {
 				msg.content = info.content;
 			}
 		},
-		updateChatFromUser(state, user) {
+		updateChatFromFriend(state, friend) {
 			for (let i in state.chats) {
 				let chat = state.chats[i];
-				if (chat.type=='PRIVATE' && chat.targetId == user.id) {
-					chat.headImage = user.headImageThumb;
-					chat.showName = user.nickName;
+				if (chat.type=='PRIVATE' && chat.targetId == friend.id) {
+					chat.headImage = friend.headImageThumb;
+					chat.showName = friend.nickName;
 					break;
 				}
 			}
