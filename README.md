@@ -34,8 +34,8 @@
 
 
 
-- 利用了redis的list类型数据实现生产/消息模型，其中key为im:unread:${serverid},每个key的数据可以看做一个queue(或topic),每个im-server根据自己的serverid只属于自己的queue
-- redis还会记录每个用户的websocket连接的是哪个im-server,发送消息时，im-platform将根据所连接的im-server的id,决定将消息推向哪个queue
+- 利用了redis的list类型数据实现消息推送，其中key为im:unread:${serverid},每个key的数据可以看做一个queue(或topic),每个im-server根据自己的serverid只消费属于自己的queue
+- redis记录了每个用户的websocket连接的是哪个im-server,当用户发送消息时，im-platform将根据所连接的im-server的serverid,决定将消息推向哪个queue
 
 
 
