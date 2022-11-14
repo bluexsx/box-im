@@ -2,51 +2,57 @@
 	<el-container class="chat-box">
 		<el-header height="60px">
 			<span>{{title}}</span>
-			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
+			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more"
+				@click="showSide=!showSide"></span>
 		</el-header>
-		<el-container>
-			<el-container class="content-box">
-				<el-main class="im-chat-main" id="chatScrollBox">
-					<div class="im-chat-box">
-						<ul>
-							<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
-								<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
-								 :msgInfo="msgInfo">
-								</message-item>
-							</li>
-						</ul>
-					</div>
-				</el-main>
-				<el-footer height="25%" class="im-chat-footer">
-					<div class="chat-tool-bar">
-						<div title="表情" class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
+		<el-main style="padding: 0;">
+			<el-container>
+				<el-container class="content-box">
+					<el-main class="im-chat-main" id="chatScrollBox">
+						<div class="im-chat-box">
+							<ul>
+								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
+									<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
+										:showName="showName(msgInfo)" :msgInfo="msgInfo">
+									</message-item>
+								</li>
+							</ul>
 						</div>
-						<div title="发送图片">
-							<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
-							 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
-								<i class="el-icon-picture-outline"></i>
-							</file-upload>
+					</el-main>
+					<el-footer height="200px" class="im-chat-footer">
+						<div class="chat-tool-bar">
+							<div title="表情" class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
+							</div>
+							<div title="发送图片">
+								<file-upload :action="imageAction" :maxSize="5*1024*1024"
+									:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
+								 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
+									<i class="el-icon-picture-outline"></i>
+								</file-upload>
+							</div>
+							<div title="发送文件">
+								<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore"
+									@success="handleFileSuccess" @fail="handleFileFail">
+									<i class="el-icon-wallet"></i>
+								</file-upload>
+							</div>
+							<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
+							</div>
+							<div title="聊天记录" class="el-icon-chat-dot-round"></div>
 						</div>
-						<div title="发送文件">
-							<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
-							 @fail="handleFileFail">
-								<i class="el-icon-wallet"></i>
-							</file-upload>
+						<textarea v-model="sendText" ref="sendBox" class="send-text-area"
+							@keydown.enter="sendTextMessage()"></textarea>
+						<div class="im-chat-send">
+							<el-button type="primary" @click="sendTextMessage()">发送</el-button>
 						</div>
-						<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
-						</div>
-						<div title="聊天记录" class="el-icon-chat-dot-round"></div>
-					</div>
-					<textarea v-model="sendText" ref="sendBox" class="send-text-area" @keydown.enter="sendTextMessage()"></textarea>
-					<div class="im-chat-send">
-						<el-button type="primary" @click="sendTextMessage()">发送</el-button>
-					</div>
-				</el-footer>
+					</el-footer>
+				</el-container>
+				<el-aside class="chat-group-side-box" width="300px" v-show="showSide">
+					<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
+					</chat-group-side>
+				</el-aside>
 			</el-container>
-			<el-aside class="chat-group-side-box" width="20%" v-show="showSide">
-				<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)"></chat-group-side>
-			</el-aside>
-		</el-container>
+		</el-main>
 		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
 		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
 	</el-container>
@@ -228,10 +234,10 @@
 				this.showVoice = true;
 
 			},
-			closeVoiceBox(){
+			closeVoiceBox() {
 				this.showVoice = false;
 			},
-			handleSendVoice(data){
+			handleSendVoice(data) {
 				let msgInfo = {
 					content: JSON.stringify(data),
 					type: 3
@@ -328,7 +334,7 @@
 				})
 			},
 			showName(msgInfo) {
-				if (this.chat.type == 'Group') {
+				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
 					return member ? member.aliasName : "";
 				} else {
@@ -337,7 +343,7 @@
 
 			},
 			headImage(msgInfo) {
-				if (this.chat.type == 'Group') {
+				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
 					return member ? member.headImage : "";
 				} else {
