@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -273,6 +274,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
                     groupMember.setAliasName(f.getFriendNickName());
                     groupMember.setRemark(group.getName());
                     groupMember.setHeadImage(f.getFriendHeadImage());
+                    groupMember.setCreatedTime(new Date());
                     groupMember.setQuit(false);
                     return groupMember;
                 }).collect(Collectors.toList());

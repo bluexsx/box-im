@@ -250,6 +250,11 @@
 				.im-msg-voice {
 					font-size: 14px;
 					cursor: pointer;
+					
+					audio {
+						height: 45px;
+						padding: 5px 0;
+					}
 				}
 			}
 		}

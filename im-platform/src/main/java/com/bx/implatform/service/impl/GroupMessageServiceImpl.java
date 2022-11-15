@@ -111,7 +111,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             key = RedisKey.IM_GROUP_READED_POSITION + member.getGroupId()+":"+userId;
             Integer maxReadedId = (Integer)redisTemplate.opsForValue().get(key);
             QueryWrapper<GroupMessage> wrapper = new QueryWrapper();
-            wrapper.lambda().eq(GroupMessage::getGroupId,member.getGroupId());
+            wrapper.lambda().eq(GroupMessage::getGroupId,member.getGroupId())
+                    .gt(GroupMessage::getSendTime,member.getCreatedTime());
             if(maxReadedId!=null){
                 wrapper.lambda().gt(GroupMessage::getId,maxReadedId);
             }

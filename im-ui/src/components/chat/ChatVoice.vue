@@ -96,6 +96,7 @@
 			},
 			handleRestartRecord() {
 				this.rc.destroy();
+				this.rc = new Recorder()
 				this.rc.start();
 				this.state = 'RUNNING';
 				this.mode = 'RECORD';
