@@ -7,7 +7,7 @@ export default {
 
 	mutations: {
 		initChatStore(state) {
-			state.activeIndex = -1;
+			//state.activeIndex = -1;
 		},
 		openChat(state, chatInfo) {
 			let chat = null;

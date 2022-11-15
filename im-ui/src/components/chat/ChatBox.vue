@@ -382,7 +382,7 @@
 		watch: {
 			chat: {
 				handler(newChat, oldChat) {
-					if (newChat.targetId > 0 && (newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)) {
+					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)) {
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
@@ -391,10 +391,12 @@
 						this.scrollToBottom();
 						this.sendText = "";
 						// 保持输入框焦点
-						this.$refs.sendBox.focus();
+						this.$nextTick(() => {
+							this.$refs.sendBox.focus();
+						})
 					}
 				},
-				deep: true
+				immediate: true
 			}
 		}
 	}
