@@ -2,6 +2,7 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.MessageStatusEnum;
 import com.bx.common.enums.MessageTypeEnum;
@@ -78,7 +79,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"消息不存在");
         }
         if(msg.getSendId() != userId){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR,"这条消息不是您发送的呢");
+            throw new GlobalException(ResultCode.PROGRAM_ERROR,"这条消息不是由您发送,无法撤回");
+        }
+        if(System.currentTimeMillis() - msg.getSendTime().getTime() > Constant.ALLOW_RECALL_SECOND * 1000){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"消息已发送超过5分钟，无法撤回");
         }
         // 直接物理删除
         this.removeById(id);
