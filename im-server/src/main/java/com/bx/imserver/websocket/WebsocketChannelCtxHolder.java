@@ -2,7 +2,7 @@ package com.bx.imserver.websocket;
 
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 

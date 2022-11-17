@@ -8,7 +8,6 @@ import com.bx.common.model.im.HeartbeatInfo;
 import com.bx.common.model.im.SendInfo;
 import com.bx.imserver.websocket.WebsocketServer;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,8 +2,8 @@ package com.bx.imserver.websocket.processor;
 
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.WSCmdEnum;
-import com.bx.common.model.im.SendInfo;
 import com.bx.common.model.im.PrivateMessageInfo;
+import com.bx.common.model.im.SendInfo;
 import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;

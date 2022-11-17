@@ -25,7 +25,7 @@ export default {
 			state.friends.forEach((f,index)=>{
 				if(f.id==friend.id){
 					// 拷贝属性
-					state.friends[index] = Object.assign(state.friends[index], friend);
+					Object.assign(state.friends[index], friend);
 				}
 			})
 		},

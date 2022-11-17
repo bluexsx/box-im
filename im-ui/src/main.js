@@ -6,8 +6,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './assets/iconfont/iconfont.css';
 import httpRequest from './api/httpRequest';
 import * as socketApi from './api/wssocket';
-import emotion  from './api/emotion.js';
-import element  from './api/element.js';
+import emotion from './api/emotion.js';
+import element from './api/element.js';
 import store from './store';
 
 

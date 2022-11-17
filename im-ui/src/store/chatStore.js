@@ -84,7 +84,7 @@ export default {
 					break;
 				}
 			}
-			console.log(msgInfo.type)
+			// 插入新的数据
 			if(msgInfo.type == 1){
 				chat.lastContent =  "[图片]";
 			}else if(msgInfo.type == 2){
@@ -95,11 +95,47 @@ export default {
 				chat.lastContent =  msgInfo.content;
 			}
 			chat.lastSendTime = msgInfo.sendTime;
-			chat.messages.push(msgInfo);
 			// 如果不是当前会话，未读加1
 			chat.unreadCount++;
 			if(msgInfo.selfSend){
 				chat.unreadCount=0;
+			}
+			console.log(msgInfo);
+			// 如果是已存在消息，则覆盖旧的消息数据
+			for (let idx in chat.messages) {
+				if(msgInfo.id && chat.messages[idx].id == msgInfo.id){
+					Object.assign(chat.messages[idx], msgInfo);
+					return;
+				}
+			}
+			// 新的消息
+			chat.messages.push(msgInfo);
+			
+		},
+		deleteMessage(state, msgInfo){
+			// 获取对方id或群id
+			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
+			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
+			let chat = null;
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == type &&
+					state.chats[idx].targetId === targetId) {
+					chat = state.chats[idx];
+					break;
+				}
+			}
+			
+			for (let idx in chat.messages) {
+				// 已经发送成功的，根据id删除
+				if(chat.messages[idx].id && chat.messages[idx].id == msgInfo.id){
+					chat.messages.splice(idx, 1);
+					break;
+				}
+				// 没有发送成功的，根据发送时间删除
+				if(!chat.messages[idx].id && chat.messages[idx].sendTime == msgInfo.sendTime){
+					chat.messages.splice(idx, 1);
+					break;
+				}
 			}
 		},
 		handleFileUpload(state, info) {
@@ -109,6 +145,9 @@ export default {
 			msg.loadStatus = info.loadStatus;
 			if (info.content) {
 				msg.content = info.content;
+			}
+			if(info.msgId){
+				msg.id = info.msgId;
 			}
 		},
 		updateChatFromFriend(state, friend) {

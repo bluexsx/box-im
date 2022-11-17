@@ -51,7 +51,7 @@ public class PrivateMessage extends Model<PrivateMessage> {
     private String content;
 
     /**
-     * 消息类型
+     * 消息类型 0:文字 1:图片 2:文件 3:语音  10:撤回消息
      */
     @TableField("type")
     private Integer type;
