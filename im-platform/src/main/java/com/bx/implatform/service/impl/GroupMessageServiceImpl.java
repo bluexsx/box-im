@@ -109,7 +109,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         String content = String.format("'%s'撤回了一条消息",member.getAliasName());
         msgInfo.setContent(content);
         this.sendMessage(userIds,msgInfo);
-        log.info("删除群聊消息，发送id:{},群聊id:{},内容:{}",userId,msg.getGroupId(),msg.getContent());
+        log.info("撤回群聊消息，发送id:{},群聊id:{},内容:{}",userId,msg.getGroupId(),msg.getContent());
     }
 
 

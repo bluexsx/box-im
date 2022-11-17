@@ -97,7 +97,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             msgInfo.setContent("对方撤回了一条消息");
             redisTemplate.opsForList().rightPush(sendKey,msgInfo);
         }
-        log.info("删除私聊消息，发送id:{},接收id:{}，内容:{}",msg.getSendId(),msg.getRecvId(),msg.getContent());
+        log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}",msg.getSendId(),msg.getRecvId(),msg.getContent());
     }
 
     /**

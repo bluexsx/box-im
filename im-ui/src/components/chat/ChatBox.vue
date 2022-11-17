@@ -97,39 +97,23 @@
 			}
 		},
 		methods: {
-
 			handleImageSuccess(res, file) {
-				let msgInfo = {
-					recvId: file.raw.targetId,
-					content: JSON.stringify(res.data),
-					type: 1
-				}
-				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.content = JSON.stringify(res.data);
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
 				}).then((id) => {
-					let info = {
-						type: this.chat.type,
-						targetId: file.raw.targetId,
-						msgId : id,
-						fileId: file.raw.uid,
-						content: JSON.stringify(res.data),
-						loadStatus: "ok"
-					}
-					this.$store.commit("handleFileUpload", info);
+					msgInfo.loadStatus = 'ok';
+					msgInfo.id = id;
+					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
 			handleImageFail(res, file) {
-				let info = {
-					type: this.chat.type,
-					targetId: file.raw.targetId,
-					fileId: file.raw.uid,
-					loadStatus: "fail"
-				}
-				this.$store.commit("handleFileUpload", info);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.loadStatus = 'fail';
+				this.$store.commit("insertMessage", msgInfo);
 			},
 			handleImageBefore(file) {
 				let url = URL.createObjectURL(file);
@@ -153,8 +137,8 @@
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
 				this.scrollToBottom();
-				// 借助file对象保存对方id
-				file.targetId = this.chat.targetId;
+				// 借助file对象保存
+				file.msgInfo = msgInfo;
 			},
 			handleFileSuccess(res, file) {
 				let data = {
@@ -162,36 +146,22 @@
 					size: file.size,
 					url: res.data
 				}
-				let msgInfo = {
-					content: JSON.stringify(data),
-					type: 2
-				}
-				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.content = JSON.stringify(data);
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
 				}).then((id) => {
-					let info = {
-						type: this.chat.type,
-						targetId: file.raw.targetId,
-						fileId: file.raw.uid,
-						msgId : id,
-						content: JSON.stringify(data),
-						loadStatus: "ok"
-					}
-					this.$store.commit("handleFileUpload", info);
+					msgInfo.loadStatus = 'ok';
+					msgInfo.id = id;
+					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
 			handleFileFail(res, file) {
-				let info = {
-					type: this.chat.type,
-					targetId: file.raw.targetId,
-					fileId: file.raw.uid,
-					loadStatus: "fail"
-				}
-				this.$store.commit("handleFileUpload", info);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.loadStatus = 'fail';
+				this.$store.commit("insertMessage", msgInfo);
 			},
 			handleFileBefore(file) {
 				let url = URL.createObjectURL(file);
@@ -202,7 +172,6 @@
 				}
 				let msgInfo = {
 					id: 0,
-					fileId: file.uid,
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
@@ -216,8 +185,8 @@
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
 				this.scrollToBottom();
-				// 借助file对象
-				file.targetId = this.chat.targetId;
+				// 借助file对象透传
+				file.msgInfo = msgInfo;
 			},
 			handleCloseSide() {
 				this.showSide = false;
@@ -413,7 +382,6 @@
 			messageAction() {
 				return `/message/${this.chat.type.toLowerCase()}/send`;
 			}
-			
 		},
 		watch: {
 			chat: {

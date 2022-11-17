@@ -100,10 +100,15 @@ export default {
 			if(msgInfo.selfSend){
 				chat.unreadCount=0;
 			}
-			console.log(msgInfo);
 			// 如果是已存在消息，则覆盖旧的消息数据
 			for (let idx in chat.messages) {
 				if(msgInfo.id && chat.messages[idx].id == msgInfo.id){
+					Object.assign(chat.messages[idx], msgInfo);
+					return;
+				}
+				// 正在发送中的消息可能没有id,通过发送时间判断
+				if(msgInfo.selfSend && chat.messages[idx].selfSend
+				&& chat.messages[idx].sendTime == msgInfo.sendTime){
 					Object.assign(chat.messages[idx], msgInfo);
 					return;
 				}
@@ -131,23 +136,12 @@ export default {
 					chat.messages.splice(idx, 1);
 					break;
 				}
-				// 没有发送成功的，根据发送时间删除
-				if(!chat.messages[idx].id && chat.messages[idx].sendTime == msgInfo.sendTime){
+				// 正在发送中的消息可能没有id，根据发送时间删除
+				if(msgInfo.selfSend && chat.messages[idx].selfSend 
+				&&chat.messages[idx].sendTime == msgInfo.sendTime){
 					chat.messages.splice(idx, 1);
 					break;
 				}
-			}
-		},
-		handleFileUpload(state, info) {
-			// 文件上传后数据更新
-			let chat = state.chats.find((c) => c.type==info.type && c.targetId === info.targetId);
-			let msg = chat.messages.find((m) => info.fileId == m.fileId);
-			msg.loadStatus = info.loadStatus;
-			if (info.content) {
-				msg.content = info.content;
-			}
-			if(info.msgId){
-				msg.id = info.msgId;
 			}
 		},
 		updateChatFromFriend(state, friend) {
