@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
+import com.bx.common.enums.MessageStatusEnum;
 import com.bx.common.enums.MessageTypeEnum;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.model.im.GroupMessageInfo;
@@ -100,14 +101,16 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         if(member == null){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您已不在群聊里面，无法撤回消息");
         }
-        // 直接物理删除
-        this.removeById(id);
+        // 修改数据库
+        msg.setStatus(MessageStatusEnum.RECALL.getCode());
+        this.updateById(msg);
         // 群发
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(msg.getGroupId());
         GroupMessageInfo  msgInfo = BeanUtils.copyProperties(msg, GroupMessageInfo.class);
         msgInfo.setType(MessageTypeEnum.TIP.getCode());
         String content = String.format("'%s'撤回了一条消息",member.getAliasName());
         msgInfo.setContent(content);
+        msgInfo.setSendTime(new Date());
         this.sendMessage(userIds,msgInfo);
         log.info("撤回群聊消息，发送id:{},群聊id:{},内容:{}",userId,msg.getGroupId(),msg.getContent());
     }
@@ -135,7 +138,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             Integer maxReadedId = (Integer)redisTemplate.opsForValue().get(key);
             QueryWrapper<GroupMessage> wrapper = new QueryWrapper();
             wrapper.lambda().eq(GroupMessage::getGroupId,member.getGroupId())
-                    .gt(GroupMessage::getSendTime,member.getCreatedTime());
+                    .gt(GroupMessage::getSendTime,member.getCreatedTime())
+                    .ne(GroupMessage::getStatus,MessageStatusEnum.RECALL.getCode());
             if(maxReadedId!=null){
                 wrapper.lambda().gt(GroupMessage::getId,maxReadedId);
             }

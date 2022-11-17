@@ -84,8 +84,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         if(System.currentTimeMillis() - msg.getSendTime().getTime() > Constant.ALLOW_RECALL_SECOND * 1000){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"消息已发送超过5分钟，无法撤回");
         }
-        // 直接物理删除
-        this.removeById(id);
+        // 修改消息状态
+        msg.setStatus(MessageStatusEnum.RECALL.getCode());
+        this.updateById(msg);
         // 获取对方连接的channelId
         String key = RedisKey.IM_USER_SERVER_ID+msg.getRecvId();
         Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
@@ -94,6 +95,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             String sendKey =  RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
             PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
             msgInfo.setType(MessageTypeEnum.TIP.getCode());
+            msgInfo.setSendTime(new Date());
             msgInfo.setContent("对方撤回了一条消息");
             redisTemplate.opsForList().rightPush(sendKey,msgInfo);
         }

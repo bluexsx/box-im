@@ -4,8 +4,8 @@ package com.bx.common.enums;
 public enum MessageStatusEnum {
 
     UNREAD(0,"未读"),
-    ALREADY_READ(1,"已读");
-
+    ALREADY_READ(1,"已读"),
+    RECALL(2,"已撤回");
 
     private Integer code;
 

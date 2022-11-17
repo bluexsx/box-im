@@ -55,6 +55,7 @@ public class PullAlreadyReadMessageTask {
                 if(msgId!=null){
                     UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
                     updateWrapper.lambda().eq(PrivateMessage::getId,msgId)
+                            .eq(PrivateMessage::getStatus,MessageStatusEnum.UNREAD.getCode())
                             .set(PrivateMessage::getStatus, MessageStatusEnum.ALREADY_READ.getCode());
                     privateMessageService.update(updateWrapper);
                     log.info("消息已读，id:{}",msgId);

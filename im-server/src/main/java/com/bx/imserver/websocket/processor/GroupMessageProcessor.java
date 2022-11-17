@@ -1,6 +1,7 @@
 package com.bx.imserver.websocket.processor;
 
 import com.bx.common.contant.RedisKey;
+import com.bx.common.enums.MessageTypeEnum;
 import com.bx.common.enums.WSCmdEnum;
 import com.bx.common.model.im.GroupMessageInfo;
 import com.bx.common.model.im.SendInfo;
@@ -39,9 +40,11 @@ public class GroupMessageProcessor extends  MessageProcessor<GroupMessageInfo> {
                     sendInfo.setData(data);
                     channelCtx.channel().writeAndFlush(sendInfo);
                 }
-                // 设置已读最大id
-                String key = RedisKey.IM_GROUP_READED_POSITION + data.getGroupId()+":"+recvId;
-                redisTemplate.opsForValue().set(key,data.getId());
+                if(data.getType() != MessageTypeEnum.TIP.getCode()){
+                    // 设置已读最大id
+                    String key = RedisKey.IM_GROUP_READED_POSITION + data.getGroupId()+":"+recvId;
+                    redisTemplate.opsForValue().set(key,data.getId());
+                }
             }else {
                 log.error("未找到WS连接,发送者:{},群id:{},接收id:{}，内容:{}",data.getSendId(),data.getGroupId(),data.getRecvIds());
             }
