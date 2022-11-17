@@ -12,6 +12,7 @@ export default {
 			show: false,
 			url: ""
 		}
+		
 	},
 	mutations: {
 		showUserInfoBox(state,user){

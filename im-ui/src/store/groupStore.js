@@ -39,7 +39,7 @@ export default {
 			state.groups.forEach((g,idx)=>{
 				if(g.id==group.id){
 					// 拷贝属性
-					state.groups[idx] = Object.assign(state.groups[idx], group);
+					Object.assign(state.groups[idx], group);
 				}
 			})
 		}

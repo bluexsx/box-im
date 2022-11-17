@@ -30,8 +30,8 @@ create table `im_private_message`(
     `send_id` bigint not null  comment '发送用户id',
     `recv_id` bigint not null  comment '接收用户id',
     `content` text   comment '发送内容',
-    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件',
-    `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 ',
+    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 10:系统提示',
+    `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 2:撤回',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_send_recv_id` (`send_id`,`recv_id`)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '私聊消息';
@@ -67,7 +67,8 @@ create table `im_group_message`(
     `group_id` bigint not null  comment '群id',
     `send_id` bigint not null  comment '发送用户id',
     `content` text   comment '发送内容',
-    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件',
+    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 10:系统提示' ,
+    `status` tinyint(1) DEFAULT 0 comment '状态 0:正常  2:撤回',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_group_id` (group_id)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';

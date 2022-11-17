@@ -7,7 +7,9 @@ import com.bx.implatform.vo.PrivateMessageVO;
 
 public interface IPrivateMessageService extends IService<PrivateMessage> {
 
-    void sendMessage(PrivateMessageVO vo);
+    Long sendMessage(PrivateMessageVO vo);
+
+    void recallMessage(Long id);
 
     void pullUnreadMessage();
 

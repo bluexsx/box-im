@@ -1,15 +1,16 @@
 <template>
-	<el-container >
+	<el-container>
 		<el-aside width="80px" class="navi-bar">
 			<div class="user-head-image">
-				<head-image :url="$store.state.userStore.userInfo.headImageThumb" :size="60"
-				 @click.native="showSettingDialog=true"> </head-image>
+				<head-image :url="$store.state.userStore.userInfo.headImageThumb" :size="60" @click.native="showSettingDialog=true">
+				</head-image>
 			</div>
 
 			<el-menu background-color="#333333" text-color="#ddd" style="margin-top: 30px;">
 				<el-menu-item title="聊天">
 					<router-link v-bind:to="'/home/chat'">
 						<span class="el-icon-chat-dot-round"></span>
+						<div v-show="unreadCount>0" class="unread-text">{{unreadCount}}</div>
 					</router-link>
 				</el-menu-item>
 				<el-menu-item title="好友">
@@ -19,7 +20,7 @@
 				</el-menu-item>
 				<el-menu-item title="群聊">
 					<router-link v-bind:to="'/home/group'">
-						<span class="el-icon-s-check"></span>
+						<span class="icon iconfont icon-group_fill"></span>
 					</router-link>
 				</el-menu-item>
 
@@ -35,14 +36,8 @@
 			<router-view></router-view>
 		</el-main>
 		<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
-		<user-info v-show="uiStore.userInfo.show" 
-		:pos="uiStore.userInfo.pos" 
-		:user="uiStore.userInfo.user"
-		@close="$store.commit('closeUserInfoBox')"></user-info>
-		<full-image :visible="uiStore.fullImage.show" 
-		:url="uiStore.fullImage.url"
-		@close="$store.commit('closeFullImageBox')"
-		></full-image>
+		<user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user" @close="$store.commit('closeUserInfoBox')"></user-info>
+		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url" @close="$store.commit('closeFullImageBox')"></full-image>
 	</el-container>
 </template>
 
@@ -51,7 +46,7 @@
 	import Setting from '../components/setting/Setting.vue';
 	import UserInfo from '../components/common/UserInfo.vue';
 	import FullImage from '../components/common/FullImage.vue';
-	
+
 	export default {
 		components: {
 			HeadImage,
@@ -173,9 +168,26 @@
 				this.showSettingDialog = false;
 			}
 		},
-		computed:{
-			uiStore(){
+		computed: {
+			uiStore() {
 				return this.$store.state.uiStore;
+			},
+			unreadCount() {
+				let unreadCount = 0;
+				let chats = this.$store.state.chatStore.chats;
+				chats.forEach((chat) => {
+					unreadCount += chat.unreadCount
+				});
+				return unreadCount;
+			}
+		},
+		watch: {
+			unreadCount: {
+				handler(newCount, oldCount) {
+					let tip = newCount > 0 ? `${newCount}条未读` : "";
+					this.$elm.setTitleTip(tip);
+				},
+				immediate: true
 			}
 		},
 		mounted() {
@@ -209,11 +221,13 @@
 			flex: 1;
 
 			.el-menu-item {
-				margin-top: 20px;
+				margin: 25px 0;
 
 				.router-link-exact-active span {
 					color: white !important;
 				}
+
+
 
 				span {
 					font-size: 24px !important;
@@ -222,6 +236,21 @@
 					&:hover {
 						color: white !important;
 					}
+				}
+
+				.unread-text {
+					position: absolute;
+					line-height: 20px;
+					background-color: #f56c6c;
+					left: 36px;
+					top: 7px;
+					color: white;
+					border-radius: 30px;
+					padding: 0 5px;
+					font-size: 10px;
+					text-align: center;
+					white-space: nowrap;
+					border: 1px solid #f1e5e5;
 				}
 			}
 		}

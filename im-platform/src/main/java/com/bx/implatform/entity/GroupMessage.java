@@ -57,6 +57,12 @@ public class GroupMessage extends Model<GroupMessage> {
     private Integer type;
 
     /**
+     * 状态
+     */
+    @TableField("status")
+    private Integer status;
+
+    /**
      * 发送时间
      */
     @TableField("send_time")

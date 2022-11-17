@@ -8,7 +8,9 @@ import com.bx.implatform.vo.GroupMessageVO;
 public interface IGroupMessageService extends IService<GroupMessage> {
 
 
-    void sendMessage(GroupMessageVO vo);
+    Long sendMessage(GroupMessageVO vo);
+
+    void recallMessage(Long id);
 
     void pullUnreadMessage();
 }

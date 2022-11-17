@@ -40,7 +40,7 @@ public class GroupController {
 
     @ApiOperation(value = "解散群聊",notes="解散群聊")
     @DeleteMapping("/delete/{groupId}")
-    public Result<GroupVO> deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
+    public Result deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
         groupService.deleteGroup(groupId);
         return ResultUtils.success();
     }
@@ -72,14 +72,14 @@ public class GroupController {
 
     @ApiOperation(value = "退出群聊",notes="退出群聊")
     @DeleteMapping("/quit/{groupId}")
-    public Result<GroupVO> quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
+    public Result quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId){
         groupService.quitGroup(groupId);
         return ResultUtils.success();
     }
 
     @ApiOperation(value = "踢出群聊",notes="将用户踢出群聊")
     @DeleteMapping("/kick/{groupId}")
-    public Result<GroupVO> kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,
+    public Result kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,
                                      @NotNull(message = "用户id不能为空") @RequestParam Long userId){
         groupService.kickGroup(groupId,userId);
         return ResultUtils.success();

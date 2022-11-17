@@ -22,7 +22,7 @@ public class GroupMessageVO {
     @ApiModelProperty(value = "发送内容")
     private String content;
 
-    @NotNull(message="发送内容不可为空")
+    @NotNull(message="消息类型不可为空")
     @ApiModelProperty(value = "消息类型")
     private Integer type;
 }

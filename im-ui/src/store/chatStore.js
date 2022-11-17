@@ -7,7 +7,7 @@ export default {
 
 	mutations: {
 		initChatStore(state) {
-			state.activeIndex = -1;
+			//state.activeIndex = -1;
 		},
 		openChat(state, chatInfo) {
 			let chat = null;
@@ -84,7 +84,7 @@ export default {
 					break;
 				}
 			}
-			console.log(msgInfo.type)
+			// 插入新的数据
 			if(msgInfo.type == 1){
 				chat.lastContent =  "[图片]";
 			}else if(msgInfo.type == 2){
@@ -95,20 +95,53 @@ export default {
 				chat.lastContent =  msgInfo.content;
 			}
 			chat.lastSendTime = msgInfo.sendTime;
-			chat.messages.push(msgInfo);
 			// 如果不是当前会话，未读加1
 			chat.unreadCount++;
 			if(msgInfo.selfSend){
 				chat.unreadCount=0;
 			}
+			// 如果是已存在消息，则覆盖旧的消息数据
+			for (let idx in chat.messages) {
+				if(msgInfo.id && chat.messages[idx].id == msgInfo.id){
+					Object.assign(chat.messages[idx], msgInfo);
+					return;
+				}
+				// 正在发送中的消息可能没有id,通过发送时间判断
+				if(msgInfo.selfSend && chat.messages[idx].selfSend
+				&& chat.messages[idx].sendTime == msgInfo.sendTime){
+					Object.assign(chat.messages[idx], msgInfo);
+					return;
+				}
+			}
+			// 新的消息
+			chat.messages.push(msgInfo);
+			
 		},
-		handleFileUpload(state, info) {
-			// 文件上传后数据更新
-			let chat = state.chats.find((c) => c.type==info.type && c.targetId === info.targetId);
-			let msg = chat.messages.find((m) => info.fileId == m.fileId);
-			msg.loadStatus = info.loadStatus;
-			if (info.content) {
-				msg.content = info.content;
+		deleteMessage(state, msgInfo){
+			// 获取对方id或群id
+			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
+			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
+			let chat = null;
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == type &&
+					state.chats[idx].targetId === targetId) {
+					chat = state.chats[idx];
+					break;
+				}
+			}
+			
+			for (let idx in chat.messages) {
+				// 已经发送成功的，根据id删除
+				if(chat.messages[idx].id && chat.messages[idx].id == msgInfo.id){
+					chat.messages.splice(idx, 1);
+					break;
+				}
+				// 正在发送中的消息可能没有id，根据发送时间删除
+				if(msgInfo.selfSend && chat.messages[idx].selfSend 
+				&&chat.messages[idx].sendTime == msgInfo.sendTime){
+					chat.messages.splice(idx, 1);
+					break;
+				}
 			}
 		},
 		updateChatFromFriend(state, friend) {

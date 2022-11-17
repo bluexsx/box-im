@@ -6,7 +6,8 @@ public enum MessageTypeEnum {
     TEXT(0,"文字"),
     FILE(1,"文件"),
     IMAGE(2,"图片"),
-    VIDEO(3,"视频");
+    VIDEO(3,"视频"),
+    TIP(10,"系统提示");
 
     private Integer code;
 

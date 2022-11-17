@@ -14,7 +14,17 @@ let fixLeft = (e) => {
 	return offset
 }
 
+let setTitleTip = (tip) => {
+	let title = process.env.VUE_APP_NAME;
+	if(tip){
+		title = `(${tip})${title}`;
+	}
+	document.title =title;
+	
+}
+
 export default{
 	fixTop,
-	fixLeft
+	fixLeft,
+	setTitleTip
 }

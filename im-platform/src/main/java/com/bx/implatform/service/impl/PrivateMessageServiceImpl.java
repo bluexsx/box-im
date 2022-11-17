@@ -2,8 +2,10 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
 import com.bx.common.enums.MessageStatusEnum;
+import com.bx.common.enums.MessageTypeEnum;
 import com.bx.common.enums.ResultCode;
 import com.bx.common.model.im.PrivateMessageInfo;
 import com.bx.common.util.BeanUtils;
@@ -36,10 +38,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
      * 发送私聊消息
      *
      * @param vo 私聊消息vo
-     * @return
+     * @return 消息id
      */
     @Override
-    public void sendMessage(PrivateMessageVO vo) {
+    public Long sendMessage(PrivateMessageVO vo) {
         Long userId = SessionContext.getSession().getId();
         Boolean isFriends = friendService.isFriend(userId,vo.getRecvId());
         if(!isFriends){
@@ -60,7 +62,44 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
             redisTemplate.opsForList().rightPush(sendKey,msgInfo);
         }
-        log.info("发送私聊消息，发送id:{},接收id:{}",userId,vo.getRecvId());
+        log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}",userId,vo.getRecvId(),vo.getContent());
+        return msg.getId();
+    }
+
+    /**
+     * 撤回消息
+     *
+     * @param id 消息id
+     */
+    @Override
+    public void recallMessage(Long id) {
+        Long userId = SessionContext.getSession().getId();
+        PrivateMessage msg = this.getById(id);
+        if(msg == null){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR,"消息不存在");
+        }
+        if(msg.getSendId() != userId){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR,"这条消息不是由您发送,无法撤回");
+        }
+        if(System.currentTimeMillis() - msg.getSendTime().getTime() > Constant.ALLOW_RECALL_SECOND * 1000){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"消息已发送超过5分钟，无法撤回");
+        }
+        // 修改消息状态
+        msg.setStatus(MessageStatusEnum.RECALL.getCode());
+        this.updateById(msg);
+        // 获取对方连接的channelId
+        String key = RedisKey.IM_USER_SERVER_ID+msg.getRecvId();
+        Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
+        // 如果对方在线，将数据存储至redis，等待拉取推送
+        if(serverId != null){
+            String sendKey =  RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
+            PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
+            msgInfo.setType(MessageTypeEnum.TIP.getCode());
+            msgInfo.setSendTime(new Date());
+            msgInfo.setContent("对方撤回了一条消息");
+            redisTemplate.opsForList().rightPush(sendKey,msgInfo);
+        }
+        log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}",msg.getSendId(),msg.getRecvId(),msg.getContent());
     }
 
     /**
@@ -90,6 +129,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             }).collect(Collectors.toList());
             String sendKey =  RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
             redisTemplate.opsForList().rightPushAll(sendKey,infos.toArray());
+            log.info("拉取未读私聊消息，用户id:{},数量:{}",userId,infos.size());
         }
     }
 }

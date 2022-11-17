@@ -13,7 +13,9 @@
 							<ul>
 								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
 									<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
-										:showName="showName(msgInfo)" :msgInfo="msgInfo">
+										:showName="showName(msgInfo)" :msgInfo="msgInfo"
+										@delete="deleteMessage"
+										@recall="recallMessage">
 									</message-item>
 								</li>
 							</ul>
@@ -21,7 +23,7 @@
 					</el-main>
 					<el-footer height="200px" class="im-chat-footer">
 						<div class="chat-tool-bar">
-							<div title="表情" class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
+							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion" @click="switchEmotionBox()">
 							</div>
 							<div title="发送图片">
 								<file-upload :action="imageAction" :maxSize="5*1024*1024"
@@ -95,38 +97,23 @@
 			}
 		},
 		methods: {
-
 			handleImageSuccess(res, file) {
-				let msgInfo = {
-					recvId: file.raw.targetId,
-					content: JSON.stringify(res.data),
-					type: 1
-				}
-				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.content = JSON.stringify(res.data);
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
-				}).then((data) => {
-					let info = {
-						type: this.chat.type,
-						targetId: file.raw.targetId,
-						fileId: file.raw.uid,
-						content: JSON.stringify(res.data),
-						loadStatus: "ok"
-					}
-					this.$store.commit("handleFileUpload", info);
+				}).then((id) => {
+					msgInfo.loadStatus = 'ok';
+					msgInfo.id = id;
+					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
 			handleImageFail(res, file) {
-				let info = {
-					type: this.chat.type,
-					targetId: file.raw.targetId,
-					fileId: file.raw.uid,
-					loadStatus: "fail"
-				}
-				this.$store.commit("handleFileUpload", info);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.loadStatus = 'fail';
+				this.$store.commit("insertMessage", msgInfo);
 			},
 			handleImageBefore(file) {
 				let url = URL.createObjectURL(file);
@@ -135,6 +122,7 @@
 					thumbUrl: url
 				}
 				let msgInfo = {
+					id:0,
 					fileId: file.uid,
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
@@ -149,8 +137,8 @@
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
 				this.scrollToBottom();
-				// 借助file对象保存对方id
-				file.targetId = this.chat.targetId;
+				// 借助file对象保存
+				file.msgInfo = msgInfo;
 			},
 			handleFileSuccess(res, file) {
 				let data = {
@@ -158,35 +146,22 @@
 					size: file.size,
 					url: res.data
 				}
-				let msgInfo = {
-					content: JSON.stringify(data),
-					type: 2
-				}
-				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.content = JSON.stringify(data);
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
-				}).then(() => {
-					let info = {
-						type: this.chat.type,
-						targetId: file.raw.targetId,
-						fileId: file.raw.uid,
-						content: JSON.stringify(data),
-						loadStatus: "ok"
-					}
-					this.$store.commit("handleFileUpload", info);
+				}).then((id) => {
+					msgInfo.loadStatus = 'ok';
+					msgInfo.id = id;
+					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
 			handleFileFail(res, file) {
-				let info = {
-					type: this.chat.type,
-					targetId: file.raw.targetId,
-					fileId: file.raw.uid,
-					loadStatus: "fail"
-				}
-				this.$store.commit("handleFileUpload", info);
+				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				msgInfo.loadStatus = 'fail';
+				this.$store.commit("insertMessage", msgInfo);
 			},
 			handleFileBefore(file) {
 				let url = URL.createObjectURL(file);
@@ -196,7 +171,7 @@
 					url: url
 				}
 				let msgInfo = {
-					fileId: file.uid,
+					id: 0,
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
@@ -210,8 +185,8 @@
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
 				this.scrollToBottom();
-				// 借助file对象保存对方id
-				file.targetId = this.chat.targetId;
+				// 借助file对象透传
+				file.msgInfo = msgInfo;
 			},
 			handleCloseSide() {
 				this.showSide = false;
@@ -232,7 +207,6 @@
 			},
 			showVoiceBox() {
 				this.showVoice = true;
-
 			},
 			closeVoiceBox() {
 				this.showVoice = false;
@@ -248,8 +222,9 @@
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
-				}).then(() => {
+				}).then((id) => {
 					this.$message.success("发送成功");
+					msgInfo.id = id;
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
@@ -270,7 +245,6 @@
 				}
 			},
 			sendTextMessage() {
-
 				if (!this.sendText.trim()) {
 					this.$message.error("不能发送空白信息");
 					return
@@ -285,9 +259,10 @@
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
-				}).then((data) => {
+				}).then((id) => {
 					this.$message.success("发送成功");
 					this.sendText = "";
+					msgInfo.id = id;
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
@@ -303,6 +278,35 @@
 					e.preventDefault();
 					return false;
 				}
+			},
+			deleteMessage(msgInfo){
+				this.$confirm( '确认删除消息?','删除消息', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.$store.commit("deleteMessage",msgInfo);
+				});
+			},
+			recallMessage(msgInfo){
+				this.$confirm('确认撤回消息?','撤回消息',  {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					let url = `/message/${this.chat.type.toLowerCase()}/recall/${msgInfo.id}`
+					this.$http({
+						url: url,
+						method: 'delete'
+					}).then(() => {
+						this.$message.success("消息已撤回");
+						msgInfo = JSON.parse(JSON.stringify(msgInfo));
+						msgInfo.type = 10;
+						msgInfo.content = '你撤回了一条消息';
+						this.$store.commit("insertMessage",msgInfo);
+					})
+				});
+				
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -382,7 +386,7 @@
 		watch: {
 			chat: {
 				handler(newChat, oldChat) {
-					if (newChat.targetId > 0 && (newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)) {
+					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)) {
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
@@ -391,10 +395,12 @@
 						this.scrollToBottom();
 						this.sendText = "";
 						// 保持输入框焦点
-						this.$refs.sendBox.focus();
+						this.$nextTick(() => {
+							this.$refs.sendBox.focus();
+						})
 					}
 				},
-				deep: true
+				immediate: true
 			}
 		}
 	}
@@ -431,7 +437,7 @@
 			border: #dddddd solid 1px;
 
 			.im-chat-box {
-				ul {
+				>ul {
 					padding: 20px;
 
 					li {
