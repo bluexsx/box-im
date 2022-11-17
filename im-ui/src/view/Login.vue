@@ -1,6 +1,6 @@
 <template>
-	<div class="login-view">
-			<el-form :model="loginForm"  status-icon :rules="rules" ref="loginForm" label-width="60px" class="web-ruleForm">
+	<div class="login-view"  >
+			<el-form :model="loginForm"  status-icon :rules="rules" ref="loginForm"  label-width="60px" class="web-ruleForm" @keyup.enter.native="submitForm('loginForm')">
 				<div class="login-brand">欢迎登陆</div>
 				<el-form-item label="用户名" prop="username">
 					<el-input type="username" v-model="loginForm.username" autocomplete="off"></el-input>
@@ -16,7 +16,6 @@
 				<div class="register">
 					<router-link to="/register">没有账号,前往注册</router-link>
 				</div>
-				
 			</el-form>
 			
 	</div>

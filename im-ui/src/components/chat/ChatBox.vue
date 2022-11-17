@@ -21,7 +21,7 @@
 					</el-main>
 					<el-footer height="200px" class="im-chat-footer">
 						<div class="chat-tool-bar">
-							<div title="表情" class="el-icon-eleme" ref="emotion" @click="switchEmotionBox()">
+							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion" @click="switchEmotionBox()">
 							</div>
 							<div title="发送图片">
 								<file-upload :action="imageAction" :maxSize="5*1024*1024"

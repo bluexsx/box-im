@@ -20,7 +20,7 @@
 				</el-menu-item>
 				<el-menu-item title="群聊">
 					<router-link v-bind:to="'/home/group'">
-						<span class="el-icon-s-check"></span>
+						<span class="icon iconfont icon-group_fill"></span>
 					</router-link>
 				</el-menu-item>
 
