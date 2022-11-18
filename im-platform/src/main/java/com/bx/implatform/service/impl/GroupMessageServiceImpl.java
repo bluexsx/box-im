@@ -46,7 +46,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
      * 发送群聊消息(与mysql所有交换都要进行缓存)
      *
      * @param vo
-     * @return
+     * @return 群聊id
      */
     @Override
     public Long sendMessage(GroupMessageVO vo) {
@@ -159,6 +159,42 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             log.info("拉取未读群聊消息，用户id:{},群聊id:{},数量:{}",userId,member.getGroupId(),messageInfos.size());
         }
 
+    }
+
+    /**
+     * 拉取历史聊天记录
+     *
+     * @param groupId 群聊id
+     * @param page 页码
+     * @param size 页码大小
+     * @return 聊天记录列表
+     */
+    @Override
+    public List<GroupMessageInfo> findHistoryMessage(Long groupId, Long page, Long size) {
+        page = page > 0 ? page:1;
+        size = size > 0 ? size:10;
+        Long userId = SessionContext.getSession().getId();
+        Long stIdx = (page-1)* size;
+        // 群聊成员信息
+        GroupMember member = groupMemberService.findByGroupAndUserId(groupId,userId);
+        if(member == null || member.getQuit()){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR,"您已不在群聊中");
+        }
+        // 查询聊天记录，只查询加入群聊时间之后的消息
+        QueryWrapper<GroupMessage> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(GroupMessage::getGroupId,groupId)
+                .gt(GroupMessage::getSendTime,member.getCreatedTime())
+                .ne(GroupMessage::getStatus,MessageStatusEnum.RECALL.getCode())
+                .orderByDesc(GroupMessage::getId)
+                .last("limit "+stIdx + ","+size);
+
+        List<GroupMessage> messages = this.list(wrapper);
+        List<GroupMessageInfo> messageInfos = messages.stream().map(m->{
+            GroupMessageInfo info = BeanUtils.copyProperties(m, GroupMessageInfo.class);
+            return info;
+        }).collect(Collectors.toList());
+        log.info("拉取群聊记录，用户id:{},群聊id:{}，数量:{}",userId,groupId,messageInfos.size());
+        return messageInfos;
     }
 
     private void  sendMessage(List<Long> userIds, GroupMessageInfo  msgInfo){

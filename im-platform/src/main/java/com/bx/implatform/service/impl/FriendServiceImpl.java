@@ -13,6 +13,7 @@ import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.vo.FriendVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 
+@Slf4j
 @CacheConfig(cacheNames= RedisKey.IM_CACHE_FRIEND)
 @Service
 public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements IFriendService {
@@ -63,6 +65,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         FriendServiceImpl proxy = (FriendServiceImpl)AopContext.currentProxy();
         proxy.bindFriend(userId,friendId);
         proxy.bindFriend(friendId,userId);
+        log.info("添加好友，用户id:{},好友id:{}",userId,friendId);
     }
 
 
@@ -80,6 +83,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         FriendServiceImpl proxy = (FriendServiceImpl)AopContext.currentProxy();
         proxy.unbindFriend(userId,friendId);
         proxy.unbindFriend(friendId,userId);
+        log.info("删除好友，用户id:{},好友id:{}",userId,friendId);
     }
 
 

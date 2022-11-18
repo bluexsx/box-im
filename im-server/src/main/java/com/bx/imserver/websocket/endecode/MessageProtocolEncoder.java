@@ -14,6 +14,7 @@ public class MessageProtocolEncoder extends MessageToMessageEncoder<SendInfo> {
     protected void encode(ChannelHandlerContext channelHandlerContext, SendInfo sendInfo, List<Object> list) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         String text = objectMapper.writeValueAsString(sendInfo);
+
         TextWebSocketFrame frame = new TextWebSocketFrame(text);
         list.add(frame);
     }

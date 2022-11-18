@@ -21,6 +21,7 @@ import com.bx.implatform.session.UserSession;
 import com.bx.implatform.vo.GroupInviteVO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -36,6 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
@@ -79,6 +81,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
         vo.setAliasName(user.getNickName());
         vo.setRemark(groupName);
+        log.info("创建群聊，群聊id:{},群聊名称:{}",group.getId(),group.getName());
         return vo;
     }
 
@@ -109,6 +112,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         member.setAliasName(StringUtils.isEmpty(vo.getAliasName())?session.getNickName():vo.getAliasName());
         member.setRemark(StringUtils.isEmpty(vo.getRemark())?group.getName():vo.getRemark());
         groupMemberService.updateById(member);
+        log.info("修改群聊，群聊id:{},群聊名称:{}",group.getId(),group.getName());
         return vo;
     }
 
@@ -131,6 +135,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 逻辑删除群数据
         group.setDeleted(true);
         this.updateById(group);
+        log.info("删除群聊，群聊id:{},群聊名称:{}",group.getId(),group.getName());
     }
 
 
@@ -142,13 +147,14 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      */
     @Override
     public void quitGroup(Long groupId) {
-        UserSession session = SessionContext.getSession();
+        Long userId = SessionContext.getSession().getId();
         Group group = this.getById(groupId);
-        if(group.getOwnerId() == session.getId()){
+        if(group.getOwnerId() == userId){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您是群主，不可退出群聊");
         }
         // 删除群聊成员
-        groupMemberService.removeByGroupAndUserId(groupId,session.getId());
+        groupMemberService.removeByGroupAndUserId(groupId,userId);
+        log.info("退出群聊，群聊id:{},群聊名称:{},用户id:{}",group.getId(),group.getName(),userId);
     }
 
 
@@ -171,6 +177,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
         // 删除群聊成员
         groupMemberService.removeByGroupAndUserId(groupId,userId);
+        log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}",group.getId(),group.getName(),userId);
     }
 
     @Override
@@ -281,6 +288,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if(!groupMembers.isEmpty()) {
             groupMemberService.saveOrUpdateBatch(group.getId(),groupMembers);
         }
+        log.info("邀请进入群聊，群聊id:{},群聊名称:{},被邀请用户id:{}",group.getId(),group.getName(),vo.getFriendIds());
     }
 
     /**

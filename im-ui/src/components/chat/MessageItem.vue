@@ -37,7 +37,7 @@
 			</div>
 
 		</div>
-		<right-menu v-show="rightMenu.show" :pos="rightMenu.pos" :items="menuItems" @close="rightMenu.show=false"
+		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems" @close="rightMenu.show=false"
 		 @select="handleSelectMenu"></right-menu>
 	</div>
 </template>
@@ -70,6 +70,10 @@
 			msgInfo: {
 				type: Object,
 				required: true
+			},
+			menu:{
+				type: Boolean,
+				default: true
 			}
 		},
 		data() {
