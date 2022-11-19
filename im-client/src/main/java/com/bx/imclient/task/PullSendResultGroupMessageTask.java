@@ -1,9 +1,9 @@
 package com.bx.imclient.task;
 
-import com.bx.imcommon.contant.RedisKey;
-import com.bx.imcommon.enums.ListenerType;
-import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.listener.MessageListenerMulticaster;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMListenerType;
+import com.bx.imcommon.model.SendResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,7 +26,7 @@ public class PullSendResultGroupMessageTask extends  AbstractPullMessageTask{
         String key = RedisKey.IM_RESULT_GROUP_QUEUE;
         SendResult result =  (SendResult)redisTemplate.opsForList().leftPop(key,10, TimeUnit.SECONDS);
         if(result != null) {
-            listenerMulticaster.multicast(ListenerType.GROUP_MESSAGE,result);
+            listenerMulticaster.multicast(IMListenerType.GROUP_MESSAGE,result);
         }
     }
 

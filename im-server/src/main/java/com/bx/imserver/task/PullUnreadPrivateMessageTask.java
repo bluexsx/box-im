@@ -3,8 +3,8 @@ package com.bx.imserver.task;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.model.im.IMRecvInfo;
-import com.bx.imcommon.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.IMRecvInfo;
+import com.bx.imcommon.model.PrivateMessageInfo;
 import com.bx.imserver.websocket.WebsocketServer;
 import com.bx.imserver.websocket.processor.MessageProcessor;
 import com.bx.imserver.websocket.processor.ProcessorFactory;

@@ -1,22 +1,22 @@
 package com.bx.implatform.listener;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.bx.imcommon.enums.ListenerType;
-import com.bx.imcommon.enums.MessageStatus;
-import com.bx.imcommon.enums.MessageType;
-import com.bx.imcommon.enums.SendResultType;
-import com.bx.imcommon.model.im.PrivateMessageInfo;
-import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.annotation.IMListener;
 import com.bx.imclient.listener.MessageListener;
+import com.bx.imcommon.enums.IMListenerType;
+import com.bx.imcommon.enums.IMSendStatus;
+import com.bx.imcommon.model.PrivateMessageInfo;
+import com.bx.imcommon.model.SendResult;
 import com.bx.implatform.entity.PrivateMessage;
+import com.bx.implatform.enums.MessageStatus;
+import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.service.IPrivateMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 @Slf4j
-@IMListener(type = ListenerType.PRIVATE_MESSAGE)
+@IMListener(type = IMListenerType.PRIVATE_MESSAGE)
 public class PrivateMessageListener implements MessageListener {
 
     @Autowired
@@ -30,7 +30,7 @@ public class PrivateMessageListener implements MessageListener {
             return;
         }
         // 更新消息状态
-        if(result.getResult().equals(SendResultType.SUCCESS)){
+        if(result.getStatus().equals(IMSendStatus.SUCCESS)){
             UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().eq(PrivateMessage::getId,messageInfo.getId())
                     .eq(PrivateMessage::getStatus, MessageStatus.UNREAD.getCode())

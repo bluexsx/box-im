@@ -1,7 +1,7 @@
 package com.bx.imserver.websocket.processor;
 
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.util.SpringContextHolder;
+import com.bx.imserver.util.SpringContextHolder;
 
 public class ProcessorFactory {
 

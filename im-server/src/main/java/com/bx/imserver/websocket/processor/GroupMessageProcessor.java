@@ -2,11 +2,11 @@ package com.bx.imserver.websocket.processor;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.enums.SendResultType;
-import com.bx.imcommon.model.im.GroupMessageInfo;
-import com.bx.imcommon.model.im.IMRecvInfo;
-import com.bx.imcommon.model.im.SendInfo;
-import com.bx.imcommon.model.im.SendResult;
+import com.bx.imcommon.enums.IMSendStatus;
+import com.bx.imcommon.model.GroupMessageInfo;
+import com.bx.imcommon.model.IMRecvInfo;
+import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imcommon.model.SendResult;
 import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                     // 自己发的消息不用推送
                     if(recvId != messageInfo.getSendId()){
                         // 推送消息到用户
-                        SendInfo sendInfo = new SendInfo();
+                        IMSendInfo sendInfo = new IMSendInfo();
                         sendInfo.setCmd(IMCmdType.GROUP_MESSAGE.getCode());
                         sendInfo.setData(messageInfo);
                         channelCtx.channel().writeAndFlush(sendInfo);
@@ -45,7 +45,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                         String key = RedisKey.IM_RESULT_GROUP_QUEUE;
                         SendResult sendResult = new SendResult();
                         sendResult.setRecvId(recvId);
-                        sendResult.setResult(SendResultType.SUCCESS);
+                        sendResult.setStatus(IMSendStatus.SUCCESS);
                         sendResult.setMessageInfo(messageInfo);
                         redisTemplate.opsForList().rightPush(key,sendResult);
                     }
@@ -54,7 +54,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                     String key = RedisKey.IM_RESULT_GROUP_QUEUE;
                     SendResult sendResult = new SendResult();
                     sendResult.setRecvId(recvId);
-                    sendResult.setResult(SendResultType.FAIL);
+                    sendResult.setStatus(IMSendStatus.FAIL);
                     sendResult.setFailReason("未找到WS连接");
                     sendResult.setMessageInfo(messageInfo);
                     redisTemplate.opsForList().rightPush(key,sendResult);
@@ -65,7 +65,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                 String key = RedisKey.IM_RESULT_GROUP_QUEUE;
                 SendResult sendResult = new SendResult();
                 sendResult.setRecvId(recvId);
-                sendResult.setResult(SendResultType.FAIL);
+                sendResult.setStatus(IMSendStatus.FAIL);
                 sendResult.setFailReason("未知异常");
                 sendResult.setMessageInfo(messageInfo);
                 redisTemplate.opsForList().rightPush(key,sendResult);

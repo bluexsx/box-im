@@ -1,7 +1,7 @@
 package com.bx.implatform.controller;
 
 
-import com.bx.imcommon.model.im.GroupMessageInfo;
+import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IGroupMessageService;

@@ -1,7 +1,7 @@
 package com.bx.imcommon.enums;
 
 
-public enum SendResultType {
+public enum IMSendStatus {
 
     SUCCESS(0,"发送成功"),
     FAIL(1,"发送失败");
@@ -10,7 +10,7 @@ public enum SendResultType {
     private String msg;
 
     // 构造方法
-    SendResultType(int code, String msg) {
+    IMSendStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }

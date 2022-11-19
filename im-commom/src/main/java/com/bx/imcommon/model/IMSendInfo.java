@@ -1,9 +1,9 @@
-package com.bx.imcommon.model.im;
+package com.bx.imcommon.model;
 
 import lombok.Data;
 
 @Data
-public class SendInfo<T> {
+public class IMSendInfo<T> {
 
         private Integer cmd;
         private T data;

@@ -1,9 +1,9 @@
 package com.bx.imclient.task;
 
-import com.bx.imcommon.contant.RedisKey;
-import com.bx.imcommon.enums.ListenerType;
-import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.listener.MessageListenerMulticaster;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMListenerType;
+import com.bx.imcommon.model.SendResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +31,7 @@ public class PullSendResultPrivateMessageTask extends  AbstractPullMessageTask{
         String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
         SendResult result =  (SendResult)redisTemplate.opsForList().leftPop(key,10, TimeUnit.SECONDS);
         if(result != null) {
-            listenerMulticaster.multicast(ListenerType.PRIVATE_MESSAGE, result);
+            listenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, result);
         }
     }
 

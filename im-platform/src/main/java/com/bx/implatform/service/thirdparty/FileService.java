@@ -1,7 +1,7 @@
 package com.bx.implatform.service.thirdparty;
 
-import com.bx.imcommon.enums.FileType;
 import com.bx.implatform.contant.Constant;
+import com.bx.implatform.enums.FileType;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.session.SessionContext;

@@ -1,6 +1,6 @@
 package com.bx.imclient.annotation;
 
-import com.bx.imcommon.enums.ListenerType;
+import com.bx.imcommon.enums.IMListenerType;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
 @Component
 public @interface IMListener {
 
-    ListenerType type();
+    IMListenerType type();
 
 }

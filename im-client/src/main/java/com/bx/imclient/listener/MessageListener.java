@@ -1,7 +1,7 @@
 package com.bx.imclient.listener;
 
 
-import com.bx.imcommon.model.im.SendResult;
+import com.bx.imcommon.model.SendResult;
 
 public interface MessageListener {
 

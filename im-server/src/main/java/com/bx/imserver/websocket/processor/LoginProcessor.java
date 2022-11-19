@@ -4,8 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import com.bx.imcommon.contant.Constant;
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.model.im.LoginInfo;
-import com.bx.imcommon.model.im.SendInfo;
+import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imcommon.model.LoginInfo;
 import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import com.bx.imserver.websocket.WebsocketServer;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,7 +35,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         ChannelHandlerContext context = WebsocketChannelCtxHolder.getChannelCtx(loginInfo.getUserId());
         if(context != null){
             // 不允许多地登录,强制下线
-            SendInfo sendInfo = new SendInfo();
+            IMSendInfo sendInfo = new IMSendInfo();
             sendInfo.setCmd(IMCmdType.FORCE_LOGUT.getCode());
             context.channel().writeAndFlush(sendInfo);
         }
@@ -51,7 +51,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         String key = RedisKey.IM_USER_SERVER_ID+loginInfo.getUserId();
         redisTemplate.opsForValue().set(key, WSServer.getServerId(), Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
-        SendInfo sendInfo = new SendInfo();
+        IMSendInfo sendInfo = new IMSendInfo();
         sendInfo.setCmd(IMCmdType.LOGIN.getCode());
         ctx.channel().writeAndFlush(sendInfo);
     }

@@ -2,8 +2,8 @@ package com.bx.imserver.websocket;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.model.im.SendInfo;
-import com.bx.imcommon.util.SpringContextHolder;
+import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imserver.util.SpringContextHolder;
 import com.bx.imserver.websocket.processor.MessageProcessor;
 import com.bx.imserver.websocket.processor.ProcessorFactory;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,7 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  * 浏览器连接状态监控
  */
 @Slf4j
-public class WebSocketHandler extends SimpleChannelInboundHandler<SendInfo> {
+public class WebSocketHandler extends SimpleChannelInboundHandler<IMSendInfo> {
 
     /**
      * 读取到消息后进行处理
@@ -31,7 +31,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<SendInfo> {
      * @throws Exception
      */
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SendInfo sendInfo) throws  Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, IMSendInfo sendInfo) throws  Exception {
         // 创建处理器进行处理
         MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
         processor.process(ctx,processor.transForm(sendInfo.getData()));

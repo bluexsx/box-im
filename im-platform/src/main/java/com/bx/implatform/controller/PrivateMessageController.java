@@ -1,7 +1,7 @@
 package com.bx.implatform.controller;
 
 
-import com.bx.imcommon.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.PrivateMessageInfo;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IPrivateMessageService;

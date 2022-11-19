@@ -4,8 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import com.bx.imcommon.contant.Constant;
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.model.im.HeartbeatInfo;
-import com.bx.imcommon.model.im.SendInfo;
+import com.bx.imcommon.model.HeartbeatInfo;
+import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imserver.websocket.WebsocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -31,7 +31,7 @@ public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
     @Override
     public void process(ChannelHandlerContext ctx, HeartbeatInfo beatInfo) {
         // 响应ws
-        SendInfo sendInfo = new SendInfo();
+        IMSendInfo sendInfo = new IMSendInfo();
         sendInfo.setCmd(IMCmdType.HEART_BEAT.getCode());
         ctx.channel().writeAndFlush(sendInfo);
 

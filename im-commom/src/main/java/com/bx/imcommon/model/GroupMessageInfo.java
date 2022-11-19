@@ -1,4 +1,4 @@
-package com.bx.imcommon.model.im;
+package com.bx.imcommon.model;
 
 import com.bx.imcommon.serializer.DateToLongSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

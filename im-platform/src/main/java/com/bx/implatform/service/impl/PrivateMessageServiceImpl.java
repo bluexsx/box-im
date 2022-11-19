@@ -2,13 +2,13 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.Constant;
 import com.bx.imcommon.contant.RedisKey;
-import com.bx.imcommon.enums.MessageStatus;
-import com.bx.imcommon.enums.MessageType;
-import com.bx.imcommon.model.im.PrivateMessageInfo;
-import com.bx.imclient.IMClient;
+import com.bx.imcommon.model.PrivateMessageInfo;
 import com.bx.implatform.entity.PrivateMessage;
+import com.bx.implatform.enums.MessageStatus;
+import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.PrivateMessageMapper;

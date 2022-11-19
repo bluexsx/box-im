@@ -1,4 +1,4 @@
-package com.bx.imcommon.enums;
+package com.bx.implatform.enums;
 
 public enum FileType {
 

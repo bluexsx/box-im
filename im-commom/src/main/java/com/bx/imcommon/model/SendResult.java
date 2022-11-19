@@ -1,6 +1,6 @@
-package com.bx.imcommon.model.im;
+package com.bx.imcommon.model;
 
-import com.bx.imcommon.enums.SendResultType;
+import com.bx.imcommon.enums.IMSendStatus;
 import lombok.Data;
 
 @Data
@@ -8,7 +8,7 @@ public class SendResult<T> {
 
     private Long recvId;
 
-    private SendResultType result;
+    private IMSendStatus status;
 
     private String failReason="";
 
