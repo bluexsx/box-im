@@ -1,9 +1,10 @@
 package com.bx.implatform.service.thirdparty;
 
-import com.bx.common.contant.Constant;
-import com.bx.common.enums.FileTypeEnum;
-import com.bx.common.enums.ResultCode;
+import com.bx.implatform.contant.Constant;
+import com.bx.implatform.enums.FileType;
+import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
+import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.util.FileUtil;
 import com.bx.implatform.util.ImageUtil;
 import com.bx.implatform.util.MinioUtil;
@@ -50,6 +51,7 @@ public class FileService {
 
 
     public String uploadFile(MultipartFile file){
+        Long userId = SessionContext.getSession().getId();
         // 大小校验
         if(file.getSize() > Constant.MAX_FILE_SIZE){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"文件大小不能超过10M");
@@ -59,11 +61,14 @@ public class FileService {
         if(StringUtils.isEmpty(fileName)){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"文件上传失败");
         }
-        return generUrl(FileTypeEnum.FILE,fileName);
+        String url =  generUrl(FileType.FILE,fileName);
+        log.info("文件文件成功，用户id:{},url:{}",userId,url);
+        return url;
     }
 
     public UploadImageVO uploadImage(MultipartFile file){
         try {
+            Long userId = SessionContext.getSession().getId();
             // 大小校验
             if(file.getSize() > Constant.MAX_IMAGE_SIZE){
                 throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片大小不能超过5M");
@@ -78,14 +83,15 @@ public class FileService {
             if(StringUtils.isEmpty(fileName)){
                 throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
             }
-            vo.setOriginUrl(generUrl(FileTypeEnum.IMAGE,fileName));
+            vo.setOriginUrl(generUrl(FileType.IMAGE,fileName));
             // 上传缩略图
             byte[] imageByte = ImageUtil.compressForScale(file.getBytes(),100);
             fileName = minioUtil.upload(bucketName,imagePath,file.getOriginalFilename(),imageByte,file.getContentType());
             if(StringUtils.isEmpty(fileName)){
                 throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
             }
-            vo.setThumbUrl(generUrl(FileTypeEnum.IMAGE,fileName));
+            vo.setThumbUrl(generUrl(FileType.IMAGE,fileName));
+            log.info("文件图片成功，用户id:{},url:{}",userId,vo.getOriginUrl());
             return vo;
         } catch (IOException e) {
             log.error("上传图片失败，{}",e.getMessage(),e);
@@ -94,7 +100,7 @@ public class FileService {
     }
 
 
-    public String generUrl(FileTypeEnum fileTypeEnum, String fileName){
+    public String generUrl(FileType fileTypeEnum, String fileName){
         String url = minIOServer+"/"+bucketName;
         switch (fileTypeEnum){
             case FILE:

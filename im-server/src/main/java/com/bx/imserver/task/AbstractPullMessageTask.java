@@ -1,6 +1,6 @@
 package com.bx.imserver.task;
 
-import com.bx.imserver.websocket.WebsocketServer;
+import com.bx.imserver.ws.WebsocketServer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package com.bx.implatform.controller;
 
 
-import com.bx.common.result.Result;
-import com.bx.common.result.ResultUtils;
+import com.bx.implatform.result.Result;
+import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.vo.RegisterVO;
 import io.swagger.annotations.Api;

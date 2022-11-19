@@ -1,9 +1,9 @@
 package com.bx.implatform.config;
 
 import com.alibaba.fastjson.JSON;
-import com.bx.common.enums.ResultCode;
-import com.bx.common.result.Result;
-import com.bx.common.result.ResultUtils;
+import com.bx.implatform.enums.ResultCode;
+import com.bx.implatform.result.Result;
+import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.UserSession;
 import com.fasterxml.jackson.databind.ObjectMapper;

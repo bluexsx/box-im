@@ -1,9 +1,8 @@
 package com.bx.implatform.controller;
 
-
-import com.bx.common.result.Result;
-import com.bx.common.result.ResultUtils;
 import com.bx.implatform.entity.Friend;
+import com.bx.implatform.result.Result;
+import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.FriendVO;

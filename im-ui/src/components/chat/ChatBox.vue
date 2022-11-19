@@ -40,7 +40,7 @@
 							</div>
 							<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
 							</div>
-							<div title="聊天记录" class="el-icon-chat-dot-round"></div>
+							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 						</div>
 						<textarea v-model="sendText" ref="sendBox" class="send-text-area"
 							@keydown.enter="sendTextMessage()"></textarea>
@@ -57,6 +57,9 @@
 		</el-main>
 		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
 		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
+		<chat-history :visible="showHistory" 
+		:chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers"
+		@close="closeHistoryBox"></chat-history>
 	</el-container>
 </template>
 
@@ -66,7 +69,9 @@
 	import FileUpload from "../common/FileUpload.vue";
 	import Emotion from "../common/Emotion.vue";
 	import ChatVoice from "./ChatVoice.vue";
-
+	import ChatHistory from "./ChatHistory.vue";
+	
+	
 	export default {
 		name: "chatPrivate",
 		components: {
@@ -74,7 +79,8 @@
 			FileUpload,
 			ChatGroupSide,
 			Emotion,
-			ChatVoice
+			ChatVoice,
+			ChatHistory
 		},
 		props: {
 			chat: {
@@ -93,7 +99,8 @@
 				emoBoxPos: { // emoji表情弹出位置
 					x: 0,
 					y: 0
-				}
+				},
+				showHistory: false // 是否显示历史聊天记录
 			}
 		},
 		methods: {
@@ -210,6 +217,12 @@
 			},
 			closeVoiceBox() {
 				this.showVoice = false;
+			},
+			showHistoryBox(){
+				this.showHistory = true;
+			},
+			closeHistoryBox(){
+				this.showHistory = false;
 			},
 			handleSendVoice(data) {
 				let msgInfo = {

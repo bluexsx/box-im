@@ -1,8 +1,9 @@
 package com.bx.implatform.controller;
 
 
-import com.bx.common.result.Result;
-import com.bx.common.result.ResultUtils;
+import com.bx.imcommon.model.GroupMessageInfo;
+import com.bx.implatform.result.Result;
+import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IGroupMessageService;
 import com.bx.implatform.vo.GroupMessageVO;
 import io.swagger.annotations.Api;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 
 @Api(tags = "群聊消息")
@@ -43,5 +45,12 @@ public class GroupMessageController {
         return ResultUtils.success();
     }
 
+    @GetMapping("/history")
+    @ApiOperation(value = "查询聊天记录",notes="查询聊天记录")
+    public Result<List<GroupMessageInfo>> recallMessage(@NotNull(message = "群聊id不能为空") @RequestParam Long groupId,
+                                                        @NotNull(message = "页码不能为空") @RequestParam Long page,
+                                                        @NotNull(message = "size不能为空") @RequestParam Long size){
+        return ResultUtils.success( groupMessageService.findHistoryMessage(groupId,page,size));
+    }
 }
 

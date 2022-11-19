@@ -63,7 +63,7 @@
 			init(userInfo) {
 				this.$store.commit("setUserInfo", userInfo);
 				this.$store.commit("initStore");
-				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, this.$store);
+				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, userInfo.id);
 				this.$wsApi.onopen(() => {
 					this.pullUnreadMessage();
 				});

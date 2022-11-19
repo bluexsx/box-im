@@ -2,12 +2,11 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.ResultCode;
-import com.bx.common.util.BeanUtils;
+import com.bx.imcommon.contant.RedisKey;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;
+import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.UserMapper;
 import com.bx.implatform.service.IFriendService;
@@ -15,8 +14,10 @@ import com.bx.implatform.service.IGroupMemberService;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
+import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.RegisterVO;
 import com.bx.implatform.vo.UserVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
@@ -58,6 +60,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user = BeanUtils.copyProperties(vo,User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.save(user);
+        log.info("注册用户，用户id:{},用户名:{},昵称:{}",user.getId(),vo.getUserName(),vo.getNickName());
     }
 
     /**
@@ -116,6 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setHeadImage(vo.getHeadImage());
         user.setHeadImageThumb(vo.getHeadImageThumb());
         this.updateById(user);
+        log.info("用户信息更新，用户:{}}",user.toString());
     }
 
 
