@@ -124,7 +124,7 @@ public class IMClient {
 }
 ```
 
-发送私聊消息(群聊同理)：
+发送私聊消息(群聊也是类似的方式)：
 ```
  @Autowired
  private IMClient imClient;
