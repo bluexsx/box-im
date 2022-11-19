@@ -125,7 +125,6 @@ public class PrivateMessageListener implements MessageListener {
     @Override
     public void process(SendResult result){
         PrivateMessageInfo messageInfo = (PrivateMessageInfo) result.getMessageInfo();
-        // 更新消息状态
         if(result.getStatus().equals(IMSendStatus.SUCCESS)){
             // 消息发送成功
             log.info("消息已读，消息id:{}，发送者:{},接收者:{}",messageInfo.getId(),messageInfo.getSendId(),messageInfo.getRecvId());
