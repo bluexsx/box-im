@@ -78,7 +78,7 @@ npm run serve
 
 
 #### 快速接入
-消息推送的代码目前已经完成了封装，可以通过下面的教程快速的引入到自己的项目中
+消息推送的代码已经进行了client sdk封装(当然依然是开源的)，对于需要接入im-server的小伙伴，可以按照下面的教程快速的集成到自己的项目中
 
 4.1服务器接入
 引入pom文件
@@ -97,8 +97,32 @@ spring:
     host: 127.0.0.1
     port: 6379
 ```
-直接把IMClient @Autowire进来就可以发送消息了：
+直接把IMClient @Autowire进来就可以发送消息了，IMClient 只有2个接口：
 
+```
+public class IMClient {
+
+    /**
+     * 发送私聊消息
+     *
+     * @param recvId 接收用户id
+     * @param messageInfo 消息体，将转成json发送到客户端
+     */
+    void sendPrivateMessage(Long recvId, PrivateMessageInfo... messageInfo)；
+     
+
+    /**
+     * 发送群聊消息
+     *
+     * @param recvIds 群聊用户id列表
+     * @param messageInfo 消息体，将转成json发送到客户端
+     */
+    void sendGroupMessage(List<Long> recvIds, GroupMessageInfo... messageInfo)；
+      
+}
+```
+
+发送私聊消息：
 ```
  @Autowired
  private IMClient imClient;
@@ -114,6 +138,7 @@ spring:
     messageInfo.setSendTime(new Date());
     imClient.sendPrivateMessage(recvId,messageInfo);
 }
+
 ```
 如果需要对消息发送的结果进行监听的话，实现MessageListener,并加上@IMListener即可
 
