@@ -1,9 +1,9 @@
 package com.bx.imcommon.enums;
 
 public enum IMListenerType {
-
-    PRIVATE_MESSAGE(0,"私聊消息"),
-    GROUP_MESSAGE(1,"群聊消息");
+    ALL(0,"全部消息"),
+    PRIVATE_MESSAGE(1,"私聊消息"),
+    GROUP_MESSAGE(2,"群聊消息");
 
     private Integer code;
 

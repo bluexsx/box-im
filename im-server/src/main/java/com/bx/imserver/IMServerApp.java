@@ -1,7 +1,7 @@
 package com.bx.imserver;
 
 
-import com.bx.imserver.websocket.WebsocketServer;
+import com.bx.imserver.ws.WebsocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;

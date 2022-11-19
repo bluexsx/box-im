@@ -1,4 +1,4 @@
-package com.bx.imserver.websocket.processor;
+package com.bx.imserver.processor;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
@@ -7,7 +7,7 @@ import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.SendResult;
-import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
+import com.bx.imserver.util.UserChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
         log.info("接收到群消息，发送者:{},群id:{},接收id:{}，内容:{}",messageInfo.getSendId(),messageInfo.getGroupId(),recvIds,messageInfo.getContent());
         for(Long recvId:recvIds){
             try {
-                ChannelHandlerContext channelCtx = WebsocketChannelCtxHolder.getChannelCtx(recvId);
+                ChannelHandlerContext channelCtx = UserChannelCtxHolder.getChannelCtx(recvId);
                 if(channelCtx != null){
                     // 自己发的消息不用推送
                     if(recvId != messageInfo.getSendId()){

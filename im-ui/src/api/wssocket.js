@@ -2,14 +2,14 @@ var websock = null;
 let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
 let isConnect = false; //连接标识 避免重复连接
 let wsurl = "";
-let $store = null;
+let userId = null;
 let messageCallBack = null;
 let openCallBack = null;
 let hasLogin = false;
 
-let createWebSocket = (url, store) => {
-	$store = store;
+let createWebSocket = (url, id) => {
 	wsurl = url;
+	userId = id;
 	initWebSocket();
 };
 
@@ -45,7 +45,7 @@ let initWebSocket = () => {
 			// 发送登录命令
 			let loginInfo = {
 				cmd: 0,
-				data: {userId: $store.state.userStore.userInfo.id}
+				data: {userId: userId}
 			};
 			websock.send(JSON.stringify(loginInfo));
 			
@@ -88,7 +88,7 @@ var heartCheck = {
 			let heartBeat = {
 				cmd: 1,
 				data: {
-					userId: $store.state.userStore.userInfo.id
+					userId: userId
 				}
 			};
 			websock.send(JSON.stringify(heartBeat))
@@ -137,8 +137,6 @@ function onopen(callback) {
 		openCallBack();
 	}
 }
-
-
 
 
 // 将方法暴露出去

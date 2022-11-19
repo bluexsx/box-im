@@ -1,4 +1,4 @@
-package com.bx.imserver.websocket.processor;
+package com.bx.imserver.processor;
 
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imserver.util.SpringContextHolder;

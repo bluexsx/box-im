@@ -13,14 +13,13 @@ import java.util.List;
 @Component
 public class MessageListenerMulticaster {
 
-
     @Autowired(required = false)
     private List<MessageListener>  messageListeners  = Collections.emptyList();
 
     public  void multicast(IMListenerType type, SendResult result){
         for(MessageListener listener:messageListeners){
             IMListener annotation = listener.getClass().getAnnotation(IMListener.class);
-            if(annotation.type().equals(type)){
+            if(annotation!=null && (annotation.type().equals(IMListenerType.ALL) || annotation.type().equals(type))){
                 listener.process(result);
             }
         }

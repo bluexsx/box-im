@@ -1,8 +1,8 @@
-package com.bx.imserver.websocket;
+package com.bx.imserver.ws;
 
 import com.bx.imcommon.contant.RedisKey;
-import com.bx.imserver.websocket.endecode.MessageProtocolDecoder;
-import com.bx.imserver.websocket.endecode.MessageProtocolEncoder;
+import com.bx.imserver.ws.endecode.MessageProtocolDecoder;
+import com.bx.imserver.ws.endecode.MessageProtocolEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

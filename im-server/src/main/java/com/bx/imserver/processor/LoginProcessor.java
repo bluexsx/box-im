@@ -1,4 +1,4 @@
-package com.bx.imserver.websocket.processor;
+package com.bx.imserver.processor;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.bx.imcommon.contant.Constant;
@@ -6,8 +6,8 @@ import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.LoginInfo;
-import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
-import com.bx.imserver.websocket.WebsocketServer;
+import com.bx.imserver.util.UserChannelCtxHolder;
+import com.bx.imserver.ws.WebsocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
     @Override
     synchronized public void process(ChannelHandlerContext ctx, LoginInfo loginInfo) {
         log.info("用户登录，userId:{}",loginInfo.getUserId());
-        ChannelHandlerContext context = WebsocketChannelCtxHolder.getChannelCtx(loginInfo.getUserId());
+        ChannelHandlerContext context = UserChannelCtxHolder.getChannelCtx(loginInfo.getUserId());
         if(context != null){
             // 不允许多地登录,强制下线
             IMSendInfo sendInfo = new IMSendInfo();
@@ -40,7 +40,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
             context.channel().writeAndFlush(sendInfo);
         }
         // 绑定用户和channel
-        WebsocketChannelCtxHolder.addChannelCtx(loginInfo.getUserId(),ctx);
+        UserChannelCtxHolder.addChannelCtx(loginInfo.getUserId(),ctx);
         // 设置用户id属性
         AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
         ctx.channel().attr(attr).set(loginInfo.getUserId());

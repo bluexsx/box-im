@@ -1,11 +1,12 @@
-package com.bx.imserver.websocket;
+package com.bx.imserver.ws;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imserver.processor.MessageProcessor;
+import com.bx.imserver.processor.ProcessorFactory;
 import com.bx.imserver.util.SpringContextHolder;
-import com.bx.imserver.websocket.processor.MessageProcessor;
-import com.bx.imserver.websocket.processor.ProcessorFactory;
+import com.bx.imserver.util.UserChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
@@ -66,11 +67,11 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     public void handlerRemoved(ChannelHandlerContext ctx) throws  Exception {
         AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
         Long userId = ctx.channel().attr(attr).get();
-        ChannelHandlerContext context = WebsocketChannelCtxHolder.getChannelCtx(userId);
+        ChannelHandlerContext context = UserChannelCtxHolder.getChannelCtx(userId);
         // 判断一下，避免异地登录导致的误删
         if(context != null && ctx.channel().id().equals(context.channel().id())){
             // 移除channel
-            WebsocketChannelCtxHolder.removeChannelCtx(userId);
+            UserChannelCtxHolder.removeChannelCtx(userId);
             // 用户下线
             RedisTemplate redisTemplate = SpringContextHolder.getBean("redisTemplate");
             String key = RedisKey.IM_USER_SERVER_ID + userId;

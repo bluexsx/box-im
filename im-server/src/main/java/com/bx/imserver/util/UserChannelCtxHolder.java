@@ -1,4 +1,4 @@
-package com.bx.imserver.websocket;
+package com.bx.imserver.util;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class WebsocketChannelCtxHolder {
+public class UserChannelCtxHolder {
 
     /*
      *  维护userId和ctx的关联关系，格式:Map<userId,ctx>
