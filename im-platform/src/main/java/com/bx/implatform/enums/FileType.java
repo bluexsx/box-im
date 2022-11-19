@@ -28,11 +28,11 @@ public enum FileType {
     }
 
 
-    public String getDesc() {
+    public String description() {
         return desc;
     }
 
-    public Integer getCode(){
+    public Integer code(){
         return this.code;
     }
 

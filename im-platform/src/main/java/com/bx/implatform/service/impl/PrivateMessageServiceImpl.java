@@ -52,7 +52,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 保存消息
         PrivateMessage msg = BeanUtils.copyProperties(vo, PrivateMessage.class);
         msg.setSendId(userId);
-        msg.setStatus(MessageStatus.UNREAD.getCode());
+        msg.setStatus(MessageStatus.UNREAD.code());
         msg.setSendTime(new Date());
         this.save(msg);
         // 推送消息
@@ -81,11 +81,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息已发送超过5分钟，无法撤回");
         }
         // 修改消息状态
-        msg.setStatus(MessageStatus.RECALL.getCode());
+        msg.setStatus(MessageStatus.RECALL.code());
         this.updateById(msg);
         // 推送消息
         PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
-        msgInfo.setType(MessageType.TIP.getCode());
+        msgInfo.setType(MessageType.TIP.code());
         msgInfo.setSendTime(new Date());
         msgInfo.setContent("对方撤回了一条消息");
         imClient.sendPrivateMessage(msgInfo.getRecvId(),msgInfo);
@@ -113,7 +113,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                         .eq(PrivateMessage::getRecvId, friendId))
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, userId)
                         .eq(PrivateMessage::getSendId, friendId)))
-                .ne(PrivateMessage::getStatus, MessageStatus.RECALL.getCode())
+                .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
                 .orderByDesc(PrivateMessage::getId)
                 .last("limit " + stIdx + "," + size);
 

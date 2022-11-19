@@ -36,7 +36,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         if(context != null){
             // 不允许多地登录,强制下线
             IMSendInfo sendInfo = new IMSendInfo();
-            sendInfo.setCmd(IMCmdType.FORCE_LOGUT.getCode());
+            sendInfo.setCmd(IMCmdType.FORCE_LOGUT.code());
             context.channel().writeAndFlush(sendInfo);
         }
         // 绑定用户和channel
@@ -52,7 +52,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         redisTemplate.opsForValue().set(key, WSServer.getServerId(), Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         IMSendInfo sendInfo = new IMSendInfo();
-        sendInfo.setCmd(IMCmdType.LOGIN.getCode());
+        sendInfo.setCmd(IMCmdType.LOGIN.code());
         ctx.channel().writeAndFlush(sendInfo);
     }
 

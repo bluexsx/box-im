@@ -40,7 +40,7 @@ public class IMSender {
             IMRecvInfo[] recvInfos = new IMRecvInfo[messageInfos.length];
             for (int i=0;i<messageInfos.length;i++){
                 IMRecvInfo<PrivateMessageInfo> recvInfo = new IMRecvInfo<>();
-                recvInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.getCode());
+                recvInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
                 List recvIds = new LinkedList();
                 recvIds.add(recvId);
                 recvInfo.setRecvIds(recvIds);
@@ -88,7 +88,7 @@ public class IMSender {
             IMRecvInfo[] recvInfos = new IMRecvInfo[messageInfos.length];
             for (int i=0;i<messageInfos.length;i++){
                 IMRecvInfo<GroupMessageInfo> recvInfo = new IMRecvInfo<>();
-                recvInfo.setCmd(IMCmdType.GROUP_MESSAGE.getCode());
+                recvInfo.setCmd(IMCmdType.GROUP_MESSAGE.code());
                 recvInfo.setRecvIds(new LinkedList<>(entry.getValue()));
                 recvInfo.setData(messageInfos[i]);
                 recvInfos[i] = recvInfo;

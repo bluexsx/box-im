@@ -1,5 +1,7 @@
 package com.bx.imcommon.enums;
 
+
+
 public enum IMCmdType {
 
     LOGIN(0,"登陆"),
@@ -28,11 +30,11 @@ public enum IMCmdType {
     }
 
 
-    public String getDesc() {
+    public String description() {
         return desc;
     }
 
-    public Integer getCode(){
+    public Integer code(){
         return this.code;
     }
 

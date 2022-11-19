@@ -108,12 +108,12 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您已不在群聊里面，无法撤回消息");
         }
         // 修改数据库
-        msg.setStatus(MessageStatus.RECALL.getCode());
+        msg.setStatus(MessageStatus.RECALL.code());
         this.updateById(msg);
         // 群发
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(msg.getGroupId());
         GroupMessageInfo  msgInfo = BeanUtils.copyProperties(msg, GroupMessageInfo.class);
-        msgInfo.setType(MessageType.TIP.getCode());
+        msgInfo.setType(MessageType.TIP.code());
         String content = String.format("'%s'撤回了一条消息",member.getAliasName());
         msgInfo.setContent(content);
         msgInfo.setSendTime(new Date());
@@ -140,7 +140,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             QueryWrapper<GroupMessage> wrapper = new QueryWrapper();
             wrapper.lambda().eq(GroupMessage::getGroupId,member.getGroupId())
                     .gt(GroupMessage::getSendTime,member.getCreatedTime())
-                    .ne(GroupMessage::getStatus, MessageStatus.RECALL.getCode());
+                    .ne(GroupMessage::getStatus, MessageStatus.RECALL.code());
             if(maxReadedId!=null){
                 wrapper.lambda().gt(GroupMessage::getId,maxReadedId);
             }
@@ -185,7 +185,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         QueryWrapper<GroupMessage> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(GroupMessage::getGroupId,groupId)
                 .gt(GroupMessage::getSendTime,member.getCreatedTime())
-                .ne(GroupMessage::getStatus, MessageStatus.RECALL.getCode())
+                .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
                 .orderByDesc(GroupMessage::getId)
                 .last("limit "+stIdx + ","+size);
 

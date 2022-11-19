@@ -33,8 +33,8 @@ public class PrivateMessageListener implements MessageListener {
         if(result.getStatus().equals(IMSendStatus.SUCCESS)){
             UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().eq(PrivateMessage::getId,messageInfo.getId())
-                    .eq(PrivateMessage::getStatus, MessageStatus.UNREAD.getCode())
-                    .set(PrivateMessage::getStatus, MessageStatus.ALREADY_READ.getCode());
+                    .eq(PrivateMessage::getStatus, MessageStatus.UNREAD.code())
+                    .set(PrivateMessage::getStatus, MessageStatus.ALREADY_READ.code());
             privateMessageService.update(updateWrapper);
             log.info("消息已读，消息id:{}，发送者:{},接收者:{}",messageInfo.getId(),messageInfo.getSendId(),messageInfo.getRecvId());
         }

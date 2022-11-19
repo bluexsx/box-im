@@ -1,6 +1,6 @@
 package com.bx.imcommon.enums;
 
-public enum IMListenerType {
+public enum IMListenerType{
     ALL(0,"全部消息"),
     PRIVATE_MESSAGE(1,"私聊消息"),
     GROUP_MESSAGE(2,"群聊消息");
@@ -14,11 +14,14 @@ public enum IMListenerType {
         this.desc=desc;
     }
 
-    public String getDesc() {
+
+    public String description() {
         return desc;
     }
 
-    public Integer getCode(){
+
+    public Integer code(){
         return this.code;
     }
+
 }

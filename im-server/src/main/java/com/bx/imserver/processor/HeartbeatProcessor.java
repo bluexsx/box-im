@@ -32,7 +32,7 @@ public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
     public void process(ChannelHandlerContext ctx, HeartbeatInfo beatInfo) {
         // 响应ws
         IMSendInfo sendInfo = new IMSendInfo();
-        sendInfo.setCmd(IMCmdType.HEART_BEAT.getCode());
+        sendInfo.setCmd(IMCmdType.HEART_BEAT.code());
         ctx.channel().writeAndFlush(sendInfo);
 
         // 设置属性

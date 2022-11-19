@@ -31,7 +31,7 @@ public class PrivateMessageProcessor extends  MessageProcessor<IMRecvInfo<Privat
             if(channelCtx != null ){
                 // 推送消息到用户
                 IMSendInfo sendInfo = new IMSendInfo();
-                sendInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.getCode());
+                sendInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
                 sendInfo.setData(messageInfo);
                 channelCtx.channel().writeAndFlush(sendInfo);
                 // 消息发送成功确认

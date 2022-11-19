@@ -38,7 +38,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                     if(recvId != messageInfo.getSendId()){
                         // 推送消息到用户
                         IMSendInfo sendInfo = new IMSendInfo();
-                        sendInfo.setCmd(IMCmdType.GROUP_MESSAGE.getCode());
+                        sendInfo.setCmd(IMCmdType.GROUP_MESSAGE.code());
                         sendInfo.setData(messageInfo);
                         channelCtx.channel().writeAndFlush(sendInfo);
                         // 消息发送成功确认

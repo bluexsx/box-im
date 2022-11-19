@@ -1,25 +1,27 @@
 package com.bx.imcommon.enums;
 
 
-public enum IMSendStatus {
+public enum IMSendStatus  {
 
     SUCCESS(0,"发送成功"),
     FAIL(1,"发送失败");
 
     private int code;
-    private String msg;
+    private String desc;
 
     // 构造方法
-    IMSendStatus(int code, String msg) {
+    IMSendStatus(int code, String desc) {
         this.code = code;
-        this.msg = msg;
-    }
-    public int getCode() {
-        return code;
+        this.desc = desc;
     }
 
-    public void setCode(int code) {
-        this.code = code;
+    public String description() {
+        return desc;
+    }
+
+
+    public Integer code(){
+        return this.code;
     }
 
 }
