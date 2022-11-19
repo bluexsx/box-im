@@ -7,12 +7,12 @@
     <artifactId>box-im</artifactId>
     <groupId>com.bx</groupId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <modules>
         <module>im-platform</module>
         <module>im-server</module>
-        <module>commom</module>
+        <module>im-commom</module>
         <module>im-client</module>
     </modules>
 

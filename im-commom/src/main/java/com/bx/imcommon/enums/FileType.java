@@ -1,23 +1,25 @@
-package com.bx.common.enums;
+package com.bx.imcommon.enums;
+
+public enum FileType {
+
+    FILE(0,"文件"),
+    IMAGE(1,"图片"),
+    VIDEO(2,"视频"),
+    AUDIO(3,"声音");
 
 
-public enum MessageStatus {
-
-    UNREAD(0,"未读"),
-    ALREADY_READ(1,"已读"),
-    RECALL(2,"已撤回");
 
     private Integer code;
 
     private String desc;
 
-    MessageStatus(Integer index, String desc) {
+    FileType(Integer index, String desc) {
         this.code =index;
         this.desc=desc;
     }
 
-    public static MessageStatus fromCode(Integer code){
-        for (MessageStatus typeEnum:values()) {
+    public static FileType fromCode(Integer code){
+        for (FileType typeEnum:values()) {
             if (typeEnum.code.equals(code)) {
                 return typeEnum;
             }
@@ -33,4 +35,7 @@ public enum MessageStatus {
     public Integer getCode(){
         return this.code;
     }
+
+
 }
+

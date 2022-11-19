@@ -2,11 +2,11 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bx.common.contant.Constant;
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.MessageStatus;
-import com.bx.common.enums.MessageType;
-import com.bx.common.model.im.PrivateMessageInfo;
+import com.bx.imcommon.contant.Constant;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.MessageStatus;
+import com.bx.imcommon.enums.MessageType;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
 import com.bx.imclient.IMClient;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.ResultCode;
@@ -88,7 +88,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msgInfo.setType(MessageType.TIP.getCode());
         msgInfo.setSendTime(new Date());
         msgInfo.setContent("对方撤回了一条消息");
-        imClient.sendPrivateMessage(userId,msgInfo);
+        imClient.sendPrivateMessage(msgInfo.getRecvId(),msgInfo);
         log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}", msg.getSendId(), msg.getRecvId(), msg.getContent());
     }
 
@@ -148,13 +148,14 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         List<PrivateMessage> messages = this.list(queryWrapper);
         // 上传至redis，等待推送
         if (!messages.isEmpty()) {
-            List<PrivateMessageInfo> infos = messages.stream().map(m -> {
+            List<PrivateMessageInfo> messageInfos = messages.stream().map(m -> {
                 PrivateMessageInfo msgInfo = BeanUtils.copyProperties(m, PrivateMessageInfo.class);
                 return msgInfo;
             }).collect(Collectors.toList());
             // 推送消息
-            imClient.sendPrivateMessage(userId,(PrivateMessageInfo[]) infos.toArray());
-            log.info("拉取未读私聊消息，用户id:{},数量:{}", userId, infos.size());
+            PrivateMessageInfo[] infoArr = messageInfos.toArray(new PrivateMessageInfo[messageInfos.size()]);
+            imClient.sendPrivateMessage(userId,infoArr);
+            log.info("拉取未读私聊消息，用户id:{},数量:{}", userId, infoArr.length);
         }
     }
 }

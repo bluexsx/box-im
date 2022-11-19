@@ -1,10 +1,10 @@
 package com.bx.imserver.task;
 
 
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.IMCmdType;
-import com.bx.common.model.im.IMRecvInfo;
-import com.bx.common.model.im.PrivateMessageInfo;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.model.im.IMRecvInfo;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
 import com.bx.imserver.websocket.WebsocketServer;
 import com.bx.imserver.websocket.processor.MessageProcessor;
 import com.bx.imserver.websocket.processor.ProcessorFactory;

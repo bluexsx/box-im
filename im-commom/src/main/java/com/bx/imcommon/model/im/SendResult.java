@@ -1,6 +1,6 @@
-package com.bx.common.model.im;
+package com.bx.imcommon.model.im;
 
-import com.bx.common.enums.SendResultType;
+import com.bx.imcommon.enums.SendResultType;
 import lombok.Data;
 
 @Data

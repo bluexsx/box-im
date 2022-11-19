@@ -1,6 +1,6 @@
 package com.bx.imserver.websocket;
 
-import com.bx.common.contant.RedisKey;
+import com.bx.imcommon.contant.RedisKey;
 import com.bx.imserver.websocket.endecode.MessageProtocolDecoder;
 import com.bx.imserver.websocket.endecode.MessageProtocolEncoder;
 import io.netty.bootstrap.ServerBootstrap;

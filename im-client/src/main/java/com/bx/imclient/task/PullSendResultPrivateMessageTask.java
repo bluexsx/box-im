@@ -1,8 +1,8 @@
 package com.bx.imclient.task;
 
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.ListenerType;
-import com.bx.common.model.im.SendResult;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.ListenerType;
+import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.listener.MessageListenerMulticaster;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

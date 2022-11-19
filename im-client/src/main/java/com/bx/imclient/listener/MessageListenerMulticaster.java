@@ -1,8 +1,8 @@
 package com.bx.imclient.listener;
 
 
-import com.bx.common.enums.ListenerType;
-import com.bx.common.model.im.SendResult;
+import com.bx.imcommon.enums.ListenerType;
+import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.annotation.IMListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

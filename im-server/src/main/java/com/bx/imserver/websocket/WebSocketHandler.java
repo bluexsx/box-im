@@ -1,9 +1,9 @@
 package com.bx.imserver.websocket;
 
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.IMCmdType;
-import com.bx.common.model.im.SendInfo;
-import com.bx.common.util.SpringContextHolder;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.model.im.SendInfo;
+import com.bx.imcommon.util.SpringContextHolder;
 import com.bx.imserver.websocket.processor.MessageProcessor;
 import com.bx.imserver.websocket.processor.ProcessorFactory;
 import io.netty.channel.ChannelHandlerContext;

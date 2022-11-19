@@ -1,6 +1,6 @@
-package com.bx.common.model.im;
+package com.bx.imcommon.model.im;
 
-import com.bx.common.serializer.DateToLongSerializer;
+import com.bx.imcommon.serializer.DateToLongSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 

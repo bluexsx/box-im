@@ -2,7 +2,7 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bx.common.contant.RedisKey;
+import com.bx.imcommon.contant.RedisKey;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;

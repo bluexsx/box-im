@@ -1,12 +1,12 @@
 package com.bx.imserver.websocket.processor;
 
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.IMCmdType;
-import com.bx.common.enums.SendResultType;
-import com.bx.common.model.im.IMRecvInfo;
-import com.bx.common.model.im.PrivateMessageInfo;
-import com.bx.common.model.im.SendInfo;
-import com.bx.common.model.im.SendResult;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.enums.SendResultType;
+import com.bx.imcommon.model.im.IMRecvInfo;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.im.SendInfo;
+import com.bx.imcommon.model.im.SendResult;
 import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;

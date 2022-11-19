@@ -1,7 +1,7 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.bx.common.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.vo.PrivateMessageVO;
 

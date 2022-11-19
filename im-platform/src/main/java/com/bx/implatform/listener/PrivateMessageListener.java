@@ -1,11 +1,12 @@
 package com.bx.implatform.listener;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.bx.common.enums.ListenerType;
-import com.bx.common.enums.MessageStatus;
-import com.bx.common.enums.MessageType;
-import com.bx.common.model.im.PrivateMessageInfo;
-import com.bx.common.model.im.SendResult;
+import com.bx.imcommon.enums.ListenerType;
+import com.bx.imcommon.enums.MessageStatus;
+import com.bx.imcommon.enums.MessageType;
+import com.bx.imcommon.enums.SendResultType;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.annotation.IMListener;
 import com.bx.imclient.listener.MessageListener;
 import com.bx.implatform.entity.PrivateMessage;
@@ -29,12 +30,14 @@ public class PrivateMessageListener implements MessageListener {
             return;
         }
         // 更新消息状态
-        UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.lambda().eq(PrivateMessage::getId,messageInfo.getId())
-                .eq(PrivateMessage::getStatus, MessageStatus.UNREAD.getCode())
-                .set(PrivateMessage::getStatus, MessageStatus.ALREADY_READ.getCode());
-        privateMessageService.update(updateWrapper);
-        log.info("消息已读，消息id:{}，发送者:{},接收者:{}",messageInfo.getId(),messageInfo.getSendId(),messageInfo.getRecvId());
+        if(result.getResult().equals(SendResultType.SUCCESS)){
+            UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().eq(PrivateMessage::getId,messageInfo.getId())
+                    .eq(PrivateMessage::getStatus, MessageStatus.UNREAD.getCode())
+                    .set(PrivateMessage::getStatus, MessageStatus.ALREADY_READ.getCode());
+            privateMessageService.update(updateWrapper);
+            log.info("消息已读，消息id:{}，发送者:{},接收者:{}",messageInfo.getId(),messageInfo.getSendId(),messageInfo.getRecvId());
+        }
     }
 
 }

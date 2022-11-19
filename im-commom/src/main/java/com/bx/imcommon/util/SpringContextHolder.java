@@ -1,4 +1,4 @@
-package com.bx.common.util;
+package com.bx.imcommon.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

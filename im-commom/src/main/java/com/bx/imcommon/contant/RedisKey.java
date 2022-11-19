@@ -1,4 +1,4 @@
-package com.bx.common.contant;
+package com.bx.imcommon.contant;
 
 public class RedisKey {
 

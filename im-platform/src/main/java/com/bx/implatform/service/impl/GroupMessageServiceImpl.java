@@ -2,10 +2,10 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bx.common.contant.Constant;
-import com.bx.common.enums.MessageStatus;
-import com.bx.common.enums.MessageType;
-import com.bx.common.model.im.GroupMessageInfo;
+import com.bx.imcommon.contant.Constant;
+import com.bx.imcommon.enums.MessageStatus;
+import com.bx.imcommon.enums.MessageType;
+import com.bx.imcommon.model.im.GroupMessageInfo;
 import com.bx.imclient.IMClient;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.Group;
@@ -76,7 +76,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         this.save(msg);
         // 群发
         GroupMessageInfo  msgInfo = BeanUtils.copyProperties(msg, GroupMessageInfo.class);
-        this.sendMessage(userIds,msgInfo);
+        imClient.sendGroupMessage(userIds,msgInfo);
         log.info("发送群聊消息，发送id:{},群聊id:{},内容:{}",userId,vo.getGroupId(),vo.getContent());
         return msg.getId();
     }
@@ -117,7 +117,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         String content = String.format("'%s'撤回了一条消息",member.getAliasName());
         msgInfo.setContent(content);
         msgInfo.setSendTime(new Date());
-        this.sendMessage(userIds,msgInfo);
+        imClient.sendGroupMessage(userIds,msgInfo);
         log.info("撤回群聊消息，发送id:{},群聊id:{},内容:{}",userId,msg.getGroupId(),msg.getContent());
     }
 
@@ -198,7 +198,4 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         return messageInfos;
     }
 
-    private void  sendMessage(List<Long> userIds, GroupMessageInfo  msgInfo){
-        imClient.sendGroupMessage(userIds,msgInfo);
-    }
 }

@@ -1,6 +1,6 @@
 package com.bx.imclient.annotation;
 
-import com.bx.common.enums.ListenerType;
+import com.bx.imcommon.enums.ListenerType;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;

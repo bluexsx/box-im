@@ -1,7 +1,7 @@
 package com.bx.imclient;
 
-import com.bx.common.model.im.GroupMessageInfo;
-import com.bx.common.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.im.GroupMessageInfo;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
 import com.bx.imclient.listener.MessageListenerMulticaster;
 import com.bx.imclient.sender.IMSender;
 import org.springframework.beans.factory.annotation.Autowired;

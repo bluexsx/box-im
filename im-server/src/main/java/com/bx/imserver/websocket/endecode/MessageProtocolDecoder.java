@@ -1,6 +1,6 @@
 package com.bx.imserver.websocket.endecode;
 
-import com.bx.common.model.im.SendInfo;
+import com.bx.imcommon.model.im.SendInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;

@@ -1,13 +1,13 @@
 package com.bx.imclient.sender;
 
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.IMCmdType;
-import com.bx.common.enums.ListenerType;
-import com.bx.common.enums.SendResultType;
-import com.bx.common.model.im.GroupMessageInfo;
-import com.bx.common.model.im.IMRecvInfo;
-import com.bx.common.model.im.PrivateMessageInfo;
-import com.bx.common.model.im.SendResult;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.enums.ListenerType;
+import com.bx.imcommon.enums.SendResultType;
+import com.bx.imcommon.model.im.GroupMessageInfo;
+import com.bx.imcommon.model.im.IMRecvInfo;
+import com.bx.imcommon.model.im.PrivateMessageInfo;
+import com.bx.imcommon.model.im.SendResult;
 import com.bx.imclient.listener.MessageListenerMulticaster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

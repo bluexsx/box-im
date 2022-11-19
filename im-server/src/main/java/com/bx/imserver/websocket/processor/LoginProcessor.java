@@ -1,11 +1,11 @@
 package com.bx.imserver.websocket.processor;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.bx.common.contant.Constant;
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.IMCmdType;
-import com.bx.common.model.im.LoginInfo;
-import com.bx.common.model.im.SendInfo;
+import com.bx.imcommon.contant.Constant;
+import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.model.im.LoginInfo;
+import com.bx.imcommon.model.im.SendInfo;
 import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
 import com.bx.imserver.websocket.WebsocketServer;
 import io.netty.channel.ChannelHandlerContext;

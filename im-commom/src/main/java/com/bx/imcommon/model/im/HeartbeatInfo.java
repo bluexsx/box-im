@@ -1,4 +1,4 @@
-package com.bx.common.model.im;
+package com.bx.imcommon.model.im;
 
 import lombok.Data;
 

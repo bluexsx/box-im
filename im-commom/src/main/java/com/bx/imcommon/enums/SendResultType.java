@@ -1,4 +1,4 @@
-package com.bx.common.enums;
+package com.bx.imcommon.enums;
 
 
 public enum SendResultType {
