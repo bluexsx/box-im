@@ -96,7 +96,6 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
-    database: 1
 ```
 直接把IMClient @Autowire进来就可以发送消息了：
 
@@ -116,6 +115,26 @@ spring:
     imClient.sendPrivateMessage(recvId,messageInfo);
 }
 ```
+如果需要对消息发送的结果进行监听的话，实现MessageListener,并加上@IMListener即可
+
+```
+@Slf4j
+@IMListener(type = IMListenerType.PRIVATE_MESSAGE)
+public class PrivateMessageListener implements MessageListener {
+    
+    @Override
+    public void process(SendResult result){
+        PrivateMessageInfo messageInfo = (PrivateMessageInfo) result.getMessageInfo();
+        // 更新消息状态
+        if(result.getStatus().equals(IMSendStatus.SUCCESS)){
+            // 消息发送成功
+            log.info("消息已读，消息id:{}，发送者:{},接收者:{}",messageInfo.getId(),messageInfo.getSendId(),messageInfo.getRecvId());
+        }
+    }
+
+}
+```
+
 
 
 
