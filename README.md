@@ -78,8 +78,9 @@ npm run serve
 
 
 #### 快速接入
+消息推送的代码目前已经完成了封装，可以通过下面的教程快速的引入到自己的项目中
 
-服务器接入
+4.1服务器接入
 引入pom文件
 ```
 <dependency>
@@ -96,6 +97,24 @@ spring:
     host: 127.0.0.1
     port: 6379
     database: 1
+```
+直接把IMClient @Autowire进来就可以发送消息了：
+
+```
+ @Autowired
+ private IMClient imClient;
+
+ public void sendMessage(){
+    PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+    Long recvId = 1L;
+    messageInfo.setId(123L);
+    messageInfo.setContent("你好呀");
+    messageInfo.setType(MessageType.TEXT.getCode());
+    messageInfo.setSendId(userId);
+    messageInfo.setRecvId(recvId);
+    messageInfo.setSendTime(new Date());
+    imClient.sendPrivateMessage(recvId,messageInfo);
+}
 ```
 
 
