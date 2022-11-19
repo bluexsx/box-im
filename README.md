@@ -78,9 +78,11 @@ npm run serve
 
 
 #### 快速接入
-消息推送的代码已经进行了client sdk封装(当然依然是开源的)，对于需要接入im-server的小伙伴，可以按照下面的教程快速的集成到自己的项目中
+消息推送的代码已经进行了client sdk封装(当然依旧是开源的)，对于需要接入im-server的小伙伴，可以按照下面的教程快速的IM功能集成到自己的项目中。
 
-4.1服务器接入
+注意服务器端和网页端都需要进行接入，服务器发送消息，网页端接收消息。
+
+4.1 服务器端接入
 引入pom文件
 ```
 <dependency>
@@ -89,7 +91,7 @@ npm run serve
     <version>1.1.0</version>
 </dependency>
 ```
-依赖了redis,所以要配置redis地址：
+内容使用了redis进行通信,所以要配置redis地址：
 
 ```
 spring:
@@ -97,8 +99,8 @@ spring:
     host: 127.0.0.1
     port: 6379
 ```
-直接把IMClient @Autowire进来就可以发送消息了，IMClient 只有2个接口：
 
+直接把IMClient通过@Autowire导进来就可以发送消息了，IMClient 只有2个接口：
 ```
 public class IMClient {
 
@@ -122,7 +124,7 @@ public class IMClient {
 }
 ```
 
-发送私聊消息：
+发送私聊消息(群聊同理)：
 ```
  @Autowired
  private IMClient imClient;
@@ -140,11 +142,11 @@ public class IMClient {
 }
 
 ```
-如果需要对消息发送的结果进行监听的话，实现MessageListener,并加上@IMListener即可
 
+如果需要对消息发送的结果进行监听的话，实现MessageListener,并加上@IMListener即可
 ```
 @Slf4j
-@IMListener(type = IMListenerType.PRIVATE_MESSAGE)
+@IMListener(type = IMListenerType.ALL)
 public class PrivateMessageListener implements MessageListener {
     
     @Override
@@ -159,6 +161,35 @@ public class PrivateMessageListener implements MessageListener {
 }
 ```
 
+4.2 网页端接入
+
+首先将im-ui/src/api/wssocket.js拷贝到自己的项目。
+
+接入代码如下：
+```
+import * as wsApi from './api/wssocket';
+
+let wsUrl = 'ws://localhost:8878/im'
+let userId = 1;
+wsApi.createWebSocket(wsUrl , userId);
+wsApi.onopen(() => {
+    // 连接打开
+    console.log("连接成功");
+});
+wsApi.onmessage((cmd,messageInfo) => {
+    if (cmd == 2) {
+    	// 异地登录，强制下线
+    	console.log("您已在其他地方登陆，将被强制下线");
+    } else if (cmd == 3) {
+    	// 私聊消息
+    	console.log(messageInfo);
+    } else if (cmd == 4) {
+    	// 群聊消息
+    	console.log(messageInfo);
+    }
+
+})
+```
 
 
 
