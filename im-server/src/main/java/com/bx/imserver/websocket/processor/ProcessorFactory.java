@@ -1,11 +1,11 @@
 package com.bx.imserver.websocket.processor;
 
-import com.bx.common.enums.WSCmdEnum;
+import com.bx.common.enums.IMCmdType;
 import com.bx.common.util.SpringContextHolder;
 
 public class ProcessorFactory {
 
-    public static MessageProcessor createProcessor(WSCmdEnum cmd){
+    public static MessageProcessor createProcessor(IMCmdType cmd){
         MessageProcessor  processor = null;
         switch (cmd){
             case LOGIN:

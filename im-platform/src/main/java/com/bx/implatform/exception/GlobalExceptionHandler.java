@@ -1,9 +1,9 @@
 package com.bx.implatform.exception;
 
 import cn.hutool.json.JSONException;
-import com.bx.common.enums.ResultCode;
-import com.bx.common.result.Result;
-import com.bx.common.result.ResultUtils;
+import com.bx.implatform.enums.ResultCode;
+import com.bx.implatform.result.Result;
+import com.bx.implatform.result.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;

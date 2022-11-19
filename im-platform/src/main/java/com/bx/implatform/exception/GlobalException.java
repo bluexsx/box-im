@@ -1,6 +1,6 @@
 package com.bx.implatform.exception;
 
-import com.bx.common.enums.ResultCode;
+import com.bx.implatform.enums.ResultCode;
 import lombok.Data;
 
 import java.io.Serializable;

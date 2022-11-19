@@ -3,7 +3,7 @@ package com.bx.imserver.websocket.processor;
 import cn.hutool.core.bean.BeanUtil;
 import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.WSCmdEnum;
+import com.bx.common.enums.IMCmdType;
 import com.bx.common.model.im.LoginInfo;
 import com.bx.common.model.im.SendInfo;
 import com.bx.imserver.websocket.WebsocketChannelCtxHolder;
@@ -36,7 +36,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         if(context != null){
             // 不允许多地登录,强制下线
             SendInfo sendInfo = new SendInfo();
-            sendInfo.setCmd(WSCmdEnum.FORCE_LOGUT.getCode());
+            sendInfo.setCmd(IMCmdType.FORCE_LOGUT.getCode());
             context.channel().writeAndFlush(sendInfo);
         }
         // 绑定用户和channel
@@ -52,7 +52,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         redisTemplate.opsForValue().set(key, WSServer.getServerId(), Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         SendInfo sendInfo = new SendInfo();
-        sendInfo.setCmd(WSCmdEnum.LOGIN.getCode());
+        sendInfo.setCmd(IMCmdType.LOGIN.getCode());
         ctx.channel().writeAndFlush(sendInfo);
     }
 

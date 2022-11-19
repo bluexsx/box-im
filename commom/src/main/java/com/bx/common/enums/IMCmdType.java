@@ -1,25 +1,25 @@
 package com.bx.common.enums;
 
-public enum FileTypeEnum {
+public enum IMCmdType {
 
-    FILE(0,"文件"),
-    IMAGE(1,"图片"),
-    VIDEO(2,"视频"),
-    AUDIO(3,"声音");
-
+    LOGIN(0,"登陆"),
+    HEART_BEAT(1,"心跳"),
+    FORCE_LOGUT(2,"强制下线"),
+    PRIVATE_MESSAGE(3,"私聊消息"),
+    GROUP_MESSAGE(4,"群发消息");
 
 
     private Integer code;
 
     private String desc;
 
-    FileTypeEnum(Integer index, String desc) {
+    IMCmdType(Integer index, String desc) {
         this.code =index;
         this.desc=desc;
     }
 
-    public static FileTypeEnum fromCode(Integer code){
-        for (FileTypeEnum typeEnum:values()) {
+    public static IMCmdType fromCode(Integer code){
+        for (IMCmdType typeEnum:values()) {
             if (typeEnum.code.equals(code)) {
                 return typeEnum;
             }

@@ -1,7 +1,7 @@
-package com.bx.common.result;
+package com.bx.implatform.result;
 
 
-import com.bx.common.enums.ResultCode;
+import com.bx.implatform.enums.ResultCode;
 
 public class ResultUtils {
 
@@ -50,7 +50,7 @@ public class ResultUtils {
         return result;
     }
 
-    public static final <T> Result<T> error(ResultCode resultCode, String messsage,T data){
+    public static final <T> Result<T> error(ResultCode resultCode, String messsage, T data){
         Result result=new Result();
         result.setCode(resultCode.getCode());
         result.setMessage(messsage);

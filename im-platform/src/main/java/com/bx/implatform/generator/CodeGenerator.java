@@ -1,4 +1,4 @@
-package com.bx.common.generator;
+package com.bx.implatform.generator;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;

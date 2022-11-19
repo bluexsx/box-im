@@ -1,4 +1,4 @@
-package com.bx.common.result;
+package com.bx.implatform.result;
 
 import lombok.Data;
 

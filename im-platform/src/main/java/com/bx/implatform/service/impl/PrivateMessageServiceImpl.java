@@ -4,17 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.MessageStatusEnum;
-import com.bx.common.enums.MessageTypeEnum;
-import com.bx.common.enums.ResultCode;
+import com.bx.common.enums.MessageStatus;
+import com.bx.common.enums.MessageType;
 import com.bx.common.model.im.PrivateMessageInfo;
-import com.bx.common.util.BeanUtils;
+import com.bx.imclient.IMClient;
 import com.bx.implatform.entity.PrivateMessage;
+import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.PrivateMessageMapper;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.session.SessionContext;
+import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private IFriendService friendService;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
+    @Autowired
+    private IMClient imClient;
     /**
      * 发送私聊消息
      *
@@ -50,18 +52,12 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 保存消息
         PrivateMessage msg = BeanUtils.copyProperties(vo, PrivateMessage.class);
         msg.setSendId(userId);
-        msg.setStatus(MessageStatusEnum.UNREAD.getCode());
+        msg.setStatus(MessageStatus.UNREAD.getCode());
         msg.setSendTime(new Date());
         this.save(msg);
-        // 获取对方连接的channelId
-        String key = RedisKey.IM_USER_SERVER_ID + msg.getRecvId();
-        Integer serverId = (Integer) redisTemplate.opsForValue().get(key);
-        // 如果对方在线，将数据存储至redis，等待拉取推送
-        if (serverId != null) {
-            String sendKey = RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
-            PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
-            redisTemplate.opsForList().rightPush(sendKey, msgInfo);
-        }
+        // 推送消息
+        PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
+        imClient.sendPrivateMessage(vo.getRecvId(),msgInfo);
         log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}", userId, vo.getRecvId(), vo.getContent());
         return msg.getId();
     }
@@ -85,20 +81,14 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息已发送超过5分钟，无法撤回");
         }
         // 修改消息状态
-        msg.setStatus(MessageStatusEnum.RECALL.getCode());
+        msg.setStatus(MessageStatus.RECALL.getCode());
         this.updateById(msg);
-        // 获取对方连接的channelId
-        String key = RedisKey.IM_USER_SERVER_ID + msg.getRecvId();
-        Integer serverId = (Integer) redisTemplate.opsForValue().get(key);
-        // 如果对方在线，将数据存储至redis，等待拉取推送
-        if (serverId != null) {
-            String sendKey = RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
-            PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
-            msgInfo.setType(MessageTypeEnum.TIP.getCode());
-            msgInfo.setSendTime(new Date());
-            msgInfo.setContent("对方撤回了一条消息");
-            redisTemplate.opsForList().rightPush(sendKey, msgInfo);
-        }
+        // 推送消息
+        PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
+        msgInfo.setType(MessageType.TIP.getCode());
+        msgInfo.setSendTime(new Date());
+        msgInfo.setContent("对方撤回了一条消息");
+        imClient.sendPrivateMessage(userId,msgInfo);
         log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}", msg.getSendId(), msg.getRecvId(), msg.getContent());
     }
 
@@ -123,7 +113,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                         .eq(PrivateMessage::getRecvId, friendId))
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, userId)
                         .eq(PrivateMessage::getSendId, friendId)))
-                .ne(PrivateMessage::getStatus, MessageStatusEnum.RECALL.getCode())
+                .ne(PrivateMessage::getStatus, MessageStatus.RECALL.getCode())
                 .orderByDesc(PrivateMessage::getId)
                 .last("limit " + stIdx + "," + size);
 
@@ -154,7 +144,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 获取当前用户所有未读消息
         QueryWrapper<PrivateMessage> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(PrivateMessage::getRecvId, userId)
-                .eq(PrivateMessage::getStatus, MessageStatusEnum.UNREAD);
+                .eq(PrivateMessage::getStatus, MessageStatus.UNREAD);
         List<PrivateMessage> messages = this.list(queryWrapper);
         // 上传至redis，等待推送
         if (!messages.isEmpty()) {
@@ -162,8 +152,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 PrivateMessageInfo msgInfo = BeanUtils.copyProperties(m, PrivateMessageInfo.class);
                 return msgInfo;
             }).collect(Collectors.toList());
-            String sendKey = RedisKey.IM_UNREAD_PRIVATE_MESSAGE + serverId;
-            redisTemplate.opsForList().rightPushAll(sendKey, infos.toArray());
+            // 推送消息
+            imClient.sendPrivateMessage(userId,(PrivateMessageInfo[]) infos.toArray());
             log.info("拉取未读私聊消息，用户id:{},数量:{}", userId, infos.size());
         }
     }

@@ -1,4 +1,4 @@
-package com.bx.common.util;
+package com.bx.implatform.util;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;

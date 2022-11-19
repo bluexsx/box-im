@@ -1,7 +1,7 @@
 package com.bx.common.enums;
 
 
-public enum MessageStatusEnum {
+public enum MessageStatus {
 
     UNREAD(0,"未读"),
     ALREADY_READ(1,"已读"),
@@ -11,13 +11,13 @@ public enum MessageStatusEnum {
 
     private String desc;
 
-    MessageStatusEnum(Integer index, String desc) {
+    MessageStatus(Integer index, String desc) {
         this.code =index;
         this.desc=desc;
     }
 
-    public static MessageStatusEnum fromCode(Integer code){
-        for (MessageStatusEnum typeEnum:values()) {
+    public static MessageStatus fromCode(Integer code){
+        for (MessageStatus typeEnum:values()) {
             if (typeEnum.code.equals(code)) {
                 return typeEnum;
             }

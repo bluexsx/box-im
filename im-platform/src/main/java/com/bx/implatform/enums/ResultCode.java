@@ -1,4 +1,4 @@
-package com.bx.common.enums;
+package com.bx.implatform.enums;
 
 /**
  * 响应码枚举

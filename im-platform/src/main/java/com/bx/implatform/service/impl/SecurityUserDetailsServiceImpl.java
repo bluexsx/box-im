@@ -2,10 +2,10 @@ package com.bx.implatform.service.impl;
 
 
 import com.alibaba.fastjson.JSON;
-import com.bx.common.util.BeanUtils;
 import com.bx.implatform.entity.User;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.UserSession;
+import com.bx.implatform.util.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

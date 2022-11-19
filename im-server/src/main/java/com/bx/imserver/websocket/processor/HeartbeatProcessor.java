@@ -3,7 +3,7 @@ package com.bx.imserver.websocket.processor;
 import cn.hutool.core.bean.BeanUtil;
 import com.bx.common.contant.Constant;
 import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.WSCmdEnum;
+import com.bx.common.enums.IMCmdType;
 import com.bx.common.model.im.HeartbeatInfo;
 import com.bx.common.model.im.SendInfo;
 import com.bx.imserver.websocket.WebsocketServer;
@@ -32,7 +32,7 @@ public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
     public void process(ChannelHandlerContext ctx, HeartbeatInfo beatInfo) {
         // 响应ws
         SendInfo sendInfo = new SendInfo();
-        sendInfo.setCmd(WSCmdEnum.HEART_BEAT.getCode());
+        sendInfo.setCmd(IMCmdType.HEART_BEAT.getCode());
         ctx.channel().writeAndFlush(sendInfo);
 
         // 设置属性

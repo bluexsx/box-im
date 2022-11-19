@@ -2,8 +2,8 @@ package com.bx.implatform.controller;
 
 
 import com.bx.common.model.im.GroupMessageInfo;
-import com.bx.common.result.Result;
-import com.bx.common.result.ResultUtils;
+import com.bx.implatform.result.Result;
+import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IGroupMessageService;
 import com.bx.implatform.vo.GroupMessageVO;
 import io.swagger.annotations.Api;

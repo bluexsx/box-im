@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class GroupMessageInfo {
@@ -15,8 +14,6 @@ public class GroupMessageInfo {
     private Long groupId;
 
     private Long sendId;
-
-    private List<Long> recvIds;
 
     private String content;
 

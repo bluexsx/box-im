@@ -13,6 +13,7 @@
         <module>im-platform</module>
         <module>im-server</module>
         <module>commom</module>
+        <module>im-client</module>
     </modules>
 
     <properties>

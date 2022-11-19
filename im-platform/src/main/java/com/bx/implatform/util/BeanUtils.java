@@ -1,4 +1,4 @@
-package com.bx.common.util;
+package com.bx.implatform.util;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -12,7 +12,6 @@ import java.util.Set;
 public class BeanUtils {
 	
 
-    
 	private static void handleReflectionException(Exception e) {
 		ReflectionUtils.handleReflectionException(e);
 	}

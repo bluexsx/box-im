@@ -2,10 +2,10 @@ package com.bx.implatform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.ResultCode;
+import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.User;
+import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FriendMapper;
 import com.bx.implatform.service.IFriendService;

@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>com.bx</groupId>
-            <artifactId>commom</artifactId>
+            <artifactId>im-client</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
@@ -100,6 +100,11 @@
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
             <version>0.4.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.3.2</version>
         </dependency>
     </dependencies>
 

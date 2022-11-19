@@ -1,7 +1,7 @@
 package com.bx.imserver.websocket;
 
 import com.bx.common.contant.RedisKey;
-import com.bx.common.enums.WSCmdEnum;
+import com.bx.common.enums.IMCmdType;
 import com.bx.common.model.im.SendInfo;
 import com.bx.common.util.SpringContextHolder;
 import com.bx.imserver.websocket.processor.MessageProcessor;
@@ -33,7 +33,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<SendInfo> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SendInfo sendInfo) throws  Exception {
         // 创建处理器进行处理
-        MessageProcessor processor = ProcessorFactory.createProcessor(WSCmdEnum.fromCode(sendInfo.getCmd()));
+        MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
         processor.process(ctx,processor.transForm(sendInfo.getData()));
     }
 
