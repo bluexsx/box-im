@@ -77,6 +77,27 @@ npm run serve
 4.访问localhost:8080
 
 
+#### 快速接入
+
+服务器接入
+引入pom文件
+```
+<dependency>
+    <groupId>com.bx</groupId>
+    <artifactId>im-client</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+依赖了redis,所以要配置redis地址：
+
+```
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 1
+```
+
 
 
 #### 界面截图
