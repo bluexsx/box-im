@@ -168,9 +168,11 @@
 						url: `/group/delete/${this.activeGroup.id}`,
 						method: 'delete'
 					}).then(() => {
+						this.$message.success(`群聊'${this.activeGroup.name}'已解散`);
 						this.$store.commit("removeGroup", this.activeGroup.id);
 						this.$store.commit("activeGroup", -1);
 						this.$store.commit("removeGroupChat", this.activeGroup.id);
+						this.activeGroup= {};
 					});
 				})
 

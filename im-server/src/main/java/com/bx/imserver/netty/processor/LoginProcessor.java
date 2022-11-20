@@ -1,4 +1,4 @@
-package com.bx.imserver.processor;
+package com.bx.imserver.netty.processor;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.bx.imcommon.contant.Constant;
@@ -6,8 +6,9 @@ import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.LoginInfo;
-import com.bx.imserver.util.UserChannelCtxHolder;
-import com.bx.imserver.ws.WebsocketServer;
+import com.bx.imserver.netty.IMServerMap;
+import com.bx.imserver.netty.UserChannelCtxMap;
+import com.bx.imserver.netty.ws.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
 
 
     @Autowired
-    private WebsocketServer WSServer;
+    private WebSocketServer WSServer;
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
@@ -32,7 +33,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
     @Override
     synchronized public void process(ChannelHandlerContext ctx, LoginInfo loginInfo) {
         log.info("用户登录，userId:{}",loginInfo.getUserId());
-        ChannelHandlerContext context = UserChannelCtxHolder.getChannelCtx(loginInfo.getUserId());
+        ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(loginInfo.getUserId());
         if(context != null){
             // 不允许多地登录,强制下线
             IMSendInfo sendInfo = new IMSendInfo();
@@ -40,7 +41,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
             context.channel().writeAndFlush(sendInfo);
         }
         // 绑定用户和channel
-        UserChannelCtxHolder.addChannelCtx(loginInfo.getUserId(),ctx);
+        UserChannelCtxMap.addChannelCtx(loginInfo.getUserId(),ctx);
         // 设置用户id属性
         AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
         ctx.channel().attr(attr).set(loginInfo.getUserId());
@@ -49,7 +50,7 @@ public class LoginProcessor extends   MessageProcessor<LoginInfo> {
         ctx.channel().attr(attr).set(0L);
         // 在redis上记录每个user的channelId，15秒没有心跳，则自动过期
         String key = RedisKey.IM_USER_SERVER_ID+loginInfo.getUserId();
-        redisTemplate.opsForValue().set(key, WSServer.getServerId(), Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, IMServerMap.serverId, Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         IMSendInfo sendInfo = new IMSendInfo();
         sendInfo.setCmd(IMCmdType.LOGIN.code());

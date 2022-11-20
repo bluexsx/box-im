@@ -1,4 +1,4 @@
-package com.bx.imserver.processor;
+package com.bx.imserver.netty.processor;
 
 
 import io.netty.channel.ChannelHandlerContext;

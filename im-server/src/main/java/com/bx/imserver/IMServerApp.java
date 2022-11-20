@@ -1,9 +1,6 @@
 package com.bx.imserver;
 
 
-import com.bx.imserver.ws.WebsocketServer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,11 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class IMServerApp implements CommandLineRunner {
 
-    @Value("${websocket.port}")
-    private int port;
-
-    @Autowired
-    private WebsocketServer WSServer;
 
     public static void main(String[] args) {
         SpringApplication.run(IMServerApp.class,args);
@@ -30,6 +22,5 @@ public class IMServerApp implements CommandLineRunner {
 
 
     public void run(String... args) throws Exception {
-        WSServer.start(port);
     }
 }
