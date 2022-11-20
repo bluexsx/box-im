@@ -1,6 +1,6 @@
 package com.bx.imserver.task;
 
-import com.bx.imserver.ws.WebsocketServer;
+import com.bx.imserver.netty.ws.WebSocketServer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public  abstract class AbstractPullMessageTask{
     private ExecutorService executorService;
 
     @Autowired
-    private WebsocketServer WSServer;
+    private WebSocketServer WSServer;
 
     public  AbstractPullMessageTask(){
         this.threadNum = 1;

@@ -1,4 +1,4 @@
-package com.bx.imserver.processor;
+package com.bx.imserver.netty.processor;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.bx.imcommon.contant.Constant;
@@ -6,7 +6,7 @@ import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.HeartbeatInfo;
 import com.bx.imcommon.model.IMSendInfo;
-import com.bx.imserver.ws.WebsocketServer;
+import com.bx.imserver.netty.ws.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
 
 
     @Autowired
-    private WebsocketServer WSServer;
+    private WebSocketServer WSServer;
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;

@@ -1,4 +1,4 @@
-package com.bx.imserver.processor;
+package com.bx.imserver.netty.processor;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
@@ -7,7 +7,7 @@ import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.PrivateMessageInfo;
 import com.bx.imcommon.model.SendResult;
-import com.bx.imserver.util.UserChannelCtxHolder;
+import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class PrivateMessageProcessor extends  MessageProcessor<IMRecvInfo<Privat
         Long recvId = recvInfo.getRecvIds().get(0);
         log.info("接收到消息，发送者:{},接收者:{}，内容:{}",messageInfo.getSendId(),recvId,messageInfo.getContent());
         try{
-            ChannelHandlerContext channelCtx = UserChannelCtxHolder.getChannelCtx(recvId);
+            ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(recvId);
             if(channelCtx != null ){
                 // 推送消息到用户
                 IMSendInfo sendInfo = new IMSendInfo();

@@ -69,11 +69,11 @@ public class IMSender {
             String key = RedisKey.IM_USER_SERVER_ID + id;
             Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
             if(serverId != null){
-                if(serverMap.containsKey(serverId)){
-                    serverMap.get(serverId).add(id);
-                }else {
-                    // 此处需要加锁，否则list可以会被覆盖
-                    synchronized(serverMap){
+                // 此处需要加锁，否则list可以会被覆盖
+                synchronized(serverMap){
+                    if(serverMap.containsKey(serverId)){
+                        serverMap.get(serverId).add(id);
+                    }else {
                         List<Long> list = Collections.synchronizedList(new LinkedList<Long>());
                         list.add(id);
                         serverMap.put(serverId,list);

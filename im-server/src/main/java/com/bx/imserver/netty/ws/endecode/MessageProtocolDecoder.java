@@ -1,4 +1,4 @@
-package com.bx.imserver.ws.endecode;
+package com.bx.imserver.netty.ws.endecode;
 
 import com.bx.imcommon.model.IMSendInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

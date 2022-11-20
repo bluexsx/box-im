@@ -1,4 +1,4 @@
-package com.bx.imserver.processor;
+package com.bx.imserver.netty.processor;
 
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imserver.util.SpringContextHolder;
