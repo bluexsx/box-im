@@ -4,7 +4,7 @@ import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.IMRecvInfo;
-import com.bx.imserver.netty.IMServerMap;
+import com.bx.imserver.netty.IMServerGroup;
 import com.bx.imserver.netty.processor.MessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
 import com.bx.imserver.netty.ws.WebSocketServer;
@@ -30,7 +30,7 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
     @Override
     public void pullMessage() {
         // 从redis拉取未读消息
-        String key = RedisKey.IM_UNREAD_GROUP_QUEUE + IMServerMap.serverId;
+        String key = RedisKey.IM_UNREAD_GROUP_QUEUE + IMServerGroup.serverId;
         List messageInfos = redisTemplate.opsForList().range(key,0,-1);
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);

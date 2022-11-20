@@ -12,7 +12,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class IMServerMap implements CommandLineRunner  {
+public class IMServerGroup implements CommandLineRunner  {
 
     public static volatile long serverId = 0;
 
