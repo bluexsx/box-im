@@ -135,6 +135,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 逻辑删除群数据
         group.setDeleted(true);
         this.updateById(group);
+        // 删除成员数据
+        groupMemberService.removeByGroupId(groupId);
         log.info("删除群聊，群聊id:{},群聊名称:{}",group.getId(),group.getName());
     }
 
