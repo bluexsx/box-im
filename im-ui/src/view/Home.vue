@@ -67,20 +67,20 @@
 				this.$wsApi.onopen(() => {
 					this.pullUnreadMessage();
 				});
-				this.$wsApi.onmessage((e) => {
-					if (e.cmd == 2) {
+				this.$wsApi.onmessage((cmd,msgInfo) => {
+					if (cmd == 2) {
 						// 异地登录，强制下线
 						this.$message.error("您已在其他地方登陆，将被强制下线");
 						setTimeout(() => {
 							location.href = "/";
 						}, 1000)
 
-					} else if (e.cmd == 3) {
+					} else if (cmd == 3) {
 						// 插入私聊消息
-						this.handlePrivateMessage(e.data);
-					} else if (e.cmd == 4) {
+						this.handlePrivateMessage(msgInfo);
+					} else if (cmd == 4) {
 						// 插入群聊消息
-						this.handleGroupMessage(e.data);
+						this.handleGroupMessage(msgInfo);
 					}
 				})
 			},
