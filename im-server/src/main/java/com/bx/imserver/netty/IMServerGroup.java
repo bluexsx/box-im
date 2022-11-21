@@ -22,6 +22,20 @@ public class IMServerGroup implements CommandLineRunner  {
     @Autowired
     private List<IMServer> imServers;
 
+    /***
+     * 判断服务器是否就绪
+     *
+     * @return
+     **/
+    public boolean isReady(){
+        for(IMServer imServer:imServers){
+            if(!imServer.isReady()){
+                return  false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public void run(String... args) throws Exception {
         // 初始化SERVER_ID
