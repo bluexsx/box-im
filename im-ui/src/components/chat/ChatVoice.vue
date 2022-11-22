@@ -61,7 +61,8 @@
 					this.state = 'RUNNING';
 					this.stateTip = "正在录音...";
 				}).catch(error => {
-					this.$message.error("录音失败");
+					console.log(error);
+					this.$message.error(error);
 					console.log(error);
 				});
 
