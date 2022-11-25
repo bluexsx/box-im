@@ -49,9 +49,9 @@
 				candidates: [],
 				configuration: {
 					iceServers: [{
-						'urls': 'turn:www.boxim.online:3478',
-						'credential': "admin123",
-						'username': "admin"
+						'url': 'turn:www.boxim.online:3478',
+						'credential': 'admin123',
+						'username': 'admin'
 					}]
 				}
 			}
@@ -177,11 +177,11 @@
 				this.peerConnection.createOffer((offer) => {
 						this.peerConnection.setLocalDescription(offer);
 						console.log("发送offer")
-						console.log(offer)
+						console.log(JSON.stringify(offer))
 						this.$http({
 							url: `/webrtc/private/call?uid=${this.friend.id}`,
 							method: 'post',
-							data: offer
+							data: JSON.stringify(offer)
 						}).then(() => {
 							this.loading = true;
 							this.state = 'CONNECTING';
@@ -198,12 +198,12 @@
 				this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
 				this.peerConnection.createAnswer((answer) => {
 						console.log("发送answer")
-						console.log(answer)
+						console.log(JSON.stringify(answer))
 						this.peerConnection.setLocalDescription(answer);
 						this.$http({
 							url: `/webrtc/private/accept?uid=${this.friend.id}`,
 							method: 'post',
-							data: answer
+							data: JSON.stringify(answer)
 						})
 						this.state = 'CONNECTED';
 					},
@@ -238,7 +238,7 @@
 				this.$http({
 					url: `/webrtc/private/candidate?uid=${this.friend.id}`,
 					method: 'post',
-					data: candidate
+					data: JSON.stringify(candidate)
 				})
 			},
 			close() {
