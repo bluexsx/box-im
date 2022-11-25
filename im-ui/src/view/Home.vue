@@ -79,6 +79,7 @@
 		methods: {
 			init(userInfo) {
 				this.$store.commit("setUserInfo", userInfo);
+				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
 				this.$store.commit("initStore");
 				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, userInfo.id);
 				this.$wsApi.onopen(() => {

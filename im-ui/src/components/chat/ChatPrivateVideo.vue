@@ -53,9 +53,26 @@
 							"urls": navigator.mozGetUserMedia ? "stun:stun.services.mozilla.com" : navigator.webkitGetUserMedia ?
 								"stun:stun.l.google.com:19302" : "stun:23.21.150.121"
 						},
-						{
-							urls: "stun:stun.l.google.com:19302"
-						}
+						{urls: "stun:stun.l.google.com:19302"},
+						{urls: "stun:stun1.l.google.com:19302"},
+						{urls: "stun:stun2.l.google.com:19302"},
+						{urls: "stun:stun3.l.google.com:19302"},
+						{urls: "stun:stun4.l.google.com:19302"},
+						{urls: "stun:23.21.150.121"},
+						{urls: "stun:stun01.sipphone.com"},
+						{urls: "stun:stun.ekiga.net"},
+						{urls: "stun:stun.fwdnet.net"},
+						{urls: "stun:stun.ideasip.com"},
+						{urls: "stun:stun.iptel.org"},
+						{urls: "stun:stun.rixtelecom.se"},
+						{urls: "stun:stun.schlund.de"},
+						{urls: "stun:stunserver.org"},
+						{urls: "stun:stun.softjoys.com"},
+						{urls: "stun:stun.voiparound.com"},
+						{urls: "stun:stun.voipbuster.com"},
+						{urls: "stun:stun.voipstunt.com"},
+						{urls: "stun:stun.voxgratia.org"},
+						{urls: "stun:stun.xten.com"}
 					]
 				}
 			}
@@ -102,10 +119,11 @@
 			},
 			closeCamera(){
 				if(this.stream){
+					
 					this.stream.getVideoTracks().forEach((track) =>{
 						track.stop();
-						this.$refs.mineVideo.srcObject = null;
 					 });
+					 this.$refs.mineVideo.srcObject = null;
 					 this.stream = null;
 				}
 				
@@ -205,6 +223,7 @@
 					method: 'post'
 				})
 				this.close();
+				this.$message.success("已挂断视频通话")
 			},
 			cancel(){
 				this.$http({
@@ -212,6 +231,7 @@
 					method: 'post'
 				})
 				this.close();
+				this.$message.success("已停止呼叫视频通话")
 			},
 			sendFailed(reason) {
 				this.$http({
