@@ -48,16 +48,12 @@
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
-					iceServers: {
-						iceServers: [
-							{
-								'url': 'turn:www.boxim.online:3478',
-								'credential': "admin123",
-								'username': "admin"
-							}
-						],
-						sdpSemantics: 'plan-b'
-					}
+					iceServers: [{
+						'url': 'turn:www.boxim.online:3478',
+						'credential': "admin123",
+						'username': "admin"
+					}],
+					sdpSemantics: 'plan-b'
 				}
 			}
 		},
