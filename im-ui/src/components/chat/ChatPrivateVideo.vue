@@ -58,9 +58,7 @@
 							username: 'admin'
 						},
 						{
-							urls: 'stun:www.boxim.online:3478',
-							credential: 'admin123',
-							username: 'admin'
+							urls: 'stun:www.boxim.online:3478'
 						}
 					]
 				}
@@ -91,6 +89,7 @@
 					this.timerx && clearInterval(this.timerx);
 					this.timerx = setInterval(() => {
 						console.log(this.peerConnection.iceConnectionState);
+						console.log(this.peerConnection.iceGatheringState);
 					}, 3000)
 				});
 
@@ -114,7 +113,7 @@
 			closeCamera() {
 				if (this.stream) {
 
-					this.stream.getVideoTracks().forEach((track) => {
+					this.stream.getTracks().forEach((track) => {
 						track.stop();
 					});
 					this.$refs.mineVideo.srcObject = null;
