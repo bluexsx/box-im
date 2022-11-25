@@ -2,8 +2,7 @@
 	<el-container class="chat-box">
 		<el-header height="60px">
 			<span>{{title}}</span>
-			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more"
-				@click="showSide=!showSide"></span>
+			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
 		</el-header>
 		<el-main style="padding: 0;">
 			<el-container>
@@ -12,10 +11,8 @@
 						<div class="im-chat-box">
 							<ul>
 								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
-									<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
-										:showName="showName(msgInfo)" :msgInfo="msgInfo"
-										@delete="deleteMessage"
-										@recall="recallMessage">
+									<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+									 :msgInfo="msgInfo" @delete="deleteMessage" @recall="recallMessage">
 									</message-item>
 								</li>
 							</ul>
@@ -26,24 +23,24 @@
 							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion" @click="switchEmotionBox()">
 							</div>
 							<div title="发送图片">
-								<file-upload :action="imageAction" :maxSize="5*1024*1024"
-									:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
+								<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
 								 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 									<i class="el-icon-picture-outline"></i>
 								</file-upload>
 							</div>
 							<div title="发送文件">
-								<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore"
-									@success="handleFileSuccess" @fail="handleFileFail">
+								<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
+								 @fail="handleFileFail">
 									<i class="el-icon-wallet"></i>
 								</file-upload>
 							</div>
 							<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
 							</div>
+							<div title="发起视频" class="el-icon-phone-outline" @click="showVideoBox()">
+							</div>
 							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 						</div>
-						<textarea v-model="sendText" ref="sendBox" class="send-text-area"
-							@keydown.enter="sendTextMessage()"></textarea>
+						<textarea v-model="sendText" ref="sendBox" class="send-text-area" @keydown.enter="sendTextMessage()"></textarea>
 						<div class="im-chat-send">
 							<el-button type="primary" @click="sendTextMessage()">发送</el-button>
 						</div>
@@ -57,9 +54,7 @@
 		</el-main>
 		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
 		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
-		<chat-history :visible="showHistory" 
-		:chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers"
-		@close="closeHistoryBox"></chat-history>
+		<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers" @close="closeHistoryBox"></chat-history>
 	</el-container>
 </template>
 
@@ -70,8 +65,7 @@
 	import Emotion from "../common/Emotion.vue";
 	import ChatVoice from "./ChatVoice.vue";
 	import ChatHistory from "./ChatHistory.vue";
-	
-	
+
 	export default {
 		name: "chatPrivate",
 		components: {
@@ -129,7 +123,7 @@
 					thumbUrl: url
 				}
 				let msgInfo = {
-					id:0,
+					id: 0,
 					fileId: file.uid,
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
@@ -218,10 +212,17 @@
 			closeVoiceBox() {
 				this.showVoice = false;
 			},
-			showHistoryBox(){
+			showVideoBox() {
+				console.log(this.friend)
+				this.$store.commit("showChatPrivateVideoBox", {
+					friend: this.friend,
+					master: true
+				});
+			},
+			showHistoryBox() {
 				this.showHistory = true;
 			},
-			closeHistoryBox(){
+			closeHistoryBox() {
 				this.showHistory = false;
 			},
 			handleSendVoice(data) {
@@ -292,17 +293,17 @@
 					return false;
 				}
 			},
-			deleteMessage(msgInfo){
-				this.$confirm( '确认删除消息?','删除消息', {
+			deleteMessage(msgInfo) {
+				this.$confirm('确认删除消息?', '删除消息', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					this.$store.commit("deleteMessage",msgInfo);
+					this.$store.commit("deleteMessage", msgInfo);
 				});
 			},
-			recallMessage(msgInfo){
-				this.$confirm('确认撤回消息?','撤回消息',  {
+			recallMessage(msgInfo) {
+				this.$confirm('确认撤回消息?', '撤回消息', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
@@ -316,10 +317,10 @@
 						msgInfo = JSON.parse(JSON.stringify(msgInfo));
 						msgInfo.type = 10;
 						msgInfo.content = '你撤回了一条消息';
-						this.$store.commit("insertMessage",msgInfo);
+						this.$store.commit("insertMessage", msgInfo);
 					})
 				});
-				
+
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -346,6 +347,7 @@
 					method: 'get'
 				}).then((friend) => {
 					this.friend = friend;
+					console.log(this.friend)
 					this.$store.commit("updateChatFromFriend", friend);
 					this.$store.commit("updateFriend", friend);
 				})

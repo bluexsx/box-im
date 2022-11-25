@@ -1,16 +1,18 @@
 package com.bx.imcommon.enums;
 
 
-public enum IMSendStatus  {
+public enum IMSendCode {
 
     SUCCESS(0,"发送成功"),
-    FAIL(1,"发送失败");
+    NOT_ONLINE(1,"对方当前不在线"),
+    NOT_FIND_CHANNEL(2,"未找到对方的channel"),
+    UNKONW_ERROR(9999,"未知异常");
 
     private int code;
     private String desc;
 
     // 构造方法
-    IMSendStatus(int code, String desc) {
+    IMSendCode(int code, String desc) {
         this.code = code;
         this.desc = desc;
     }

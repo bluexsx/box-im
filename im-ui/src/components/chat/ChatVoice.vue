@@ -19,7 +19,6 @@
 			<el-button round type="primary" v-show="state=='COMPLETE'" @click="handleRestartRecord()">重新录音</el-button>
 			<el-button round type="primary" v-show="state=='COMPLETE'" @click="handleSendRecord()">立即发送</el-button>
 		</el-row>
-
 	</el-dialog>
 
 </template>

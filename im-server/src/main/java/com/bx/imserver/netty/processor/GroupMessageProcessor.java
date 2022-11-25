@@ -2,7 +2,7 @@ package com.bx.imserver.netty.processor;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.enums.IMSendStatus;
+import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
@@ -43,7 +43,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                     String key = RedisKey.IM_RESULT_GROUP_QUEUE;
                     SendResult sendResult = new SendResult();
                     sendResult.setRecvId(recvId);
-                    sendResult.setStatus(IMSendStatus.SUCCESS);
+                    sendResult.setCode(IMSendCode.SUCCESS);
                     sendResult.setMessageInfo(messageInfo);
                     redisTemplate.opsForList().rightPush(key,sendResult);
 
@@ -52,8 +52,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                     String key = RedisKey.IM_RESULT_GROUP_QUEUE;
                     SendResult sendResult = new SendResult();
                     sendResult.setRecvId(recvId);
-                    sendResult.setStatus(IMSendStatus.FAIL);
-                    sendResult.setFailReason("未找到WS连接");
+                    sendResult.setCode(IMSendCode.NOT_FIND_CHANNEL);
                     sendResult.setMessageInfo(messageInfo);
                     redisTemplate.opsForList().rightPush(key,sendResult);
                     log.error("未找到WS连接,发送者:{},群id:{},接收id:{}，内容:{}",messageInfo.getSendId(),messageInfo.getGroupId(),recvIds,messageInfo.getContent());
@@ -63,8 +62,7 @@ public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo<GroupMes
                 String key = RedisKey.IM_RESULT_GROUP_QUEUE;
                 SendResult sendResult = new SendResult();
                 sendResult.setRecvId(recvId);
-                sendResult.setStatus(IMSendStatus.FAIL);
-                sendResult.setFailReason("未知异常");
+                sendResult.setCode(IMSendCode.UNKONW_ERROR);
                 sendResult.setMessageInfo(messageInfo);
                 redisTemplate.opsForList().rightPush(key,sendResult);
                 log.error("发送消息异常,发送者:{},群id:{},接收id:{}，内容:{}",messageInfo.getSendId(),messageInfo.getGroupId(),recvIds,messageInfo.getContent());

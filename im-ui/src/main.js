@@ -9,7 +9,7 @@ import * as socketApi from './api/wssocket';
 import emotion from './api/emotion.js';
 import element from './api/element.js';
 import store from './store';
-
+import * as  enums from './api/enums.js';
 
 Vue.use(ElementUI);
  
@@ -18,7 +18,7 @@ Vue.prototype.$wsApi = socketApi;
 Vue.prototype.$http = httpRequest // http请求方法
 Vue.prototype.$emo = emotion; // emo表情
 Vue.prototype.$elm = element; // 元素操作
-
+Vue.prototype.$enums = enums; // 枚举
 Vue.config.productionTip = false;
 
 new Vue({

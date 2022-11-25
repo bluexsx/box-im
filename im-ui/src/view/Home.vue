@@ -38,6 +38,17 @@
 		<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
 		<user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user" @close="$store.commit('closeUserInfoBox')"></user-info>
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url" @close="$store.commit('closeFullImageBox')"></full-image>
+		<chat-private-video ref="privateVideo" :visible="uiStore.chatPrivateVideo.show" 
+		:friend="uiStore.chatPrivateVideo.friend" 
+		:master="uiStore.chatPrivateVideo.master"
+		:offer="uiStore.chatPrivateVideo.offer"
+		@close="$store.commit('closeChatPrivateVideoBox')" >
+		</chat-private-video>
+		<video-acceptor ref="videoAcceptor"
+		v-show="uiStore.videoAcceptor.show"
+		:friend="uiStore.videoAcceptor.friend" 
+		@close="$store.commit('closeVideoAcceptorBox')" >
+		</video-acceptor>
 	</el-container>
 </template>
 
@@ -46,17 +57,23 @@
 	import Setting from '../components/setting/Setting.vue';
 	import UserInfo from '../components/common/UserInfo.vue';
 	import FullImage from '../components/common/FullImage.vue';
-
+	import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
+	import VideoAcceptor from '../components/chat/VideoAcceptor.vue';
+	
+	
 	export default {
 		components: {
 			HeadImage,
 			Setting,
 			UserInfo,
-			FullImage
+			FullImage,
+			ChatPrivateVideo,
+			VideoAcceptor
 		},
 		data() {
 			return {
-				showSettingDialog: false
+				showSettingDialog: false,
+				
 			}
 		},
 		methods: {
@@ -81,7 +98,7 @@
 					} else if (cmd == 4) {
 						// 插入群聊消息
 						this.handleGroupMessage(msgInfo);
-					}
+					} 
 				})
 			},
 			pullUnreadMessage() {
@@ -113,6 +130,21 @@
 				})
 			},
 			insertPrivateMessage(friend, msg) {
+				// webrtc 信令
+				if(msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL 
+				&& msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE){
+					// 呼叫
+					console.log(msg)
+					if(msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL
+					|| msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL){
+						this.$store.commit("showVideoAcceptorBox",friend);
+						this.$refs.videoAcceptor.handleMessage(msg)
+					}else {
+						this.$refs.privateVideo.handleMessage(msg)
+					}
+					return ;
+				}
+				
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,

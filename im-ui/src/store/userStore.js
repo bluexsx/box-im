@@ -1,7 +1,12 @@
+import {USER_STATE} from "../api/enums.js"
+
 export default {
 	
 	state: {
-		userInfo: {}
+		userInfo: {
+			
+		},
+		state: USER_STATE.FREE 
 	},
 
 	mutations: {
@@ -12,7 +17,10 @@ export default {
 				this.commit("resetChatStore");
 			}
 			state.userInfo = userInfo;
-		}
+		},
+		setUserState(state, userState) {
+			state.state = userState;
+		},
 	}
 	
 }
