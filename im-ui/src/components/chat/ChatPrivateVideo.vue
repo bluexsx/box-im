@@ -50,10 +50,15 @@
 				configuration: {
 					iceServers: [
 						{
-							url: 'stun:stun.l.google.com:19302'
+							urls: 'stun:stun.l.google.com:19302'
 						},
 						{
-							url: 'turn:www.boxim.online:3478',
+							urls: 'turn:www.boxim.online:3478',
+							credential: 'admin123',
+							username: 'admin'
+						},
+						{
+							urls: 'stun:www.boxim.online:3478',
 							credential: 'admin123',
 							username: 'admin'
 						}
