@@ -48,7 +48,11 @@
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
-					
+					iceServers: [{
+						'urls': 'turn:www.boxim.online:3478',
+						'credential': "admin123",
+						'username': "admin"
+					}]
 				}
 			}
 		},
@@ -134,6 +138,8 @@
 			},
 			handleMessage(msg) {
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_ACCEPT) {
+					console.log("接收answer")
+					console.log(msg.content)
 					this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.content)));
 					// 关闭等待提示
 					this.loading = false;
@@ -170,6 +176,8 @@
 			call() {
 				this.peerConnection.createOffer((offer) => {
 						this.peerConnection.setLocalDescription(offer);
+						console.log("发送offer")
+						console.log(offer)
 						this.$http({
 							url: `/webrtc/private/call?uid=${this.friend.id}`,
 							method: 'post',
@@ -185,8 +193,12 @@
 
 			},
 			accept(offer) {
+				console.log("接收到offer")
+				console.log(offer)
 				this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
 				this.peerConnection.createAnswer((answer) => {
+						console.log("发送answer")
+						console.log(answer)
 						this.peerConnection.setLocalDescription(answer);
 						this.$http({
 							url: `/webrtc/private/accept?uid=${this.friend.id}`,
