@@ -48,8 +48,7 @@
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
-					iceServers: [
-						{
+					iceServers: [{
 							urls: 'stun:stun.l.google.com:19302'
 						},
 						{
@@ -127,15 +126,23 @@
 					console.log("onaddstream")
 					this.$refs.friendVideo.srcObject = e.streams[0];
 				};
+				this.peerConnection.onicegatheringstatechange = (event) => {
+					if (this.peerConnection.iceGatheringState == 'complete') {
+						this.candidates.forEach((candidate) => {
+							this.sendCandidate(candidate);
+						})
+					}
+				}
+
 				this.peerConnection.onicecandidate = (event) => {
 					if (event.candidate) {
-						if (this.state == 'CONNECTED') {
-							// 已连接,直接发送
-							this.sendCandidate(event.candidate);
-						} else {
-							// 未连接,缓存起来，连接后再发送
-							this.candidates.push(event.candidate)
-						}
+						// if (this.state == 'CONNECTED') {
+						// 	// 已连接,直接发送
+						// 	this.sendCandidate(event.candidate);
+						// } else {
+						// 未连接,缓存起来，连接后再发送
+						this.candidates.push(event.candidate)
+						//}
 					}
 				}
 				if (stream) {
@@ -158,9 +165,9 @@
 					// 状态为连接中
 					this.state = 'CONNECTED';
 					// 发送candidate
-					this.candidates.forEach((candidate) => {
-						this.sendCandidate(candidate);
-					})
+					// this.candidates.forEach((candidate) => {
+					// 	this.sendCandidate(candidate);
+					// })
 				}
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_REJECT) {
 					this.$message.error("对方拒绝了您的视频请求");
