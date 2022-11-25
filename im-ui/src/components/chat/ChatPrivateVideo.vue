@@ -50,8 +50,8 @@
 				configuration: {
 					iceServers: [{
 						'urls': 'turn:www.boxim.online:3478',
-						'credential': "admin",
-						'username': "admin123"
+						'credential': "admin123",
+						'username': "admin"
 					}]
 				}
 			}
