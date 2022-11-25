@@ -98,6 +98,11 @@
 						// 接受呼叫
 						this.accept(this.offer);
 					}
+					
+					this.timerx && clearInterval(this.timerx);
+					this.timerx = setInterval(()=>{
+						console.log(this.peerConnection.iceConnectionState);
+					},3000)
 				});
 
 			},
@@ -130,9 +135,9 @@
 			},
 			setupPeerConnection(stream) {
 				this.peerConnection = new RTCPeerConnection(this.configuration);
-				this.peerConnection.onaddstream = (e) => {
+				this.peerConnection.ontrack = (e) => {
 					console.log("onaddstream")
-					this.$refs.friendVideo.srcObject = e.stream;
+					this.$refs.friendVideo.srcObject = e.streams[0];
 				};
 				this.peerConnection.onicecandidate = (event) => {
 					if (event.candidate) {
@@ -146,7 +151,9 @@
 					}
 				}
 				if (stream) {
-					this.peerConnection.addStream(stream);
+					stream.getTracks().forEach((track)=>{
+					        this.peerConnection.addTrack(track, stream);
+					      });
 				}
 			},
 			handleMessage(msg) {
