@@ -49,10 +49,27 @@
 				candidates: [],
 				configuration: {
 					iceServers: [{
-						'url': 'turn:www.boxim.online:3478',
-						'credential': 'admin123',
-						'username': 'admin'
-					}]
+							'url': 'turn:www.boxim.online:3478',
+							'credential': 'admin123',
+							'username': 'admin'
+						},
+						{
+							url: 'stun:stun.l.google.com:19302'
+						},
+						{
+							url: 'stun:stun.anyfirewall.com:3478'
+						},
+						{
+							url: 'turn:turn.bistri.com:80',
+							credential: 'homeo',
+							username: 'homeo'
+						},
+						{
+							url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+							credential: 'webrtc',
+							username: 'webrtc'
+						}
+					]
 				}
 			}
 		},
@@ -134,7 +151,10 @@
 						this.peerConnection.addTrack(track, stream);
 					});
 				}
-				this.peerConnection.IceConnectionStateChange
+				this.peerConnection.oniceconnectionstatechange = function(event) {
+					console.log("ICE connection status changed : " + event.target.iceConnectionState)
+				};
+
 			},
 			handleMessage(msg) {
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_ACCEPT) {
