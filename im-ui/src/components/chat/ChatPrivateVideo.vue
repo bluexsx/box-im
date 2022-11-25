@@ -48,31 +48,14 @@
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
-					iceServers: [{
-							'url': 'stun:www.boxim.online:3478',
-							'credential': 'admin123',
-							'username': 'admin'
-						},
-						{
-							'url': 'turn:www.boxim.online:3478',
-							'credential': 'admin123',
-							'username': 'admin'
-						},
+					iceServers: [
 						{
 							url: 'stun:stun.l.google.com:19302'
 						},
 						{
-							url: 'stun:stun.anyfirewall.com:3478'
-						},
-						{
-							url: 'turn:turn.bistri.com:80',
-							credential: 'homeo',
-							username: 'homeo'
-						},
-						{
-							url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-							credential: 'webrtc',
-							username: 'webrtc'
+							url: 'turn:www.boxim.online:3478',
+							credential: 'admin123',
+							username: 'admin'
 						}
 					]
 				}
