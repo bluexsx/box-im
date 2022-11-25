@@ -48,13 +48,16 @@
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
-					iceServers: [
-						{ 'url': 'stun:stun.l.google.com:19302' },
-						{
-						'url': 'turn:www.boxim.online:3478',
-						'credential': "admin123",
-						'username': "admin"
-					}]
+					iceServers: {
+						iceServers: [
+							{
+								'url': 'turn:www.boxim.online:3478',
+								'credential': "admin123",
+								'username': "admin"
+							}
+						],
+						sdpSemantics: 'plan-b'
+					}
 				}
 			}
 		},
