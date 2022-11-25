@@ -49,6 +49,11 @@
 				candidates: [],
 				configuration: {
 					iceServers: [{
+							'url': 'stun:www.boxim.online:3478',
+							'credential': 'admin123',
+							'username': 'admin'
+						},
+						{
 							'url': 'turn:www.boxim.online:3478',
 							'credential': 'admin123',
 							'username': 'admin'
