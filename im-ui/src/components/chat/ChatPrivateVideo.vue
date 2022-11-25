@@ -2,10 +2,7 @@
 	<el-dialog :title="title" :visible.sync="visible" width="800px" :before-close="handleClose">
 		<div class="chat-video">
 			<div class="chat-video-box">
-				<div class="chat-video-friend" 
-					v-loading="loading" 
-					element-loading-text="等待对方接听..." 
-					element-loading-spinner="el-icon-loading"
+				<div class="chat-video-friend" v-loading="loading" element-loading-text="等待对方接听..." element-loading-spinner="el-icon-loading"
 				 element-loading-background="rgba(0, 0, 0, 0.9)">
 					<video ref="friendVideo" autoplay=""></video>
 				</div>
@@ -14,10 +11,12 @@
 				</div>
 			</div>
 			<div class="chat-video-controllbar">
-				
-				<div v-show="state=='CONNECTING'" title="取消呼叫" class="icon iconfont icon-phone-reject reject" style="color: red;" @click="cancel()"></div>
-				<div v-show="state=='CONNECTED'" title="挂断" class="icon iconfont icon-phone-reject reject" style="color: red;" @click="handup()"></div>
-				
+
+				<div v-show="state=='CONNECTING'" title="取消呼叫" class="icon iconfont icon-phone-reject reject" style="color: red;"
+				 @click="cancel()"></div>
+				<div v-show="state=='CONNECTED'" title="挂断" class="icon iconfont icon-phone-reject reject" style="color: red;"
+				 @click="handup()"></div>
+
 			</div>
 		</div>
 	</el-dialog>
@@ -50,30 +49,10 @@
 				candidates: [],
 				configuration: {
 					iceServers: [{
-							"urls": navigator.mozGetUserMedia ? "stun:stun.services.mozilla.com" : navigator.webkitGetUserMedia ?
-								"stun:stun.l.google.com:19302" : "stun:23.21.150.121"
-						},
-						{urls: "stun:stun.l.google.com:19302"},
-						{urls: "stun:stun1.l.google.com:19302"},
-						{urls: "stun:stun2.l.google.com:19302"},
-						{urls: "stun:stun3.l.google.com:19302"},
-						{urls: "stun:stun4.l.google.com:19302"},
-						{urls: "stun:23.21.150.121"},
-						{urls: "stun:stun01.sipphone.com"},
-						{urls: "stun:stun.ekiga.net"},
-						{urls: "stun:stun.fwdnet.net"},
-						{urls: "stun:stun.ideasip.com"},
-						{urls: "stun:stun.iptel.org"},
-						{urls: "stun:stun.rixtelecom.se"},
-						{urls: "stun:stun.schlund.de"},
-						{urls: "stun:stunserver.org"},
-						{urls: "stun:stun.softjoys.com"},
-						{urls: "stun:stun.voiparound.com"},
-						{urls: "stun:stun.voipbuster.com"},
-						{urls: "stun:stun.voipstunt.com"},
-						{urls: "stun:stun.voxgratia.org"},
-						{urls: "stun:stun.xten.com"}
-					]
+						'urls': 'turn:www.boxim.online:3478',
+						'credential': "admin",
+						'username': "admin123"
+					}]
 				}
 			}
 		},
@@ -98,11 +77,11 @@
 						// 接受呼叫
 						this.accept(this.offer);
 					}
-					
+
 					this.timerx && clearInterval(this.timerx);
-					this.timerx = setInterval(()=>{
+					this.timerx = setInterval(() => {
 						console.log(this.peerConnection.iceConnectionState);
-					},3000)
+					}, 3000)
 				});
 
 			},
@@ -122,16 +101,16 @@
 						callback()
 					});
 			},
-			closeCamera(){
-				if(this.stream){
-					
-					this.stream.getVideoTracks().forEach((track) =>{
+			closeCamera() {
+				if (this.stream) {
+
+					this.stream.getVideoTracks().forEach((track) => {
 						track.stop();
-					 });
-					 this.$refs.mineVideo.srcObject = null;
-					 this.stream = null;
+					});
+					this.$refs.mineVideo.srcObject = null;
+					this.stream = null;
 				}
-				
+
 			},
 			setupPeerConnection(stream) {
 				this.peerConnection = new RTCPeerConnection(this.configuration);
@@ -141,20 +120,21 @@
 				};
 				this.peerConnection.onicecandidate = (event) => {
 					if (event.candidate) {
-						if(this.state == 'CONNECTED'){
+						if (this.state == 'CONNECTED') {
 							// 已连接,直接发送
 							this.sendCandidate(event.candidate);
-						}else{
+						} else {
 							// 未连接,缓存起来，连接后再发送
 							this.candidates.push(event.candidate)
 						}
 					}
 				}
 				if (stream) {
-					stream.getTracks().forEach((track)=>{
-					        this.peerConnection.addTrack(track, stream);
-					      });
+					stream.getTracks().forEach((track) => {
+						this.peerConnection.addTrack(track, stream);
+					});
 				}
+				this.peerConnection.IceConnectionStateChange
 			},
 			handleMessage(msg) {
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_ACCEPT) {
@@ -198,7 +178,7 @@
 							url: `/webrtc/private/call?uid=${this.friend.id}`,
 							method: 'post',
 							data: offer
-						}).then(()=>{
+						}).then(() => {
 							this.loading = true;
 							this.state = 'CONNECTING';
 						});
@@ -217,7 +197,7 @@
 							method: 'post',
 							data: answer
 						})
-						this.state='CONNECTED';
+						this.state = 'CONNECTED';
 					},
 					(error) => {
 						this.$message.error(error);
@@ -232,7 +212,7 @@
 				this.close();
 				this.$message.success("已挂断视频通话")
 			},
-			cancel(){
+			cancel() {
 				this.$http({
 					url: `/webrtc/private/cancel?uid=${this.friend.id}`,
 					method: 'post'
@@ -259,19 +239,19 @@
 				this.loading = false;
 				this.state = 'NOT_CONNECTED';
 				this.candidates = [];
-				this.$store.commit("setUserState",this.$enums.USER_STATE.FREE);
+				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
 				this.$refs.friendVideo.srcObject = null;
 				this.peerConnection.close();
 				this.peerConnection.onicecandidate = null;
 				this.peerConnection.onaddstream = null;
-				
+
 			},
-			handleClose(){
-				if(this.state=='CONNECTED'){
+			handleClose() {
+				if (this.state == 'CONNECTED') {
 					this.handup()
-				}else if(this.state == 'CONNECTING'){
+				} else if (this.state == 'CONNECTING') {
 					this.cancel();
-				}else{
+				} else {
 					this.close();
 				}
 			},
@@ -293,7 +273,7 @@
 					if (newValue) {
 						this.init();
 						// 用户忙状态
-						this.$store.commit("setUserState",this.$enums.USER_STATE.BUSY);
+						this.$store.commit("setUserState", this.$enums.USER_STATE.BUSY);
 						console.log(this.$store.state.userStore.state)
 					}
 				}
@@ -317,6 +297,7 @@
 
 			.chat-video-friend {
 				height: 600px;
+
 				video {
 					width: 100%;
 					height: 100%;
@@ -335,11 +316,12 @@
 				}
 			}
 		}
-			
+
 		.chat-video-controllbar {
 			display: flex;
 			justify-content: space-around;
 			padding: 10px;
+
 			.icon {
 				font-size: 50px;
 				cursor: pointer;
