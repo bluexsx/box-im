@@ -36,7 +36,7 @@
 							</div>
 							<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
 							</div>
-							<div title="发起视频" class="el-icon-phone-outline" @click="showVideoBox()">
+							<div title="视频聊天" v-show="chat.type=='PRIVATE'" class="el-icon-phone-outline" @click="showVideoBox()">
 							</div>
 							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 						</div>
