@@ -10,6 +10,7 @@ import emotion from './api/emotion.js';
 import element from './api/element.js';
 import store from './store';
 import * as  enums from './api/enums.js';
+import './utils/directive/dialogDrag';
 
 Vue.use(ElementUI);
  

@@ -93,7 +93,7 @@
 		bottom: 1px;
 		width: 250px;
 		height: 250px;
-		padding: 10px;
+		padding: 20px;
 		text-align: center;
 		background-color: #eeeeee;
 		border: #dddddd solid 1px;

@@ -1,17 +1,20 @@
 <template>
-	<el-dialog :title="title" :visible.sync="visible" width="800px" :before-close="handleClose">
+	<el-dialog v-dialogDrag :title="title"  top="5vh"
+	 :close-on-click-modal="false"
+	 :close-on-press-escape="false"
+	:visible.sync="visible" width="50%" height="70%" :before-close="handleClose">
 		<div class="chat-video">
 			<div class="chat-video-box">
 				<div class="chat-video-friend" v-loading="loading" element-loading-text="等待对方接听..." element-loading-spinner="el-icon-loading"
-				 element-loading-background="rgba(0, 0, 0, 0.9)">
+				 element-loading-background="rgba(0, 0, 0, 0.5)">
+					<head-image class="friend-head-image" :id="this.friend.id" :size="80" :url="this.friend.headImage"></head-image>
 					<video ref="friendVideo" autoplay=""></video>
 				</div>
 				<div class="chat-video-mine">
-					<video ref="mineVideo" autoplay=""></video>
+					<video  ref="mineVideo" autoplay=""></video>
 				</div>
 			</div>
 			<div class="chat-video-controllbar">
-
 				<div v-show="state=='CONNECTING'" title="取消呼叫" class="icon iconfont icon-phone-reject reject" style="color: red;"
 				 @click="cancel()"></div>
 				<div v-show="state=='CONNECTED'" title="挂断" class="icon iconfont icon-phone-reject reject" style="color: red;"
@@ -24,8 +27,11 @@
 </template>
 
 <script>
+	import HeadImage from '../common/HeadImage.vue';
+	
 	export default {
 		name: 'chatVideo',
+		components: {HeadImage},
 		props: {
 			visible: {
 				type: Boolean
@@ -45,6 +51,8 @@
 				stream: null,
 				loading: false,
 				peerConnection: null,
+				videoTime: 0,
+				videoTimer: null,
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
@@ -73,7 +81,6 @@
 					}
 					return;
 				}
-
 				// 打开摄像头
 				this.openCamera((stream) => {
 					// 初始化webrtc连接
@@ -85,14 +92,7 @@
 						// 接受呼叫
 						this.accept(this.offer);
 					}
-
-					this.timerx && clearInterval(this.timerx);
-					this.timerx = setInterval(() => {
-						console.log(this.peerConnection.iceConnectionState);
-						console.log(this.peerConnection.iceGatheringState);
-					}, 3000)
 				});
-
 			},
 			openCamera(callback) {
 				navigator.getUserMedia({
@@ -112,7 +112,6 @@
 			},
 			closeCamera() {
 				if (this.stream) {
-
 					this.stream.getTracks().forEach((track) => {
 						track.stop();
 					});
@@ -143,8 +142,12 @@
 						this.peerConnection.addTrack(track, stream);
 					});
 				}
-				this.peerConnection.oniceconnectionstatechange = function(event) {
-					console.log("ICE connection status changed : " + event.target.iceConnectionState)
+				this.peerConnection.oniceconnectionstatechange = (event) => {
+					let state = event.target.iceConnectionState;
+					console.log("ICE connection status changed : " + state)
+					if(state == 'connected'){
+						this.resetTime();
+					}
 				};
 
 			},
@@ -258,13 +261,21 @@
 				this.closeCamera();
 				this.loading = false;
 				this.state = 'NOT_CONNECTED';
+				this.videoTime = 0;
+				this.videoTimer && clearInterval(this.videoTimer);
 				this.candidates = [];
 				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
 				this.$refs.friendVideo.srcObject = null;
 				this.peerConnection.close();
 				this.peerConnection.onicecandidate = null;
 				this.peerConnection.onaddstream = null;
-
+			},
+			resetTime(){
+				this.videoTime = 0;
+				this.videoTimer && clearInterval(this.videoTimer);
+				this.videoTimer = setInterval(()=>{
+					this.videoTime++;
+				},1000)
 			},
 			handleClose() {
 				if (this.state == 'CONNECTED') {
@@ -286,6 +297,7 @@
 				window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate;
 				return !!window.RTCPeerConnection;
 			}
+			
 		},
 		watch: {
 			visible: {
@@ -294,43 +306,67 @@
 						this.init();
 						// 用户忙状态
 						this.$store.commit("setUserState", this.$enums.USER_STATE.BUSY);
-						console.log(this.$store.state.userStore.state)
 					}
 				}
 			}
 		},
 		computed: {
 			title() {
-				return `视频聊天-${this.friend.nickName}`;
+				let strTitle  = `视频聊天-${this.friend.nickName}`;
+				if(this.state == 'CONNECTED'){
+					strTitle += `(${this.currentTime})`;
+				}
+				return strTitle;
+			},
+			currentTime(){
+				let currentTime = 0;
+				if(this.state == 'CONNECTED' && this.videoTime){
+					 currentTime = Math.floor(this.videoTime);
+				}
+				let min = Math.floor(currentTime/60);
+				let sec = currentTime%60;
+				let strTime = min<10?"0":"";
+				strTime += min;
+				strTime += ":"
+				strTime += sec<10?"0":"";
+				strTime += sec;
+				return strTime;
 			}
+			
 		}
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	.chat-video {
-
+		position: relative;
+		
 		.chat-video-box {
 			position: relative;
-			border: #2C3E50 solid 1px;
+			border: #4880b9 solid 1px;
 			background-color: #eeeeee;
-
+			
 			.chat-video-friend {
-				height: 600px;
+				height: 70vh;
+				.friend-head-image {
+					position: absolute;
+				}
 
 				video {
 					width: 100%;
 					height: 100%;
+					object-fit: fill;
 				}
 			}
 
 			.chat-video-mine {
 				position: absolute;
 				z-index: 99999;
-				width: 200px;
+				width: 25vh;
 				right: 0;
 				bottom: 0;
-
+				box-shadow: 0px 0px  5px #ccc;	
+				background-color: #cccccc;
 				video {
 					width: 100%;
 				}
