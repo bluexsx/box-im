@@ -38,6 +38,17 @@
 		<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
 		<user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user" @close="$store.commit('closeUserInfoBox')"></user-info>
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url" @close="$store.commit('closeFullImageBox')"></full-image>
+		<chat-private-video ref="privateVideo" :visible="uiStore.chatPrivateVideo.show" 
+		:friend="uiStore.chatPrivateVideo.friend" 
+		:master="uiStore.chatPrivateVideo.master"
+		:offer="uiStore.chatPrivateVideo.offer"
+		@close="$store.commit('closeChatPrivateVideoBox')" >
+		</chat-private-video>
+		<chat-video-acceptor ref="videoAcceptor"
+		v-show="uiStore.videoAcceptor.show"
+		:friend="uiStore.videoAcceptor.friend" 
+		@close="$store.commit('closeVideoAcceptorBox')" >
+		</chat-video-acceptor>
 	</el-container>
 </template>
 
@@ -46,42 +57,49 @@
 	import Setting from '../components/setting/Setting.vue';
 	import UserInfo from '../components/common/UserInfo.vue';
 	import FullImage from '../components/common/FullImage.vue';
-
+	import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
+	import ChatVideoAcceptor from '../components/chat/ChatVideoAcceptor.vue';
+	
+	
 	export default {
 		components: {
 			HeadImage,
 			Setting,
 			UserInfo,
-			FullImage
+			FullImage,
+			ChatPrivateVideo,
+			ChatVideoAcceptor
 		},
 		data() {
 			return {
-				showSettingDialog: false
+				showSettingDialog: false,
+				
 			}
 		},
 		methods: {
 			init(userInfo) {
 				this.$store.commit("setUserInfo", userInfo);
+				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
 				this.$store.commit("initStore");
 				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, userInfo.id);
 				this.$wsApi.onopen(() => {
 					this.pullUnreadMessage();
 				});
-				this.$wsApi.onmessage((e) => {
-					if (e.cmd == 2) {
+				this.$wsApi.onmessage((cmd,msgInfo) => {
+					if (cmd == 2) {
 						// 异地登录，强制下线
 						this.$message.error("您已在其他地方登陆，将被强制下线");
 						setTimeout(() => {
 							location.href = "/";
 						}, 1000)
 
-					} else if (e.cmd == 3) {
+					} else if (cmd == 3) {
 						// 插入私聊消息
-						this.handlePrivateMessage(e.data);
-					} else if (e.cmd == 4) {
+						this.handlePrivateMessage(msgInfo);
+					} else if (cmd == 4) {
 						// 插入群聊消息
-						this.handleGroupMessage(e.data);
-					}
+						this.handleGroupMessage(msgInfo);
+					} 
 				})
 			},
 			pullUnreadMessage() {
@@ -113,6 +131,21 @@
 				})
 			},
 			insertPrivateMessage(friend, msg) {
+				// webrtc 信令
+				if(msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL 
+				&& msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE){
+					// 呼叫
+					console.log(msg)
+					if(msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL
+					|| msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL){
+						this.$store.commit("showVideoAcceptorBox",friend);
+						this.$refs.videoAcceptor.handleMessage(msg)
+					}else {
+						this.$refs.privateVideo.handleMessage(msg)
+					}
+					return ;
+				}
+				
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
@@ -123,6 +156,8 @@
 				this.$store.commit("openChat", chatInfo);
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
+				// 播放提示音
+				this.playAudioTip();
 			},
 			handleGroupMessage(msg) {
 				// 群聊缓存存在，直接插入群聊消息
@@ -151,6 +186,8 @@
 				this.$store.commit("openChat", chatInfo);
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
+				// 播放提示音
+				this.playAudioTip();
 			},
 			handleExit() {
 				this.$http({
@@ -160,6 +197,12 @@
 					this.$wsApi.closeWebSocket();
 					location.href = "/";
 				})
+			},
+			playAudioTip(){
+				let audio = new Audio();
+				let url = require(`@/assets/audio/tip.wav`);
+				audio.src = url;
+				audio.play();
 			},
 			showSetting() {
 				this.showSettingDialog = true;

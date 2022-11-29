@@ -19,7 +19,6 @@
 			<el-button round type="primary" v-show="state=='COMPLETE'" @click="handleRestartRecord()">重新录音</el-button>
 			<el-button round type="primary" v-show="state=='COMPLETE'" @click="handleSendRecord()">立即发送</el-button>
 		</el-row>
-
 	</el-dialog>
 
 </template>
@@ -61,7 +60,8 @@
 					this.state = 'RUNNING';
 					this.stateTip = "正在录音...";
 				}).catch(error => {
-					this.$message.error("录音失败");
+					console.log(error);
+					this.$message.error(error);
 					console.log(error);
 				});
 

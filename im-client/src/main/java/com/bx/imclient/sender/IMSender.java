@@ -4,7 +4,7 @@ import com.bx.imclient.listener.MessageListenerMulticaster;
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMListenerType;
-import com.bx.imcommon.enums.IMSendStatus;
+import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.PrivateMessageInfo;
@@ -54,8 +54,7 @@ public class IMSender {
                 SendResult result = new SendResult();
                 result.setMessageInfo(messageInfo);
                 result.setRecvId(recvId);
-                result.setStatus(IMSendStatus.FAIL);
-                result.setFailReason("用户不在线");
+                result.setCode(IMSendCode.NOT_ONLINE);
                 listenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, result);
             }
         }
@@ -103,8 +102,7 @@ public class IMSender {
                 SendResult result = new SendResult();
                 result.setMessageInfo(messageInfo);
                 result.setRecvId(id);
-                result.setStatus(IMSendStatus.FAIL);
-                result.setFailReason("用户不在线");
+                result.setCode(IMSendCode.NOT_ONLINE);
                 listenerMulticaster.multicast(IMListenerType.GROUP_MESSAGE,result);
             }
         }

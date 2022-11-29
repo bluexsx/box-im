@@ -1,36 +1,36 @@
 <template>
-	<div class="im-msg-item">
-		<div class="im-msg-tip" v-show="msgInfo.type==10">{{msgInfo.content}}</div>
-		<div class="im-msg-normal" v-show="msgInfo.type!=10" :class="{'im-chat-mine':mine}">
+	<div class="chat-msg-item">
+		<div class="chat-msg-tip" v-show="msgInfo.type==10">{{msgInfo.content}}</div>
+		<div class="chat-msg-normal" v-show="msgInfo.type!=10" :class="{'chat-msg-mine':mine}">
 			<div class="head-image">
 				<head-image :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
-			<div class="im-msg-content">
-				<div class="im-msg-top">
+			<div class="chat-msg-content">
+				<div class="chat-msg-top">
 					<span>{{showName}}</span>
 					<chat-time :time="msgInfo.sendTime"></chat-time>
 				</div>
-				<div class="im-msg-bottom" @contextmenu.prevent="showRightMenu($event)">
-					<span class="im-msg-text" v-if="msgInfo.type==0" v-html="$emo.transform(msgInfo.content)"></span>
-					<div class="im-msg-image" v-if="msgInfo.type==1">
+				<div class="chat-msg-bottom" @contextmenu.prevent="showRightMenu($event)">
+					<span class="chat-msg-text" v-if="msgInfo.type==0" v-html="$emo.transform(msgInfo.content)"></span>
+					<div class="chat-msg-image" v-if="msgInfo.type==1">
 						<div class="img-load-box" v-loading="loading" element-loading-text="上传中.." element-loading-background="rgba(0, 0, 0, 0.4)">
 							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" @click="showFullImageBox()" />
 						</div>
 						<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 					</div>
-					<div class="im-msg-file" v-if="msgInfo.type==2">
-						<div class="im-file-box" v-loading="loading">
-							<div class="im-file-info">
-								<el-link class="im-file-name" :underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
-								<div class="im-file-size">{{fileSize}}</div>
+					<div class="chat-msg-file" v-if="msgInfo.type==2">
+						<div class="chat-file-box" v-loading="loading">
+							<div class="chat-file-info">
+								<el-link class="chat-file-name" :underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
+								<div class="chat-file-size">{{fileSize}}</div>
 							</div>
-							<div class="im-file-icon">
+							<div class="chat-file-icon">
 								<span type="primary" class="el-icon-document"></span>
 							</div>
 						</div>
 						<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
 					</div>
-					<div class="im-msg-voice" v-if="msgInfo.type==3" @click="handlePlayVoice()">
+					<div class="chat-msg-voice" v-if="msgInfo.type==3" @click="handlePlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
 				</div>
@@ -162,13 +162,13 @@
 </script>
 
 <style lang="scss">
-	.im-msg-item {
+	.chat-msg-item {
 
-		.im-msg-tip {
+		.chat-msg-tip {
 			line-height: 50px;
 		}
 
-		.im-msg-normal {
+		.chat-msg-normal {
 			position: relative;
 			font-size: 0;
 			margin-bottom: 10px;
@@ -183,11 +183,11 @@
 				left: 0;
 			}
 
-			.im-msg-content {
+			.chat-msg-content {
 				display: flex;
 				flex-direction: column;
 
-				.im-msg-top {
+				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
 					color: #333;
@@ -199,10 +199,10 @@
 					}
 				}
 
-				.im-msg-bottom {
+				.chat-msg-bottom {
 					text-align: left;
 
-					.im-msg-text {
+					.chat-msg-text {
 						position: relative;
 						line-height: 22px;
 						margin-top: 10px;
@@ -227,7 +227,7 @@
 						}
 					}
 
-					.im-msg-image {
+					.chat-msg-image {
 						display: flex;
 						flex-wrap: nowrap;
 						flex-direction: row;
@@ -250,14 +250,14 @@
 						}
 					}
 
-					.im-msg-file {
+					.chat-msg-file {
 						display: flex;
 						flex-wrap: nowrap;
 						flex-direction: row;
 						align-items: center;
 						cursor: pointer;
 
-						.im-file-box {
+						.chat-file-box {
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
@@ -268,20 +268,20 @@
 							background-color: #eeeeee;
 							padding: 10px 15px;
 
-							.im-file-info {
+							.chat-file-info {
 								flex: 1;
 								height: 100%;
 								text-align: left;
 								font-size: 14px;
 
-								.im-file-name {
+								.chat-file-name {
 									font-size: 16px;
 									font-weight: 600;
 									margin-bottom: 15px;
 								}
 							}
 
-							.im-file-icon {
+							.chat-file-icon {
 								font-size: 50px;
 								color: #d42e07;
 							}
@@ -296,7 +296,7 @@
 
 					}
 
-					.im-msg-voice {
+					.chat-msg-voice {
 						font-size: 14px;
 						cursor: pointer;
 
@@ -309,7 +309,7 @@
 			}
 
 
-			&.im-chat-mine {
+			&.chat-msg-mine {
 				text-align: right;
 				padding-left: 0;
 				padding-right: 60px;
@@ -319,9 +319,9 @@
 					right: 0;
 				}
 
-				.im-msg-content {
+				.chat-msg-content {
 
-					.im-msg-top {
+					.chat-msg-top {
 						flex-direction: row-reverse;
 
 						span {
@@ -330,10 +330,10 @@
 						}
 					}
 
-					.im-msg-bottom {
+					.chat-msg-bottom {
 						text-align: right;
 
-						.im-msg-text {
+						.chat-msg-text {
 							margin-left: 10px;
 							background-color: #5fb878;
 							color: #fff;
@@ -348,19 +348,14 @@
 							}
 						}
 
-						.im-msg-image {
+						.chat-msg-image {
 							flex-direction: row-reverse;
 						}
 
-						.im-msg-file {
+						.chat-msg-file {
 							flex-direction: row-reverse;
 						}
 					}
-				}
-
-				.message-info {
-					right: 60px !important;
-					display: inline-block;
 				}
 			}
 

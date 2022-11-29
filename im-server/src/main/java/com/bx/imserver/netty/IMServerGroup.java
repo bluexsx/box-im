@@ -12,7 +12,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class IMServerMap implements CommandLineRunner  {
+public class IMServerGroup implements CommandLineRunner  {
 
     public static volatile long serverId = 0;
 
@@ -21,6 +21,20 @@ public class IMServerMap implements CommandLineRunner  {
 
     @Autowired
     private List<IMServer> imServers;
+
+    /***
+     * 判断服务器是否就绪
+     *
+     * @return
+     **/
+    public boolean isReady(){
+        for(IMServer imServer:imServers){
+            if(!imServer.isReady()){
+                return  false;
+            }
+        }
+        return true;
+    }
 
     @Override
     public void run(String... args) throws Exception {

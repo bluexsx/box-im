@@ -1,6 +1,6 @@
 package com.bx.imcommon.model;
 
-import com.bx.imcommon.enums.IMSendStatus;
+import com.bx.imcommon.enums.IMSendCode;
 import lombok.Data;
 
 @Data
@@ -14,12 +14,7 @@ public class SendResult<T> {
     /*
      * 发送状态
      */
-    private IMSendStatus status;
-
-    /*
-     * 失败原因
-     */
-    private String failReason="";
+    private IMSendCode code;
 
     /*
      * 消息体(透传)

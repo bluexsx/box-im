@@ -3,7 +3,7 @@ package com.bx.implatform.listener;
 import com.bx.imclient.annotation.IMListener;
 import com.bx.imclient.listener.MessageListener;
 import com.bx.imcommon.enums.IMListenerType;
-import com.bx.imcommon.enums.IMSendStatus;
+import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.SendResult;
 import com.bx.implatform.contant.RedisKey;
@@ -29,7 +29,7 @@ public class GroupMessageListener implements MessageListener {
         }
 
         // 保存该用户已拉取的最大消息id
-        if(result.getStatus().equals(IMSendStatus.SUCCESS)) {
+        if(result.getCode().equals(IMSendCode.SUCCESS)) {
             String key = RedisKey.IM_GROUP_READED_POSITION + messageInfo.getGroupId() + ":" + result.getRecvId();
             redisTemplate.opsForValue().set(key, messageInfo.getId());
         }

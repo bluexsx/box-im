@@ -19,20 +19,20 @@ let initWebSocket = () => {
 		hasLogin = false;
 		websock = new WebSocket(wsurl);
 		websock.onmessage = function(e) {
-			let msg = JSON.parse(e.data)
-			if (msg.cmd == 0) {
+			let sendInfo = JSON.parse(e.data)
+			if (sendInfo.cmd == 0) {
 				hasLogin = true;
 				heartCheck.start()
 				console.log('WebSocket登录成功')
 				// 登录成功才算连接完成
 				openCallBack && openCallBack();
 			}
-			else if(msg.cmd==1){
+			else if(sendInfo.cmd==1){
 				// 重新开启心跳定时
 				heartCheck.reset();
 			} else {
 				// 其他消息转发出去
-				messageCallBack && messageCallBack(JSON.parse(e.data))
+				messageCallBack && messageCallBack(sendInfo.cmd,sendInfo.data)
 			}
 		}
 		websock.onclose = function(e) {

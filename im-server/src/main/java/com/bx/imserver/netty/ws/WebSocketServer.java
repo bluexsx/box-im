@@ -37,9 +37,9 @@ public class WebSocketServer  implements IMServer {
 
     private volatile boolean ready = false;
 
-    private  ServerBootstrap bootstrap = new ServerBootstrap();
-    private  EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private  EventLoopGroup workGroup = new NioEventLoopGroup();
+    private  ServerBootstrap bootstrap;
+    private  EventLoopGroup bossGroup;
+    private  EventLoopGroup workGroup;
 
 
     @Override
@@ -49,6 +49,9 @@ public class WebSocketServer  implements IMServer {
 
     @Override
     public void start() {
+        bootstrap = new ServerBootstrap();
+        bossGroup = new NioEventLoopGroup();
+        workGroup = new NioEventLoopGroup();
         // 设置为主从线程模型
         bootstrap.group(bossGroup, workGroup)
                 // 设置服务端NIO通信类型
@@ -92,10 +95,14 @@ public class WebSocketServer  implements IMServer {
 
     @Override
     public void stop() {
-        log.info("websocket server 停止");
-        bossGroup.shutdownGracefully();
-        workGroup.shutdownGracefully();
+        if(bossGroup != null && !bossGroup.isShuttingDown() && !bossGroup.isShutdown() ) {
+            bossGroup.shutdownGracefully();
+        }
+        if(workGroup != null && !workGroup.isShuttingDown() && !workGroup.isShutdown() ) {
+            workGroup.shutdownGracefully();
+        }
         this.ready = false;
+        log.info("websocket server 停止");
     }
 
 

@@ -74,6 +74,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         msg.setSendId(userId);
         msg.setSendTime(new Date());
         this.save(msg);
+        // 不用发给自己
+        userIds = userIds.stream().filter(id->userId!=id).collect(Collectors.toList());
         // 群发
         GroupMessageInfo  msgInfo = BeanUtils.copyProperties(msg, GroupMessageInfo.class);
         imClient.sendGroupMessage(userIds,msgInfo);
@@ -112,6 +114,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         this.updateById(msg);
         // 群发
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(msg.getGroupId());
+        // 不用发给自己
+        userIds = userIds.stream().filter(uid->userId.equals(uid)).collect(Collectors.toList());
         GroupMessageInfo  msgInfo = BeanUtils.copyProperties(msg, GroupMessageInfo.class);
         msgInfo.setType(MessageType.TIP.code());
         String content = String.format("'%s'撤回了一条消息",member.getAliasName());
@@ -140,6 +144,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             QueryWrapper<GroupMessage> wrapper = new QueryWrapper();
             wrapper.lambda().eq(GroupMessage::getGroupId,member.getGroupId())
                     .gt(GroupMessage::getSendTime,member.getCreatedTime())
+                    .ne(GroupMessage::getSendId, userId)
                     .ne(GroupMessage::getStatus, MessageStatus.RECALL.code());
             if(maxReadedId!=null){
                 wrapper.lambda().gt(GroupMessage::getId,maxReadedId);
@@ -197,5 +202,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         log.info("拉取群聊记录，用户id:{},群聊id:{}，数量:{}",userId,groupId,messageInfos.size());
         return messageInfos;
     }
+
 
 }

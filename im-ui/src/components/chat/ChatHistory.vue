@@ -5,9 +5,9 @@
 			<el-scrollbar  class="chat-history-scrollbar" ref="scrollbar" id="historyScrollbar" >
 				<ul>
 					<li v-for="(msgInfo,idx) in messages" :key="idx">
-						<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+						<chat-message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
 						 :msgInfo="msgInfo" :menu="false">
-						</message-item>
+						</chat-message-item>
 					</li>
 				</ul>
 			</el-scrollbar>
@@ -16,12 +16,12 @@
 </template>
 
 <script>
-	import MessageItem from './MessageItem.vue';
+	import ChatMessageItem from './ChatMessageItem.vue';
 
 	export default {
 		name: 'chatHistory',
 		components: {
-			MessageItem
+			ChatMessageItem
 		},
 		props: {
 			visible: {
