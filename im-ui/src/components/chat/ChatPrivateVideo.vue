@@ -49,6 +49,7 @@
 		data() {
 			return {
 				stream: null,
+				audio: new Audio(),
 				loading: false,
 				peerConnection: null,
 				videoTime: 0,
@@ -56,19 +57,7 @@
 				state: 'NOT_CONNECTED',
 				candidates: [],
 				configuration: {
-					iceServers: [
-						{
-							urls: 'stun:stun.l.google.com:19302'
-						},
-						{
-							urls: 'turn:8.134.92.70:3478',
-							credential: 'admin123',
-							username: 'admin'
-						},
-						{
-							urls: 'stun:8.134.92.70:3478'
-						}
-					]
+					iceServers: []
 				}
 			}
 		},
@@ -101,6 +90,7 @@
 					},
 					(stream) => {
 						this.stream = stream;
+						console.log(this.stream)
 						this.$refs.mineVideo.srcObject = stream;
 						this.$refs.mineVideo.muted = true;
 						callback(stream)
@@ -123,7 +113,6 @@
 			setupPeerConnection(stream) {
 				this.peerConnection = new RTCPeerConnection(this.configuration);
 				this.peerConnection.ontrack = (e) => {
-					console.log("onaddstream")
 					this.$refs.friendVideo.srcObject = e.streams[0];
 				};
 				this.peerConnection.onicecandidate = (event) => {
@@ -153,46 +142,37 @@
 			},
 			handleMessage(msg) {
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_ACCEPT) {
-					console.log("接收answer")
-					console.log(msg.content)
 					this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.content)));
 					// 关闭等待提示
 					this.loading = false;
 					// 状态为连接中
 					this.state = 'CONNECTED';
+					// 停止播放语音
+					this.audio.pause();
 					// 发送candidate
 					this.candidates.forEach((candidate) => {
 						this.sendCandidate(candidate);
 					})
 				}
-				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_REJECT) {
+				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_REJECT) {
 					this.$message.error("对方拒绝了您的视频请求");
-					this.peerConnection.close();
-					// 关闭等待提示
-					this.loading = false;
-					// 状态为未连接
-					this.state = 'NOT_CONNECTED';
+					this.close();
 				}
-				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_FAILED) {
+				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_FAILED) {
 					this.$message.error(msg.content)
-					// 关闭等待提示
-					this.loading = false;
-					// 状态为未连接
-					this.state = 'NOT_CONNECTED';
+					this.close();
 				}
-				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
 					this.peerConnection.addIceCandidate(new RTCIceCandidate(JSON.parse(msg.content)));
 				}
-				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_HANDUP) {
-					this.$message.success("对方已挂断");
+				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_HANDUP) {
+					this.$message.success("对方挂断了视频通话");
 					this.close();
 				}
 			},
 			call() {
 				this.peerConnection.createOffer((offer) => {
 						this.peerConnection.setLocalDescription(offer);
-						console.log("发送offer")
-						console.log(JSON.stringify(offer))
 						this.$http({
 							url: `/webrtc/private/call?uid=${this.friend.id}`,
 							method: 'post',
@@ -200,6 +180,7 @@
 						}).then(() => {
 							this.loading = true;
 							this.state = 'CONNECTING';
+							this.audio.play();
 						});
 					},
 					(error) => {
@@ -208,12 +189,8 @@
 
 			},
 			accept(offer) {
-				console.log("接收到offer")
-				console.log(offer)
 				this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
 				this.peerConnection.createAnswer((answer) => {
-						console.log("发送answer")
-						console.log(JSON.stringify(answer))
 						this.peerConnection.setLocalDescription(answer);
 						this.$http({
 							url: `/webrtc/private/accept?uid=${this.friend.id}`,
@@ -263,6 +240,7 @@
 				this.state = 'NOT_CONNECTED';
 				this.videoTime = 0;
 				this.videoTimer && clearInterval(this.videoTimer);
+				this.audio.pause();
 				this.candidates = [];
 				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
 				this.$refs.friendVideo.srcObject = null;
@@ -296,6 +274,19 @@
 				window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription;
 				window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate;
 				return !!window.RTCPeerConnection;
+			},
+			initAudio(){
+				let url = require(`@/assets/audio/call.wav`);
+				this.audio.src = url;
+				this.audio.loop = true;
+			},
+			initICEServers(){
+				this.$http({
+					url: '/webrtc/private/iceservers',
+					method: 'get'
+				}).then((servers) => {
+					this.configuration.iceServers = servers;
+				})
 			}
 			
 		},
@@ -315,6 +306,8 @@
 				let strTitle  = `视频聊天-${this.friend.nickName}`;
 				if(this.state == 'CONNECTED'){
 					strTitle += `(${this.currentTime})`;
+				}else if(this.state == 'CONNECTING'){
+					strTitle += `(呼叫中)`;
 				}
 				return strTitle;
 			},
@@ -332,7 +325,10 @@
 				strTime += sec;
 				return strTime;
 			}
-			
+		},
+		mounted() {
+			this.initAudio();
+			this.initICEServers();
 		}
 	}
 </script>

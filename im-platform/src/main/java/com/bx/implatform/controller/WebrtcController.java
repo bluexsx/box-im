@@ -3,13 +3,13 @@ package com.bx.implatform.controller;
 
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.PrivateMessageInfo;
+import com.bx.implatform.config.ICEServerConfig;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +21,8 @@ public class WebrtcController {
     @Autowired
     private IMClient imClient;
 
+    @Autowired
+    private ICEServerConfig iceServerConfig;
 
     @ApiOperation(httpMethod = "POST", value = "呼叫视频通话")
     @PostMapping("/call")
@@ -114,5 +116,11 @@ public class WebrtcController {
         message.setContent(candidate);
         imClient.sendPrivateMessage(uid,message);
         return ResultUtils.success();
+    }
+
+    @GetMapping("/iceservers")
+    @ApiOperation(httpMethod = "GET", value = "获取iceservers")
+    public Result iceservers() {
+        return ResultUtils.success(iceServerConfig.getIceServers());
     }
 }

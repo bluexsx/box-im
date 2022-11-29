@@ -11,9 +11,9 @@
 						<div class="im-chat-box">
 							<ul>
 								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
-									<message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+									<chat-message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
 									 :msgInfo="msgInfo" @delete="deleteMessage" @recall="recallMessage">
-									</message-item>
+									</chat-message-item>
 								</li>
 							</ul>
 						</div>
@@ -60,7 +60,7 @@
 
 <script>
 	import ChatGroupSide from "./ChatGroupSide.vue";
-	import MessageItem from "./MessageItem.vue";
+	import ChatMessageItem from "./ChatMessageItem.vue";
 	import FileUpload from "../common/FileUpload.vue";
 	import Emotion from "../common/Emotion.vue";
 	import ChatVoice from "./ChatVoice.vue";
@@ -69,7 +69,7 @@
 	export default {
 		name: "chatPrivate",
 		components: {
-			MessageItem,
+			ChatMessageItem,
 			FileUpload,
 			ChatGroupSide,
 			Emotion,

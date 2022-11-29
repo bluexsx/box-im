@@ -44,11 +44,11 @@
 		:offer="uiStore.chatPrivateVideo.offer"
 		@close="$store.commit('closeChatPrivateVideoBox')" >
 		</chat-private-video>
-		<video-acceptor ref="videoAcceptor"
+		<chat-video-acceptor ref="videoAcceptor"
 		v-show="uiStore.videoAcceptor.show"
 		:friend="uiStore.videoAcceptor.friend" 
 		@close="$store.commit('closeVideoAcceptorBox')" >
-		</video-acceptor>
+		</chat-video-acceptor>
 	</el-container>
 </template>
 
@@ -58,7 +58,7 @@
 	import UserInfo from '../components/common/UserInfo.vue';
 	import FullImage from '../components/common/FullImage.vue';
 	import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
-	import VideoAcceptor from '../components/chat/VideoAcceptor.vue';
+	import ChatVideoAcceptor from '../components/chat/ChatVideoAcceptor.vue';
 	
 	
 	export default {
@@ -68,7 +68,7 @@
 			UserInfo,
 			FullImage,
 			ChatPrivateVideo,
-			VideoAcceptor
+			ChatVideoAcceptor
 		},
 		data() {
 			return {
@@ -156,6 +156,8 @@
 				this.$store.commit("openChat", chatInfo);
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
+				// 播放提示音
+				this.playAudioTip();
 			},
 			handleGroupMessage(msg) {
 				// 群聊缓存存在，直接插入群聊消息
@@ -184,6 +186,8 @@
 				this.$store.commit("openChat", chatInfo);
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
+				// 播放提示音
+				this.playAudioTip();
 			},
 			handleExit() {
 				this.$http({
@@ -193,6 +197,12 @@
 					this.$wsApi.closeWebSocket();
 					location.href = "/";
 				})
+			},
+			playAudioTip(){
+				let audio = new Audio();
+				let url = require(`@/assets/audio/tip.wav`);
+				audio.src = url;
+				audio.play();
 			},
 			showSetting() {
 				this.showSettingDialog = true;
