@@ -18,8 +18,8 @@
 				let time = new Date(this.time);
 				let strtime = "";
 				let curTime = new Date();
-				let dayDiff =curTime.getDate() - time.getDate() ;
-				if (time.getDate() === new Date().getDate()) {
+				let dayDiff = Math.floor((curTime.getTime() - time.getTime())/(24*3600*1000)) ;
+				if (dayDiff < 1) {
 					strtime = time.getHours() <= 9 ? "0" + time.getHours() : time.getHours();
 					strtime += ":"
 					strtime += time.getMinutes() <= 9 ? "0" + time.getMinutes() : time.getMinutes();
