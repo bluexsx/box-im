@@ -19,7 +19,6 @@
 				 @click="cancel()"></div>
 				<div v-show="state=='CONNECTED'" title="挂断" class="icon iconfont icon-phone-reject reject" style="color: red;"
 				 @click="handup()"></div>
-
 			</div>
 		</div>
 	</el-dialog>
