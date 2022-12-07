@@ -40,7 +40,7 @@
 							</div>
 							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 						</div>
-						<textarea v-model="sendText" ref="sendBox" class="send-text-area" @keydown.enter="sendTextMessage()"></textarea>
+						<textarea v-model="sendText" ref="sendBox" class="send-text-area" :disabled="lockMessage" @keydown.enter="sendTextMessage()"></textarea>
 						<div class="im-chat-send">
 							<el-button type="primary" @click="sendTextMessage()">发送</el-button>
 						</div>
@@ -94,7 +94,8 @@
 					x: 0,
 					y: 0
 				},
-				showHistory: false // 是否显示历史聊天记录
+				showHistory: false, // 是否显示历史聊天记录
+				lockMessage: false // 是否锁定发送
 			}
 		},
 		methods: {
@@ -269,6 +270,7 @@
 				}
 				// 填充对方id
 				this.setTargetId(msgInfo, this.chat.targetId);
+				this.lockMessage = true;
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
@@ -281,11 +283,14 @@
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
 					this.$store.commit("insertMessage", msgInfo);
+				}).finally(() => {
+					// 解除锁定
+					this.lockMessage = false;
 					// 保持输入框焦点
-					this.$refs.sendBox.focus();
+					this.$nextTick(() => this.$refs.sendBox.focus());
 					// 滚动到底部
 					this.scrollToBottom();
-				})
+				});
 				const e = window.event || arguments[0];
 				if (e.key === 'Enter' || e.code === 'Enter' || e.keyCode === 13) {
 					e.returnValue = false;
