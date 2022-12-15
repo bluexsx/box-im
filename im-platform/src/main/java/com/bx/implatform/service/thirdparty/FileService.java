@@ -45,7 +45,10 @@ public class FileService {
     @PostConstruct
     public void init(){
         if(!minioUtil.bucketExists(bucketName)){
+            // 创建bucket
             minioUtil.makeBucket(bucketName);
+            // 公开bucket
+            minioUtil.setBucketPublic(bucketName);
         }
     }
 
