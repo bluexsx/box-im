@@ -52,6 +52,34 @@ public class MinioUtil {
     }
 
     /**
+     *  设置bucket权限为public
+     * @return Boolean
+     */
+    public Boolean setBucketPublic(String bucketName) {
+        try {
+            // 设置公开
+            String sb = "{\"Version\":\"2012-10-17\"," +
+                    "\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":" +
+                    "{\"AWS\":[\"*\"]},\"Action\":[\"s3:ListBucket\",\"s3:ListBucketMultipartUploads\"," +
+                    "\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::" + bucketName +
+                    "\"]},{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:PutObject\",\"s3:AbortMultipartUpload\",\"s3:DeleteObject\",\"s3:GetObject\",\"s3:ListMultipartUploadParts\"],\"Resource\":[\"arn:aws:s3:::" +
+                    bucketName +
+                    "/*\"]}]}";
+            minioClient.setBucketPolicy(
+                    SetBucketPolicyArgs.builder()
+                            .bucket(bucketName)
+                            .config(sb)
+                            .build());
+        } catch (Exception e) {
+            log.error("创建bucket失败,",e);
+            return false;
+        }
+        return true;
+
+    }
+
+
+    /**
      * 删除存储bucket
      * @return Boolean
      */
