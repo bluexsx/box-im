@@ -103,7 +103,7 @@
 
 		.mid {
 			margin-left: 15px;
-			flex: 3;
+			flex: 2;
 			display: flex;
 			flex-direction: column;
 			height: 100%;
