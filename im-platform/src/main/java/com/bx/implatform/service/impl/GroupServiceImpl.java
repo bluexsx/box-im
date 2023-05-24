@@ -230,7 +230,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if(groupMembers.isEmpty()){
             return Collections.EMPTY_LIST;
         }
-        // 拉取群信息
+        // 拉取群列表
         List<Long> ids = groupMembers.stream().map((gm -> gm.getGroupId())).collect(Collectors.toList());
         QueryWrapper<Group> groupWrapper = new QueryWrapper();
         groupWrapper.lambda().in(Group::getId, ids);
@@ -238,7 +238,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 转vo
         List<GroupVO> vos = groups.stream().map(g -> {
             GroupVO vo = BeanUtils.copyProperties(g, GroupVO.class);
-            GroupMember member = groupMembers.stream().filter(m -> g.getId() == m.getGroupId()).findFirst().get();
+            GroupMember member = groupMembers.stream().filter(m -> g.getId().equals(m.getGroupId())).findFirst().get();
             vo.setAliasName(member.getAliasName());
             vo.setRemark(member.getRemark());
             return vo;
