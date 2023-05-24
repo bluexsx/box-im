@@ -86,7 +86,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
-        if(session.getId() != vo.getId()){
+        if(!session.getId().equals(vo.getId()) ){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"不允许修改其他用户的信息!");
         }
         User user = this.getById(vo.getId());
