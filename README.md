@@ -1,22 +1,15 @@
 
 #### 项目介绍
-
 1. 盒子IM是一个仿微信实现的网页版聊天软件，目前完全开源，仅用于学习和交流。
 1. 支持私聊、群聊、离线消息、发送图片、文件、好友在线状态显示等功能。
 1. 后端采用springboot+netty实现，前端使用vue。
 1. 服务器支持集群化部署，每个im-server仅处理自身连接用户的消息
 
 #### 近期更新
-
-
 1. 支持发送emoji表情
 1. 支持发送语音消息
 1. 支持撤回和删除消息
 1. 支持视频聊天(基于webrtc实现)
-
-
-
-
 
 ### 在线体验
 体验地址：https://www.boxim.online
@@ -27,8 +20,6 @@
 也可以自行注册账号
 
 体验后记得帮忙点个star哟!
-
-
 
 
 #### 项目结构
@@ -49,10 +40,6 @@
 - 利用了redis的list数据实现消息推送，其中key为im:unread:${serverid},每个key的数据可以看做一个queue,每个im-server根据自身的id只消费属于自己的queue
 - redis记录了每个用户的websocket连接的是哪个im-server,当用户发送消息时，im-platform将根据所连接的im-server的id,决定将消息推向哪个queue
 
-
-
-
-
 #### 本地快速部署
 1.安装运行环境
 - 安装node:v14.16.0
@@ -61,9 +48,6 @@
 - 安装mysql:5.7,密码分别为root/root,运行sql脚本(脚本在im-platfrom的resources/db目录)
 - 安装redis:4.0
 - 安装minio，命令端口使用9001，并创建一个名为"box-im"的bucket，并设置访问权限为公开
-
-
-
 
 2.启动后端服务
 ```
@@ -80,8 +64,6 @@ npm run serve
 ```
 
 4.访问localhost:8080
-
-
 #### 快速接入
 消息推送的请求代码已经封装在im-client包中，对于需要接入im-server的小伙伴，可以按照下面的教程快速的将IM功能集成到自己的项目中。
 
@@ -168,7 +150,6 @@ public class PrivateMessageListener implements MessageListener {
 ```
 
 4.2 网页端接入
-
 首先将im-ui/src/api/wssocket.js拷贝到自己的项目。
 
 接入代码如下：
