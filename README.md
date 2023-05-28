@@ -5,11 +5,13 @@
 1. 后端采用springboot+netty实现，前端使用vue。
 1. 服务器支持集群化部署，每个im-server仅处理自身连接用户的消息
 
+
 #### 近期更新
 1. 支持发送emoji表情
 1. 支持发送语音消息
 1. 支持撤回和删除消息
 1. 支持视频聊天(基于webrtc实现)
+
 
 #### 在线体验
 体验地址：https://www.boxim.online
@@ -21,6 +23,7 @@
 
 体验后记得帮忙点个star哟!
 
+
 #### 项目结构
 |  模块  |     功能 |
 |-------------|------------|
@@ -29,12 +32,14 @@
 | im-client   | 消息推送sdk|
 | im-common   | 公共包  |
 
+
 #### 消息推送方案
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E9%9B%86%E7%BE%A4%E5%8C%96.jpg)
 
 - 当消息的发送者和接收者连的不是同一个server时，消息是无法直接推送的，所以我们需要设计出能够支持跨节点推送的方案
 - 利用了redis的list数据实现消息推送，其中key为im:unread:${serverid},每个key的数据可以看做一个queue,每个im-server根据自身的id只消费属于自己的queue
 - redis记录了每个用户的websocket连接的是哪个im-server,当用户发送消息时，im-platform将根据所连接的im-server的id,决定将消息推向哪个queue
+
 
 #### 本地快速部署
 1.安装运行环境
@@ -174,6 +179,7 @@ wsApi.onmessage((cmd,messageInfo) => {
 })
 ```
 
+
 #### 界面截图
 文字聊天：
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E6%96%87%E5%AD%97%E8%81%8A%E5%A4%A9.jpg)
@@ -193,11 +199,14 @@ wsApi.onmessage((cmd,messageInfo) => {
 群聊列表：
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E7%BE%A4%E8%81%8A%E5%88%97%E8%A1%A8.jpg)
 
+
 #### 联系方式
 QQ: 825657193
 邮箱：825657193@qq.com
 
 有任何问题，欢迎给我留言哦
 
+
 #### 点下star吧
 喜欢的朋友麻烦点个star，鼓励一下作者吧！
+
