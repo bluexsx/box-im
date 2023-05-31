@@ -1,8 +1,9 @@
 package com.bx.implatform.session;
 
-import com.alibaba.fastjson.JSON;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 /*
  * @Description
@@ -13,11 +14,12 @@ public class SessionContext {
 
 
     public static UserSession getSession(){
-        User useDetail = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String strJson = useDetail.getUsername();
-        UserSession userSession = JSON.parseObject(strJson,UserSession.class);
+        // 从请求上下文里获取Request对象
+        ServletRequestAttributes requestAttributes = ServletRequestAttributes.class.
+                cast(RequestContextHolder.getRequestAttributes());
+        HttpServletRequest request = requestAttributes.getRequest();
+        UserSession userSession = (UserSession) request.getAttribute("session");
         return  userSession;
     }
-
 
 }

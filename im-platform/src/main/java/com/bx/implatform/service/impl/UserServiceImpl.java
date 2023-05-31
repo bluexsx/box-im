@@ -1,5 +1,6 @@
 package com.bx.implatform.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imcommon.contant.RedisKey;
@@ -15,6 +16,8 @@ import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
+import com.bx.implatform.util.JwtUtil;
+import com.bx.implatform.vo.LoginVO;
 import com.bx.implatform.vo.RegisterVO;
 import com.bx.implatform.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +47,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Autowired
     private IFriendService friendService;
+
+    /**
+     * 用户登录
+     *
+     * @param vo 注册vo
+     * @return
+     */
+
+    @Override
+    public String login(LoginVO vo) {
+        User user = findUserByName(vo.getUserName());
+        if(null == user){
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"用户不存在");
+        }
+        if(!passwordEncoder.matches(vo.getPassword(),user.getPassword())){
+            throw  new GlobalException(ResultCode.PASSWOR_ERROR);
+        }
+        // 生成token
+        UserSession session = BeanUtils.copyProperties(user,UserSession.class);
+        String strJson = JSON.toJSONString(session);
+        String token = JwtUtil.sign(user.getId(),strJson);
+        return token;
+    }
 
     /**
      * 用户注册

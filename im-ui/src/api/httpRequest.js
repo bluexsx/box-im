@@ -15,7 +15,10 @@ const http = axios.create({
  * 请求拦截
  */
 http.interceptors.request.use(config => {
-	// todo 请求头带上token
+	let token = sessionStorage.getItem("token");
+	if (token) {
+		config.headers.token = sessionStorage.getItem("token");
+	}
 	return config
 }, error => {
 	return Promise.reject(error)
