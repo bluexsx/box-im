@@ -4,34 +4,23 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.bx.implatform.exception.GlobalException;
-;
-
 import java.util.Date;
-import java.util.Map;
+
 
 public class JwtUtil {
-    /**
-     * 过期5分钟
-     * */
-    private static final long EXPIRE_TIME = 30 * 60 * 1000;
-
-    /**
-     * jwt密钥
-     * */
-    private static final String SECRET = "MIIBIjANBgkq";
 
     /**
      * 生成jwt字符串，30分钟后过期  JWT(json web token)
      * @param userId
      * @param info
+     * @param expireIn
+     * @param secret
      * @return
      * */
-    public static String sign(Long userId, String info) {
+    public static String sign(Long userId, String info,long expireIn,String secret) {
         try {
-            Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
-            Algorithm algorithm = Algorithm.HMAC256(SECRET);
+            Date date = new Date(System.currentTimeMillis() + expireIn*1000);
+            Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     //将userId保存到token里面
                     .withAudience(userId.toString())
@@ -77,18 +66,15 @@ public class JwtUtil {
     /**
      * 校验token
      * @param token
+     * @param secret
      * @return
      * */
-    public static boolean checkSign(String token) {
-        try {
-            Algorithm algorithm  = Algorithm.HMAC256(SECRET);
+    public static boolean checkSign(String token,String secret) {
+            Algorithm algorithm  = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
                     //.withClaim("username, username)
                     .build();
             verifier.verify(token);
             return true;
-        }catch (JWTVerificationException e) {
-            throw new GlobalException("token 无效，请重新获取");
-        }
     }
 }

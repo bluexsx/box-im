@@ -1,4 +1,4 @@
-package com.bx.implatform.vo;
+package com.bx.implatform.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 
 @Data
 @ApiModel("用户注册VO")
-public class RegisterVO {
+public class RegisterDTO {
 
     @Length(max = 64,message = "用户名不能大于64字符")
     @NotEmpty(message="用户名不可为空")

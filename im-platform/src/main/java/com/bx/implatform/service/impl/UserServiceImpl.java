@@ -1,9 +1,11 @@
 package com.bx.implatform.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imcommon.contant.RedisKey;
+import com.bx.implatform.contant.Constant;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;
@@ -17,8 +19,9 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.JwtUtil;
+import com.bx.implatform.dto.LoginDTO;
+import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
-import com.bx.implatform.vo.RegisterVO;
 import com.bx.implatform.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.bx.implatform.contant.Constant.REFRESH_TOKEN_SECRET;
 
 
 @Slf4j
@@ -51,42 +56,74 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     /**
      * 用户登录
      *
-     * @param vo 注册vo
+     * @param dto 登录dto
      * @return
      */
 
     @Override
-    public String login(LoginVO vo) {
-        User user = findUserByName(vo.getUserName());
+    public LoginVO login(LoginDTO dto) {
+        User user = findUserByName(dto.getUserName());
         if(null == user){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"用户不存在");
         }
-        if(!passwordEncoder.matches(vo.getPassword(),user.getPassword())){
+        if(!passwordEncoder.matches(dto.getPassword(),user.getPassword())){
             throw  new GlobalException(ResultCode.PASSWOR_ERROR);
         }
         // 生成token
         UserSession session = BeanUtils.copyProperties(user,UserSession.class);
         String strJson = JSON.toJSONString(session);
-        String token = JwtUtil.sign(user.getId(),strJson);
-        return token;
+        String accessToken = JwtUtil.sign(user.getId(),strJson, Constant.ACCESS_TOKEN_EXPIRE,Constant.ACCESS_TOKEN_SECRET);
+        String refreshToken = JwtUtil.sign(user.getId(),strJson, Constant.REFRESH_TOKEN_EXPIRE, REFRESH_TOKEN_SECRET);
+        LoginVO vo =new LoginVO();
+        vo.setAccessToken(accessToken);
+        vo.setAccessTokenExpiresIn(Constant.ACCESS_TOKEN_EXPIRE);
+        vo.setRefreshToken(refreshToken);
+        vo.setAccessTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
+        return vo;
+    }
+
+    /**
+     * 用refreshToken换取新 token
+     *
+     * @param refreshToken
+     * @return
+     */
+    @Override
+    public LoginVO refreshToken(String refreshToken) {
+        try{
+            //验证 token
+            JwtUtil.checkSign(refreshToken, REFRESH_TOKEN_SECRET);
+            String strJson = JwtUtil.getInfo(refreshToken);
+            Long userId = JwtUtil.getUserId(refreshToken);
+            String accessToken = JwtUtil.sign(userId,strJson, Constant.ACCESS_TOKEN_EXPIRE,Constant.ACCESS_TOKEN_SECRET);
+            String newRefreshToken = JwtUtil.sign(userId,strJson, Constant.REFRESH_TOKEN_EXPIRE, REFRESH_TOKEN_SECRET);
+            LoginVO vo =new LoginVO();
+            vo.setAccessToken(accessToken);
+            vo.setAccessTokenExpiresIn(Constant.ACCESS_TOKEN_EXPIRE);
+            vo.setRefreshToken(newRefreshToken);
+            vo.setAccessTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
+            return vo;
+        }catch (JWTVerificationException e) {
+            throw new GlobalException(ResultCode.INVALID_TOKEN);
+        }
     }
 
     /**
      * 用户注册
      *
-     * @param vo 注册vo
+     * @param dto 注册dto
      * @return
      */
     @Override
-    public void register(RegisterVO vo) {
-        User user = findUserByName(vo.getUserName());
+    public void register(RegisterDTO dto) {
+        User user = findUserByName(dto.getUserName());
         if(null != user){
             throw  new GlobalException(ResultCode.USERNAME_ALREADY_REGISTER);
         }
-        user = BeanUtils.copyProperties(vo,User.class);
+        user = BeanUtils.copyProperties(dto,User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.save(user);
-        log.info("注册用户，用户id:{},用户名:{},昵称:{}",user.getId(),vo.getUserName(),vo.getNickName());
+        log.info("注册用户，用户id:{},用户名:{},昵称:{}",user.getId(),dto.getUserName(),dto.getNickName());
     }
 
     /**

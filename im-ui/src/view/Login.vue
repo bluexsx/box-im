@@ -66,12 +66,12 @@
 								method: 'post',
 								data: this.loginForm
 							})
-							.then((token) => {
+							.then((data) => {
 								// 保存密码到cookie(方便但不安全)
 								this.setCookie('username',this.loginForm.userName);
 								this.setCookie('password',this.loginForm.password);
 								// 保存token
-								sessionStorage.setItem("token",token);
+								sessionStorage.setItem("token",data.accessToken);
 								this.$message.success("登陆成功");
 								this.$router.push("/home/chat");
 							})

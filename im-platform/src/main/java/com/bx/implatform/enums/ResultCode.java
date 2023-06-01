@@ -9,8 +9,8 @@ package com.bx.implatform.enums;
  **/
 public enum ResultCode {
     SUCCESS(200,"成功"),
-    LOGIN_ERROR(400,"登录异常"),
-    NO_LOGIN(401,"未登录"),
+    NO_LOGIN(400,"未登录"),
+    INVALID_TOKEN(401,"token已失效"),
     PROGRAM_ERROR(500,"系统繁忙，请稍后再试"),
     PASSWOR_ERROR(10001,"密码不正确"),
     USERNAME_ALREADY_REGISTER(10003,"该用户名已注册"),

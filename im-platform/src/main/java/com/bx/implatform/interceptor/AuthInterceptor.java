@@ -2,6 +2,8 @@ package com.bx.implatform.interceptor;
 
 
 import com.alibaba.fastjson.JSON;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.bx.implatform.contant.Constant;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.session.UserSession;
@@ -26,8 +28,13 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (token == null) {
             throw new GlobalException(ResultCode.NO_LOGIN);
         }
-        //验证 token
-        JwtUtil.checkSign(token);
+        try{
+            //验证 token
+            JwtUtil.checkSign(token, Constant.ACCESS_TOKEN_SECRET);
+        }catch (
+        JWTVerificationException e) {
+            throw new GlobalException(ResultCode.INVALID_TOKEN);
+        }
         // 存放session
         String  strJson = JwtUtil.getInfo(token);
         UserSession userSession = JSON.parseObject(strJson,UserSession.class);
