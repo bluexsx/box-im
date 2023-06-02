@@ -36,6 +36,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             JwtUtil.checkSign(token, Constant.ACCESS_TOKEN_SECRET);
         }catch (
         JWTVerificationException e) {
+            log.error("token已失效，url:{}",request.getRequestURI());
             throw new GlobalException(ResultCode.INVALID_TOKEN);
         }
         // 存放session
