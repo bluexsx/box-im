@@ -10,10 +10,7 @@ import com.bx.implatform.vo.LoginVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -34,7 +31,7 @@ public class LoginController {
     }
 
 
-    @PostMapping("/refreshToken")
+    @PutMapping("/refreshToken")
     @ApiOperation(value = "刷新token",notes="用refreshtoken换取新的token")
     public Result refreshToken(@RequestHeader("refreshToken")String refreshToken){
         LoginVO vo = userService.refreshToken(refreshToken);

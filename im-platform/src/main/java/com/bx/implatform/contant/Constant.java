@@ -9,7 +9,7 @@ public class Constant {
     // 群聊最大人数
     public static final long MAX_GROUP_MEMBER = 500;
     // accessToken 过期时间(1小时)
-    public static final Integer ACCESS_TOKEN_EXPIRE = 60 * 60;
+    public static final Integer ACCESS_TOKEN_EXPIRE = 30 * 60;
     // refreshToken 过期时间(7天)
     public static final Integer REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60 ;
     // accessToken 加密秘钥

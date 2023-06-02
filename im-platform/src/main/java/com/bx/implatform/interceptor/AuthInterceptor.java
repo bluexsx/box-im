@@ -24,7 +24,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
         //从 http 请求头中取出 token
-        String token = request.getHeader("token");
+        String token = request.getHeader("accessToken");
         if (token == null) {
             throw new GlobalException(ResultCode.NO_LOGIN);
         }

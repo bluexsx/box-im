@@ -74,11 +74,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String strJson = JSON.toJSONString(session);
         String accessToken = JwtUtil.sign(user.getId(),strJson, Constant.ACCESS_TOKEN_EXPIRE,Constant.ACCESS_TOKEN_SECRET);
         String refreshToken = JwtUtil.sign(user.getId(),strJson, Constant.REFRESH_TOKEN_EXPIRE, REFRESH_TOKEN_SECRET);
-        LoginVO vo =new LoginVO();
+        LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(Constant.ACCESS_TOKEN_EXPIRE);
         vo.setRefreshToken(refreshToken);
-        vo.setAccessTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
+        vo.setRefreshTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
         return vo;
     }
 
@@ -101,10 +101,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             vo.setAccessToken(accessToken);
             vo.setAccessTokenExpiresIn(Constant.ACCESS_TOKEN_EXPIRE);
             vo.setRefreshToken(newRefreshToken);
-            vo.setAccessTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
+            vo.setRefreshTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
             return vo;
         }catch (JWTVerificationException e) {
-            throw new GlobalException(ResultCode.INVALID_TOKEN);
+            throw new GlobalException("refreshToken已失效");
         }
     }
 
