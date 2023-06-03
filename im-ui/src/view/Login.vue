@@ -2,8 +2,8 @@
 	<div class="login-view"  >
 			<el-form :model="loginForm"  status-icon :rules="rules" ref="loginForm"  label-width="60px" class="web-ruleForm" @keyup.enter.native="submitForm('loginForm')">
 				<div class="login-brand">欢迎登陆</div>
-				<el-form-item label="用户名" prop="username">
-					<el-input type="username" v-model="loginForm.username" autocomplete="off"></el-input>
+				<el-form-item label="用户名" prop="userName">
+					<el-input type="userName" v-model="loginForm.userName" autocomplete="off"></el-input>
 
 				</el-form-item>
 				<el-form-item label="密码" prop="password">
@@ -42,11 +42,11 @@
 			};
 			return {
 				loginForm: {
-					username: '',
+					userName: '',
 					password: ''
 				},
 				rules: {
-					username: [{
+					userName: [{
 						validator: checkUsername,
 						trigger: 'blur'
 					}],
@@ -64,11 +64,15 @@
 						this.$http({
 								url: "/login",
 								method: 'post',
-								params: this.loginForm
+								data: this.loginForm
 							})
 							.then((data) => {
-								this.setCookie('username',this.loginForm.username);
+								// 保存密码到cookie(不安全)
+								this.setCookie('username',this.loginForm.userName);
 								this.setCookie('password',this.loginForm.password);
+								// 保存token
+								sessionStorage.setItem("accessToken",data.accessToken);
+								sessionStorage.setItem("refreshToken",data.refreshToken);
 								this.$message.success("登陆成功");
 								this.$router.push("/home/chat");
 							})
@@ -105,7 +109,7 @@
 			  }
 		},
 		mounted() {
-			this.loginForm.username = this.getCookie("username");
+			this.loginForm.userName = this.getCookie("username");
 			// cookie存密码并不安全，暂时是为了方便
 			this.loginForm.password = this.getCookie("password");
 		}

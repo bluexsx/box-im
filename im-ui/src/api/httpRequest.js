@@ -1,6 +1,8 @@
 import axios from 'axios'
 import router from '@/router'
-import {Message} from 'element-ui'
+import {
+	Message
+} from 'element-ui'
 
 const http = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API,
@@ -15,7 +17,10 @@ const http = axios.create({
  * 请求拦截
  */
 http.interceptors.request.use(config => {
-	// todo 请求头带上token
+	let accessToken = sessionStorage.getItem("accessToken");
+	if (accessToken) {
+		config.headers.accessToken = encodeURIComponent(accessToken);
+	}
 	return config
 }, error => {
 	return Promise.reject(error)
@@ -24,9 +29,32 @@ http.interceptors.request.use(config => {
 /**
  * 响应拦截
  */
-http.interceptors.response.use(response => {
+http.interceptors.response.use(async response => {
 	if (response.data.code == 200) {
 		return response.data.data;
+	} else if (response.data.code == 400) {
+		router.replace("/login");
+	} else if (response.data.code == 401) {
+		console.log("token失效，尝试重新获取")
+		let refreshToken = sessionStorage.getItem("refreshToken");
+		if (!refreshToken) {
+			router.replace("/login");
+		}
+		// 发送请求, 进行刷新token操作, 获取新的token
+		const data = await http({
+			method: 'put',
+			url: '/refreshToken',
+			headers: {
+				refreshToken: refreshToken
+			}
+		})
+		// 保存token
+		sessionStorage.setItem("accessToken", data.accessToken);
+		sessionStorage.setItem("refreshToken", data.refreshToken);
+		// 这里需要把headers清掉，否则请求时会报错，原因暂不详...
+		response.config.headers=undefined;
+		// 重新发送刚才的请求
+		return http(response.config)
 	} else {
 		Message({
 			message: response.data.message,
@@ -34,10 +62,6 @@ http.interceptors.response.use(response => {
 			duration: 1500,
 			customClass: 'element-error-message-zindex'
 		})
-		
-		if (response.data.code == 401) {
-			router.replace("/login");
-		}
 		return Promise.reject(response.data)
 	}
 }, error => {

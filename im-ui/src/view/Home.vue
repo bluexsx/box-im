@@ -190,13 +190,9 @@
 				this.playAudioTip();
 			},
 			handleExit() {
-				this.$http({
-					url: "/logout",
-					method: 'get'
-				}).then(() => {
-					this.$wsApi.closeWebSocket();
-					location.href = "/";
-				})
+				this.$wsApi.closeWebSocket();
+				sessionStorage.removeItem("token");
+				location.href = "/";
 			},
 			playAudioTip(){
 				let audio = new Audio();
