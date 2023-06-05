@@ -1,11 +1,6 @@
 <template>
-	<el-upload  :action="action" 
-	 :accept="fileTypes==null?'':fileTypes.join(',')" 
-	 :show-file-list="false" 
-	 :on-success="handleSuccess"
-	 :on-error="handleError"
-	 :disabled="disabled"
-	 :before-upload="beforeUpload">
+	<el-upload :action="action" :headers="uploadHeaders" :accept="fileTypes==null?'':fileTypes.join(',')"
+	 :show-file-list="false" :on-success="handleSuccess" :on-error="handleError" :disabled="disabled" :before-upload="beforeUpload">
 		<slot></slot>
 	</el-upload>
 </template>
@@ -15,7 +10,8 @@
 		name: "fileUpload",
 		data() {
 			return {
-				loading: null
+				loading: null,
+				uploadHeaders: {"accessToken":sessionStorage.getItem('accessToken')}
 			}
 		},
 		props: {
@@ -45,17 +41,17 @@
 				this.loading && this.loading.close();
 				if (res.code == 200) {
 					this.$emit("success", res, file);
-				}else{
+				} else {
 					this.$message.error(res.message);
 					this.$emit("fail", res, file);
 				}
 			},
-			handleError(err,file){
+			handleError(err, file) {
 				this.$emit("fail", err, file);
 			},
 			beforeUpload(file) {
 				// 校验文件类型
-				if(this.fileTypes && this.fileTypes.length > 0){
+				if (this.fileTypes && this.fileTypes.length > 0) {
 					let fileType = file.type;
 					let t = this.fileTypes.find((t) => t.toLowerCase() === fileType);
 					if (t === undefined) {
@@ -80,6 +76,8 @@
 				this.$emit("before", file);
 				return true;
 			}
+			
+			
 		},
 		computed: {
 			fileSizeStr() {
