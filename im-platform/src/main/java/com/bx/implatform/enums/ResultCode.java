@@ -14,6 +14,7 @@ public enum ResultCode {
     PROGRAM_ERROR(500,"系统繁忙，请稍后再试"),
     PASSWOR_ERROR(10001,"密码不正确"),
     USERNAME_ALREADY_REGISTER(10003,"该用户名已注册"),
+    XSS_PARAM_ERROR(10004,"请不要输入非法内容"),
     ;
 
 
