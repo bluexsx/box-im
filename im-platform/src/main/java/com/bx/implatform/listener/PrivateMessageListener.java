@@ -33,13 +33,12 @@ public class PrivateMessageListener implements MessageListener {
         PrivateMessageInfo messageInfo = (PrivateMessageInfo) result.getMessageInfo();
         // 提示类数据不记录
         if(messageInfo.getType().equals(MessageType.TIP.code())){
-
             return;
         }
         // 视频通话信令不记录
         if(messageInfo.getType() >= MessageType.RTC_CALL.code() && messageInfo.getType()< MessageType.RTC_CANDIDATE.code()){
             // 通知用户呼叫失败了
-            if(messageInfo.getType() == MessageType.RTC_CALL.code()
+            if(messageInfo.getType().equals(MessageType.RTC_CALL.code())
                     && !result.getCode().equals(IMSendCode.SUCCESS)){
                 PrivateMessageInfo sendMessage = new PrivateMessageInfo();
                 sendMessage.setRecvId(messageInfo.getSendId());
@@ -49,6 +48,7 @@ public class PrivateMessageListener implements MessageListener {
                 sendMessage.setSendTime(new Date());
                 imClient.sendPrivateMessage(sendMessage.getRecvId(),sendMessage);
             }
+            return;
         }
         // 更新消息状态
         if(result.getCode().equals(IMSendCode.SUCCESS)){
