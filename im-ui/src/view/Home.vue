@@ -28,6 +28,12 @@
 					<span class="el-icon-setting"></span>
 				</el-menu-item>
 			</el-menu>
+			<div class="gitee-box" title="gitee仓库,帮忙点点star哟">
+				<a href="https://gitee.com/bluexsx/box-im" target="_blank">
+					<el-image style="width: 30px; height: 30px" src="https://gitee.com/favicon.ico" fit="fit">
+					</el-image>
+				</a>
+			</div>
 			<div class="exit-box" @click="handleExit()" title="退出">
 				<span class="el-icon-circle-close"></span>
 			</div>
@@ -38,16 +44,11 @@
 		<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
 		<user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user" @close="$store.commit('closeUserInfoBox')"></user-info>
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url" @close="$store.commit('closeFullImageBox')"></full-image>
-		<chat-private-video ref="privateVideo" :visible="uiStore.chatPrivateVideo.show" 
-		:friend="uiStore.chatPrivateVideo.friend" 
-		:master="uiStore.chatPrivateVideo.master"
-		:offer="uiStore.chatPrivateVideo.offer"
-		@close="$store.commit('closeChatPrivateVideoBox')" >
+		<chat-private-video ref="privateVideo" :visible="uiStore.chatPrivateVideo.show" :friend="uiStore.chatPrivateVideo.friend"
+		 :master="uiStore.chatPrivateVideo.master" :offer="uiStore.chatPrivateVideo.offer" @close="$store.commit('closeChatPrivateVideoBox')">
 		</chat-private-video>
-		<chat-video-acceptor ref="videoAcceptor"
-		v-show="uiStore.videoAcceptor.show"
-		:friend="uiStore.videoAcceptor.friend" 
-		@close="$store.commit('closeVideoAcceptorBox')" >
+		<chat-video-acceptor ref="videoAcceptor" v-show="uiStore.videoAcceptor.show" :friend="uiStore.videoAcceptor.friend"
+		 @close="$store.commit('closeVideoAcceptorBox')">
 		</chat-video-acceptor>
 	</el-container>
 </template>
@@ -59,8 +60,8 @@
 	import FullImage from '../components/common/FullImage.vue';
 	import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
 	import ChatVideoAcceptor from '../components/chat/ChatVideoAcceptor.vue';
-	
-	
+
+
 	export default {
 		components: {
 			HeadImage,
@@ -73,7 +74,7 @@
 		data() {
 			return {
 				showSettingDialog: false,
-				
+
 			}
 		},
 		methods: {
@@ -81,24 +82,24 @@
 				this.$store.commit("setUserInfo", userInfo);
 				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
 				this.$store.commit("initStore");
-				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, userInfo.id,sessionStorage.getItem("accessToken"));
+				this.$wsApi.createWebSocket(process.env.VUE_APP_WS_URL, userInfo.id, sessionStorage.getItem("accessToken"));
 				this.$wsApi.onopen(() => {
 					this.pullUnreadMessage();
 				});
-				this.$wsApi.onmessage((cmd,msgInfo) => {
+				this.$wsApi.onmessage((cmd, msgInfo) => {
 					if (cmd == 2) {
 						// 异地登录，强制下线
 						this.$message.error("您已在其他地方登陆，将被强制下线");
 						setTimeout(() => {
 							location.href = "/";
 						}, 1000)
-					} else if (cmd == 3) { 
+					} else if (cmd == 3) {
 						// 插入私聊消息
 						this.handlePrivateMessage(msgInfo);
 					} else if (cmd == 4) {
 						// 插入群聊消息
 						this.handleGroupMessage(msgInfo);
-					} 
+					}
 				})
 			},
 			pullUnreadMessage() {
@@ -131,20 +132,20 @@
 			},
 			insertPrivateMessage(friend, msg) {
 				// webrtc 信令
-				if(msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL 
-				&& msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE){
+				if (msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL &&
+					msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
 					// 呼叫
 					console.log(msg)
-					if(msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL
-					|| msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL){
-						this.$store.commit("showVideoAcceptorBox",friend);
+					if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL ||
+						msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL) {
+						this.$store.commit("showVideoAcceptorBox", friend);
 						this.$refs.videoAcceptor.handleMessage(msg)
-					}else {
+					} else {
 						this.$refs.privateVideo.handleMessage(msg)
 					}
-					return ;
+					return;
 				}
-				
+
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
@@ -193,7 +194,7 @@
 				sessionStorage.removeItem("accessToken");
 				location.href = "/";
 			},
-			playAudioTip(){
+			playAudioTip() {
 				let audio = new Audio();
 				let url = require(`@/assets/audio/tip.wav`);
 				audio.src = url;
@@ -291,6 +292,15 @@
 					border: 1px solid #f1e5e5;
 				}
 			}
+		}
+
+		.gitee-box {
+			position: absolute;
+			width: 60px;
+			bottom: 100px;
+			display: flex;
+			justify-content: center;
+			cursor: pointer;
 		}
 
 		.exit-box {
