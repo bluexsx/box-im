@@ -98,7 +98,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         if(msg == null){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"消息不存在");
         }
-        if(msg.getSendId() != userId){
+        if(!msg.getSendId().equals(userId)){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"这条消息不是由您发送,无法撤回");
         }
         if(System.currentTimeMillis() - msg.getSendTime().getTime() > Constant.ALLOW_RECALL_SECOND * 1000){

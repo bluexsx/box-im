@@ -14,3 +14,7 @@ websocket:
 tcpsocket:
   enable: false # 暂时不开启
   port: 8879
+
+jwt:
+  accessToken:
+    secret: MIIBIjANBgkq  # 跟im-platfrom的secret必须一致

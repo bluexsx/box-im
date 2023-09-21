@@ -74,7 +74,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         if (msg == null) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
         }
-        if (msg.getSendId() != userId) {
+        if (!msg.getSendId().equals(userId)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "这条消息不是由您发送,无法撤回");
         }
         if (System.currentTimeMillis() - msg.getSendTime().getTime() > Constant.ALLOW_RECALL_SECOND * 1000) {
@@ -122,7 +122,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             PrivateMessageInfo info = BeanUtils.copyProperties(m, PrivateMessageInfo.class);
             return info;
         }).collect(Collectors.toList());
-
         log.info("拉取聊天记录，用户id:{},好友id:{}，数量:{}", userId, friendId, messageInfos.size());
         return messageInfos;
     }
@@ -136,9 +135,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public void pullUnreadMessage() {
         // 获取当前连接的channelId
         Long userId = SessionContext.getSession().getId();
-        String key = RedisKey.IM_USER_SERVER_ID + userId;
-        Integer serverId = (Integer) redisTemplate.opsForValue().get(key);
-        if (serverId == null) {
+        if (!imClient.isOnline(userId)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "用户未建立连接");
         }
         // 获取当前用户所有未读消息

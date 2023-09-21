@@ -1,11 +1,11 @@
 package com.bx.implatform.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.RedisKey;
-import com.bx.implatform.contant.Constant;
+import com.bx.implatform.config.JwtProperties;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;
@@ -18,7 +18,7 @@ import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.util.JwtUtil;
+import com.bx.imcommon.util.JwtUtil;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
@@ -33,8 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.bx.implatform.contant.Constant.REFRESH_TOKEN_SECRET;
 
 
 @Slf4j
@@ -53,6 +51,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Autowired
     private IFriendService friendService;
 
+    @Autowired
+    private JwtProperties jwtProperties;
+
+    @Autowired
+    private IMClient imClient;
     /**
      * 用户登录
      *
@@ -72,13 +75,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 生成token
         UserSession session = BeanUtils.copyProperties(user,UserSession.class);
         String strJson = JSON.toJSONString(session);
-        String accessToken = JwtUtil.sign(user.getId(),strJson, Constant.ACCESS_TOKEN_EXPIRE,Constant.ACCESS_TOKEN_SECRET);
-        String refreshToken = JwtUtil.sign(user.getId(),strJson, Constant.REFRESH_TOKEN_EXPIRE, REFRESH_TOKEN_SECRET);
+        String accessToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
+        String refreshToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
         LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
-        vo.setAccessTokenExpiresIn(Constant.ACCESS_TOKEN_EXPIRE);
+        vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
         vo.setRefreshToken(refreshToken);
-        vo.setRefreshTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
+        vo.setRefreshTokenExpiresIn(jwtProperties.getRefreshTokenExpireIn());
         return vo;
     }
 
@@ -90,22 +93,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public LoginVO refreshToken(String refreshToken) {
-        try{
-            //验证 token
-            JwtUtil.checkSign(refreshToken, REFRESH_TOKEN_SECRET);
-            String strJson = JwtUtil.getInfo(refreshToken);
-            Long userId = JwtUtil.getUserId(refreshToken);
-            String accessToken = JwtUtil.sign(userId,strJson, Constant.ACCESS_TOKEN_EXPIRE,Constant.ACCESS_TOKEN_SECRET);
-            String newRefreshToken = JwtUtil.sign(userId,strJson, Constant.REFRESH_TOKEN_EXPIRE, REFRESH_TOKEN_SECRET);
-            LoginVO vo =new LoginVO();
-            vo.setAccessToken(accessToken);
-            vo.setAccessTokenExpiresIn(Constant.ACCESS_TOKEN_EXPIRE);
-            vo.setRefreshToken(newRefreshToken);
-            vo.setRefreshTokenExpiresIn(Constant.REFRESH_TOKEN_EXPIRE);
-            return vo;
-        }catch (JWTVerificationException e) {
-            throw new GlobalException("refreshToken已失效");
+        //验证 token
+        if(JwtUtil.checkSign(refreshToken, jwtProperties.getRefreshTokenSecret())){
+            throw new GlobalException("refreshToken无效或已过期");
         }
+        String strJson = JwtUtil.getInfo(refreshToken);
+        Long userId = JwtUtil.getUserId(refreshToken);
+        String accessToken = JwtUtil.sign(userId,strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
+        String newRefreshToken = JwtUtil.sign(userId,strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
+        LoginVO vo =new LoginVO();
+        vo.setAccessToken(accessToken);
+        vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
+        vo.setRefreshToken(newRefreshToken);
+        vo.setRefreshTokenExpiresIn(jwtProperties.getRefreshTokenExpireIn());
+        return vo;
     }
 
     /**
@@ -201,7 +202,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         List<User> users = this.list(queryWrapper);
         List<UserVO> vos = users.stream().map(u-> {
             UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
-            vo.setOnline(isOnline(u.getId()));
+            vo.setOnline(imClient.isOnline(u.getId()));
             return vo;
         }).collect(Collectors.toList());
         return vos;
@@ -219,7 +220,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String[] idArr = userIds.split(",");
         List<Long> onlineIds = new LinkedList<>();
         for(String userId:idArr){
-           if(isOnline(Long.parseLong(userId))){
+           if(imClient.isOnline(Long.parseLong(userId))){
                 onlineIds.add(Long.parseLong(userId));
             }
         }
@@ -227,9 +228,4 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 
-    private boolean isOnline(Long userId){
-        String key = RedisKey.IM_USER_SERVER_ID + userId;
-        Integer serverId = (Integer) redisTemplate.opsForValue().get(key);
-        return serverId!=null && serverId>=0;
-    }
 }
