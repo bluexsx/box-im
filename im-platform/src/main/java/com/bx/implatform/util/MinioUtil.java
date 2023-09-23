@@ -25,14 +25,12 @@ public class MinioUtil {
      * @return boolean
      */
     public Boolean bucketExists(String bucketName) {
-        Boolean found;
         try {
-            found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            return  minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         } catch (Exception e) {
             log.error("查询bucket失败",e);
             return false;
         }
-        return found;
     }
 
     /**
@@ -141,6 +139,7 @@ public class MinioUtil {
                     .stream(stream, fileByte.length, -1).contentType(contentType).build();
             //文件名称相同会覆盖
             minioClient.putObject(objectArgs);
+
         } catch (Exception e) {
             log.error("上传图片失败,",e);
             return null;

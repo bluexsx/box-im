@@ -3,13 +3,15 @@ let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存
 let isConnect = false; //连接标识 避免重复连接
 let wsurl = "";
 let userId = null;
+let accessToken = "";
 let messageCallBack = null;
 let openCallBack = null;
 let hasLogin = false;
 
-let createWebSocket = (url, id) => {
+let createWebSocket = (url, id,token) => {
 	wsurl = url;
 	userId = id;
+	accessToken = token;
 	initWebSocket();
 };
 
@@ -26,13 +28,12 @@ let initWebSocket = () => {
 				console.log('WebSocket登录成功')
 				// 登录成功才算连接完成
 				openCallBack && openCallBack();
-			}
-			else if(sendInfo.cmd==1){
+			} else if (sendInfo.cmd == 1) {
 				// 重新开启心跳定时
 				heartCheck.reset();
 			} else {
 				// 其他消息转发出去
-				messageCallBack && messageCallBack(sendInfo.cmd,sendInfo.data)
+				messageCallBack && messageCallBack(sendInfo.cmd, sendInfo.data)
 			}
 		}
 		websock.onclose = function(e) {
@@ -45,10 +46,12 @@ let initWebSocket = () => {
 			// 发送登录命令
 			let loginInfo = {
 				cmd: 0,
-				data: {userId: userId}
+				data: {
+					accessToken: accessToken
+				}
 			};
 			websock.send(JSON.stringify(loginInfo));
-			
+
 		}
 
 		// 连接发生错误的回调方法
@@ -83,24 +86,22 @@ var heartCheck = {
 	timeout: 5000, //每段时间发送一次心跳包 这里设置为20s
 	timeoutObj: null, //延时发送消息对象（启动心跳新建这个对象，收到消息后重置对象）
 	start: function() {
-		if(isConnect){
+		if (isConnect) {
 			console.log('发送WebSocket心跳')
 			let heartBeat = {
 				cmd: 1,
-				data: {
-					userId: userId
-				}
+				data: {}
 			};
 			websock.send(JSON.stringify(heartBeat))
 		}
 	},
 
-	reset: function(){
+	reset: function() {
 		clearTimeout(this.timeoutObj);
 		this.timeoutObj = setTimeout(function() {
 			heartCheck.start();
 		}, this.timeout);
-		
+
 	}
 };
 

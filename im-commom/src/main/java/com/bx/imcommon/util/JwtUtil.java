@@ -1,16 +1,17 @@
-package com.bx.implatform.util;
+package com.bx.imcommon.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import java.util.Date;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 
+import java.util.Date;
 
 public class JwtUtil {
 
     /**
-     * 生成jwt字符串，30分钟后过期  JWT(json web token)
+     * 生成jwt字符串  JWT(json web token)
      * @param userId
      * @param info
      * @param expireIn
@@ -26,12 +27,11 @@ public class JwtUtil {
                     .withAudience(userId.toString())
                     //存放自定义数据
                     .withClaim("info", info)
-                    //五分钟后token过期
+                    //过期时间
                     .withExpiresAt(date)
                     //token的密钥
                     .sign(algorithm);
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -70,11 +70,13 @@ public class JwtUtil {
      * @return
      * */
     public static boolean checkSign(String token,String secret) {
+        try{
             Algorithm algorithm  = Algorithm.HMAC256(secret);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    //.withClaim("username, username)
-                    .build();
+            JWTVerifier verifier = JWT.require(algorithm).build();
             verifier.verify(token);
             return true;
+        }catch (JWTVerificationException e) {
+            return false;
+        }
     }
 }

@@ -106,12 +106,7 @@
             <artifactId>mybatis-plus-generator</artifactId>
             <version>3.3.2</version>
         </dependency>
-        <!-- 引入操作JWT的相关依赖 -->
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>3.11.0</version>
-        </dependency>
+
     </dependencies>
 
     <build>
