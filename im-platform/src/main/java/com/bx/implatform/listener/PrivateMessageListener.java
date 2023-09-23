@@ -41,24 +41,24 @@ public class PrivateMessageListener implements MessageListener {
         }
         // 视频通话信令不记录
         if(messageInfo.getType() >= MessageType.RTC_CALL.code() && messageInfo.getType()< MessageType.RTC_CANDIDATE.code()){
-            // 通知用户呼叫失败了
-            if(messageInfo.getType().equals(MessageType.RTC_CALL.code())
-                    && !resultCode.equals(IMSendCode.SUCCESS)){
-                PrivateMessageInfo msgInfo = new PrivateMessageInfo();
-                msgInfo.setRecvId(messageInfo.getSendId());
-                msgInfo.setSendId(messageInfo.getRecvId());
-                msgInfo.setType(MessageType.RTC_FAILED.code());
-                msgInfo.setContent(resultCode.description());
-                msgInfo.setSendTime(new Date());
-
-                IMPrivateMessage sendMessage = new IMPrivateMessage();
-                sendMessage.setSendId(messageInfo.getSendId());
-                sendMessage.setRecvId(messageInfo.getRecvId());
-                sendMessage.setSendTerminal(result.getRecvTerminal());
-                sendMessage.setSendToSelf(false);
-                sendMessage.setDatas(Arrays.asList(messageInfo));
-                imClient.sendPrivateMessage(sendMessage);
-            }
+//            // 通知用户呼叫失败了
+//            if(messageInfo.getType().equals(MessageType.RTC_CALL.code())
+//                    && !resultCode.equals(IMSendCode.SUCCESS)){
+//                PrivateMessageInfo msgInfo = new PrivateMessageInfo();
+//                msgInfo.setRecvId(messageInfo.getSendId());
+//                msgInfo.setSendId(messageInfo.getRecvId());
+//                msgInfo.setType(MessageType.RTC_FAILED.code());
+//                msgInfo.setContent(resultCode.description());
+//                msgInfo.setSendTime(new Date());
+//
+//                IMPrivateMessage sendMessage = new IMPrivateMessage();
+//                sendMessage.setSendId(messageInfo.getSendId());
+//                sendMessage.setRecvId(messageInfo.getRecvId());
+//                sendMessage.setSendTerminal(result.getRecvTerminal());
+//                sendMessage.setSendToSelf(false);
+//                sendMessage.setDatas(Arrays.asList(messageInfo));
+//                imClient.sendPrivateMessage(sendMessage);
+//            }
             return;
         }
         // 更新消息状态,这里只处理成功消息，失败的消息继续保持未读状态
