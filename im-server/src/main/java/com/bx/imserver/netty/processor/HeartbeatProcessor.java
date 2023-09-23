@@ -20,11 +20,11 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
+public class HeartbeatProcessor extends AbstractMessageProcessor<HeartbeatInfo> {
 
 
     @Autowired
-    private WebSocketServer WSServer;
+    private WebSocketServer wsServer;
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
@@ -37,7 +37,7 @@ public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
         ctx.channel().writeAndFlush(sendInfo);
 
         // 设置属性
-        AttributeKey<Long> heartBeatAttr = AttributeKey.valueOf(ChannelAttrKey.HEARTBEAt_TIMES);
+        AttributeKey<Long> heartBeatAttr = AttributeKey.valueOf(ChannelAttrKey.HEARTBEAT_TIMES);
         Long heartbeatTimes = ctx.channel().attr(heartBeatAttr).get();
         ctx.channel().attr(heartBeatAttr).set(++heartbeatTimes);
         if(heartbeatTimes%10 == 0){

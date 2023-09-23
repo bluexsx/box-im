@@ -18,7 +18,6 @@ public interface IGroupMemberService extends IService<GroupMember> {
 
     List<Long> findUserIdsByGroupId(Long groupId);
 
-    boolean save(GroupMember member);
 
     boolean saveOrUpdateBatch(Long groupId,List<GroupMember> members);
 

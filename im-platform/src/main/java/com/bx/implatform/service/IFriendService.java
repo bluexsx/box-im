@@ -11,7 +11,7 @@ public interface IFriendService extends IService<Friend> {
 
     Boolean isFriend(Long userId1, Long userId2);
 
-    List<Friend> findFriendByUserId(Long UserId);
+    List<Friend> findFriendByUserId(Long userId);
 
     void addFriend(Long friendId);
 

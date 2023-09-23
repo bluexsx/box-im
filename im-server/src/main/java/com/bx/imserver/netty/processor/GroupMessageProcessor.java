@@ -3,7 +3,6 @@ package com.bx.imserver.netty.processor;
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
-import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.SendResult;
@@ -19,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class GroupMessageProcessor extends  MessageProcessor<IMRecvInfo> {
+public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;

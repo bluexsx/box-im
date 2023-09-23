@@ -5,7 +5,6 @@ import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
-import com.bx.imcommon.model.PrivateMessageInfo;
 import com.bx.imcommon.model.SendResult;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,11 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 @Slf4j
 @Component
-public class PrivateMessageProcessor extends  MessageProcessor<IMRecvInfo> {
+public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;

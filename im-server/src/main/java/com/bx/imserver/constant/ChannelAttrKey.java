@@ -7,6 +7,6 @@ public class ChannelAttrKey {
     //  终端类型
     public static final String TERMINAL_TYPE = "TERMINAL_TYPE";
     //  心跳次数
-    public static final String HEARTBEAt_TIMES = "HEARTBEAt_TIMES";
+    public static final String HEARTBEAT_TIMES = "HEARTBEAt_TIMES";
 
 }

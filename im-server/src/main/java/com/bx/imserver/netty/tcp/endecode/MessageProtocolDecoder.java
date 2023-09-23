@@ -13,6 +13,7 @@ import java.util.List;
 @Slf4j
 public class MessageProtocolDecoder  extends ReplayingDecoder {
 
+    @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         if(byteBuf.readableBytes()< 4){
             return;

@@ -4,7 +4,7 @@ import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imserver.constant.ChannelAttrKey;
-import com.bx.imserver.netty.processor.MessageProcessor;
+import com.bx.imserver.netty.processor.AbstractMessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
 import com.bx.imserver.util.SpringContextHolder;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,7 +34,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, IMSendInfo sendInfo) throws  Exception {
         // 创建处理器进行处理
-        MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
+        AbstractMessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
         processor.process(ctx,processor.transForm(sendInfo.getData()));
     }
 

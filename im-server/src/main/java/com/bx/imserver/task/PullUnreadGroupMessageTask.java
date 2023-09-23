@@ -2,12 +2,10 @@ package com.bx.imserver.task;
 
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.model.GroupMessageInfo;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imserver.netty.IMServerGroup;
-import com.bx.imserver.netty.processor.MessageProcessor;
+import com.bx.imserver.netty.processor.AbstractMessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
-import com.bx.imserver.netty.ws.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,9 +18,6 @@ import java.util.List;
 public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
 
     @Autowired
-    private WebSocketServer WSServer;
-
-    @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
     @Override
@@ -33,7 +28,7 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);
             IMRecvInfo recvInfo = (IMRecvInfo)o;
-            MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.GROUP_MESSAGE);
+            AbstractMessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.GROUP_MESSAGE);
             processor.process(recvInfo);
         }
     }

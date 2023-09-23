@@ -13,14 +13,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @ComponentScan(basePackages={"com.bx"})
 @SpringBootApplication
-public class IMServerApp implements CommandLineRunner {
+public class IMServerApp {
 
 
     public static void main(String[] args) {
         SpringApplication.run(IMServerApp.class,args);
     }
 
-
-    public void run(String... args) throws Exception {
-    }
 }

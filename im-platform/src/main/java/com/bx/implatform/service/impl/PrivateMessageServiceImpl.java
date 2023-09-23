@@ -36,8 +36,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
 
     @Autowired
     private IFriendService friendService;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+
     @Autowired
     private IMClient imClient;
     /**
@@ -61,7 +60,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         this.save(msg);
         // 推送消息
         PrivateMessageInfo msgInfo = BeanUtils.copyProperties(msg, PrivateMessageInfo.class);
-        IMPrivateMessage sendMessage = new IMPrivateMessage();
+        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage();
         sendMessage.setSendId(msgInfo.getSendId());
         sendMessage.setRecvId(msgInfo.getRecvId());
         sendMessage.setSendTerminal(session.getTerminal());
@@ -99,7 +98,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msgInfo.setSendTime(new Date());
         msgInfo.setContent("对方撤回了一条消息");
 
-        IMPrivateMessage sendMessage = new IMPrivateMessage();
+        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage();
         sendMessage.setSendId(msgInfo.getSendId());
         sendMessage.setRecvId(msgInfo.getRecvId());
         sendMessage.setSendTerminal(session.getTerminal());
@@ -135,10 +134,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .last("limit " + stIdx + "," + size);
 
         List<PrivateMessage> messages = this.list(wrapper);
-        List<PrivateMessageInfo> messageInfos = messages.stream().map(m -> {
-            PrivateMessageInfo info = BeanUtils.copyProperties(m, PrivateMessageInfo.class);
-            return info;
-        }).collect(Collectors.toList());
+        List<PrivateMessageInfo> messageInfos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageInfo.class)).collect(Collectors.toList());
         log.info("拉取聊天记录，用户id:{},好友id:{}，数量:{}", userId, friendId, messageInfos.size());
         return messageInfos;
     }
@@ -146,7 +142,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     /**
      * 异步拉取私聊消息，通过websocket异步推送
      *
-     * @return
      */
     @Override
     public void pullUnreadMessage() {
@@ -162,10 +157,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         List<PrivateMessage> messages = this.list(queryWrapper);
         // 上传至redis，等待推送
         if (!messages.isEmpty()) {
-            List<PrivateMessageInfo> messageInfos = messages.stream().map(m -> {
-                PrivateMessageInfo msgInfo = BeanUtils.copyProperties(m, PrivateMessageInfo.class);
-                return msgInfo;
-            }).collect(Collectors.toList());
+            List<PrivateMessageInfo> messageInfos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageInfo.class)).collect(Collectors.toList());
             // 推送消息
             IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage();
             sendMessage.setRecvId(userId);

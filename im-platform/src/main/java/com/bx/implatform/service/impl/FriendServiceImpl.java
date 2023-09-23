@@ -36,13 +36,13 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     /**
      * 查询用户的所有好友
      *
-     * @param UserId   用户id
+     * @param userId   用户id
      * @return
      */
     @Override
-    public List<Friend> findFriendByUserId(Long UserId) {
+    public List<Friend> findFriendByUserId(Long userId) {
         QueryWrapper<Friend> queryWrapper = new QueryWrapper();
-        queryWrapper.lambda().eq(Friend::getUserId,UserId);
+        queryWrapper.lambda().eq(Friend::getUserId,userId);
         List<Friend> friends = this.list(queryWrapper);
         return friends;
     }

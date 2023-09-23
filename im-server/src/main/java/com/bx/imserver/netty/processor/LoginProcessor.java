@@ -2,7 +2,6 @@ package com.bx.imserver.netty.processor;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.bx.imcommon.contant.Constant;
 import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
@@ -23,16 +22,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class LoginProcessor extends   MessageProcessor<LoginInfo> {
-
-
-    @Autowired
-    private WebSocketServer WSServer;
+public class LoginProcessor extends AbstractMessageProcessor<LoginInfo> {
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;

@@ -100,7 +100,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 校验是不是群主，只有群主能改信息
         Group group = this.getById(vo.getId());
         // 群主有权修改群基本信息
-        if(group.getOwnerId() == session.getUserId()){
+        if(group.getOwnerId().equals(session.getUserId()) ){
             group = BeanUtils.copyProperties(vo,Group.class);
             this.updateById(group);
         }
@@ -129,7 +129,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void deleteGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group.getOwnerId() != session.getUserId()){
+        if(group.getOwnerId().equals(session.getUserId())){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"只有群主才有权限解除群聊");
         }
         // 逻辑删除群数据
@@ -151,7 +151,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void quitGroup(Long groupId) {
         Long userId = SessionContext.getSession().getUserId();
         Group group = this.getById(groupId);
-        if(group.getOwnerId() == userId){
+        if(group.getOwnerId().equals(userId)){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您是群主，不可退出群聊");
         }
         // 删除群聊成员
@@ -171,10 +171,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void kickGroup(Long groupId, Long userId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group.getOwnerId() != session.getUserId()){
+        if(group.getOwnerId().equals(session.getUserId()) ){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群主，没有权限踢人");
         }
-        if(userId == session.getUserId()){
+        if(userId.equals(session.getUserId())){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"亲，不能自己踢自己哟");
         }
         // 删除群聊成员
@@ -204,7 +204,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      */
     @Cacheable(value = "#groupId")
     @Override
-    public  Group GetById(Long groupId){
+    public  Group getById(Long groupId){
         Group group = super.getById(groupId);
         if(group == null){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组不存在");
@@ -276,7 +276,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 批量保存成员数据
         List<GroupMember> groupMembers = friendsList.stream()
                 .map(f -> {
-                    Optional<GroupMember> optional =  members.stream().filter(m->m.getUserId()==f.getFriendId()).findFirst();
+                    Optional<GroupMember> optional =  members.stream().filter(m->m.getUserId().equals(f.getFriendId())).findFirst();
                     GroupMember groupMember = optional.isPresent()? optional.get():new GroupMember();
                     groupMember.setGroupId(vo.getGroupId());
                     groupMember.setUserId(f.getFriendId());
