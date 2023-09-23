@@ -1,5 +1,8 @@
 package com.bx.imcommon.enums;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum IMTerminalType {
 
@@ -24,6 +27,9 @@ public enum IMTerminalType {
         return null;
     }
 
+    public static List<Integer> codes(){
+        return Arrays.stream(values()).map(IMTerminalType::code).collect(Collectors.toList());
+    }
 
     public String description() {
         return desc;

@@ -136,12 +136,14 @@
 				// webrtc 信令
 				if (msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL &&
 					msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+					
 					// 呼叫
 					if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL ||
 						msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL) {
 						this.$store.commit("showVideoAcceptorBox", friend);
 						this.$refs.videoAcceptor.handleMessage(msg)
 					} else {
+						this.$refs.videoAcceptor.close()
 						this.$refs.privateVideo.handleMessage(msg)
 					}
 					return;

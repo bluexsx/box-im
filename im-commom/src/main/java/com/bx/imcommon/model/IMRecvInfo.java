@@ -30,7 +30,7 @@ public class IMRecvInfo {
     /*
      *  是否需要回调发送结果
      */
-    private Boolean needSendResult = true;
+    private Boolean sendResult;
 
     /*
      * 推送消息体

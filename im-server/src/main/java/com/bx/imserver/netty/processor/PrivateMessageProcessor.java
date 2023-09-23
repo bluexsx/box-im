@@ -48,7 +48,7 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
     }
 
     private void sendResult(IMRecvInfo recvInfo,IMSendCode sendCode){
-        if(recvInfo.getNeedSendResult()) {
+        if(recvInfo.getSendResult()) {
             String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
             SendResult result = new SendResult();
             result.setRecvId(recvInfo.getRecvIds().get(0));

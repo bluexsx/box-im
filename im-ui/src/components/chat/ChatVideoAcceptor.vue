@@ -69,8 +69,11 @@
 				this.audio.play();
 			},
 			onCancel(){
+				// 取消视频通话请求
 				this.$message.success("对方取消了呼叫");
 				this.close();
+				
+				
 			},
 			handleMessage(msgInfo){
 				if(msgInfo.type == this.$enums.MESSAGE_TYPE.RTC_CALL){
