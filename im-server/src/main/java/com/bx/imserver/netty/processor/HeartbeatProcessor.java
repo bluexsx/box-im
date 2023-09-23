@@ -6,6 +6,7 @@ import com.bx.imcommon.contant.RedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.HeartbeatInfo;
 import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.ws.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -36,14 +37,16 @@ public class HeartbeatProcessor extends   MessageProcessor<HeartbeatInfo> {
         ctx.channel().writeAndFlush(sendInfo);
 
         // 设置属性
-        AttributeKey<Long> attr = AttributeKey.valueOf("HEARTBEAt_TIMES");
-        Long heartbeatTimes = ctx.channel().attr(attr).get();
-        ctx.channel().attr(attr).set(++heartbeatTimes);
+        AttributeKey<Long> heartBeatAttr = AttributeKey.valueOf(ChannelAttrKey.HEARTBEAt_TIMES);
+        Long heartbeatTimes = ctx.channel().attr(heartBeatAttr).get();
+        ctx.channel().attr(heartBeatAttr).set(++heartbeatTimes);
         if(heartbeatTimes%10 == 0){
             // 每心跳10次，用户在线状态续一次命
-            attr = AttributeKey.valueOf("USER_ID");
-            Long userId = ctx.channel().attr(attr).get();
-            String key = RedisKey.IM_USER_SERVER_ID+userId;
+            AttributeKey<Long> userIdAttr = AttributeKey.valueOf(ChannelAttrKey.USER_ID);
+            Long userId = ctx.channel().attr(userIdAttr).get();
+            AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
+            Integer ternimal = ctx.channel().attr(terminalAttr).get();
+            String key = String.join(":",RedisKey.IM_USER_SERVER_ID,userId.toString(),ternimal.toString());
             redisTemplate.expire(key, Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         }
     }

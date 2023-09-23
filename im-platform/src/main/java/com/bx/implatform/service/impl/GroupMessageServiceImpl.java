@@ -56,7 +56,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
      */
     @Override
     public Long sendMessage(GroupMessageVO vo) {
-        Long userId = SessionContext.getSession().getId();
+        Long userId = SessionContext.getSession().getUserId();
         Group group = groupService.getById(vo.getGroupId());
         if(group == null){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群聊不存在");
@@ -93,7 +93,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
      */
     @Override
     public void recallMessage(Long id) {
-        Long userId = SessionContext.getSession().getId();
+        Long userId = SessionContext.getSession().getUserId();
         GroupMessage msg = this.getById(id);
         if(msg == null){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"消息不存在");
@@ -133,7 +133,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
      */
     @Override
     public void pullUnreadMessage() {
-        Long userId = SessionContext.getSession().getId();
+        Long userId = SessionContext.getSession().getUserId();
         List<Long> recvIds = new LinkedList();
         recvIds.add(userId);
         List<GroupMember> members = groupMemberService.findByUserId(userId);
@@ -179,7 +179,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     public List<GroupMessageInfo> findHistoryMessage(Long groupId, Long page, Long size) {
         page = page > 0 ? page:1;
         size = size > 0 ? size:10;
-        Long userId = SessionContext.getSession().getId();
+        Long userId = SessionContext.getSession().getUserId();
         Long stIdx = (page-1)* size;
         // 群聊成员信息
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId,userId);

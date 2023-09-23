@@ -57,7 +57,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Transactional
     @Override
     public void addFriend(Long friendId) {
-        long userId = SessionContext.getSession().getId();
+        long userId = SessionContext.getSession().getUserId();
         if(userId == friendId){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"不允许添加自己为好友");
         }
@@ -78,7 +78,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Transactional
     @Override
     public void delFriend(Long friendId) {
-        long userId = SessionContext.getSession().getId();
+        long userId = SessionContext.getSession().getUserId();
         // 互相解除好友关系
         FriendServiceImpl proxy = (FriendServiceImpl)AopContext.currentProxy();
         proxy.unbindFriend(userId,friendId);
@@ -113,7 +113,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
      */
     @Override
     public void update(FriendVO vo) {
-        long userId = SessionContext.getSession().getId();
+        long userId = SessionContext.getSession().getUserId();
         QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(Friend::getUserId,userId)
@@ -186,7 +186,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         UserSession session = SessionContext.getSession();
         QueryWrapper<Friend> wrapper = new QueryWrapper<>();
         wrapper.lambda()
-                .eq(Friend::getUserId,session.getId())
+                .eq(Friend::getUserId,session.getUserId())
                 .eq(Friend::getFriendId,friendId);
         Friend friend = this.getOne(wrapper);
         if(friend == null){

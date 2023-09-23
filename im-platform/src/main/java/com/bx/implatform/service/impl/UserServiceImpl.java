@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
-import com.bx.imcommon.contant.RedisKey;
 import com.bx.implatform.config.JwtProperties;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
@@ -74,6 +73,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         // 生成token
         UserSession session = BeanUtils.copyProperties(user,UserSession.class);
+        session.setUserId(user.getId());
+        session.setTerminal(dto.getTerminal());
         String strJson = JSON.toJSONString(session);
         String accessToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
         String refreshToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
@@ -150,7 +151,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
-        if(!session.getId().equals(vo.getId()) ){
+        if(!session.getUserId().equals(vo.getId()) ){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"不允许修改其他用户的信息!");
         }
         User user = this.getById(vo.getId());
@@ -160,7 +161,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 更新好友昵称和头像
         if(!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())){
             QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(Friend::getFriendId,session.getId());
+            queryWrapper.lambda().eq(Friend::getFriendId,session.getUserId());
             List<Friend> friends = friendService.list(queryWrapper);
             for(Friend friend: friends){
                 friend.setFriendNickName(vo.getNickName());
@@ -170,7 +171,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         // 更新群聊中的头像
         if(!user.getHeadImageThumb().equals(vo.getHeadImageThumb())){
-            List<GroupMember> members = groupMemberService.findByUserId(session.getId());
+            List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
             for(GroupMember member:members){
                 member.setHeadImage(vo.getHeadImageThumb());
             }

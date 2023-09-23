@@ -14,54 +14,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Slf4j
 @Component
-public class PrivateMessageProcessor extends  MessageProcessor<IMRecvInfo<PrivateMessageInfo>> {
+public class PrivateMessageProcessor extends  MessageProcessor<IMRecvInfo> {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
     @Override
-    public void process(IMRecvInfo<PrivateMessageInfo> recvInfo) {
-        PrivateMessageInfo messageInfo = recvInfo.getData();
+    public void process(IMRecvInfo recvInfo) {
         Long recvId = recvInfo.getRecvIds().get(0);
-        log.info("接收到消息，发送者:{},接收者:{}，内容:{}",messageInfo.getSendId(),recvId,messageInfo.getContent());
+        log.info("接收到消息，发送者:{},接收者:{}，内容:{}",recvInfo.getSendId(),recvId,recvInfo.getData());
         try{
-            ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(recvId);
+            ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(recvId,recvInfo.getRecvTerminal());
             if(channelCtx != null ){
                 // 推送消息到用户
                 IMSendInfo sendInfo = new IMSendInfo();
                 sendInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
-                sendInfo.setData(messageInfo);
+                sendInfo.setData(recvInfo.getData());
                 channelCtx.channel().writeAndFlush(sendInfo);
                 // 消息发送成功确认
-                String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
-                SendResult sendResult = new SendResult();
-                sendResult.setRecvId(recvId);
-                sendResult.setCode(IMSendCode.SUCCESS);
-                sendResult.setMessageInfo(messageInfo);
-                redisTemplate.opsForList().rightPush(key,sendResult);
+                sendResult(recvInfo,IMSendCode.SUCCESS);
             }else{
                 // 消息推送失败确认
-                String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
-                SendResult sendResult = new SendResult();
-                sendResult.setRecvId(recvId);
-                sendResult.setCode(IMSendCode.NOT_FIND_CHANNEL);
-                sendResult.setMessageInfo(messageInfo);
-                redisTemplate.opsForList().rightPush(key,sendResult);
-                log.error("未找到WS连接，发送者:{},接收者:{}，内容:{}",messageInfo.getSendId(),recvId,messageInfo.getContent());
+                sendResult(recvInfo,IMSendCode.NOT_FIND_CHANNEL);
+                log.error("未找到WS连接，发送者:{},接收者:{}，内容:{}",recvInfo.getSendId(),recvId,recvInfo.getData());
             }
         }catch (Exception e){
             // 消息推送失败确认
-            String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
-            SendResult sendResult = new SendResult();
-            sendResult.setRecvId(recvId);
-            sendResult.setCode(IMSendCode.UNKONW_ERROR);
-            sendResult.setMessageInfo(messageInfo);
-            redisTemplate.opsForList().rightPush(key,sendResult);
-            log.error("发送异常，发送者:{},接收者:{}，内容:{}",messageInfo.getSendId(),recvId,messageInfo.getContent(),e);
+            sendResult(recvInfo,IMSendCode.UNKONW_ERROR);
+            log.error("发送异常，发送者:{},接收者:{}，内容:{}",recvInfo.getSendId(),recvId,recvInfo.getData(),e);
         }
 
     }
 
+    private void sendResult(IMRecvInfo recvInfo,IMSendCode sendCode){
+        if(recvInfo.getNeedSendResult()) {
+            String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
+            SendResult result = new SendResult();
+            result.setRecvId(recvInfo.getRecvIds().get(0));
+            result.setCode(sendCode.code());
+            result.setData(recvInfo.getData());
+            redisTemplate.opsForList().rightPush(key, result);
+        }
+    }
 }

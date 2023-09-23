@@ -25,8 +25,6 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
-
-
     @Override
     public void pullMessage() {
         // 从redis拉取未读消息
@@ -34,7 +32,7 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
         List messageInfos = redisTemplate.opsForList().range(key,0,-1);
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);
-            IMRecvInfo<GroupMessageInfo> recvInfo = (IMRecvInfo)o;
+            IMRecvInfo recvInfo = (IMRecvInfo)o;
             MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.GROUP_MESSAGE);
             processor.process(recvInfo);
         }

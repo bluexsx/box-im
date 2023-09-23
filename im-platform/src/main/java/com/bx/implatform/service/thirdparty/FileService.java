@@ -54,7 +54,7 @@ public class FileService {
 
 
     public String uploadFile(MultipartFile file){
-        Long userId = SessionContext.getSession().getId();
+        Long userId = SessionContext.getSession().getUserId();
         // 大小校验
         if(file.getSize() > Constant.MAX_FILE_SIZE){
             throw new GlobalException(ResultCode.PROGRAM_ERROR,"文件大小不能超过10M");
@@ -71,7 +71,7 @@ public class FileService {
 
     public UploadImageVO uploadImage(MultipartFile file){
         try {
-            Long userId = SessionContext.getSession().getId();
+            Long userId = SessionContext.getSession().getUserId();
             // 大小校验
             if(file.getSize() > Constant.MAX_IMAGE_SIZE){
                 throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片大小不能超过5M");

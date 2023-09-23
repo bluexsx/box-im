@@ -1,6 +1,7 @@
 package com.bx.imcommon.model;
 
 import com.bx.imcommon.enums.IMSendCode;
+import com.bx.imcommon.enums.IMTerminalType;
 import lombok.Data;
 
 @Data
@@ -12,13 +13,18 @@ public class SendResult<T> {
     private Long recvId;
 
     /*
-     * 发送状态
+     * 接收者终端类型 IMTerminalType
      */
-    private IMSendCode code;
+    private Integer recvTerminal;
 
     /*
-     * 消息体(透传)
+     * 发送状态 IMCmdType
      */
-    private T messageInfo;
+    private Integer code;
+
+    /*
+     *  消息内容
+     */
+    private T data;
 
 }

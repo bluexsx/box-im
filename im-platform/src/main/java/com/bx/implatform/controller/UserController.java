@@ -38,7 +38,7 @@ public class UserController {
     @ApiOperation(value = "获取当前用户信息",notes="获取当前用户信息")
     public Result findSelfInfo(){
         UserSession session = SessionContext.getSession();
-        User user = userService.getById(session.getId());
+        User user = userService.getById(session.getUserId());
         UserVO userVO = BeanUtils.copyProperties(user,UserVO.class);
         return ResultUtils.success(userVO);
     }

@@ -62,7 +62,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public GroupVO createGroup(String groupName) {
         UserSession session = SessionContext.getSession();
-        User user = userService.getById(session.getId());
+        User user = userService.getById(session.getUserId());
         // 保存群组数据
         Group group = new Group();
         group.setName(groupName);
@@ -100,12 +100,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 校验是不是群主，只有群主能改信息
         Group group = this.getById(vo.getId());
         // 群主有权修改群基本信息
-        if(group.getOwnerId() == session.getId()){
+        if(group.getOwnerId() == session.getUserId()){
             group = BeanUtils.copyProperties(vo,Group.class);
             this.updateById(group);
         }
         // 更新成员信息
-        GroupMember member = groupMemberService.findByGroupAndUserId(vo.getId(),session.getId());
+        GroupMember member = groupMemberService.findByGroupAndUserId(vo.getId(),session.getUserId());
         if(member == null){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群聊的成员");
         }
@@ -129,7 +129,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void deleteGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group.getOwnerId() != session.getId()){
+        if(group.getOwnerId() != session.getUserId()){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"只有群主才有权限解除群聊");
         }
         // 逻辑删除群数据
@@ -149,7 +149,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      */
     @Override
     public void quitGroup(Long groupId) {
-        Long userId = SessionContext.getSession().getId();
+        Long userId = SessionContext.getSession().getUserId();
         Group group = this.getById(groupId);
         if(group.getOwnerId() == userId){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您是群主，不可退出群聊");
@@ -171,10 +171,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void kickGroup(Long groupId, Long userId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group.getOwnerId() != session.getId()){
+        if(group.getOwnerId() != session.getUserId()){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群主，没有权限踢人");
         }
-        if(userId == session.getId()){
+        if(userId == session.getUserId()){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"亲，不能自己踢自己哟");
         }
         // 删除群聊成员
@@ -186,7 +186,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public GroupVO findById(Long groupId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        GroupMember member = groupMemberService.findByGroupAndUserId(groupId,session.getId());
+        GroupMember member = groupMemberService.findByGroupAndUserId(groupId,session.getUserId());
         if(member == null){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您未加入群聊");
         }
@@ -226,7 +226,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public List<GroupVO> findGroups() {
         UserSession session = SessionContext.getSession();
         // 查询当前用户的群id列表
-        List<GroupMember> groupMembers = groupMemberService.findByUserId(session.getId());
+        List<GroupMember> groupMembers = groupMemberService.findByUserId(session.getUserId());
         if(groupMembers.isEmpty()){
             return Collections.EMPTY_LIST;
         }
@@ -267,7 +267,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
 
         // 找出好友信息
-        List<Friend> friends = friendsService.findFriendByUserId(session.getId());
+        List<Friend> friends = friendsService.findFriendByUserId(session.getUserId());
         List<Friend> friendsList = vo.getFriendIds().stream().map(id ->
                 friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get()).collect(Collectors.toList());
         if (friendsList.size() != vo.getFriendIds().size()) {

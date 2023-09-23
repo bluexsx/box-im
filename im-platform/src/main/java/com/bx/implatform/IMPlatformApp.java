@@ -12,9 +12,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy(exposeProxy = true)
 @MapperScan(basePackages = {"com.bx.implatform.mapper"})
 @SpringBootApplication(exclude= {SecurityAutoConfiguration.class })// 禁用secrity
-public class ImplatformApp {
+public class IMPlatformApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(ImplatformApp.class,args);
+        SpringApplication.run(IMPlatformApp.class,args);
     }
 }

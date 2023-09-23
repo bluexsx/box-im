@@ -34,7 +34,7 @@ public class PullUnreadPrivateMessageTask extends  AbstractPullMessageTask {
         List messageInfos = redisTemplate.opsForList().range(key,0,-1);
         for(Object o: messageInfos){
             redisTemplate.opsForList().leftPop(key);
-            IMRecvInfo<PrivateMessageInfo> recvInfo = (IMRecvInfo)o;
+            IMRecvInfo recvInfo = (IMRecvInfo)o;
             MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.PRIVATE_MESSAGE);
             processor.process(recvInfo);
 

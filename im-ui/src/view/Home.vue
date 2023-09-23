@@ -116,7 +116,9 @@
 			},
 			handlePrivateMessage(msg) {
 				// 好友列表存在好友信息，直接插入私聊消息
-				let friend = this.$store.state.friendStore.friends.find((f) => f.id == msg.sendId);
+				msg.selfSend = msg.sendId==this.$store.state.userStore.userInfo.id;
+				let friendId = msg.selfSend?msg.recvId:msg.sendId;
+				let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
 				if (friend) {
 					this.insertPrivateMessage(friend, msg);
 					return;
@@ -135,7 +137,6 @@
 				if (msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL &&
 					msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
 					// 呼叫
-					console.log(msg)
 					if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL ||
 						msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL) {
 						this.$store.commit("showVideoAcceptorBox", friend);
@@ -157,7 +158,8 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				this.playAudioTip();
+				!msg.selfSend && this.playAudioTip();
+				
 			},
 			handleGroupMessage(msg) {
 				// 群聊缓存存在，直接插入群聊消息

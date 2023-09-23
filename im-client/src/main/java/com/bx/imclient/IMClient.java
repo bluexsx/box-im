@@ -3,6 +3,7 @@ package com.bx.imclient;
 import com.bx.imclient.listener.MessageListenerMulticaster;
 import com.bx.imclient.sender.IMSender;
 import com.bx.imcommon.model.GroupMessageInfo;
+import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.PrivateMessageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +28,10 @@ public class IMClient {
     /**
      * 发送私聊消息（发送结果通过MessageListener接收）
      *
-     * @param recvId 接收用户id
-     * @param messageInfo 消息体，将转成json发送到客户端
+     * @param message 私有消息
      */
-    public void sendPrivateMessage(Long recvId, PrivateMessageInfo... messageInfo){
-        imSender.sendPrivateMessage(recvId,messageInfo);
+    public void sendPrivateMessage(IMPrivateMessage message){
+        imSender.sendPrivateMessage(message);
     }
 
     /**
