@@ -1,6 +1,7 @@
 package com.bx.implatform.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
@@ -30,8 +31,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,8 +56,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 创建新群聊
      *
-     * @Param groupName 群聊名称
-     * @return
+     * @param  groupName 群聊名称
+     * @return 群聊信息
      **/
     @Transactional
     @Override
@@ -89,8 +90,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 修改群聊信息
      * 
-     * @Param  GroupVO 群聊信息
-     * @return
+     * @param  vo 群聊信息
+     * @return 群聊信息
      **/
     @CacheEvict(value = "#vo.getId()")
     @Transactional
@@ -120,8 +121,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 删除群聊
      * 
-     * @Param groupId 群聊id
-     * @return
+     * @param groupId 群聊id
      **/
     @Transactional
     @CacheEvict(value = "#groupId")
@@ -145,7 +145,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * 退出群聊
      *
      * @param groupId 群聊id
-     * @return
      */
     @Override
     public void quitGroup(Long groupId) {
@@ -165,7 +164,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      *
      * @param groupId 群聊id
      * @param userId 用户id
-     * @return
      */
     @Override
     public void kickGroup(Long groupId, Long userId) {
@@ -200,7 +198,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * 根据id查找群聊，并进行缓存
      *
      * @param groupId 群聊id
-     * @return
+     * @return 群聊实体
      */
     @Cacheable(value = "#groupId")
     @Override
@@ -220,7 +218,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 查询当前用户的所有群聊
      *
-     * @return
+     * @return 群聊信息列表
      **/
     @Override
     public List<GroupVO> findGroups() {
@@ -228,29 +226,27 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 查询当前用户的群id列表
         List<GroupMember> groupMembers = groupMemberService.findByUserId(session.getUserId());
         if(groupMembers.isEmpty()){
-            return Collections.EMPTY_LIST;
+            return new LinkedList<>();
         }
         // 拉取群列表
-        List<Long> ids = groupMembers.stream().map((gm -> gm.getGroupId())).collect(Collectors.toList());
-        QueryWrapper<Group> groupWrapper = new QueryWrapper();
-        groupWrapper.lambda().in(Group::getId, ids);
+        List<Long> ids = groupMembers.stream().map((GroupMember::getGroupId)).collect(Collectors.toList());
+        LambdaQueryWrapper<Group> groupWrapper = Wrappers.lambdaQuery();
+        groupWrapper.in(Group::getId, ids);
         List<Group> groups = this.list(groupWrapper);
         // 转vo
-        List<GroupVO> vos = groups.stream().map(g -> {
+        return groups.stream().map(g -> {
             GroupVO vo = BeanUtils.copyProperties(g, GroupVO.class);
             GroupMember member = groupMembers.stream().filter(m -> g.getId().equals(m.getGroupId())).findFirst().get();
             vo.setAliasName(member.getAliasName());
             vo.setRemark(member.getRemark());
             return vo;
         }).collect(Collectors.toList());
-        return vos;
     }
 
     /**
      * 邀请好友进群
      *
      * @Param GroupInviteVO  群id、好友id列表
-     * @return
      **/
     @Override
     public void invite(GroupInviteVO vo) {
@@ -265,7 +261,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if(vo.getFriendIds().size() + size > Constant.MAX_GROUP_MEMBER){
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊人数不能大于"+Constant.MAX_GROUP_MEMBER+"人");
         }
-
         // 找出好友信息
         List<Friend> friends = friendsService.findFriendByUserId(session.getUserId());
         List<Friend> friendsList = vo.getFriendIds().stream().map(id ->
@@ -275,18 +270,18 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
         // 批量保存成员数据
         List<GroupMember> groupMembers = friendsList.stream()
-                .map(f -> {
-                    Optional<GroupMember> optional =  members.stream().filter(m->m.getUserId().equals(f.getFriendId())).findFirst();
-                    GroupMember groupMember = optional.isPresent()? optional.get():new GroupMember();
-                    groupMember.setGroupId(vo.getGroupId());
-                    groupMember.setUserId(f.getFriendId());
-                    groupMember.setAliasName(f.getFriendNickName());
-                    groupMember.setRemark(group.getName());
-                    groupMember.setHeadImage(f.getFriendHeadImage());
-                    groupMember.setCreatedTime(new Date());
-                    groupMember.setQuit(false);
-                    return groupMember;
-                }).collect(Collectors.toList());
+            .map(f -> {
+                Optional<GroupMember> optional =  members.stream().filter(m->m.getUserId().equals(f.getFriendId())).findFirst();
+                GroupMember groupMember = optional.orElseGet(GroupMember::new);
+                groupMember.setGroupId(vo.getGroupId());
+                groupMember.setUserId(f.getFriendId());
+                groupMember.setAliasName(f.getFriendNickName());
+                groupMember.setRemark(group.getName());
+                groupMember.setHeadImage(f.getFriendHeadImage());
+                groupMember.setCreatedTime(new Date());
+                groupMember.setQuit(false);
+                return groupMember;
+            }).collect(Collectors.toList());
         if(!groupMembers.isEmpty()) {
             groupMemberService.saveOrUpdateBatch(group.getId(),groupMembers);
         }
@@ -302,11 +297,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public List<GroupMemberVO> findGroupMembers(Long groupId) {
         List<GroupMember> members = groupMemberService.findByGroupId(groupId);
-        List<GroupMemberVO> vos = members.stream().map(m->{
-            GroupMemberVO vo = BeanUtils.copyProperties(m,GroupMemberVO.class);
-            return  vo;
-        }).collect(Collectors.toList());
-        return vos;
+        return members.stream().map(m->BeanUtils.copyProperties(m,GroupMemberVO.class)).collect(Collectors.toList());
     }
 
 }

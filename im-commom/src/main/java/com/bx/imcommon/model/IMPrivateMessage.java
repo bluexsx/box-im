@@ -38,7 +38,7 @@ public class IMPrivateMessage<T> {
     /**
      *  消息内容
      */
-    private List<T> datas;
+    private T data;
 
 
 }

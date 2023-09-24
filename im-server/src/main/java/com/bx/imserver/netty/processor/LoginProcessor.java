@@ -2,17 +2,16 @@ package com.bx.imserver.netty.processor;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
-import com.bx.imcommon.contant.Constant;
-import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.contant.IMConstant;
+import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.IMSessionInfo;
-import com.bx.imcommon.model.LoginInfo;
+import com.bx.imcommon.model.IMLoginInfo;
 import com.bx.imcommon.util.JwtUtil;
 import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.IMServerGroup;
 import com.bx.imserver.netty.UserChannelCtxMap;
-import com.bx.imserver.netty.ws.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class LoginProcessor extends AbstractMessageProcessor<LoginInfo> {
+public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
@@ -35,7 +34,7 @@ public class LoginProcessor extends AbstractMessageProcessor<LoginInfo> {
     private String accessTokenSecret;
 
     @Override
-    synchronized public void process(ChannelHandlerContext ctx, LoginInfo loginInfo) {
+    synchronized public void process(ChannelHandlerContext ctx, IMLoginInfo loginInfo) {
         if(!JwtUtil.checkSign(loginInfo.getAccessToken(),accessTokenSecret)){
             ctx.channel().close();
             log.warn("用户token校验不通过，强制下线,token:{}",loginInfo.getAccessToken());
@@ -66,8 +65,8 @@ public class LoginProcessor extends AbstractMessageProcessor<LoginInfo> {
         AttributeKey<Long> heartBeatAttr = AttributeKey.valueOf("HEARTBEAt_TIMES");
         ctx.channel().attr(heartBeatAttr).set(0L);
         // 在redis上记录每个user的channelId，15秒没有心跳，则自动过期
-        String key = String.join(":",RedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
-        redisTemplate.opsForValue().set(key, IMServerGroup.serverId, Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
+        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
+        redisTemplate.opsForValue().set(key, IMServerGroup.serverId, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         IMSendInfo sendInfo = new IMSendInfo();
         sendInfo.setCmd(IMCmdType.LOGIN.code());
@@ -76,9 +75,9 @@ public class LoginProcessor extends AbstractMessageProcessor<LoginInfo> {
 
 
     @Override
-    public LoginInfo transForm(Object o) {
+    public IMLoginInfo transForm(Object o) {
         HashMap map = (HashMap)o;
-        LoginInfo loginInfo = BeanUtil.fillBeanWithMap(map, new LoginInfo(), false);
+        IMLoginInfo loginInfo = BeanUtil.fillBeanWithMap(map, new IMLoginInfo(), false);
         return  loginInfo;
     }
 }

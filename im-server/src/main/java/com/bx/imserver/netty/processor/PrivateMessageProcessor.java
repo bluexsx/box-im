@@ -1,12 +1,12 @@
 package com.bx.imserver.netty.processor;
 
-import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.IMUserInfo;
-import com.bx.imcommon.model.SendResult;
+import com.bx.imcommon.model.IMSendResult;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -51,13 +51,13 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
 
     private void sendResult(IMRecvInfo recvInfo,IMSendCode sendCode){
         if(recvInfo.getSendResult()) {
-            SendResult result = new SendResult();
+            IMSendResult result = new IMSendResult();
             result.setSender(recvInfo.getSender());
             result.setReceiver(recvInfo.getReceivers().get(0));
             result.setCode(sendCode.code());
             result.setData(recvInfo.getData());
             // 推送到结果队列
-            String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
+            String key = IMRedisKey.IM_RESULT_PRIVATE_QUEUE;
             redisTemplate.opsForList().rightPush(key, result);
         }
     }

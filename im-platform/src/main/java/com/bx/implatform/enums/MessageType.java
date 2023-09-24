@@ -6,8 +6,9 @@ public enum MessageType {
     TEXT(0,"文字"),
     FILE(1,"文件"),
     IMAGE(2,"图片"),
-    VIDEO(3,"视频"),
-    TIP(10,"系统提示"),
+    AUDIO(3,"音频"),
+    VIDEO(4,"视频"),
+    RECALL(10,"撤回"),
 
     RTC_CALL(101,"呼叫"),
     RTC_ACCEPT(102,"接受"),
@@ -17,24 +18,14 @@ public enum MessageType {
     RTC_HANDUP(106,"挂断"),
     RTC_CANDIDATE(107,"同步candidate");
 
-    private Integer code;
+    private final Integer code;
 
-    private String desc;
+    private final String desc;
 
     MessageType(Integer index, String desc) {
         this.code =index;
         this.desc=desc;
     }
-
-    public static MessageType fromCode(Integer code){
-        for (MessageType typeEnum:values()) {
-            if (typeEnum.code.equals(code)) {
-                return typeEnum;
-            }
-        }
-        return null;
-    }
-
 
     public String description() {
         return desc;

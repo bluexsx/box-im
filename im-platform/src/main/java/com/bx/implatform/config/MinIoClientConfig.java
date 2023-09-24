@@ -20,10 +20,9 @@ public class MinIoClientConfig {
     @Bean
     public MinioClient minioClient(){
         // 注入minio 客户端
-        MinioClient client =  MinioClient.builder()
+        return MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(accessKey, secretKey)
                 .build();
-        return  client;
     }
 }

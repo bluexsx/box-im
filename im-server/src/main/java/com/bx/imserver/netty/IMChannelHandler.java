@@ -1,6 +1,6 @@
 package com.bx.imserver.netty;
 
-import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imserver.constant.ChannelAttrKey;
@@ -76,7 +76,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
             UserChannelCtxMap.removeChannelCtx(userId,terminal);
             // 用户下线
             RedisTemplate redisTemplate = SpringContextHolder.getBean("redisTemplate");
-            String key = String.join(":",RedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
+            String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
             redisTemplate.delete(key);
             log.info("断开连接,userId:{},终端类型:{}",userId,terminal);
         }

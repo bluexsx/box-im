@@ -3,7 +3,7 @@ package com.bx.imcommon.model;
 import lombok.Data;
 
 @Data
-public class SendResult {
+public class IMSendResult<T> {
 
     /**
      * 发送方
@@ -23,6 +23,6 @@ public class SendResult {
     /*
      *  消息内容
      */
-    private Object data;
+    private T data;
 
 }

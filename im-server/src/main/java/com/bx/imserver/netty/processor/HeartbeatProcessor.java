@@ -1,10 +1,10 @@
 package com.bx.imserver.netty.processor;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.bx.imcommon.contant.Constant;
-import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.contant.IMConstant;
+import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
-import com.bx.imcommon.model.HeartbeatInfo;
+import com.bx.imcommon.model.IMHeartbeatInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.ws.WebSocketServer;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class HeartbeatProcessor extends AbstractMessageProcessor<HeartbeatInfo> {
+public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo> {
 
 
     @Autowired
@@ -30,7 +30,7 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<HeartbeatInfo> 
     RedisTemplate<String,Object> redisTemplate;
 
     @Override
-    public void process(ChannelHandlerContext ctx, HeartbeatInfo beatInfo) {
+    public void process(ChannelHandlerContext ctx, IMHeartbeatInfo beatInfo) {
         // 响应ws
         IMSendInfo sendInfo = new IMSendInfo();
         sendInfo.setCmd(IMCmdType.HEART_BEAT.code());
@@ -46,16 +46,16 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<HeartbeatInfo> 
             Long userId = ctx.channel().attr(userIdAttr).get();
             AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
             Integer ternimal = ctx.channel().attr(terminalAttr).get();
-            String key = String.join(":",RedisKey.IM_USER_SERVER_ID,userId.toString(),ternimal.toString());
-            redisTemplate.expire(key, Constant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
+            String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID,userId.toString(),ternimal.toString());
+            redisTemplate.expire(key, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         }
     }
 
 
     @Override
-    public HeartbeatInfo transForm(Object o) {
+    public IMHeartbeatInfo transForm(Object o) {
         HashMap map = (HashMap)o;
-        HeartbeatInfo heartbeatInfo = BeanUtil.fillBeanWithMap(map, new HeartbeatInfo(), false);
+        IMHeartbeatInfo heartbeatInfo = BeanUtil.fillBeanWithMap(map, new IMHeartbeatInfo(), false);
         return  heartbeatInfo;
     }
 }

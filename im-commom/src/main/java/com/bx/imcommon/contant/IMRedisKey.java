@@ -1,6 +1,6 @@
 package com.bx.imcommon.contant;
 
-public class RedisKey {
+public class IMRedisKey {
 
     // im-server最大id,从0开始递增
     public final static String  IM_MAX_SERVER_ID = "im:max_server_id";

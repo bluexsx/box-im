@@ -1,7 +1,9 @@
 package com.bx.implatform.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.GroupMember;
@@ -71,8 +73,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      */
     @Override
     public List<GroupMember> findByUserId(Long userId) {
-        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getUserId, userId)
+        LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
+        memberWrapper.eq(GroupMember::getUserId, userId)
                 .eq(GroupMember::getQuit,false);
         return this.list(memberWrapper);
     }
@@ -86,8 +88,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      */
     @Override
     public List<GroupMember> findByGroupId(Long groupId) {
-        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getGroupId, groupId);
+        LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
+        memberWrapper.eq(GroupMember::getGroupId, groupId);
         return this.list(memberWrapper);
     }
 
@@ -101,11 +103,11 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Cacheable(key="#groupId")
     @Override
     public List<Long> findUserIdsByGroupId(Long groupId) {
-        QueryWrapper<GroupMember> memberWrapper = new QueryWrapper();
-        memberWrapper.lambda().eq(GroupMember::getGroupId, groupId)
+        LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
+        memberWrapper.eq(GroupMember::getGroupId, groupId)
                 .eq(GroupMember::getQuit,false);
         List<GroupMember> members = this.list(memberWrapper);
-        return members.stream().map(m->m.getUserId()).collect(Collectors.toList());
+        return members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
     }
 
 
@@ -118,8 +120,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @CacheEvict(key = "#groupId")
     @Override
     public void removeByGroupId(Long groupId) {
-        UpdateWrapper<GroupMember> wrapper = new UpdateWrapper();
-        wrapper.lambda().eq(GroupMember::getGroupId,groupId)
+        LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(GroupMember::getGroupId,groupId)
                 .set(GroupMember::getQuit,true);
         this.update(wrapper);
     }
@@ -134,8 +136,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @CacheEvict(key = "#groupId")
     @Override
     public void removeByGroupAndUserId(Long groupId, Long userId) {
-        UpdateWrapper<GroupMember> wrapper = new UpdateWrapper<>();
-        wrapper.lambda().eq(GroupMember::getGroupId,groupId)
+        LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(GroupMember::getGroupId,groupId)
                 .eq(GroupMember::getUserId,userId)
                 .set(GroupMember::getQuit,true);
         this.update(wrapper);

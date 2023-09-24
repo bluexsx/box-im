@@ -1,7 +1,9 @@
 package com.bx.implatform.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.implatform.config.JwtProperties;
@@ -114,7 +116,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 用户注册
      *
      * @param dto 注册dto
-     * @return
      */
     @Override
     public void register(RegisterDTO dto) {
@@ -136,8 +137,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public User findUserByName(String username) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(User::getUserName,username);
+        LambdaQueryWrapper<User> queryWrapper =  Wrappers.lambdaQuery();
+        queryWrapper.eq(User::getUserName,username);
         return this.getOne(queryWrapper);
     }
 
@@ -145,7 +146,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 更新用户信息，好友昵称和群聊昵称等冗余信息也会更新
      *
      * @param vo 用户信息vo
-     * @return
      */
     @Transactional
     @Override
@@ -184,7 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setHeadImage(vo.getHeadImage());
         user.setHeadImageThumb(vo.getHeadImageThumb());
         this.updateById(user);
-        log.info("用户信息更新，用户:{}}",user.toString());
+        log.info("用户信息更新，用户:{}}", user);
     }
 
 
@@ -196,17 +196,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public List<UserVO> findUserByNickName(String nickname) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda()
-                .like(User::getNickName,nickname)
-                .last("limit 20");
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.like(User::getNickName,nickname).last("limit 20");
         List<User> users = this.list(queryWrapper);
-        List<UserVO> vos = users.stream().map(u-> {
+        return users.stream().map(u-> {
             UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
             vo.setOnline(imClient.isOnline(u.getId()));
             return vo;
         }).collect(Collectors.toList());
-        return vos;
     }
 
 

@@ -3,7 +3,7 @@ package com.bx.implatform.service.impl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
-import com.bx.imcommon.model.PrivateMessageInfo;
+import com.bx.implatform.vo.PrivateMessageVO;
 import com.bx.implatform.config.ICEServer;
 import com.bx.implatform.config.ICEServerConfig;
 import com.bx.implatform.contant.RedisKey;
@@ -13,7 +13,6 @@ import com.bx.implatform.service.IWebrtcService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcSession;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -48,18 +47,18 @@ public class WebrtcServiceImpl implements IWebrtcService {
         String key = getSessionKey(session.getUserId(), uid);
         redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
         // 向对方所有终端发起呼叫
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_CALL.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
         messageInfo.setContent(offer);
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
 
     }
@@ -75,20 +74,20 @@ public class WebrtcServiceImpl implements IWebrtcService {
         String key = getSessionKey(session.getUserId(), uid);
         redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
         // 向发起人推送接受通话信令
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_ACCEPT.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
         messageInfo.setContent(answer);
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         // 告知其他终端已经接受会话,中止呼叫
         sendMessage.setSendToSelf(true);
         sendMessage.setSendResult(false);
         sendMessage.setRecvTerminals((Collections.singletonList(webrtcSession.getCallerTerminal())));
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
     }
 
@@ -100,19 +99,19 @@ public class WebrtcServiceImpl implements IWebrtcService {
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
         // 向发起人推送拒绝通话信令
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_REJECT.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         // 告知其他终端已经拒绝会话,中止呼叫
         sendMessage.setSendToSelf(true);
         sendMessage.setSendResult(false);
         sendMessage.setRecvTerminals(Collections.singletonList(webrtcSession.getCallerTerminal()));
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
     }
 
@@ -122,17 +121,17 @@ public class WebrtcServiceImpl implements IWebrtcService {
         // 删除会话信息
         removeWebrtcSession(session.getUserId(), uid);
         // 向对方所有终端推送取消通话信令
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_ACCEPT.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
     }
@@ -145,19 +144,19 @@ public class WebrtcServiceImpl implements IWebrtcService {
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
         // 向发起方推送通话失败信令
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_FAILED.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         // 告知其他终端已经会话失败,中止呼叫
         sendMessage.setSendToSelf(true);
         sendMessage.setSendResult(false);
         sendMessage.setRecvTerminals(Collections.singletonList(webrtcSession.getCallerTerminal()));
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
 
@@ -171,19 +170,19 @@ public class WebrtcServiceImpl implements IWebrtcService {
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
         // 向对方推送挂断通话信令
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_HANDUP.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
         Integer terminal = getTerminalType(uid, webrtcSession);
         sendMessage.setRecvTerminals(Collections.singletonList(terminal));
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
     }
@@ -194,20 +193,20 @@ public class WebrtcServiceImpl implements IWebrtcService {
         // 查询webrtc会话
         WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 向发起方推送同步candidate信令
-        PrivateMessageInfo messageInfo = new PrivateMessageInfo();
+        PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_CANDIDATE.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
         messageInfo.setContent(candidate);
 
-        IMPrivateMessage<PrivateMessageInfo> sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
         Integer terminal = getTerminalType(uid, webrtcSession);
         sendMessage.setRecvTerminals(Collections.singletonList(terminal));
-        sendMessage.setDatas(Collections.singletonList(messageInfo));
+        sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
     }
 

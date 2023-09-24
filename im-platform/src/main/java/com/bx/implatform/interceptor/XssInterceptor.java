@@ -17,7 +17,7 @@ public class XssInterceptor implements HandlerInterceptor {
 
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 检查参数
         Map<String, String[]> paramMap =  request.getParameterMap();
         for(String[] values:paramMap.values()){
