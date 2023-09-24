@@ -5,6 +5,7 @@ import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.model.SendResult;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,10 +23,11 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
 
     @Override
     public void process(IMRecvInfo recvInfo) {
-        Long recvId = recvInfo.getRecvIds().get(0);
-        log.info("接收到消息，发送者:{},接收者:{}，内容:{}",recvInfo.getSendId(),recvId,recvInfo.getData());
+        IMUserInfo sender = recvInfo.getSender();
+        IMUserInfo receiver = recvInfo.getReceivers().get(0);
+        log.info("接收到消息，发送者:{},接收者:{}，内容:{}",sender.getId(),receiver.getId(),recvInfo.getData());
         try{
-            ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(recvId,recvInfo.getRecvTerminal());
+            ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiver.getId(),receiver.getTerminal());
             if(channelCtx != null ){
                 // 推送消息到用户
                 IMSendInfo sendInfo = new IMSendInfo();
@@ -37,23 +39,25 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
             }else{
                 // 消息推送失败确认
                 sendResult(recvInfo,IMSendCode.NOT_FIND_CHANNEL);
-                log.error("未找到WS连接，发送者:{},接收者:{}，内容:{}",recvInfo.getSendId(),recvId,recvInfo.getData());
+                log.error("未找到channel，发送者:{},接收者:{}，内容:{}",sender.getId(),receiver.getId(),recvInfo.getData());
             }
         }catch (Exception e){
             // 消息推送失败确认
             sendResult(recvInfo,IMSendCode.UNKONW_ERROR);
-            log.error("发送异常，发送者:{},接收者:{}，内容:{}",recvInfo.getSendId(),recvId,recvInfo.getData(),e);
+            log.error("发送异常，发送者:{},接收者:{}，内容:{}",sender.getId(),receiver.getId(),recvInfo.getData(),e);
         }
 
     }
 
     private void sendResult(IMRecvInfo recvInfo,IMSendCode sendCode){
         if(recvInfo.getSendResult()) {
-            String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
             SendResult result = new SendResult();
-            result.setRecvId(recvInfo.getRecvIds().get(0));
+            result.setSender(recvInfo.getSender());
+            result.setReceiver(recvInfo.getReceivers().get(0));
             result.setCode(sendCode.code());
             result.setData(recvInfo.getData());
+            // 推送到结果队列
+            String key = RedisKey.IM_RESULT_PRIVATE_QUEUE;
             redisTemplate.opsForList().rightPush(key, result);
         }
     }

@@ -13,19 +13,14 @@ public class IMRecvInfo {
     private Integer cmd;
 
     /*
-     * 发送者id
+     * 发送方
      */
-    private Long sendId;
+    private IMUserInfo sender;
 
     /*
-     * 接收终端类型 IMTerminalType
+     * 接收方用户列表
      */
-    private Integer recvTerminal;
-
-    /*
-     * 接收者id列表
-     */
-    private List<Long> recvIds;
+    List<IMUserInfo> receivers;
 
     /*
      *  是否需要回调发送结果

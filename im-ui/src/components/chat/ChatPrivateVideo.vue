@@ -143,7 +143,7 @@
 			},
 			handleMessage(msg) {
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_ACCEPT) {
-					if (msg.sendId == this.$store.state.userStore.userInfo.id) {
+					if (msg.selfSend) {
 						// 我在其他终端接受了对方的通话
 						this.$message.success("已在其他设备接听");
 						this.close();
@@ -163,8 +163,7 @@
 					}
 
 				} else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_REJECT) {
-					console.log(msg)
-					if (msg.sendId == this.$store.state.userStore.userInfo.id) {
+					if (msg.selfSend) {
 						// 我在其他终端拒绝了对方的通话
 						this.$message.success("已在其他设备拒绝通话");
 						this.close();
@@ -195,9 +194,8 @@
 							this.loading = true;
 							this.state = 'CONNECTING';
 							this.audio.play();
-						});
-					},
-					(error) => {
+						})
+					},(error) => {
 						this.$message.error(error);
 					});
 

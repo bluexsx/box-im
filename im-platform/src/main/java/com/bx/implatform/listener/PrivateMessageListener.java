@@ -35,32 +35,6 @@ public class PrivateMessageListener implements MessageListener {
     public void process(SendResult result){
         PrivateMessageInfo messageInfo = (PrivateMessageInfo) result.getData();
         IMSendCode resultCode = IMSendCode.fromCode(result.getCode());
-        // 提示类数据不记录
-        if(messageInfo.getType().equals(MessageType.TIP.code())){
-            return;
-        }
-        // 视频通话信令不记录
-        if(messageInfo.getType() >= MessageType.RTC_CALL.code() && messageInfo.getType()< MessageType.RTC_CANDIDATE.code()){
-//            // 通知用户呼叫失败了
-//            if(messageInfo.getType().equals(MessageType.RTC_CALL.code())
-//                    && !resultCode.equals(IMSendCode.SUCCESS)){
-//                PrivateMessageInfo msgInfo = new PrivateMessageInfo();
-//                msgInfo.setRecvId(messageInfo.getSendId());
-//                msgInfo.setSendId(messageInfo.getRecvId());
-//                msgInfo.setType(MessageType.RTC_FAILED.code());
-//                msgInfo.setContent(resultCode.description());
-//                msgInfo.setSendTime(new Date());
-//
-//                IMPrivateMessage sendMessage = new IMPrivateMessage();
-//                sendMessage.setSendId(messageInfo.getSendId());
-//                sendMessage.setRecvId(messageInfo.getRecvId());
-//                sendMessage.setSendTerminal(result.getRecvTerminal());
-//                sendMessage.setSendToSelf(false);
-//                sendMessage.setDatas(Arrays.asList(messageInfo));
-//                imClient.sendPrivateMessage(sendMessage);
-//            }
-            return;
-        }
         // 更新消息状态,这里只处理成功消息，失败的消息继续保持未读状态
         if(resultCode.equals(IMSendCode.SUCCESS)){
             UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
@@ -68,7 +42,7 @@ public class PrivateMessageListener implements MessageListener {
                     .eq(PrivateMessage::getStatus, MessageStatus.UNREAD.code())
                     .set(PrivateMessage::getStatus, MessageStatus.ALREADY_READ.code());
             privateMessageService.update(updateWrapper);
-            log.info("消息已读，消息id:{}，发送者:{},接收者:{}",messageInfo.getId(),messageInfo.getSendId(),messageInfo.getRecvId());
+            log.info("消息已读，消息id:{}，发送者:{},接收者:{},终端:{}",messageInfo.getId(),result.getSender().getId(),result.getReceiver().getId(),result.getReceiver().getTerminal());
         }
     }
 

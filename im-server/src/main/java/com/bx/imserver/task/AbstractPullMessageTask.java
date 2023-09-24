@@ -40,7 +40,6 @@ public abstract class AbstractPullMessageTask {
                         if (serverGroup.isReady()) {
                             pullMessage();
                         }
-                        Thread.sleep(100);
                     } catch (Exception e) {
                         log.error("任务调度异常", e);
                         Thread.sleep(200);

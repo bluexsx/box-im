@@ -5,9 +5,8 @@ import lombok.Data;
 
 import java.util.List;
 
-
 @Data
-public class IMPrivateMessage<T> {
+public class IMGroupMessage<T> {
 
     /**
      * 发送方
@@ -15,9 +14,9 @@ public class IMPrivateMessage<T> {
     private IMUserInfo sender;
 
     /**
-     * 接收者id
+     * 接收者id列表(群成员列表)
      */
-    private Long recvId;
+    private List<Long> recvIds;
 
 
     /**
@@ -38,7 +37,7 @@ public class IMPrivateMessage<T> {
     /**
      *  消息内容
      */
-    private List<T> datas;
+    private T data;
 
 
 }
