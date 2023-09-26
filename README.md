@@ -204,7 +204,7 @@ wsApi.onmessage((cmd,messageInfo) => {
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E4%BA%A4%E6%B5%81%E7%BE%A4.png)
 
-有任何问题，欢迎加群交流~
+有任何问题，欢迎star后加群交流~
 
 
 #### 点下star吧
