@@ -31,7 +31,6 @@ public class PullSendResultPrivateMessageTask extends  AbstractPullMessageTask{
     public void pullMessage() {
         String key = IMRedisKey.IM_RESULT_PRIVATE_QUEUE;
         JSONObject jsonObject = (JSONObject)redisTemplate.opsForList().leftPop(key,10, TimeUnit.SECONDS);
-
         if(jsonObject != null) {
             IMSendResult result =  jsonObject.toJavaObject(IMSendResult.class);
             listenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, result);

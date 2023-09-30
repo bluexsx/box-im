@@ -21,7 +21,7 @@ const request =  (options) => {
 					});
 				} else if (res.data.code == 401) {
 					console.log("token失效，尝试重新获取")
-					const refreshToken = sessionStorage.getItem("refreshToken");
+					const refreshToken = uni.getStorageSync("refreshToken");
 					if (!refreshToken) {
 						uni.navigateTo({
 							url: '/pages/login/login'
@@ -35,6 +35,12 @@ const request =  (options) => {
 							refreshToken: refreshToken
 						}
 					})
+					// 换取token失败，跳转至登录界面
+					if(data.code != 200){
+						uni.navigateTo({
+							url: '/pages/login/login'
+						});
+					}
 					// 保存token
 					uni.setStorageSync("accessToken", data.accessToken);
 					uni.setStorageSync("refreshToken", data.refreshToken);

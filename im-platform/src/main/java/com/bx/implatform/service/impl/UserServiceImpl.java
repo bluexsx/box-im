@@ -79,7 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         session.setTerminal(dto.getTerminal());
         String strJson = JSON.toJSONString(session);
         String accessToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
-        String refreshToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
+        String refreshToken = JwtUtil.sign(user.getId(),strJson,jwtProperties.getRefreshTokenExpireIn(),jwtProperties.getRefreshTokenSecret());
         LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
@@ -97,7 +97,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public LoginVO refreshToken(String refreshToken) {
         //验证 token
-        if(JwtUtil.checkSign(refreshToken, jwtProperties.getRefreshTokenSecret())){
+        if(!JwtUtil.checkSign(refreshToken, jwtProperties.getRefreshTokenSecret())){
             throw new GlobalException("refreshToken无效或已过期");
         }
         String strJson = JwtUtil.getInfo(refreshToken);
