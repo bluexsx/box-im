@@ -1,17 +1,128 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/login/login",
-			"style": {
-				"navigationBarTitleText": "盒子IM"
+	"pages": [{
+		"path": "pages/login/login",
+		"style": {
+			"navigationBarTitleText": "盒子IM"
+		}
+	}, {
+		"path": "pages/chat/chat",
+		"style": {
+			"navigationBarTitleText": "聊天消息",
+
+			"app-plus": {
+				"titleNView": {
+					"buttons": [{
+							"text": "&#xe6e0;",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx"
+						},
+						{
+							"text": "&#xe648;",
+							"fontSrc": "/static/iconFont/iconfont.ttf",
+							"fontSize": "40rpx"
+						}
+					]
+				}
 			}
 		}
-	],
+	}, {
+		"path": "pages/friend/friend",
+		"style": {
+			"navigationBarTitleText": "好友列表",
+			"enablePullDownRefresh": false,
+			"app-plus": {
+				"titleNView": {
+					"buttons": [{
+							"text": "&#xe6e0;",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"width": "50rpx"
+						},
+						{
+							"text": "&#xe648;",
+							"fontSrc": "/static/iconFont/iconfont.ttf",
+							"fontSize": "30rpx",
+							"width": "50rpx"
+						}
+					]
+				}
+			}
+		}
+
+	}, {
+		"path": "pages/group/group",
+		"style": {
+			"navigationBarTitleText": "群聊列表",
+			"enablePullDownRefresh": false
+		}
+
+	}, {
+		"path": "pages/mine/mine",
+		"style": {
+			"navigationBarTitleText": "",
+			"enablePullDownRefresh": false
+		}
+	}, {
+		"path": "pages/friend/friend-search",
+		"style": {
+			"app-plus": {
+				"navigationBarTitleText": "好友查找",
+				"titleNView": {
+					"buttons": [{
+							"text": "取消",
+							"fontSize": "20rpx",
+							"width": "80rpx"
+						}
+				
+					],
+					"searchInput": {
+						"autoFocus": true,
+						"placeholder": "输入好友昵称",
+						"borderRadius": "10rpx"
+					},
+					"autoBackButton": false
+				}
+				
+			}
+		}
+	},{
+		"path": "pages/common/user-info"
+	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarBackgroundColor": "#F0F0F0",
+		"backgroundColor": "#fdfdfd"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#09C160",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+				"pagePath": "pages/chat/chat",
+				"iconPath": "static/tarbar/chat.png",
+				"selectedIconPath": "static/tarbar/chat_active.png",
+				"text": "消息"
+			},
+			{
+				"pagePath": "pages/friend/friend",
+				"iconPath": "static/tarbar/friend.png",
+				"selectedIconPath": "static/tarbar/friend_active.png",
+				"text": "好友"
+			},
+			{
+				"pagePath": "pages/group/group",
+				"iconPath": "static/tarbar/group.png",
+				"selectedIconPath": "static/tarbar/group_active.png",
+				"text": "群聊"
+			},
+			{
+				"pagePath": "pages/mine/mine",
+				"iconPath": "static/tarbar/mine.png",
+				"selectedIconPath": "static/tarbar/mine_active.png",
+				"text": "我的"
+			}
+		]
 	},
 	"uniIdRouter": {}
 }

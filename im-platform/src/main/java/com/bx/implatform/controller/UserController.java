@@ -36,7 +36,7 @@ public class UserController {
 
     @GetMapping("/self")
     @ApiOperation(value = "获取当前用户信息",notes="获取当前用户信息")
-    public Result findSelfInfo(){
+    public Result<UserVO> findSelfInfo(){
         UserSession session = SessionContext.getSession();
         User user = userService.getById(session.getUserId());
         UserVO userVO = BeanUtils.copyProperties(user,UserVO.class);

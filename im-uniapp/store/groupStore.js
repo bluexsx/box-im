@@ -45,7 +45,6 @@ export default {
 				}).then((groups) => {
 					context.commit("setGroups", groups);
 					resolve();
-					console.log("groupstore")
 				}).catch(() => {
 					reject();
 				})

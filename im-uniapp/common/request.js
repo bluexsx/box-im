@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8888"
+const BASE_URL = "http://192.168.43.6:8888"
 const request =  (options) => {
 	
 	const header = options.header||{};
@@ -31,7 +31,7 @@ const request =  (options) => {
 					const data = await request({
 						method: 'PUT',
 						url: '/refreshToken',
-						headers: {
+						header: {
 							refreshToken: refreshToken
 						}
 					})

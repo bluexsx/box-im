@@ -54,7 +54,10 @@
 					uni.setStorageSync("accessToken", data.accessToken);
 					uni.setStorageSync("refreshToken", data.refreshToken);
 					this.$store.dispatch("initStore").then(()=>{
-						console.log("成功")
+						console.log("登录成功，准备跳转...")
+						uni.switchTab({
+							url:"/pages/chat/chat"
+						})
 					})
 					
 				})
