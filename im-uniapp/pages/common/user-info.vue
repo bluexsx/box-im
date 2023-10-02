@@ -2,17 +2,19 @@
 	<view class="user-info">
 		<view class="content">
 			<view class="avatar">
-				<image class="head-image" :src="userInfo.headImage" lazy-load="true"  mode="aspectFill"></image>
+				<image class="head-image" :src="userInfo.headImage" lazy-load="true" mode="aspectFill"></image>
 			</view>
 			<view class="info-item">
 				<view class="info-primary">
 					<text class="info-username">
 						{{userInfo.userName}}
 					</text>
-					<uni-icons v-show="userInfo.sex==0" class="sex-boy" type="person-filled" size="20" color="darkblue"  ></uni-icons>
-					<uni-icons v-show="userInfo.sex==1" class="sex-girl" type="person-filled" size="20" color="darkred"  ></uni-icons>
+					<uni-icons v-show="userInfo.sex==0" class="sex-boy" type="person-filled" size="20"
+						color="darkblue"></uni-icons>
+					<uni-icons v-show="userInfo.sex==1" class="sex-girl" type="person-filled" size="20"
+						color="darkred"></uni-icons>
 				</view>
-				<text >
+				<text>
 					昵称 ：{{userInfo.nickName}}
 				</text>
 				<text class="person-wx-name">
@@ -22,21 +24,53 @@
 		</view>
 		<view class="line"></view>
 		<view class="btn-group">
-			<button  v-show="isFriend" type="primary">发消息</button>
-			<button  v-show="!isFriend" type="primary">加为好友</button>
+			<button v-show="isFriend" type="primary" @click="sendMessage()">发消息</button>
+			<button v-show="!isFriend" type="primary" @click="addFriend()">加为好友</button>
 		</view>
 	</view>
 </template>
 
 <script>
-	export default{
-		data(){
+	export default {
+		data() {
 			return {
-				userInfo:{}
+				userInfo: {}
+			}
+		},
+		methods: {
+			sendMessage() {
+				let chat = {
+					type: 'PRIVATE',
+					targetId: this.userInfo.id,
+					showName: this.userInfo.nickName,
+					headImage: this.userInfo.headImage,
+				};
+				this.$store.commit("openChat", chat);
+				uni.switchTab({
+					url:"/pages/chat/chat"
+				})
+			},
+			addFriend() {
+				this.$http({
+					url: "/friend/add?friendId=" + this.userInfo.id,
+					method: "POST"
+				}).then((data) => {
+					let friend = {
+						id: this.userInfo.id,
+						nickName: this.userInfo.nickName,
+						headImage: this.userInfo.headImageThumb,
+						online: this.userInfo.online
+					}
+					this.$store.commit("addFriend", friend);
+					uni.showToast({
+						title: '添加成功，对方已成为您的好友',
+						icon: 'none'
+					})
+				})
 			}
 		},
 		computed: {
-			isFriend(){
+			isFriend() {
 				let friends = this.$store.state.friendStore.friends;
 				let friend = friends.find((f) => f.id == this.userInfo.id);
 				return friend != undefined;
@@ -44,64 +78,63 @@
 		},
 		onLoad(options) {
 			// 查询好友信息
-			console.log(options.id)
 			const id = options.id;
 			this.$http({
-				url:"/user/find/"+id
-			}).then((userInfo)=>{
+				url: "/user/find/" + id
+			}).then((userInfo) => {
 				this.userInfo = userInfo;
 			})
 		}
 	}
-	
-	
 </script>
 
 <style lang="scss" scoped>
-	.user-info{
-		.content{
+	.user-info {
+		.content {
 			height: 200rpx;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			padding: 20rpx;
-			.avatar{
+
+			.avatar {
 				display: flex;
 				justify-content: center;
 				align-items: center;
 				width: 160rpx;
 				height: 160rpx;
-				
-				.head-image{
+
+				.head-image {
 					width: 100%;
 					height: 100%;
 					border-radius: 10%;
 				}
 			}
-			
-			.info-item{
+
+			.info-item {
 				display: flex;
 				align-items: flex-start;
 				flex-direction: column;
 				padding-left: 40rpx;
 				flex: 1;
-				.info-primary{
-					
+
+				.info-primary {
 					display: flex;
-					.info-username{
+
+					.info-username {
 						font-size: 40rpx;
 						font-weight: 600;
 					}
 				}
-				
 			}
 		}
-		
-		.line{
+
+		.line {
 			margin: 20rpx;
-			border-bottom: 1px	solid #aaaaaa;
+			border-bottom: 1px solid #aaaaaa;
 		}
-		.btn-group{
+
+		.btn-group {
 			margin: 100rpx;
 		}
 	}

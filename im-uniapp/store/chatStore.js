@@ -1,15 +1,16 @@
 export default {
 
 	state: {
-		activeIndex: -1,
 		chats: []
 	},
 
 	mutations: {
-
+		setChats(state,chats){
+			console.log(chats);
+			state.chats = chats;
+		},
 		openChat(state, chatInfo) {
 			let chat = null;
-			let activeChat = state.activeIndex>=0?state.chats[state.activeIndex]:null;
 			for (let i in state.chats) {
 				if (state.chats[i].type == chatInfo.type &&
 					state.chats[i].targetId === chatInfo.targetId) {
@@ -34,25 +35,11 @@ export default {
 				};
 				state.chats.unshift(chat);
 			}
-			// 选中会话保持不变
-			if(activeChat){
-				state.chats.forEach((chat,idx)=>{
-					if(activeChat.type == chat.type
-					&& activeChat.targetId == chat.targetId){
-						state.activeIndex = idx;
-					}
-				})
-			}
-		},
-		activeChat(state, idx) {
-			state.activeIndex = idx;
-			state.chats[idx].unreadCount = 0;
+			uni.setStorageSync("chats",state.chats);
 		},
 		removeChat(state, idx) {
 			state.chats.splice(idx, 1);
-			if (state.activeIndex >= state.chats.length) {
-				state.activeIndex = state.chats.length - 1;
-			}
+			uni.setStorageSync("chats",state.chats);
 		},
 		removeGroupChat(state, groupId) {
 			for (let idx in state.chats) {
@@ -113,6 +100,7 @@ export default {
 			}
 			// 新的消息
 			chat.messages.push(msgInfo);
+			uni.setStorageSync("chats",state.chats);
 			
 		},
 		deleteMessage(state, msgInfo){
@@ -141,6 +129,7 @@ export default {
 					break;
 				}
 			}
+			uni.setStorageSync("chats",state.chats);
 		},
 		updateChatFromFriend(state, friend) {
 			for (let i in state.chats) {
@@ -151,6 +140,7 @@ export default {
 					break;
 				}
 			}
+			uni.setStorageSync("chats",state.chats);
 		},
 		updateChatFromGroup(state, group) {
 			for (let i in state.chats) {
@@ -161,11 +151,26 @@ export default {
 					break;
 				}
 			}
-		},
-		resetChatStore(state) {
-			state.activeIndex = -1;
-			state.chats = [];
+			uni.setStorageSync("chats",state.chats);
 		}
 	},
-
+	actions:{
+		loadChat(context) {
+			return new Promise((resolve, reject) => {
+				console.log(".....")
+				uni.getStorage({
+					key:"chats",
+					success(res) {
+						context.commit("setChats",res.data);
+						resolve()
+					},
+					fail() {
+						resolve();
+					}
+				});
+			})
+			
+			
+		}
+	}
 }

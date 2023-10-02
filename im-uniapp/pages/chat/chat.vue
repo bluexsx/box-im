@@ -1,6 +1,10 @@
 <template>
 	<view>
-		消息
+		<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
+			<view v-for="(chat,index) in $store.state.chatStore.chats" :key="index">
+				<chat-item :chat="chat" :index="index"></chat-item>
+			</view>
+		</scroll-view>
 	</view>
 </template>
 

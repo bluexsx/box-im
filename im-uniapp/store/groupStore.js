@@ -37,7 +37,7 @@ export default {
 		}
 	},
 	actions: {
-		initGroupStore(context) {
+		loadGroup(context) {
 			return new Promise((resolve, reject) => {
 				request({
 					url: '/group/list',

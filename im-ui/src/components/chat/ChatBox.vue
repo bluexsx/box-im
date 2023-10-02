@@ -134,7 +134,7 @@
 					loadStatus: "loading"
 				}
 				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				this.fillTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
@@ -182,7 +182,7 @@
 					loadStatus: "loading"
 				}
 				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				this.fillTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
 				// 滚动到底部
@@ -232,7 +232,7 @@
 					type: 3
 				}
 				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				this.fillTargetId(msgInfo, this.chat.targetId);
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
@@ -252,7 +252,7 @@
 					this.showVoice = false;
 				})
 			},
-			setTargetId(msgInfo, targetId) {
+			fillTargetId(msgInfo, targetId) {
 				if (this.chat.type == "GROUP") {
 					msgInfo.groupId = targetId;
 				} else {
@@ -269,7 +269,7 @@
 					type: 0
 				}
 				// 填充对方id
-				this.setTargetId(msgInfo, this.chat.targetId);
+				this.fillTargetId(msgInfo, this.chat.targetId);
 				this.lockMessage = true;
 				this.$http({
 					url: this.messageAction,

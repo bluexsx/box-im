@@ -14,11 +14,12 @@ const store = createStore({
 	},
 	state: {},
 	actions: {
-		initStore(context) {
+		load(context) {
 			const promises = [];
-			promises.push(this.dispatch("initUserStore"));
-			promises.push(this.dispatch("initFriendStore"));
-			promises.push(this.dispatch("initGroupStore"));
+			promises.push(this.dispatch("loadUser"));
+			promises.push(this.dispatch("loadFriend"));
+			promises.push(this.dispatch("loadGroup"));
+			promises.push(this.dispatch("loadChat"));
 			return Promise.all(promises);
 		}
 	},

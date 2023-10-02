@@ -62,7 +62,7 @@ export default {
 		}
 	},
 	actions: {
-		initFriendStore(context) {
+		loadFriend(context) {
 			return new Promise((resolve, reject) => {
 				request({
 					url: '/friend/list',
@@ -71,15 +71,12 @@ export default {
 					context.commit("setFriends", friends);
 					context.dispatch("refreshOnlineStatus");
 					resolve()
-					console.log("friendstore")
 				}).catch((res) => {
 					reject();
-					console.log("friendstore reject")
 				})
 			});
 		},
 		refreshOnlineStatus(context) {
-			console.log(context.state.friends)
 			if (context.state.friends.length > 0 ) {
 				let userIds = [];
 				context.state.friends.forEach((f) => {

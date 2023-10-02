@@ -103,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String strJson = JwtUtil.getInfo(refreshToken);
         Long userId = JwtUtil.getUserId(refreshToken);
         String accessToken = JwtUtil.sign(userId,strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
-        String newRefreshToken = JwtUtil.sign(userId,strJson,jwtProperties.getAccessTokenExpireIn(),jwtProperties.getAccessTokenSecret());
+        String newRefreshToken = JwtUtil.sign(userId,strJson,jwtProperties.getRefreshTokenExpireIn(),jwtProperties.getRefreshTokenSecret());
         LoginVO vo =new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());

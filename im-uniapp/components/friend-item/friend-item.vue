@@ -12,13 +12,12 @@
 
 <script>
 	export default {
-		name: "frinedItem",
+		name: "frined-item",
 		data() {
 			return {}
 		},
 		methods:{
-			showFriendInfo(id){
-				console.log(id);
+			showFriendInfo(){
 				uni.navigateTo({
 					url: "/pages/common/user-info?id="+this.friend.id
 				})
@@ -42,7 +41,7 @@
 
 <style scope lang="scss">
 	.friend-item {
-		height: 100rpx;
+		height: 120rpx;
 		display: flex;
 		margin-bottom: 1rpx;
 		position: relative;
@@ -59,8 +58,8 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 80rpx;
-			height: 80rpx;
+			width: 100rpx;
+			height: 100rpx;
 			
 			.head-image{
 				width: 100%;
@@ -70,7 +69,7 @@
 		}
 
 		.text {
-			font-size: 30rpx;
+			font-size: 36rpx;
 			margin-left: 30rpx;
 			flex: 1;
 			display: flex;
@@ -80,13 +79,9 @@
 			flex-shrink: 0;
 			overflow: hidden;
 
-			&>view {
-				display: flex;
-				justify-content: flex-start;
-			}
 
 			.online-status {
-				font-size: 22rpx;
+				font-size: 28rpx;
 				font-weight: 600;
 
 				&.online {

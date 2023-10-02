@@ -7,23 +7,7 @@
 	}, {
 		"path": "pages/chat/chat",
 		"style": {
-			"navigationBarTitleText": "聊天消息",
-
-			"app-plus": {
-				"titleNView": {
-					"buttons": [{
-							"text": "&#xe6e0;",
-							"fontSrc": "/static/iconfont/iconfont.ttf",
-							"fontSize": "40rpx"
-						},
-						{
-							"text": "&#xe648;",
-							"fontSrc": "/static/iconFont/iconfont.ttf",
-							"fontSize": "40rpx"
-						}
-					]
-				}
-			}
+			"navigationBarTitleText": "聊天消息"
 		}
 	}, {
 		"path": "pages/friend/friend",
@@ -34,13 +18,13 @@
 				"titleNView": {
 					"buttons": [{
 							"text": "&#xe6e0;",
-							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSrc": "/static/icon/iconfont.ttf",
 							"fontSize": "40rpx",
 							"width": "50rpx"
 						},
 						{
 							"text": "&#xe648;",
-							"fontSrc": "/static/iconFont/iconfont.ttf",
+							"fontSrc": "/static/icon/iconfont.ttf",
 							"fontSize": "30rpx",
 							"width": "50rpx"
 						}
@@ -48,7 +32,6 @@
 				}
 			}
 		}
-
 	}, {
 		"path": "pages/group/group",
 		"style": {
@@ -87,6 +70,8 @@
 		}
 	},{
 		"path": "pages/common/user-info"
+	},{
+		"path": "pages/chat/chat-box"
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
