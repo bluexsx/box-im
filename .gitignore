@@ -7,3 +7,4 @@
 /im-server/src/main/resources/application-prod.yml
 /im-server/src/main/resources/logback-prod.xml
 /im-commom/im-commom.iml
+/im-uniapp/node_modules/
