@@ -6,7 +6,6 @@ export default {
 
 	mutations: {
 		setChats(state,chats){
-			console.log(chats);
 			state.chats = chats;
 		},
 		openChat(state, chatInfo) {
@@ -157,7 +156,6 @@ export default {
 	actions:{
 		loadChat(context) {
 			return new Promise((resolve, reject) => {
-				console.log(".....")
 				uni.getStorage({
 					key:"chats",
 					success(res) {

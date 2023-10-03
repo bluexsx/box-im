@@ -34,7 +34,6 @@ export default {
 		},
 		
 		setOnlineStatus(state, onlineIds) {
-			console.log("setOnlineStatus")
 			state.friends.forEach((f) => {
 				let onlineFriend = onlineIds.find((id) => f.id == id);
 				f.online = onlineFriend != undefined;

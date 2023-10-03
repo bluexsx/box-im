@@ -1,10 +1,10 @@
 <template>
-	<view class="chat-box">
+	<view class=" page chat-box">
 		<view class="header">
 			<text class="title">{{title}}</text>
 			<uni-icons class="btn-side" type="more-filled" size="30"></uni-icons>
 		</view>
-		<view class="chat-msg" @click="showToolBox(false)">
+		<view class="chat-msg" @click="switchChatTabBox('none')">
 			<scroll-view class="scroll-box" scroll-y="true" :scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
@@ -13,39 +13,41 @@
 				</view>
 			</scroll-view>
 		</view>
-
 		<view class="send-bar">
 			<view class="iconfont icon-voice-circle"></view>
 			<view class="send-text">
-				<textarea class="send-text-area" v-model="sendText" ref="sendBox" auto-height  :show-confirm-bar="false"
-					cursor-spacing="10"  @keydown.enter="sendTextMessage()" @click="showToolBox(false)"></textarea>
+				<textarea class="send-text-area" v-model="sendText"  auto-height :show-confirm-bar="false" :focus="sendTextFocus" @blur="onSendTextBlur()"
+					@focus="onSendTextFoucs()" cursor-spacing="20" @keydown.enter="sendTextMessage()" @click="switchChatTabBox('none')"></textarea>
 			</view>
-			<view class="iconfont icon-icon_emoji"></view>
-			<view v-show="sendText==''" class="iconfont icon-add-circle"  @click="showToolBox(true)" ></view>
-			<button v-show="sendText!=''" class="btn-send" type="primary" @click="sendTextMessage()" size="mini">发送</button>
+			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo')"></view>
+			<view v-show="sendText==''" class="iconfont icon-add-circle" @click="switchChatTabBox('tools')"></view>
+			<button v-show="sendText!=''" class="btn-send" type="primary" @click="sendTextMessage()"
+				size="mini">发送</button>
 		</view>
 
-		<view v-show="showTools" class="chat-tools" >
-			<view class="chat-tools-item">
-				<image-upload :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
-					:onError="onUploadImageFail">
-					<view class="tool-icon iconfont icon-picture"></view>
-				</image-upload>
-				<view class="tool-name">相册</view>
+		<view class="chat-tab-bar" v-show="chatTabBox!='none'">
+			<view v-if="chatTabBox == 'tools'" class="chat-tools">
+				<view class="chat-tools-item">
+					<image-upload :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
+						:onError="onUploadImageFail">
+						<view class="tool-icon iconfont icon-picture"></view>
+					</image-upload>
+					<view class="tool-name">相册</view>
+				</view>
+				<view class="chat-tools-item" v-for="(tool, idx) in tools" @click="onClickTool(tool)">
+					<view class="tool-icon iconfont" :class="tool.icon"></view>
+					<view class="tool-name">{{ tool.name }}</view>
+				</view>
 			</view>
-			<view class="chat-tools-item" v-for="(tool, idx) in tools" @click="onClickTool(tool)">
-				<view class="tool-icon iconfont" :class="tool.icon"></view>
-				<view class="tool-name">{{ tool.name }}</view>
-			</view>
+
+			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
+				<view class="emotion-item-list">
+					<image class="emotion-item" :src="$emo.textToPath(emoText)" v-for="(emoText, i) in $emo.emoTextList"
+						:key="i" @click="selectEmoji(emoText)" mode="aspectFit" lazy-load="true"></image>
+				</view>
+			</scroll-view>
+
 		</view>
-
-
-
-		<!--
-		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
-		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
-		<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers" @close="closeHistoryBox"></chat-history>
-		-->
 	</view>
 </template>
 
@@ -59,11 +61,9 @@
 				groupMembers: [],
 				sendText: "",
 				showVoice: false, // 是否显示语音录制弹窗
-				showSide: false, // 是否显示群聊信息栏
-				showEmotion: false, // 是否显示emoji表情
-				showHistory: false, // 是否显示历史聊天记录
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
-				showTools: false,
+				chatTabBox: 'none',
+				sendTextFocus: false,
 				tools: [{
 						name: "拍摄",
 						icon: "icon-camera"
@@ -125,13 +125,12 @@
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
 					this.$store.commit("insertMessage", msgInfo);
-					uni.showToast({
-						title: "发送成功",
-						icon: "none"
-					})
+					this.sendText = "";
 				}).finally(() => {
 					// 滚动到底部
 					this.scrollToBottom();
+					// 重新获得输入焦点
+					this.sendTextFocus = true;
 				});
 			},
 			fillTargetId(msgInfo, targetId) {
@@ -142,13 +141,40 @@
 				}
 			},
 			scrollToBottom() {
-				this.$nextTick(() => {
-					this.scrollMsgIdx = this.chat.messages.length - 1;
-				})
-
+				let size = this.chat.messages.length;
+				if(size>0){
+					this.scrollToMsgIdx(size-1);
+				}
 			},
-			showToolBox(v){
-				this.showTools = v;
+			scrollToMsgIdx(idx){
+				// 踩坑：如果scrollMsgIdx值没变化，滚动条不会移动
+				if(idx == this.scrollMsgIdx && idx>0){
+					this.$nextTick(() => {
+						// 先滚动到上一条
+						this.scrollMsgIdx = idx-1;
+						// 再滚动目标位置
+						this.scrollToMsgIdx(idx);
+					});
+					return;
+				}
+				this.$nextTick(() => {
+					this.scrollMsgIdx = idx;
+				});
+				
+			},
+			switchChatTabBox(v) {
+				this.chatTabBox = v;
+				this.scrollToBottom();
+			},
+			selectEmoji(emoText) {
+				this.sendText += `#${emoText};`;
+			},
+			onSendTextBlur(){
+				this.sendTextFocus=false;
+			},
+			onSendTextFoucs(){
+				console.log("onSendTextFoucs")
+				this.scrollToBottom();
 			},
 			onUploadImageBefore(file) {
 				let data = {
@@ -176,7 +202,6 @@
 				return true;
 			},
 			onUploadImageSuccess(file, res) {
-				console.log("onUploadImageSuccess")
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(res.data);
 				this.$http({
@@ -200,7 +225,7 @@
 						break;
 
 				}
-				console.log(tool);
+	
 			}
 		},
 		computed: {
@@ -223,7 +248,6 @@
 			}
 		},
 		onLoad(options) {
-			console.log("onLoad")
 			let chatIdx = options.chatIdx;
 			this.chat = this.$store.state.chatStore.chats[chatIdx];
 			this.scrollToBottom();
@@ -234,12 +258,9 @@
 <style lang="scss" scoped>
 	.chat-box {
 		position: relative;
-		background: white;
 		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
-		height: calc(100vh - 44px);
-	
 		.header {
 			display: flex;
 			justify-content: center;
@@ -269,7 +290,7 @@
 			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
-
+			background-color: white;
 			.scroll-box {
 				height: 100%;
 			}
@@ -278,25 +299,28 @@
 		.send-bar {
 			display: flex;
 			align-items: center;
-			padding: 3rpx;
+			padding: 10rpx;
+			margin-bottom: 10rpx;
 			border: #dddddd solid 1px;
-			background-color: #eeeeee;
-				
-			.iconfont{
-				font-size: 50rpx;
-			}	
+			background-color: white;
+
+			.iconfont {
+				font-size: 70rpx;
+				margin: 3rpx;
+			}
+
 			.send-text {
 				flex: 1;
 				background-color: #f8f8f8 !important;
 				overflow: auto;
-				margin: 0rpx 12rpx;
-				padding: 12rpx;
+				padding: 20rpx;
 				background-color: #fff;
-				border-radius: 10rpx;
-				max-height: 225rpx;
-				min-height: 65rpx;
+				border-radius: 20rpx;
+				max-height: 300rpx;
+				min-height: 85rpx;
+				font-size: 30rpx;
 				box-sizing: border-box;
-
+				
 				.send-text-area {
 					width: 100%;
 				}
@@ -304,40 +328,61 @@
 			}
 
 			.btn-send {
-				text-align: right;
+				margin: 5rpx;
 			}
 		}
 
-		.chat-tools {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: space-between;
+
+		.chat-tab-bar {
+			height: 500rpx;
+			padding: 20rpx;
 			background-color: whitesmoke;
 
-			.chat-tools-item {
-				width: 140rpx;
-				padding: 20rpx;
+			.chat-tools {
+
 				display: flex;
-				flex-direction: column;
-				align-items: center;
+				flex-wrap: wrap;
+				justify-content: space-between;
 
-				.tool-icon {
+				.chat-tools-item {
+					width: 140rpx;
 					padding: 15rpx;
-					font-size: 60rpx;
-					background-color: white;
-					border-radius: 13%;
-				}
+					display: flex;
+					flex-direction: column;
+					align-items: center;
 
-				.tool-name {
-					height: 50rpx;
-					line-height: 50rpx;
-					font-size: 25rpx;
-					flex: 3;
+					.tool-icon {
+						padding: 15rpx;
+						font-size: 80rpx;
+						background-color: white;
+						border-radius: 20%;
+					}
+
+					.tool-name {
+						height: 60rpx;
+						line-height: 60rpx;
+						font-size: 25rpx;
+
+					}
 				}
 			}
+
+			.chat-emotion {
+				height: 100%;
+				.emotion-item-list {
+					display: flex;
+					flex-wrap: wrap;
+
+					.emotion-item {
+						width: 60rpx;
+						height: 60rpx;
+						text-align: center;
+						cursor: pointer;
+						padding: 15rpx;
+					}
+				}
+			}
+
 		}
-
-
-
 	}
 </style>

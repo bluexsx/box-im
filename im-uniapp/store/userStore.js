@@ -26,7 +26,6 @@ export default {
 				}).then((userInfo) => {
 					context.commit("setUserInfo",userInfo);
 					resolve();
-					console.log("suerstore")
 				}).catch(()=>{
 					reject();
 				});

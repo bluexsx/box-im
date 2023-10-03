@@ -48,7 +48,7 @@
 		padding-left: 30rpx;
 		align-items: center;
 		padding-right: 10rpx;
-		background-color: #fafafa;
+		background-color: white;
 		white-space: nowrap;
 		&:hover {
 			background-color: #eeeeee;

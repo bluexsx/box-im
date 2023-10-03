@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="tab-page">
 		
 	</view>
 </template>

@@ -1,5 +1,5 @@
 <template>
-	<view class="user-info">
+	<view class="page user-info">
 		<view class="content">
 			<view class="avatar">
 				<image class="head-image" :src="userInfo.headImage" lazy-load="true" mode="aspectFill"></image>
@@ -46,8 +46,8 @@
 					headImage: this.userInfo.headImage,
 				};
 				this.$store.commit("openChat", chat);
-				uni.switchTab({
-					url:"/pages/chat/chat"
+				uni.navigateTo({
+					url:"/pages/chat/chat-box?chatIdx=0"
 				})
 			},
 			addFriend() {

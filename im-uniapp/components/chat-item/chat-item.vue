@@ -45,12 +45,12 @@
 	.chat-item {
 		height: 120rpx;
 		display: flex;
-		margin-bottom: 1rpx;
+		margin-bottom: 2rpx;
 		position: relative;
 		padding-left: 30rpx;
 		align-items: center;
 		padding-right: 10rpx;
-		background-color: #fafafa;
+		background-color: white;
 		white-space: nowrap;
 		&:hover {
 			background-color: #eeeeee;
@@ -76,9 +76,9 @@
 				right: -12rpx;
 				top: -12rpx;
 				color: white;
-				border-radius: 30rpx;
-				padding: 5rpx 6rpx;
-				font-size: 10px;
+				border-radius: 16rpx;
+				padding: 4rpx 12rpx;
+				font-size: 20rpx;
 				text-align: center;
 				white-space: nowrap;
 			}

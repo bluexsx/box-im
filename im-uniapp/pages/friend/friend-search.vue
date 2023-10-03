@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<view>
 		  	<uni-search-bar  v-model="searchText"  :focus="true"  @cancel="onCancel()" placeholder="输入好友昵称搜索"></uni-search-bar>
 		</view>

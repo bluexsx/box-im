@@ -1,5 +1,5 @@
 <template>
-	<view class="page friend">
+	<view class="tab-page friend">
 		<view class="nav-bar">
 			<view class="nav-search">
 				<uni-search-bar @focus="onFocusSearch" cancelButton="none" placeholder="点击搜索好友" ></uni-search-bar>
@@ -8,7 +8,7 @@
 				<uni-icons type="personadd" size="30"></uni-icons>
 			</view>
 		</view>
-		<view class="items">
+		<view class="friend-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
 					<friend-item :friend="friend" :index="index"></friend-item>
@@ -44,11 +44,16 @@
 
 <style lang="scss" scoped>
 	.friend {
+		position: relative;
+		border: #dddddd solid 1px;
+		display: flex;
+		flex-direction: column;
+		
 		.nav-bar {
 			margin: 5rpx;
 			display: flex;
 			align-items: center;
-			
+			background-color: white;
 			.nav-search{
 				flex:1;
 			}
@@ -59,9 +64,15 @@
 			}
 		}
 
-		.items {
+		.friend-items {
+			flex: 1;
+			padding: 0;
+			border: #dddddd solid 1px;
+			overflow: hidden;
+			position: relative;
+			
 			.scroll-bar {
-				height: 1200rpx;
+				height: 100%;
 			}
 		}
 	}
