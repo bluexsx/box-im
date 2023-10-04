@@ -13,24 +13,7 @@
 		"path": "pages/friend/friend",
 		"style": {
 			"navigationBarTitleText": "好友列表",
-			"enablePullDownRefresh": false,
-			"app-plus": {
-				"titleNView": {
-					"buttons": [{
-							"text": "&#xe6e0;",
-							"fontSrc": "/static/icon/iconfont.ttf",
-							"fontSize": "40rpx",
-							"width": "50rpx"
-						},
-						{
-							"text": "&#xe648;",
-							"fontSrc": "/static/icon/iconfont.ttf",
-							"fontSize": "30rpx",
-							"width": "50rpx"
-						}
-					]
-				}
-			}
+			"enablePullDownRefresh": false
 		}
 	}, {
 		"path": "pages/group/group",
@@ -46,32 +29,13 @@
 			"enablePullDownRefresh": false
 		}
 	}, {
-		"path": "pages/friend/friend-search",
-		"style": {
-			"app-plus": {
-				"navigationBarTitleText": "好友查找",
-				"titleNView": {
-					"buttons": [{
-							"text": "取消",
-							"fontSize": "20rpx",
-							"width": "80rpx"
-						}
-				
-					],
-					"searchInput": {
-						"autoFocus": true,
-						"placeholder": "输入好友昵称",
-						"borderRadius": "10rpx"
-					},
-					"autoBackButton": false
-				}
-				
-			}
-		}
-	},{
+		"path": "pages/friend/friend-search"
+	}, {
 		"path": "pages/common/user-info"
-	},{
+	}, {
 		"path": "pages/chat/chat-box"
+	}, {
+		"path": "pages/friend/friend-add"
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

@@ -248,9 +248,17 @@
 			}
 		},
 		onLoad(options) {
+			console.log("onLoad")
 			let chatIdx = options.chatIdx;
 			this.chat = this.$store.state.chatStore.chats[chatIdx];
+			// 激活当前会话
+			this.$store.commit("activeChat", chatIdx);
+			// 页面滚到底部
 			this.scrollToBottom();
+		},
+		onUnload() {
+			console.log("onShow")
+			this.$store.commit("activeChat", -1);
 		}
 	}
 </script>

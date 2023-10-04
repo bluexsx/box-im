@@ -4,7 +4,7 @@
 			<view class="nav-search">
 				<uni-search-bar @focus="onFocusSearch" cancelButton="none" placeholder="点击搜索好友" ></uni-search-bar>
 			</view>
-			<view  class="nav-add">
+			<view  class="nav-add" @click="onAddNewFriends()">
 				<uni-icons type="personadd" size="30"></uni-icons>
 			</view>
 		</view>
@@ -29,6 +29,11 @@
 			onFocusSearch() {
 				uni.navigateTo({
 					url: "/pages/friend/friend-search"
+				})
+			},
+			onAddNewFriends(){
+				uni.navigateTo({
+					url: "/pages/friend/friend-add"
 				})
 			}
 		},

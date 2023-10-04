@@ -24,8 +24,9 @@
 		</view>
 		<view class="line"></view>
 		<view class="btn-group">
-			<button v-show="isFriend" type="primary" @click="sendMessage()">发消息</button>
-			<button v-show="!isFriend" type="primary" @click="addFriend()">加为好友</button>
+			<button class="btn" v-show="isFriend" type="primary" @click="onSendMessage()">发消息</button>
+			<button class="btn" v-show="!isFriend" type="primary" @click="onAddFriend()">加为好友</button>
+			<button class="btn" v-show="isFriend" type="warn" @click="onDelFriend()">删除好友</button>
 		</view>
 	</view>
 </template>
@@ -38,7 +39,7 @@
 			}
 		},
 		methods: {
-			sendMessage() {
+			onSendMessage() {
 				let chat = {
 					type: 'PRIVATE',
 					targetId: this.userInfo.id,
@@ -50,7 +51,7 @@
 					url:"/pages/chat/chat-box?chatIdx=0"
 				})
 			},
-			addFriend() {
+			onAddFriend() {
 				this.$http({
 					url: "/friend/add?friendId=" + this.userInfo.id,
 					method: "POST"
@@ -63,27 +64,74 @@
 					}
 					this.$store.commit("addFriend", friend);
 					uni.showToast({
-						title: '添加成功，对方已成为您的好友',
+						title: '对方已成为您的好友',
 						icon: 'none'
 					})
+				})
+			},
+			onDelFriend(){
+				console.log(this.userInfo)
+				uni.showModal({
+					title: "确认删除",
+					content: `确认要删除与 '${this.userInfo.nickName}'的好友关系吗?`,
+					success: ()=> {
+						this.$http({
+							url: `/friend/delete/${this.userInfo.id}`,
+							method: 'delete'
+						}).then((data) => {
+							this.$store.commit("removeFriend", this.userInfo.id);
+							this.$store.commit("removePrivateChat", this.userInfo.id);
+							uni.showToast({
+								title: 	`与 '${this.userInfo.nickName}'的好友关系已解除`,
+								icon: 'none'
+							})
+						})
+					}
+				})
+			},
+			updateFriendInfo() {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				let friend = JSON.parse(JSON.stringify(this.friendInfo));
+				friend.headImage = this.userInfo.headImageThumb;
+				friend.nickName = this.userInfo.nickName;
+				this.$http({
+					url: "/friend/update",
+					method: "PUT",
+					data: friend
+				}).then(() => {
+					// 更新好友列表中的昵称和头像
+					this.$store.commit("updateFriend", friend);
+					// 更新会话中的头像和昵称
+					this.$store.commit("updateChatFromFriend", this.userInfo);
+				})
+			},
+			loadUserInfo(id){
+				this.$http({
+					url: "/user/find/" + id,
+					method: 'GET'
+				}).then((user) => {
+					this.userInfo = user;
+					// 如果发现好友的头像和昵称改了，进行更新
+					if (this.isFriend &&this.userInfo.headImageThumb != this.friendInfo.headImage ||
+						this.userInfo.nickName != this.friendInfo.nickName) {
+						this.updateFriendInfo()
+					}
 				})
 			}
 		},
 		computed: {
 			isFriend() {
+				return this.friendInfo != undefined;
+			},
+			friendInfo(){
 				let friends = this.$store.state.friendStore.friends;
 				let friend = friends.find((f) => f.id == this.userInfo.id);
-				return friend != undefined;
+				return friend;
 			}
 		},
 		onLoad(options) {
-			// 查询好友信息
-			const id = options.id;
-			this.$http({
-				url: "/user/find/" + id
-			}).then((userInfo) => {
-				this.userInfo = userInfo;
-			})
+			// 查询用户信息
+			this.loadUserInfo(options.id);
 		}
 	}
 </script>
@@ -136,6 +184,11 @@
 
 		.btn-group {
 			margin: 100rpx;
+			
+			.btn{
+				margin-top: 20rpx;
+			}
+			
 		}
 	}
 </style>

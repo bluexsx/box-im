@@ -16,7 +16,31 @@
 			}
 		},
 		methods: {
-			
+			refreshUnreadBadge(){
+				if(this.unreadCount>0){
+					uni.setTabBarBadge({
+					  index: 0,
+					  text: this.unreadCount+""
+					})
+				}else{
+					uni.removeTabBarBadge({
+						index:0
+					})
+					
+				}
+			}
+		},
+		computed:{
+			unreadCount(){
+				let count = 0;
+				this.$store.state.chatStore.chats.forEach(chat =>{
+					count += chat.unreadCount;
+				})
+				return count;
+			}
+		},
+		onLoad() {
+			this.refreshUnreadBadge();
 		}
 	}
 </script>

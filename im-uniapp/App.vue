@@ -1,10 +1,17 @@
 <script>
+	import store from './store'
+	
 	export default {
+		data(){
+			return {
+				audioTip: null
+			}
+		},
 		methods: {
 			init(loginInfo) {
 				// 加载数据
 				console.log(this)
-				this.$store.dispatch("load").then(() => {
+				store.dispatch("load").then(() => {
 					// 初始化websocket
 					this.initWebSocket(loginInfo);
 				}).catch((e) => {
@@ -52,19 +59,18 @@
 				});
 			},
 			handlePrivateMessage(msg) {
-				// 好友列表存在好友信息，直接插入私聊消息
-				let friendId = msg.selfSend ? msg.recvId : msg.sendId;
+				let friendId = msg.selfSend ? msg.recvId : msg.sendId; 
 				let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
 				if (!friend) {
-					// 好友列表不存在好友信息，则发请求获取好友信息
 					this.$http({
 						url: `/friend/find/${msg.sendId}`,
-						method: 'get'
+						method: 'GET'
 					}).then((friend) => {
 						this.insertPrivateMessage(friend, msg);
 						this.$store.commit("addFriend", friend);
 					})
 				} else {
+					// 好友列表不存在好友信息，则发请求获取好友信息
 					this.insertPrivateMessage(friend, msg);
 				}
 
@@ -101,10 +107,8 @@
 
 			},
 			handleGroupMessage(msg) {
-				// 群聊缓存存在，直接插入群聊消息
 				let group = this.$store.state.groupStore.groups.find((g) => g.id == msg.groupId);
 				if (!group) {
-					// 群聊缓存存在，直接插入群聊消息
 					this.$http({
 						url: `/group/find/${msg.groupId}`,
 						method: 'get'
@@ -113,6 +117,7 @@
 						this.$store.commit("addGroup", group);
 					})
 				} else {
+					// 群聊缓存存在，直接插入群聊消息
 					this.insertGroupMessage(group, msg);
 				}
 
@@ -132,10 +137,6 @@
 				!msg.selfSend && this.playAudioTip();
 			},
 			quit() {
-				uni.showToast({
-					title: "退出登录"
-				})
-				console.log("退出登录")
 				this.$wsApi.closeWebSocket();
 				uni.removeStorageSync("loginInfo");
 				uni.navigateTo({
@@ -143,17 +144,15 @@
 				})
 			},
 			playAudioTip() {
-				// let audio = new Audio();
-				// let url = "/static/audio/tip.wav";
-				// audio.src = url;
-				// audio.play();
+				// 音频播放无法成功
+				// this.audioTip = uni.createInnerAudioContext();
+				// this.audioTip.src =  "/static/audio/tip.wav";
+				// this.audioTip.play();
 			}
 
 		},
 		onLaunch() {
-
-			// 跳转到登录页面
-			console.log("onLaunch")
+			// 登录状态校验
 			let loginInfo = uni.getStorageSync("loginInfo");
 			if (loginInfo) {
 				// 初始化

@@ -66,7 +66,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public LoginVO login(LoginDTO dto) {
-        User user = findUserByName(dto.getUserName());
+        User user = this.findUserByUserName(dto.getUserName());
         if(null == user){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"用户不存在");
         }
@@ -119,7 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public void register(RegisterDTO dto) {
-        User user = findUserByName(dto.getUserName());
+        User user = this.findUserByUserName(dto.getUserName());
         if(null != user){
             throw  new GlobalException(ResultCode.USERNAME_ALREADY_REGISTER);
         }
@@ -136,11 +136,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * @return
      */
     @Override
-    public User findUserByName(String username) {
+    public User findUserByUserName(String username) {
         LambdaQueryWrapper<User> queryWrapper =  Wrappers.lambdaQuery();
         queryWrapper.eq(User::getUserName,username);
         return this.getOne(queryWrapper);
     }
+
 
     /**
      * 更新用户信息，好友昵称和群聊昵称等冗余信息也会更新
@@ -206,6 +207,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }).collect(Collectors.toList());
     }
 
+    /**
+     * 根据用户昵称查询用户，最多返回20条数据
+     *
+     * @param name 用户名或昵称
+     * @return
+     */
+    @Override
+    public List<UserVO> findUserByName(String name) {
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.like(User::getUserName,name)
+            .or()
+            .like(User::getNickName,name)
+            .last("limit 20");
+        List<User> users = this.list(queryWrapper);
+        return users.stream().map(u-> {
+            UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
+            vo.setOnline(imClient.isOnline(u.getId()));
+            return vo;
+        }).collect(Collectors.toList());
+    }
 
     /**
      * 判断用户是否在线，返回在线的用户id列表

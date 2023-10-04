@@ -36,6 +36,12 @@ export default {
 			}
 			uni.setStorageSync("chats",state.chats);
 		},
+		activeChat(state, idx) {
+			state.activeIndex = idx;
+			if(idx>=0){
+				state.chats[idx].unreadCount = 0;
+			}
+		},
 		removeChat(state, idx) {
 			state.chats.splice(idx, 1);
 			uni.setStorageSync("chats",state.chats);

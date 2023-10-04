@@ -3,8 +3,7 @@ import request from '../common/request';
 export default {
 
 	state: {
-		friends: [],
-		activeIndex: -1
+		friends: []
 	},
 	mutations: {
 		setFriends(state, friends) {
@@ -20,14 +19,12 @@ export default {
 				}
 			})
 		},
-		activeFriend(state, index) {
-			state.activeIndex = index;
-		},
-		removeFriend(state, index) {
-			state.friends.splice(index, 1);
-			if (state.activeIndex >= state.friends.length) {
-				state.activeIndex = state.friends.length - 1;
-			}
+		removeFriend(state, id) {
+			state.friends.forEach((f,idx) => {
+				if(f.id == id){
+					state.friends.splice(idx, 1)
+				}
+			});
 		},
 		addFriend(state, friend) {
 			state.friends.push(friend);
@@ -39,7 +36,6 @@ export default {
 				f.online = onlineFriend != undefined;
 			});
 
-			let activeFriend = state.friends[state.activeIndex];
 			state.friends.sort((f1, f2) => {
 				if (f1.online && !f2.online) {
 					return -1;
@@ -49,15 +45,6 @@ export default {
 				}
 				return 0;
 			});
-
-			// 重新排序后，activeIndex指向的好友可能会变化，需要重新指定
-			if (state.activeIndex >= 0) {
-				state.friends.forEach((f, i) => {
-					if (f.id == activeFriend.id) {
-						state.activeIndex = i;
-					}
-				})
-			}
 		}
 	},
 	actions: {

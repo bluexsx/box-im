@@ -18,11 +18,13 @@ public interface IUserService extends IService<User> {
 
     void register(RegisterDTO dto);
 
-    User findUserByName(String username);
+    User findUserByUserName(String username);
 
     void update(UserVO vo);
 
     List<UserVO> findUserByNickName(String nickname);
+
+    List<UserVO> findUserByName(String name);
 
     List<Long> checkOnline(String userIds);
 
