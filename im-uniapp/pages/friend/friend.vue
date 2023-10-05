@@ -11,7 +11,7 @@
 		<view class="friend-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
-					<friend-item :friend="friend" :index="index"></friend-item>
+					<friend-item :friend="friend"></friend-item>
 				</view>
 			</scroll-view>
 		</view>
@@ -36,14 +36,8 @@
 					url: "/pages/friend/friend-add"
 				})
 			}
-		},
-		onNavigationBarButtonTap(e) {
-			if (e.index == 1) {
-				uni.navigateTo({
-					url: "/pages/friend/friend-search"
-				})
-			}
 		}
+	
 	}
 </script>
 

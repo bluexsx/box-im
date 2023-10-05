@@ -67,10 +67,12 @@ export default {
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
 			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
 			let chat = null;
+			let chatIdx = -1;
 			for (let idx in state.chats) {
 				if (state.chats[idx].type == type &&
 					state.chats[idx].targetId === targetId) {
 					chat = state.chats[idx];
+					chatIdx = idx;
 					break;
 				}
 			}
@@ -86,7 +88,10 @@ export default {
 			}
 			chat.lastSendTime = msgInfo.sendTime;
 			// 如果不是当前会话，未读加1
-			chat.unreadCount++;
+			if(chatIdx !=  state.activeIndex){
+				chat.unreadCount++;
+			}
+			// 自己回复了消息，说明消息已读
 			if(msgInfo.selfSend){
 				chat.unreadCount=0;
 			}

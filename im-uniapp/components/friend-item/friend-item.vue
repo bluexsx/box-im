@@ -5,7 +5,7 @@
 		</view>
 		<view class="text">
 			<view>{{ friend.nickName}}</view>
-			<view :class="online ? 'online-status  online':'online-status'">{{ online?"[在线]":"[离线]"}}</view>
+			<view :class="friend.online ? 'online-status  online':'online-status'">{{ friend.online?"[在线]":"[离线]"}}</view>
 		</view>
 	</view>
 </template>
@@ -26,14 +26,6 @@
 		props: {
 			friend: {
 				type: Object
-			},
-			index: {
-				type: Number
-			}
-		},
-		computed: {
-			online() {
-				return this.$store.state.friendStore.friends[this.index].online;
 			}
 		}
 	}

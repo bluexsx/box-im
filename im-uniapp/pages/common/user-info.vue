@@ -17,7 +17,7 @@
 				<text>
 					昵称 ：{{userInfo.nickName}}
 				</text>
-				<text class="person-wx-name">
+				<text>
 					签名 ：{{userInfo.signature}}
 				</text>
 			</view>

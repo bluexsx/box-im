@@ -226,7 +226,36 @@
 
 				}
 	
-			}
+			},
+			loadGroup(groupId) {
+				this.$http({
+					url: `/group/find/${groupId}`,
+					method: 'GET'
+				}).then((group) => {
+					this.group = group;
+					this.$store.commit("updateChatFromGroup", group);
+					this.$store.commit("updateGroup", group);
+			
+				});
+			
+				this.$http({
+					url: `/group/members/${groupId}`,
+					method: 'get'
+				}).then((groupMembers) => {
+					this.groupMembers = groupMembers;
+				});
+			},
+			loadFriend(friendId) {
+				// 获取对方最新信息
+				this.$http({
+					url: `/user/find/${friendId}`,
+					method: 'GET'
+				}).then((friend) => {
+					this.friend = friend;
+					this.$store.commit("updateChatFromFriend", friend);
+					this.$store.commit("updateFriend", friend);
+				})
+			},
 		},
 		computed: {
 			mine() {
@@ -248,13 +277,18 @@
 			}
 		},
 		onLoad(options) {
-			console.log("onLoad")
-			let chatIdx = options.chatIdx;
-			this.chat = this.$store.state.chatStore.chats[chatIdx];
+			// 聊天数据
+			this.chat = this.$store.state.chatStore.chats[options.chatIdx];
 			// 激活当前会话
-			this.$store.commit("activeChat", chatIdx);
+			this.$store.commit("activeChat", options.chatIdx);
 			// 页面滚到底部
 			this.scrollToBottom();
+			// 加载好友或群聊信息
+			if (this.chat.type == "GROUP") {
+				this.loadGroup(this.chat.targetId);
+			} else {
+				this.loadFriend(this.chat.targetId);
+			}
 		},
 		onUnload() {
 			console.log("onShow")

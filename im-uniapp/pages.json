@@ -36,6 +36,8 @@
 		"path": "pages/chat/chat-box"
 	}, {
 		"path": "pages/friend/friend-add"
+	}, {
+		"path": "pages/group/group-info"
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
