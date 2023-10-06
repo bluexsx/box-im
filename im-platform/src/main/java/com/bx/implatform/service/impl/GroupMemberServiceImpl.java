@@ -112,7 +112,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
 
     /**
-     *根据群聊id删除移除成员
+     * 根据群聊id删除移除成员
      *
      * @param groupId  群聊id
      * @return

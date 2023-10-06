@@ -28,7 +28,9 @@
 		methods: {
 			onFocusSearch() {},
 			onCreateNewGroup() {
-
+				uni.navigateTo({
+					url: "/pages/group/group-edit"
+				})
 			}
 		}
 		

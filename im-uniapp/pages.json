@@ -38,6 +38,8 @@
 		"path": "pages/friend/friend-add"
 	}, {
 		"path": "pages/group/group-info"
+	}, {
+		"path": "pages/group/group-edit"
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

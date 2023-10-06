@@ -46,7 +46,7 @@ const request =  (options) => {
 					return request(options)
 				} else {
 					uni.showToast({
-						icon: "error",
+						icon: "none",
 						title: res.data.message,
 						duration: 1500
 					})
@@ -54,6 +54,10 @@ const request =  (options) => {
 				}
 			},
 			fail(error) {
+				uni.showToast({
+					title: "网络似乎有点不给力，请稍后重试",
+					duration: 1500
+				})
 				return reject(error)
 			}
 		});

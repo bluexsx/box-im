@@ -28,8 +28,8 @@ public class GroupController {
 
     @ApiOperation(value = "创建群聊",notes="创建群聊")
     @PostMapping("/create")
-    public Result<GroupVO> createGroup(@NotEmpty(message = "群名不能为空") @RequestParam String groupName){
-        return ResultUtils.success(groupService.createGroup(groupName));
+    public Result<GroupVO> createGroup(@Valid  @RequestBody GroupVO vo){
+        return ResultUtils.success(groupService.createGroup(vo));
     }
 
     @ApiOperation(value = "修改群聊信息",notes="修改群聊信息")
