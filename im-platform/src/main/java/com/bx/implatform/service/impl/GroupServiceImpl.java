@@ -130,7 +130,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void deleteGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group.getOwnerId().equals(session.getUserId())){
+        if(!group.getOwnerId().equals(session.getUserId())){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"只有群主才有权限解除群聊");
         }
         // 逻辑删除群数据
@@ -170,7 +170,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void kickGroup(Long groupId, Long userId) {
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
-        if(group.getOwnerId().equals(session.getUserId()) ){
+        if(!group.getOwnerId().equals(session.getUserId()) ){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"您不是群主，没有权限踢人");
         }
         if(userId.equals(session.getUserId())){

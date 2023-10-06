@@ -40,6 +40,10 @@
 		"path": "pages/group/group-info"
 	}, {
 		"path": "pages/group/group-edit"
+	}, {
+		"path": "pages/group/group-invite"
+	}, {
+		"path": "pages/group/group-member"
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
