@@ -1,16 +1,17 @@
 <template>
 	<view class="page group-invite">
 		<view class="search-bar">
-			<uni-search-bar v-model="searchText"  cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
+			<uni-search-bar v-model="searchText" cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
 		</view>
 		<view class="friend-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="friend in friendItems"
-					v-show="!searchText || friend.nickName.startsWith(searchText)" :key="friend.id">
-					<uni-list-chat :avatar="friend.headImage" :title="friend.nickName"
-						:clickable="true" @click="onShowUserInfo(friend.id)">
-						<view class="chat-custom-right">		
-							<radio  :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>
+				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.startsWith(searchText)"
+					:key="friend.id">
+					<uni-list-chat :avatar="friend.headImage" :title="friend.nickName" :clickable="true"
+						@click="onShowUserInfo(friend.id)">
+						<view class="chat-custom-right">
+							<radio :checked="friend.checked" :disabled="friend.disabled"
+								@click.stop="onSwitchChecked(friend)" />
 						</view>
 					</uni-list-chat>
 				</view>
@@ -29,11 +30,11 @@
 				groupId: null,
 				searchText: "",
 				groupMembers: [],
-				friendItems:[]
+				friendItems: []
 			}
 		},
 		methods: {
-			onInviteFriends(){
+			onInviteFriends() {
 				let inviteVo = {
 					groupId: this.groupId,
 					friendIds: []
@@ -53,31 +54,32 @@
 							title: "邀请成功",
 							icon: 'none'
 						})
-						setTimeout(()=>{
-							uni.navigateBack();
-						},1000);
-						
+						setTimeout(() => {
+							uni.navigateBack({
+							});
+						}, 1000);
+
 					})
 				}
 			},
-			onShowUserInfo(userId){
+			onShowUserInfo(userId) {
 				uni.navigateTo({
 					url: "/pages/common/user-info?id=" + userId
 				})
 			},
-			onSwitchChecked(friend){
-				if(!friend.disabled){
+			onSwitchChecked(friend) {
+				if (!friend.disabled) {
 					console.log(friend.disabled)
 					friend.checked = !friend.checked;
-				}	
+				}
 			},
-			initFriendItems(){
+			initFriendItems() {
 				this.friendItems = [];
 				let friends = this.$store.state.friendStore.friends;
-				friends.forEach((f=>{
+				friends.forEach((f => {
 					let item = {
 						id: f.id,
-						headImage:f.headImage,
+						headImage: f.headImage,
 						nickName: f.nickName,
 					}
 					item.disabled = this.isGroupMember(f.id);
@@ -94,13 +96,13 @@
 					this.initFriendItems();
 				})
 			},
-			
-			isGroupMember(id){
-				return this.groupMembers.some(m => m.userId==id);
+
+			isGroupMember(id) {
+				return this.groupMembers.some(m => m.userId == id);
 			}
 		},
-		computed:{ 
-			inviteSize(){
+		computed: {
+			inviteSize() {
 				return this.friendItems.filter(f => !f.disabled && f.checked).length;
 			}
 		},
@@ -112,16 +114,17 @@
 </script>
 
 <style lang="scss" scoped>
-	.group-invite{
+	.group-invite {
 		position: relative;
 		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
-		
-		.friend-items{
+
+		.friend-items {
 			position: relative;
 			flex: 1;
 			overflow: hidden;
+
 			.scroll-bar {
 				height: 100%;
 			}
