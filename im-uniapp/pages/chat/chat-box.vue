@@ -4,7 +4,7 @@
 			<text class="title">{{title}}</text>
 			<uni-icons class="btn-side" type="more-filled" size="30"></uni-icons>
 		</view>
-		<view class="chat-msg" @click="switchChatTabBox('none')">
+		<view class="chat-msg" @click="switchChatTabBox('none',false)">
 			<scroll-view class="scroll-box" scroll-y="true" :scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
@@ -16,12 +16,12 @@
 		<view class="send-bar">
 			<view class="iconfont icon-voice-circle"></view>
 			<view class="send-text">
-				<textarea class="send-text-area" v-model="sendText"  auto-height :show-confirm-bar="false" :focus="sendTextFocus" @blur="onSendTextBlur()"
-					@focus="onSendTextFoucs()" cursor-spacing="20" @keydown.enter="sendTextMessage()" @click="switchChatTabBox('none')"></textarea>
+				<textarea class="send-text-area" v-model="sendText"  auto-height :show-confirm-bar="false" :focus="sendTextFocus"
+					@focus="onSendTextFoucs()" cursor-spacing="20" @keydown.enter="sendTextMessage()" @click="switchChatTabBox('none',true)" :hold-keyboard="sendTextFocus"></textarea>
 			</view>
-			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo')"></view>
-			<view v-show="sendText==''" class="iconfont icon-add-circle" @click="switchChatTabBox('tools')"></view>
-			<button v-show="sendText!=''" class="btn-send" type="primary" @click="sendTextMessage()"
+			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',false)"></view>
+			<view v-show="sendText==''" class="iconfont icon-add-circle" @click="switchChatTabBox('tools',false)"></view>
+			<button v-show="sendText!=''" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
 				size="mini">发送</button>
 		</view>
 
@@ -130,7 +130,7 @@
 					// 滚动到底部
 					this.scrollToBottom();
 					// 重新获得输入焦点
-					this.sendTextFocus = true;
+					//this.sendTextFocus = true;
 				});
 			},
 			fillTargetId(msgInfo, targetId) {
@@ -162,15 +162,15 @@
 				});
 				
 			},
-			switchChatTabBox(v) {
-				this.chatTabBox = v;
+			switchChatTabBox(chatTabBox,sendTextFocus) {
+				console.log("switchChatTabBox")
+				this.chatTabBox = chatTabBox;
+				this.sendTextFocus = sendTextFocus
 				this.scrollToBottom();
+				console.log(this.sendTextFocus)
 			},
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
-			},
-			onSendTextBlur(){
-				this.sendTextFocus=false;
 			},
 			onSendTextFoucs(){
 				console.log("onSendTextFoucs")
