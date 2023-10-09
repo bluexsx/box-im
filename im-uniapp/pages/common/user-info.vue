@@ -75,6 +75,8 @@
 					title: "确认删除",
 					content: `确认要删除与 '${this.userInfo.nickName}'的好友关系吗?`,
 					success: ()=> {
+						if(res.cancel)
+							return;
 						this.$http({
 							url: `/friend/delete/${this.userInfo.id}`,
 							method: 'delete'

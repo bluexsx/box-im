@@ -44,6 +44,10 @@
 		"path": "pages/group/group-invite"
 	}, {
 		"path": "pages/group/group-member"
+	}, {
+		"path": "pages/mine/mine-edit"
+	}{
+		"path": "pages/mine/mine-password"
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

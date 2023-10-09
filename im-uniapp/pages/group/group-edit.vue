@@ -21,7 +21,6 @@
 			</uni-forms-item>
 		</uni-forms>
 		<button type="primary" @click="submit()">提交</button>
-
 	</view>
 </template>
 

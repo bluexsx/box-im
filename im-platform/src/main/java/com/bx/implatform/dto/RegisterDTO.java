@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotEmpty;
 
 @Data
-@ApiModel("用户注册VO")
+@ApiModel("用户注册DTO")
 public class RegisterDTO {
 
     @Length(max = 64,message = "用户名不能大于64字符")

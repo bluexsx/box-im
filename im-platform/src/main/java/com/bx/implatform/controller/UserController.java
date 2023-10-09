@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.entity.User;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
@@ -58,7 +59,6 @@ public class UserController {
         userService.update(vo);
         return ResultUtils.success();
     }
-
 
 
 

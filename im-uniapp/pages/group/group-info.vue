@@ -100,6 +100,8 @@
 					title: '确认退出?',
 					content: `退出群聊后将不再接受群里的消息，确认退出吗?`,
 					success: () => {
+						if(res.cancel)
+							return;
 						this.$http({
 							url: `/group/quit/${this.group.id}`,
 							method: 'DELETE'
@@ -122,7 +124,9 @@
 				uni.showModal({
 					title: '确认解散?',
 					content: `确认要解散群聊'${this.group.name}'吗?`,
-					success:()=>{
+					success:(res)=>{
+						if(res.cancel)
+							return;
 						this.$http({
 							url: `/group/delete/${this.group.id}`,
 							method: 'delete'

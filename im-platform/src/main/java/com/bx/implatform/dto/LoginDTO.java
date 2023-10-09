@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel("用户登录VO")
+@ApiModel("用户登录DTO")
 public class LoginDTO {
 
     @Max(value = 1,message = "登录终端类型取值范围:0,1")
@@ -24,7 +24,7 @@ public class LoginDTO {
     @ApiModelProperty(value = "用户名")
     private String userName;
 
-   @NotEmpty(message="用户密码不可为空")
+    @NotEmpty(message="用户密码不可为空")
     @ApiModelProperty(value = "用户密码")
     private String password;
 

@@ -39,7 +39,9 @@
 				uni.showModal({
 					title: '确认移出?',
 					content: `确定将成员'${member.aliasName}'移出群聊吗？`,
-					success: () => {
+					success: (res) => {
+						if(res.cancel) 
+							return;
 						this.$http({
 							url: `/group/kick/${this.group.id}?userId=${member.userId}`,
 							method: 'DELETE'

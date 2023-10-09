@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel("群聊消息VO")
+@ApiModel("群聊消息DTO")
 public class GroupMessageDTO {
 
     @NotNull(message="群聊id不可为空")

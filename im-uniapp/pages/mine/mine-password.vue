@@ -1,0 +1,105 @@
+<template>
+	<view class="page mine-password">
+		<uni-forms ref="form" :modelValue="formData" label-position="top" label-width="100%" >
+			<uni-forms-item label="原密码:" name="oldPassword">
+				<uni-easyinput type="password" v-model="formData.oldPassword" />
+			</uni-forms-item>
+			<uni-forms-item label="新密码:" name="newPassword">
+				<uni-easyinput type="password" v-model="formData.newPassword" />
+			</uni-forms-item>
+			<uni-forms-item label="确认密码:" name="confirmPassword">
+				<uni-easyinput type="password" v-model="formData.confirmPassword" />
+			</uni-forms-item>
+			<button type="primary" @click="onSubmit()">提交</button>
+		</uni-forms>
+
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				formData: {
+					oldPassword: "",
+					newPassword: "",
+					confirmPassword: ""
+				},
+				rules: {
+					oldPassword: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入原密码',
+						}]
+					},
+					newPassword: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入新密码',
+						}, {
+							validateFunction: function(rule, value, data, callback) {
+								console.log(data)
+								if (data.confirmPassword != data.newPassword) {
+									callback("两次输入的密码不一致");
+								}
+								if (data.newPassword == data.oldPassword) {
+									callback("新密码不能和原密码一致");
+								}
+								return true;
+							}
+						}]
+					},
+					confirmPassword: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入确认密码',
+						}, {
+							validateFunction: function(rule, value, data, callback) {
+								console.log(data)
+								if (data.confirmPassword != data.newPassword) {
+									callback("两次输入的密码不一致");
+								}
+								
+								return true;
+							}
+						}]
+					}
+
+				}
+			}
+		},
+		methods: {
+			onSubmit() {
+				console.log(this.formData)
+				this.$refs.form.validate().then(res => {
+					console.log('表单数据信息：', res);
+					this.$http({
+						url: "/modifyPwd",
+						method: "PUT",
+						data: this.formData
+					}).then((res) => {
+						uni.showToast({
+							title: "修改密码成功",
+							icon: 'none'
+						})
+					})
+				}).catch(err => {
+					console.log('表单错误信息：', err);
+				})
+
+			}
+		},
+		onReady() {
+			// 需要在onReady中设置规则
+			this.$refs.form.setRules(this.rules)
+		}
+
+	}
+</script>
+
+<style scoped lang="scss">
+	.mine-password {
+		padding: 20rpx;
+
+	}
+</style>

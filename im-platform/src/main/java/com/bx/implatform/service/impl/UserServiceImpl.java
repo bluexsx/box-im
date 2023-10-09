@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.implatform.config.JwtProperties;
+import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;
@@ -88,6 +89,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return vo;
     }
 
+
+
+
     /**
      * 用refreshToken换取新 token
      *
@@ -127,6 +131,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.save(user);
         log.info("注册用户，用户id:{},用户名:{},昵称:{}",user.getId(),dto.getUserName(),dto.getNickName());
+    }
+
+
+    @Override
+    public void modifyPassword(ModifyPwdDTO dto) {
+        UserSession session = SessionContext.getSession();
+        User user = this.getById(session.getUserId());
+        if(!passwordEncoder.matches(dto.getOldPassword(),user.getPassword())){
+            throw  new GlobalException("旧密码不正确");
+        }
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        this.updateById(user);
+        log.info("用户修改密码，用户id:{},用户名:{},昵称:{}",user.getId(),user.getUserName(),user.getNickName());
     }
 
     /**

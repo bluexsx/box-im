@@ -10,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel("私聊消息VO")
+@ApiModel("私聊消息DTO")
 public class PrivateMessageDTO {
 
 

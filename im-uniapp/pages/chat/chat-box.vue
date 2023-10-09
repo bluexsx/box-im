@@ -4,7 +4,7 @@
 			<text class="title">{{title}}</text>
 			<uni-icons class="btn-side" type="more-filled" size="30"></uni-icons>
 		</view>
-		<view class="chat-msg" @click="switchChatTabBox('none',false)">
+		<view class="chat-msg" @click="switchChatTabBox('none',true)">
 			<scroll-view class="scroll-box" scroll-y="true" :scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
@@ -16,16 +16,21 @@
 		<view class="send-bar">
 			<view class="iconfont icon-voice-circle"></view>
 			<view class="send-text">
-				<textarea class="send-text-area" v-model="sendText"  auto-height :show-confirm-bar="false" :focus="sendTextFocus"
-					@focus="onSendTextFoucs()" cursor-spacing="20" @keydown.enter="sendTextMessage()" @click="switchChatTabBox('none',true)" :hold-keyboard="sendTextFocus"></textarea>
+				<textarea class="send-text-area" v-model="sendText" auto-height 
+					:show-confirm-bar="false" :adjust-position="false"
+					@focus="onSendTextFoucs" @confirm="sendTextMessage()" 
+					@keyboardheightchange="onKeyboardheightchange"
+					confirm-type="send" @blur="onSendTextBlur"
+					confirm-hold :hold-keyboard="true"></textarea>
 			</view>
-			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',false)"></view>
-			<view v-show="sendText==''" class="iconfont icon-add-circle" @click="switchChatTabBox('tools',false)"></view>
+			<view class="iconfont icon-icon_emoji" @touchend.prevent="switchChatTabBox('emo',true)"></view>
+			<view v-show="sendText==''" class="iconfont icon-add-circle" @touchend.prevent="switchChatTabBox('tools',true)">
+			</view>
 			<button v-show="sendText!=''" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
 				size="mini">发送</button>
 		</view>
 
-		<view class="chat-tab-bar" v-show="chatTabBox!='none'">
+		<view class="chat-tab-bar" v-show="chatTabBox!='none' ||showKeyBoard " :style="{height:`${keyboardHeight}px`}">
 			<view v-if="chatTabBox == 'tools'" class="chat-tools">
 				<view class="chat-tools-item">
 					<image-upload :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
@@ -34,7 +39,7 @@
 					</image-upload>
 					<view class="tool-name">相册</view>
 				</view>
-				<view class="chat-tools-item" v-for="(tool, idx) in tools" @click="onClickTool(tool)">
+				<view class="chat-tools-item" v-for="(tool, idx) in tools" @click.stop="onClickTool(tool)">
 					<view class="tool-icon iconfont" :class="tool.icon"></view>
 					<view class="tool-name">{{ tool.name }}</view>
 				</view>
@@ -46,8 +51,9 @@
 						:key="i" @click="selectEmoji(emoText)" mode="aspectFit" lazy-load="true"></image>
 				</view>
 			</scroll-view>
-
+			<view v-if="showKeyBoard"></view>
 		</view>
+		
 	</view>
 </template>
 
@@ -63,7 +69,8 @@
 				showVoice: false, // 是否显示语音录制弹窗
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 				chatTabBox: 'none',
-				sendTextFocus: false,
+				showKeyBoard:false,
+				keyboardHeight: 322,
 				tools: [{
 						name: "拍摄",
 						icon: "icon-camera"
@@ -129,8 +136,6 @@
 				}).finally(() => {
 					// 滚动到底部
 					this.scrollToBottom();
-					// 重新获得输入焦点
-					//this.sendTextFocus = true;
 				});
 			},
 			fillTargetId(msgInfo, targetId) {
@@ -142,16 +147,16 @@
 			},
 			scrollToBottom() {
 				let size = this.chat.messages.length;
-				if(size>0){
-					this.scrollToMsgIdx(size-1);
+				if (size > 0) {
+					this.scrollToMsgIdx(size - 1);
 				}
 			},
-			scrollToMsgIdx(idx){
+			scrollToMsgIdx(idx) {
 				// 踩坑：如果scrollMsgIdx值没变化，滚动条不会移动
-				if(idx == this.scrollMsgIdx && idx>0){
+				if (idx == this.scrollMsgIdx && idx > 0) {
 					this.$nextTick(() => {
 						// 先滚动到上一条
-						this.scrollMsgIdx = idx-1;
+						this.scrollMsgIdx = idx - 1;
 						// 再滚动目标位置
 						this.scrollToMsgIdx(idx);
 					});
@@ -160,21 +165,39 @@
 				this.$nextTick(() => {
 					this.scrollMsgIdx = idx;
 				});
-				
+
 			},
-			switchChatTabBox(chatTabBox,sendTextFocus) {
+			switchChatTabBox(chatTabBox,hideKeyBoard) {
 				console.log("switchChatTabBox")
 				this.chatTabBox = chatTabBox;
-				this.sendTextFocus = sendTextFocus
 				this.scrollToBottom();
-				console.log(this.sendTextFocus)
+				if(hideKeyBoard){
+					uni.hideKeyboard();	
+				}
 			},
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
 			},
-			onSendTextFoucs(){
-				console.log("onSendTextFoucs")
-				this.scrollToBottom();
+			onSendTextFoucs(e) {
+				// 更新键盘高度
+				// if (e && e.detail && e.detail.height) {
+				// 	this.switchChatTabBox('keyboard')
+				// 	this.keyboardHeight = this.rpxTopx(e.detail.height);
+				// 	console.log(this.keyboardHeight)
+				// }
+			},
+			onKeyboardheightchange(e){
+				console.log(e);
+				if(e.detail.height >0){
+					this.showKeyBoard = true;
+					this.switchChatTabBox('none',false)
+					this.keyboardHeight = this.rpxTopx(e.detail.height);
+				}else{
+					this.showKeyBoard = false;
+				}
+			},
+			onSendTextBlur() {
+				//this.switchChatTabBox("none")
 			},
 			onUploadImageBefore(file) {
 				let data = {
@@ -225,7 +248,7 @@
 						break;
 
 				}
-	
+
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -235,9 +258,9 @@
 					this.group = group;
 					this.$store.commit("updateChatFromGroup", group);
 					this.$store.commit("updateGroup", group);
-			
+
 				});
-			
+
 				this.$http({
 					url: `/group/members/${groupId}`,
 					method: 'get'
@@ -256,6 +279,12 @@
 					this.$store.commit("updateFriend", friend);
 				})
 			},
+			rpxTopx(rpx) {
+				// px转换成rpx
+				let info = uni.getSystemInfoSync()
+				let px = info.windowWidth * rpx / 750;
+				return Math.floor(rpx);
+			}
 		},
 		computed: {
 			mine() {
@@ -293,6 +322,7 @@
 		onUnload() {
 			console.log("onShow")
 			this.$store.commit("activeChat", -1);
+
 		}
 	}
 </script>
@@ -303,6 +333,7 @@
 		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
+
 		.header {
 			display: flex;
 			justify-content: center;
@@ -333,6 +364,7 @@
 			overflow: hidden;
 			position: relative;
 			background-color: white;
+
 			.scroll-box {
 				height: 100%;
 			}
@@ -362,7 +394,7 @@
 				min-height: 85rpx;
 				font-size: 30rpx;
 				box-sizing: border-box;
-				
+
 				.send-text-area {
 					width: 100%;
 				}
@@ -411,6 +443,7 @@
 
 			.chat-emotion {
 				height: 100%;
+
 				.emotion-item-list {
 					display: flex;
 					flex-wrap: wrap;
