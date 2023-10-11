@@ -47,6 +47,8 @@ http.interceptors.response.use(async response => {
 			headers: {
 				refreshToken: refreshToken
 			}
+		}).catch(()=>{
+			router.replace("/login");
 		})
 		// 保存token
 		sessionStorage.setItem("accessToken", data.accessToken);

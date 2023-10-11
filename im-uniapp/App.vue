@@ -16,7 +16,7 @@
 					this.initWebSocket(loginInfo);
 				}).catch((e) => {
 					console.log(e);
-					this.quit();
+					this.exit();
 				})
 			},
 			initWebSocket(loginInfo) {
@@ -32,7 +32,7 @@
 							content: '您已在其他地方登陆，将被强制下线',
 							showCancel: false,
 						})
-						this.quit();
+						this.exit();
 					} else if (cmd == 3) {
 						// 标记这条消息是不是自己发的
 						msgInfo.selfSend = userId == msgInfo.sendId;
@@ -136,7 +136,7 @@
 				// 播放提示音
 				!msg.selfSend && this.playAudioTip();
 			},
-			quit() {
+			exit() {
 				this.$wsApi.closeWebSocket();
 				uni.removeStorageSync("loginInfo");
 				uni.navigateTo({

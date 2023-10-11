@@ -46,7 +46,7 @@
 		"path": "pages/group/group-member"
 	}, {
 		"path": "pages/mine/mine-edit"
-	}{
+	},{
 		"path": "pages/mine/mine-password"
 	}],
 	"globalStyle": {
