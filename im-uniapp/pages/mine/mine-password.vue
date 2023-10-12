@@ -38,7 +38,6 @@
 							errorMessage: '请输入新密码',
 						}, {
 							validateFunction: function(rule, value, data, callback) {
-								console.log(data)
 								if (data.confirmPassword != data.newPassword) {
 									callback("两次输入的密码不一致");
 								}
@@ -55,7 +54,6 @@
 							errorMessage: '请输入确认密码',
 						}, {
 							validateFunction: function(rule, value, data, callback) {
-								console.log(data)
 								if (data.confirmPassword != data.newPassword) {
 									callback("两次输入的密码不一致");
 								}
@@ -70,9 +68,7 @@
 		},
 		methods: {
 			onSubmit() {
-				console.log(this.formData)
 				this.$refs.form.validate().then(res => {
-					console.log('表单数据信息：', res);
 					this.$http({
 						url: "/modifyPwd",
 						method: "PUT",

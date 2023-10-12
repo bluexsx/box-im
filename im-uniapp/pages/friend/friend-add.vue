@@ -34,7 +34,6 @@
 				uni.navigateBack();
 			},
 			onSearch() {
-				console.log("onSearch")
 				this.$http({
 					url: "/user/findByName?name=" + this.searchText,
 					method: "GET"

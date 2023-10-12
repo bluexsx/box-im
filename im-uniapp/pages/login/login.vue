@@ -58,7 +58,6 @@
 			}
 		},
 		onLoad() {
-			console.log("login  onLoad")
 			let loginInfo = uni.getStorageSync("loginInfo");
 			if (loginInfo) {
 				// 跳转到聊天页面

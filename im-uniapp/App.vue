@@ -17,10 +17,8 @@
 					// 初始化websocket
 					this.initWebSocket(loginInfo);
 				}).catch((e) => {
-					console.log(e);
 					this.exit();
 				})
-
 			},
 			initWebSocket(loginInfo) {
 				let userId = store.state.userStore.userInfo.id;

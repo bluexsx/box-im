@@ -50,7 +50,6 @@
 				}
 			},
 			onUnloadImageSuccess(file, res) {
-				console.log(res)
 				this.group.headImage = res.data.originUrl;
 				this.group.headImageThumb = res.data.thumbUrl;
 			},

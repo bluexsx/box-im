@@ -70,7 +70,6 @@
 				})
 			},
 			onDelFriend(){
-				console.log(this.userInfo)
 				uni.showModal({
 					title: "确认删除",
 					content: `确认要删除与 '${this.userInfo.nickName}'的好友关系吗?`,

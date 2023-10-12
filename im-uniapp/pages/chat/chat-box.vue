@@ -17,7 +17,7 @@
 			<view class="iconfont icon-voice-circle"></view>
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
-					:adjust-position="false" @focus="onSendTextFoucs" @confirm="sendTextMessage()"
+					:adjust-position="false"  @confirm="sendTextMessage()"
 					@keyboardheightchange="onKeyboardheightchange" confirm-type="send" @blur="onSendTextBlur"
 					confirm-hold :hold-keyboard="true"></textarea>
 			</view>
@@ -167,7 +167,6 @@
 
 			},
 			switchChatTabBox(chatTabBox, hideKeyBoard) {
-				console.log("switchChatTabBox")
 				this.chatTabBox = chatTabBox;
 				this.scrollToBottom();
 				if (hideKeyBoard) {
@@ -177,16 +176,7 @@
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
 			},
-			onSendTextFoucs(e) {
-				// 更新键盘高度
-				// if (e && e.detail && e.detail.height) {
-				// 	this.switchChatTabBox('keyboard')
-				// 	this.keyboardHeight = this.rpxTopx(e.detail.height);
-				// 	console.log(this.keyboardHeight)
-				// }
-			},
-			onKeyboardheightchange(e) {
-				console.log(e);
+			onKeyboardheightchange(e) {;
 				if (e.detail.height > 0) {
 					this.showKeyBoard = true;
 					this.switchChatTabBox('none', false)
@@ -333,9 +323,7 @@
 			}
 		},
 		onUnload() {
-			console.log("onShow")
 			this.$store.commit("activeChat", -1);
-
 		}
 	}
 </script>

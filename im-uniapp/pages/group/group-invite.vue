@@ -69,7 +69,6 @@
 			},
 			onSwitchChecked(friend) {
 				if (!friend.disabled) {
-					console.log(friend.disabled)
 					friend.checked = !friend.checked;
 				}
 			},
