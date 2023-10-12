@@ -49,7 +49,7 @@
 					console.log("登录成功,自动跳转到聊天页面...")
 					uni.setStorageSync("loginInfo", data);
 					// 调用App.vue的初始化方法
-					this.$init(data);
+					getApp().init(data)
 					// 跳转到聊天页面
 					uni.switchTab({
 						url: "/pages/chat/chat"

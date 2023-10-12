@@ -1,8 +1,11 @@
 <script>
-	import store from './store'
-	
+	import store from './store';
+	import http from './common/request';
+	import * as enums from './common/enums';
+	import * as wsApi from './common/wssocket';
+
 	export default {
-		data(){
+		data() {
 			return {
 				audioTip: null
 			}
@@ -10,7 +13,6 @@
 		methods: {
 			init(loginInfo) {
 				// 加载数据
-				console.log(this)
 				store.dispatch("load").then(() => {
 					// 初始化websocket
 					this.initWebSocket(loginInfo);
@@ -18,14 +20,15 @@
 					console.log(e);
 					this.exit();
 				})
+
 			},
 			initWebSocket(loginInfo) {
-				let userId = this.$store.state.userStore.userInfo.id;
-				this.$wsApi.createWebSocket(process.env.WS_URL, loginInfo.accessToken);
-				this.$wsApi.onopen(() => {
+				let userId = store.state.userStore.userInfo.id;
+				wsApi.createWebSocket(process.env.WS_URL, loginInfo.accessToken);
+				wsApi.onopen(() => {
 					this.pullUnreadMessage();
 				});
-				this.$wsApi.onmessage((cmd, msgInfo) => {
+				wsApi.onmessage((cmd, msgInfo) => {
 					if (cmd == 2) {
 						// 异地登录，强制下线
 						uni.showModal({
@@ -48,26 +51,26 @@
 			},
 			pullUnreadMessage() {
 				// 拉取未读私聊消息
-				this.$http({
+				http({
 					url: "/message/private/pullUnreadMessage",
 					method: 'POST'
 				});
 				// 拉取未读群聊消息
-				this.$http({
+				http({
 					url: "/message/group/pullUnreadMessage",
 					method: 'POST'
 				});
 			},
 			handlePrivateMessage(msg) {
-				let friendId = msg.selfSend ? msg.recvId : msg.sendId; 
-				let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
+				let friendId = msg.selfSend ? msg.recvId : msg.sendId;
+				let friend = store.state.friendStore.friends.find((f) => f.id == friendId);
 				if (!friend) {
-					this.$http({
+					http({
 						url: `/friend/find/${msg.sendId}`,
 						method: 'GET'
 					}).then((friend) => {
 						this.insertPrivateMessage(friend, msg);
-						this.$store.commit("addFriend", friend);
+						store.commit("addFriend", friend);
 					})
 				} else {
 					// 好友列表不存在好友信息，则发请求获取好友信息
@@ -77,20 +80,8 @@
 			},
 			insertPrivateMessage(friend, msg) {
 				// webrtc 信令
-				if (msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL &&
-					msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
-
-					// // 呼叫
-					// if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL ||
-					// 	msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL) {
-					// 	this.$store.commit("showVideoAcceptorBox", friend);
-					// 	this.$refs.videoAcceptor.handleMessage(msg)
-					// } else {
-					// 	this.$refs.videoAcceptor.close()
-					// 	this.$refs.privateVideo.handleMessage(msg)
-					// }
-					// return;
-				}
+				if (msg.type >= enums.MESSAGE_TYPE.RTC_CALL &&
+					msg.type <= enums.MESSAGE_TYPE.RTC_CANDIDATE) {}
 
 				let chatInfo = {
 					type: 'PRIVATE',
@@ -99,22 +90,22 @@
 					headImage: friend.headImage
 				};
 				// 打开会话
-				this.$store.commit("openChat", chatInfo);
+				store.commit("openChat", chatInfo);
 				// 插入消息
-				this.$store.commit("insertMessage", msg);
+				store.commit("insertMessage", msg);
 				// 播放提示音
 				!msg.selfSend && this.playAudioTip();
 
 			},
 			handleGroupMessage(msg) {
-				let group = this.$store.state.groupStore.groups.find((g) => g.id == msg.groupId);
+				let group = store.state.groupStore.groups.find((g) => g.id == msg.groupId);
 				if (!group) {
-					this.$http({
+					http({
 						url: `/group/find/${msg.groupId}`,
 						method: 'get'
 					}).then((group) => {
 						this.insertGroupMessage(group, msg);
-						this.$store.commit("addGroup", group);
+						store.commit("addGroup", group);
 					})
 				} else {
 					// 群聊缓存存在，直接插入群聊消息
@@ -130,14 +121,15 @@
 					headImage: group.headImageThumb
 				};
 				// 打开会话
-				this.$store.commit("openChat", chatInfo);
+				store.commit("openChat", chatInfo);
 				// 插入消息
-				this.$store.commit("insertMessage", msg);
+				store.commit("insertMessage", msg);
 				// 播放提示音
 				!msg.selfSend && this.playAudioTip();
 			},
 			exit() {
-				this.$wsApi.closeWebSocket();
+				console.log("exit");
+				wsApi.closeWebSocket();
 				uni.removeStorageSync("loginInfo");
 				uni.navigateTo({
 					url: "/pages/login/login"
@@ -149,7 +141,6 @@
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
 			}
-
 		},
 		onLaunch() {
 			// 登录状态校验
@@ -157,10 +148,10 @@
 			if (loginInfo) {
 				// 初始化
 				this.init(loginInfo)
-			}else{
+			} else {
 				// 跳转到登录页
 				uni.navigateTo({
-					url:"/pages/login/login"
+					url: "/pages/login/login"
 				})
 			}
 		}
@@ -169,23 +160,23 @@
 
 <style lang="scss">
 	@import url('./static/icon/iconfont.css');
-	
-	.tab-page{
-	    // #ifdef H5
+
+	.tab-page {
+		// #ifdef H5
 		height: calc(100vh - 46px - 50px); // h5平台100vh是包含了顶部和底部，需要减去
 		// #endif
 		// #ifndef H5
-		height: calc(100vh);    
+		height: calc(100vh);
 		// #endif
 		background-color: #f8f8f8;
 	}
-	
-	.page{
-	    // #ifdef H5
+
+	.page {
+		// #ifdef H5
 		height: calc(100vh - 45px); // h5平台100vh是包含了顶部，需要减去
 		// #endif
 		// #ifndef H5
-		height: calc(100vh);    
+		height: calc(100vh);
 		// #endif
 		background-color: #f8f8f8;
 	}

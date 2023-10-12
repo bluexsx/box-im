@@ -16,15 +16,14 @@
 		<view class="send-bar">
 			<view class="iconfont icon-voice-circle"></view>
 			<view class="send-text">
-				<textarea class="send-text-area" v-model="sendText" auto-height 
-					:show-confirm-bar="false" :adjust-position="false"
-					@focus="onSendTextFoucs" @confirm="sendTextMessage()" 
-					@keyboardheightchange="onKeyboardheightchange"
-					confirm-type="send" @blur="onSendTextBlur"
+				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
+					:adjust-position="false" @focus="onSendTextFoucs" @confirm="sendTextMessage()"
+					@keyboardheightchange="onKeyboardheightchange" confirm-type="send" @blur="onSendTextBlur"
 					confirm-hold :hold-keyboard="true"></textarea>
 			</view>
 			<view class="iconfont icon-icon_emoji" @touchend.prevent="switchChatTabBox('emo',true)"></view>
-			<view v-show="sendText==''" class="iconfont icon-add-circle" @touchend.prevent="switchChatTabBox('tools',true)">
+			<view v-show="sendText==''" class="iconfont icon-add-circle"
+				@touchend.prevent="switchChatTabBox('tools',true)">
 			</view>
 			<button v-show="sendText!=''" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
 				size="mini">发送</button>
@@ -53,7 +52,7 @@
 			</scroll-view>
 			<view v-if="showKeyBoard"></view>
 		</view>
-		
+
 	</view>
 </template>
 
@@ -69,7 +68,7 @@
 				showVoice: false, // 是否显示语音录制弹窗
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 				chatTabBox: 'none',
-				showKeyBoard:false,
+				showKeyBoard: false,
 				keyboardHeight: 322,
 				tools: [{
 						name: "拍摄",
@@ -167,12 +166,12 @@
 				});
 
 			},
-			switchChatTabBox(chatTabBox,hideKeyBoard) {
+			switchChatTabBox(chatTabBox, hideKeyBoard) {
 				console.log("switchChatTabBox")
 				this.chatTabBox = chatTabBox;
 				this.scrollToBottom();
-				if(hideKeyBoard){
-					uni.hideKeyboard();	
+				if (hideKeyBoard) {
+					uni.hideKeyboard();
 				}
 			},
 			selectEmoji(emoText) {
@@ -186,13 +185,13 @@
 				// 	console.log(this.keyboardHeight)
 				// }
 			},
-			onKeyboardheightchange(e){
+			onKeyboardheightchange(e) {
 				console.log(e);
-				if(e.detail.height >0){
+				if (e.detail.height > 0) {
 					this.showKeyBoard = true;
-					this.switchChatTabBox('none',false)
+					this.switchChatTabBox('none', false)
 					this.keyboardHeight = this.rpxTopx(e.detail.height);
-				}else{
+				} else {
 					this.showKeyBoard = false;
 				}
 			},
@@ -303,6 +302,20 @@
 			},
 			messageAction() {
 				return `/message/${this.chat.type.toLowerCase()}/send`;
+			},
+			messageSize() {
+				if (!this.chat || !this.chat.messages) {
+					return 0;
+				}
+				return this.chat.messages.length;
+			}
+		},
+		watch: {
+			messageSize: function(newSize, oldSize) {
+				// 接收到消息时滚动到底部
+				if (newSize > oldSize) {
+					this.scrollToBottom();
+				}
 			}
 		},
 		onLoad(options) {

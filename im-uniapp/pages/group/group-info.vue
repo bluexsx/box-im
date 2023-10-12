@@ -21,7 +21,7 @@
 		<view class="group-detail">
 			<uni-section title="群聊名称:" titleFontSize="30rpx">
 				<template v-slot:right>
-					<text>{{group.name}}</text>
+					<text>{{groupInfo.name}}</text>
 				</template>
 			</uni-section>
 			<uni-section title="群主:" titleFontSize="30rpx">
@@ -32,16 +32,16 @@
 
 			<uni-section title="群聊备注:" titleFontSize="30rpx">
 				<template v-slot:right>
-					<text> {{group.remark}}</text>
+					<text> {{groupInfo.remark}}</text>
 				</template>
 			</uni-section>
 			<uni-section title="我在本群的昵称:" titleFontSize="30rpx">
 				<template v-slot:right>
-					<text> {{group.aliasName}}</text>
+					<text> {{groupInfo.aliasName}}</text>
 				</template>
 			</uni-section>
 			<uni-section title="群公告:" titleFontSize="30rpx">
-				<uni-notice-bar :text="group.notice" />
+				<uni-notice-bar :text="groupInfo.notice" />
 			</uni-section>
 			<view class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
@@ -57,15 +57,15 @@
 	export default {
 		data() {
 			return {
-				group: {},
+				groupId: null,
 				groupMembers: []
 			}
 		},
 		methods: {
 			onFocusSearch() {},
-			onInviteMember(){
+			onInviteMember() {
 				uni.navigateTo({
-					url: `/pages/group/group-invite?id=${this.group.id}`
+					url: `/pages/group/group-invite?id=${this.groupId}`
 				})
 			},
 			onShowUserInfo(userId) {
@@ -73,22 +73,22 @@
 					url: "/pages/common/user-info?id=" + userId
 				})
 			},
-			onShowMoreMmeber(){
+			onShowMoreMmeber() {
 				uni.navigateTo({
-					url: `/pages/group/group-member?id=${this.group.id}`
+					url: `/pages/group/group-member?id=${this.groupId}`
 				})
 			},
 			onEditGroup() {
 				uni.navigateTo({
-					url: `/pages/group/group-edit?id=${this.group.id}`
+					url: `/pages/group/group-edit?id=${this.groupId}`
 				})
 			},
 			onSendMessage() {
 				let chat = {
 					type: 'GROUP',
-					targetId: this.group.id,
-					showName: this.group.remark,
-					headImage: this.group.headImage,
+					targetId: this.groupInfo.id,
+					showName: this.groupInfo.remark,
+					headImage: this.groupInfo.headImage,
 				};
 				this.$store.commit("openChat", chat);
 				uni.navigateTo({
@@ -100,19 +100,19 @@
 					title: '确认退出?',
 					content: `退出群聊后将不再接受群里的消息，确认退出吗?`,
 					success: () => {
-						if(res.cancel)
+						if (res.cancel)
 							return;
 						this.$http({
-							url: `/group/quit/${this.group.id}`,
+							url: `/group/quit/${this.groupId}`,
 							method: 'DELETE'
 						}).then(() => {
-							this.$store.commit("removeGroup", this.group.id);
-							this.$store.commit("removeGroupChat", this.group.id);
+							this.$store.commit("removeGroup", this.groupId);
+							this.$store.commit("removeGroupChat", this.groupId);
 							uni.showModal({
 								title: `退出成功`,
-								content: `您已退出群聊'${this.group.name}'`,
+								content: `您已退出群聊'${this.groupInfo.name}'`,
 								showCancel: false,
-								success:()=>{
+								success: () => {
 									uni.navigateBack();
 								}
 							})
@@ -123,35 +123,34 @@
 			onDissolveGroup() {
 				uni.showModal({
 					title: '确认解散?',
-					content: `确认要解散群聊'${this.group.name}'吗?`,
-					success:(res)=>{
-						if(res.cancel)
+					content: `确认要解散群聊'${this.groupInfo.name}'吗?`,
+					success: (res) => {
+						if (res.cancel)
 							return;
 						this.$http({
-							url: `/group/delete/${this.group.id}`,
+							url: `/group/delete/${this.groupId}`,
 							method: 'delete'
 						}).then(() => {
-							this.$store.commit("removeGroup", this.group.id);
-							this.$store.commit("removeGroupChat", this.group.id);
+							this.$store.commit("removeGroup", this.groupId);
+							this.$store.commit("removeGroupChat", this.groupId);
 							uni.showModal({
 								title: `解散成功`,
-								content: `群聊'${this.group.name}'已解散`,
+								content: `群聊'${this.groupInfo.name}'已解散`,
 								showCancel: false,
-								success:()=>{
+								success: () => {
 									uni.navigateBack();
 								}
 							})
 						});
 					}
 				});
-			
+
 			},
 			loadGroupInfo(id) {
 				this.$http({
 					url: `/group/find/${id}`,
 					method: 'GET'
 				}).then((group) => {
-					this.group = group;
 					// 更新聊天页面的群聊信息
 					this.$store.commit("updateChatFromGroup", group);
 					// 更新聊天列表的群聊信息
@@ -169,20 +168,26 @@
 			}
 		},
 		computed: {
+			groupInfo() {
+				let groups = this.$store.state.groupStore.groups;
+				return groups.find(g => g.id == this.groupId)
+			},
 			ownerName() {
-				let member = this.groupMembers.find((m) => m.userId == this.group.ownerId);
+				let member = this.groupMembers.find((m) => m.userId == this.groupInfo.ownerId);
 				return member && member.aliasName;
 			},
 			isOwner() {
-				return this.group.ownerId == this.$store.state.userStore.userInfo.id;
-			},
+				return this.groupInfo.ownerId == this.$store.state.userStore.userInfo.id;
+			}
 		},
 		onLoad(options) {
+			this.groupId = options.id;
 			// 查询群聊信息
 			this.loadGroupInfo(options.id);
 			// 查询群聊成员
 			this.loadGroupMembers(options.id)
 		}
+		
 	}
 </script>
 

@@ -1,4 +1,4 @@
-import request from '../common/request';
+import http from '../common/request';
 
 export default {
 
@@ -50,7 +50,7 @@ export default {
 	actions: {
 		loadFriend(context) {
 			return new Promise((resolve, reject) => {
-				request({
+				http({
 					url: '/friend/list',
 					method: 'GET'
 				}).then((friends) => {
@@ -68,7 +68,7 @@ export default {
 				context.state.friends.forEach((f) => {
 					userIds.push(f.id)
 				});
-				request({
+				http({
 					url: '/user/online?userIds='+ userIds.join(','),
 					method: 'GET'
 				}).then((onlineIds) => {

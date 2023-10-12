@@ -14,8 +14,6 @@ export function createApp() {
   app.config.globalProperties.$wsApi = socketApi;
   app.config.globalProperties.$emo = emotion;
   app.config.globalProperties.$enums = enums;
-  app.config.globalProperties.$init = (data)=>{getApp().init(data)};
-  app.config.globalProperties.$exit = (data)=>{getApp().exit()};
   return {
     app
   }

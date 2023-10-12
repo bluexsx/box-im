@@ -1,7 +1,6 @@
-import request from '@/common/request';
+import http from '@/common/request';
 
 export default {
-
 	state: {
 		groups: [],
 		activeIndex: -1,
@@ -39,7 +38,7 @@ export default {
 	actions: {
 		loadGroup(context) {
 			return new Promise((resolve, reject) => {
-				request({
+				http({
 					url: '/group/list',
 					method: 'GET'
 				}).then((groups) => {

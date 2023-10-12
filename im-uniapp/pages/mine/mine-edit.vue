@@ -53,6 +53,9 @@
 						title:"修改成功",
 						icon: 'none'
 					});
+					setTimeout(()=>{
+						uni.navigateBack();
+					},1000);
 				})	
 			}
 		},

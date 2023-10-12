@@ -93,9 +93,6 @@ const navToLogin = () => {
 		title: "登录过期，请需要重新登录",
 		duration: 1500
 	})
-	uni.removeStorageSync("loginInfo");
-	uni.navigateTo({
-		url: '/pages/login/login'
-	});
+	getApp().exit();
 }
 export default request;

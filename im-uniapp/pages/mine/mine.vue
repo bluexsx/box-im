@@ -52,7 +52,7 @@
 					title: '确认退出?',
 					success: (res) => {
 						if (res.confirm) {
-							this.$exit();
+							getApp().exit()
 						}
 					}
 				});

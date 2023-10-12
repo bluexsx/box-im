@@ -81,13 +81,13 @@
 					uni.showToast({
 						title: `群聊创建成功，快邀请小伙伴进群吧`,
 						icon: 'none',
-						duration: 2000
+						duration: 1500
 					});
 					setTimeout(()=>{
 						uni.navigateTo({
 							url: "/pages/group/group-info?id="+group.id
 						});
-					},2000)
+					},1500)
 					
 				})
 			},

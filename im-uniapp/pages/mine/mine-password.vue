@@ -82,6 +82,9 @@
 							title: "修改密码成功",
 							icon: 'none'
 						})
+						setTimeout(()=>{
+							uni.navigateBack();
+						},1000);
 					})
 				}).catch(err => {
 					console.log('表单错误信息：', err);

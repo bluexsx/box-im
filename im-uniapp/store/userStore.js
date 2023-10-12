@@ -1,9 +1,8 @@
 import {USER_STATE} from "../common/enums"
-import request from '../common/request'
+import http from '../common/request'
 
 
 export default {
-	
 	state: {
 		userInfo: {},
 		state: USER_STATE.FREE 
@@ -11,7 +10,8 @@ export default {
 
 	mutations: {
 		setUserInfo(state, userInfo) {
-			state.userInfo = userInfo;
+			// 使用深拷贝方式，否则小程序页面不刷新
+			Object.assign(state.userInfo, userInfo); 
 		},
 		setUserState(state, userState) {
 			state.state = userState;
@@ -20,7 +20,7 @@ export default {
 	actions:{
 		loadUser(context){
 			return new Promise((resolve, reject) => {
-				request({
+				http({
 					url: '/user/self',
 					method: 'GET'
 				}).then((userInfo) => {
