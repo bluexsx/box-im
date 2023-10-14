@@ -1,49 +1,58 @@
 <template>
 	<view class="chat-msg-item">
 		<view class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
-		
-		<view class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL" :class="{'chat-msg-mine':msgInfo.selfSend}">
-			<view class="avatar">
+
+		<view class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL"
+			:class="{'chat-msg-mine':msgInfo.selfSend}">
+			<view class="avatar" @click="onShowUserInfo(msgInfo.sendId)">
 				<image class="head-image" :src="headImage"></image>
 			</view>
-			
-			<view class="chat-msg-content">
+
+			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view class="chat-msg-top">
 					<text>{{showName}}</text>
 					<chat-time :time="msgInfo.sendTime"></chat-time>
 				</view>
-				
+
 				<view class="chat-msg-bottom">
-					<rich-text class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"  :nodes="$emo.transform(msgInfo.content)"></rich-text>
-					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
-						<view class="img-load-box" >
-							<image class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true" ></image>
+					<rich-text class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"
+						:nodes="$emo.transform(msgInfo.content)"></rich-text>
+					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
+						<view class="img-load-box">
+							<image class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
+								@click.stop="onShowFullImage()">
+							</image>
 							<loading v-show="loading"></loading>
 						</view>
-						<text title="发送失败" v-show="loadFail" class="send-fail iconfont icon-warning-circle-fill"></text>
+						<text title="发送失败" v-show="loadFail" @click="onSendFail"
+							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<!--
-					<view class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
-						<view class="chat-file-box" v-loading="loading">
+
+					<view class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
+						<view class="chat-file-box">
 							<view class="chat-file-info">
-								<el-link class="chat-file-name" :underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
+								<uni-link class="chat-file-name" :text="data.name" showUnderLine="true" color="#007BFF"
+									:href="data.url"></uni-link>
 								<view class="chat-file-size">{{fileSize}}</view>
 							</view>
-							<view class="chat-file-icon">
-								<text type="primary" class="el-icon-document"></text>
-							</view>
+							<view class="chat-file-icon iconfont icon-file"></view>
+							<loading v-show="loading"></loading>
 						</view>
-						<text title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></text>
+						<text title="发送失败" v-show="loadFail" @click="onSendFail"
+							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="handlePlayVoice()">
+					<!--
+					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</view>
 					-->
 				</view>
-			
+
 			</view>
-			
+
 		</view>
+		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
+			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
 
@@ -62,36 +71,52 @@
 			msgInfo: {
 				type: Object,
 				required: true
-			},
-			menu:{
-				type: Boolean,
-				default: true
 			}
 		},
 		data() {
 			return {
 				audioPlayState: 'STOP',
-				rightMenu: {
+				menu: {
 					show: false,
-					pos: {
-						x: 0,
-						y: 0
-					}
+					style: ""
 				}
 			}
 
 		},
 		methods: {
-			handleSendFail() {
-				this.$message.error("该文件已发送失败，目前不支持自动重新发送，建议手动重新发送")
+			onShowMenu(e) {
+				uni.getSystemInfo({
+					success: (res) => {
+						let touches = e.touches[0];
+						let style = "";
+						/* 因 非H5端不兼容 style 属性绑定 Object ，所以拼接字符 */
+						if (touches.clientY > (res.windowHeight / 2)) {
+							style = `bottom:${res.windowHeight-touches.clientY}px;`;
+						} else {
+							style = `top:${touches.clientY}px;`;
+						}
+						if (touches.clientX > (res.windowWidth / 2)) {
+							style += `right:${res.windowWidth-touches.clientX}px;`;
+						} else {
+							style += `left:${touches.clientX}px;`;
+						}
+						this.menu.style = style;
+						// 
+						this.$nextTick(() => {
+							this.menu.show = true;
+						});
+					}
+				})
+
+
 			},
-			showFullImageBox() {
-				let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
-				if (imageUrl) {
-					this.$store.commit('showFullImageBox', imageUrl);
-				}
+			onSendFail() {
+				uni.showToast({
+					title: "该文件已发送失败，目前不支持自动重新发送，建议手动重新发送",
+					icon: "none"
+				})
 			},
-			handlePlayVoice() {
+			onPlayVoice() {
 				if (!this.audio) {
 					this.audio = new Audio();
 				}
@@ -99,27 +124,33 @@
 				this.audio.play();
 				this.handlePlayVoice = 'RUNNING';
 			},
-			showRightMenu(e) {
-				this.rightMenu.pos = {
-					x: e.x,
-					y: e.y
-				};
-				this.rightMenu.show = "true";
-			},
-			handleSelectMenu(item) {
+			onSelectMenu(item) {
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
+				this.menu.show = false;
+			},
+			onShowFullImage() {
+				let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
+				uni.previewImage({
+					urls: [imageUrl]
+				})
+			},
+			onShowUserInfo(userId){
+				uni.navigateTo({
+					url: "/pages/common/user-info?id=" + userId
+				})
 			}
+			
 		},
 		computed: {
 			loading() {
 				return !this.isTimeout && this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
 			},
 			loadFail() {
-				return  this.msgInfo.loadStatus && (this.isTimeout || this.msgInfo.loadStatus === "fail");
+				return this.msgInfo.loadStatus && (this.isTimeout || this.msgInfo.loadStatus === "fail");
 			},
-			isTimeout(){
-				return (new Date().getTime() - new Date(this.msgInfo.sendTime).getTime()) > 30*1000;
-		
+			isTimeout() {
+				return (new Date().getTime() - new Date(this.msgInfo.sendTime).getTime()) > 30 * 1000;
+
 			},
 			data() {
 				return JSON.parse(this.msgInfo.content)
@@ -139,29 +170,36 @@
 				items.push({
 					key: 'DELETE',
 					name: '删除',
-					icon: 'el-icon-delete'
+					icon: 'trash'
 				});
 				if (this.msgInfo.selfSend && this.msgInfo.id > 0) {
 					items.push({
 						key: 'RECALL',
 						name: '撤回',
-						icon: 'el-icon-refresh-left'
+						icon: 'refreshempty'
+					});
+				}
+				if (this.msgInfo.type == this.$enums.MESSAGE_TYPE.FILE) {
+					items.push({
+						key: 'DOWNLOAD',
+						name: '下载并打开',
+						icon: 'download'
 					});
 				}
 				return items;
 			}
-		},
-		mounted() {
-			//console.log(this.msgInfo);
 		}
+
 	}
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 	.chat-msg-item {
 		padding: 20rpx;
+
 		.chat-msg-tip {
-			line-height: 50px;
+			line-height: 60rpx;
+			text-align: center;
 		}
 
 		.chat-msg-normal {
@@ -180,15 +218,15 @@
 				height: 100rpx;
 				top: 0;
 				left: 0;
-				
-				.head-image{
+
+				.head-image {
 					width: 100%;
 					height: 100%;
 					border-radius: 5%;
 				}
 			}
 
-			
+
 
 			.chat-msg-content {
 				display: flex;
@@ -221,7 +259,7 @@
 						font-size: 14px;
 						word-break: break-all;
 						white-space: pre-line;
-						
+
 						&:after {
 							content: "";
 							position: absolute;
@@ -236,16 +274,16 @@
 						}
 					}
 
-				
+
 					.chat-msg-image {
 						display: flex;
 						flex-wrap: nowrap;
 						flex-direction: row;
 						align-items: center;
 
-						.img-load-box{
+						.img-load-box {
 							position: relative;
-							
+
 							.send-image {
 								min-width: 200rpx;
 								min-height: 150rpx;
@@ -255,7 +293,7 @@
 								cursor: pointer;
 							}
 						}
-						
+
 
 						.send-fail {
 							color: #e60c0c;
@@ -273,10 +311,11 @@
 						cursor: pointer;
 
 						.chat-file-box {
+							position: relative;
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							width: 20%;
+							width: 65%;
 							min-height: 80px;
 							border: #dddddd solid 1px;
 							border-radius: 3px;
@@ -293,20 +332,21 @@
 									font-size: 16px;
 									font-weight: 600;
 									margin-bottom: 15px;
+									word-break: break-all;
 								}
 							}
 
 							.chat-file-icon {
-								font-size: 50px;
+								font-size: 80rpx;
 								color: #d42e07;
 							}
 						}
 
 						.send-fail {
 							color: #e60c0c;
-							font-size: 30px;
+							font-size: 50rpx;
 							cursor: pointer;
-							margin: 0 20px;
+							margin: 0 20rpx;
 						}
 
 					}

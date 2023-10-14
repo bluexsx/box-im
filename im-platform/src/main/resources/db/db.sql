@@ -45,8 +45,8 @@ create table `im_group`(
     `head_image_thumb` varchar(255) default '' comment '群头像缩略图',
     `notice` varchar(1024)  default '' comment '群公告',
     `remark` varchar(255) default '' comment '群备注',
-    `deleted` tinyint(1) DEFAULT 0   comment '是否已删除',
-    `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+    `deleted` tinyint(1) default 0   comment '是否已删除',
+    `created_time` datetime default CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群';
 
 create table `im_group_member`(

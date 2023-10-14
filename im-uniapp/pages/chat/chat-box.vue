@@ -2,12 +2,13 @@
 	<view class=" page chat-box">
 		<view class="header">
 			<text class="title">{{title}}</text>
-			<uni-icons class="btn-side" type="more-filled" size="30"></uni-icons>
+			<uni-icons class="btn-side" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
 		</view>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
 			<scroll-view class="scroll-box" scroll-y="true" :scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+						@recall="onRecallMessage" @delete="onDeleteMessage" @download="onDownloadFile"
 						:id="'chat-item-'+idx" :msgInfo="msgInfo">
 					</chat-message-item>
 				</view>
@@ -17,13 +18,11 @@
 			<view class="iconfont icon-voice-circle"></view>
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
-					:adjust-position="false"  @confirm="sendTextMessage()"
-					@keyboardheightchange="onKeyboardheightchange" confirm-type="send" @blur="onSendTextBlur"
-					confirm-hold :hold-keyboard="true"></textarea>
+					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
+					confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
 			</view>
-			<view class="iconfont icon-icon_emoji" @touchend.prevent="switchChatTabBox('emo',true)"></view>
-			<view v-show="sendText==''" class="iconfont icon-add-circle"
-				@touchend.prevent="switchChatTabBox('tools',true)">
+			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
+			<view v-show="sendText==''" class="iconfont icon-add" @click="switchChatTabBox('tools',true)">
 			</view>
 			<button v-show="sendText!=''" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
 				size="mini">发送</button>
@@ -32,16 +31,36 @@
 		<view class="chat-tab-bar" v-show="chatTabBox!='none' ||showKeyBoard " :style="{height:`${keyboardHeight}px`}">
 			<view v-if="chatTabBox == 'tools'" class="chat-tools">
 				<view class="chat-tools-item">
-					<image-upload :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
+					<image-upload sourceType="album" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
 						:onError="onUploadImageFail">
 						<view class="tool-icon iconfont icon-picture"></view>
 					</image-upload>
 					<view class="tool-name">相册</view>
 				</view>
-				<view class="chat-tools-item" v-for="(tool, idx) in tools" @click.stop="onClickTool(tool)">
-					<view class="tool-icon iconfont" :class="tool.icon"></view>
-					<view class="tool-name">{{ tool.name }}</view>
+				<view class="chat-tools-item">
+					<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
+						:onError="onUploadImageFail">
+						<view class="tool-icon iconfont icon-camera"></view>
+					</image-upload>
+					<view class="tool-name">拍摄</view>
 				</view>
+				<view class="chat-tools-item">
+					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
+						:onError="onUploadFileFail">
+						<view class="tool-icon iconfont icon-folder"></view>
+					</file-upload>
+					<view class="tool-name">文件</view>
+				</view>
+
+				<view class="chat-tools-item">
+					<view class="tool-icon iconfont icon-microphone"></view>
+					<view class="tool-name">语音输入</view>
+				</view>
+				<view class="chat-tools-item">
+					<view class="tool-icon iconfont icon-call"></view>
+					<view class="tool-name">呼叫</view>
+				</view>
+
 			</view>
 
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
@@ -69,24 +88,7 @@
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 				chatTabBox: 'none',
 				showKeyBoard: false,
-				keyboardHeight: 322,
-				tools: [{
-						name: "拍摄",
-						icon: "icon-camera"
-					},
-					{
-						name: "语音输入",
-						icon: "icon-microphone"
-					},
-					{
-						name: "文件",
-						icon: "icon-folder"
-					},
-					{
-						name: "呼叫",
-						icon: "icon-call"
-					}
-				]
+				keyboardHeight: 322
 			}
 		},
 		methods: {
@@ -151,7 +153,7 @@
 				}
 			},
 			scrollToMsgIdx(idx) {
-				// 踩坑：如果scrollMsgIdx值没变化，滚动条不会移动
+				// 如果scrollMsgIdx值没变化，滚动条不会移动
 				if (idx == this.scrollMsgIdx && idx > 0) {
 					this.$nextTick(() => {
 						// 先滚动到上一条
@@ -168,7 +170,6 @@
 			},
 			switchChatTabBox(chatTabBox, hideKeyBoard) {
 				this.chatTabBox = chatTabBox;
-				this.scrollToBottom();
 				if (hideKeyBoard) {
 					uni.hideKeyboard();
 				}
@@ -176,7 +177,8 @@
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
 			},
-			onKeyboardheightchange(e) {;
+			onKeyboardheightchange(e) {
+				;
 				if (e.detail.height > 0) {
 					this.showKeyBoard = true;
 					this.switchChatTabBox('none', false)
@@ -184,9 +186,6 @@
 				} else {
 					this.showKeyBoard = false;
 				}
-			},
-			onSendTextBlur() {
-				//this.switchChatTabBox("none")
 			},
 			onUploadImageBefore(file) {
 				let data = {
@@ -200,7 +199,7 @@
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
 					selfSend: true,
-					type: 1,
+					type: this.$enums.MESSAGE_TYPE.IMAGE,
 					loadStatus: "loading"
 				}
 				// 填充对方id
@@ -231,13 +230,121 @@
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
 			},
-			onClickTool(tool) {
-				switch (tool.name) {
-					case "相册":
-						break;
-
+			onUploadFileBefore(file) {
+				let data = {
+					name: file.name,
+					size: file.size,
+					url: file.path
 				}
-
+				let msgInfo = {
+					id: 0,
+					sendId: this.mine.id,
+					content: JSON.stringify(data),
+					sendTime: new Date().getTime(),
+					selfSend: true,
+					type: this.$enums.MESSAGE_TYPE.FILE,
+					loadStatus: "loading"
+				}
+				// 填充对方id
+				this.fillTargetId(msgInfo, this.chat.targetId);
+				// 插入消息
+				this.$store.commit("insertMessage", msgInfo);
+				// 借助file对象保存
+				file.msgInfo = msgInfo;
+				// 滚到最低部
+				this.scrollToBottom();
+				return true;
+			},
+			onUploadFileSuccess(file, res) {
+				let data = {
+					name: file.name,
+					size: file.size,
+					url: res.data
+				}
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
+				msgInfo.content = JSON.stringify(data);
+				this.$http({
+					url: this.messageAction,
+					method: 'POST',
+					data: msgInfo
+				}).then((id) => {
+					msgInfo.loadStatus = 'ok';
+					msgInfo.id = id;
+					this.$store.commit("insertMessage", msgInfo);
+				})
+			},
+			onUploadFileFail(file, res) {
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
+				msgInfo.loadStatus = 'fail';
+				this.$store.commit("insertMessage", msgInfo);
+			},
+			onDeleteMessage(msgInfo) {
+				uni.showModal({
+					title: '删除消息',
+					content: '确认删除消息?',
+					success: (res) => {
+						if (!res.cancel) {
+							this.$store.commit("deleteMessage", msgInfo);
+							uni.showToast({
+								title: "删除成功",
+								icon: "none"
+							})
+						}
+					}
+				})
+			},
+			onRecallMessage(msgInfo) {
+				uni.showModal({
+					title: '撤回消息',
+					content: '确认撤回消息?',
+					success: (res) => {
+						if (!res.cancel) {
+							let url = `/message/${this.chat.type.toLowerCase()}/recall/${msgInfo.id}`
+							this.$http({
+								url: url,
+								method: 'DELETE'
+							}).then(() => {
+								msgInfo = JSON.parse(JSON.stringify(msgInfo));
+								msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
+								msgInfo.content = '你撤回了一条消息';
+								this.$store.commit("insertMessage", msgInfo);
+							})
+						}
+					}
+				})
+			},
+			onDownloadFile(msgInfo) {
+				let url = JSON.parse(msgInfo.content).url;
+				uni.downloadFile({
+					url: url,
+					success(res) {
+						if (res.statusCode === 200) {
+							var filePath = encodeURI(res.tempFilePath);
+							uni.openDocument({
+								filePath: filePath,
+								showMenu: true
+							});
+						}
+					},
+					fail(e){
+						console.log(e);
+						uni.showToast({
+							title: "文件下载失败",
+							icon: "none"
+						})
+					}
+				});
+			},
+			onShowMore(){
+				if (this.chat.type == "GROUP") {
+					uni.navigateTo({
+						url: "/pages/group/group-info?id="+this.group.id
+					})
+				}else{
+					uni.navigateTo({
+						url: "/pages/common/user-info?id="+this.friend.id
+					})
+				}
 			},
 			loadGroup(groupId) {
 				this.$http({

@@ -11,16 +11,18 @@
 			}
 		},
 		methods: {
-			init(loginInfo) {
+			init() {
 				// 加载数据
 				store.dispatch("load").then(() => {
 					// 初始化websocket
-					this.initWebSocket(loginInfo);
+					this.initWebSocket();
 				}).catch((e) => {
+					console.log(e);
 					this.exit();
 				})
 			},
-			initWebSocket(loginInfo) {
+			initWebSocket() {
+				let loginInfo = uni.getStorageSync("loginInfo")
 				let userId = store.state.userStore.userInfo.id;
 				wsApi.createWebSocket(process.env.WS_URL, loginInfo.accessToken);
 				wsApi.onopen(() => {
@@ -129,7 +131,7 @@
 				console.log("exit");
 				wsApi.closeWebSocket();
 				uni.removeStorageSync("loginInfo");
-				uni.navigateTo({
+				uni.reLaunch({
 					url: "/pages/login/login"
 				})
 			},
@@ -142,10 +144,9 @@
 		},
 		onLaunch() {
 			// 登录状态校验
-			let loginInfo = uni.getStorageSync("loginInfo");
-			if (loginInfo) {
+			if (uni.getStorageSync("loginInfo")) {
 				// 初始化
-				this.init(loginInfo)
+				this.init()
 			} else {
 				// 跳转到登录页
 				uni.navigateTo({

@@ -6,7 +6,7 @@
 
 <script>
 	export default {
-		name: "image-upload",
+		name: "file-upload",
 		data() {
 			return {
 				uploadHeaders: {
@@ -17,11 +17,7 @@
 		props: {
 			maxSize: {
 				type: Number,
-				default: 5*1024*1024
-			},
-			sourceType:{
-				type: String,
-				default: 'album'
+				default: 10*1024*1024
 			},
 			onBefore: {
 				type: Function,
@@ -38,10 +34,9 @@
 		},
 		methods: {
 			selectAndUpload() {
-				uni.chooseImage({
-					count: 9, //最多可以选择的图片张数，默认9
-					sourceType: [this.sourceType], //album 从相册选图，camera 使用相机，默认二者都有。如需直接开相机或直接选相册，请只使用一个选项
-					sizeType: ['original'], //original 原图，compressed 压缩图，默认二者都有
+				let chooseFile = uni.chooseFile || uni.chooseMessageFile;
+				console.log(chooseFile)
+				chooseFile({
 					success: (res) => {
 						res.tempFiles.forEach((file) => {
 							// 校验大小
@@ -53,15 +48,15 @@
 
 							if (!this.onBefore || this.onBefore(file)) {
 								// 调用上传图片的接口
-								this.uploadImage(file);
+								this.uploadFile(file);
 							}
 						})
 					}
 				})
 			},
-			uploadImage(file) {
+			uploadFile(file) {
 				uni.uploadFile({
-					url: process.env.BASE_URL + '/image/upload',
+					url: process.env.BASE_URL + '/file/upload',
 					header: {
 						accessToken: uni.getStorageSync("loginInfo").accessToken
 					},
@@ -76,7 +71,6 @@
 						}
 					},
 					fail: (err) => {
-						console.log(err);
 						this.onError && this.onError(file, err);
 					}
 				})

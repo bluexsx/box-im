@@ -1,8 +1,8 @@
 
 const MESSAGE_TYPE = {
 	TEXT: 0,
-	FILE:1,
-	IMAGE:2,
+	IMAGE:1,
+	FILE:2,
 	AUDIO:3,
 	VIDEO:4,
 	RECALL:10,

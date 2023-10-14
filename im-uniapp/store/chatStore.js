@@ -1,5 +1,8 @@
-export default {
+import {MESSAGE_TYPE} from '@/common/enums.js';
+import userStore from './userStore';
 
+export default {
+	
 	state: {
 		chats: []
 	},
@@ -34,7 +37,7 @@ export default {
 				};
 				state.chats.unshift(chat);
 			}
-			uni.setStorageSync("chats",state.chats);
+			this.commit("saveToStorage");
 		},
 		activeChat(state, idx) {
 			state.activeIndex = idx;
@@ -44,7 +47,7 @@ export default {
 		},
 		removeChat(state, idx) {
 			state.chats.splice(idx, 1);
-			uni.setStorageSync("chats",state.chats);
+			this.commit("saveToStorage");
 		},
 		removeGroupChat(state, groupId) {
 			for (let idx in state.chats) {
@@ -77,11 +80,11 @@ export default {
 				}
 			}
 			// 插入新的数据
-			if(msgInfo.type == 1){
+			if(msgInfo.type == MESSAGE_TYPE.IMAGE){
 				chat.lastContent =  "[图片]";
-			}else if(msgInfo.type == 2){
+			}else if(msgInfo.type == MESSAGE_TYPE.FILE){
 				chat.lastContent = "[文件]";
-			}else if(msgInfo.type == 3){
+			}else if(msgInfo.type == MESSAGE_TYPE.AUDIO){
 				chat.lastContent = "[语音]";
 			}else{
 				chat.lastContent =  msgInfo.content;
@@ -99,18 +102,21 @@ export default {
 			for (let idx in chat.messages) {
 				if(msgInfo.id && chat.messages[idx].id == msgInfo.id){
 					Object.assign(chat.messages[idx], msgInfo);
+					this.commit("saveToStorage");
 					return;
 				}
 				// 正在发送中的消息可能没有id,通过发送时间判断
 				if(msgInfo.selfSend && chat.messages[idx].selfSend
 				&& chat.messages[idx].sendTime == msgInfo.sendTime){
 					Object.assign(chat.messages[idx], msgInfo);
+					this.commit("saveToStorage");
 					return;
 				}
 			}
 			// 新的消息
 			chat.messages.push(msgInfo);
-			uni.setStorageSync("chats",state.chats);
+			console.log(chat.unreadCount)
+			this.commit("saveToStorage");
 			
 		},
 		deleteMessage(state, msgInfo){
@@ -139,7 +145,7 @@ export default {
 					break;
 				}
 			}
-			uni.setStorageSync("chats",state.chats);
+			this.commit("saveToStorage");
 		},
 		updateChatFromFriend(state, friend) {
 			for (let i in state.chats) {
@@ -150,7 +156,7 @@ export default {
 					break;
 				}
 			}
-			uni.setStorageSync("chats",state.chats);
+			this.commit("saveToStorage");
 		},
 		updateChatFromGroup(state, group) {
 			for (let i in state.chats) {
@@ -161,14 +167,22 @@ export default {
 					break;
 				}
 			}
-			uni.setStorageSync("chats",state.chats);
+			this.commit("saveToStorage");
+		},
+		saveToStorage(state){
+			let userId = userStore.state.userInfo.id;
+			uni.setStorage({
+				key:"chats-"+userId,
+				data: state.chats 
+			})
 		}
-	},
+	}, 
 	actions:{
 		loadChat(context) {
 			return new Promise((resolve, reject) => {
+				let userId = userStore.state.userInfo.id;
 				uni.getStorage({
-					key:"chats",
+					key:"chats-"+userId,
 					success(res) {
 						context.commit("setChats",res.data);
 						resolve()

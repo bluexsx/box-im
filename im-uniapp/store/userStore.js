@@ -24,10 +24,11 @@ export default {
 					url: '/user/self',
 					method: 'GET'
 				}).then((userInfo) => {
+					console.log(userInfo)
 					context.commit("setUserInfo",userInfo);
 					resolve();
-				}).catch(()=>{
-					reject();
+				}).catch((res)=>{
+					reject(res);
 				});
 			})
 		}

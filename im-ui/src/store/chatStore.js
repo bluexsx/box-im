@@ -1,3 +1,4 @@
+import {MESSAGE_TYPE} from "../api/enums.js"
 export default {
 
 	state: {
@@ -85,11 +86,11 @@ export default {
 				}
 			}
 			// 插入新的数据
-			if(msgInfo.type == 1){
+			if(msgInfo.type == MESSAGE_TYPE.IMAGE ){
 				chat.lastContent =  "[图片]";
-			}else if(msgInfo.type == 2){
+			}else if(msgInfo.type == MESSAGE_TYPE.FILE){
 				chat.lastContent = "[文件]";
-			}else if(msgInfo.type == 3){
+			}else if(msgInfo.type == MESSAGE_TYPE.AUDIO){
 				chat.lastContent = "[语音]";
 			}else{
 				chat.lastContent =  msgInfo.content;

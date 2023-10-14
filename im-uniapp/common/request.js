@@ -24,28 +24,30 @@ const request = (options) => {
 					console.log("token失效，尝试重新获取")
 					if (isRefreshToken) {
 						// 正在刷新token,把其他请求存起来
-						return new Promise(resolve => {
-							requestList.push(() => {
-								resolve(request(options))
-							})
+						requestList.push(() => {
+							resolve(request(options))
 						})
+						return;
 					}
 					isRefreshToken = true;
 					// 发送请求, 进行刷新token操作, 获取新的token
-					const res = await reqRefreshToken(loginInfo).catch((res) => {
-						return navToLogin();
-					}).finally(()=>{
-						requestList.forEach(cb => cb());
+					const res = await reqRefreshToken(loginInfo);
+					if (!res || res.data.code != 200) {
 						requestList = [];
 						isRefreshToken = false;
-					})
-					if (res.data.code != 200) {
-						return navToLogin();
+						console.log("刷新token失败")
+						navToLogin();
+						return;
 					}
-					// 保存token
 					uni.setStorageSync("loginInfo", res.data.data);
+					requestList.forEach(cb => cb());
+					requestList = [];
+					isRefreshToken = false;
+					// 保存token
+					console.log(res.data.data.accessToken)
+					
 					// 重新发送刚才的请求
-					return request(options)
+					return resolve(request(options))
 
 				} else {
 					uni.showToast({

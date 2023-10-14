@@ -4,7 +4,7 @@ let messageCallBack = null;
 let openCallBack = null;
 let isConnect = false; //连接标识 避免重复连接
 let hasLogin = false;
-
+let hasInit = false;
 let createWebSocket = (url, token) => {
 	wsurl = url;
 	accessToken = token;
@@ -27,7 +27,12 @@ let initWebSocket = () => {
 			reConnect(); //如果无法连接上webSocket 那么重新连接！可能会因为服务器重新部署，或者短暂断网等导致无法创建连接
 		}
 	});
-
+	
+	// 不能绑定多次事件,不然多触发，即便之前已经调了uni.closeSocket
+	if(hasInit){
+		return;
+	}
+	hasInit = true;
 	uni.onSocketOpen((res) => {
 		console.log("WebSocket连接已打开");
 		isConnect = true;
@@ -77,7 +82,7 @@ let initWebSocket = () => {
 			showCancel: false,
 		})
 	})
-
+	
 };
 
 //定义重连函数
@@ -97,15 +102,19 @@ let closeWebSocket = () => {
 			resolve();
 			return;
 		}
-		console.log("关闭websocket连接");
 		uni.closeSocket({
-			code: 1000,
+			code: 3000,
 			complete: (res) => {
+				console.log("关闭websocket连接");
 				hasLogin = false;
 				isConnect = false;
 				resolve();
+			},
+			fail:(e)=>{
+				console.log("关闭websocket连接失败",e);
 			}
 		})
+		
 	})
 
 

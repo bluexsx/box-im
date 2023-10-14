@@ -44,8 +44,8 @@ export default {
 				}).then((groups) => {
 					context.commit("setGroups", groups);
 					resolve();
-				}).catch(() => {
-					reject();
+				}).catch((res) => {
+					reject(res);
 				})
 			});
 		}
