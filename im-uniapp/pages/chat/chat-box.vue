@@ -32,7 +32,7 @@
 		<view class="chat-tab-bar" v-show="chatTabBox!='none' ||showKeyBoard " :style="{height:`${keyboardHeight}px`}">
 			<view v-if="chatTabBox == 'tools'" class="chat-tools">
 				<view class="chat-tools-item">
-					<image-upload sourceType="album" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
+					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
 						:onError="onUploadImageFail">
 						<view class="tool-icon iconfont icon-picture"></view>
 					</image-upload>

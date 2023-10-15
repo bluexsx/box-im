@@ -15,6 +15,10 @@
 			}
 		},
 		props: {
+			maxCount:{
+				type: Number,
+				default: 1
+			},
 			maxSize: {
 				type: Number,
 				default: 5*1024*1024
@@ -39,7 +43,7 @@
 		methods: {
 			selectAndUpload() {
 				uni.chooseImage({
-					count: 9, //最多可以选择的图片张数，默认9
+					count: this.maxCount, //最多可以选择的图片张数，默认9
 					sourceType: [this.sourceType], //album 从相册选图，camera 使用相机，默认二者都有。如需直接开相机或直接选相册，请只使用一个选项
 					sizeType: ['original'], //original 原图，compressed 压缩图，默认二者都有
 					success: (res) => {

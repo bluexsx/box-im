@@ -67,11 +67,9 @@ export default {
 		},
 		moveTop(state,idx){
 			let chat = state.chats[idx];
-			
 			// 放置头部
 			state.chats.splice(idx, 1);
 			state.chats.unshift(chat);
-			console.log(state.chats)
 		},
 		insertMessage(state, msgInfo) {
 			// 获取对方id或群id
@@ -195,8 +193,10 @@ export default {
 						context.commit("setChats",res.data);
 						resolve()
 					},
-					fail() {
-						resolve();
+					fail(e) {
+						// 不存在聊天记录,清空聊天列表
+						context.commit("setChats",[]);
+						resolve()
 					}
 				});
 			})
