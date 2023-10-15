@@ -64,10 +64,13 @@
 						title: "修改群聊信息成功",
 						icon: 'none'
 					});
-					setTimeout(()=>{
+					setTimeout(() => {
+						let pages = getCurrentPages();
+						let prevPage = pages[pages.length - 2];
+						prevPage.$vm.loadGroupInfo();
 						uni.navigateBack();
-					},1000);
-					
+					}, 1000);
+
 				})
 			},
 			createNewGroup() {
@@ -82,12 +85,12 @@
 						icon: 'none',
 						duration: 1500
 					});
-					setTimeout(()=>{
+					setTimeout(() => {
 						uni.navigateTo({
-							url: "/pages/group/group-info?id="+group.id
+							url: "/pages/group/group-info?id=" + group.id
 						});
-					},1500)
-					
+					}, 1500)
+
 				})
 			},
 			loadGroupInfo(id) {

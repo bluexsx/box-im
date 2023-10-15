@@ -62,12 +62,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public GroupVO createGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();
         User user = userService.getById(session.getUserId());
-        LambdaQueryWrapper<Group> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(Group::getName,vo.getName());
-        if(this.count(wrapper)>0){
-            throw new GlobalException("已经存在名为'"+vo.getName()+"'的群聊");
-        }
-
         // 保存群组数据
         Group group = BeanUtils.copyProperties(vo,Group.class);
         group.setOwnerId(user.getId());

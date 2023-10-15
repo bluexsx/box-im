@@ -8,10 +8,9 @@
 				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.startsWith(searchText)"
 					:key="friend.id">
 					<uni-list-chat :avatar="friend.headImage" :title="friend.nickName" :clickable="true"
-						@click="onShowUserInfo(friend.id)">
+						@click="onSwitchChecked(friend)">
 						<view class="chat-custom-right">
-							<radio :checked="friend.checked" :disabled="friend.disabled"
-								@click.stop="onSwitchChecked(friend)" />
+							<radio :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>
 						</view>
 					</uni-list-chat>
 				</view>
@@ -55,8 +54,11 @@
 							icon: 'none'
 						})
 						setTimeout(() => {
-							uni.navigateBack({
-							});
+							// 回退并刷新
+							let pages = getCurrentPages();
+							let prevPage = pages[pages.length - 2];
+							prevPage.$vm.loadGroupMembers();
+							uni.navigateBack();
 						}, 1000);
 
 					})
@@ -71,6 +73,7 @@
 				if (!friend.disabled) {
 					friend.checked = !friend.checked;
 				}
+				console.log(this.inviteSize)
 			},
 			initFriendItems() {
 				this.friendItems = [];

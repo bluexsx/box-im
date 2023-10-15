@@ -24,6 +24,7 @@
 	export default {
 		data() {
 			return {
+				isModify: false,
 				searchText: "",
 				group: {},
 				groupMembers: []
@@ -51,7 +52,7 @@
 								icon: 'none'
 							})
 							this.groupMembers.splice(idx, 1);
-
+							this.isModify = true;
 						});
 					}
 				})
@@ -84,6 +85,14 @@
 		onLoad(options) {
 			this.loadGroupInfo(options.id);
 			this.loadGroupMembers(options.id);
+		},
+		onUnload() {
+			if(this.isModify){
+				// 刷新页面
+				let pages = getCurrentPages();
+				let prevPage = pages[pages.length - 2];
+				prevPage.$vm.loadGroupMembers();
+			}
 		}
 	}
 </script>

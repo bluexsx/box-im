@@ -6,16 +6,16 @@
 				"browser":"chrome",
 				"env": {
 					"UNI_PLATFORM": "h5",
-					"BASE_URL": "http://192.168.1.5:8888",
-					"WS_URL": "ws://192.168.1.5:8878/im"
+					"BASE_URL": "http://192.168.31.112:8888",
+					"WS_URL": "ws://192.168.31.112:8878/im"
 				}
 			},
 			"dev-wx-mini": {
 				"title": "开发环境-微信小程序",
 				"env": {
 					"UNI_PLATFORM": "mp-weixin",
-					"BASE_URL": "http://192.168.1.5:8888",
-					"WS_URL": "ws://192.168.1.5:8878/im"
+					"BASE_URL": "http://192.168.31.112:8888",
+					"WS_URL": "ws://192.168.31.112:8878/im"
 				}
 			},
 			"prod-h5": {

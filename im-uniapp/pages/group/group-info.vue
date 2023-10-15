@@ -13,35 +13,35 @@
 					</view>
 				</view>
 				<view class="invite-btn" @click="onInviteMember()">
-					<view class="iconfont icon-add-circle"></view>
+					<uni-icons type="plusempty" size="28" color="#888888"></uni-icons>
 				</view>
 			</view>
 			<view class="member-more" @click="onShowMoreMmeber()">查看更多群成员 ></view>
 		</view>
 		<view class="group-detail">
-			<uni-section title="群聊名称:" titleFontSize="30rpx">
+			<uni-section title="群聊名称:" titleFontSize="12px">
 				<template v-slot:right>
-					<text>{{groupInfo.name}}</text>
+					<text>{{group.name}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="群主:" titleFontSize="30rpx">
+			<uni-section title="群主:" titleFontSize="12px">
 				<template v-slot:right>
 					<text>{{ownerName}}</text>
 				</template>
 			</uni-section>
 
-			<uni-section title="群聊备注:" titleFontSize="30rpx">
+			<uni-section title="群聊备注:" titleFontSize="12px">
 				<template v-slot:right>
-					<text> {{groupInfo.remark}}</text>
+					<text> {{group.remark}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="我在本群的昵称:" titleFontSize="30rpx">
+			<uni-section title="我在本群的昵称:" titleFontSize="12px">
 				<template v-slot:right>
-					<text> {{groupInfo.aliasName}}</text>
+					<text> {{group.aliasName}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="群公告:" titleFontSize="30rpx">
-				<uni-notice-bar :text="groupInfo.notice" />
+			<uni-section title="群公告:" titleFontSize="12px">
+				<uni-notice-bar :text="group.notice" />
 			</uni-section>
 			<view class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
@@ -58,6 +58,7 @@
 		data() {
 			return {
 				groupId: null,
+				group:{},
 				groupMembers: []
 			}
 		},
@@ -86,9 +87,9 @@
 			onSendMessage() {
 				let chat = {
 					type: 'GROUP',
-					targetId: this.groupInfo.id,
-					showName: this.groupInfo.remark,
-					headImage: this.groupInfo.headImage,
+					targetId: this.group.id,
+					showName: this.group.remark,
+					headImage: this.group.headImage,
 				};
 				this.$store.commit("openChat", chat);
 				uni.navigateTo({
@@ -99,21 +100,25 @@
 				uni.showModal({
 					title: '确认退出?',
 					content: `退出群聊后将不再接受群里的消息，确认退出吗?`,
-					success: () => {
+					success: (res) => {
 						if (res.cancel)
 							return;
 						this.$http({
 							url: `/group/quit/${this.groupId}`,
 							method: 'DELETE'
 						}).then(() => {
-							this.$store.commit("removeGroup", this.groupId);
-							this.$store.commit("removeGroupChat", this.groupId);
 							uni.showModal({
 								title: `退出成功`,
-								content: `您已退出群聊'${this.groupInfo.name}'`,
+								content: `您已退出群聊'${this.group.name}'`,
 								showCancel: false,
 								success: () => {
-									uni.navigateBack();
+									setTimeout(()=>{
+										uni.switchTab({
+											url:"/pages/group/group"
+										});
+										this.$store.commit("removeGroup", this.groupId);
+										this.$store.commit("removeGroupChat", this.groupId);
+									},100)
 								}
 							})
 						});
@@ -121,9 +126,10 @@
 				});
 			},
 			onDissolveGroup() {
+				console.log(this.group.name)
 				uni.showModal({
 					title: '确认解散?',
-					content: `确认要解散群聊'${this.groupInfo.name}'吗?`,
+					content: `确认要解散群聊'${this.group.name}'吗?`,
 					success: (res) => {
 						if (res.cancel)
 							return;
@@ -131,14 +137,18 @@
 							url: `/group/delete/${this.groupId}`,
 							method: 'delete'
 						}).then(() => {
-							this.$store.commit("removeGroup", this.groupId);
-							this.$store.commit("removeGroupChat", this.groupId);
 							uni.showModal({
 								title: `解散成功`,
-								content: `群聊'${this.groupInfo.name}'已解散`,
+								content: `群聊'${this.group.name}'已解散`,
 								showCancel: false,
-								success: () => {
-									uni.navigateBack();
+								success: () => {	
+									setTimeout(()=>{
+										uni.switchTab({
+											url:"/pages/group/group"
+										});
+										this.$store.commit("removeGroup", this.groupId);
+										this.$store.commit("removeGroupChat", this.groupId);
+									},100)	
 								}
 							})
 						});
@@ -146,11 +156,12 @@
 				});
 
 			},
-			loadGroupInfo(id) {
+			loadGroupInfo() {
 				this.$http({
-					url: `/group/find/${id}`,
+					url: `/group/find/${this.groupId}`,
 					method: 'GET'
 				}).then((group) => {
+					this.group = group;
 					// 更新聊天页面的群聊信息
 					this.$store.commit("updateChatFromGroup", group);
 					// 更新聊天列表的群聊信息
@@ -158,9 +169,10 @@
 
 				});
 			},
-			loadGroupMembers(id) {
+			loadGroupMembers() {
+				console.log("loadGroupMembers")
 				this.$http({
-					url: `/group/members/${id}`,
+					url: `/group/members/${this.groupId}`,
 					method: "GET"
 				}).then((members) => {
 					this.groupMembers = members.filter(m => !m.quit);
@@ -168,16 +180,12 @@
 			}
 		},
 		computed: {
-			groupInfo() {
-				let groups = this.$store.state.groupStore.groups;
-				return groups.find(g => g.id == this.groupId)
-			},
 			ownerName() {
-				let member = this.groupMembers.find((m) => m.userId == this.groupInfo.ownerId);
+				let member = this.groupMembers.find((m) => m.userId == this.group.ownerId);
 				return member && member.aliasName;
 			},
 			isOwner() {
-				return this.groupInfo.ownerId == this.$store.state.userStore.userInfo.id;
+				return this.group.ownerId == this.$store.state.userStore.userInfo.id;
 			}
 		},
 		onLoad(options) {
@@ -231,6 +239,7 @@
 					.text {
 						width: 100%;
 						flex: 1;
+						font-size: 14px;
 						overflow: hidden;
 						text-align: center;
 						white-space: nowrap;
@@ -246,18 +255,13 @@
 					margin: 10rpx;
 					border: #686868 dashed 2px;
 					border-radius: 10%;
-
-					.iconfont {
-						font-size: 70rpx;
-						color: #888888;
-					}
 				}
 			}
 
 			.member-more {
 				padding: 20rpx;
 				text-align: center;
-				font-size: 30rpx;
+				font-size: 16px;
 			}
 		}
 
@@ -271,7 +275,7 @@
 			.group-edit {
 				padding: 20rpx;
 				text-align: center;
-				font-size: 30rpx;
+				font-size: 16px;	
 			}
 		}
 

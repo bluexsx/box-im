@@ -30,7 +30,7 @@ public class UserVO {
     @ApiModelProperty(value = "性别")
     private Integer sex;
 
-    @Length(max = 64,message = "个性签名不能大于1024个字符")
+    @Length(max = 1024,message = "个性签名不能大于1024个字符")
     @ApiModelProperty(value = "个性签名")
     private String signature;
 

@@ -1,7 +1,7 @@
 <template>
 	<view class="page user-info">
 		<view class="content">
-			<view class="avatar">
+			<view class="avatar" @click="onShowFullImage()">
 				<image class="head-image" :src="userInfo.headImage" lazy-load="true" mode="aspectFill"></image>
 			</view>
 			<view class="info-item">
@@ -39,6 +39,12 @@
 			}
 		},
 		methods: {
+			onShowFullImage(){
+				let imageUrl = this.userInfo.headImage;
+				uni.previewImage({
+					urls: [imageUrl]
+				})
+			},
 			onSendMessage() {
 				let chat = {
 					type: 'PRIVATE',
@@ -73,7 +79,7 @@
 				uni.showModal({
 					title: "确认删除",
 					content: `确认要删除与 '${this.userInfo.nickName}'的好友关系吗?`,
-					success: ()=> {
+					success: (res)=> {
 						if(res.cancel)
 							return;
 						this.$http({

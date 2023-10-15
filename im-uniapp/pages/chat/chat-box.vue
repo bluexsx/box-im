@@ -1,8 +1,9 @@
 <template>
 	<view class=" page chat-box">
 		<view class="header">
+			<uni-icons class="btn-side left" type="back" size="30" @click="onNavBack()"></uni-icons>
 			<text class="title">{{title}}</text>
-			<uni-icons class="btn-side" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
+			<uni-icons class="btn-side right" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
 		</view>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
 			<scroll-view class="scroll-box" scroll-y="true" :scroll-into-view="'chat-item-'+scrollMsgIdx">
@@ -15,7 +16,7 @@
 			</scroll-view>
 		</view>
 		<view class="send-bar">
-			<view class="iconfont icon-voice-circle"></view>
+			<view class="iconfont icon-voice-circle" @click="showTip()"></view>
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
 					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
@@ -52,11 +53,11 @@
 					<view class="tool-name">文件</view>
 				</view>
 
-				<view class="chat-tools-item">
+				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音输入</view>
 				</view>
-				<view class="chat-tools-item">
+				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">呼叫</view>
 				</view>
@@ -92,6 +93,12 @@
 			}
 		},
 		methods: {
+			showTip(){
+				uni.showToast({
+					title: "加班开发中...",
+					icon: "none"
+				})
+			},
 			headImage(msgInfo) {
 				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
@@ -177,8 +184,12 @@
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
 			},
+			onNavBack(){
+				uni.switchTab({
+					url: "/pages/chat/chat"
+				})
+			},
 			onKeyboardheightchange(e) {
-				;
 				if (e.detail.height > 0) {
 					this.showKeyBoard = true;
 					this.switchChatTabBox('none', false)
@@ -457,11 +468,19 @@
 
 			.btn-side {
 				position: absolute;
-				right: 30rpx;
 				line-height: 60rpx;
 				font-size: 28rpx;
 				cursor: pointer;
+				
+				&.left {
+					left: 30rpx;
+				}
+				&.right {
+					right: 30rpx;
+				}
 			}
+			
+			
 		}
 
 

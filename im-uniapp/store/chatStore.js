@@ -65,6 +65,14 @@ export default {
 				}
 			}
 		},
+		moveTop(state,idx){
+			let chat = state.chats[idx];
+			
+			// 放置头部
+			state.chats.splice(idx, 1);
+			state.chats.unshift(chat);
+			console.log(state.chats)
+		},
 		insertMessage(state, msgInfo) {
 			// 获取对方id或群id
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';

@@ -9,10 +9,10 @@
 					<text class="info-username">
 						{{userInfo.userName}}
 					</text>
-					<uni-icons v-show="userInfo.sex==0" class="sex-boy" type="person-filled" size="20"
-						color="darkblue"></uni-icons>
-					<uni-icons v-show="userInfo.sex==1" class="sex-girl" type="person-filled" size="20"
-						color="darkred"></uni-icons>
+					<text v-show="userInfo.sex==0" class="iconfont icon-man" 
+						color="darkblue"></text>
+					<text v-show="userInfo.sex==1" class="iconfont icon-girl"
+						color="darkred"></text>
 				</view>
 				<text>
 					昵称 ：{{userInfo.nickName}}
@@ -100,10 +100,18 @@
 
 				.info-primary {
 					display: flex;
-
+					align-items: center;
 					.info-username {
 						font-size: 40rpx;
 						font-weight: 600;
+					}
+					
+					.icon-man {
+						color: darkblue;
+					}
+					
+					.icon-girl {
+						color: darkred;
 					}
 				}
 			}
