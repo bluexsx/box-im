@@ -48,7 +48,6 @@
 	}
 
 	.menu {
-		width: 250rpx;
 		position: fixed;
 		border: 1px solid #d0d0d0;
 		box-shadow: 0 0 20rpx gray;

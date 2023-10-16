@@ -141,14 +141,10 @@
 		},
 		computed: {
 			loading() {
-				return !this.isTimeout && this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
+				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
 			},
 			loadFail() {
-				return this.msgInfo.loadStatus && (this.isTimeout || this.msgInfo.loadStatus === "fail");
-			},
-			isTimeout() {
-				return (new Date().getTime() - new Date(this.msgInfo.sendTime).getTime()) > 30 * 1000;
-
+				return this.msgInfo.loadStatus && (this.msgInfo.loadStatus === "fail");
 			},
 			data() {
 				return JSON.parse(this.msgInfo.content)

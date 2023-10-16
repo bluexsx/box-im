@@ -8,7 +8,15 @@ export default {
 	},
 
 	mutations: {
-		setChats(state,chats){
+		initChats(state,chats){
+			// 防止图片一直处在加载中状态
+			chats.forEach((chat)=>{
+				chat.messages.forEach((msg)=>{
+					if(msg.loadStatus == "loading"){
+						msg.loadStatus = "fail"
+					}
+				})
+			})
 			state.chats = chats;
 		},
 		openChat(state, chatInfo) {
@@ -190,7 +198,7 @@ export default {
 				uni.getStorage({
 					key:"chats-"+userId,
 					success(res) {
-						context.commit("setChats",res.data);
+						context.commit("initChats",res.data);
 						resolve()
 					},
 					fail(e) {
