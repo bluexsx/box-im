@@ -18,7 +18,6 @@
 	}, {
 		"path": "pages/group/group",
 		"style": {
-			"navigationBarTitleText": "群聊列表",
 			"enablePullDownRefresh": false
 		}
 
@@ -75,7 +74,7 @@
 				"pagePath": "pages/group/group",
 				"iconPath": "static/tarbar/group.png",
 				"selectedIconPath": "static/tarbar/group_active.png",
-				"text": "群聊"
+				"text": "资讯"
 			},
 			{
 				"pagePath": "pages/mine/mine",

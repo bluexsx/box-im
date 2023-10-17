@@ -203,7 +203,7 @@ export default {
 					},
 					fail(e) {
 						// 不存在聊天记录,清空聊天列表
-						context.commit("setChats",[]);
+						context.commit("initChats",[]);
 						resolve()
 					}
 				});

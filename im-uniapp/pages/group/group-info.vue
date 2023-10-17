@@ -1,5 +1,5 @@
 <template>
-	<view class="page group-info">
+	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-info">
 		<view class="group-members">
 			<view class="member-items">
 				<view v-for="(member,idx) in  groupMembers" :key="idx">

@@ -1,5 +1,5 @@
 <template>
-	<view class="page group-member">
+	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-member">
 		<view class="search-bar">
 			<uni-search-bar v-model="searchText" cancelButton="none" placeholder="输入成员昵称搜索"></uni-search-bar>
 		</view>

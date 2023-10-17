@@ -1,5 +1,5 @@
 <template>
-	<view class="tab-page group">
+	<view v-if="$store.state.userStore.userInfo.type == 1" class="tab-page group">
 		<view class="nav-bar">
 			<view class="nav-search">
 				<uni-search-bar @focus="onFocusSearch" cancelButton="none" placeholder="点击搜索群聊"></uni-search-bar>

@@ -1,5 +1,5 @@
 <template>
-	<view class="page group-edit">
+	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-edit">
 		<uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
 			label-width="100%">
 			<uni-forms-item label="群聊头像:" name="headImage">

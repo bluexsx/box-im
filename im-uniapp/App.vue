@@ -14,6 +14,8 @@
 			init() {
 				// 加载数据
 				store.dispatch("load").then(() => {
+					// 审核
+					this.initAudit();
 					// 初始化websocket
 					this.initWebSocket();
 				}).catch((e) => {
@@ -140,9 +142,26 @@
 				// this.audioTip = uni.createInnerAudioContext();
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
+			},
+			initAudit() {
+				console.log("initAudit")
+				if(store.state.userStore.userInfo.type == 1){
+					// 显示群组功能
+					uni.setTabBarItem({
+						index: 2,
+						text: "群聊"
+					})	
+				}else{
+					// 隐藏群组功能
+					uni.setTabBarItem({
+						index: 2,
+						text: "资讯"
+					})	
+				}
 			}
 		},
 		onLaunch() {
+
 			// 登录状态校验
 			if (uni.getStorageSync("loginInfo")) {
 				// 初始化

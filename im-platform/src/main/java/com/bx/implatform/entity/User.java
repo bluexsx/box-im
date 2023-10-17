@@ -62,6 +62,11 @@ public class User extends Model<User> {
     @TableField("head_image_thumb")
     private String headImageThumb;
 
+    /**
+     * 用户类型  1:普通用户 2:审核专用账户
+     */
+    @TableField("type")
+    private Integer type;
 
     /**
      * 个性签名
