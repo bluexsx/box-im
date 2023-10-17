@@ -87,8 +87,6 @@
 					this.pullUnreadMessage();
 				});
 				this.$wsApi.onmessage((cmd, msgInfo) => {
-					// 标记这条消息是不是自己发的
-					msgInfo.selfSend = msgInfo.sendId==this.$store.state.userStore.userInfo.id;
 					if (cmd == 2) {
 						// 异地登录，强制下线
 						this.$message.error("您已在其他地方登陆，将被强制下线");
@@ -96,9 +94,13 @@
 							location.href = "/";
 						}, 1000)
 					} else if (cmd == 3) {
+						// 标记这条消息是不是自己发的
+						msgInfo.selfSend = msgInfo.sendId==this.$store.state.userStore.userInfo.id;
 						// 插入私聊消息
 						this.handlePrivateMessage(msgInfo);
 					} else if (cmd == 4) {
+						// 标记这条消息是不是自己发的
+						msgInfo.selfSend = msgInfo.sendId==this.$store.state.userStore.userInfo.id;
 						// 插入群聊消息
 						this.handleGroupMessage(msgInfo);
 					}
