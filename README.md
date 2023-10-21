@@ -216,9 +216,7 @@ wsApi.onmessage((cmd,msgInfo) => {
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E7%BE%A4%E8%81%8A%E5%88%97%E8%A1%A8.jpg)
 
 微信小程序:
-![输入图片说明](%E6%88%AA%E5%9B%BE/mp-1.jpg)
-
-![输入图片说明](%E6%88%AA%E5%9B%BE/mp-2.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F.jpg)
 
 #### QQ交流群
 
