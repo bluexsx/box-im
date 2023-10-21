@@ -230,5 +230,5 @@ wsApi.onmessage((cmd,msgInfo) => {
 
 
 #### 点下star吧
-如果项目对您有帮助，帮忙点亮star，支持一下作者吧！
+如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
 
