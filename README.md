@@ -39,7 +39,8 @@ web地址：https://www.boxim.online
 | im-server   | 推送聊天消息|
 | im-client   | 消息推送sdk|
 | im-common   | 公共包  |
-
+| im-ui       | web页面  |
+| im-uniapp   | app页面  |
 
 #### 消息推送方案
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E9%9B%86%E7%BE%A4%E5%8C%96.jpg)
@@ -55,7 +56,7 @@ web地址：https://www.boxim.online
 - 安装jdk:1.8
 - 安装maven:3.6.3
 - 安装mysql:5.7,密码分别为root/root,运行sql脚本(脚本在im-platfrom的resources/db目录)
-- 安装redis:4.0
+- 安装redis:5.0
 - 安装minio，命令端口使用9001，并创建一个名为"box-im"的bucket，并设置访问权限为公开
 
 2.启动后端服务
@@ -75,7 +76,7 @@ npm run serve
 
 
 4.启动uniapp-h5
-将im-uniapp目录导入HBuilder X,点击菜单"运行"->"开发环境-h5"
+将im-uniapp目录导入HBuilderX,点击菜单"运行"->"开发环境-h5"
 访问 http://localhost:5173
 
 
@@ -215,15 +216,16 @@ wsApi.onmessage((cmd,msgInfo) => {
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E7%BE%A4%E8%81%8A%E5%88%97%E8%A1%A8.jpg)
 
 小程序:
-![mp-群聊信息.jpg](%BD%D8%CD%BC%2Fmp-%C8%BA%C1%C4%D0%C5%CF%A2.jpg)
-
-
+![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E7%A7%81%E8%81%8A.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E7%BE%A4%E8%81%8A.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E5%A5%BD%E5%8F%8B%E5%88%97%E8%A1%A8.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E7%BE%A4%E8%81%8A%E4%BF%A1%E6%81%AF.jpg)
 
 #### QQ交流群
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E4%BA%A4%E6%B5%81%E7%BE%A4.png)
 
-欢迎进群与小伙们一起交流，加群前记得要先star哦,加群时请备注您的gitee账号
+欢迎进群与小伙们一起交流，加群前记得要先star哦,申请加群时请备注您的gitee账号
 
 
 #### 点下star吧
