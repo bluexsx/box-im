@@ -203,7 +203,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组不存在");
         }
         if(group.getDeleted()){
-            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组已解散");
+            throw  new GlobalException(ResultCode.PROGRAM_ERROR,"群组'"+group.getName()+"'已解散");
         }
         return group;
     }
