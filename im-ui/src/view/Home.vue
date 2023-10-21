@@ -27,13 +27,14 @@
 				<el-menu-item title="设置" @click="showSetting()">
 					<span class="el-icon-setting"></span>
 				</el-menu-item>
+				<el-menu-item title="长得帅的都已经star啦">
+					<a href="https://gitee.com/bluexsx/box-im" target="_blank">
+						<el-image style="width: 30px; height: 30px" src="https://gitee.com/favicon.ico" fit="fit">
+						</el-image>
+					</a>
+				</el-menu-item>
 			</el-menu>
-			<div class="gitee-box" title="gitee仓库,帮忙点点star哟">
-				<a href="https://gitee.com/bluexsx/box-im" target="_blank">
-					<el-image style="width: 30px; height: 30px" src="https://gitee.com/favicon.ico" fit="fit">
-					</el-image>
-				</a>
-			</div>
+			
 			<div class="exit-box" @click="handleExit()" title="退出">
 				<span class="el-icon-circle-close"></span>
 			</div>
@@ -301,14 +302,7 @@
 			}
 		}
 
-		.gitee-box {
-			position: absolute;
-			width: 60px;
-			bottom: 100px;
-			display: flex;
-			justify-content: center;
-			cursor: pointer;
-		}
+		
 
 		.exit-box {
 			position: absolute;
