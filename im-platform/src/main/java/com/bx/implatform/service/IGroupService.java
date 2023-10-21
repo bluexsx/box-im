@@ -12,7 +12,7 @@ import java.util.List;
 public interface IGroupService extends IService<Group> {
 
 
-    GroupVO createGroup(String groupName);
+    GroupVO createGroup(GroupVO vo);
 
     GroupVO modifyGroup(GroupVO vo);
 
@@ -26,7 +26,7 @@ public interface IGroupService extends IService<Group> {
 
     void invite(GroupInviteVO vo);
 
-    Group GetById(Long groupId);
+    Group getById(Long groupId);
 
     GroupVO findById(Long groupId);
 

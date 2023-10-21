@@ -30,7 +30,10 @@ public class UserVO {
     @ApiModelProperty(value = "性别")
     private Integer sex;
 
-    @Length(max = 64,message = "个性签名不能大于1024个字符")
+    @ApiModelProperty(value = "用户类型 1:普通用户 2:审核账户")
+    private Integer type;
+
+    @Length(max = 1024,message = "个性签名不能大于1024个字符")
     @ApiModelProperty(value = "个性签名")
     private String signature;
 
@@ -39,7 +42,6 @@ public class UserVO {
 
     @ApiModelProperty(value = "头像缩略图")
     private String headImageThumb;
-
 
     @ApiModelProperty(value = "是否在线")
     private Boolean online;

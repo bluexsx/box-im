@@ -21,7 +21,6 @@ public enum ResultCode {
     private int code;
     private String msg;
 
-    // 构造方法
     ResultCode(int code, String msg) {
         this.code = code;
         this.msg = msg;

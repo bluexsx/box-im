@@ -1,9 +1,10 @@
 package com.bx.imserver.netty;
 
-import com.bx.imcommon.contant.RedisKey;
+import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
-import com.bx.imserver.netty.processor.MessageProcessor;
+import com.bx.imserver.constant.ChannelAttrKey;
+import com.bx.imserver.netty.processor.AbstractMessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
 import com.bx.imserver.util.SpringContextHolder;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,7 +34,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, IMSendInfo sendInfo) throws  Exception {
         // 创建处理器进行处理
-        MessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
+        AbstractMessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
         processor.process(ctx,processor.transForm(sendInfo.getData()));
     }
 
@@ -64,18 +65,20 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws  Exception {
-        AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
-        Long userId = ctx.channel().attr(attr).get();
-        ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId);
+        AttributeKey<Long> userIdAttr = AttributeKey.valueOf(ChannelAttrKey.USER_ID);
+        Long userId = ctx.channel().attr(userIdAttr).get();
+        AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
+        Integer terminal = ctx.channel().attr(terminalAttr).get();
+        ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId,terminal);
         // 判断一下，避免异地登录导致的误删
         if(context != null && ctx.channel().id().equals(context.channel().id())){
             // 移除channel
-            UserChannelCtxMap.removeChannelCtx(userId);
+            UserChannelCtxMap.removeChannelCtx(userId,terminal);
             // 用户下线
             RedisTemplate redisTemplate = SpringContextHolder.getBean("redisTemplate");
-            String key = RedisKey.IM_USER_SERVER_ID + userId;
+            String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
             redisTemplate.delete(key);
-            log.info("断开连接,userId:{}",userId);
+            log.info("断开连接,userId:{},终端类型:{}",userId,terminal);
         }
     }
 
@@ -87,7 +90,9 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
                 // 在规定时间内没有收到客户端的上行数据, 主动断开连接
                 AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
                 Long userId = ctx.channel().attr(attr).get();
-                log.info("心跳超时，即将断开连接,用户id:{} ",userId);
+                AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
+                Integer ternimal = ctx.channel().attr(terminalAttr).get();
+                log.info("心跳超时，即将断开连接,用户id:{},终端类型:{} ",userId,ternimal);
                 ctx.channel().close();
             }
         } else {

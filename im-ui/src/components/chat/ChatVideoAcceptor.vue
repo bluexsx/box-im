@@ -7,84 +7,86 @@
 			{{friend.nickName}} 请求和您进行视频通话...
 		</div>
 		<div class="acceptor-btn-group">
-		  <div  class="icon iconfont icon-phone-accept accept" @click="accpet()"></div>
-		  <div  class="icon iconfont icon-phone-reject reject" @click="reject()"></div>
+			<div class="icon iconfont icon-phone-accept accept" @click="accpet()"></div>
+			<div class="icon iconfont icon-phone-reject reject" @click="reject()"></div>
 		</div>
 	</div>
 </template>
 
 <script>
 	import HeadImage from '../common/HeadImage.vue';
-	
+
 	export default {
 		name: "videoAcceptor",
-		components:{HeadImage},
+		components: {
+			HeadImage
+		},
 		props: {
-			friend:{
+			friend: {
 				type: Object
 			}
 		},
-		data(){
+		data() {
 			return {
-				offer:{},
+				offer: {},
 				audio: new Audio()
 			}
 		},
-		methods:{
-			accpet(){
-				let info ={
+		methods: {
+			accpet() {
+				let info = {
 					friend: this.friend,
 					master: false,
 					offer: this.offer
 				}
-				this.$store.commit("showChatPrivateVideoBox",info);
+				this.$store.commit("showChatPrivateVideoBox", info);
 				this.close();
 			},
-			reject(){
+			reject() {
 				this.$http({
 					url: `/webrtc/private/reject?uid=${this.friend.id}`,
 					method: 'post'
 				})
 				this.close();
 			},
-			failed(reason){
+			failed(reason) {
 				this.$http({
 					url: `/webrtc/private/failed?uid=${this.friend.id}&reason=${reason}`,
 					method: 'post'
 				})
 				this.close();
 			},
-			onCall(msgInfo){
-				console.log("onCall")
+			onCall(msgInfo) {
 				this.offer = JSON.parse(msgInfo.content);
-				if(this.$store.state.userStore.state == this.$enums.USER_STATE.BUSY){
+				if (this.$store.state.userStore.state == this.$enums.USER_STATE.BUSY) {
 					this.failed("对方正忙,暂时无法接听");
 					return;
 				}
 				// 超时未接听
 				this.timer && clearTimeout(this.timer);
-				this.timer = setTimeout(()=>{
+				this.timer = setTimeout(() => {
 					this.failed("对方未接听");
-				},30000)
+				}, 30000)
 				this.audio.play();
 			},
-			onCancel(){
+			onCancel() {
+				// 取消视频通话请求
 				this.$message.success("对方取消了呼叫");
 				this.close();
 			},
-			handleMessage(msgInfo){
-				if(msgInfo.type == this.$enums.MESSAGE_TYPE.RTC_CALL){
+			handleMessage(msgInfo) {
+				if (msgInfo.type == this.$enums.MESSAGE_TYPE.RTC_CALL) {
 					this.onCall(msgInfo);
-				}else if(msgInfo.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL){
+				} else if (msgInfo.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL) {
 					this.onCancel();
 				}
 			},
-			close(){
+			close() {
 				this.timer && clearTimeout(this.timer);
 				this.audio.pause();
 				this.$emit("close");
 			},
-			initAudio(){
+			initAudio() {
 				let url = require(`@/assets/audio/call.wav`);
 				this.audio.src = url;
 				this.audio.loop = true;
@@ -93,10 +95,9 @@
 		mounted() {
 			// 初始化语音
 			this.initAudio();
-			
+
 		}
 	}
-	
 </script>
 
 <style scoped lang="scss">
@@ -110,22 +111,24 @@
 		text-align: center;
 		background-color: #eeeeee;
 		border: #dddddd solid 1px;
-		
+
 		.acceptor-btn-group {
 			display: flex;
 			justify-content: space-around;
 			margin-top: 20px;
-			
+
 			.icon {
 				font-size: 50px;
 				cursor: pointer;
+
 				&.accept {
 					color: green;
 				}
+
 				&.reject {
 					color: red;
 				}
-			}	
+			}
 		}
 	}
 </style>

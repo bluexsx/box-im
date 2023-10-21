@@ -94,9 +94,13 @@
 							location.href = "/";
 						}, 1000)
 					} else if (cmd == 3) {
+						// 标记这条消息是不是自己发的
+						msgInfo.selfSend = msgInfo.sendId==this.$store.state.userStore.userInfo.id;
 						// 插入私聊消息
 						this.handlePrivateMessage(msgInfo);
 					} else if (cmd == 4) {
+						// 标记这条消息是不是自己发的
+						msgInfo.selfSend = msgInfo.sendId==this.$store.state.userStore.userInfo.id;
 						// 插入群聊消息
 						this.handleGroupMessage(msgInfo);
 					}
@@ -116,7 +120,8 @@
 			},
 			handlePrivateMessage(msg) {
 				// 好友列表存在好友信息，直接插入私聊消息
-				let friend = this.$store.state.friendStore.friends.find((f) => f.id == msg.sendId);
+				let friendId = msg.selfSend?msg.recvId:msg.sendId;
+				let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
 				if (friend) {
 					this.insertPrivateMessage(friend, msg);
 					return;
@@ -134,13 +139,14 @@
 				// webrtc 信令
 				if (msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL &&
 					msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+					
 					// 呼叫
-					console.log(msg)
 					if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL ||
 						msg.type == this.$enums.MESSAGE_TYPE.RTC_CANCEL) {
 						this.$store.commit("showVideoAcceptorBox", friend);
 						this.$refs.videoAcceptor.handleMessage(msg)
 					} else {
+						this.$refs.videoAcceptor.close()
 						this.$refs.privateVideo.handleMessage(msg)
 					}
 					return;
@@ -157,7 +163,8 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				this.playAudioTip();
+				!msg.selfSend && this.playAudioTip();
+				
 			},
 			handleGroupMessage(msg) {
 				// 群聊缓存存在，直接插入群聊消息
@@ -187,7 +194,7 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				this.playAudioTip();
+				!msg.selfSend && this.playAudioTip();
 			},
 			handleExit() {
 				this.$wsApi.closeWebSocket();

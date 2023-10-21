@@ -118,9 +118,19 @@
 					inputPattern: /\S/,
 					inputErrorMessage: '请输入群聊名称'
 				}).then((o) => {
+					let userInfo = this.$store.state.userStore.userInfo;
+					let data= {
+						name: o.value,
+						remark: o.value,
+						aliasName: userInfo.name,
+						headImage: userInfo.headImage,
+						headImageThumb:  userInfo.headImageThumb,
+						ownerId: userInfo.id
+					}
 					this.$http({
 						url: `/group/create?groupName=${o.value}`,
-						method: 'post'
+						method: 'post',
+						data: data
 					}).then((group) => {
 						this.$store.commit("addGroup", group);
 					})

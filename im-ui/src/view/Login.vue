@@ -2,6 +2,10 @@
 	<div class="login-view"  >
 			<el-form :model="loginForm"  status-icon :rules="rules" ref="loginForm"  label-width="60px" class="web-ruleForm" @keyup.enter.native="submitForm('loginForm')">
 				<div class="login-brand">欢迎登陆</div>
+				<el-form-item label="终端" prop="userName" v-show="false">
+					<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
+				
+				</el-form-item>
 				<el-form-item label="用户名" prop="userName">
 					<el-input type="userName" v-model="loginForm.userName" autocomplete="off"></el-input>
 
@@ -26,14 +30,12 @@
 		name: "login",
 		data() {
 			var checkUsername = (rule, value, callback) => {
-				console.log("checkUsername");
 				if (!value) {
 					return callback(new Error('请输入用户名'));
 				}
 				callback();
 			};
 			var checkPassword = (rule, value, callback) => {
-				console.log("checkPassword");
 				if (value === '') {
 					callback(new Error('请输入密码'));
 				}
@@ -42,6 +44,7 @@
 			};
 			return {
 				loginForm: {
+					terminal: 0,
 					userName: '',
 					password: ''
 				},

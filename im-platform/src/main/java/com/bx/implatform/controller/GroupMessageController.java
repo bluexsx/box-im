@@ -1,11 +1,11 @@
 package com.bx.implatform.controller;
 
 
-import com.bx.imcommon.model.GroupMessageInfo;
+import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IGroupMessageService;
-import com.bx.implatform.vo.GroupMessageVO;
+import com.bx.implatform.dto.GroupMessageDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class GroupMessageController {
 
     @PostMapping("/send")
     @ApiOperation(value = "发送群聊消息",notes="发送群聊消息")
-    public Result<Long> sendMessage(@Valid @RequestBody GroupMessageVO vo){
+    public Result<Long> sendMessage(@Valid @RequestBody GroupMessageDTO vo){
         return ResultUtils.success(groupMessageService.sendMessage(vo));
     }
 
@@ -47,7 +47,7 @@ public class GroupMessageController {
 
     @GetMapping("/history")
     @ApiOperation(value = "查询聊天记录",notes="查询聊天记录")
-    public Result<List<GroupMessageInfo>> recallMessage(@NotNull(message = "群聊id不能为空") @RequestParam Long groupId,
+    public Result<List<GroupMessageVO>> recallMessage(@NotNull(message = "群聊id不能为空") @RequestParam Long groupId,
                                                         @NotNull(message = "页码不能为空") @RequestParam Long page,
                                                         @NotNull(message = "size不能为空") @RequestParam Long size){
         return ResultUtils.success( groupMessageService.findHistoryMessage(groupId,page,size));

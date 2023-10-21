@@ -1,6 +1,7 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.entity.User;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.RegisterDTO;
@@ -14,15 +15,19 @@ public interface IUserService extends IService<User> {
 
     LoginVO login(LoginDTO dto);
 
+    void modifyPassword(ModifyPwdDTO dto);
+
     LoginVO refreshToken(String refreshToken);
 
     void register(RegisterDTO dto);
 
-    User findUserByName(String username);
+    User findUserByUserName(String username);
 
     void update(UserVO vo);
 
     List<UserVO> findUserByNickName(String nickname);
+
+    List<UserVO> findUserByName(String name);
 
     List<Long> checkOnline(String userIds);
 

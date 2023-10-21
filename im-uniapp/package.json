@@ -1,0 +1,40 @@
+{
+	"uni-app": {
+		"scripts": {
+			"dev-h5": {
+				"title": "开发环境-H5",
+				"browser":"chrome",
+				"env": {
+					"UNI_PLATFORM": "h5",
+					"BASE_URL": "http://127.0.0.1:8888",
+					"WS_URL": "ws://127.0.0.1:8878/im"
+				}
+			},
+			"dev-wx-mini": {
+				"title": "开发环境-微信小程序",
+				"env": {
+					"UNI_PLATFORM": "mp-weixin",
+					"BASE_URL": "http://127.0.0.1:8888",
+					"WS_URL": "ws://127.0.0.1:8878/im"
+				}
+			},
+			"prod-h5": {
+				"title": "正式环境-H5",
+				"browser":"chrome",
+				"env": {
+					"UNI_PLATFORM": "h5",
+					"BASE_URL": "https://www.boxim.online/api",
+					"WS_URL": "wss://www.boxim.online:81/im"
+				}
+			},
+			"prod-wx-mini": {
+				"title": "正式环境-微信小程序",
+				"env": {
+					"UNI_PLATFORM": "mp-weixin",
+					"BASE_URL": "https://www.boxim.online/api",
+					"WS_URL": "wss://www.boxim.online:81/im"
+				}
+			}
+		}
+	}
+}

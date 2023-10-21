@@ -16,7 +16,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(XssInterceptor())
+        registry.addInterceptor(xssInterceptor())
                 .addPathPatterns("/**");
         registry.addInterceptor(authInterceptor())
                 .addPathPatterns("/**")
@@ -30,7 +30,7 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public XssInterceptor XssInterceptor() {
+    public XssInterceptor xssInterceptor() {
         return new XssInterceptor();
     }
 

@@ -18,6 +18,7 @@ public interface IGroupMemberService extends IService<GroupMember> {
 
     List<Long> findUserIdsByGroupId(Long groupId);
 
+
     boolean saveOrUpdateBatch(Long groupId,List<GroupMember> members);
 
     void removeByGroupId(Long groupId);

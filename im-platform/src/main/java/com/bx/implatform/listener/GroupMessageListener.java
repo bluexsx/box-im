@@ -4,10 +4,9 @@ import com.bx.imclient.annotation.IMListener;
 import com.bx.imclient.listener.MessageListener;
 import com.bx.imcommon.enums.IMListenerType;
 import com.bx.imcommon.enums.IMSendCode;
-import com.bx.imcommon.model.GroupMessageInfo;
-import com.bx.imcommon.model.SendResult;
+import com.bx.implatform.vo.GroupMessageVO;
+import com.bx.imcommon.model.IMSendResult;
 import com.bx.implatform.contant.RedisKey;
-import com.bx.implatform.enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,22 +14,17 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 @Slf4j
 @IMListener(type = IMListenerType.GROUP_MESSAGE)
-public class GroupMessageListener implements MessageListener {
+public class GroupMessageListener implements MessageListener<GroupMessageVO> {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
     @Override
-    public void process(SendResult result){
-        GroupMessageInfo messageInfo = (GroupMessageInfo) result.getMessageInfo();
-        // 提示类数据不记录
-        if(messageInfo.getType().equals(MessageType.TIP)){
-            return;
-        }
-
+    public void process(IMSendResult<GroupMessageVO> result){
+        GroupMessageVO messageInfo = result.getData();
         // 保存该用户已拉取的最大消息id
-        if(result.getCode().equals(IMSendCode.SUCCESS)) {
-            String key = RedisKey.IM_GROUP_READED_POSITION + messageInfo.getGroupId() + ":" + result.getRecvId();
+        if(result.getCode().equals(IMSendCode.SUCCESS.code())) {
+            String key = String.join(":",RedisKey.IM_GROUP_READED_POSITION,messageInfo.getGroupId().toString(),result.getReceiver().getId().toString());
             redisTemplate.opsForValue().set(key, messageInfo.getId());
         }
     }

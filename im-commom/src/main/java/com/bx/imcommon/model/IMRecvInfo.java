@@ -5,22 +5,32 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class IMRecvInfo<T> {
+public class IMRecvInfo {
 
     /*
-     * 命令类型
+     * 命令类型 IMCmdType
      */
     private Integer cmd;
 
     /*
-     * 接收者id列表
+     * 发送方
      */
-    private List<Long> recvIds;
+    private IMUserInfo sender;
+
+    /*
+     * 接收方用户列表
+     */
+    List<IMUserInfo> receivers;
+
+    /*
+     *  是否需要回调发送结果
+     */
+    private Boolean sendResult;
 
     /*
      * 推送消息体
      */
-    private T data;
+    private Object data;
 }
 
 

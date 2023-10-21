@@ -1,24 +1,23 @@
 <template>
-	<el-dialog v-dialogDrag :title="title"  top="5vh"
-	 :close-on-click-modal="false"
-	 :close-on-press-escape="false"
-	:visible.sync="visible" width="50%" height="70%" :before-close="handleClose">
+	<el-dialog v-dialogDrag :title="title" top="5vh" :close-on-click-modal="false" :close-on-press-escape="false"
+		:visible.sync="visible" width="50%" height="70%" :before-close="handleClose">
 		<div class="chat-video">
 			<div class="chat-video-box">
-				<div class="chat-video-friend" v-loading="loading" element-loading-text="等待对方接听..." element-loading-spinner="el-icon-loading"
-				 element-loading-background="rgba(0, 0, 0, 0.5)">
-					<head-image class="friend-head-image" :id="this.friend.id" :size="80" :url="this.friend.headImage"></head-image>
+				<div class="chat-video-friend" v-loading="loading" element-loading-text="等待对方接听..."
+					element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.5)">
+					<head-image class="friend-head-image" :id="this.friend.id" :size="80"
+						:url="this.friend.headImage"></head-image>
 					<video ref="friendVideo" autoplay=""></video>
 				</div>
 				<div class="chat-video-mine">
-					<video  ref="mineVideo" autoplay=""></video>
+					<video ref="mineVideo" autoplay=""></video>
 				</div>
 			</div>
 			<div class="chat-video-controllbar">
-				<div v-show="state=='CONNECTING'" title="取消呼叫" class="icon iconfont icon-phone-reject reject" style="color: red;"
-				 @click="cancel()"></div>
-				<div v-show="state=='CONNECTED'" title="挂断" class="icon iconfont icon-phone-reject reject" style="color: red;"
-				 @click="handup()"></div>
+				<div v-show="state=='CONNECTING'" title="取消呼叫" class="icon iconfont icon-phone-reject reject"
+					style="color: red;" @click="cancel()"></div>
+				<div v-show="state=='CONNECTED'" title="挂断" class="icon iconfont icon-phone-reject reject"
+					style="color: red;" @click="handup()"></div>
 			</div>
 		</div>
 	</el-dialog>
@@ -27,10 +26,12 @@
 
 <script>
 	import HeadImage from '../common/HeadImage.vue';
-	
+
 	export default {
 		name: 'chatVideo',
-		components: {HeadImage},
+		components: {
+			HeadImage
+		},
 		props: {
 			visible: {
 				type: Boolean
@@ -47,6 +48,7 @@
 		},
 		data() {
 			return {
+				callerId: null,
 				stream: null,
 				audio: new Audio(),
 				loading: false,
@@ -133,7 +135,7 @@
 				this.peerConnection.oniceconnectionstatechange = (event) => {
 					let state = event.target.iceConnectionState;
 					console.log("ICE connection status changed : " + state)
-					if(state == 'connected'){
+					if (state == 'connected') {
 						this.resetTime();
 					}
 				};
@@ -141,30 +143,41 @@
 			},
 			handleMessage(msg) {
 				if (msg.type == this.$enums.MESSAGE_TYPE.RTC_ACCEPT) {
-					this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.content)));
-					// 关闭等待提示
-					this.loading = false;
-					// 状态为连接中
-					this.state = 'CONNECTED';
-					// 停止播放语音
-					this.audio.pause();
-					// 发送candidate
-					this.candidates.forEach((candidate) => {
-						this.sendCandidate(candidate);
-					})
-				}
-				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_REJECT) {
-					this.$message.error("对方拒绝了您的视频请求");
-					this.close();
-				}
-				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_FAILED) {
+					if (msg.selfSend) {
+						// 我在其他终端接受了对方的通话
+						this.$message.success("已在其他设备接听");
+						this.close();
+					} else {
+						// 对方接受了我的通话
+						this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.content)));
+						// 关闭等待提示
+						this.loading = false;
+						// 状态为连接中
+						this.state = 'CONNECTED';
+						// 停止播放语音
+						this.audio.pause();
+						// 发送candidate
+						this.candidates.forEach((candidate) => {
+							this.sendCandidate(candidate);
+						})
+					}
+
+				} else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_REJECT) {
+					if (msg.selfSend) {
+						// 我在其他终端拒绝了对方的通话
+						this.$message.success("已在其他设备拒绝通话");
+						this.close();
+					} else {
+						// 对方拒绝了我的通话
+						this.$message.error("对方拒绝了您的视频请求");
+						this.close();
+					}
+				} else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_FAILED) {
 					this.$message.error(msg.content)
 					this.close();
-				}
-				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+				} else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
 					this.peerConnection.addIceCandidate(new RTCIceCandidate(JSON.parse(msg.content)));
-				}
-				else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_HANDUP) {
+				} else if (msg.type == this.$enums.MESSAGE_TYPE.RTC_HANDUP) {
 					this.$message.success("对方挂断了视频通话");
 					this.close();
 				}
@@ -177,12 +190,12 @@
 							method: 'post',
 							data: JSON.stringify(offer)
 						}).then(() => {
+							this.callId = this.$store.state.userStore.userInfo.id;
 							this.loading = true;
 							this.state = 'CONNECTING';
 							this.audio.play();
-						});
-					},
-					(error) => {
+						})
+					},(error) => {
 						this.$message.error(error);
 					});
 
@@ -195,8 +208,11 @@
 							url: `/webrtc/private/accept?uid=${this.friend.id}`,
 							method: 'post',
 							data: JSON.stringify(answer)
+						}).then(() => {
+							this.state = 'CONNECTED';
+							this.callerId = this.friend.id;
 						})
-						this.state = 'CONNECTED';
+
 					},
 					(error) => {
 						this.$message.error(error);
@@ -242,17 +258,22 @@
 				this.audio.pause();
 				this.candidates = [];
 				this.$store.commit("setUserState", this.$enums.USER_STATE.FREE);
-				this.$refs.friendVideo.srcObject = null;
-				this.peerConnection.close();
-				this.peerConnection.onicecandidate = null;
-				this.peerConnection.onaddstream = null;
+				if (this.peerConnection) {
+					this.peerConnection.close();
+					this.peerConnection.onicecandidate = null;
+					this.peerConnection.onaddstream = null;
+				}
+				if (this.$refs.friendVideo) {
+					this.$refs.friendVideo.srcObject = null;
+				}
+
 			},
-			resetTime(){
+			resetTime() {
 				this.videoTime = 0;
 				this.videoTimer && clearInterval(this.videoTimer);
-				this.videoTimer = setInterval(()=>{
+				this.videoTimer = setInterval(() => {
 					this.videoTime++;
-				},1000)
+				}, 1000)
 			},
 			handleClose() {
 				if (this.state == 'CONNECTED') {
@@ -264,22 +285,26 @@
 				}
 			},
 			hasUserMedia() {
-				navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia ||
+				navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator
+					.mozGetUserMedia ||
 					navigator.msGetUserMedia;
 				return !!navigator.getUserMedia;
 			},
 			hasRTCPeerConnection() {
-				window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-				window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription;
-				window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate;
+				window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window
+					.mozRTCPeerConnection;
+				window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window
+					.mozRTCSessionDescription;
+				window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window
+					.mozRTCIceCandidate;
 				return !!window.RTCPeerConnection;
 			},
-			initAudio(){
+			initAudio() {
 				let url = require(`@/assets/audio/call.wav`);
 				this.audio.src = url;
 				this.audio.loop = true;
 			},
-			initICEServers(){
+			initICEServers() {
 				this.$http({
 					url: '/webrtc/private/iceservers',
 					method: 'get'
@@ -287,7 +312,7 @@
 					this.configuration.iceServers = servers;
 				})
 			}
-			
+
 		},
 		watch: {
 			visible: {
@@ -302,25 +327,25 @@
 		},
 		computed: {
 			title() {
-				let strTitle  = `视频聊天-${this.friend.nickName}`;
-				if(this.state == 'CONNECTED'){
+				let strTitle = `视频聊天-${this.friend.nickName}`;
+				if (this.state == 'CONNECTED') {
 					strTitle += `(${this.currentTime})`;
-				}else if(this.state == 'CONNECTING'){
+				} else if (this.state == 'CONNECTING') {
 					strTitle += `(呼叫中)`;
 				}
 				return strTitle;
 			},
-			currentTime(){
+			currentTime() {
 				let currentTime = 0;
-				if(this.state == 'CONNECTED' && this.videoTime){
-					 currentTime = Math.floor(this.videoTime);
+				if (this.state == 'CONNECTED' && this.videoTime) {
+					currentTime = Math.floor(this.videoTime);
 				}
-				let min = Math.floor(currentTime/60);
-				let sec = currentTime%60;
-				let strTime = min<10?"0":"";
+				let min = Math.floor(currentTime / 60);
+				let sec = currentTime % 60;
+				let strTime = min < 10 ? "0" : "";
 				strTime += min;
 				strTime += ":"
-				strTime += sec<10?"0":"";
+				strTime += sec < 10 ? "0" : "";
 				strTime += sec;
 				return strTime;
 			}
@@ -335,14 +360,15 @@
 <style lang="scss" scoped>
 	.chat-video {
 		position: relative;
-		
+
 		.chat-video-box {
 			position: relative;
 			border: #4880b9 solid 1px;
 			background-color: #eeeeee;
-			
+
 			.chat-video-friend {
 				height: 70vh;
+
 				.friend-head-image {
 					position: absolute;
 				}
@@ -360,8 +386,9 @@
 				width: 25vh;
 				right: 0;
 				bottom: 0;
-				box-shadow: 0px 0px  5px #ccc;	
+				box-shadow: 0px 0px 5px #ccc;
 				background-color: #cccccc;
+
 				video {
 					width: 100%;
 				}

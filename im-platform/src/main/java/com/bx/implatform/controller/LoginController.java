@@ -1,6 +1,7 @@
 package com.bx.implatform.controller;
 
 
+import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IUserService;
@@ -45,4 +46,12 @@ public class LoginController {
         userService.register(dto);
         return ResultUtils.success();
     }
+
+    @PutMapping("/modifyPwd")
+    @ApiOperation(value = "修改密码",notes="修改用户密码")
+    public Result update(@Valid @RequestBody ModifyPwdDTO dto){
+        userService.modifyPassword(dto);
+        return ResultUtils.success();
+    }
+
 }

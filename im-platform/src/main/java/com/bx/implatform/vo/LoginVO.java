@@ -19,4 +19,5 @@ public class LoginVO {
 
     @ApiModelProperty(value = "refreshToken过期时间(秒)")
     private Integer refreshTokenExpiresIn;
+
 }

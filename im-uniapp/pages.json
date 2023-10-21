@@ -1,0 +1,88 @@
+{
+	"pages": [{
+		"path": "pages/login/login",
+		"style": {
+			"navigationBarTitleText": "盒子IM"
+		}
+	}, {
+		"path": "pages/chat/chat",
+		"style": {
+			"navigationBarTitleText": "聊天消息"
+		}
+	}, {
+		"path": "pages/friend/friend",
+		"style": {
+			"navigationBarTitleText": "好友列表",
+			"enablePullDownRefresh": false
+		}
+	}, {
+		"path": "pages/group/group",
+		"style": {
+			"enablePullDownRefresh": false
+		}
+
+	}, {
+		"path": "pages/mine/mine",
+		"style": {
+			"navigationBarTitleText": "",
+			"enablePullDownRefresh": false
+		}
+	}, {
+		"path": "pages/friend/friend-search"
+	}, {
+		"path": "pages/common/user-info"
+	}, {
+		"path": "pages/chat/chat-box"
+	}, {
+		"path": "pages/friend/friend-add"
+	}, {
+		"path": "pages/group/group-info"
+	}, {
+		"path": "pages/group/group-edit"
+	}, {
+		"path": "pages/group/group-invite"
+	}, {
+		"path": "pages/group/group-member"
+	}, {
+		"path": "pages/mine/mine-edit"
+	},{
+		"path": "pages/mine/mine-password"
+	}],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#F0F0F0",
+		"backgroundColor": "#fdfdfd"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#09C160",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+				"pagePath": "pages/chat/chat",
+				"iconPath": "static/tarbar/chat.png",
+				"selectedIconPath": "static/tarbar/chat_active.png",
+				"text": "消息"
+			},
+			{
+				"pagePath": "pages/friend/friend",
+				"iconPath": "static/tarbar/friend.png",
+				"selectedIconPath": "static/tarbar/friend_active.png",
+				"text": "好友"
+			},
+			{
+				"pagePath": "pages/group/group",
+				"iconPath": "static/tarbar/group.png",
+				"selectedIconPath": "static/tarbar/group_active.png",
+				"text": "资讯"
+			},
+			{
+				"pagePath": "pages/mine/mine",
+				"iconPath": "static/tarbar/mine.png",
+				"selectedIconPath": "static/tarbar/mine_active.png",
+				"text": "我的"
+			}
+		]
+	},
+	"uniIdRouter": {}
+}

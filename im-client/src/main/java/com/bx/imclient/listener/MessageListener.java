@@ -1,10 +1,10 @@
 package com.bx.imclient.listener;
 
 
-import com.bx.imcommon.model.SendResult;
+import com.bx.imcommon.model.IMSendResult;
 
-public interface MessageListener {
+public interface MessageListener<T> {
 
-     void process(SendResult result);
+     void process(IMSendResult<T> result);
 
 }

@@ -7,11 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Slf4j
-public  abstract class AbstractPullMessageTask{
+public abstract class AbstractPullMessageTask {
 
     private int threadNum = 1;
     private ExecutorService executorService;
@@ -19,34 +18,33 @@ public  abstract class AbstractPullMessageTask{
     @Autowired
     private IMServerGroup serverGroup;
 
-    public  AbstractPullMessageTask(){
+    public AbstractPullMessageTask() {
         this.threadNum = 1;
     }
 
-    public  AbstractPullMessageTask(int threadNum){
+    public AbstractPullMessageTask(int threadNum) {
         this.threadNum = threadNum;
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         // 初始化定时器
         executorService = Executors.newFixedThreadPool(threadNum);
 
-        for(int i=0;i<threadNum;i++){
+        for (int i = 0; i < threadNum; i++) {
             executorService.execute(new Runnable() {
                 @SneakyThrows
                 @Override
                 public void run() {
-                    try{
-                        if(serverGroup.isReady()){
+                    try {
+                        if (serverGroup.isReady()) {
                             pullMessage();
                         }
-                        Thread.sleep(100);
-                    }catch (Exception e){
-                        log.error("任务调度异常",e);
+                    } catch (Exception e) {
+                        log.error("任务调度异常", e);
                         Thread.sleep(200);
                     }
-                    if(!executorService.isShutdown()){
+                    if (!executorService.isShutdown()) {
                         executorService.execute(this);
                     }
                 }
@@ -55,8 +53,8 @@ public  abstract class AbstractPullMessageTask{
     }
 
     @PreDestroy
-    public void destroy(){
-        log.info("{}线程任务关闭",this.getClass().getSimpleName());
+    public void destroy() {
+        log.info("{}线程任务关闭", this.getClass().getSimpleName());
         executorService.shutdown();
     }
 

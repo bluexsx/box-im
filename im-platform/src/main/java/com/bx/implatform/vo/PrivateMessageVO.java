@@ -1,31 +1,42 @@
 package com.bx.implatform.vo;
 
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.bx.imcommon.serializer.DateToLongSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Data
-@ApiModel("私聊消息VO")
 public class PrivateMessageVO {
 
+    /*
+     * 消息id
+     */
+    private long id;
 
-    @NotNull(message="接收用户id不可为空")
-    @ApiModelProperty(value = "接收用户id")
+    /*
+     * 发送者id
+     */
+    private Long sendId;
+
+    /*
+     * 接收者id
+     */
     private Long recvId;
 
-
-    @Length(max=1024,message = "内容长度不得大于1024")
-    @NotEmpty(message="发送内容不可为空")
-    @ApiModelProperty(value = "发送内容")
+    /*
+     * 发送内容
+     */
     private String content;
 
-    @NotNull(message="消息类型不可为空")
-    @ApiModelProperty(value = "消息类型")
+    /*
+     * 消息内容类型 IMCmdType
+     */
     private Integer type;
 
+    /**
+     * 发送时间
+     */
+    @JsonSerialize(using = DateToLongSerializer.class)
+    private Date sendTime;
 }

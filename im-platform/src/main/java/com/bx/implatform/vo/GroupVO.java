@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("群信息VO")
 public class GroupVO {
 
-    @NotNull(message = "群id不可为空")
+
     @ApiModelProperty(value = "群id")
     private Long id;
 
@@ -21,7 +21,6 @@ public class GroupVO {
     @ApiModelProperty(value = "群名称")
     private String name;
 
-    @NotNull(message = "群主id不可为空")
     @ApiModelProperty(value = "群主id")
     private Long ownerId;
 

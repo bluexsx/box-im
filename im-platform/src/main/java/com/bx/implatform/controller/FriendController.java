@@ -27,7 +27,7 @@ public class FriendController {
     @GetMapping("/list")
     @ApiOperation(value = "好友列表",notes="获取好友列表")
     public Result< List<FriendVO>> findFriends(){
-        List<Friend> friends = friendService.findFriendByUserId(SessionContext.getSession().getId());
+        List<Friend> friends = friendService.findFriendByUserId(SessionContext.getSession().getUserId());
         List<FriendVO> vos = friends.stream().map(f->{
             FriendVO vo = new FriendVO();
             vo.setId(f.getFriendId());

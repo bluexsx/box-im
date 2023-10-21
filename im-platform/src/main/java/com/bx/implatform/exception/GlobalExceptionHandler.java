@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
     public Result handleValidationExceptionHandler(MethodArgumentNotValidException exception) {
         BindingResult bindResult = exception.getBindingResult();
         String msg;
-        if (bindResult != null && bindResult.hasErrors()) {
+        if (bindResult.hasErrors()) {
             msg = bindResult.getAllErrors().get(0).getDefaultMessage();
             if (msg.contains("NumberFormatException")) {
                 msg = "参数类型错误！";
