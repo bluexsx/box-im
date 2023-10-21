@@ -28,7 +28,7 @@ public class IMClient {
      *
      * @param message 私有消息
      */
-    public void sendPrivateMessage(IMPrivateMessage<?> message){
+    public<T> void sendPrivateMessage(IMPrivateMessage<T> message){
         imSender.sendPrivateMessage(message);
     }
 
@@ -37,7 +37,7 @@ public class IMClient {
      *
      * @param message 群聊消息
      */
-    public void sendGroupMessage(IMGroupMessage<?> message){
+    public<T> void sendGroupMessage(IMGroupMessage<T> message){
         imSender.sendGroupMessage(message);
     }
 
