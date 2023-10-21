@@ -222,7 +222,7 @@ wsApi.onmessage((cmd,msgInfo) => {
 微信小程序:
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F.jpg)
 
-#### QQ交流群
+#### QQ交流群(务必star)
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E4%BA%A4%E6%B5%81%E7%BE%A4.png)
 
