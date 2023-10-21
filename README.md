@@ -233,7 +233,7 @@ wsApi.onmessage((cmd,msgInfo) => {
 如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
 
 #### 你懂的
-![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.png)
 
 悄悄放个码在这，宝子们..你懂我意思吧
 
