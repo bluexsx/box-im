@@ -216,10 +216,8 @@ wsApi.onmessage((cmd,msgInfo) => {
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E7%BE%A4%E8%81%8A%E5%88%97%E8%A1%A8.jpg)
 
 小程序:
-![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E7%A7%81%E8%81%8A.jpg)
-![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E7%BE%A4%E8%81%8A.jpg)
-![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E5%A5%BD%E5%8F%8B%E5%88%97%E8%A1%A8.jpg)
-![输入图片说明](%E6%88%AA%E5%9B%BE/mp-%E7%BE%A4%E8%81%8A%E4%BF%A1%E6%81%AF.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/mp-1.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/mp-2.jpg)
 
 #### QQ交流群
 
