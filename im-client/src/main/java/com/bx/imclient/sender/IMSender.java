@@ -28,7 +28,7 @@ public class IMSender {
     @Autowired
     private MessageListenerMulticaster listenerMulticaster;
 
-    public void sendPrivateMessage(IMPrivateMessage<?> message) {
+    public<T> void sendPrivateMessage(IMPrivateMessage<T> message) {
         for (Integer terminal : message.getRecvTerminals()) {
             // 获取对方连接的channelId
             String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, message.getRecvId().toString(), terminal.toString());
@@ -79,7 +79,7 @@ public class IMSender {
 
     }
 
-    public void sendGroupMessage(IMGroupMessage<?> message) {
+    public<T> void sendGroupMessage(IMGroupMessage<T> message) {
         // 根据群聊每个成员所连的IM-server，进行分组
         List<IMUserInfo> offLineUsers = Collections.synchronizedList(new LinkedList<>());
         // 格式:map<服务器id,list<接收方>>

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
+import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.vo.PrivateMessageVO;
@@ -60,12 +61,25 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         this.save(msg);
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
+
+
+
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
-        sendMessage.setRecvId(msgInfo.getRecvId());
+        // 发送方的id和终端类型
+        sendMessage.setSender(new IMUserInfo(1L, IMTerminalType.APP.code()));
+        // 对方的id
+        sendMessage.setRecvId(2L);
+        // 推送给对方所有终端
+        sendMessage.setRecvTerminals(IMTerminalType.codes());
+        // 同时推送给自己的其他类型终端
         sendMessage.setSendToSelf(true);
+        // 需要回推发送结果，将在IMListener接收发送结果
+        sendMessage.setSendResult(true);
+        // 推送的消息体
         sendMessage.setData(msgInfo);
+        // 推送消息
         imClient.sendPrivateMessage(sendMessage);
+
         log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}", session.getUserId(), dto.getRecvId(), dto.getContent());
         return msg.getId();
     }
