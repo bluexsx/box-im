@@ -19,7 +19,7 @@ const request = (options) => {
 				if (res.data.code == 200) {
 					return resolve(res.data.data)
 				} else if (res.data.code == 400) {
-					navToLogin();
+					getApp().exit();
 				} else if (res.data.code == 401) {
 					console.log("token失效，尝试重新获取")
 					if (isRefreshToken) {
@@ -36,7 +36,7 @@ const request = (options) => {
 						requestList = [];
 						isRefreshToken = false;
 						console.log("刷新token失败")
-						navToLogin();
+						getApp().exit();
 						return;
 					}
 					uni.setStorageSync("loginInfo", res.data.data);
@@ -88,13 +88,4 @@ const reqRefreshToken = (loginInfo) => {
 	});
 }
 
-
-const navToLogin = () => {
-	uni.showToast({
-		icon: "none",
-		title: "登录过期，请需要重新登录",
-		duration: 1500
-	})
-	getApp().exit();
-}
 export default request;

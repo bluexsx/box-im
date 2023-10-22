@@ -2,29 +2,27 @@ var websock = null;
 let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
 let isConnect = false; //连接标识 避免重复连接
 let wsurl = "";
-let userId = null;
 let accessToken = "";
 let messageCallBack = null;
 let openCallBack = null;
-let hasLogin = false;
+let closeCallBack = null
 
-let createWebSocket = (url, id,token) => {
+
+let init = (url,token) => {
 	wsurl = url;
-	userId = id;
 	accessToken = token;
-	initWebSocket();
 };
 
-let initWebSocket = () => {
+let connect = () => {
 	try {
-		console.log("初始化WebSocket");
-		closeWebSocket();
-		hasLogin = false;
+		if (isConnect) {
+			return;
+		}
+		console.log("连接WebSocket");
 		websock = new WebSocket(wsurl); 
 		websock.onmessage = function(e) {
 			let sendInfo = JSON.parse(e.data)
-			if (sendInfo.cmd == 0) {
-				hasLogin = true;
+			if (sendInfo.cmd == 0) {	
 				heartCheck.start()
 				console.log('WebSocket登录成功')
 				// 登录成功才算连接完成
@@ -32,15 +30,17 @@ let initWebSocket = () => {
 			} else if (sendInfo.cmd == 1) {
 				// 重新开启心跳定时
 				heartCheck.reset();
+				console.log("")
 			} else {
 				// 其他消息转发出去
+				console.log("收到消息:",sendInfo);  
 				messageCallBack && messageCallBack(sendInfo.cmd, sendInfo.data)
 			}
 		}
 		websock.onclose = function(e) {
 			console.log('WebSocket连接关闭')
 			isConnect = false; //断开后修改标识
-			reConnect();
+			closeCallBack && closeCallBack(e);
 		}
 		websock.onopen = function() {
 			console.log("WebSocket连接成功");
@@ -53,7 +53,6 @@ let initWebSocket = () => {
 				}
 			};
 			websock.send(JSON.stringify(loginInfo));
-
 		}
 
 		// 连接发生错误的回调方法
@@ -71,14 +70,17 @@ let initWebSocket = () => {
 //定义重连函数
 let reConnect = () => {
 	console.log("尝试重新连接");
-	if (isConnect) return; //如果已经连上就不在重连了
+	if (isConnect){
+		//如果已经连上就不在重连了
+		return; 
+	}
 	rec && clearTimeout(rec);
 	rec = setTimeout(function() { // 延迟5秒重连  避免过多次过频繁请求重连
-		initWebSocket(wsurl);
+		connect();
 	}, 5000);
 };
 //设置关闭连接
-let closeWebSocket = () => {
+let close = () => {
 	websock && websock.close();
 };
 
@@ -129,24 +131,25 @@ function sendMessage(agentData) {
 }
 
 
-function onmessage(callback) {
+function onMessage(callback) {
 	messageCallBack = callback;
 }
 
 
-function onopen(callback) {
+function onOpen(callback) {
 	openCallBack = callback;
-	if (hasLogin) {
-		openCallBack();
-	}
 }
 
-
+function onClose(callback) {
+	closeCallBack = callback;
+}
 // 将方法暴露出去
 export {
-	createWebSocket,
-	closeWebSocket,
+	init,
+	connect,
+	close,
 	sendMessage,
-	onmessage,
-	onopen
+	onOpen,
+	onMessage,
+	onClose
 }

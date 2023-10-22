@@ -83,7 +83,8 @@
 					})
 				} else {
 					uni.removeTabBarBadge({
-						index: 0
+						index: 0,
+						complete:()=>{}
 					})
 
 				}
@@ -98,7 +99,12 @@
 				return count;
 			}
 		},
-		onLoad() {
+		watch:{
+			unreadCount(newCount,oldCount){
+				this.refreshUnreadBadge();
+			}
+		},
+		onShow() {
 			this.refreshUnreadBadge();
 		}
 	}
