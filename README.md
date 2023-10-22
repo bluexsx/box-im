@@ -179,14 +179,14 @@ public class PrivateMessageListener implements MessageListener {
 import * as wsApi from './api/wssocket';
 
 let wsUrl = 'ws://localhost:8878/im'
-let userId = 1;
 let token = "您的token";
-wsApi.createWebSocket(wsUrl , userId,token);
-wsApi.onopen(() => {
+wsApi.init(wsUrl,token);
+wsApi.connect();
+wsApi.onOpen(() => {
     // 连接打开
     console.log("连接成功");
 });
-wsApi.onmessage((cmd,msgInfo) => {
+wsApi.onMessage((cmd,msgInfo) => {
     if (cmd == 2) {
     	// 异地登录，强制下线
     	console.log("您已在其他地方登陆，将被强制下线");
@@ -198,6 +198,9 @@ wsApi.onmessage((cmd,msgInfo) => {
     	console.log(msgInfo);
     }
 })
+wsApi.onClose((e) => {
+    console.log("连接关闭");
+});
 ```
 
 
