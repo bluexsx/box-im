@@ -70,6 +70,9 @@
     },
     "vueVersion" : "3",
     "h5" : {
-        "title" : "盒子IM"
+        "title" : "盒子IM",
+        "router" : {
+            "base" : "/h5/"
+        }
     }
 }
