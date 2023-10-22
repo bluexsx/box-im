@@ -1,6 +1,5 @@
 package com.bx.implatform.controller;
 
-import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.entity.User;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
@@ -60,17 +59,9 @@ public class UserController {
         return ResultUtils.success();
     }
 
-
-
-    @GetMapping("/findByNickName")
-    @ApiOperation(value = "查找用户",notes="根据昵称查找用户")
-    public Result<List<UserVO>> findByNickName(@NotEmpty(message = "用户昵称不可为空") @RequestParam("nickName") String nickName){
-           return ResultUtils.success( userService.findUserByNickName(nickName));
-    }
-
     @GetMapping("/findByName")
     @ApiOperation(value = "查找用户",notes="根据用户名或昵称查找用户")
-    public Result<List<UserVO>> findByName(@NotEmpty(message = "用户名称不可为空") @RequestParam("name") String name){
+    public Result<List<UserVO>> findByName(@RequestParam("name") String name){
         return ResultUtils.success( userService.findUserByName(name));
     }
 }

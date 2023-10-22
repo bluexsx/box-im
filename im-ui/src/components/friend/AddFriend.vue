@@ -1,6 +1,6 @@
 <template>
 	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-		<el-input  placeholder="输入好友昵称,最多展示10条" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">
+		<el-input  placeholder="输入用户名或昵称,最多展示20条" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">
 			<el-button slot="append" icon="el-icon-search" @click="handleSearch()"></el-button>
 		</el-input>
 		<el-scrollbar style="height:400px">
@@ -10,11 +10,16 @@
 						<head-image :url="user.headImage"></head-image>
 					</div>
 					<div class="add-friend-text">
-						<div>{{user.nickName}}</div>
-						<div :class="user.online ? 'online-status  online':'online-status'">{{ user.online?"[在线]":"[离线]"}}</div>
+						<div class="text-user-name">
+							<div>{{user.userName}}</div>
+							<div :class="user.online ? 'online-status  online':'online-status'">{{ user.online?"[在线]":"[离线]"}}</div>
+						</div>
+						<div class="text-nick-name">
+							<div>昵称:{{user.nickName}}</div>
+						</div>
 					</div>
-					 <el-button type="success" v-show="!isFriend(user.id)" plain @click="handleAddFriend(user)">添加</el-button>
-					 <el-button type="info" v-show="isFriend(user.id)" plain disabled>已添加</el-button>
+					 <el-button type="success" size="small" v-show="!isFriend(user.id)" plain @click="handleAddFriend(user)">添加</el-button>
+					 <el-button type="info" size="small" v-show="isFriend(user.id)" plain disabled>已添加</el-button>
 				</div>
 			</div>
 		</el-scrollbar>
@@ -45,10 +50,10 @@
 			},
 			handleSearch() {
 				this.$http({
-					url: "/user/findByNickName",
+					url: "/user/findByName",
 					method: "get",
 					params: {
-						nickName: this.searchText
+						name: this.searchText
 					}
 				}).then((data) => {
 					this.users = data;
@@ -77,18 +82,16 @@
 				let friend = friends.find((f)=> f.id==userId);			
 				return friend != undefined;
 			}
-		},
-	
-		mounted() {
-			this.handleSearch();
 		}
 	}
 </script>
 
-<style scoped lang="scss">
-
+<style  lang="scss">
+	.el-dialog {
+		min-width: 400px;
+	}
 	.item {
-		height: 80px;
+		height: 65px;
 		display: flex;
 		position: relative;
 		padding-left: 15px;
@@ -97,21 +100,35 @@
 		
 		.add-friend-text {
 			margin-left: 15px;
-			line-height: 80px;
 			flex: 3;
 			display: flex;
-			flex-direction: row;
-			height: 100%;
+			flex-direction: column;
 			flex-shrink: 0;
 			overflow: hidden;
 		
-			.online-status{
-				font-size: 12px;
+			.text-user-name{
+				display: flex;
+				flex-direction: row;
 				font-weight: 600;
-				&.online{
-					color: #5fb878;
+				font-size: 16px;
+				line-height: 25px;
+		
+				.online-status{
+					font-size: 12px;
+					font-weight: 600;
+					&.online{
+						color: #5fb878;
+					}
 				}
 			}
+			
+			.text-nick-name{
+				display: flex;
+				flex-direction: row;
+				font-size: 12px;
+				line-height: 20px;
+			}
+			
 		}
 	}
 </style>
