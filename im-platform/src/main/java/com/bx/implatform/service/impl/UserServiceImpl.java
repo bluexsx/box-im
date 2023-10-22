@@ -6,8 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
+import com.bx.imcommon.util.JwtUtil;
 import com.bx.implatform.config.JwtProperties;
+import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
+import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.User;
@@ -20,9 +23,6 @@ import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.imcommon.util.JwtUtil;
-import com.bx.implatform.dto.LoginDTO;
-import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
 import com.bx.implatform.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 用户登录
      *
      * @param dto 登录dto
-     * @return
+     * @return 登录token
      */
 
     @Override
@@ -96,7 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 用refreshToken换取新 token
      *
      * @param refreshToken
-     * @return
+     * @return 登录token
      */
     @Override
     public LoginVO refreshToken(String refreshToken) {
@@ -209,24 +209,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     /**
      * 根据用户昵称查询用户，最多返回20条数据
      *
-     * @param nickname 用户昵称
-     * @return
-     */
-    @Override
-    public List<UserVO> findUserByNickName(String nickname) {
-        LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.like(User::getNickName,nickname).last("limit 20");
-        List<User> users = this.list(queryWrapper);
-        return users.stream().map(u-> {
-            UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
-            vo.setOnline(imClient.isOnline(u.getId()));
-            return vo;
-        }).collect(Collectors.toList());
-    }
-
-    /**
-     * 根据用户昵称查询用户，最多返回20条数据
-     *
      * @param name 用户名或昵称
      * @return
      */
@@ -238,9 +220,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             .like(User::getNickName,name)
             .last("limit 20");
         List<User> users = this.list(queryWrapper);
+        List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        List<Long> onlineUserIds = imClient.isOnline(userIds);
         return users.stream().map(u-> {
             UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
-            vo.setOnline(imClient.isOnline(u.getId()));
+            vo.setOnline(onlineUserIds.contains(u.getId()));
             return vo;
         }).collect(Collectors.toList());
     }
@@ -249,19 +233,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 判断用户是否在线，返回在线的用户id列表
      *
      * @param userIds 用户id，多个用‘,’分割
-     * @return
+     * @return 在线用户id列表
      */
     @Override
     public List<Long> checkOnline(String userIds) {
-        String[] idArr = userIds.split(",");
-        List<Long> onlineIds = new LinkedList<>();
-        for(String userId:idArr){
-           if(imClient.isOnline(Long.parseLong(userId))){
-                onlineIds.add(Long.parseLong(userId));
-            }
-        }
-        return onlineIds;
+        List<Long> userIdList = Arrays.stream(userIds.split(","))
+            .map(Long::parseLong).collect(Collectors.toList());
+        return imClient.isOnline(userIdList);
     }
-
 
 }
