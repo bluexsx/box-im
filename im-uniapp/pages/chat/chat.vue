@@ -98,6 +98,11 @@
 				return count;
 			}
 		},
+		watch:{
+			unreadCount(newCount,oldCount){
+				this.refreshUnreadBadge();
+			}
+		},
 		onLoad() {
 			this.refreshUnreadBadge();
 		}

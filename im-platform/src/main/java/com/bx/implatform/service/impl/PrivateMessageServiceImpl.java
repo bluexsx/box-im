@@ -62,25 +62,12 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         this.save(msg);
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
-
-
-
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        // 发送方的id和终端类型
-        sendMessage.setSender(new IMUserInfo(1L, IMTerminalType.APP.code()));
-        // 对方的id
-        sendMessage.setRecvId(2L);
-        // 推送给对方所有终端
-        sendMessage.setRecvTerminals(IMTerminalType.codes());
-        // 同时推送给自己的其他类型终端
+        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setRecvId(msgInfo.getRecvId());
         sendMessage.setSendToSelf(true);
-        // 需要回推发送结果，将在IMListener接收发送结果
-        sendMessage.setSendResult(true);
-        // 推送的消息体
         sendMessage.setData(msgInfo);
-        // 推送消息
         imClient.sendPrivateMessage(sendMessage);
-
         log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}", session.getUserId(), dto.getRecvId(), dto.getContent());
         return msg.getId();
     }

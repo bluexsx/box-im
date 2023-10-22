@@ -1,38 +1,20 @@
 let wsurl = "";
 let accessToken = "";
-let messageCallBack = null;
 let openCallBack = null;
+let messageCallBack = null;
+let closeCallBack = null;
 let isConnect = false; //连接标识 避免重复连接
-let hasLogin = false;
 let hasInit = false;
-let createWebSocket = (url, token) => {
+
+let init = (url, token) => {
 	wsurl = url;
 	accessToken = token;
-	closeWebSocket().then(() => {
-		initWebSocket();
-	});
-
-};
-
-let initWebSocket = () => {
-	console.log("初始化WebSocket");
-	uni.connectSocket({
-		url: wsurl,
-		success: (res) => {
-			console.log("websocket连接成功");
-		},
-		fail: (err) => {
-			console.log(e);
-			console.log("websocket连接失败");
-			reConnect(); //如果无法连接上webSocket 那么重新连接！可能会因为服务器重新部署，或者短暂断网等导致无法创建连接
-		}
-	});
-	
-	// 不能绑定多次事件,不然多触发，即便之前已经调了uni.closeSocket
+	// 防止重新注册事件
 	if(hasInit){
 		return;
 	}
 	hasInit = true;
+	
 	uni.onSocketOpen((res) => {
 		console.log("WebSocket连接已打开");
 		isConnect = true;
@@ -47,12 +29,10 @@ let initWebSocket = () => {
 			data: JSON.stringify(loginInfo)
 		});
 	})
-
-
+	
 	uni.onSocketMessage((res) => {
 		let sendInfo = JSON.parse(res.data)
 		if (sendInfo.cmd == 0) {
-			hasLogin = true;
 			heartCheck.start()
 			console.log('WebSocket登录成功')
 			// 登录成功才算连接完成
@@ -66,58 +46,59 @@ let initWebSocket = () => {
 			messageCallBack && messageCallBack(sendInfo.cmd, sendInfo.data)
 		}
 	})
-
+	
 	uni.onSocketClose((res) => {
 		console.log(res)
 		console.log('WebSocket连接关闭')
 		isConnect = false; //断开后修改标识
-		//reConnect();
+		closeCallBack && closeCallBack(res);
 	})
-
-	uni.onSocketError((err) => {
-		console.log(err)
+	
+	uni.onSocketError((e) => {
+		console.log(e)
 		isConnect = false; //连接断开修改标识
 		uni.showModal({
 			content: '连接失败，可能是websocket服务不可用，请稍后再试',
 			showCancel: false,
 		})
 	})
-	
 };
 
-//定义重连函数
-let reConnect = () => {
-	console.log("尝试重新连接");
-	if (isConnect) return; //如果已经连上就不在重连了
-	rec && clearTimeout(rec);
-	rec = setTimeout(function() { // 延迟5秒重连  避免过多次过频繁请求重连
-		initWebSocket();
-	}, 5000);
-};
+let connect = ()=>{
+	if (isConnect) {
+		return;
+	}
+	uni.connectSocket({
+		url: wsurl,
+		success: (res) => {
+			console.log("websocket连接成功");
+		},
+		fail: (e) => {
+			console.log(e);
+			console.log("websocket连接失败，10s后重连");
+			setTimeout(()=>{
+				connect();
+			},10000)
+		}
+	});
+}
+
 
 //设置关闭连接
-let closeWebSocket = () => {
-	return new Promise((resolve, reject) => {
-		if (!isConnect) {
-			resolve();
-			return;
+let close = () => {
+	if (!isConnect) {
+		return;
+	}
+	uni.closeSocket({
+		code: 3000,
+		complete: (res) => {
+			console.log("关闭websocket连接");
+			isConnect = false;
+		},
+		fail:(e)=>{
+			console.log("关闭websocket连接失败",e);
 		}
-		uni.closeSocket({
-			code: 3000,
-			complete: (res) => {
-				console.log("关闭websocket连接");
-				hasLogin = false;
-				isConnect = false;
-				resolve();
-			},
-			fail:(e)=>{
-				console.log("关闭websocket连接失败",e);
-			}
-		})
-		
-	})
-
-
+	});
 };
 
 
@@ -157,24 +138,26 @@ function sendMessage(agentData) {
 }
 
 
-function onmessage(callback) {
+function onMessage(callback) {
 	messageCallBack = callback;
 }
 
-
-function onopen(callback) {
+function onOpen(callback) {
 	openCallBack = callback;
-	if (hasLogin) {
-		openCallBack();
-	}
+}
+
+function onClose(callback) {
+	closeCallBack = callback;
 }
 
 
 // 将方法暴露出去
 export {
-	createWebSocket,
-	closeWebSocket,
+	init,
+	connect,
+	close,
 	sendMessage,
-	onmessage,
-	onopen
+	onMessage,
+	onOpen,
+	onClose
 }
