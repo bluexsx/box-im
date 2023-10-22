@@ -24,7 +24,7 @@ web地址：https://www.boxim.online
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/wx%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg)
 
-H5地址: https://www.boxim.online/h5/
+H5地址: https://www.boxim.online/h5/,或扫码：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
@@ -33,9 +33,8 @@ H5地址: https://www.boxim.online/h5/
 
 张三/123456
 李四/123456
-也可以自行注册账号
 
-体验后记得帮忙点个star哟!
+也可以自行注册账号
 
 
 #### 项目结构
