@@ -3,7 +3,8 @@ import http from '../common/request';
 export default {
 
 	state: {
-		friends: []
+		friends: [],
+		timer: null
 	},
 	mutations: {
 		setFriends(state, friends) {
@@ -45,6 +46,30 @@ export default {
 				}
 				return 0;
 			});
+		},
+		refreshOnlineStatus(state) {
+			if (state.friends.length > 0 ) {
+				let userIds = [];
+				state.friends.forEach((f) => {
+					userIds.push(f.id)
+				});
+				http({
+					url: '/user/online?userIds='+ userIds.join(','),
+					method: 'GET'
+				}).then((onlineIds) => {
+					this.commit("setOnlineStatus", onlineIds);
+				})
+			}
+			// 30s后重新拉取
+			clearTimeout(state.timer);
+			state.timer = setTimeout(() => {
+				this.commit("refreshOnlineStatus");
+			}, 30000)
+		},
+		clear(state){
+			clearTimeout(state.timer);
+			state.friends = [];
+			state.timer = null;
 		}
 	},
 	actions: {
@@ -55,31 +80,12 @@ export default {
 					method: 'GET'
 				}).then((friends) => {
 					context.commit("setFriends", friends);
-					context.dispatch("refreshOnlineStatus");
+					context.commit("refreshOnlineStatus");
 					resolve()
 				}).catch((res) => {
 					reject();
 				})
 			});
-		},
-		refreshOnlineStatus(context) {
-			if (context.state.friends.length > 0 ) {
-				let userIds = [];
-				context.state.friends.forEach((f) => {
-					userIds.push(f.id)
-				});
-				http({
-					url: '/user/online?userIds='+ userIds.join(','),
-					method: 'GET'
-				}).then((onlineIds) => {
-					context.commit("setOnlineStatus", onlineIds);
-				})
-			}
-			// 30s后重新拉取
-			clearTimeout(context.timer);
-			context.timer = setTimeout(() => {
-				context.dispatch("refreshOnlineStatus");
-			}, 30000)
-		},
+		}
 	}
 }

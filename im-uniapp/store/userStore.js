@@ -16,6 +16,10 @@ export default {
 		setUserState(state, userState) {
 			state.state = userState;
 		},
+		clear(state){
+			state.userInfo = {};
+			state.state = USER_STATE.FREE;
+		}
 	},
 	actions:{
 		loadUser(context){

@@ -66,7 +66,7 @@
 
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
 				<view class="emotion-item-list">
-					<image class="emotion-item" :src="$emo.textToPath(emoText)" v-for="(emoText, i) in $emo.emoTextList"
+					<image class="emotion-item" :title="emoText" :src="$emo.textToPath(emoText)" v-for="(emoText, i) in $emo.emoTextList"
 						:key="i" @click="selectEmoji(emoText)" mode="aspectFit" lazy-load="true"></image>
 				</view>
 			</scroll-view>
@@ -576,11 +576,11 @@
 					flex-wrap: wrap;
 
 					.emotion-item {
-						width: 60rpx;
-						height: 60rpx;
+						width: 40px;
+						height: 40px;
 						text-align: center;
 						cursor: pointer;
-						padding: 15rpx;
+						padding: 6px;
 					}
 				}
 			}

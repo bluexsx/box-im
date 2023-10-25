@@ -189,6 +189,9 @@ export default {
 				key:"chats-"+userId,
 				data: state.chats 
 			})
+		},
+		clear(state){
+			state.chats = [];
 		}
 	}, 
 	actions:{
@@ -208,8 +211,7 @@ export default {
 					}
 				});
 			})
-			
-			
 		}
+		
 	}
 }

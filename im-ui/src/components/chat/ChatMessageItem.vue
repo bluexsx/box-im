@@ -161,7 +161,7 @@
 	}
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 	.chat-msg-item {
 
 		.chat-msg-tip {
@@ -204,15 +204,15 @@
 
 					.chat-msg-text {
 						position: relative;
-						line-height: 22px;
+						line-height: 35px;
 						margin-top: 10px;
 						padding: 10px;
 						background-color: #eeeeee;
 						border-radius: 3px;
 						color: #333;
 						display: inline-block;
-						font-size: 14px;
-
+						font-size: 17px;
+						overflow-wrap:break-word;
 						&:after {
 							content: "";
 							position: absolute;
@@ -339,8 +339,7 @@
 							color: #fff;
 							display: inline-block;
 							vertical-align: top;
-							font-size: 14px;
-
+						
 							&:after {
 								left: auto;
 								right: -10px;

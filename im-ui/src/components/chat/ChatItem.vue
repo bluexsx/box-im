@@ -52,7 +52,7 @@
 	}
 </script>
 
-<style scode lang="scss">
+<style  lang="scss">
 	.chat-item {
 		height: 65px; 
 		display: flex;
@@ -118,9 +118,14 @@
 			}
 
 			.msg-text {
-				font-size: 14px;
+				font-size: 16px;
 				color: #888888;
 				white-space: nowrap;
+				
+				img{
+					width: 30px !important;
+					height: 30px !important;
+				}
 			}
 		}
 

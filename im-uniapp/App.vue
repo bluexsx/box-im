@@ -54,13 +54,13 @@
 				});
 				wsApi.onClose((res)=>{
 					// 1006是服务器主动断开，3000是APP主动关闭
-					if(res.code == 1006 || res.code == 3000){
+					if(res.code == 1006){
 						uni.showToast({
 							title: '连接已断开，请重新登录',
 							icon: 'none',
 						})
 						this.exit();
-					}else{
+					}else if(res.code != 3000){
 						// 重新连接
 						wsApi.connect();
 					}
@@ -151,6 +151,7 @@
 				uni.navigateTo({
 					url: "/pages/login/login"
 				})
+				store.dispatch("unload");
 			},
 			playAudioTip() {
 				// 音频播放无法成功

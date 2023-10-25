@@ -1,32 +1,14 @@
 {
 	"pages": [{
-		"path": "pages/login/login",
-		"style": {
-			"navigationBarTitleText": "盒子IM"
-		}
+		"path": "pages/login/login"
 	}, {
-		"path": "pages/chat/chat",
-		"style": {
-			"navigationBarTitleText": "聊天消息"
-		}
+		"path": "pages/chat/chat"
 	}, {
-		"path": "pages/friend/friend",
-		"style": {
-			"navigationBarTitleText": "好友列表",
-			"enablePullDownRefresh": false
-		}
+		"path": "pages/friend/friend"
 	}, {
-		"path": "pages/group/group",
-		"style": {
-			"enablePullDownRefresh": false
-		}
-
+		"path": "pages/group/group"
 	}, {
-		"path": "pages/mine/mine",
-		"style": {
-			"navigationBarTitleText": "",
-			"enablePullDownRefresh": false
-		}
+		"path": "pages/mine/mine"
 	}, {
 		"path": "pages/friend/friend-search"
 	}, {
@@ -49,6 +31,7 @@
 		"path": "pages/mine/mine-password"
 	}],
 	"globalStyle": {
+		"navigationBarTitleText": "盒子IM",
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#F0F0F0",
 		"backgroundColor": "#fdfdfd"

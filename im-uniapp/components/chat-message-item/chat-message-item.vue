@@ -5,7 +5,7 @@
 		<view class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
 			<view class="avatar" @click="onShowUserInfo(msgInfo.sendId)">
-				<image class="head-image" :src="headImage"></image>
+				<image class="head-image" :src="headImage" lazy-load="true"></image>
 			</view>
 
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
@@ -243,16 +243,17 @@
 
 					.chat-msg-text {
 						position: relative;
-						line-height: 22px;
+						line-height: 30px;
 						margin-top: 10px;
 						padding: 10px;
 						background-color: #eeeeee;
 						border-radius: 3px;
 						color: #333;
 						display: inline-block;
-						font-size: 14px;
+						font-size: 16px;
 						word-break: break-all;
 						white-space: pre-line;
+						
 
 						&:after {
 							content: "";
@@ -388,7 +389,6 @@
 							color: #fff;
 							display: inline-block;
 							vertical-align: top;
-							font-size: 14px;
 
 							&:after {
 								left: auto;

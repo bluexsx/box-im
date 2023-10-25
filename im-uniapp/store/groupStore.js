@@ -33,6 +33,10 @@ export default {
 					Object.assign(state.groups[idx], group);
 				}
 			})
+		},
+		clear(state){
+			state.groups = [];
+			state.activeGroup = -1;
 		}
 	},
 	actions: {
