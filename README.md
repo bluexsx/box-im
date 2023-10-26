@@ -3,7 +3,7 @@
 ![MIT协议](https://img.shields.io/badge/license-MIT-red)
 [![star](https://gitee.com/bluexsx/box-im/badge/star.svg)](https://gitee.com/bluexsx/box-im) 
 [![star](https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub)](https://github.com/bluexsx/box-im) 
-<a href="#交流群"><img src="https://img.shields.io/badge/QQ交流群-green.svg?style=plasticr"></a>
+<a href="#加入交流群"><img src="https://img.shields.io/badge/QQ交流群-green.svg?style=plasticr"></a>
 
 1. 盒子IM是一个仿微信实现的网页版聊天软件，目前完全开源。
 1. 支持私聊、群聊、离线消息、发送语音、图片、文件、emoji表情等功能
@@ -232,7 +232,7 @@ wsApi.onClose((e) => {
 微信小程序:
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F.jpg)
 
-#### 交流群
+#### 加入交流群
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E4%BA%A4%E6%B5%81%E7%BE%A4.png)
 
