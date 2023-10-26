@@ -11,34 +11,41 @@
 					<chat-time :time="msgInfo.sendTime"></chat-time>
 				</div>
 				<div class="chat-msg-bottom" @contextmenu.prevent="showRightMenu($event)">
-					<span class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT" v-html="$emo.transform(msgInfo.content)"></span>
+					<span class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"
+						v-html="$emo.transform(msgInfo.content)"></span>
 					<div class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
-						<div class="img-load-box" v-loading="loading" element-loading-text="上传中.." element-loading-background="rgba(0, 0, 0, 0.4)">
-							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" @click="showFullImageBox()" />
+						<div class="img-load-box" v-loading="loading" element-loading-text="上传中.."
+							element-loading-background="rgba(0, 0, 0, 0.4)">
+							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
+								@click="showFullImageBox()" />
 						</div>
-						<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
+						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
+							class="send-fail el-icon-warning"></span>
 					</div>
 					<div class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
 						<div class="chat-file-box" v-loading="loading">
 							<div class="chat-file-info">
-								<el-link class="chat-file-name" :underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
+								<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
+									:href="data.url">{{data.name}}</el-link>
 								<div class="chat-file-size">{{fileSize}}</div>
 							</div>
 							<div class="chat-file-icon">
 								<span type="primary" class="el-icon-document"></span>
 							</div>
 						</div>
-						<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
+						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
+							class="send-fail el-icon-warning"></span>
 					</div>
-					<div class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="handlePlayVoice()">
+					<div class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO"
+						@click="handlePlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
 				</div>
 			</div>
-
+			
 		</div>
-		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems" @close="rightMenu.show=false"
-		 @select="handleSelectMenu"></right-menu>
+		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems"
+			@close="rightMenu.show=false" @select="handleSelectMenu"></right-menu>
 	</div>
 </template>
 
@@ -71,7 +78,7 @@
 				type: Object,
 				required: true
 			},
-			menu:{
+			menu: {
 				type: Boolean,
 				default: true
 			}
@@ -184,8 +191,7 @@
 			}
 
 			.chat-msg-content {
-				display: flex;
-				flex-direction: column;
+				text-align: left;
 
 				.chat-msg-top {
 					display: flex;
@@ -200,9 +206,11 @@
 				}
 
 				.chat-msg-bottom {
-					text-align: left;
+					display: inline-block;
+					padding-right: 80px;
 
 					.chat-msg-text {
+						display: block;
 						position: relative;
 						line-height: 35px;
 						margin-top: 10px;
@@ -210,9 +218,12 @@
 						background-color: #eeeeee;
 						border-radius: 3px;
 						color: #333;
-						display: inline-block;
+						display: block;
 						font-size: 17px;
-						overflow-wrap:break-word;
+						text-align: left;
+						white-space: pre-wrap;
+						word-break: break-all;
+
 						&:after {
 							content: "";
 							position: absolute;
@@ -320,6 +331,7 @@
 				}
 
 				.chat-msg-content {
+					text-align: right;
 
 					.chat-msg-top {
 						flex-direction: row-reverse;
@@ -331,15 +343,15 @@
 					}
 
 					.chat-msg-bottom {
-						text-align: right;
+						padding-left: 80px;
+						padding-right: 0;
 
 						.chat-msg-text {
 							margin-left: 10px;
 							background-color: #5fb878;
 							color: #fff;
-							display: inline-block;
 							vertical-align: top;
-						
+
 							&:after {
 								left: auto;
 								right: -10px;

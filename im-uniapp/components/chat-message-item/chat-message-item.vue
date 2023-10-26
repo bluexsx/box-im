@@ -223,8 +223,7 @@
 
 
 			.chat-msg-content {
-				display: flex;
-				flex-direction: column;
+				text-align: left;
 
 				.chat-msg-top {
 					display: flex;
@@ -239,9 +238,9 @@
 				}
 
 				.chat-msg-bottom {
-					text-align: left;
-
-					.chat-msg-text {
+					display: inline-block;
+					padding-right: 120rpx ;
+					.chat-msg-text {		
 						position: relative;
 						line-height: 30px;
 						margin-top: 10px;
@@ -249,11 +248,11 @@
 						background-color: #eeeeee;
 						border-radius: 3px;
 						color: #333;
-						display: inline-block;
 						font-size: 16px;
+						text-align: left;
+						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-						
 
 						&:after {
 							content: "";
@@ -370,7 +369,7 @@
 				}
 
 				.chat-msg-content {
-
+					text-align: right;
 					.chat-msg-top {
 						flex-direction: row-reverse;
 
@@ -381,19 +380,17 @@
 					}
 
 					.chat-msg-bottom {
-						text-align: right;
-
+						padding-left: 120rpx ;
+						padding-right: 0;
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: #5fb878;
+							background-color: #45ab62;
 							color: #fff;
-							display: inline-block;
-							vertical-align: top;
-
+						
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: #5fb878;
+								border-top-color: #45ab62;
 							}
 						}
 
