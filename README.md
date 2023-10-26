@@ -1,4 +1,5 @@
 
+
 #### 项目介绍
 1. 盒子IM是一个仿微信实现的网页版聊天软件，目前完全开源，仅用于学习和交流
 1. 支持私聊、群聊、离线消息、发送语音、图片、文件、emoji表情等功能
@@ -244,3 +245,8 @@ wsApi.onClose((e) => {
 #### 点下star吧
 如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
 
+<a href="https://github.com/bluexsx/box-im" target="_blank">
+        <img alt="License" src="https://img.shields.io/github/stars/bluexsx/box-im.svg?style=social">
+</a> 
+
+[![star](https://gitee.com/bluexsx/box-im/badge/star.svg)](https://gitee.com/bluexsx/box-im) 
