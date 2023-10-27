@@ -1,9 +1,9 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
-		<view class="avatar">
+		<view class="group-avatar">
 			<image class="head-image" :src="group.headImage" lazy-load="true"  mode="aspectFill"></image>
 		</view>
-		<view class="text">
+		<view class="group-name">
 			<view>{{ group.remark}}</view>
 		</view>
 	</view>
@@ -45,7 +45,7 @@
 			background-color: #eeeeee;
 		}
 
-		.avatar {
+		.group-avatar {
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -60,15 +60,12 @@
 			}
 		}
 
-		.text {
-			font-size: 36rpx;
-			margin-left: 30rpx;
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			justify-content: space-around;
-			height: 100%;
-			flex-shrink: 0;
+		.group-name {
+			font-size: 32rpx;
+			padding-left: 20rpx;
+			font-weight: 600;
+			text-align: left;
+			white-space: nowrap;
 			overflow: hidden;
 		}
 	}

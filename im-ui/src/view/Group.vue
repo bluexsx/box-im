@@ -7,13 +7,13 @@
 						<el-button slot="append" icon="el-icon-search"></el-button>
 					</el-input>
 				</div>
-				<el-button plain icon="el-icon-plus" style="border: none; padding: 12px; font-size: 20px;color: black;" title="创建群聊"
-				 @click="handleCreateGroup()"></el-button>
+				<el-button plain icon="el-icon-plus" style="border: none; padding: 12px; font-size: 20px;color: black;"
+					title="创建群聊" @click="handleCreateGroup()"></el-button>
 			</div>
 			<el-scrollbar class="l-group-list">
 				<div v-for="(group,index) in groupStore.groups" :key="index">
-					<group-item v-show="group.remark.startsWith(searchText)" :group="group" :active="index === groupStore.activeIndex"
-					 @click.native="handleActiveItem(group,index)">
+					<group-item v-show="group.remark.startsWith(searchText)" :group="group"
+						:active="index === groupStore.activeIndex" @click.native="handleActiveItem(group,index)">
 					</group-item>
 				</div>
 			</el-scrollbar>
@@ -26,14 +26,16 @@
 				<div v-show="activeGroup.id">
 					<div class="r-group-info">
 						<div>
-							<file-upload class="avatar-uploader" :action="imageAction" :disabled="!isOwner" :showLoading="true"
-							 :maxSize="maxSize" @success="handleUploadSuccess" :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
+							<file-upload class="avatar-uploader" :action="imageAction" :disabled="!isOwner"
+								:showLoading="true" :maxSize="maxSize" @success="handleUploadSuccess"
+								:fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
 								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 							</file-upload>
 							<el-button class="send-btn" @click="handleSendMessage()">发送消息</el-button>
 						</div>
-						<el-form class="r-group-form" label-width="130px" :model="activeGroup" :rules="rules" ref="groupForm">
+						<el-form class="r-group-form" label-width="130px" :model="activeGroup" :rules="rules"
+							ref="groupForm">
 							<el-form-item label="群聊名称" prop="name">
 								<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="20"></el-input>
 							</el-form-item>
@@ -41,13 +43,15 @@
 								<el-input :value="ownerName" disabled></el-input>
 							</el-form-item>
 							<el-form-item label="备注">
-								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见" maxlength="20"></el-input>
+								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见"
+									maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="我在本群的昵称">
 								<el-input v-model="activeGroup.aliasName" placeholder="" maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="群公告">
-								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" maxlength="1024" placeholder="群主未设置"></el-input>
+								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea"
+									maxlength="1024" placeholder="群主未设置"></el-input>
 							</el-form-item>
 							<div class="btn-group">
 								<el-button type="success" @click="handleSaveGroup()">提交</el-button>
@@ -60,16 +64,18 @@
 					<el-scrollbar style="height:400px;">
 						<div class="r-group-member-list">
 							<div v-for="(member) in groupMembers" :key="member.id">
-								<group-member v-show="!member.quit" class="r-group-member" :member="member" :showDel="isOwner&&member.userId!=activeGroup.ownerId"
-								 @del="handleKick"></group-member>
+								<group-member v-show="!member.quit" class="r-group-member" :member="member"
+									:showDel="isOwner&&member.userId!=activeGroup.ownerId"
+									@del="handleKick"></group-member>
 							</div>
 							<div class="r-group-invite">
 								<div class="invite-member-btn" title="邀请好友进群聊" @click="handleInviteMember()">
 									<i class="el-icon-plus"></i>
 								</div>
 								<div class="invite-member-text">邀请</div>
-								<add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id" :members="groupMembers" @reload="loadGroupMembers"
-								 @close="handleCloseAddGroupMember"></add-group-member>
+								<add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id"
+									:members="groupMembers" @reload="loadGroupMembers"
+									@close="handleCloseAddGroupMember"></add-group-member>
 							</div>
 						</div>
 					</el-scrollbar>
@@ -119,12 +125,12 @@
 					inputErrorMessage: '请输入群聊名称'
 				}).then((o) => {
 					let userInfo = this.$store.state.userStore.userInfo;
-					let data= {
+					let data = {
 						name: o.value,
 						remark: o.value,
 						aliasName: userInfo.name,
 						headImage: userInfo.headImage,
-						headImageThumb:  userInfo.headImageThumb,
+						headImageThumb: userInfo.headImageThumb,
 						ownerId: userInfo.id
 					}
 					this.$http({
@@ -182,7 +188,7 @@
 						this.$store.commit("removeGroup", this.activeGroup.id);
 						this.$store.commit("activeGroup", -1);
 						this.$store.commit("removeGroupChat", this.activeGroup.id);
-						this.activeGroup= {};
+						this.activeGroup = {};
 					});
 				})
 
@@ -254,7 +260,7 @@
 			isOwner() {
 				return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
 			},
-			imageAction(){
+			imageAction() {
 				return `${process.env.VUE_APP_BASE_API}/image/upload`;
 			}
 		},
@@ -289,8 +295,8 @@
 					flex: 1;
 				}
 			}
-			
-			.l-group-ist{
+
+			.l-group-ist {
 				flex: 1;
 			}
 		}
@@ -314,7 +320,7 @@
 			}
 
 			.r-group-container {
-				padding: 20px;
+				padding: 50px;
 
 				.r-group-info {
 					display: flex;
@@ -358,7 +364,7 @@
 					}
 
 					.send-btn {
-						margin-top: 10px;
+						margin-top: 20px;
 					}
 				}
 

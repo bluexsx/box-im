@@ -1,11 +1,14 @@
 <template>
 	<view class="friend-item" @click="showFriendInfo()">
-		<view class="avatar">
+		<view class="friend-avatar">
 			<image class="head-image" :src="friend.headImage" lazy-load="true"  mode="aspectFill"></image>
 		</view>
-		<view class="text">
-			<view>{{ friend.nickName}}</view>
-			<view :class="friend.online ? 'online-status  online':'online-status'">{{ friend.online?"[在线]":"[离线]"}}</view>
+		<view class="friend-info">
+			<view class="friend-name">{{ friend.nickName}}</view>
+			<view class="friend-online" 
+			:class="friend.online ? 'online':''">
+			{{ friend.online?"[在线]":"[离线]"}}
+			</view>
 		</view>
 	</view>
 </template>
@@ -46,7 +49,7 @@
 			background-color: #eeeeee;
 		}
 
-		.avatar {
+		.friend-avatar {
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -61,22 +64,24 @@
 			}
 		}
 
-		.text {
-			font-size: 36rpx;
-			margin-left: 30rpx;
+		.friend-info {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			justify-content: space-around;
-			height: 100%;
-			flex-shrink: 0;
-			overflow: hidden;
-
-
-			.online-status {
-				font-size: 28rpx;
+			padding-left: 20rpx;
+			text-align: left;
+		
+			.friend-name {
+				font-size: 30rpx;
 				font-weight: 600;
-
+				line-height: 60rpx;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+		
+			.friend-online {
+				font-size: 28rpx;
+		
 				&.online {
 					color: #5fb878;
 				}

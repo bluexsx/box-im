@@ -8,7 +8,10 @@
 			</div>
 			<el-scrollbar class="l-chat-list" >
 				<div v-for="(chat,index) in chatStore.chats" :key="index">
-					<chat-item :chat="chat" :index="index" @click.native="handleActiveItem(index)" @del="handleDelItem(chat,index)"
+					<chat-item :chat="chat" :index="index" 
+					@click.native="handleActiveItem(index)" 
+					@delete="handleDelItem(index)"
+					@top="handleTop(index)"
 					 :active="index === chatStore.activeIndex"></chat-item>
 				</div>
 			</el-scrollbar>
@@ -41,9 +44,12 @@
 			handleActiveItem(index) {
 				this.$store.commit("activeChat", index);
 			},
-			handleDelItem(chat, index) {
+			handleDelItem(index) {
 				this.$store.commit("removeChat", index);
-			}
+			},
+			handleTop(chatIdx) {
+				this.$store.commit("moveTop", chatIdx);
+			},
 		},
 		computed: {
 			chatStore() {

@@ -11,7 +11,7 @@
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view class="chat-msg-top">
 					<text>{{showName}}</text>
-					<chat-time :time="msgInfo.sendTime"></chat-time>
+					<text>{{$date.toTimeText(msgInfo.sendTime)}}</text>
 				</view>
 
 				<view class="chat-msg-bottom">
@@ -216,7 +216,7 @@
 				.head-image {
 					width: 100%;
 					height: 100%;
-					border-radius: 5%;
+					border-radius: 10%;
 				}
 			}
 
@@ -245,7 +245,7 @@
 						line-height: 30px;
 						margin-top: 10px;
 						padding: 10px;
-						background-color: #eeeeee;
+						background-color: rgb(235,235,245);
 						border-radius: 3px;
 						color: #333;
 						font-size: 16px;
@@ -262,7 +262,7 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: #eeeeee transparent transparent;
+							border-color: rgb(235,235,245) transparent transparent;
 							overflow: hidden;
 							border-width: 10px;
 						}
@@ -384,13 +384,13 @@
 						padding-right: 0;
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: #45ab62;
+							background-color: rgb(88, 127, 240);
 							color: #fff;
 						
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: #45ab62;
+								border-top-color: rgb(88, 127, 240);
 							}
 						}
 

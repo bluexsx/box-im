@@ -57,6 +57,12 @@ export default {
 				state.activeIndex = state.chats.length - 1;
 			}
 		},
+		moveTop(state,idx){
+			let chat = state.chats[idx];
+			// 放置头部
+			state.chats.splice(idx, 1);
+			state.chats.unshift(chat);
+		},
 		removeGroupChat(state, groupId) {
 			for (let idx in state.chats) {
 				if (state.chats[idx].type == 'GROUP' &&

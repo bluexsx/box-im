@@ -8,7 +8,7 @@
 			<div class="chat-msg-content">
 				<div class="chat-msg-top">
 					<span>{{showName}}</span>
-					<chat-time :time="msgInfo.sendTime"></chat-time>
+					<span>{{$date.toTimeText(msgInfo.sendTime)}}</span>
 				</div>
 				<div class="chat-msg-bottom" @contextmenu.prevent="showRightMenu($event)">
 					<span class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"
@@ -50,14 +50,12 @@
 </template>
 
 <script>
-	import ChatTime from "./ChatTime.vue";
 	import HeadImage from "../common/HeadImage.vue";
 	import RightMenu from '../common/RightMenu.vue';
 
 	export default {
 		name: "messageItem",
 		components: {
-			ChatTime,
 			HeadImage,
 			RightMenu
 		},
@@ -214,10 +212,10 @@
 						position: relative;
 						line-height: 35px;
 						margin-top: 10px;
-						padding: 10px;
-						background-color: #eeeeee;
-						border-radius: 3px;
-						color: #333;
+						padding: 14px;
+						background-color: rgb(235,235,245);
+						border-radius: 10px;
+						color: black;
 						display: block;
 						font-size: 17px;
 						text-align: left;
@@ -232,9 +230,9 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: #eeeeee transparent transparent;
+							border-color: rgb(235,235,245) transparent transparent;
 							overflow: hidden;
-							border-width: 10px;
+							border-width: 13px;
 						}
 					}
 
@@ -348,14 +346,14 @@
 
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: #5fb878;
+							background-color: rgb(88, 127, 240);
 							color: #fff;
 							vertical-align: top;
 
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: #5fb878;
+								border-top-color: rgb(88, 127, 240);
 							}
 						}
 

@@ -1,9 +1,9 @@
 <template>
-	<div class="item" :class="active ? 'active' : ''">
-		<div class="avatar">
+	<div class="group-item" :class="active ? 'active' : ''">
+		<div class="group-avatar">
 			<head-image :url="group.headImage"> </head-image>
 		</div>
-		<div class="text">
+		<div class="group-name">
 			<div>{{group.remark}}</div>
 		</div>
 	</div>
@@ -33,12 +33,12 @@
 </script>
 
 <style lang="scss" >
-	.item {
+	.group-item {
 		height: 65px;
 		display: flex;
 		margin-bottom: 1px;
 		position: relative;
-		padding-left: 15px;
+		padding-left: 10px;
 		align-items: center;
 		padding-right: 5px;
 		background-color: #fafafa;
@@ -51,21 +51,20 @@
 			background-color: #dddddd;
 		}
 	
-		.avatar {
-			width: 45px;
-			height: 45px;
+		.group-avatar {
+			width: 50px;
+			height: 50px;
 		}
 	
-		.text {
-			display: flex;
-			flex-direction: column;
-			justify-content: space-around;
-			flex: 1;
-			margin-left: 15px;
+		.group-name {
+			padding-left: 10px;
 			height: 100%;
-			flex-shrink: 0;
-			overflow: hidden;
 			text-align: left;
+			line-height: 65px;
+			white-space: nowrap;
+			overflow: hidden;
+			font-size: 16px;
+			font-weight: 600;
 		}
 	}
 </style>
