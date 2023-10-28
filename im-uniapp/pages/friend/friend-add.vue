@@ -7,14 +7,17 @@
 		<view class="user-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
-					<uni-list-chat :avatar="user.headImage" :title="user.userName" :note="'昵称:'+user.nickName"
-						:clickable="true" @click="onShowUserInfo(user)">
-						<view class="chat-custom-right">
+					<view class="user-item" @click="onSwitchChecked(friend)">
+						<head-image :id="user.id" :name="user.nickName" 
+							:online="user.online" :url="user.headImage"
+							:size="100"></head-image>
+						<view class="user-name">{{ user.nickName}}</view>
+						<view class="user-btns">
 							<button type="primary" v-show="!isFriend(user.id)" size="mini"
 								@click.stop="onAddFriend(user)">加为好友</button>
 							<button type="default" v-show="isFriend(user.id)" size="mini" disabled>已添加</button>
 						</view>
-					</uni-list-chat>
+					</view>
 				</view>
 			</scroll-view>
 		</view>
@@ -87,6 +90,27 @@
 			position: relative;
 			flex: 1;
 			overflow: hidden;
+			.user-item {
+				height: 120rpx;
+				display: flex;
+				margin-bottom: 1rpx;
+				position: relative;
+				padding: 0 30rpx ;
+				align-items: center;
+				background-color: white;
+				white-space: nowrap;
+			
+				.user-name {
+					flex:1;	
+					padding-left: 20rpx;
+					font-size: 30rpx;
+					font-weight: 600;
+					line-height: 60rpx;
+					white-space: nowrap;
+					overflow: hidden;
+				}
+			}
+			
 			.scroll-bar {
 				height: 100%;
 			}

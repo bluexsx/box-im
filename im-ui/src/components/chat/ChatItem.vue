@@ -1,7 +1,7 @@
 <template>
 	<div class="chat-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
 		<div class="chat-left">
-			<head-image :url="chat.headImage" :size="50" :id="chat.type=='PRIVATE'?chat.targetId:0"></head-image>
+			<head-image :url="chat.headImage" :name="chat.showName" :size="50" :id="chat.type=='PRIVATE'?chat.targetId:0"></head-image>
 			<div v-show="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</div>
 		</div>
 		<div class="chat-right">

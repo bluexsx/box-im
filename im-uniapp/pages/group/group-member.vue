@@ -7,13 +7,18 @@
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(member,idx) in groupMembers"
 					v-show="!searchText || member.aliasName.startsWith(searchText)" :key="idx">
-					<uni-list-chat :avatar="member.headImage" :title="member.aliasName" :clickable="true"
-						@click="onShowUserInfo(member.userId)">
-						<view class="chat-custom-right">
+					<view class="member-item" @click="onShowUserInfo(member.userId)">
+						<head-image :name="member.aliasName" 
+							:online="member.online" :url="member.headImage"
+							:size="100"></head-image>
+						
+						<view class="member-name">{{ member.aliasName}}</view>
+						
+						<view class="member-kick">
 							<button type="warn" v-show="isOwner && !isSelf(member.userId)" size="mini"
 								@click.stop="onKickOut(member,idx)">移出群聊</button>
 						</view>
-					</uni-list-chat>
+					</view>
 				</view>
 			</scroll-view>
 		</view>
@@ -41,7 +46,7 @@
 					title: '确认移出?',
 					content: `确定将成员'${member.aliasName}'移出群聊吗？`,
 					success: (res) => {
-						if(res.cancel) 
+						if (res.cancel)
 							return;
 						this.$http({
 							url: `/group/kick/${this.group.id}?userId=${member.userId}`,
@@ -87,7 +92,7 @@
 			this.loadGroupMembers(options.id);
 		},
 		onUnload() {
-			if(this.isModify){
+			if (this.isModify) {
 				// 刷新页面
 				let pages = getCurrentPages();
 				let prevPage = pages[pages.length - 2];
@@ -98,16 +103,38 @@
 </script>
 
 <style scoped lang="scss">
-	.group-invite{
+	.group-member {
 		position: relative;
 		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
-		
-		.member-items{
+
+		.member-items {
 			position: relative;
 			flex: 1;
 			overflow: hidden;
+
+			.member-item {
+				height: 120rpx;
+				display: flex;
+				margin-bottom: 1rpx;
+				position: relative;
+				padding: 0 30rpx ;
+				align-items: center;
+				background-color: white;
+				white-space: nowrap;
+			
+				.member-name {
+					flex:1;	
+					padding-left: 20rpx;
+					font-size: 30rpx;
+					font-weight: 600;
+					line-height: 60rpx;
+					white-space: nowrap;
+					overflow: hidden;
+				}
+			}
+
 			.scroll-bar {
 				height: 100%;
 			}

@@ -1,4 +1,5 @@
-import http from '../common/request';
+import http from '../common/request'
+import {TERMINAL_TYPE} from '../common/enums.js'
 
 export default {
 
@@ -21,8 +22,8 @@ export default {
 			})
 		},
 		removeFriend(state, id) {
-			state.friends.forEach((f,idx) => {
-				if(f.id == id){
+			state.friends.forEach((f, idx) => {
+				if (f.id == id) {
 					state.friends.splice(idx, 1)
 				}
 			});
@@ -30,11 +31,22 @@ export default {
 		addFriend(state, friend) {
 			state.friends.push(friend);
 		},
-		
-		setOnlineStatus(state, onlineIds) {
+
+		setOnlineStatus(state, onlineTerminals) {
 			state.friends.forEach((f) => {
-				let onlineFriend = onlineIds.find((id) => f.id == id);
-				f.online = onlineFriend != undefined;
+				let userTerminal = onlineTerminals.find((o) => f.id == o.userId);
+				if (userTerminal) {
+					console.log(userTerminal)
+					f.online = true;
+					f.onlineTerminals = userTerminal.terminals;
+					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB) >= 0
+					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP) >= 0
+				} else {
+					f.online = false;
+					f.onlineTerminals = [];
+					f.onlineWeb = false;
+					f.onlineApp = false;
+				}
 			});
 
 			state.friends.sort((f1, f2) => {
@@ -48,16 +60,16 @@ export default {
 			});
 		},
 		refreshOnlineStatus(state) {
-			if (state.friends.length > 0 ) {
+			if (state.friends.length > 0) {
 				let userIds = [];
 				state.friends.forEach((f) => {
 					userIds.push(f.id)
 				});
 				http({
-					url: '/user/online?userIds='+ userIds.join(','),
+					url: '/user/terminal/online?userIds=' + userIds.join(','),
 					method: 'GET'
-				}).then((onlineIds) => {
-					this.commit("setOnlineStatus", onlineIds);
+				}).then((onlineTerminals) => {
+					this.commit("setOnlineStatus", onlineTerminals);
 				})
 			}
 			// 30s后重新拉取
@@ -66,7 +78,7 @@ export default {
 				this.commit("refreshOnlineStatus");
 			}, 30000)
 		},
-		clear(state){
+		clear(state) {
 			clearTimeout(state.timer);
 			state.friends = [];
 			state.timer = null;

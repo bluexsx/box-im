@@ -6,6 +6,7 @@ import com.bx.implatform.entity.User;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
+import com.bx.implatform.vo.OnlineTerminalVO;
 import com.bx.implatform.vo.UserVO;
 
 import java.util.List;
@@ -25,8 +26,13 @@ public interface IUserService extends IService<User> {
 
     void update(UserVO vo);
 
+    UserVO findUserById(Long id);
+
     List<UserVO> findUserByName(String name);
 
     List<Long> checkOnline(String userIds);
+
+    List<OnlineTerminalVO> getOnlineTerminals(String userIds);
+
 
 }

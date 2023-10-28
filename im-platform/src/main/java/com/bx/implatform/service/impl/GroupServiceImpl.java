@@ -3,6 +3,7 @@ package com.bx.implatform.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bx.imclient.IMClient;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.Friend;
@@ -51,6 +52,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
     @Autowired
     private IFriendService friendsService;
+
+    @Autowired
+    private IMClient imClient;
 
     /**
      * 创建新群聊
@@ -292,7 +296,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public List<GroupMemberVO> findGroupMembers(Long groupId) {
         List<GroupMember> members = groupMemberService.findByGroupId(groupId);
-        return members.stream().map(m->BeanUtils.copyProperties(m,GroupMemberVO.class)).collect(Collectors.toList());
+        List<Long> userIds =  members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
+        List<Long> onlineUserIds = imClient.getOnlineUser(userIds);
+        return members.stream().map(m->{
+            GroupMemberVO vo = BeanUtils.copyProperties(m,GroupMemberVO.class);
+            vo.setOnline(onlineUserIds.contains(m.getUserId()));
+            return vo;
+        }).sorted((m1,m2)->{
+            return m2.getOnline().compareTo(m1.getOnline());
+        }).collect(Collectors.toList());
     }
 
 }

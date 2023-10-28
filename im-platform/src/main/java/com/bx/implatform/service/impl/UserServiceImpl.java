@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
+import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.util.JwtUtil;
 import com.bx.implatform.config.JwtProperties;
 import com.bx.implatform.dto.LoginDTO;
@@ -24,6 +25,7 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.LoginVO;
+import com.bx.implatform.vo.OnlineTerminalVO;
 import com.bx.implatform.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -95,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     /**
      * 用refreshToken换取新 token
      *
-     * @param refreshToken
+     * @param refreshToken  刷新token
      * @return 登录token
      */
     @Override
@@ -150,7 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 根据用户名查询用户
      *
      * @param username 用户名
-     * @return
+     * @return 用户信息
      */
     @Override
     public User findUserByUserName(String username) {
@@ -205,12 +209,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         log.info("用户信息更新，用户:{}}", user);
     }
 
+    /**
+     * 根据用户昵id查询用户以及在线状态
+     *
+     * @param id 用户id
+     * @return 用户信息
+     */
+    @Override
+    public UserVO findUserById(Long id) {
+        User user = this.getById(id);
+        UserVO vo = BeanUtils.copyProperties(user,UserVO.class);
+        vo.setOnline(imClient.isOnline(id));
+        return vo;
+    }
 
     /**
      * 根据用户昵称查询用户，最多返回20条数据
      *
      * @param name 用户名或昵称
-     * @return
+     * @return 用户列表
      */
     @Override
     public List<UserVO> findUserByName(String name) {
@@ -221,7 +238,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             .last("limit 20");
         List<User> users = this.list(queryWrapper);
         List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
-        List<Long> onlineUserIds = imClient.isOnline(userIds);
+        List<Long> onlineUserIds = imClient.getOnlineUser(userIds);
         return users.stream().map(u-> {
             UserVO vo = BeanUtils.copyProperties(u,UserVO.class);
             vo.setOnline(onlineUserIds.contains(u.getId()));
@@ -239,7 +256,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public List<Long> checkOnline(String userIds) {
         List<Long> userIdList = Arrays.stream(userIds.split(","))
             .map(Long::parseLong).collect(Collectors.toList());
-        return imClient.isOnline(userIdList);
+        return imClient.getOnlineUser(userIdList);
     }
 
+
+    /**
+     * 获取用户在线的终端类型
+     *
+     * @param userIds 用户id，多个用‘,’分割
+     * @return 在线用户终端
+     */
+    @Override
+    public List<OnlineTerminalVO> getOnlineTerminals(String userIds) {
+        List<Long> userIdList = Arrays.stream(userIds.split(","))
+            .map(Long::parseLong).collect(Collectors.toList());
+        // 查询在线的终端
+        Map<Long,List<IMTerminalType>> terminalMap = imClient.getOnlineTerminal(userIdList);
+        // 组装vo
+        List<OnlineTerminalVO> vos = new LinkedList<>();
+        terminalMap.forEach((userId,types)->{
+            List<Integer> terminals = types.stream().map(IMTerminalType::code).collect(Collectors.toList());
+            vos.add(new OnlineTerminalVO(userId,terminals));
+        });
+        return vos;
+    }
 }

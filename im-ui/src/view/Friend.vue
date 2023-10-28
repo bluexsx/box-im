@@ -27,7 +27,9 @@
 			</div>
 			<div v-show="userInfo.id">
 				<div class="user-detail">
-					<head-image class="detail-head-image" :size="200" :url="userInfo.headImage"
+					<head-image class="detail-head-image" :size="200" 
+						:name="userInfo.nickName"
+						:url="userInfo.headImage"
 						@click.native="showFullImage()"></head-image>
 					<div class="info-item">
 						<el-descriptions title="好友信息" class="description" :column="1">

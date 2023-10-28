@@ -1,17 +1,19 @@
 <template>
 	<view class="chat-msg-item">
-		<view class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
-		<view class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
+		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
+		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
 		{{$date.toTimeText(msgInfo.sendTime)}}</view>
 		
-		<view class="chat-msg-normal" v-show="msgInfo.type>=0 && msgInfo.type<10"
+		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			<view class="avatar" @click="onShowUserInfo(msgInfo.sendId)">
-				<image class="head-image" :src="headImage" lazy-load="true"></image>
-			</view>
+			
+			<head-image class="avatar" :id="msgInfo.sendId" :url="headImage"
+			:name="showName" :size="80"></head-image>
+			
+			
 
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
-				<view v-show="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
+				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
 				</view>
 
@@ -20,12 +22,12 @@
 						:nodes="$emo.transform(msgInfo.content)"></rich-text>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<view class="img-load-box">
-							<image class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
+							<image class="send-image" mode="widthFix" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
 								@click.stop="onShowFullImage()">
 							</image>
-							<loading v-show="loading"></loading>
+							<loading v-if="loading"></loading>
 						</view>
-						<text title="发送失败" v-show="loadFail" @click="onSendFail"
+						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 
@@ -37,9 +39,9 @@
 								<view class="chat-file-size">{{fileSize}}</view>
 							</view>
 							<view class="chat-file-icon iconfont icon-file"></view>
-							<loading v-show="loading"></loading>
+							<loading v-if="loading"></loading>
 						</view>
-						<text title="发送失败" v-show="loadFail" @click="onSendFail"
+						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 					<!--
@@ -52,7 +54,7 @@
 			</view>
 
 		</view>
-		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
+		<pop-menu v-if="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
 			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
@@ -132,13 +134,7 @@
 				uni.previewImage({
 					urls: [imageUrl]
 				})
-			},
-			onShowUserInfo(userId){
-				uni.navigateTo({
-					url: "/pages/common/user-info?id=" + userId
-				})
 			}
-			
 		},
 		computed: {
 			loading() {
@@ -201,24 +197,13 @@
 			position: relative;
 			font-size: 0;
 			margin-bottom: 15rpx;
-			padding-left: 100rpx;
+			padding-left: 110rpx;
 			min-height: 80rpx;
 
 			.avatar {
 				position: absolute;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				width: 70rpx;
-				height: 70rpx;
 				top: 0;
 				left: 0;
-
-				.head-image {
-					width: 100%;
-					height: 100%;
-					border-radius: 10%;
-				}
 			}
 
 
@@ -243,7 +228,7 @@
 						line-height: 60rpx;
 						margin-top: 10rpx;
 						padding: 10rpx;
-						background-color: rgb(235,235,245);
+						background-color: #ebebf5;
 						border-radius: 10rpx;
 						color: #333;
 						font-size: 30rpx;
@@ -260,7 +245,7 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: rgb(235,235,245) transparent transparent;
+							border-color: #ebebf5 transparent transparent;
 							overflow: hidden;
 							border-width: 20rpx;
 						}
@@ -279,10 +264,8 @@
 							.send-image {
 								min-width: 200rpx;
 								min-height: 150rpx;
-								max-width: 400rpx;
-								max-height: 300rpx;
-								border: #dddddd solid 1px;
-								box-shadow: 2px 2px 2px #c0c0c0;
+								max-width: 500rpx;
+								border: 8rpx solid #ebebf5;
 								cursor: pointer;
 							}
 						}
@@ -360,7 +343,7 @@
 			&.chat-msg-mine {
 				text-align: right;
 				padding-left: 0;
-				padding-right: 100rpx;
+				padding-right: 110rpx;
 
 				.avatar {
 					left: auto;
@@ -375,13 +358,13 @@
 						padding-right: 0;
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: rgb(88, 127, 240);
+							background-color: #587ff0;
 							color: #fff;
-							box-shadow: 2px 2px 1px #ccc;
+							box-shadow: 1px 1px 1px #ccc;
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: rgb(88, 127, 240);
+								border-top-color: #587ff0;
 							}
 						}
 

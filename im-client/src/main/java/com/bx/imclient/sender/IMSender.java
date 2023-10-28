@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -90,12 +91,12 @@ public class IMSender {
         List<Object> serverIds = redisTemplate.opsForValue().multiGet(sendMap.keySet());
         // 格式:map<服务器id,list<接收方>>
         Map<Integer, List<IMUserInfo>> serverMap = new HashMap<>();
-        List<IMUserInfo> offLineUsers = Collections.synchronizedList(new LinkedList<>());
+        List<IMUserInfo> offLineUsers = new LinkedList<>();
         int idx = 0;
         for (Map.Entry<String,IMUserInfo> entry : sendMap.entrySet()) {
             Integer serverId = (Integer)serverIds.get(idx++);
             if (serverId != null) {
-                List<IMUserInfo> list = serverMap.computeIfAbsent(serverId, o -> Collections.synchronizedList(new LinkedList<>()));
+                List<IMUserInfo> list = serverMap.computeIfAbsent(serverId, o -> new LinkedList<>());
                 list.add(entry.getValue());
             } else {
                 // 加入离线列表
@@ -150,34 +151,40 @@ public class IMSender {
         }
     }
 
+    public Map<Long,List<IMTerminalType>> getOnlineTerminal(List<Long> userIds){
+        if(CollectionUtil.isEmpty(userIds)){
+            return Collections.EMPTY_MAP;
+        }
+        // 把所有用户的key都存起来
+        Map<String,IMUserInfo> userMap = new HashMap<>();
+        for(Long id:userIds){
+            for (Integer terminal : IMTerminalType.codes()) {
+                String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
+                userMap.put(key,new IMUserInfo(id,terminal));
+            }
+        }
+        // 批量拉取
+        List<Object> serverIds = redisTemplate.opsForValue().multiGet(userMap.keySet());
+        int idx = 0;
+        Map<Long,List<IMTerminalType>> onlineMap = new HashMap<>();
+        for (Map.Entry<String,IMUserInfo> entry : userMap.entrySet()) {
+            // serverid有值表示用户在线
+            if(serverIds.get(idx++) != null){
+                IMUserInfo userInfo = entry.getValue();
+                List<IMTerminalType> terminals = onlineMap.computeIfAbsent(userInfo.getId(), o -> new LinkedList<>());
+                terminals.add(IMTerminalType.fromCode(userInfo.getTerminal()));
+            }
+        }
+        // 去重并返回
+        return onlineMap;
+    }
+
     public Boolean isOnline(Long userId) {
         String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), "*");
         return !redisTemplate.keys(key).isEmpty();
     }
 
-    public List<Long> isOnline(List<Long> userIds){
-        if(CollectionUtil.isEmpty(userIds)){
-            return Collections.emptyList();
-        }
-        // 把所有用户的key都存起来
-        Map<String,Long> keyMap = new HashMap<>();
-        for(Long id:userIds){
-            for (Integer terminal : IMTerminalType.codes()) {
-                String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
-                keyMap.put(key,id);
-            }
-        }
-        // 批量拉取
-        List<Object> serverIds = redisTemplate.opsForValue().multiGet(keyMap.keySet());
-        int idx = 0;
-        List<Long> onlineIds = new LinkedList<>();
-        for (Map.Entry<String,Long> entry : keyMap.entrySet()) {
-            // serverid有值表示用户在线
-            if(serverIds.get(idx++) != null){
-                onlineIds.add(entry.getValue());
-            }
-        }
-        // 去重并返回
-        return onlineIds.stream().distinct().collect(Collectors.toList());
+    public List<Long> getOnlineUser(List<Long> userIds){
+        return new LinkedList<>(getOnlineTerminal(userIds).keySet());
     }
 }

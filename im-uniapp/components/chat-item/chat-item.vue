@@ -1,8 +1,8 @@
 <template>
 	<view class="chat-item" @click="showChatBox()">
 		<view class="left">
-			<image class="head-image" :src="chat.headImage" mode="aspectFill" lazy-load="true"></image>
-			<view v-show="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</view>
+			<head-image  :url="chat.headImage" :name="chat.showName" :size="100"></head-image>
+			<view v-if="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</view>
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
@@ -63,13 +63,6 @@
 			align-items: center;
 			width: 100rpx;
 			height: 100rpx;
-
-			.head-image {
-				width: 100%;
-				height: 100%;
-				border-radius: 10%;
-				border: #eeeeee solid 1px;
-			}
 
 			.unread-text {
 				position: absolute;

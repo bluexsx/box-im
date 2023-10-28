@@ -5,7 +5,7 @@
 		
 		<div class="chat-msg-normal" v-show="msgInfo.type>=0 && msgInfo.type<10" :class="{'chat-msg-mine':mine}">
 			<div class="head-image">
-				<head-image :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
+				<head-image  :name="showName" :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
 			<div class="chat-msg-content">
 				<div v-show="mode==1 && msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">

@@ -22,7 +22,13 @@ const USER_STATE = {
 	BUSY: 2
 }
 
+const TERMINAL_TYPE = {
+	WEB: 0,
+	APP: 1
+}
+
 export {
 	MESSAGE_TYPE,
-	USER_STATE
+	USER_STATE,
+	TERMINAL_TYPE
 }

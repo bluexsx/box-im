@@ -7,12 +7,19 @@
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.startsWith(searchText)"
 					:key="friend.id">
-					<uni-list-chat :avatar="friend.headImage" :title="friend.nickName" :clickable="true"
-						@click="onSwitchChecked(friend)">
-						<view class="chat-custom-right">
+					<view class="friend-item" @click="onSwitchChecked(friend)">
+						<head-image :name="friend.nickName" 
+							:online="friend.online" :url="friend.headImage"
+							:size="100"></head-image>
+						
+						<view class="friend-name">{{ friend.nickName}}</view>
+						<view class="friend-checked">
 							<radio :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>
 						</view>
-					</uni-list-chat>
+					</view>
+			
+						
+					
 				</view>
 			</scroll-view>
 		</view>
@@ -83,6 +90,7 @@
 						id: f.id,
 						headImage: f.headImage,
 						nickName: f.nickName,
+						online: f.online
 					}
 					item.disabled = this.isGroupMember(f.id);
 					item.checked = item.disabled;
@@ -127,6 +135,27 @@
 			flex: 1;
 			overflow: hidden;
 
+			.friend-item {
+				height: 120rpx;
+				display: flex;
+				margin-bottom: 1rpx;
+				position: relative;
+				padding: 0 30rpx ;
+				align-items: center;
+				background-color: white;
+				white-space: nowrap;
+			
+				.friend-name {
+					flex:1;	
+					padding-left: 20rpx;
+					font-size: 30rpx;
+					font-weight: 600;
+					line-height: 60rpx;
+					white-space: nowrap;
+					overflow: hidden;
+				}
+			}
+			
 			.scroll-bar {
 				height: 100%;
 			}

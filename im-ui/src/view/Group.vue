@@ -26,12 +26,16 @@
 				<div v-show="activeGroup.id">
 					<div class="r-group-info">
 						<div>
-							<file-upload class="avatar-uploader" :action="imageAction" :disabled="!isOwner"
+							<file-upload  v-show="isOwner" class="avatar-uploader" :action="imageAction"
 								:showLoading="true" :maxSize="maxSize" @success="handleUploadSuccess"
 								:fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
 								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 							</file-upload>
+							<head-image  v-show="!isOwner" class="avatar" :size="200" 
+								:url="activeGroup.headImage"
+								:name="activeGroup.remark">
+							</head-image>
 							<el-button class="send-btn" @click="handleSendMessage()">发送消息</el-button>
 						</div>
 						<el-form class="r-group-form" label-width="130px" :model="activeGroup" :rules="rules"
@@ -91,14 +95,15 @@
 	import FileUpload from '../components/common/FileUpload';
 	import GroupMember from '../components/group/GroupMember.vue';
 	import AddGroupMember from '../components/group/AddGroupMember.vue';
-
+	import HeadImage from '../components/common/HeadImage.vue';
 	export default {
 		name: "group",
 		components: {
 			GroupItem,
 			GroupMember,
 			FileUpload,
-			AddGroupMember
+			AddGroupMember,
+			HeadImage
 		},
 		data() {
 			return {

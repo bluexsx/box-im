@@ -1,13 +1,12 @@
 <template>
 	<view class="friend-item" @click="showFriendInfo()">
-		<view class="friend-avatar">
-			<image class="head-image" :src="friend.headImage" lazy-load="true"  mode="aspectFill"></image>
-		</view>
+		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage"
+			:size="100"></head-image>
 		<view class="friend-info">
 			<view class="friend-name">{{ friend.nickName}}</view>
-			<view class="friend-online" 
-			:class="friend.online ? 'online':''">
-			{{ friend.online?"[在线]":"[离线]"}}
+			<view class="friend-online">
+				<text v-show="friend.onlineWeb"  title="网页端在线">【网页端】</text>
+				<text v-show="friend.onlineApp"  title="移动端在线">【移动端】</text>			
 			</view>
 		</view>
 	</view>
@@ -19,10 +18,10 @@
 		data() {
 			return {}
 		},
-		methods:{
-			showFriendInfo(){
+		methods: {
+			showFriendInfo() {
 				uni.navigateTo({
-					url: "/pages/common/user-info?id="+this.friend.id
+					url: "/pages/common/user-info?id=" + this.friend.id
 				})
 			},
 		},
@@ -45,23 +44,9 @@
 		padding-right: 10rpx;
 		background-color: white;
 		white-space: nowrap;
+
 		&:hover {
 			background-color: #eeeeee;
-		}
-
-		.friend-avatar {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: 100rpx;
-			height: 100rpx;
-			
-			.head-image{
-				width: 100%;
-				height: 100%;
-				border-radius: 10%;
-				border: #eeeeee solid 1px;
-			}
 		}
 
 		.friend-info {
@@ -70,21 +55,13 @@
 			flex-direction: column;
 			padding-left: 20rpx;
 			text-align: left;
-		
+
 			.friend-name {
 				font-size: 30rpx;
 				font-weight: 600;
 				line-height: 60rpx;
 				white-space: nowrap;
 				overflow: hidden;
-			}
-		
-			.friend-online {
-				font-size: 28rpx;
-		
-				&.online {
-					color: #5fb878;
-				}
 			}
 		}
 	}

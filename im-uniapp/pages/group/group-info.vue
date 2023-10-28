@@ -3,10 +3,9 @@
 		<view class="group-members">
 			<view class="member-items">
 				<view v-for="(member,idx) in  groupMembers" :key="idx">
-					<view class="member-item" v-if="idx<9" @click="onShowUserInfo(member.userId)">
-						<view class="member-avatar">
-							<image class="head-image" :src="member.headImage" mode="aspectFill"> </image>
-						</view>
+					<view class="member-item" v-if="idx<9">
+						<head-image :id="member.userId" :name="member.aliasName" :url="member.headImage" 
+						:size="100" :online="member.online" ></head-image>
 						<view class="member-name">
 							<text>{{member.aliasName}}</text>
 						</view>
@@ -67,11 +66,6 @@
 			onInviteMember() {
 				uni.navigateTo({
 					url: `/pages/group/group-invite?id=${this.groupId}`
-				})
-			},
-			onShowUserInfo(userId) {
-				uni.navigateTo({
-					url: "/pages/common/user-info?id=" + userId
 				})
 			},
 			onShowMoreMmeber() {
@@ -215,27 +209,11 @@
 					flex-direction: column;
 					margin: 8rpx 2rpx;
 					position: relative;
-
 					align-items: center;
 					padding-right: 5px;
 					background-color: #fafafa;
 					white-space: nowrap;
-
-					.member-avatar {
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						width: 100rpx;
-						height: 100rpx;
-
-						.head-image {
-							width: 100%;
-							height: 100%;
-							border-radius: 10%;
-							border: #d8d8d8 solid 1px;
-						}
-					}
-
+					
 					.member-name {
 						width: 100%;
 						flex: 1;

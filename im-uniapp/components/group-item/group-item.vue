@@ -1,8 +1,7 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
-		<view class="group-avatar">
-			<image class="head-image" :src="group.headImage" lazy-load="true"  mode="aspectFill"></image>
-		</view>
+		<head-image :name="group.remark"
+			:url="group.headImage" :size="100"></head-image>
 		<view class="group-name">
 			<view>{{ group.remark}}</view>
 		</view>
@@ -43,21 +42,6 @@
 		white-space: nowrap;
 		&:hover {
 			background-color: #eeeeee;
-		}
-
-		.group-avatar {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: 100rpx;
-			height: 100rpx;
-			
-			.head-image{
-				width: 100%;
-				height: 100%;
-				border-radius: 10%;
-				border: #eeeeee solid 1px;
-			}
 		}
 
 		.group-name {

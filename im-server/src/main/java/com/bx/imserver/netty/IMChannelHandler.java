@@ -91,8 +91,8 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
                 AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");
                 Long userId = ctx.channel().attr(attr).get();
                 AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
-                Integer ternimal = ctx.channel().attr(terminalAttr).get();
-                log.info("心跳超时，即将断开连接,用户id:{},终端类型:{} ",userId,ternimal);
+                Integer terminal = ctx.channel().attr(terminalAttr).get();
+                log.info("心跳超时，即将断开连接,用户id:{},终端类型:{} ",userId,terminal);
                 ctx.channel().close();
             }
         } else {
