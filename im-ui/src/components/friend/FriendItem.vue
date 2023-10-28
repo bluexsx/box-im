@@ -69,6 +69,9 @@
 				type: Boolean,
 				default: true
 			}
+		},
+		mounted() {
+			console.log(this.menu)
 		}
 	
 	}
@@ -110,7 +113,7 @@
 			text-align: left;
 
 			.friend-name {
-				font-size: 16px;
+				font-size: 15px;
 				font-weight: 600;
 				line-height: 30px;
 				white-space: nowrap;

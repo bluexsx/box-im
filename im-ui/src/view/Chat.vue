@@ -8,7 +8,8 @@
 			</div>
 			<el-scrollbar class="l-chat-list" >
 				<div v-for="(chat,index) in chatStore.chats" :key="index">
-					<chat-item :chat="chat" :index="index" 
+					<chat-item v-show="chat.showName.startsWith(searchText)"
+					:chat="chat" :index="index" 
 					@click.native="handleActiveItem(index)" 
 					@delete="handleDelItem(index)"
 					@top="handleTop(index)"

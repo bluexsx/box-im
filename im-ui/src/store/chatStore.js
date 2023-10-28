@@ -8,7 +8,7 @@ export default {
 
 	mutations: {
 		initChatStore(state) {
-			//state.activeIndex = -1;
+			
 		},
 		openChat(state, chatInfo) {
 			let chat = null;
@@ -119,6 +119,14 @@ export default {
 					Object.assign(chat.messages[idx], msgInfo);
 					return;
 				}
+			}
+			// 间隔大于10分钟插入时间显示
+			let lastTimeMsg = chat.messages.findLast(m=>m.type==MESSAGE_TYPE.TIP_TIME);
+			if(!lastTimeMsg || (lastTimeMsg.sendTime < msgInfo.sendTime - 600*1000)){
+				chat.messages.push({
+					sendTime: msgInfo.sendTime,
+					type: MESSAGE_TYPE.TIP_TIME,
+				});
 			}
 			// 新的消息
 			chat.messages.push(msgInfo);

@@ -63,7 +63,7 @@
 			line-height: 65px;
 			white-space: nowrap;
 			overflow: hidden;
-			font-size: 16px;
+			font-size: 14px;
 			font-weight: 600;
 		}
 	}

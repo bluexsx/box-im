@@ -130,9 +130,9 @@
 			flex-direction: column;
 			padding-left: 10px;
 			text-align: left;
-
+			overflow: hidden;
 			.chat-name {
-				font-size: 16px;
+				font-size: 15px;
 				font-weight: 600;
 				line-height: 30px;
 				white-space: nowrap;
@@ -141,13 +141,13 @@
 
 			.chat-content {
 				display: flex;
-
+				line-height: 30px;
 				.chat-content-text {
-					flex: 2;
+					flex:1;
 					font-size: 14px;
 					white-space: nowrap;
 					overflow: hidden;
-
+					text-overflow: ellipsis;
 					img {
 						width: 30px !important;
 						height: 30px !important;
@@ -155,7 +155,6 @@
 				}
 
 				.chat-time {
-					flex: 1;
 					font-size: 13px;
 					text-align: right;
 					color: #888888;

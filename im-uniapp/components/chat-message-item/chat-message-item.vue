@@ -1,17 +1,18 @@
 <template>
 	<view class="chat-msg-item">
 		<view class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
-
-		<view class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL"
+		<view class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
+		{{$date.toTimeText(msgInfo.sendTime)}}</view>
+		
+		<view class="chat-msg-normal" v-show="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
 			<view class="avatar" @click="onShowUserInfo(msgInfo.sendId)">
 				<image class="head-image" :src="headImage" lazy-load="true"></image>
 			</view>
 
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
-				<view class="chat-msg-top">
+				<view v-show="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
-					<text>{{$date.toTimeText(msgInfo.sendTime)}}</text>
 				</view>
 
 				<view class="chat-msg-bottom">
@@ -189,7 +190,7 @@
 
 <style scoped lang="scss">
 	.chat-msg-item {
-		padding: 20rpx;
+		padding: 2rpx 20rpx;
 
 		.chat-msg-tip {
 			line-height: 60rpx;
@@ -200,16 +201,16 @@
 			position: relative;
 			font-size: 0;
 			margin-bottom: 15rpx;
-			padding-left: 120rpx;
-			min-height: 120rpx;
+			padding-left: 100rpx;
+			min-height: 80rpx;
 
 			.avatar {
 				position: absolute;
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				width: 100rpx;
-				height: 100rpx;
+				width: 70rpx;
+				height: 70rpx;
 				top: 0;
 				left: 0;
 
@@ -229,42 +230,39 @@
 					display: flex;
 					flex-wrap: nowrap;
 					color: #333;
-					font-size: 14px;
-					line-height: 20px;
+					font-size: 24rpx;
+					line-height: 24rpx;
 
-					text {
-						margin-right: 12px;
-					}
 				}
 
 				.chat-msg-bottom {
 					display: inline-block;
-					padding-right: 120rpx ;
+					padding-right: 80rpx ;
 					.chat-msg-text {		
 						position: relative;
-						line-height: 30px;
-						margin-top: 10px;
-						padding: 10px;
+						line-height: 60rpx;
+						margin-top: 10rpx;
+						padding: 10rpx;
 						background-color: rgb(235,235,245);
-						border-radius: 3px;
+						border-radius: 10rpx;
 						color: #333;
-						font-size: 16px;
+						font-size: 30rpx;
 						text-align: left;
 						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-
+						box-shadow: 2px 2px 2px #c0c0f0;
 						&:after {
 							content: "";
 							position: absolute;
-							left: -10px;
-							top: 13px;
+							left: -20rpx;
+							top: 26rpx;
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
 							border-color: rgb(235,235,245) transparent transparent;
 							overflow: hidden;
-							border-width: 10px;
+							border-width: 20rpx;
 						}
 					}
 
@@ -284,6 +282,7 @@
 								max-width: 400rpx;
 								max-height: 300rpx;
 								border: #dddddd solid 1px;
+								box-shadow: 2px 2px 2px #c0c0c0;
 								cursor: pointer;
 							}
 						}
@@ -309,19 +308,19 @@
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							width: 65%;
 							min-height: 80px;
 							border: #dddddd solid 1px;
-							border-radius: 3px;
+							border-radius: 10rpx;
 							background-color: #eeeeee;
 							padding: 10px 15px;
-
+							box-shadow: 2px 2px 2px #c0c0c0;
 							.chat-file-info {
 								flex: 1;
 								height: 100%;
 								text-align: left;
 								font-size: 14px;
-
+								width: 300rpx;
+	
 								.chat-file-name {
 									font-size: 16px;
 									font-weight: 600;
@@ -361,7 +360,7 @@
 			&.chat-msg-mine {
 				text-align: right;
 				padding-left: 0;
-				padding-right: 120rpx;
+				padding-right: 100rpx;
 
 				.avatar {
 					left: auto;
@@ -370,23 +369,15 @@
 
 				.chat-msg-content {
 					text-align: right;
-					.chat-msg-top {
-						flex-direction: row-reverse;
-
-						text {
-							margin-left: 12px;
-							margin-right: 0;
-						}
-					}
-
+					
 					.chat-msg-bottom {
-						padding-left: 120rpx ;
+						padding-left: 80rpx ;
 						padding-right: 0;
 						.chat-msg-text {
 							margin-left: 10px;
 							background-color: rgb(88, 127, 240);
 							color: #fff;
-						
+							box-shadow: 2px 2px 1px #ccc;
 							&:after {
 								left: auto;
 								right: -10px;

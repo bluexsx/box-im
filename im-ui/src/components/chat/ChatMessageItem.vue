@@ -1,12 +1,17 @@
 <template>
 	<div class="chat-msg-item">
 		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</div>
-		<div class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL" :class="{'chat-msg-mine':mine}">
+		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">{{$date.toTimeText(msgInfo.sendTime)}}</div>
+		
+		<div class="chat-msg-normal" v-show="msgInfo.type>=0 && msgInfo.type<10" :class="{'chat-msg-mine':mine}">
 			<div class="head-image">
-				<head-image :url="headImage" :id="msgInfo.sendId"></head-image>
+				<head-image :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
 			<div class="chat-msg-content">
-				<div class="chat-msg-top">
+				<div v-show="mode==1 && msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
+					<span>{{showName}}</span>
+				</div>
+				<div v-show="mode==2" class="chat-msg-top">
 					<span>{{showName}}</span>
 					<span>{{$date.toTimeText(msgInfo.sendTime)}}</span>
 				</div>
@@ -60,6 +65,10 @@
 			RightMenu
 		},
 		props: {
+			mode:{
+				type: Number,
+				default :1 
+			},
 			mine: {
 				type: Boolean,
 				required: true
@@ -161,7 +170,7 @@
 			}
 		},
 		mounted() {
-			//console.log(this.msgInfo);
+			console.log(this.msgInfo);
 		}
 	}
 </script>
@@ -171,15 +180,16 @@
 
 		.chat-msg-tip {
 			line-height: 50px;
+			font-size: 14px;
 		}
 
 		.chat-msg-normal {
 			position: relative;
 			font-size: 0;
-			margin-bottom: 10px;
 			padding-left: 60px;
-			min-height: 68px;
-
+			min-height: 50px;
+			margin-top: 10px;
+			
 			.head-image {
 				position: absolute;
 				width: 40px;
@@ -190,7 +200,7 @@
 
 			.chat-msg-content {
 				text-align: left;
-
+				
 				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
@@ -210,18 +220,18 @@
 					.chat-msg-text {
 						display: block;
 						position: relative;
-						line-height: 35px;
-						margin-top: 10px;
-						padding: 14px;
+						line-height: 30px;
+						margin-top: 3px;
+						padding: 7px;
 						background-color: rgb(235,235,245);
 						border-radius: 10px;
 						color: black;
 						display: block;
-						font-size: 17px;
+						font-size: 16px;
 						text-align: left;
 						white-space: pre-wrap;
 						word-break: break-all;
-
+						box-shadow: 2px 2px 2px #c0c0f0;	
 						&:after {
 							content: "";
 							position: absolute;
@@ -232,7 +242,7 @@
 							border-style: solid dashed dashed;
 							border-color: rgb(235,235,245) transparent transparent;
 							overflow: hidden;
-							border-width: 13px;
+							border-width: 10px;
 						}
 					}
 
@@ -243,14 +253,16 @@
 						align-items: center;
 
 						.send-image {
-							min-width: 300px;
-							min-height: 200px;
-							max-width: 600px;
-							max-height: 400px;
+							min-width: 200px;
+							min-height: 150px;
+							max-width: 400px;
+							max-height: 300px;
 							border: #dddddd solid 1px;
+							box-shadow: 2px 2px 2px #c0c0c0;
+							border-radius: 6px;
 							cursor: pointer;
 						}
-
+c
 						.send-fail {
 							color: #e60c0c;
 							font-size: 30px;
@@ -270,10 +282,10 @@
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							width: 20%;
 							min-height: 80px;
+							box-shadow: 5px 5px 2px #c0c0c0;
 							border: #dddddd solid 1px;
-							border-radius: 3px;
+							border-radius: 6px;
 							background-color: #eeeeee;
 							padding: 10px 15px;
 
@@ -284,9 +296,14 @@
 								font-size: 14px;
 
 								.chat-file-name {
+									display: inline-block;
+									min-width: 150px;
+									max-width: 300px;
 									font-size: 16px;
 									font-weight: 600;
 									margin-bottom: 15px;
+									white-space: pre-wrap;
+									word-break: break-all;
 								}
 							}
 
@@ -349,7 +366,7 @@
 							background-color: rgb(88, 127, 240);
 							color: #fff;
 							vertical-align: top;
-
+							box-shadow: 2px 2px 1px #ccc;
 							&:after {
 								left: auto;
 								right: -10px;

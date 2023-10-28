@@ -1,7 +1,7 @@
 <template>
 	<view class="chat-item" @click="showChatBox()">
 		<view class="left">
-			<image class="head-image" :src="chat.headImage"  mode="aspectFill"  lazy-load="true" ></image>
+			<image class="head-image" :src="chat.headImage" mode="aspectFill" lazy-load="true"></image>
 			<view v-show="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</view>
 		</view>
 		<view class="chat-right">
@@ -31,9 +31,9 @@
 			}
 		},
 		methods: {
-			showChatBox(){
+			showChatBox() {
 				uni.navigateTo({
-					url: "/pages/chat/chat-box?chatIdx="+this.index
+					url: "/pages/chat/chat-box?chatIdx=" + this.index
 				})
 			}
 		}
@@ -51,10 +51,11 @@
 		padding-right: 10rpx;
 		background-color: white;
 		white-space: nowrap;
+
 		&:hover {
 			background-color: #eeeeee;
 		}
-		
+
 		.left {
 			position: relative;
 			display: flex;
@@ -62,14 +63,14 @@
 			align-items: center;
 			width: 100rpx;
 			height: 100rpx;
-			
-			.head-image{
+
+			.head-image {
 				width: 100%;
 				height: 100%;
 				border-radius: 10%;
 				border: #eeeeee solid 1px;
 			}
-			
+
 			.unread-text {
 				position: absolute;
 				background-color: red;
@@ -90,6 +91,7 @@
 			flex-direction: column;
 			padding-left: 20rpx;
 			text-align: left;
+			overflow: hidden;
 
 			.chat-name {
 				font-size: 30rpx;
@@ -103,15 +105,15 @@
 				display: flex;
 
 				.chat-content-text {
-					flex: 2;
+					flex: 1;
 					font-size: 28rpx;
 					white-space: nowrap;
 					overflow: hidden;
 					line-height: 50rpx;
+					text-overflow: ellipsis;
 				}
 
 				.chat-time {
-					flex: 1;
 					font-size: 26rpx;
 					text-align: right;
 					color: #888888;
@@ -120,51 +122,5 @@
 				}
 			}
 		}
-
-		.mid {
-			margin-left: 20rpx;
-			flex: 2;
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-			flex-shrink: 0;
-			overflow: hidden;
-	
-			
-			.show-name {
-				display: flex;
-				justify-content: flex-start;
-				align-items: center;
-				font-size: 36rpx;
-				flex: 3;
-			}
-
-			.msg-text {
-				flex: 2;
-				font-size: 28rpx;
-				color: #888888;
-				white-space: nowrap;
-			}
-		}
-
-		.right {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
-			height: 80rpx;
-			flex-shrink: 0;
-			overflow: hidden;
-			
-			.msg-time {
-				display: flex;
-				justify-content: flex-start;
-				align-items: center;
-				font-size: 14px;
-				color: #888888;
-				white-space: nowrap;
-			}
-		}
 	}
-
 </style>
