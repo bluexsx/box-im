@@ -48,6 +48,7 @@
 					default:
 						break;
 				}
+				this.menu.show = false;
 			},
 			onShowMenu(e, chatIdx) {
 				uni.getSystemInfo({
