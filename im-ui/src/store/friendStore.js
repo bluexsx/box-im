@@ -46,7 +46,6 @@ export default {
 		},
 		refreshOnlineStatus(state){
 			let userIds = [];
-			console.log("refreshOnlineStatus")
 			if(state.friends.length ==0){
 				return; 
 			}
@@ -69,7 +68,6 @@ export default {
 			state.friends.forEach((f)=>{
 				let userTerminal = onlineTerminals.find((o)=> f.id==o.userId);
 				if(userTerminal){
-					console.log(userTerminal)
 					f.online = true;
 					f.onlineTerminals = userTerminal.terminals;
 					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB)>=0
@@ -92,6 +90,7 @@ export default {
 				return 0;
 			});
 			
+			console.log(state.friends)
 			// 重新排序后，activeIndex指向的好友可能会变化，需要重新指定
 			if(state.activeIndex >=0){
 				state.friends.forEach((f,i)=>{

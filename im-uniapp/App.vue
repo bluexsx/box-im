@@ -171,7 +171,7 @@
 					// 隐藏群组功能
 					uni.setTabBarItem({
 						index: 2,
-						text: "资讯"
+						text: "搜索"
 					})	
 				}
 			}

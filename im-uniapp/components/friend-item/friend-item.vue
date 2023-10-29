@@ -5,8 +5,10 @@
 		<view class="friend-info">
 			<view class="friend-name">{{ friend.nickName}}</view>
 			<view class="friend-online">
-				<text v-show="friend.onlineWeb"  title="网页端在线">【网页端】</text>
-				<text v-show="friend.onlineApp"  title="移动端在线">【移动端】</text>			
+				<image v-show="friend.onlineWeb" class="online" src="/static/image/online_web.png"
+					title="电脑设备在线" />
+				<image v-show="friend.onlineApp" class="online" src="/static/image/online_app.png"
+					title="移动设备在线" />
 			</view>
 		</view>
 	</view>
@@ -62,6 +64,15 @@
 				line-height: 60rpx;
 				white-space: nowrap;
 				overflow: hidden;
+			}
+			
+			.friend-online {
+				.online {
+					padding-right: 4rpx;
+					width: 32rpx;
+					height: 32rpx;
+				
+				}
 			}
 		}
 	}

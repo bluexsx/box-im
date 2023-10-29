@@ -14,7 +14,7 @@
 			</div>
 			<el-scrollbar class="l-friend-list">
 				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
-					<friend-item v-show="friend.nickName.startsWith(searchText)" :friend="friend" :index="index"
+					<friend-item v-show="friend.nickName.startsWith(searchText)"  :index="index"
 						:active="index === $store.state.friendStore.activeIndex" @chat="handleSendMessage(friend)"
 						@delete="handleDelItem(friend,index)" @click.native="handleActiveItem(friend,index)">
 					</friend-item>

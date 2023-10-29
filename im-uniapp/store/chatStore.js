@@ -128,17 +128,15 @@ export default {
 				}
 			}
 			// 间隔大于10分钟插入时间显示
-			let lastTimeMsg = chat.messages.findLast(m=>m.type==MESSAGE_TYPE.TIP_TIME);
-			if(!lastTimeMsg || (lastTimeMsg.sendTime < msgInfo.sendTime - 600*1000)){
+			if(!chat.lastTimeTip || (chat.lastTimeTip < msgInfo.sendTime - 600*1000)){
 				chat.messages.push({
-					id:0,
 					sendTime: msgInfo.sendTime,
 					type: MESSAGE_TYPE.TIP_TIME,
 				});
+				chat.lastTimeTip = msgInfo.sendTime;
 			}
 			// 新的消息
 			chat.messages.push(msgInfo);
-			console.log(chat.unreadCount)
 			this.commit("saveToStorage");
 			
 		},

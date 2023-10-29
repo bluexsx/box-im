@@ -56,6 +56,7 @@ export default {
 			if (state.activeIndex >= state.chats.length) {
 				state.activeIndex = state.chats.length - 1;
 			}
+			
 		},
 		moveTop(state,idx){
 			let chat = state.chats[idx];
@@ -121,12 +122,12 @@ export default {
 				}
 			}
 			// 间隔大于10分钟插入时间显示
-			let lastTimeMsg = chat.messages.findLast(m=>m.type==MESSAGE_TYPE.TIP_TIME);
-			if(!lastTimeMsg || (lastTimeMsg.sendTime < msgInfo.sendTime - 600*1000)){
+			if(!chat.lastTimeTip || (chat.lastTimeTip < msgInfo.sendTime - 600*1000)){
 				chat.messages.push({
 					sendTime: msgInfo.sendTime,
 					type: MESSAGE_TYPE.TIP_TIME,
 				});
+				chat.lastTimeTip = msgInfo.sendTime;
 			}
 			// 新的消息
 			chat.messages.push(msgInfo);

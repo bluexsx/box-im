@@ -121,8 +121,8 @@
 				}).then((user) => {
 					this.userInfo = user;
 					// 如果发现好友的头像和昵称改了，进行更新
-					if (this.isFriend &&this.userInfo.headImageThumb != this.friendInfo.headImage ||
-						this.userInfo.nickName != this.friendInfo.nickName) {
+					if (this.isFriend && (this.userInfo.headImageThumb != this.friendInfo.headImage ||
+						this.userInfo.nickName != this.friendInfo.nickName)) {
 						this.updateFriendInfo()
 					}
 				})

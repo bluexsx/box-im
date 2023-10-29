@@ -1,16 +1,16 @@
 <template>
 	<div class="friend-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
 		<div class="friend-avatar">
-			<head-image :name="friend.nickName" 
-			:url="friend.headImage" 
-			:online="friend.online"> 
+			<head-image :name="friend.nickName" :url="friend.headImage" :online="friend.online">
 			</head-image>
 		</div>
 		<div class="friend-info">
 			<div class="friend-name">{{ friend.nickName}}</div>
-			<div class="friend-online online">
-				<span v-show="friend.onlineWeb" class="el-icon-s-platform" title="电脑端在线"></span>
-				<span v-show="friend.onlineApp" class="el-icon-mobile-phone" title="移动端在线"></span>			
+			<div class="friend-online">
+				<el-image v-show="friend.onlineWeb" class="online" :src="require('@/assets/image/online_web.png')"
+					title="电脑设备在线" />
+				<el-image v-show="friend.onlineApp" class="online" :src="require('@/assets/image/online_app.png')"
+					title="移动设备在线" />
 			</div>
 		</div>
 		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
@@ -61,10 +61,12 @@
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
 			}
 		},
+		computed:{
+			friend(){
+				return this.$store.state.friendStore.friends[this.index];
+			}
+		},
 		props: {
-			friend: {
-				type: Object
-			},
 			active: {
 				type: Boolean
 			},
@@ -75,11 +77,7 @@
 				type: Boolean,
 				default: true
 			}
-		},
-		mounted() {
-			console.log(this.menu)
 		}
-	
 	}
 </script>
 
@@ -94,6 +92,7 @@
 		padding-right: 5px;
 		background-color: #fafafa;
 		white-space: nowrap;
+		cursor: pointer;
 
 		&:hover {
 			background-color: #eeeeee;
@@ -127,10 +126,12 @@
 			}
 
 			.friend-online {
-				padding-right: 15px;
-				font-size: 16px;
-				font-weight: 600;	
-				color: #2f6dce;
+				.online {
+					padding-right: 2px;
+					width: 15px;
+					height: 15px;
+				
+				}
 			}
 		}
 	}

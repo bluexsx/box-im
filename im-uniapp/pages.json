@@ -57,7 +57,7 @@
 				"pagePath": "pages/group/group",
 				"iconPath": "static/tarbar/group.png",
 				"selectedIconPath": "static/tarbar/group_active.png",
-				"text": "资讯"
+				"text": "搜索"
 			},
 			{
 				"pagePath": "pages/mine/mine",
