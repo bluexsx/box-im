@@ -258,7 +258,7 @@
 							max-width: 400px;
 							max-height: 300px;
 							border: #dddddd solid 1px;
-							box-shadow: 2px 2px 2px #c0c0c0;
+							border: 5px solid #ccc;
 							border-radius: 6px;
 							cursor: pointer;
 						}

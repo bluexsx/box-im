@@ -1,9 +1,9 @@
 <template>
 	<view class="page mine">
 		<view class="content" @click="onModifyInfo()">
-			<view class="avatar">
-				<image class="head-image" :src="userInfo.headImage" lazy-load="true" mode="aspectFill"></image>
-			</view>
+			<head-image :name="userInfo.nickName"  
+				:url="userInfo.headImage"
+				:size="160"></head-image>
 			<view class="info-item">
 				<view class="info-primary">
 					<text class="info-username">
@@ -76,20 +76,6 @@
 			align-items: center;
 			justify-content: space-between;
 			padding: 20rpx;
-
-			.avatar {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				width: 160rpx;
-				height: 160rpx;
-
-				.head-image {
-					width: 100%;
-					height: 100%;
-					border-radius: 10%;
-				}
-			}
 
 			.info-item {
 				display: flex;

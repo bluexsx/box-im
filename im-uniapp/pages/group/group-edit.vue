@@ -4,7 +4,7 @@
 			label-width="100%">
 			<uni-forms-item label="群聊头像:" name="headImage">
 				<image-upload v-show="isOwner" :onSuccess="onUnloadImageSuccess">
-					<image :src="group.headImage" class="head-image"></image>
+					<image :src="group.headImage" class="group-image"></image>
 				</image-upload>
 				<head-image  v-show="!isOwner" :name="group.remark" 
 					:url="group.headImage" :size="200"></head-image>
@@ -141,9 +141,11 @@
 	.group-edit {
 		padding: 20rpx;
 
-		.head-image {
+		.group-image {
 			width: 200rpx;
 			height: 200rpx;
+			border: 1px solid #ccc;
+			border-radius: 5%;
 		}
 	}
 </style>

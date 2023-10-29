@@ -32,7 +32,7 @@
 			},
 			name:{
 				type: String,
-				default: "X"
+				default: "?"
 			},
 			online:{
 				type: Boolean,
@@ -41,6 +41,7 @@
 		},
 		methods:{
 			showUserInfo(e){
+				console.log(this.id)
 				if(this.id && this.id>0){
 					this.$http({
 						url: `/user/find/${this.id}`,

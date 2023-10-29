@@ -6,12 +6,8 @@
 		
 		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			
 			<head-image class="avatar" :id="msgInfo.sendId" :url="headImage"
 			:name="showName" :size="80"></head-image>
-			
-			
-
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
@@ -22,7 +18,7 @@
 						:nodes="$emo.transform(msgInfo.content)"></rich-text>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<view class="img-load-box">
-							<image class="send-image" mode="widthFix" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
+							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
 								@click.stop="onShowFullImage()">
 							</image>
 							<loading v-if="loading"></loading>
@@ -191,6 +187,9 @@
 		.chat-msg-tip {
 			line-height: 60rpx;
 			text-align: center;
+			color: #555;
+			font-size: 24rpx;
+			padding: 10rpx;
 		}
 
 		.chat-msg-normal {
@@ -205,8 +204,6 @@
 				top: 0;
 				left: 0;
 			}
-
-
 
 			.chat-msg-content {
 				text-align: left;
@@ -263,8 +260,9 @@
 
 							.send-image {
 								min-width: 200rpx;
-								min-height: 150rpx;
-								max-width: 500rpx;
+								min-height: 200rpx;
+								max-width: 400rpx;
+								max-height: 400rpx;
 								border: 8rpx solid #ebebf5;
 								cursor: pointer;
 							}

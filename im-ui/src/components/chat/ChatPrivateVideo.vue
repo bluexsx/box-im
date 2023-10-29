@@ -5,8 +5,10 @@
 			<div class="chat-video-box">
 				<div class="chat-video-friend" v-loading="loading" element-loading-text="等待对方接听..."
 					element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.5)">
-					<head-image class="friend-head-image" :id="this.friend.id" :size="80"
-						:url="this.friend.headImage"></head-image>
+					<head-image class="friend-head-image" 
+						:id="friend.id" :size="80" :name="friend.nickName"
+						:url="friend.headImage">
+					</head-image>
 					<video ref="friendVideo" autoplay=""></video>
 				</div>
 				<div class="chat-video-mine">
