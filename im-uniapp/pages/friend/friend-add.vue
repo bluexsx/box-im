@@ -7,7 +7,7 @@
 		<view class="user-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
-					<view class="user-item" @click="onSwitchChecked(friend)">
+					<view class="user-item">
 						<head-image :id="user.id" :name="user.nickName" 
 							:online="user.online" :url="user.headImage"
 							:size="100"></head-image>
