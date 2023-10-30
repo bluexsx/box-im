@@ -21,6 +21,9 @@ public class GroupMemberVO {
     @ApiModelProperty("是否已退出")
     private Boolean quit;
 
+    @ApiModelProperty(value = "是否在线")
+    private Boolean online;
+
     @ApiModelProperty("备注")
     private String remark;
 

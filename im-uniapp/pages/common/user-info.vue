@@ -1,9 +1,9 @@
 <template>
 	<view class="page user-info">
 		<view class="content">
-			<view class="avatar" @click="onShowFullImage()">
-				<image class="head-image" :src="userInfo.headImage" lazy-load="true" mode="aspectFill"></image>
-			</view>
+			<head-image  :name="userInfo.nickName" :url="userInfo.headImage"
+			:size="160" @click="onShowFullImage()"></head-image>
+			
 			<view class="info-item">
 				<view class="info-primary">
 					<text class="info-username">
@@ -41,9 +41,11 @@
 		methods: {
 			onShowFullImage(){
 				let imageUrl = this.userInfo.headImage;
-				uni.previewImage({
-					urls: [imageUrl]
-				})
+				if(imageUrl){
+					uni.previewImage({
+						urls: [imageUrl]
+					})
+				}
 			},
 			onSendMessage() {
 				let chat = {
@@ -119,8 +121,8 @@
 				}).then((user) => {
 					this.userInfo = user;
 					// 如果发现好友的头像和昵称改了，进行更新
-					if (this.isFriend &&this.userInfo.headImageThumb != this.friendInfo.headImage ||
-						this.userInfo.nickName != this.friendInfo.nickName) {
+					if (this.isFriend && (this.userInfo.headImageThumb != this.friendInfo.headImage ||
+						this.userInfo.nickName != this.friendInfo.nickName)) {
 						this.updateFriendInfo()
 					}
 				})
@@ -151,20 +153,6 @@
 			align-items: center;
 			justify-content: space-between;
 			padding: 20rpx;
-
-			.avatar {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				width: 160rpx;
-				height: 160rpx;
-
-				.head-image {
-					width: 100%;
-					height: 100%;
-					border-radius: 10%;
-				}
-			}
 
 			.info-item {
 				display: flex;

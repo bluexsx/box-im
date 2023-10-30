@@ -7,7 +7,10 @@
 			<div v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
 				<div class="item">
 					<div class="avatar">
-						<head-image :url="user.headImage"></head-image>
+						<head-image :name="user.nickName" 
+						:url="user.headImage"
+						:online="user.online"
+						></head-image>
 					</div>
 					<div class="add-friend-text">
 						<div class="text-user-name">

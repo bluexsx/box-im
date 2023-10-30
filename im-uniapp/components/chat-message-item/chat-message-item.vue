@@ -1,17 +1,16 @@
 <template>
 	<view class="chat-msg-item">
-		<view class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
-
-		<view class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL"
+		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
+		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
+		{{$date.toTimeText(msgInfo.sendTime)}}</view>
+		
+		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			<view class="avatar" @click="onShowUserInfo(msgInfo.sendId)">
-				<image class="head-image" :src="headImage"></image>
-			</view>
-
+			<head-image class="avatar" :id="msgInfo.sendId" :url="headImage"
+			:name="showName" :size="80"></head-image>
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
-				<view class="chat-msg-top">
+				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
-					<chat-time :time="msgInfo.sendTime"></chat-time>
 				</view>
 
 				<view class="chat-msg-bottom">
@@ -19,12 +18,12 @@
 						:nodes="$emo.transform(msgInfo.content)"></rich-text>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<view class="img-load-box">
-							<image class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
+							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
 								@click.stop="onShowFullImage()">
 							</image>
-							<loading v-show="loading"></loading>
+							<loading v-if="loading"></loading>
 						</view>
-						<text title="发送失败" v-show="loadFail" @click="onSendFail"
+						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 
@@ -36,9 +35,9 @@
 								<view class="chat-file-size">{{fileSize}}</view>
 							</view>
 							<view class="chat-file-icon iconfont icon-file"></view>
-							<loading v-show="loading"></loading>
+							<loading v-if="loading"></loading>
 						</view>
-						<text title="发送失败" v-show="loadFail" @click="onSendFail"
+						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 					<!--
@@ -51,7 +50,7 @@
 			</view>
 
 		</view>
-		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
+		<pop-menu v-if="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
 			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
@@ -131,13 +130,7 @@
 				uni.previewImage({
 					urls: [imageUrl]
 				})
-			},
-			onShowUserInfo(userId){
-				uni.navigateTo({
-					url: "/pages/common/user-info?id=" + userId
-				})
 			}
-			
 		},
 		computed: {
 			loading() {
@@ -189,82 +182,69 @@
 
 <style scoped lang="scss">
 	.chat-msg-item {
-		padding: 20rpx;
+		padding: 2rpx 20rpx;
 
 		.chat-msg-tip {
 			line-height: 60rpx;
 			text-align: center;
+			color: #555;
+			font-size: 24rpx;
+			padding: 10rpx;
 		}
 
 		.chat-msg-normal {
 			position: relative;
 			font-size: 0;
 			margin-bottom: 15rpx;
-			padding-left: 120rpx;
-			min-height: 120rpx;
+			padding-left: 110rpx;
+			min-height: 80rpx;
 
 			.avatar {
 				position: absolute;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				width: 100rpx;
-				height: 100rpx;
 				top: 0;
 				left: 0;
-
-				.head-image {
-					width: 100%;
-					height: 100%;
-					border-radius: 5%;
-				}
 			}
 
-
-
 			.chat-msg-content {
-				display: flex;
-				flex-direction: column;
+				text-align: left;
 
 				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
 					color: #333;
-					font-size: 14px;
-					line-height: 20px;
+					font-size: 24rpx;
+					line-height: 24rpx;
 
-					text {
-						margin-right: 12px;
-					}
 				}
 
 				.chat-msg-bottom {
-					text-align: left;
-
-					.chat-msg-text {
+					display: inline-block;
+					padding-right: 80rpx ;
+					.chat-msg-text {		
 						position: relative;
-						line-height: 22px;
-						margin-top: 10px;
-						padding: 10px;
-						background-color: #eeeeee;
-						border-radius: 3px;
+						line-height: 60rpx;
+						margin-top: 10rpx;
+						padding: 10rpx;
+						background-color: #ebebf5;
+						border-radius: 10rpx;
 						color: #333;
-						display: inline-block;
-						font-size: 14px;
+						font-size: 30rpx;
+						text-align: left;
+						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-
+						box-shadow: 2px 2px 2px #c0c0f0;
 						&:after {
 							content: "";
 							position: absolute;
-							left: -10px;
-							top: 13px;
+							left: -20rpx;
+							top: 26rpx;
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: #eeeeee transparent transparent;
+							border-color: #ebebf5 transparent transparent;
 							overflow: hidden;
-							border-width: 10px;
+							border-width: 20rpx;
 						}
 					}
 
@@ -280,10 +260,10 @@
 
 							.send-image {
 								min-width: 200rpx;
-								min-height: 150rpx;
+								min-height: 200rpx;
 								max-width: 400rpx;
-								max-height: 300rpx;
-								border: #dddddd solid 1px;
+								max-height: 400rpx;
+								border: 8rpx solid #ebebf5;
 								cursor: pointer;
 							}
 						}
@@ -309,19 +289,19 @@
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							width: 65%;
 							min-height: 80px;
 							border: #dddddd solid 1px;
-							border-radius: 3px;
+							border-radius: 10rpx;
 							background-color: #eeeeee;
 							padding: 10px 15px;
-
+							box-shadow: 2px 2px 2px #c0c0c0;
 							.chat-file-info {
 								flex: 1;
 								height: 100%;
 								text-align: left;
 								font-size: 14px;
-
+								width: 300rpx;
+	
 								.chat-file-name {
 									font-size: 16px;
 									font-weight: 600;
@@ -361,7 +341,7 @@
 			&.chat-msg-mine {
 				text-align: right;
 				padding-left: 0;
-				padding-right: 120rpx;
+				padding-right: 110rpx;
 
 				.avatar {
 					left: auto;
@@ -369,31 +349,20 @@
 				}
 
 				.chat-msg-content {
-
-					.chat-msg-top {
-						flex-direction: row-reverse;
-
-						text {
-							margin-left: 12px;
-							margin-right: 0;
-						}
-					}
-
+					text-align: right;
+					
 					.chat-msg-bottom {
-						text-align: right;
-
+						padding-left: 80rpx ;
+						padding-right: 0;
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: #5fb878;
+							background-color: #587ff0;
 							color: #fff;
-							display: inline-block;
-							vertical-align: top;
-							font-size: 14px;
-
+							box-shadow: 1px 1px 1px #ccc;
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: #5fb878;
+								border-top-color: #587ff0;
 							}
 						}
 

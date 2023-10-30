@@ -127,9 +127,16 @@ export default {
 					return;
 				}
 			}
+			// 间隔大于10分钟插入时间显示
+			if(!chat.lastTimeTip || (chat.lastTimeTip < msgInfo.sendTime - 600*1000)){
+				chat.messages.push({
+					sendTime: msgInfo.sendTime,
+					type: MESSAGE_TYPE.TIP_TIME,
+				});
+				chat.lastTimeTip = msgInfo.sendTime;
+			}
 			// 新的消息
 			chat.messages.push(msgInfo);
-			console.log(chat.unreadCount)
 			this.commit("saveToStorage");
 			
 		},
@@ -189,6 +196,9 @@ export default {
 				key:"chats-"+userId,
 				data: state.chats 
 			})
+		},
+		clear(state){
+			state.chats = [];
 		}
 	}, 
 	actions:{
@@ -208,8 +218,7 @@ export default {
 					}
 				});
 			})
-			
-			
 		}
+		
 	}
 }

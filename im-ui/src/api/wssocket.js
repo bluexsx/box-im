@@ -86,7 +86,7 @@ let close = () => {
 
 
 //心跳设置
-var heartCheck = {
+let heartCheck = {
 	timeout: 5000, //每段时间发送一次心跳包 这里设置为20s
 	timeoutObj: null, //延时发送消息对象（启动心跳新建这个对象，收到消息后重置对象）
 	start: function() {
@@ -112,7 +112,7 @@ var heartCheck = {
 
 
 // 实际调用的方法
-function sendMessage(agentData) {
+let sendMessage = (agentData) => {
 	// console.log(globalCallback)
 	if (websock.readyState === websock.OPEN) {
 		// 若是ws开启状态
@@ -131,16 +131,16 @@ function sendMessage(agentData) {
 }
 
 
-function onMessage(callback) {
+let onMessage = (callback) => {
 	messageCallBack = callback;
 }
 
 
-function onOpen(callback) {
+let onOpen = (callback) => {
 	openCallBack = callback;
 }
 
-function onClose(callback) {
+let onClose = (callback) => {
 	closeCallBack = callback;
 }
 // 将方法暴露出去

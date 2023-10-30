@@ -1,7 +1,7 @@
 <template>
 	<div class="emotion-mask" @click="$emit('emotion','')">
 		<div class="emotion-box" :style="{'left':x+'px','top':y+'px'}">
-			<el-scrollbar style="height:200px">
+			<el-scrollbar style="height:250px">
 				<div class="emotion-item-list">
 					<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="clickHandler(emoText)" v-html="$emo.textToImg(emoText)">
 					</div>
@@ -33,7 +33,7 @@
 				return this.pos.x - 200;
 			},
 			y() {
-				return this.pos.y - 230;
+				return this.pos.y - 280;
 			}
 		}
 	}
@@ -51,7 +51,7 @@
 	
 	.emotion-box {
 		position: fixed;
-		width: 400px;
+		width: 500px;
 		box-sizing: border-box;
 		padding: 5px;
 		border: 1px solid #b4b4b4;
@@ -63,10 +63,10 @@
 			flex-wrap: wrap;
 
 			.emotion-item {
-				width: 40px;
-				height: 40px;
 				text-align: center;
 				cursor: pointer;
+				padding: 5px;
+			
 			}
 		}
 

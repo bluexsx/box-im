@@ -1,9 +1,8 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
-		<view class="avatar">
-			<image class="head-image" :src="group.headImage" lazy-load="true"  mode="aspectFill"></image>
-		</view>
-		<view class="text">
+		<head-image :name="group.remark"
+			:url="group.headImage" :size="100"></head-image>
+		<view class="group-name">
 			<view>{{ group.remark}}</view>
 		</view>
 	</view>
@@ -45,30 +44,12 @@
 			background-color: #eeeeee;
 		}
 
-		.avatar {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: 100rpx;
-			height: 100rpx;
-			
-			.head-image{
-				width: 100%;
-				height: 100%;
-				border-radius: 10%;
-				border: #eeeeee solid 1px;
-			}
-		}
-
-		.text {
-			font-size: 36rpx;
-			margin-left: 30rpx;
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			justify-content: space-around;
-			height: 100%;
-			flex-shrink: 0;
+		.group-name {
+			font-size: 32rpx;
+			padding-left: 20rpx;
+			font-weight: 600;
+			text-align: left;
+			white-space: nowrap;
 			overflow: hidden;
 		}
 	}

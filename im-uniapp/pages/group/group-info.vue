@@ -3,11 +3,10 @@
 		<view class="group-members">
 			<view class="member-items">
 				<view v-for="(member,idx) in  groupMembers" :key="idx">
-					<view class="member-item" v-if="idx<9" @click="onShowUserInfo(member.userId)">
-						<view class="avatar">
-							<image class="head-image" :src="member.headImage" mode="aspectFill"> </image>
-						</view>
-						<view class="text">
+					<view class="member-item" v-if="idx<9">
+						<head-image :id="member.userId" :name="member.aliasName" :url="member.headImage" 
+						:size="100" :online="member.online" ></head-image>
+						<view class="member-name">
 							<text>{{member.aliasName}}</text>
 						</view>
 					</view>
@@ -19,28 +18,28 @@
 			<view class="member-more" @click="onShowMoreMmeber()">查看更多群成员 ></view>
 		</view>
 		<view class="group-detail">
-			<uni-section title="群聊名称:" titleFontSize="12px">
+			<uni-section title="群聊名称:" titleFontSize="14px">
 				<template v-slot:right>
-					<text>{{group.name}}</text>
+					<text class="detail-text">{{group.name}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="群主:" titleFontSize="12px">
+			<uni-section title="群主:" titleFontSize="14px">
 				<template v-slot:right>
-					<text>{{ownerName}}</text>
+					<text class="detail-text">{{ownerName}}</text>
 				</template>
 			</uni-section>
 
-			<uni-section title="群聊备注:" titleFontSize="12px">
+			<uni-section title="群聊备注:" titleFontSize="14px">
 				<template v-slot:right>
-					<text> {{group.remark}}</text>
+					<text class="detail-text"> {{group.remark}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="我在本群的昵称:" titleFontSize="12px">
+			<uni-section title="我在本群的昵称:" titleFontSize="14px">
 				<template v-slot:right>
-					<text> {{group.aliasName}}</text>
+					<text class="detail-text"> {{group.aliasName}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="群公告:" titleFontSize="12px">
+			<uni-section title="群公告:" titleFontSize="14px">
 				<uni-notice-bar :text="group.notice" />
 			</uni-section>
 			<view class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
@@ -67,11 +66,6 @@
 			onInviteMember() {
 				uni.navigateTo({
 					url: `/pages/group/group-invite?id=${this.groupId}`
-				})
-			},
-			onShowUserInfo(userId) {
-				uni.navigateTo({
-					url: "/pages/common/user-info?id=" + userId
 				})
 			},
 			onShowMoreMmeber() {
@@ -215,28 +209,12 @@
 					flex-direction: column;
 					margin: 8rpx 2rpx;
 					position: relative;
-
 					align-items: center;
 					padding-right: 5px;
 					background-color: #fafafa;
 					white-space: nowrap;
-
-					.avatar {
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						width: 100rpx;
-						height: 100rpx;
-
-						.head-image {
-							width: 100%;
-							height: 100%;
-							border-radius: 10%;
-							border: #d8d8d8 solid 1px;
-						}
-					}
-
-					.text {
+					
+					.member-name {
 						width: 100%;
 						flex: 1;
 						font-size: 14px;
@@ -271,11 +249,14 @@
 			padding: 30rpx;
 			background: white;
 
-
+			.detail-text{
+				font-size: 28rpx;
+				font-weight: 600;
+			}
 			.group-edit {
 				padding: 20rpx;
 				text-align: center;
-				font-size: 16px;	
+				font-size: 30rpx;	
 			}
 		}
 

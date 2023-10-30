@@ -1,11 +1,15 @@
 <template>
 	<view class="friend-item" @click="showFriendInfo()">
-		<view class="avatar">
-			<image class="head-image" :src="friend.headImage" lazy-load="true"  mode="aspectFill"></image>
-		</view>
-		<view class="text">
-			<view>{{ friend.nickName}}</view>
-			<view :class="friend.online ? 'online-status  online':'online-status'">{{ friend.online?"[在线]":"[离线]"}}</view>
+		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage"
+			:size="100"></head-image>
+		<view class="friend-info">
+			<view class="friend-name">{{ friend.nickName}}</view>
+			<view class="friend-online">
+				<image v-show="friend.onlineWeb" class="online" src="/static/image/online_web.png"
+					title="电脑设备在线" />
+				<image v-show="friend.onlineApp" class="online" src="/static/image/online_app.png"
+					title="移动设备在线" />
+			</view>
 		</view>
 	</view>
 </template>
@@ -16,10 +20,10 @@
 		data() {
 			return {}
 		},
-		methods:{
-			showFriendInfo(){
+		methods: {
+			showFriendInfo() {
 				uni.navigateTo({
-					url: "/pages/common/user-info?id="+this.friend.id
+					url: "/pages/common/user-info?id=" + this.friend.id
 				})
 			},
 		},
@@ -42,43 +46,32 @@
 		padding-right: 10rpx;
 		background-color: white;
 		white-space: nowrap;
+
 		&:hover {
 			background-color: #eeeeee;
 		}
 
-		.avatar {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: 100rpx;
-			height: 100rpx;
-			
-			.head-image{
-				width: 100%;
-				height: 100%;
-				border-radius: 10%;
-				border: #eeeeee solid 1px;
-			}
-		}
-
-		.text {
-			font-size: 36rpx;
-			margin-left: 30rpx;
+		.friend-info {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			justify-content: space-around;
-			height: 100%;
-			flex-shrink: 0;
-			overflow: hidden;
+			padding-left: 20rpx;
+			text-align: left;
 
-
-			.online-status {
-				font-size: 28rpx;
+			.friend-name {
+				font-size: 30rpx;
 				font-weight: 600;
-
-				&.online {
-					color: #5fb878;
+				line-height: 60rpx;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+			
+			.friend-online {
+				.online {
+					padding-right: 4rpx;
+					width: 32rpx;
+					height: 32rpx;
+				
 				}
 			}
 		}

@@ -1,6 +1,9 @@
 <template>
-	<el-dialog width="40%" :visible.sync="visible"   :before-close="handleClose">
-		<img class="full-img" :src="url" />
+	<el-dialog width="75%" top="30px" :visible.sync="visible" :before-close="handleClose" :modal="true">
+		<div class="image-box">
+			<el-image :src="url" :fit="fit"></el-image>
+		</div>
+
 	</el-dialog>
 </template>
 
@@ -9,6 +12,7 @@
 		name: "fullImage",
 		data() {
 			return {
+				fit: 'cover'
 			}
 		},
 		methods: {
@@ -28,8 +32,11 @@
 </script>
 
 <style>
-	.full-img {
-		width: 100%;
-		height: 100%;
+	.image-box {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+
 	}
 </style>

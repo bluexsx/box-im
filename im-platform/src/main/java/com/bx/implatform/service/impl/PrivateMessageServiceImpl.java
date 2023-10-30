@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
-import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.entity.Friend;
@@ -159,6 +158,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         }
 
         List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
+        if(friends.isEmpty()){
+            return;
+        }
         List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
         // 获取当前用户所有未读消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();

@@ -8,7 +8,7 @@
 				<el-scrollbar style="height:400px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
 						<friend-item v-show="friend.nickName.startsWith(searchText)" :showDelete="false" @click.native="handleSwitchCheck(friend)"
-						 :friend="friend" :index="index" :active="index === activeIndex">
+						 :menu="false" :friend="friend" :index="index" :active="index === activeIndex">
 							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="agm-friend-checkbox" v-model="friend.isCheck"
 							 size="medium"></el-checkbox>
 						</friend-item>
@@ -19,7 +19,9 @@
 				<div class="agm-select-tip"> 已勾选{{checkCount}}位好友</div>
 				<el-scrollbar style="height:400px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
-						<friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :index="index" :active="false" @del="handleRemoveFriend(friend,index)">
+						<friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" 
+						:index="index" :active="false" @del="handleRemoveFriend(friend,index)"
+						:menu="false">
 						</friend-item>
 					</div>
 				</el-scrollbar>

@@ -1,54 +1,81 @@
 <template>
-	<div class="friend-item" :class="active ? 'active' : ''">
-		<div class="avatar">
-			<head-image :url="friend.headImage"> </head-image>
+	<div class="friend-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
+		<div class="friend-avatar">
+			<head-image :name="friend.nickName" :url="friend.headImage" :online="friend.online">
+			</head-image>
 		</div>
-		<div class="text">
-			<div>{{ friend.nickName}}</div>
-			<div :class="online ? 'online-status  online':'online-status'">{{ online?"[在线]":"[离线]"}}</div>
+		<div class="friend-info">
+			<div class="friend-name">{{ friend.nickName}}</div>
+			<div class="friend-online">
+				<el-image v-show="friend.onlineWeb" class="online" :src="require('@/assets/image/online_web.png')"
+					title="电脑设备在线" />
+				<el-image v-show="friend.onlineApp" class="online" :src="require('@/assets/image/online_app.png')"
+					title="移动设备在线" />
+			</div>
 		</div>
-		<div v-if="showDelete" class="close" @click.stop="handleDel()">
-			<i class="el-icon-close" style="border: none; font-size: 20px;color: black;" title="添加好友"></i>
-		</div>
+		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
+			@close="rightMenu.show=false" @select="handleSelectMenu"></right-menu>
 		<slot></slot>
 	</div>
 </template>
 
 <script>
 	import HeadImage from '../common/HeadImage.vue';
+	import RightMenu from "../common/RightMenu.vue";
 
 	export default {
 		name: "frinedItem",
 		components: {
-			HeadImage
+			HeadImage,
+			RightMenu
 		},
 		data() {
-			return {}
+			return {
+				rightMenu: {
+					show: false,
+					pos: {
+						x: 0,
+						y: 0
+					},
+					items: [{
+						key: 'CHAT',
+						name: '发送消息',
+						icon: 'el-icon-chat-dot-round'
+					}, {
+						key: 'DELETE',
+						name: '删除好友',
+						icon: 'el-icon-delete'
+					}]
+				}
+			}
 		},
-		methods:{
-			handleDel(){
-				console.log("11111111111111111111")
-				this.$emit('del',this.friend,this.index)
+		methods: {
+			showRightMenu(e) {
+				this.rightMenu.pos = {
+					x: e.x,
+					y: e.y
+				};
+				this.rightMenu.show = "true";
+			},
+			handleSelectMenu(item) {
+				this.$emit(item.key.toLowerCase(), this.msgInfo);
+			}
+		},
+		computed:{
+			friend(){
+				return this.$store.state.friendStore.friends[this.index];
 			}
 		},
 		props: {
-			friend: {
-				type: Object
-			},
 			active: {
 				type: Boolean
 			},
 			index: {
 				type: Number
 			},
-			showDelete:{
+			menu: {
 				type: Boolean,
 				default: true
-			}
-		},
-		computed: {
-			online() {
-				return this.$store.state.friendStore.friends[this.index].online;
 			}
 		}
 	}
@@ -60,11 +87,13 @@
 		display: flex;
 		margin-bottom: 1px;
 		position: relative;
-		padding-left: 15px;
+		padding-left: 10px;
 		align-items: center;
 		padding-right: 5px;
 		background-color: #fafafa;
 		white-space: nowrap;
+		cursor: pointer;
+
 		&:hover {
 			background-color: #eeeeee;
 		}
@@ -73,51 +102,35 @@
 			background-color: #dddddd;
 		}
 
-
-		.close {
-			width: 1.5rem;
-			height: 1.5rem;
-			right: 10px;
-			top: 1.825rem;
-			cursor: pointer;
-			display: none;
-		}
-
-		&:hover {
-			.close {
-				display: block;
-			}
-		}
-
-		.avatar {
+		.friend-avatar {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 45px;
-			height: 45px;
+			width: 50px;
+			height: 50px;
 		}
 
-		.text {
-			margin-left: 15px;
+		.friend-info {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			justify-content: space-around;
-			height: 100%;
-			flex-shrink: 0;
-			overflow: hidden;
+			padding-left: 10px;
+			text-align: left;
 
-			&>div {
-				display: flex;
-				justify-content: flex-start;
+			.friend-name {
+				font-size: 15px;
+				font-weight: 600;
+				line-height: 30px;
+				white-space: nowrap;
+				overflow: hidden;
 			}
 
-			.online-status {
-				font-size: 12px;
-				font-weight: 600;
-
-				&.online {
-					color: #5fb878;
+			.friend-online {
+				.online {
+					padding-right: 2px;
+					width: 15px;
+					height: 15px;
+				
 				}
 			}
 		}

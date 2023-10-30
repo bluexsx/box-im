@@ -18,7 +18,7 @@
 							</ul>
 						</div>
 					</el-main>
-					<el-footer height="200px" class="im-chat-footer">
+					<el-footer height="240px" class="im-chat-footer">
 						<div class="chat-tool-bar">
 							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion" @click="switchEmotionBox()">
 							</div>
@@ -40,9 +40,11 @@
 							</div>
 							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 						</div>
-						<textarea v-model="sendText" ref="sendBox" class="send-text-area" :disabled="lockMessage" @keydown.enter="sendTextMessage()"></textarea>
+						<textarea v-model="sendText" ref="sendBox" class="send-text-area" 
+						:disabled="lockMessage" @keydown.enter="sendTextMessage()"
+						placeholder="聊点什么吧~"></textarea>
 						<div class="im-chat-send">
-							<el-button type="primary" @click="sendTextMessage()">发送</el-button>
+							<el-button type="primary" size="small" @click="sendTextMessage()">发送</el-button>
 						</div>
 					</el-footer>
 				</el-container>
@@ -502,6 +504,8 @@
 				width: 100%;
 				flex: 1;
 				resize: none;
+				font-size: 16px;
+				color: black;
 				background-color: #f8f8f8 !important;
 				outline-color: rgba(83, 160, 231, 0.61);
 			}

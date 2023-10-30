@@ -1,10 +1,12 @@
 <template>
 	<div class="right-menu-mask" @click="close()" @contextmenu.prevent="close()">
-		<div class="right-menu"  :style="{'left':pos.x+'px','top':pos.y+'px'}">
-			<el-menu background-color="#f5f5f5" text-color="#333333">
-				<el-menu-item v-for="(item) in items" :key="item.key"  :title="item.name" @click="handleSelectMenu(item)">
-					<i :class="item.icon"></i>
+		<div class="right-menu" :style="{'left':pos.x+'px','top':pos.y+'px'}">
+			<el-menu text-color="#333333">
+				<el-menu-item v-for="(item) in items" :key="item.key" :title="item.name"
+					@click="handleSelectMenu(item)">
+					<span :class="item.icon"></span>
 					<span>{{item.name}}</span>
+					
 				</el-menu-item>
 			</el-menu>
 		</div>
@@ -21,16 +23,16 @@
 			pos: {
 				type: Object
 			},
-			items:{
+			items: {
 				type: Array
 			}
 		},
-		methods:{
-			close(){
+		methods: {
+			close() {
 				this.$emit("close");
 			},
-			handleSelectMenu(item){
-				this.$emit("select",item);
+			handleSelectMenu(item) {
+				this.$emit("select", item);
 			}
 		}
 	}
@@ -50,13 +52,21 @@
 
 	.right-menu {
 		position: fixed;
+		box-shadow: 0px 0px 10px #ccc;
+
+		.el-menu {
+			border: 1px solid #b4b4b4;
+			border-radius: 7px;
+			overflow: hidden;
 		
-		.el-menu-item {
-			height: 40px;
-			line-height: 40px;
-			
-			i {
-				color: #333333;
+			.el-menu-item {
+				height: 40px;
+				line-height: 40px;
+				span {
+					font-weight: 600;
+				}
+				border-bottom: 1px solid #d0d0d0;
+
 			}
 		}
 	}

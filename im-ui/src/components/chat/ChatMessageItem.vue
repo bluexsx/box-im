@@ -1,60 +1,74 @@
 <template>
 	<div class="chat-msg-item">
 		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</div>
-		<div class="chat-msg-normal" v-show="msgInfo.type!=$enums.MESSAGE_TYPE.RECALL" :class="{'chat-msg-mine':mine}">
+		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">{{$date.toTimeText(msgInfo.sendTime)}}</div>
+		
+		<div class="chat-msg-normal" v-show="msgInfo.type>=0 && msgInfo.type<10" :class="{'chat-msg-mine':mine}">
 			<div class="head-image">
-				<head-image :url="headImage" :id="msgInfo.sendId"></head-image>
+				<head-image  :name="showName" :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
 			<div class="chat-msg-content">
-				<div class="chat-msg-top">
+				<div v-show="mode==1 && msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<span>{{showName}}</span>
-					<chat-time :time="msgInfo.sendTime"></chat-time>
+				</div>
+				<div v-show="mode==2" class="chat-msg-top">
+					<span>{{showName}}</span>
+					<span>{{$date.toTimeText(msgInfo.sendTime)}}</span>
 				</div>
 				<div class="chat-msg-bottom" @contextmenu.prevent="showRightMenu($event)">
-					<span class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT" v-html="$emo.transform(msgInfo.content)"></span>
+					<span class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"
+						v-html="$emo.transform(msgInfo.content)"></span>
 					<div class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
-						<div class="img-load-box" v-loading="loading" element-loading-text="上传中.." element-loading-background="rgba(0, 0, 0, 0.4)">
-							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl" @click="showFullImageBox()" />
+						<div class="img-load-box" v-loading="loading" element-loading-text="上传中.."
+							element-loading-background="rgba(0, 0, 0, 0.4)">
+							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
+								@click="showFullImageBox()" />
 						</div>
-						<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
+						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
+							class="send-fail el-icon-warning"></span>
 					</div>
 					<div class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
 						<div class="chat-file-box" v-loading="loading">
 							<div class="chat-file-info">
-								<el-link class="chat-file-name" :underline="true" target="_blank" type="primary" :href="data.url">{{data.name}}</el-link>
+								<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
+									:href="data.url">{{data.name}}</el-link>
 								<div class="chat-file-size">{{fileSize}}</div>
 							</div>
 							<div class="chat-file-icon">
 								<span type="primary" class="el-icon-document"></span>
 							</div>
 						</div>
-						<span title="发送失败" v-show="loadFail" @click="handleSendFail" class="send-fail el-icon-warning"></span>
+						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
+							class="send-fail el-icon-warning"></span>
 					</div>
-					<div class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="handlePlayVoice()">
+					<div class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO"
+						@click="handlePlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
 				</div>
 			</div>
-
+			
 		</div>
-		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems" @close="rightMenu.show=false"
-		 @select="handleSelectMenu"></right-menu>
+		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems"
+			@close="rightMenu.show=false" @select="handleSelectMenu"></right-menu>
 	</div>
 </template>
 
 <script>
-	import ChatTime from "./ChatTime.vue";
 	import HeadImage from "../common/HeadImage.vue";
 	import RightMenu from '../common/RightMenu.vue';
 
 	export default {
 		name: "messageItem",
 		components: {
-			ChatTime,
 			HeadImage,
 			RightMenu
 		},
 		props: {
+			mode:{
+				type: Number,
+				default :1 
+			},
 			mine: {
 				type: Boolean,
 				required: true
@@ -71,7 +85,7 @@
 				type: Object,
 				required: true
 			},
-			menu:{
+			menu: {
 				type: Boolean,
 				default: true
 			}
@@ -156,25 +170,26 @@
 			}
 		},
 		mounted() {
-			//console.log(this.msgInfo);
+			console.log(this.msgInfo);
 		}
 	}
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 	.chat-msg-item {
 
 		.chat-msg-tip {
 			line-height: 50px;
+			font-size: 14px;
 		}
 
 		.chat-msg-normal {
 			position: relative;
 			font-size: 0;
-			margin-bottom: 10px;
 			padding-left: 60px;
-			min-height: 68px;
-
+			min-height: 50px;
+			margin-top: 10px;
+			
 			.head-image {
 				position: absolute;
 				width: 40px;
@@ -184,9 +199,8 @@
 			}
 
 			.chat-msg-content {
-				display: flex;
-				flex-direction: column;
-
+				text-align: left;
+				
 				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
@@ -200,19 +214,24 @@
 				}
 
 				.chat-msg-bottom {
-					text-align: left;
+					display: inline-block;
+					padding-right: 80px;
 
 					.chat-msg-text {
+						display: block;
 						position: relative;
-						line-height: 22px;
-						margin-top: 10px;
-						padding: 10px;
-						background-color: #eeeeee;
-						border-radius: 3px;
-						color: #333;
-						display: inline-block;
-						font-size: 14px;
-
+						line-height: 30px;
+						margin-top: 3px;
+						padding: 7px;
+						background-color: rgb(235,235,245);
+						border-radius: 10px;
+						color: black;
+						display: block;
+						font-size: 16px;
+						text-align: left;
+						white-space: pre-wrap;
+						word-break: break-all;
+						box-shadow: 2px 2px 2px #c0c0f0;	
 						&:after {
 							content: "";
 							position: absolute;
@@ -221,7 +240,7 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: #eeeeee transparent transparent;
+							border-color: rgb(235,235,245) transparent transparent;
 							overflow: hidden;
 							border-width: 10px;
 						}
@@ -234,14 +253,16 @@
 						align-items: center;
 
 						.send-image {
-							min-width: 300px;
-							min-height: 200px;
-							max-width: 600px;
-							max-height: 400px;
+							min-width: 200px;
+							min-height: 150px;
+							max-width: 400px;
+							max-height: 300px;
 							border: #dddddd solid 1px;
+							border: 5px solid #ccc;
+							border-radius: 6px;
 							cursor: pointer;
 						}
-
+c
 						.send-fail {
 							color: #e60c0c;
 							font-size: 30px;
@@ -261,10 +282,10 @@
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							width: 20%;
 							min-height: 80px;
+							box-shadow: 5px 5px 2px #c0c0c0;
 							border: #dddddd solid 1px;
-							border-radius: 3px;
+							border-radius: 6px;
 							background-color: #eeeeee;
 							padding: 10px 15px;
 
@@ -275,9 +296,14 @@
 								font-size: 14px;
 
 								.chat-file-name {
+									display: inline-block;
+									min-width: 150px;
+									max-width: 300px;
 									font-size: 16px;
 									font-weight: 600;
 									margin-bottom: 15px;
+									white-space: pre-wrap;
+									word-break: break-all;
 								}
 							}
 
@@ -320,6 +346,7 @@
 				}
 
 				.chat-msg-content {
+					text-align: right;
 
 					.chat-msg-top {
 						flex-direction: row-reverse;
@@ -331,20 +358,19 @@
 					}
 
 					.chat-msg-bottom {
-						text-align: right;
+						padding-left: 80px;
+						padding-right: 0;
 
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: #5fb878;
+							background-color: rgb(88, 127, 240);
 							color: #fff;
-							display: inline-block;
 							vertical-align: top;
-							font-size: 14px;
-
+							box-shadow: 2px 2px 1px #ccc;
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: #5fb878;
+								border-top-color: rgb(88, 127, 240);
 							}
 						}
 

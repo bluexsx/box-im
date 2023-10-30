@@ -22,7 +22,9 @@ const store = createStore({
 				promises.push(this.dispatch("loadChat"));
 				return Promise.all(promises);
 			})
-
+		},
+		unload(context){
+			context.commit("clear");
 		}
 	},
 	strict: true

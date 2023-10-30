@@ -6,6 +6,7 @@ const MESSAGE_TYPE = {
 	AUDIO:3,
 	VIDEO:4,
 	RECALL:10,
+	TIP_TIME:20,
 	RTC_CALL: 101,
 	RTC_ACCEPT: 102,
 	RTC_REJECT: 103,
@@ -21,7 +22,13 @@ const USER_STATE = {
 	BUSY: 2
 }
 
+const TERMINAL_TYPE = {
+	WEB: 0,
+	APP: 1
+}
+
 export {
 	MESSAGE_TYPE,
-	USER_STATE
+	USER_STATE,
+	TERMINAL_TYPE
 }

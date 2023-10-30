@@ -10,12 +10,13 @@ import emotion from './api/emotion.js';
 import element from './api/element.js';
 import store from './store';
 import * as  enums from './api/enums.js';
+import * as  date from './api/date.js';
 import './utils/directive/dialogDrag';
 
 Vue.use(ElementUI);
- 
 // 挂载全局
 Vue.prototype.$wsApi = socketApi;
+Vue.prototype.$date = date;
 Vue.prototype.$http = httpRequest // http请求方法
 Vue.prototype.$emo = emotion; // emo表情
 Vue.prototype.$elm = element; // 元素操作

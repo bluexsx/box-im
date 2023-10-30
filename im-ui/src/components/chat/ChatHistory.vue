@@ -5,7 +5,7 @@
 			<el-scrollbar  class="chat-history-scrollbar" ref="scrollbar" id="historyScrollbar" >
 				<ul>
 					<li v-for="(msgInfo,idx) in messages" :key="idx">
-						<chat-message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+						<chat-message-item :mode="2" :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
 						 :msgInfo="msgInfo" :menu="false">
 						</chat-message-item>
 					</li>

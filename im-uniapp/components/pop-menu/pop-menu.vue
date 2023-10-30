@@ -49,18 +49,20 @@
 
 	.menu {
 		position: fixed;
-		border: 1px solid #d0d0d0;
-		box-shadow: 0 0 20rpx gray;
+		border: 1px solid #b4b4b4;
+		border-radius: 7px;
+		overflow: hidden;
+		box-shadow: 0px 0px 10px #ccc;
 		background-color: #eeeeee;
 
 		.menu-item {
-			height: 30px;
-			line-height: 30px;
-			font-size: 20px;
+			height: 25px;
+			line-height: 25px;
+			font-size: 18px;
 			display: flex;
 			padding: 10px;
 			align-items: center;
-			border-bottom: 1px solid #d0d0d0;
+			border-bottom: 1px solid #d0d0d8;
 		}
 	}
 </style>

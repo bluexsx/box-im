@@ -3,9 +3,11 @@
 		<uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
 			label-width="100%">
 			<uni-forms-item label="群聊头像:" name="headImage">
-				<image-upload :disabled="!isOwner" :onSuccess="onUnloadImageSuccess">
-					<image :src="group.headImage" class="head-image"></image>
+				<image-upload v-show="isOwner" :onSuccess="onUnloadImageSuccess">
+					<image :src="group.headImage" class="group-image"></image>
 				</image-upload>
+				<head-image  v-show="!isOwner" :name="group.remark" 
+					:url="group.headImage" :size="200"></head-image>
 			</uni-forms-item>
 			<uni-forms-item label="群聊名称:" name="name" :required="true">
 				<uni-easyinput type="text" v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称" />
@@ -139,9 +141,11 @@
 	.group-edit {
 		padding: 20rpx;
 
-		.head-image {
+		.group-image {
 			width: 200rpx;
 			height: 200rpx;
+			border: 1px solid #ccc;
+			border-radius: 5%;
 		}
 	}
 </style>

@@ -8,7 +8,7 @@ export default {
 
 	mutations: {
 		initChatStore(state) {
-			//state.activeIndex = -1;
+			
 		},
 		openChat(state, chatInfo) {
 			let chat = null;
@@ -56,6 +56,13 @@ export default {
 			if (state.activeIndex >= state.chats.length) {
 				state.activeIndex = state.chats.length - 1;
 			}
+			
+		},
+		moveTop(state,idx){
+			let chat = state.chats[idx];
+			// 放置头部
+			state.chats.splice(idx, 1);
+			state.chats.unshift(chat);
 		},
 		removeGroupChat(state, groupId) {
 			for (let idx in state.chats) {
@@ -113,6 +120,14 @@ export default {
 					Object.assign(chat.messages[idx], msgInfo);
 					return;
 				}
+			}
+			// 间隔大于10分钟插入时间显示
+			if(!chat.lastTimeTip || (chat.lastTimeTip < msgInfo.sendTime - 600*1000)){
+				chat.messages.push({
+					sendTime: msgInfo.sendTime,
+					type: MESSAGE_TYPE.TIP_TIME,
+				});
+				chat.lastTimeTip = msgInfo.sendTime;
 			}
 			// 新的消息
 			chat.messages.push(msgInfo);
