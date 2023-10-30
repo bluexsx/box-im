@@ -221,7 +221,9 @@ wsApi.onClose((e) => {
 ![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%81%8A%E5%88%97%E8%A1%A8.jpg)
 
 微信小程序:
-![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/wx-mp/%E8%81%8A%E5%A4%A9.jpg)
+
+![输入图片说明](%E6%88%AA%E5%9B%BE/wx-mp/%E5%85%B6%E4%BB%96.jpg)
 
 #### QQ交流群
 
