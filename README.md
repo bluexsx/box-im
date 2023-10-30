@@ -1,9 +1,14 @@
 
-#### 项目介绍
-1. 盒子IM是一个仿微信实现的网页版聊天软件，目前完全开源，仅用于学习和交流
+###  **盒子IM** 
+![MIT协议](https://img.shields.io/badge/license-MIT-red)
+[![star](https://gitee.com/bluexsx/box-im/badge/star.svg)](https://gitee.com/bluexsx/box-im) 
+[![star](https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub)](https://github.com/bluexsx/box-im) 
+<a href="#加入交流群"><img src="https://img.shields.io/badge/QQ交流群-green.svg?style=plasticr"></a>
+
+1. 盒子IM是一个仿微信实现的网页版聊天软件，目前完全开源。
 1. 支持私聊、群聊、离线消息、发送语音、图片、文件、emoji表情等功能
 1. 支持视频聊天(基于webrtc实现,需要ssl证书)
-1. 后端采用springboot+netty实现，前端使用vue
+1. 后端采用springboot+netty实现，网页端使用vue，移动端使用uniapp
 1. 服务器支持集群化部署，每个im-server仅处理自身连接用户的消息
 
 
@@ -13,7 +18,7 @@
 - 支持移动端和web端同时在线，多端消息同步
 - 目前仅兼容h5和微信小程序，后续会继续兼容更多终端类型
 
-感兴趣的小伙伴，可在下方扫码体验微信小程序
+感兴趣的小伙伴，可在下方扫码体验
 
 
 
@@ -225,11 +230,11 @@ wsApi.onClose((e) => {
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/wx-mp/%E5%85%B6%E4%BB%96.jpg)
 
-#### QQ交流群
+#### 加入交流群
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E4%BA%A4%E6%B5%81%E7%BE%A4.png)
 
-欢迎进群与小伙们一起交流，加群前务必要先star哦
+欢迎进群与小伙们一起交流， **加群前请务必先star!!!** 
 
 
 #### 嘿嘿
@@ -238,7 +243,5 @@ wsApi.onClose((e) => {
 悄悄放个二维码在这，宝子们..你懂我意思吧
 
 
-
 #### 点下star吧
 如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
-
