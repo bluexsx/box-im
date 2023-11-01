@@ -32,15 +32,14 @@
 			@keyup.enter.native="submitForm('loginForm')">
 			<div class="login-brand">登陆盒子IM</div>
 			<el-form-item label="终端" prop="userName" v-show="false">
-				<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
-
+				<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off" ></el-input>
 			</el-form-item>
 			<el-form-item label="用户名" prop="userName">
-				<el-input type="userName" v-model="loginForm.userName" autocomplete="off"></el-input>
+				<el-input type="userName" v-model="loginForm.userName" autocomplete="off" placeholder="用户名"></el-input>
 
 			</el-form-item>
 			<el-form-item label="密码" prop="password">
-				<el-input type="password" v-model="loginForm.password" autocomplete="off"></el-input>
+				<el-input type="password" v-model="loginForm.password" autocomplete="off" placeholder="密码"></el-input>
 			</el-form-item>
 			<el-form-item>
 				<el-button type="primary" @click="submitForm('loginForm')">登陆</el-button>
