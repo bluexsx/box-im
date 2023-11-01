@@ -29,12 +29,6 @@
 				<el-menu-item title="设置" @click="showSetting()">
 					<span class="el-icon-setting"></span>
 				</el-menu-item>
-				<el-menu-item title="小伙子这么帅,点点star吧~">
-					<a href="https://gitee.com/bluexsx/box-im" target="_blank">
-						<el-image style="width: 30px; height: 30px" src="https://gitee.com/favicon.ico" fit="fit">
-						</el-image>
-					</a>
-				</el-menu-item>
 			</el-menu>
 			
 			<div class="exit-box" @click="handleExit()" title="退出">

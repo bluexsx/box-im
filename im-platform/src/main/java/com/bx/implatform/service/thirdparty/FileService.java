@@ -19,10 +19,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 
-/*
+/**
+ * todo 通过校验文件MD5实现重复文件秒传
  * 文件上传服务
  * @Author Blue
  * @Date 2022/10/28
+ *
  */
 @Slf4j
 @Service
@@ -87,11 +89,13 @@ public class FileService {
                 throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
             }
             vo.setOriginUrl(generUrl(FileType.IMAGE,fileName));
-            // 上传缩略图
-            byte[] imageByte = ImageUtil.compressForScale(file.getBytes(),100);
-            fileName = minioUtil.upload(bucketName,imagePath,file.getOriginalFilename(),imageByte,file.getContentType());
-            if(StringUtils.isEmpty(fileName)){
-                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+            // 大于30K的文件需上传缩略图
+            if(file.getSize() > 30 * 1024){
+                byte[] imageByte = ImageUtil.compressForScale(file.getBytes(),30);
+                fileName = minioUtil.upload(bucketName,imagePath,file.getOriginalFilename(),imageByte,file.getContentType());
+                if(StringUtils.isEmpty(fileName)){
+                    throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+                }
             }
             vo.setThumbUrl(generUrl(FileType.IMAGE,fileName));
             log.info("文件图片成功，用户id:{},url:{}",userId,vo.getOriginUrl());
