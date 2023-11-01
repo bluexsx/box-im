@@ -1,27 +1,56 @@
 <template>
-	<div class="login-view"  >
-			<el-form :model="loginForm"  status-icon :rules="rules" ref="loginForm"  label-width="60px" class="web-ruleForm" @keyup.enter.native="submitForm('loginForm')">
-				<div class="login-brand">欢迎登陆</div>
-				<el-form-item label="终端" prop="userName" v-show="false">
-					<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
-				
-				</el-form-item>
-				<el-form-item label="用户名" prop="userName">
-					<el-input type="userName" v-model="loginForm.userName" autocomplete="off"></el-input>
+	<div class="login-view">
+		<div class="login-intro">
+			<!--<img src="@/assets/image/login.gif"/>-->
+			<div class="login-title"></div>
+			<div>
+				<h3>盒子IM 2.0版本正式发布：</h3>
+				<ul>
+					<li>发布uniapp移动版本，支持移动端和web端同时在线，多端消息同步</li>
+					<li>目前移动端仅兼容h5和微信小程序，后续会继续兼容更多终端类型</li>
+					<li>页面风格优化：表情包更新、自动生成文字头像等</li>
+				</ul>
+			</div>
+			<div>
+				<h3>项目依旧完全开源，可内网部署。如果项目对您有帮助,请帮忙点个star:</h3>
+			</div>
+			<div class="login-icons">
+				<a class="login-icon">
+					<img src="https://img.shields.io/badge/license-MIT-red" />
+				</a>
+				<a class="login-icon" href="https://gitee.com/bluexsx/box-im" target="_blank">
+					<img src="https://gitee.com/bluexsx/box-im/badge/star.svg" />
+				</a>
+				<a class="login-icon" href="https://gitee.com/bluexsx/box-im" target="_blank">
+					<img src="https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub" />
+				</a>
 
-				</el-form-item>
-				<el-form-item label="密码" prop="password">
-					<el-input type="password" v-model="loginForm.password" autocomplete="off"></el-input>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="submitForm('loginForm')">登陆</el-button>
-					<el-button @click="resetForm('loginForm')">清空</el-button>
-				</el-form-item>
-				<div class="register">
-					<router-link to="/register">没有账号,前往注册</router-link>
-				</div>
-			</el-form>
-			
+			</div>
+
+		</div>
+		<el-form class="login-form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
+			@keyup.enter.native="submitForm('loginForm')">
+			<div class="login-brand">登陆盒子IM</div>
+			<el-form-item label="终端" prop="userName" v-show="false">
+				<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
+
+			</el-form-item>
+			<el-form-item label="用户名" prop="userName">
+				<el-input type="userName" v-model="loginForm.userName" autocomplete="off"></el-input>
+
+			</el-form-item>
+			<el-form-item label="密码" prop="password">
+				<el-input type="password" v-model="loginForm.password" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item>
+				<el-button type="primary" @click="submitForm('loginForm')">登陆</el-button>
+				<el-button @click="resetForm('loginForm')">清空</el-button>
+			</el-form-item>
+			<div class="register">
+				<router-link to="/register">没有账号,前往注册</router-link>
+			</div>
+		</el-form>
+
 	</div>
 </template>
 
@@ -71,11 +100,11 @@
 							})
 							.then((data) => {
 								// 保存密码到cookie(不安全)
-								this.setCookie('username',this.loginForm.userName);
-								this.setCookie('password',this.loginForm.password);
+								this.setCookie('username', this.loginForm.userName);
+								this.setCookie('password', this.loginForm.password);
 								// 保存token
-								sessionStorage.setItem("accessToken",data.accessToken);
-								sessionStorage.setItem("refreshToken",data.refreshToken);
+								sessionStorage.setItem("accessToken", data.accessToken);
+								sessionStorage.setItem("refreshToken", data.refreshToken);
 								this.$message.success("登陆成功");
 								this.$router.push("/home/chat");
 							})
@@ -90,26 +119,27 @@
 			getCookie(name) {
 				let reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
 				let arr = document.cookie.match(reg)
-			    if (arr){
-					 return unescape(arr[2]);
+				if (arr) {
+					return unescape(arr[2]);
 				}
-			    return '';
-			 },
-			  // 设置cookie,增加到vue实例方便全局调用
-			 setCookie (name, value, expiredays) {
-			    var exdate = new Date();
-			    exdate.setDate(exdate.getDate() + expiredays);
-			    document.cookie = name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
-			  },
-			  // 删除cookie
-			  delCookie (name) {
-			    var exp = new Date();
-			    exp.setTime(exp.getTime() - 1);
-			    var cval = this.getCookie(name);
-			    if (cval != null){
+				return '';
+			},
+			// 设置cookie,增加到vue实例方便全局调用
+			setCookie(name, value, expiredays) {
+				var exdate = new Date();
+				exdate.setDate(exdate.getDate() + expiredays);
+				document.cookie = name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exdate
+					.toGMTString());
+			},
+			// 删除cookie
+			delCookie(name) {
+				var exp = new Date();
+				exp.setTime(exp.getTime() - 1);
+				var cval = this.getCookie(name);
+				if (cval != null) {
 					document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
 				}
-			  }
+			}
 		},
 		mounted() {
 			this.loginForm.userName = this.getCookie("username");
@@ -124,21 +154,46 @@
 		position: relative;
 		display: flex;
 		justify-content: space-around;
+		align-items: center;
 		width: 100%;
 		height: 100%;
-		background:  linear-gradient(#65807a, #182e3c); 
+		background: rgb(232, 242, 255);
 		background-size: cover;
-		
-		.web-ruleForm {
+		box-sizing: border-box;
+		padding: 10%;
+
+		.login-intro {
+			flex: 1;
+			height: 300px;
+			padding: 40px;
+			max-width: 600px;
+			.login-title {
+				text-align: center;
+				font-weight: 600;
+				font-size: 30px;
+			}
+
+			.login-icons {
+				display: flex;
+				align-items: center;
+
+				.login-icon {
+					padding-left: 5px;
+				}
+			}
+		}
+
+		.login-form {
 			height: 340px;
-			padding: 20px;
-			margin-top: 150px ;
-			background: rgba(255,255,255,.75);
-			box-shadow: 0px 0px  1px #ccc;
-			border-radius: 5px;
+			width: 400px;
+			padding: 30px;
+			background: white;
+			opacity: 0.9;
+			box-shadow: 0px 0px 1px #ccc;
+			border-radius: 3%;
 			overflow: hidden;
-	
-			
+			border: 1px solid #ccc;
+
 			.login-brand {
 				line-height: 50px;
 				margin: 30px 0 40px 0;
@@ -148,7 +203,7 @@
 				text-transform: uppercase;
 				text-align: center;
 			}
-			
+
 			.register {
 				display: flex;
 				flex-direction: row-reverse;
@@ -158,6 +213,4 @@
 			}
 		}
 	}
-
-	
 </style>
