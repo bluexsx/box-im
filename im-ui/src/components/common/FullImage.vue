@@ -1,10 +1,11 @@
 <template>
-	<el-dialog width="75%" top="30px" :visible.sync="visible" :before-close="handleClose" :modal="true">
+	<div class="full-image" v-show="visible" :before-close="handleClose" :modal="true">
+		<div class="mask"></div>
 		<div class="image-box">
-			<el-image :src="url" :fit="fit"></el-image>
+			<img  :src="url"/>
 		</div>
-
-	</el-dialog>
+		<div class="close" @click="handleClose">x</div>
+	</div>
 </template>
 
 <script>
@@ -12,7 +13,7 @@
 		name: "fullImage",
 		data() {
 			return {
-				fit: 'cover'
+				fit: 'contain'
 			}
 		},
 		methods: {
@@ -31,12 +32,47 @@
 	}
 </script>
 
-<style>
-	.image-box {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-
-
+<style lang="scss">
+	.full-image{
+		position: fixed;
+		width: 100%;
+		height: 100%;
+	
+		
+		.mask{
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background: black;
+			opacity: 0.9;
+		}
+		
+		.image-box {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			
+			img{
+				position: absolute;
+				    left: 50%;
+				    top: 50%;
+				    transform: translate(-50%, -50%);
+				    max-height: 100%;
+				    max-width: 100%;
+			}
+		}
+		
+		.close{
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			color: white;
+			font-size: 25px;
+			cursor: pointer;
+			
+		
+		}
 	}
+	
+	
 </style>
