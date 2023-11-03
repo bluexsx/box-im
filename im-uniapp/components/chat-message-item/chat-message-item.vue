@@ -137,7 +137,7 @@
 				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
 			},
 			loadFail() {
-				return this.msgInfo.loadStatus && (this.msgInfo.loadStatus === "fail");
+				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "fail";
 			},
 			data() {
 				return JSON.parse(this.msgInfo.content)

@@ -48,7 +48,7 @@
 						<div class="send-content-area">
 							<textarea v-show="!sendImageUrl" v-model="sendText" ref="sendBox" class="send-text-area"
 								:disabled="lockMessage" @keydown.enter="sendTextMessage()" @paste="handlePaste"
-								placeholder="聊点什么吧~"></textarea>
+								placeholder="温馨提示:可以粘贴截图了哦~"></textarea>
 
 							<div v-show="sendImageUrl"  class="send-image-area">
 								<div  class="send-image-box">
@@ -120,6 +120,7 @@
 		},
 		methods: {
 			handlePaste(e) {
+				console.log(e);
 				let txt = event.clipboardData.getData('Text')
 				if (typeof(txt) == 'string') {
 					this.sendText += txt
@@ -308,21 +309,23 @@
 				}
 			},
 			sendImageMessage() {
+				let file = this.sendImageFile;
 				this.handleImageBefore(this.sendImageFile);
 				let formData = new FormData()
-				formData.append('file', this.sendImageFile.raw || this.sendImageFile)
+				formData.append('file', file.raw || file)
 				this.$http.post("/image/upload", formData, {
 					headers: {
 						'Content-Type': 'multipart/form-data'
 					}
 				}).then((data) => {
-					this.handleImageSuccess(data, this.sendImageFile);
+					this.handleImageSuccess(data, file);
 				}).catch((res) => {
-					this.handleImageSuccess(res, this.sendImageFile);
-				}).finally(() => {
-					this.sendImageFile = null;
-					this.sendImageUrl= ""
-				});
+					this.handleImageSuccess(res, file);
+				})
+				this.sendImageFile = null;
+				this.sendImageUrl= "";
+				this.$nextTick(() => this.$refs.sendBox.focus());
+				this.scrollToBottom();
 			},
 			sendTextMessage() {
 				if (!this.sendText.trim()) {
