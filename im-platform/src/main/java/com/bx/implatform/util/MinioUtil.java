@@ -106,7 +106,10 @@ public class MinioUtil {
         if (StringUtils.isBlank(originalFilename)){
             throw new RuntimeException();
         }
-        String fileName = System.currentTimeMillis() + originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileName = System.currentTimeMillis()+"";
+        if(originalFilename.lastIndexOf(".") >= 0){
+            fileName +=originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
         String objectName = DateTimeUtils.getFormatDate(new Date(),DateTimeUtils.PARTDATEFORMAT)+ "/" + fileName;
         try {
             PutObjectArgs objectArgs = PutObjectArgs.builder().bucket(bucketName).object(path+"/" +objectName)

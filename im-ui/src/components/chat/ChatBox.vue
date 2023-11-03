@@ -2,7 +2,8 @@
 	<el-container class="chat-box">
 		<el-header height="60px">
 			<span>{{title}}</span>
-			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more" @click="showSide=!showSide"></span>
+			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more"
+				@click="showSide=!showSide"></span>
 		</el-header>
 		<el-main style="padding: 0;">
 			<el-container>
@@ -11,8 +12,9 @@
 						<div class="im-chat-box">
 							<ul>
 								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
-									<chat-message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
-									 :msgInfo="msgInfo" @delete="deleteMessage" @recall="recallMessage">
+									<chat-message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
+										:showName="showName(msgInfo)" :msgInfo="msgInfo" @delete="deleteMessage"
+										@recall="recallMessage">
 									</chat-message-item>
 								</li>
 							</ul>
@@ -20,31 +22,44 @@
 					</el-main>
 					<el-footer height="240px" class="im-chat-footer">
 						<div class="chat-tool-bar">
-							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion" @click="switchEmotionBox()">
+							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion"
+								@click="switchEmotionBox()">
 							</div>
 							<div title="发送图片">
-								<file-upload :action="imageAction" :maxSize="5*1024*1024" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
-								 @before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
+								<file-upload :action="imageAction" :maxSize="5*1024*1024"
+									:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
+									@before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
 									<i class="el-icon-picture-outline"></i>
 								</file-upload>
 							</div>
 							<div title="发送文件">
-								<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore" @success="handleFileSuccess"
-								 @fail="handleFileFail">
+								<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore"
+									@success="handleFileSuccess" @fail="handleFileFail">
 									<i class="el-icon-wallet"></i>
 								</file-upload>
 							</div>
 							<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
 							</div>
-							<div title="视频聊天" v-show="chat.type=='PRIVATE'" class="el-icon-phone-outline" @click="showVideoBox()">
+							<div title="视频聊天" v-show="chat.type=='PRIVATE'" class="el-icon-phone-outline"
+								@click="showVideoBox()">
 							</div>
 							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 						</div>
-						<textarea v-model="sendText" ref="sendBox" class="send-text-area" 
-						:disabled="lockMessage" @keydown.enter="sendTextMessage()"
-						placeholder="聊点什么吧~"></textarea>
-						<div class="im-chat-send">
-							<el-button type="primary" size="small" @click="sendTextMessage()">发送</el-button>
+						<div class="send-content-area">
+							<textarea v-show="!sendImageUrl" v-model="sendText" ref="sendBox" class="send-text-area"
+								:disabled="lockMessage" @keydown.enter="sendTextMessage()" @paste="handlePaste"
+								placeholder="聊点什么吧~"></textarea>
+
+							<div v-show="sendImageUrl"  class="send-image-area">
+								<div  class="send-image-box">
+									<img class="send-image" :src="sendImageUrl" />
+									<span class="send-image-close el-icon-close" title="删除"
+										@click="removeSendImage()"></span>
+								</div>
+							</div>
+							<div class="send-btn-area">
+								<el-button type="primary" size="small" @click="handleSendMessage()">发送</el-button>
+							</div>
 						</div>
 					</el-footer>
 				</el-container>
@@ -56,7 +71,8 @@
 		</el-main>
 		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
 		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
-		<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers" @close="closeHistoryBox"></chat-history>
+		<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers"
+			@close="closeHistoryBox"></chat-history>
 	</el-container>
 </template>
 
@@ -89,6 +105,8 @@
 				group: {},
 				groupMembers: [],
 				sendText: "",
+				sendImageUrl: "",
+				sendImageFile: "",
 				showVoice: false, // 是否显示语音录制弹窗
 				showSide: false, // 是否显示群聊信息栏
 				showEmotion: false, // 是否显示emoji表情
@@ -101,9 +119,29 @@
 			}
 		},
 		methods: {
-			handleImageSuccess(res, file) {
-				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
-				msgInfo.content = JSON.stringify(res.data);
+			handlePaste(e) {
+				let txt = event.clipboardData.getData('Text')
+				if (typeof(txt) == 'string') {
+					this.sendText += txt
+				}
+				const items = (event.clipboardData || window.clipboardData).items
+				if (items.length) {
+					for (let i = 0; i < items.length; i++) {
+						if (items[i].type.indexOf('image') !== -1) {
+							let file = items[i].getAsFile();
+							this.sendImageFile = file;
+							this.sendImageUrl = URL.createObjectURL(file);
+						}
+					}
+				}
+			},
+			removeSendImage() {
+				this.sendImageUrl = "";
+				this.sendImageFile = null;
+			},
+			handleImageSuccess(data, file) {
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo || file.raw.msgInfo));
+				msgInfo.content = JSON.stringify(data);
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
@@ -114,8 +152,8 @@
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
-			handleImageFail(res, file) {
-				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+			handleImageFail(e, file) {
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo || file.raw.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
 			},
@@ -144,11 +182,11 @@
 				// 借助file对象保存
 				file.msgInfo = msgInfo;
 			},
-			handleFileSuccess(res, file) {
+			handleFileSuccess(url, file) {
 				let data = {
 					name: file.name,
 					size: file.size,
-					url: res.data
+					url: url
 				}
 				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
 				msgInfo.content = JSON.stringify(data);
@@ -162,7 +200,8 @@
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
-			handleFileFail(res, file) {
+			handleFileFail(e, file) {
+				
 				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
@@ -260,6 +299,30 @@
 				} else {
 					msgInfo.recvId = targetId;
 				}
+			},
+			handleSendMessage() {
+				if (this.sendImageFile) {
+					this.sendImageMessage();
+				} else {
+					this.sendTextMessage();
+				}
+			},
+			sendImageMessage() {
+				this.handleImageBefore(this.sendImageFile);
+				let formData = new FormData()
+				formData.append('file', this.sendImageFile.raw || this.sendImageFile)
+				this.$http.post("/image/upload", formData, {
+					headers: {
+						'Content-Type': 'multipart/form-data'
+					}
+				}).then((data) => {
+					this.handleImageSuccess(data, this.sendImageFile);
+				}).catch((res) => {
+					this.handleImageSuccess(res, this.sendImageFile);
+				}).finally(() => {
+					this.sendImageFile = null;
+					this.sendImageUrl= ""
+				});
 			},
 			sendTextMessage() {
 				if (!this.sendText.trim()) {
@@ -498,22 +561,67 @@
 				}
 			}
 
-			.send-text-area {
-				box-sizing: border-box;
-				padding: 5px;
-				width: 100%;
-				flex: 1;
-				resize: none;
-				font-size: 16px;
-				color: black;
+			.send-content-area {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
 				background-color: #f8f8f8 !important;
 				outline-color: rgba(83, 160, 231, 0.61);
+
+				.send-text-area {
+					box-sizing: border-box;
+					padding: 5px;
+					width: 100%;
+					flex: 1;
+					resize: none;
+					font-size: 16px;
+					color: black;
+					background-color: #f8f8f8 !important;
+					outline-color: rgba(83, 160, 231, 0.61);
+					text-align: left;
+					border: 0;
+				}
+
+				.send-image-area {
+					text-align: left;
+
+					.send-image-box {
+						position: relative;
+						display: inline-block;
+
+						.send-image {
+							max-height: 190px;
+							border: 1px solid #ccc;
+							border-radius: 2%;
+							margin: 2px;
+						}
+
+						.send-image-close {
+							position: absolute;
+							padding: 3px;
+							right: 7px;
+							top: 7px;
+							color: white;
+							cursor: pointer;
+							font-size: 15px;
+							font-weight: 600;
+							background-color: #aaa;
+							border-radius: 50%;
+							border: 1px solid #ccc;
+						}
+					}
+
+				}
+
+				.send-btn-area {
+
+					padding: 10px;
+					position: absolute;
+					bottom: 0;
+					right: 0;
+				}
 			}
 
-			.im-chat-send {
-				text-align: right;
-				padding: 7px;
-			}
 		}
 
 		.chat-group-side-box {
