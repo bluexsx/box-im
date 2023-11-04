@@ -18,4 +18,7 @@ public interface IPrivateMessageService extends IService<PrivateMessage> {
 
     void pullUnreadMessage();
 
+    List<PrivateMessageVO> loadMessage(Long minId);
+
+    void readedMessage(Long friendId);
 }

@@ -6,14 +6,14 @@
 					<el-button slot="append" icon="el-icon-search"></el-button>
 				</el-input>
 			</div>
-			<el-scrollbar class="l-chat-list" >
+			<div class="l-chat-loadding"  v-if="loading" v-loading="true" element-loading-text="消息接收中..."
+				element-loading-spinner="el-icon-loading" element-loading-background="#eee">
+			</div>
+			<el-scrollbar class="l-chat-list">
 				<div v-for="(chat,index) in chatStore.chats" :key="index">
-					<chat-item v-show="chat.showName.startsWith(searchText)"
-					:chat="chat" :index="index" 
-					@click.native="handleActiveItem(index)" 
-					@delete="handleDelItem(index)"
-					@top="handleTop(index)"
-					 :active="index === chatStore.activeIndex"></chat-item>
+					<chat-item v-show="chat.showName.startsWith(searchText)" :chat="chat" :index="index"
+						@click.native="handleActiveItem(index)" @delete="handleDelItem(index)" @top="handleTop(index)"
+						:active="index === chatStore.activeIndex"></chat-item>
 				</div>
 			</el-scrollbar>
 		</el-aside>
@@ -26,7 +26,7 @@
 <script>
 	import ChatItem from "../components/chat/ChatItem.vue";
 	import ChatBox from "../components/chat/ChatBox.vue";
-	
+
 	export default {
 		name: "chat",
 		components: {
@@ -38,7 +38,7 @@
 				searchText: "",
 				messageContent: "",
 				group: {},
-				groupMembers: [] 
+				groupMembers: []
 			}
 		},
 		methods: {
@@ -70,6 +70,9 @@
 					messages: []
 				}
 				return emptyChat;
+			},
+			loading(){
+				return this.chatStore.loadingGroupMsg || this.chatStore.loadingPrivateMsg
 			}
 		}
 	}
@@ -90,7 +93,12 @@
 				line-height: 50px;
 			}
 			
-			.l-friend-ist{
+			.l-chat-loadding{
+				height: 50px;
+				background-color: #eee;
+			}
+			
+			.l-friend-ist {
 				flex: 1;
 			}
 		}

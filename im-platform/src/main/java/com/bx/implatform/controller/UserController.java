@@ -54,7 +54,7 @@ public class UserController {
 
     @GetMapping("/find/{id}")
     @ApiOperation(value = "查找用户",notes="根据id查找用户")
-    public Result findById(@NotEmpty @PathVariable("id") Long id){
+    public Result<UserVO> findById(@NotEmpty @PathVariable("id") Long id){
         return ResultUtils.success(userService.findUserById(id));
     }
 

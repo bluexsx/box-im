@@ -1,11 +1,13 @@
 <template>
 	<div class="chat-msg-item">
 		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</div>
-		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">{{$date.toTimeText(msgInfo.sendTime)}}</div>
-		
+		<div class="chat-msg-tip" v-show="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
+			{{$date.toTimeText(msgInfo.sendTime)}}
+		</div>
+
 		<div class="chat-msg-normal" v-show="msgInfo.type>=0 && msgInfo.type<10" :class="{'chat-msg-mine':mine}">
 			<div class="head-image">
-				<head-image  :name="showName" :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
+				<head-image :name="showName" :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
 			<div class="chat-msg-content">
 				<div v-show="mode==1 && msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
@@ -21,7 +23,7 @@
 					<div class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<div class="img-load-box" v-loading="loading" element-loading-text="上传中.."
 							element-loading-background="rgba(0, 0, 0, 0.4)">
-							<img class="send-image"  :src="JSON.parse(msgInfo.content).thumbUrl"
+							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
 								@click="showFullImageBox()" />
 						</div>
 						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
@@ -45,9 +47,13 @@
 						@click="handlePlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
+					<span class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId 
+						&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</span>
+					<span class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
+						&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</span>
 				</div>
 			</div>
-			
+
 		</div>
 		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems"
 			@close="rightMenu.show=false" @select="handleSelectMenu"></right-menu>
@@ -65,9 +71,9 @@
 			RightMenu
 		},
 		props: {
-			mode:{
+			mode: {
 				type: Number,
-				default :1 
+				default: 1
 			},
 			mine: {
 				type: Boolean,
@@ -168,9 +174,6 @@
 				}
 				return items;
 			}
-		},
-		mounted() {
-			console.log(this.msgInfo);
 		}
 	}
 </script>
@@ -189,7 +192,7 @@
 			padding-left: 60px;
 			min-height: 50px;
 			margin-top: 10px;
-			
+
 			.head-image {
 				position: absolute;
 				width: 40px;
@@ -200,14 +203,14 @@
 
 			.chat-msg-content {
 				text-align: left;
-				
+
 				.send-fail {
 					color: #e60c0c;
 					font-size: 30px;
 					cursor: pointer;
 					margin: 0 20px;
 				}
-				
+
 				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
@@ -230,7 +233,7 @@
 						line-height: 30px;
 						margin-top: 3px;
 						padding: 7px;
-						background-color: rgb(235,235,245);
+						background-color: rgb(235, 235, 245);
 						border-radius: 10px;
 						color: black;
 						display: block;
@@ -238,7 +241,8 @@
 						text-align: left;
 						white-space: pre-wrap;
 						word-break: break-all;
-						box-shadow: 2px 2px 2px #c0c0f0;	
+						box-shadow: 2px 2px 2px #c0c0f0;
+
 						&:after {
 							content: "";
 							position: absolute;
@@ -247,7 +251,7 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: rgb(235,235,245) transparent transparent;
+							border-color: rgb(235, 235, 245) transparent transparent;
 							overflow: hidden;
 							border-width: 10px;
 						}
@@ -269,7 +273,7 @@
 							border-radius: 6px;
 							cursor: pointer;
 						}
-						
+
 					}
 
 					.chat-msg-file {
@@ -332,6 +336,18 @@
 							padding: 5px 0;
 						}
 					}
+
+					.chat-unread {
+						font-size: 10px;
+						color: #f23c0f;
+						font-weight: 600;
+					}
+
+					.chat-readed {
+						font-size: 10px;
+						color: #aaa;
+						font-weight: 600;
+					}
 				}
 			}
 
@@ -368,6 +384,7 @@
 							color: #fff;
 							vertical-align: top;
 							box-shadow: 2px 2px 1px #ccc;
+
 							&:after {
 								left: auto;
 								right: -10px;

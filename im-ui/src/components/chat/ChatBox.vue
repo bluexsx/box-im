@@ -48,10 +48,10 @@
 						<div class="send-content-area">
 							<textarea v-show="!sendImageUrl" v-model="sendText" ref="sendBox" class="send-text-area"
 								:disabled="lockMessage" @keydown.enter="sendTextMessage()" @paste="handlePaste"
-								placeholder="温馨提示:可以粘贴截图了哦~"></textarea>
+								placeholder="温馨提示:可以粘贴截图到这里了哦~"></textarea>
 
-							<div v-show="sendImageUrl"  class="send-image-area">
-								<div  class="send-image-box">
+							<div v-show="sendImageUrl" class="send-image-area">
+								<div class="send-image-box">
 									<img class="send-image" :src="sendImageUrl" />
 									<span class="send-image-close el-icon-close" title="删除"
 										@click="removeSendImage()"></span>
@@ -120,7 +120,6 @@
 		},
 		methods: {
 			handlePaste(e) {
-				console.log(e);
 				let txt = event.clipboardData.getData('Text')
 				if (typeof(txt) == 'string') {
 					this.sendText += txt
@@ -172,7 +171,8 @@
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: 1,
-					loadStatus: "loading"
+					loadStatus: "loading",
+					status: this.$enums.MESSAGE_STATUS.UNSEND
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
@@ -202,7 +202,7 @@
 				})
 			},
 			handleFileFail(e, file) {
-				
+
 				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
@@ -221,7 +221,8 @@
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: 2,
-					loadStatus: "loading"
+					loadStatus: "loading",
+					status: this.$enums.MESSAGE_STATUS.UNSEND
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
@@ -256,7 +257,6 @@
 				this.showVoice = false;
 			},
 			showVideoBox() {
-				console.log(this.friend)
 				this.$store.commit("showChatPrivateVideoBox", {
 					friend: this.friend,
 					master: true
@@ -280,11 +280,11 @@
 					method: 'post',
 					data: msgInfo
 				}).then((id) => {
-					this.$message.success("发送成功");
 					msgInfo.id = id;
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
+					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 					// 保持输入框焦点
 					this.$refs.sendBox.focus();
@@ -323,7 +323,7 @@
 					this.handleImageSuccess(res, file);
 				})
 				this.sendImageFile = null;
-				this.sendImageUrl= "";
+				this.sendImageUrl = "";
 				this.$nextTick(() => this.$refs.sendBox.focus());
 				this.scrollToBottom();
 			},
@@ -344,12 +344,12 @@
 					method: 'post',
 					data: msgInfo
 				}).then((id) => {
-					this.$message.success("发送成功");
 					this.sendText = "";
 					msgInfo.id = id;
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
+					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 				}).finally(() => {
 					// 解除锁定
@@ -390,10 +390,24 @@
 						msgInfo = JSON.parse(JSON.stringify(msgInfo));
 						msgInfo.type = 10;
 						msgInfo.content = '你撤回了一条消息';
+						msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
 						this.$store.commit("insertMessage", msgInfo);
 					})
 				});
-
+			},
+			readedMessage() {
+				if(this.chat.type == "GROUP"){
+					var url = `/message/group/readed?groupId=${this.chat.targetId}`
+				}else{
+					url = `/message/private/readed?friendId=${this.chat.targetId}`
+				}
+				this.$http({
+					url: url,
+					method: 'put'
+				}).then(() => {
+					this.$store.commit("resetUnreadCount",this.chat)
+					this.scrollToBottom();
+				})
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -420,7 +434,6 @@
 					method: 'get'
 				}).then((friend) => {
 					this.friend = friend;
-					console.log(this.friend)
 					this.$store.commit("updateChatFromFriend", friend);
 					this.$store.commit("updateFriend", friend);
 				})
@@ -469,12 +482,16 @@
 			},
 			messageAction() {
 				return `/message/${this.chat.type.toLowerCase()}/send`;
+			},
+			unreadCount() {
+				return this.chat.unreadCount;
 			}
 		},
 		watch: {
 			chat: {
 				handler(newChat, oldChat) {
-					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type || newChat.targetId != oldChat.targetId)) {
+					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type || newChat.targetId != oldChat
+							.targetId)) {
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
@@ -489,6 +506,14 @@
 					}
 				},
 				immediate: true
+			},
+			unreadCount: {
+				handler(newCount, oldCount) {
+					if(newCount > 0){
+						// 消息已读
+						this.readedMessage()
+					}
+				}
 			}
 		}
 	}
@@ -617,7 +642,6 @@
 				}
 
 				.send-btn-area {
-
 					padding: 10px;
 					position: absolute;
 					bottom: 0;

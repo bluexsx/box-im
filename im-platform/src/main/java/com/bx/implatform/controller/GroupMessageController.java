@@ -6,6 +6,7 @@ import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IGroupMessageService;
 import com.bx.implatform.dto.GroupMessageDTO;
+import com.bx.implatform.vo.PrivateMessageVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,29 @@ public class GroupMessageController {
         return ResultUtils.success();
     }
 
+    // todo 删除
     @PostMapping("/pullUnreadMessage")
     @ApiOperation(value = "拉取未读消息",notes="拉取未读消息")
     public Result pullUnreadMessage(){
         groupMessageService.pullUnreadMessage();
         return ResultUtils.success();
     }
+
+    @GetMapping("/loadMessage")
+    @ApiOperation(value = "拉取消息",notes="拉取消息,一次最多拉取100条")
+    public Result<List<GroupMessageVO>> loadMessage(@RequestParam Long minId){
+        return ResultUtils.success(groupMessageService.loadMessage(minId));
+    }
+
+
+    @PutMapping("/readed")
+    @ApiOperation(value = "消息已读",notes="将群聊中的消息状态置为已读")
+    public Result readedMessage(@RequestParam Long groupId){
+        groupMessageService.readedMessage(groupId);
+        return ResultUtils.success();
+    }
+
+
 
     @GetMapping("/history")
     @ApiOperation(value = "查询聊天记录",notes="查询聊天记录")
