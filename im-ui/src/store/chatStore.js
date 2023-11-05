@@ -15,21 +15,15 @@ export default {
 	},
 
 	mutations: {
-		initChats(state, chats) {
-			state.chats = chats||[];
+		initChats(state, chatsData) {
+			state.chats = chatsData.chats || [];
+			state.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
+			state.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
+			// 防止图片一直处在加载中状态
 			state.chats.forEach((chat) => {
 				chat.messages.forEach((msg) => {
-					// 防止图片一直处在加载中状态
 					if (msg.loadStatus == "loading") {
 						msg.loadStatus = "fail"
-					}
-					// 记录最大私聊消息id
-					if(chat.type == "PRIVATE" && msg.id && msg.id>state.privateMsgMaxId){
-						state.privateMsgMaxId = msg.id;
-					}
-					// 记录最大群聊消息id
-					if(chat.type == "GROUP" && msg.id && msg.id>state.groupMsgMaxId){
-						state.groupMsgMaxId = msg.id;
 					}
 				})
 			})
@@ -76,17 +70,17 @@ export default {
 		},
 		resetUnreadCount(state, chatInfo) {
 			for (let idx in state.chats) {
-				if (state.chats[idx].type == chatInfo.type
-				 && state.chats[idx].targetId == chatInfo.targetId) {
-					state.chats[idx].unreadCount=0;
+				if (state.chats[idx].type == chatInfo.type &&
+					state.chats[idx].targetId == chatInfo.targetId) {
+					state.chats[idx].unreadCount = 0;
 				}
 			}
 			this.commit("saveToStorage");
 		},
 		readedMessage(state, friendId) {
 			for (let idx in state.chats) {
-				if (state.chats[idx].type == 'PRIVATE'
-				 && state.chats[idx].targetId == friendId) {
+				if (state.chats[idx].type == 'PRIVATE' &&
+					state.chats[idx].targetId == friendId) {
 					state.chats[idx].messages.forEach((m) => {
 						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
 							m.status = MESSAGE_STATUS.READED
@@ -154,12 +148,11 @@ export default {
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 				chat.unreadCount++;
 			}
-
 			// 记录消息的最大id
-			if (msgInfo.id && type=="PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
+			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
 				state.privateMsgMaxId = msgInfo.id;
-			} 
-			if (msgInfo.id && type=="GROUP" && msgInfo.id > state.groupMsgMaxId) {
+			}
+			if (msgInfo.id && type == "GROUP" && msgInfo.id > state.groupMsgMaxId) {
 				state.groupMsgMaxId = msgInfo.id;
 			}
 			// 如果是已存在消息，则覆盖旧的消息数据
@@ -239,17 +232,22 @@ export default {
 			}
 			this.commit("saveToStorage");
 		},
-		
-		loadingPrivateMsg(state,loadding){
+
+		loadingPrivateMsg(state, loadding) {
 			state.loadingPrivateMsg = loadding;
 		},
-		loadingGroupMsg(state,loadding){
+		loadingGroupMsg(state, loadding) {
 			state.loadingGroupMsg = loadding;
 		},
 		saveToStorage(state) {
 			let userId = userStore.state.userInfo.id;
 			let key = "chats-" + userId;
-			localStorage.setItem(key, JSON.stringify(state.chats));
+			let chatsData = {
+				privateMsgMaxId: state.privateMsgMaxId,
+				groupMsgMaxId: state.groupMsgMaxId,
+				chats: state.chats
+			}
+			localStorage.setItem(key, JSON.stringify(chatsData));
 		},
 		clear(state) {
 			state.activeIndex = -1;
@@ -262,8 +260,10 @@ export default {
 				let userId = userStore.state.userInfo.id;
 				let key = "chats-" + userId;
 				let item = localStorage.getItem(key)
-				let chats = JSON.parse(localStorage.getItem(key));
-				context.commit("initChats", chats);
+				if (item) {
+					let chatsData = JSON.parse(item);
+					context.commit("initChats", chatsData);
+				}
 				resolve();
 			})
 		}

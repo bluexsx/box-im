@@ -1,5 +1,6 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -27,6 +28,7 @@ import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.dto.GroupMessageDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     private IMClient imClient;
 
     /**
-     * 发送群聊消息(与mysql所有交换都要进行缓存)
+     * 发送群聊消息(高并发接口，查询mysql接口都要进行缓存)
      *
      * @param dto 群聊消息
      * @return 群聊id
@@ -218,8 +220,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             Integer sendMaxId = Objects.isNull(o) ? -1 : (Integer) o;
             vos.stream().filter(vo -> vo.getGroupId().equals(id)).forEach(vo -> {
                 if (vo.getId() <= sendMaxId) {
-                    // 已推送过
-                    vo.setStatus(MessageStatus.SENDED.code());
+                    // 已读
+                    vo.setStatus(MessageStatus.READED.code());
                 } else {
                     // 未推送
                     vo.setStatus(MessageStatus.UNSEND.code());
@@ -250,6 +252,17 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         sendMessage.setData(msgInfo);
         sendMessage.setSendResult(false);
         imClient.sendGroupMessage(sendMessage);
+
+        // 记录已读位置
+        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GroupMessage::getGroupId, groupId)
+                .orderByDesc(GroupMessage::getId)
+                .last("limit 1")
+                .select(GroupMessage::getId);
+        GroupMessage message = this.getOne(wrapper);
+        String key = StrUtil.join(":",RedisKey.IM_GROUP_READED_POSITION,groupId,session.getUserId());
+        redisTemplate.opsForValue().set(key, message.getId());
+
     }
 
     /**

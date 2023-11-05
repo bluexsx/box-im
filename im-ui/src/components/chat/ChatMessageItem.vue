@@ -342,10 +342,10 @@
 						color: #f23c0f;
 						font-weight: 600;
 					}
-
+					
 					.chat-readed {
 						font-size: 10px;
-						color: #aaa;
+						color: #888;
 						font-weight: 600;
 					}
 				}

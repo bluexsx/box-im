@@ -8,11 +8,11 @@
 		<el-main style="padding: 0;">
 			<el-container>
 				<el-container class="content-box">
-					<el-main class="im-chat-main" id="chatScrollBox">
+					<el-main class="im-chat-main" id="chatScrollBox" @scroll="handleScroll">
 						<div class="im-chat-box">
 							<ul>
 								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
-									<chat-message-item :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
+									<chat-message-item v-show="idx>=showMinIdx" :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
 										:showName="showName(msgInfo)" :msgInfo="msgInfo" @delete="deleteMessage"
 										@recall="recallMessage">
 									</chat-message-item>
@@ -115,7 +115,8 @@
 					y: 0
 				},
 				showHistory: false, // 是否显示历史聊天记录
-				lockMessage: false // 是否锁定发送
+				lockMessage: false, // 是否锁定发送，
+				showMinIdx: 0 // 下标低于showMinIdx的消息不显示，否则页面会很卡
 			}
 		},
 		methods: {
@@ -236,6 +237,22 @@
 			handleCloseSide() {
 				this.showSide = false;
 			},
+			handleScrollToTop() {
+				// 多展示10条信息
+				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
+			},
+			handleScroll(e) {
+			
+				let scrollElement = e.target
+				let scrollTop = scrollElement.scrollTop
+				if (scrollTop <30 ) { // 在顶部,不滚动的情况
+					console.log("next")
+					// 多展示20条信息
+					this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
+	
+				}
+				
+			},
 			switchEmotionBox() {
 				this.showEmotion = !this.showEmotion;
 				let width = this.$refs.emotion.offsetWidth;
@@ -329,7 +346,6 @@
 			},
 			sendTextMessage() {
 				if (!this.sendText.trim()) {
-					this.$message.error("不能发送空白信息");
 					return
 				}
 				let msgInfo = {
@@ -396,16 +412,16 @@
 				});
 			},
 			readedMessage() {
-				if(this.chat.type == "GROUP"){
+				if (this.chat.type == "GROUP") {
 					var url = `/message/group/readed?groupId=${this.chat.targetId}`
-				}else{
+				} else {
 					url = `/message/private/readed?friendId=${this.chat.targetId}`
 				}
 				this.$http({
 					url: url,
 					method: 'put'
 				}).then(() => {
-					this.$store.commit("resetUnreadCount",this.chat)
+					this.$store.commit("resetUnreadCount", this.chat)
 					this.scrollToBottom();
 				})
 			},
@@ -457,7 +473,7 @@
 			},
 			scrollToBottom() {
 				this.$nextTick(() => {
-					const div = document.getElementById("chatScrollBox");
+					let div = document.getElementById("chatScrollBox");
 					div.scrollTop = div.scrollHeight;
 				});
 			}
@@ -490,8 +506,9 @@
 		watch: {
 			chat: {
 				handler(newChat, oldChat) {
-					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type || newChat.targetId != oldChat
-							.targetId)) {
+					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
+							newChat.targetId != oldChat.targetId)) {
+
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
@@ -499,6 +516,9 @@
 						}
 						this.scrollToBottom();
 						this.sendText = "";
+						// 初始状态只显示30条消息
+						let size = this.chat.messages.length;
+						this.showMinIdx = size > 30 ? size - 30 : 0;
 						// 保持输入框焦点
 						this.$nextTick(() => {
 							this.$refs.sendBox.focus();
@@ -509,12 +529,16 @@
 			},
 			unreadCount: {
 				handler(newCount, oldCount) {
-					if(newCount > 0){
+					if (newCount > 0) {
 						// 消息已读
 						this.readedMessage()
 					}
 				}
 			}
+		},
+		mounted() {
+			let div = document.getElementById("chatScrollBox");
+			div.addEventListener('scroll', this.handleScroll)
 		}
 	}
 </script>
@@ -606,8 +630,7 @@
 					color: black;
 					background-color: #f8f8f8 !important;
 					outline-color: rgba(83, 160, 231, 0.61);
-					text-align: left;
-					border: 0;
+
 				}
 
 				.send-image-area {

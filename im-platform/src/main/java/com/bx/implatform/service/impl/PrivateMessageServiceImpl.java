@@ -45,7 +45,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private IMClient imClient;
 
     /**
-     * 发送私聊消息
+     * 发送私聊消息(高并发接口，查询mysql接口都要进行缓存)
      *
      * @param dto 私聊消息
      * @return 消息id
