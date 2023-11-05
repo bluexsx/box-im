@@ -355,8 +355,11 @@
 				});
 			},
 			onScrollToTop() {
+				// #ifdef MP
 				// 防止滚动条定格在顶部，不能一直往上滚
 				this.scrollToMsgIdx(this.showMinIdx);
+				// #endif
+
 				// 多展示10条信息
 				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
 			},
