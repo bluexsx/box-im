@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
+import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.util.DateTimeUtils;
 import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.imcommon.model.IMGroupMessage;
@@ -204,6 +205,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 .gt(GroupMessage::getSendTime, minDate)
                 .in(GroupMessage::getGroupId, ids)
                 .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
+                .orderByAsc(GroupMessage::getId)
                 .last("limit 100");
 
         List<GroupMessage> messages = this.list(wrapper);

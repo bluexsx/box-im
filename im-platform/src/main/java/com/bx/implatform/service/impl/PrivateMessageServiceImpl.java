@@ -191,7 +191,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     /**
      * 拉取消息，只能拉取最近3个月的消息，一次拉取100条
      *
-     * @param minId  消息起始id
+     * @param minId 消息起始id
      * @return 聊天消息列表
      */
     @Override
@@ -212,8 +212,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .and(wrap -> wrap.and(
                         wp -> wp.eq(PrivateMessage::getSendId, session.getUserId())
                                 .in(PrivateMessage::getRecvId, friendIds))
-                                .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
-                                        .in(PrivateMessage::getSendId, friendIds)))
+                        .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
+                                .in(PrivateMessage::getSendId, friendIds)))
+                .orderByAsc(PrivateMessage::getId)
                 .last("limit 100");
 
         List<PrivateMessage> messages = this.list(queryWrapper);
@@ -236,7 +237,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     /**
      * 消息已读,将整个会话的消息都置为已读状态
      *
-     * @param friendId  好友id
+     * @param friendId 好友id
      */
     @Transactional
     @Override
@@ -257,11 +258,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         imClient.sendPrivateMessage(sendMessage);
         // 修改消息状态为已读
         LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
-        updateWrapper.eq(PrivateMessage::getSendId,friendId)
-                .eq(PrivateMessage::getRecvId,session.getUserId())
-                .eq(PrivateMessage::getStatus,MessageStatus.SENDED.code())
-                .set(PrivateMessage::getStatus,MessageStatus.READED.code());
+        updateWrapper.eq(PrivateMessage::getSendId, friendId)
+                .eq(PrivateMessage::getRecvId, session.getUserId())
+                .eq(PrivateMessage::getStatus, MessageStatus.SENDED.code())
+                .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
-        log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(),friendId);
+        log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);
     }
 }
