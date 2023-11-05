@@ -188,7 +188,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     }
 
     /**
-     * 拉取消息，只能拉取最近3个月的消息，一次拉取100条
+     * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
      *
      * @param minId  消息起始id
      * @return 聊天消息列表
@@ -198,8 +198,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         UserSession session = SessionContext.getSession();
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         List<Long> ids = members.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
-        // 只能拉取最近3个月的
-        Date minDate = DateTimeUtils.addMonths(new Date(), -3);
+        // 只能拉取最近1个月的
+        Date minDate = DateTimeUtils.addMonths(new Date(), -1);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.gt(GroupMessage::getId, minId)
                 .gt(GroupMessage::getSendTime, minDate)
