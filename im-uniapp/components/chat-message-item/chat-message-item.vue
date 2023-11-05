@@ -2,12 +2,12 @@
 	<view class="chat-msg-item">
 		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.RECALL">{{msgInfo.content}}</view>
 		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
-		{{$date.toTimeText(msgInfo.sendTime)}}</view>
-		
+			{{$date.toTimeText(msgInfo.sendTime)}}
+		</view>
+
 		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			<head-image class="avatar" :id="msgInfo.sendId" :url="headImage"
-			:name="showName" :size="80"></head-image>
+			<head-image class="avatar" :id="msgInfo.sendId" :url="headImage" :name="showName" :size="80"></head-image>
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
@@ -18,8 +18,8 @@
 						:nodes="$emo.transform(msgInfo.content)"></rich-text>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<view class="img-load-box">
-							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
-								@click.stop="onShowFullImage()">
+							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
+								lazy-load="true" @click.stop="onShowFullImage()">
 							</image>
 							<loading v-if="loading"></loading>
 						</view>
@@ -40,6 +40,11 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
+					<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
+							&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
+					<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
+							&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</text>
+
 					<!--
 					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
@@ -137,7 +142,7 @@
 				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
 			},
 			loadFail() {
-				return this.msgInfo.loadStatus && (this.msgInfo.loadStatus === "fail");
+				return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "fail";
 			},
 			data() {
 				return JSON.parse(this.msgInfo.content)
@@ -219,12 +224,13 @@
 
 				.chat-msg-bottom {
 					display: inline-block;
-					padding-right: 80rpx ;
-					.chat-msg-text {		
+					padding-right: 80rpx;
+
+					.chat-msg-text {
 						position: relative;
 						line-height: 60rpx;
 						margin-top: 10rpx;
-						padding: 10rpx;
+						padding: 10rpx 20rpx;
 						background-color: #ebebf5;
 						border-radius: 10rpx;
 						color: #333;
@@ -234,6 +240,7 @@
 						word-break: break-all;
 						white-space: pre-line;
 						box-shadow: 2px 2px 2px #c0c0f0;
+
 						&:after {
 							content: "";
 							position: absolute;
@@ -244,7 +251,7 @@
 							border-style: solid dashed dashed;
 							border-color: #ebebf5 transparent transparent;
 							overflow: hidden;
-							border-width: 20rpx;
+							border-width: 18rpx;
 						}
 					}
 
@@ -295,13 +302,14 @@
 							background-color: #eeeeee;
 							padding: 10px 15px;
 							box-shadow: 2px 2px 2px #c0c0c0;
+
 							.chat-file-info {
 								flex: 1;
 								height: 100%;
 								text-align: left;
 								font-size: 14px;
 								width: 300rpx;
-	
+
 								.chat-file-name {
 									font-size: 16px;
 									font-weight: 600;
@@ -325,14 +333,17 @@
 
 					}
 
-					.chat-msg-voice {
-						font-size: 14px;
-						cursor: pointer;
-
-						audio {
-							height: 45px;
-							padding: 5px 0;
-						}
+					
+					.chat-unread {
+						font-size: 10px;
+						color: #f23c0f;
+						font-weight: 600;
+					}
+					
+					.chat-readed {
+						font-size: 10px;
+						color: #ccc;
+						font-weight: 600;
 					}
 				}
 			}
@@ -350,15 +361,17 @@
 
 				.chat-msg-content {
 					text-align: right;
-					
+
 					.chat-msg-bottom {
-						padding-left: 80rpx ;
+						padding-left: 80rpx;
 						padding-right: 0;
+
 						.chat-msg-text {
 							margin-left: 10px;
 							background-color: #587ff0;
 							color: #fff;
 							box-shadow: 1px 1px 1px #ccc;
+
 							&:after {
 								left: auto;
 								right: -10px;

@@ -30,8 +30,6 @@ public interface IUserService extends IService<User> {
 
     List<UserVO> findUserByName(String name);
 
-    List<Long> checkOnline(String userIds);
-
     List<OnlineTerminalVO> getOnlineTerminals(String userIds);
 
 

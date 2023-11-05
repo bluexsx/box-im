@@ -6,9 +6,10 @@
 			<uni-icons class="btn-side right" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
 		</view>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
-			<scroll-view class="scroll-box" scroll-y="true" :scroll-into-view="'chat-item-'+scrollMsgIdx">
+			<scroll-view class="scroll-box" scroll-y="true" @scrolltoupper="onScrollToTop"
+			:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
 						@recall="onRecallMessage" @delete="onDeleteMessage" @download="onDownloadFile"
 						:id="'chat-item-'+idx" :msgInfo="msgInfo">
 					</chat-message-item>
@@ -32,8 +33,8 @@
 		<view class="chat-tab-bar" v-show="chatTabBox!='none' ||showKeyBoard " :style="{height:`${keyboardHeight}px`}">
 			<view v-if="chatTabBox == 'tools'" class="chat-tools">
 				<view class="chat-tools-item">
-					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
-						:onError="onUploadImageFail">
+					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
+						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
 						<view class="tool-icon iconfont icon-picture"></view>
 					</image-upload>
 					<view class="tool-name">相册</view>
@@ -66,8 +67,9 @@
 
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
 				<view class="emotion-item-list">
-					<image class="emotion-item" :title="emoText" :src="$emo.textToPath(emoText)" v-for="(emoText, i) in $emo.emoTextList"
-						:key="i" @click="selectEmoji(emoText)" mode="aspectFit" lazy-load="true"></image>
+					<image class="emotion-item" :title="emoText" :src="$emo.textToPath(emoText)"
+						v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
+						lazy-load="true"></image>
 				</view>
 			</scroll-view>
 			<view v-if="showKeyBoard"></view>
@@ -89,11 +91,12 @@
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 				chatTabBox: 'none',
 				showKeyBoard: false,
-				keyboardHeight: 322
+				keyboardHeight: 322,
+				showMinIdx: 0 // 下标小于showMinIdx的消息不显示，否则可能很卡
 			}
 		},
 		methods: {
-			showTip(){
+			showTip() {
 				uni.showToast({
 					title: "加班开发中...",
 					icon: "none"
@@ -139,6 +142,7 @@
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
+					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 					this.sendText = "";
 				}).finally(() => {
@@ -171,6 +175,7 @@
 					return;
 				}
 				this.$nextTick(() => {
+					console.log("scrollToMsgIdx",this.scrollMsgIdx)
 					this.scrollMsgIdx = idx;
 				});
 
@@ -184,7 +189,7 @@
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
 			},
-			onNavBack(){
+			onNavBack() {
 				uni.switchTab({
 					url: "/pages/chat/chat"
 				})
@@ -211,7 +216,8 @@
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: this.$enums.MESSAGE_TYPE.IMAGE,
-					loadStatus: "loading"
+					loadStatus: "loading",
+					status: this.$enums.MESSAGE_STATUS.UNSEND
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
@@ -254,7 +260,8 @@
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: this.$enums.MESSAGE_TYPE.FILE,
-					loadStatus: "loading"
+					loadStatus: "loading",
+					status: this.$enums.MESSAGE_STATUS.UNSEND
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
@@ -318,6 +325,7 @@
 								msgInfo = JSON.parse(JSON.stringify(msgInfo));
 								msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
 								msgInfo.content = '你撤回了一条消息';
+								msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
 								this.$store.commit("insertMessage", msgInfo);
 							})
 						}
@@ -337,7 +345,7 @@
 							});
 						}
 					},
-					fail(e){
+					fail(e) {
 						console.log(e);
 						uni.showToast({
 							title: "文件下载失败",
@@ -346,16 +354,39 @@
 					}
 				});
 			},
-			onShowMore(){
+			onScrollToTop() {
+				// #ifdef MP
+				// 防止滚动条定格在顶部，不能一直往上滚
+				this.scrollToMsgIdx(this.showMinIdx);
+				// #endif
+
+				// 多展示10条信息
+				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
+			},
+			onShowMore() {
 				if (this.chat.type == "GROUP") {
 					uni.navigateTo({
-						url: "/pages/group/group-info?id="+this.group.id
+						url: "/pages/group/group-info?id=" + this.group.id
 					})
-				}else{
+				} else {
 					uni.navigateTo({
-						url: "/pages/common/user-info?id="+this.friend.id
+						url: "/pages/common/user-info?id=" + this.friend.id
 					})
 				}
+			},
+			readedMessage() {
+				if (this.chat.type == "GROUP") {
+					var url = `/message/group/readed?groupId=${this.chat.targetId}`
+				} else {
+					url = `/message/private/readed?friendId=${this.chat.targetId}`
+				}
+				this.$http({
+					url: url,
+					method: 'PUT'
+				}).then(() => {
+					this.$store.commit("resetUnreadCount", this.chat)
+					this.scrollToBottom();
+				})
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -416,6 +447,9 @@
 					return 0;
 				}
 				return this.chat.messages.length;
+			},
+			unreadCount() {
+				return this.chat.unreadCount;
 			}
 		},
 		watch: {
@@ -424,15 +458,28 @@
 				if (newSize > oldSize) {
 					this.scrollToBottom();
 				}
+			},
+			unreadCount: {
+				handler(newCount, oldCount) {
+					if (newCount > 0) {
+						// 消息已读
+						this.readedMessage()
+					}
+				}
 			}
 		},
 		onLoad(options) {
 			// 聊天数据
 			this.chat = this.$store.state.chatStore.chats[options.chatIdx];
+			// 初始状态只显示30条消息
+			let size = this.chat.messages.length;
+			this.showMinIdx = size > 30 ? size - 30 : 0;
 			// 激活当前会话
 			this.$store.commit("activeChat", options.chatIdx);
 			// 页面滚到底部
 			this.scrollToBottom();
+			// 消息已读
+			this.readedMessage()
 			// 加载好友或群聊信息
 			if (this.chat.type == "GROUP") {
 				this.loadGroup(this.chat.targetId);
@@ -471,16 +518,17 @@
 				line-height: 60rpx;
 				font-size: 28rpx;
 				cursor: pointer;
-				
+
 				&.left {
 					left: 30rpx;
 				}
+
 				&.right {
 					right: 30rpx;
 				}
 			}
-			
-			
+
+
 		}
 
 

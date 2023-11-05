@@ -1,10 +1,16 @@
 <template>
 	<view class="tab-page">
-		<view class="chat-tip" v-if="$store.state.chatStore.chats.length==0">
+
+		<view v-if="loading" class="chat-loading" >
+			<loading  :size="50" :mask="false">
+				<view>消息接收中...</view>
+			</loading>
+		</view>
+		<view class="chat-tip" v-if="!loading && chatStore.chats.length==0">
 			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
-			<view v-for="(chat,index) in $store.state.chatStore.chats" :key="index">
+			<view v-for="(chat,index) in chatStore.chats" :key="index">
 				<chat-item :chat="chat" :index="index" @longpress.native="onShowMenu($event,index)"></chat-item>
 			</view>
 		</scroll-view>
@@ -97,12 +103,18 @@
 			}
 		},
 		computed: {
+			chatStore() {
+				return this.$store.state.chatStore;
+			},
 			unreadCount() {
 				let count = 0;
-				this.$store.state.chatStore.chats.forEach(chat => {
+				this.chatStore.chats.forEach(chat => {
 					count += chat.unreadCount;
 				})
 				return count;
+			},
+			loading() {
+				return this.chatStore.loadingGroupMsg || this.chatStore.loadingPrivateMsg
 			}
 		},
 		watch: {
@@ -125,5 +137,13 @@
 		text-align: left;
 		color: darkblue;
 		font-size: 30rpx;
+	}
+
+	.chat-loading {
+		display: block;
+		height: 100rpx;
+		background: white;
+		position: relative;
+		color: blue;
 	}
 </style>

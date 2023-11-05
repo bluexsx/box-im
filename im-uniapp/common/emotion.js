@@ -7,41 +7,26 @@ const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心',
 ];
 
 
-let emoImageUrlList = [];
-
-// 备注：经过测试，小程序的<rich-text>无法显示相对路径的图片，所以在这里对图片提前全部转成绝对路径
-// 提前初始化图片的url
-for (let i = 0; i < emoTextList.length; i++) {
-	let path = `/static/emoji2/${i}.gif`;
-	uni.getImageInfo({
-		src: path,
-		success(res) {
-			emoImageUrlList[i] = res.path
-		},
-		fail(res) {
-			emoImageUrlList = path;
-		}
-	});
-}
-
 
 let transform = (content) => {
 	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, textToImg);
 }
 
 
-
 // 将匹配结果替换表情图片
 let textToImg = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
+	if (idx == -1) {
+		return "";
+	}
 	let path = textToPath(emoText);
 	// #ifdef MP
 	// 微信小程序不能有前面的'/'
 	path = path.slice(1);
 	// #endif
 	let img = `<img src="${path}" style="with:35px;height:35px;
-	margin: 0 -2px;vertical-align:bottom;"/>`;
+		margin: 0 -2px;vertical-align:bottom;"/>`;
 	return img;
 }
 

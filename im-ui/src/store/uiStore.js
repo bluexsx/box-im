@@ -20,7 +20,6 @@ export default {
 		},
 		videoAcceptor:{ // 视频呼叫选择
 			show: false,
-			
 			friend:{}
 		}
 		

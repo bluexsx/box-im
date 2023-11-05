@@ -1,6 +1,8 @@
 package com.bx.imcommon.enums;
 
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public enum IMSendCode {
 
     SUCCESS(0,"发送成功"),
@@ -11,11 +13,6 @@ public enum IMSendCode {
     private Integer code;
     private String desc;
 
-    // 构造方法
-    IMSendCode(int code, String desc) {
-        this.code = code;
-        this.desc = desc;
-    }
 
     public static IMSendCode fromCode(Integer code){
         for (IMSendCode typeEnum:values()) {
@@ -27,9 +24,6 @@ public enum IMSendCode {
     }
 
 
-    public String description() {
-        return desc;
-    }
 
 
     public Integer code(){

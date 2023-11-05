@@ -1,9 +1,12 @@
 package com.bx.imcommon.enums;
 
+import lombok.AllArgsConstructor;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 public enum IMTerminalType {
 
     WEB(0,"web"),
@@ -13,10 +16,6 @@ public enum IMTerminalType {
 
     private String desc;
 
-    IMTerminalType(Integer index, String desc) {
-        this.code =index;
-        this.desc=desc;
-    }
 
     public static IMTerminalType fromCode(Integer code){
         for (IMTerminalType typeEnum:values()) {
@@ -29,10 +28,6 @@ public enum IMTerminalType {
 
     public static List<Integer> codes(){
         return Arrays.stream(values()).map(IMTerminalType::code).collect(Collectors.toList());
-    }
-
-    public String description() {
-        return desc;
     }
 
     public Integer code(){
