@@ -145,11 +145,12 @@
 					method: 'get'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
-						// 标记这条消息是不是自己发的
 						msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
 						let groupId = msgInfo.groupId;
 						let group = this.$store.state.groupStore.groups.find((g) => g.id == groupId);
-						this.handleGroupMessage(group,msgInfo);
+						if(group){
+							this.insertGroupMessage(group,msgInfo);
+						}
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取

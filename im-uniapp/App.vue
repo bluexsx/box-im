@@ -69,7 +69,12 @@
 					method: 'get'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
-						this.handlePrivateMessage(msgInfo);
+						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
+						let friendId = msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
+						let friend = store.state.friendStore.friends.find((f) => f.id == friendId);
+						if(friend){
+							this.insertPrivateMessage(friend,msgInfo);
+						}	
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
@@ -86,7 +91,12 @@
 					method: 'get'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
-						this.handleGroupMessage(msgInfo);
+						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
+						let groupId = msgInfo.groupId;
+						let group = store.state.groupStore.groups.find((g) => g.id == groupId);
+						if(group){
+							this.insertGroupMessage(group,msgInfo);
+						}
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
