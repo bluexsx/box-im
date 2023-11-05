@@ -242,16 +242,12 @@
 				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
 			},
 			handleScroll(e) {
-			
 				let scrollElement = e.target
 				let scrollTop = scrollElement.scrollTop
-				if (scrollTop <30 ) { // 在顶部,不滚动的情况
-					console.log("next")
+				if (scrollTop < 30 ) { // 在顶部,不滚动的情况
 					// 多展示20条信息
 					this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
-	
 				}
-				
 			},
 			switchEmotionBox() {
 				this.showEmotion = !this.showEmotion;
@@ -508,14 +504,16 @@
 				handler(newChat, oldChat) {
 					if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
 							newChat.targetId != oldChat.targetId)) {
-
 						if (this.chat.type == "GROUP") {
 							this.loadGroup(this.chat.targetId);
 						} else {
 							this.loadFriend(this.chat.targetId);
 						}
+						// 滚到底部
 						this.scrollToBottom();
 						this.sendText = "";
+						// 消息已读
+						this.readedMessage()
 						// 初始状态只显示30条消息
 						let size = this.chat.messages.length;
 						this.showMinIdx = size > 30 ? size - 30 : 0;

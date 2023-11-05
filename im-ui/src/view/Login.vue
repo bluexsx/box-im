@@ -1,14 +1,20 @@
 <template>
 	<div class="login-view">
 		<div class="login-intro">
-			<!--<img src="@/assets/image/login.gif"/>-->
-			<div class="login-title"></div>
 			<div>
 				<h3>盒子IM 2.0版本正式发布：</h3>
 				<ul>
 					<li>发布uniapp移动版本，支持移动端和web端同时在线，多端消息同步</li>
 					<li>目前移动端仅兼容h5和微信小程序，后续会继续兼容更多终端类型</li>
 					<li>页面风格升级：表情包更新、自动生成文字头像等</li>
+				</ul>
+			</div>
+			<div>
+				<h3>最近更新(2023-11-05)：</h3>
+				<ul>
+					<li>聊天输入框支持粘贴截图</li>
+					<li>聊天消息支持显示已读未读状态</li>
+					<li>修改拉取离线消息机制:用户登录后,自动从服务器同步最近3个月的消息</li>
 				</ul>
 			</div>
 			<div>
@@ -26,7 +32,6 @@
 				</a>
 
 			</div>
-
 		</div>
 		<el-form class="login-form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
 			@keyup.enter.native="submitForm('loginForm')">
@@ -163,7 +168,6 @@
 
 		.login-intro {
 			flex: 1;
-			height: 300px;
 			padding: 40px;
 			max-width: 600px;
 			.login-title {

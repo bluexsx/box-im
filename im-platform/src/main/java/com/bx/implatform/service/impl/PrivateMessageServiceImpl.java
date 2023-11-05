@@ -205,7 +205,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
         // 只能拉取最近6个月的
-        Date minDate = DateTimeUtils.addMonths(new Date(), -1);
+        Date minDate = DateTimeUtils.addMonths(new Date(), -3);
         queryWrapper.gt(PrivateMessage::getId, minId)
                 .ge(PrivateMessage::getSendTime, minDate)
                 .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())

@@ -28,12 +28,6 @@ public class UserController {
     private IUserService userService;
 
 
-    @GetMapping("/online")
-    @ApiOperation(value = "判断用户是否在线",notes="返回在线的用户id集合")
-    public Result checkOnline(@NotEmpty @RequestParam("userIds") String userIds){
-        List<Long> onlineIds = userService.checkOnline(userIds);
-        return ResultUtils.success(onlineIds);
-    }
 
     @GetMapping("/terminal/online")
     @ApiOperation(value = "判断用户哪个终端在线",notes="返回在线的用户id的终端集合")

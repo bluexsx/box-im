@@ -198,7 +198,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         List<Long> ids = members.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
         // 只能拉取最近3个月的
-        Date minDate = DateTimeUtils.addMonths(new Date(), -1);
+        Date minDate = DateTimeUtils.addMonths(new Date(), -3);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.gt(GroupMessage::getId, minId)
                 .gt(GroupMessage::getSendTime, minDate)
