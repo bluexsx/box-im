@@ -123,7 +123,12 @@
 					method: 'get'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
-						this.handlePrivateMessage(msgInfo);
+						msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
+						let friendId = msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
+						let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
+						if(friend){
+							this.insertPrivateMessage(friend,msgInfo);
+						}	
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
@@ -140,7 +145,11 @@
 					method: 'get'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
-						this.handleGroupMessage(msgInfo);
+						// 标记这条消息是不是自己发的
+						msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
+						let groupId = msgInfo.groupId;
+						let group = this.$store.state.groupStore.groups.find((g) => g.id == groupId);
+						this.handleGroupMessage(group,msgInfo);
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
