@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/box-im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password: root123456
 
   redis:
     host: 127.0.0.1
@@ -29,11 +29,11 @@ mybatis-plus:
     # *.xml的具体路径
     - classpath*:mapper/*.xml
 minio:
-  endpoint: http://127.0.0.1:9001 #内网地址
-  public: http://127.0.0.1:9001  #外网访问地址
+  endpoint: http://42.194.187.243:9001 #内网地址
+  public: http://42.194.187.243:9001 #外网访问地址
   accessKey: admin
-  secretKey: 12345678
-  bucketName: box-im
+  secretKey: admin123456
+  bucketName: box-im2
   imagePath: image
   filePath: file
 
@@ -43,7 +43,7 @@ webrtc:
 
 jwt:
   accessToken:
-    expireIn: 1800  #半个小时
+    expireIn: 1800 #半个小时
     secret: MIIBIjANBgkq
   refreshToken:
     expireIn: 604800 #7天

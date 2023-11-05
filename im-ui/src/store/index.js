@@ -25,7 +25,6 @@ export default new Vuex.Store({
 			this.commit("initGroupStore");
 			this.commit("initChatStore");
 		}
-		
 	},
 	strict: process.env.NODE_ENV !== 'production'
 })
