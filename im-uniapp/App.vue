@@ -58,6 +58,10 @@
 						this.exit();
 					} else if (res.code != 3000) {
 						// 重新连接
+						uni.showToast({
+							title: '连接已断开，尝试重新连接...',
+							icon: 'none',
+						})
 						wsApi.connect();
 					}
 				})
@@ -66,7 +70,7 @@
 				store.commit("loadingPrivateMsg", true)
 				http({
 					url: "/message/private/loadMessage?minId=" + minId,
-					method: 'get'
+					method: 'GET'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
 						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
@@ -76,6 +80,7 @@
 							this.insertPrivateMessage(friend,msgInfo);
 						}	
 					})
+					store.commit("refreshChats");
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadPrivateMessage(msgInfos[99].id);
@@ -88,7 +93,7 @@
 				store.commit("loadingGroupMsg", true)
 				http({
 					url: "/message/group/loadMessage?minId=" + minId,
-					method: 'get'
+					method: 'GET'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
 						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
@@ -98,6 +103,7 @@
 							this.insertGroupMessage(group,msgInfo);
 						}
 					})
+					store.commit("refreshChats");
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadGroupMessage(msgInfos[99].id);

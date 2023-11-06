@@ -79,7 +79,6 @@ export default {
 				if (state.chats[idx].type == 'PRIVATE' &&
 					state.chats[idx].targetId == friendId) {
 					state.chats[idx].messages.forEach((m) => {
-						console.log("readedMessage")
 						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
 							m.status = MESSAGE_STATUS.READED
 						}
@@ -128,17 +127,20 @@ export default {
 					break;
 				}
 			}
-			// 插入新的数据
-			if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
-				chat.lastContent = "[图片]";
-			} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
-				chat.lastContent = "[文件]";
-			} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
-				chat.lastContent = "[语音]";
-			} else {
-				chat.lastContent = msgInfo.content;
+			
+			// 会话列表内容
+			if(!state.loadingPrivateMsg && !state.loadingPrivateMsg){
+				if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
+					chat.lastContent = "[图片]";
+				} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
+					chat.lastContent = "[文件]";
+				} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
+					chat.lastContent = "[语音]";
+				} else {
+					chat.lastContent = msgInfo.content;
+				}
+				chat.lastSendTime = msgInfo.sendTime;
 			}
-			chat.lastSendTime = msgInfo.sendTime;
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 				chat.unreadCount++;
@@ -234,6 +236,29 @@ export default {
 		loadingGroupMsg(state, loadding) {
 			state.loadingGroupMsg = loadding;
 		},
+		refreshChats(state){
+			state.chats.forEach((chat)=>{
+				if(chat.messages.length>0){
+					let msgInfo = chat.messages[chat.messages.length-1];
+					if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
+						chat.lastContent = "[图片]";
+					} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
+						chat.lastContent = "[文件]";
+					} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
+						chat.lastContent = "[语音]";
+					} else {
+						chat.lastContent = msgInfo.content;
+					}
+					chat.lastSendTime = msgInfo.sendTime;
+				}else{
+					chat.lastContent = "";
+					chat.lastSendTime  = new Date()
+				}
+			})
+			state.chats.sort((chat1, chat2) => {
+				return chat2.lastSendTime-chat1.lastSendTime;
+			});
+		},
 		saveToStorage(state) {
 			let userId = userStore.state.userInfo.id;
 			let key = "chats-" + userId;
@@ -242,10 +267,10 @@ export default {
 				groupMsgMaxId: state.groupMsgMaxId,
 				chats: state.chats
 			}
-			uni.setStorage({
-				key: key,
-				data: chatsData
-			})
+			// uni.setStorage({
+			// 	key: key,
+			// 	data: chatsData
+			// })
 		},
 		clear(state) {
 			state.chats = [];
