@@ -35,9 +35,11 @@ export default {
 				if (state.chats[i].type == chatInfo.type &&
 					state.chats[i].targetId === chatInfo.targetId) {
 					chat = state.chats[i];
-					// 放置头部
-					state.chats.splice(i, 1);
-					state.chats.unshift(chat);
+					// 放置头部（这个操作非常耗资源，正在加载消息时不执行）
+					if(!state.loadingPrivateMsg && !state.loadingPrivateMsg){
+						state.chats.splice(i, 1);
+						state.chats.unshift(chat);
+					}
 					break;
 				}
 			}
