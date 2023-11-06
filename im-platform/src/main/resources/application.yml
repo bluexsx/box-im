@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/box-im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     username: root
-    password: root123456
+    password: root
 
   redis:
     host: 127.0.0.1

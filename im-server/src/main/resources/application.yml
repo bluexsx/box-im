@@ -12,7 +12,7 @@ websocket:
   port: 8878
 
 tcpsocket:
-  enable: true # 暂时不开启
+  enable: false # 暂时不开启
   port: 8879
 
 jwt:
