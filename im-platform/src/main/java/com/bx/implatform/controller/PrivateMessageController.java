@@ -37,7 +37,7 @@ public class PrivateMessageController {
         return ResultUtils.success();
     }
 
-
+    // todo 删除
     @PostMapping("/pullUnreadMessage")
     @ApiOperation(value = "拉取未读消息",notes="拉取未读消息")
     public Result pullUnreadMessage(){
@@ -45,6 +45,19 @@ public class PrivateMessageController {
         return ResultUtils.success();
     }
 
+
+    @GetMapping("/loadMessage")
+    @ApiOperation(value = "拉取消息",notes="拉取消息,一次最多拉取100条")
+    public Result<List<PrivateMessageVO>> loadMessage(@RequestParam Long minId){
+        return ResultUtils.success(privateMessageService.loadMessage(minId));
+    }
+
+    @PutMapping("/readed")
+    @ApiOperation(value = "消息已读",notes="将会话中接收的消息状态置为已读")
+    public Result readedMessage(@RequestParam Long friendId){
+        privateMessageService.readedMessage(friendId);
+        return ResultUtils.success();
+    }
 
     @GetMapping("/history")
     @ApiOperation(value = "查询聊天记录",notes="查询聊天记录")

@@ -5,25 +5,27 @@ import friendStore from './friendStore.js';
 import userStore from './userStore.js';
 import groupStore from './groupStore.js';
 import uiStore from './uiStore.js';
-import VuexPersistence from 'vuex-persist'
-
-
-const vuexLocal = new VuexPersistence({
-    storage: window.localStorage,
-	modules: ["userStore","chatStore"]
-})
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
 	modules: {chatStore,friendStore,userStore,groupStore,uiStore},
 	state: {},
-	plugins: [vuexLocal.plugin],
 	mutations: {
-		initStore(state){
-			this.commit("initFriendStore");
-			this.commit("initGroupStore");
-			this.commit("initChatStore");
+	},
+	actions: {
+		load(context) {
+			console.log("load")
+			return this.dispatch("loadUser").then(() => {
+				const promises = [];
+				promises.push(this.dispatch("loadFriend"));
+				promises.push(this.dispatch("loadGroup"));
+				promises.push(this.dispatch("loadChat"));
+				return Promise.all(promises);
+			})
+		},
+		unload(context){
+			context.commit("clear");
 		}
 	},
 	strict: process.env.NODE_ENV !== 'production'

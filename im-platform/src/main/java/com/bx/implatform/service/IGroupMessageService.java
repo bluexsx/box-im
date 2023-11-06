@@ -17,5 +17,9 @@ public interface IGroupMessageService extends IService<GroupMessage> {
 
     void pullUnreadMessage();
 
+    List<GroupMessageVO> loadMessage(Long minId);
+
+    void readedMessage(Long groupId);
+
     List<GroupMessageVO> findHistoryMessage(Long groupId, Long page, Long size);
 }

@@ -43,9 +43,6 @@ const request = (options) => {
 					requestList.forEach(cb => cb());
 					requestList = [];
 					isRefreshToken = false;
-					// 保存token
-					console.log(res.data.data.accessToken)
-					
 					// 重新发送刚才的请求
 					return resolve(request(options))
 

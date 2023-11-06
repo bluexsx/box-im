@@ -15,6 +15,9 @@ let transform = (content) => {
 let textToImg = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
+	if(idx==-1){
+		return "";
+	}
 	let url = require(`@/assets/emoji/${idx}.gif`);
 	return `<img src="${url}" style="width:40px;height:40px;vertical-align:bottom;"/>`
 }

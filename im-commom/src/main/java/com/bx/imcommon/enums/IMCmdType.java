@@ -1,7 +1,9 @@
 package com.bx.imcommon.enums;
 
 
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public enum IMCmdType {
 
     LOGIN(0,"登陆"),
@@ -11,15 +13,10 @@ public enum IMCmdType {
     GROUP_MESSAGE(4,"群发消息");
 
 
-
     private Integer code;
 
     private String desc;
 
-    IMCmdType(Integer index, String desc) {
-        this.code =index;
-        this.desc=desc;
-    }
 
     public static IMCmdType fromCode(Integer code){
         for (IMCmdType typeEnum:values()) {
@@ -30,10 +27,6 @@ public enum IMCmdType {
         return null;
     }
 
-
-    public String description() {
-        return desc;
-    }
 
     public Integer code(){
         return this.code;

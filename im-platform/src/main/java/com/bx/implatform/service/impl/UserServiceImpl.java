@@ -246,18 +246,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }).collect(Collectors.toList());
     }
 
-    /**
-     * 判断用户是否在线，返回在线的用户id列表
-     *
-     * @param userIds 用户id，多个用‘,’分割
-     * @return 在线用户id列表
-     */
-    @Override
-    public List<Long> checkOnline(String userIds) {
-        List<Long> userIdList = Arrays.stream(userIds.split(","))
-            .map(Long::parseLong).collect(Collectors.toList());
-        return imClient.getOnlineUser(userIdList);
-    }
 
 
     /**

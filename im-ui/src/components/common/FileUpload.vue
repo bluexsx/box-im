@@ -40,7 +40,7 @@
 			handleSuccess(res, file) {
 				this.loading && this.loading.close();
 				if (res.code == 200) {
-					this.$emit("success", res, file);
+					this.$emit("success", res.data, file);
 				} else {
 					this.$message.error(res.message);
 					this.$emit("fail", res, file);

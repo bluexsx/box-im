@@ -23,7 +23,7 @@ public class PullUnreadGroupMessageTask extends  AbstractPullMessageTask {
     @Override
     public void pullMessage() {
         // 从redis拉取未读消息
-        String key = String.join(":", IMRedisKey.IM_UNREAD_GROUP_QUEUE,IMServerGroup.serverId+"");
+        String key = String.join(":", IMRedisKey.IM_MESSAGE_GROUP_QUEUE,IMServerGroup.serverId+"");
         JSONObject jsonObject = (JSONObject)redisTemplate.opsForList().leftPop(key,10, TimeUnit.SECONDS);
         if(jsonObject != null){
             IMRecvInfo recvInfo = jsonObject.toJavaObject(IMRecvInfo.class);

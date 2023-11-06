@@ -79,7 +79,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Override
     public void delFriend(Long friendId) {
         long userId = SessionContext.getSession().getUserId();
-        // 互相解除好友关系
+        // 互相解除好友关系，走代理清理缓存
         FriendServiceImpl proxy = (FriendServiceImpl)AopContext.currentProxy();
         proxy.unbindFriend(userId,friendId);
         proxy.unbindFriend(friendId,userId);
