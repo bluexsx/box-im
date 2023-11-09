@@ -1,8 +1,10 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
@@ -198,6 +200,9 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         UserSession session = SessionContext.getSession();
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         List<Long> ids = members.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
+        if(CollectionUtil.isEmpty(ids)){
+            return Collections.EMPTY_LIST;
+        }
         // 只能拉取最近1个月的
         Date minDate = DateTimeUtils.addMonths(new Date(), -1);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
@@ -242,6 +247,16 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     @Override
     public void readedMessage(Long groupId) {
         UserSession session = SessionContext.getSession();
+        // 取出最后的消息id
+        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GroupMessage::getGroupId, groupId)
+                .orderByDesc(GroupMessage::getId)
+                .last("limit 1")
+                .select(GroupMessage::getId);
+        GroupMessage message = this.getOne(wrapper);
+        if(Objects.isNull(message)){
+            return;
+        }
         // 推送消息给自己的其他终端
         GroupMessageVO msgInfo = new GroupMessageVO();
         msgInfo.setType(MessageType.READED.code());
@@ -254,14 +269,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         sendMessage.setData(msgInfo);
         sendMessage.setSendResult(false);
         imClient.sendGroupMessage(sendMessage);
-
-        // 记录已读位置
-        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(GroupMessage::getGroupId, groupId)
-                .orderByDesc(GroupMessage::getId)
-                .last("limit 1")
-                .select(GroupMessage::getId);
-        GroupMessage message = this.getOne(wrapper);
+        // 记录已读消息位置
         String key = StrUtil.join(":",RedisKey.IM_GROUP_READED_POSITION,groupId,session.getUserId());
         redisTemplate.opsForValue().set(key, message.getId());
 

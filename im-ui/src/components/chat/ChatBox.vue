@@ -512,11 +512,13 @@
 						// 滚到底部
 						this.scrollToBottom();
 						this.sendText = "";
+						this.showSide = false;
 						// 消息已读
 						this.readedMessage()
 						// 初始状态只显示30条消息
 						let size = this.chat.messages.length;
 						this.showMinIdx = size > 30 ? size - 30 : 0;
+						
 						// 保持输入框焦点
 						this.$nextTick(() => {
 							this.$refs.sendBox.focus();
@@ -573,7 +575,7 @@
 
 			.im-chat-box {
 				>ul {
-					padding: 20px;
+					padding: 0 20px;
 
 					li {
 						list-style-type: none;
@@ -612,6 +614,7 @@
 			}
 
 			.send-content-area {
+				position: relative;
 				display: flex;
 				flex-direction: column;
 				height: 100%;

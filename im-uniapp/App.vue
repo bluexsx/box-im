@@ -28,10 +28,8 @@
 			},
 			initWebSocket() {
 				let loginInfo = uni.getStorageSync("loginInfo")
-				let userId = store.state.userStore.userInfo.id;
-				wsApi.init(process.env.WS_URL, loginInfo.accessToken);
-				wsApi.connect();
-				wsApi.onOpen()
+				wsApi.init();
+				wsApi.connect(process.env.WS_URL, loginInfo.accessToken);
 				wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
 						// 异地登录，强制下线
@@ -49,20 +47,15 @@
 					}
 				});
 				wsApi.onClose((res) => {
-					// 1006是服务器主动断开，3000是APP主动关闭
-					if (res.code == 1006) {
-						uni.showToast({
-							title: '连接已断开，请重新登录',
-							icon: 'none',
-						})
-						this.exit();
-					} else if (res.code != 3000) {
+					// 3000是客户端主动关闭
+					if (res.code != 3000) {
 						// 重新连接
 						uni.showToast({
 							title: '连接已断开，尝试重新连接...',
 							icon: 'none',
 						})
-						wsApi.connect();
+						let loginInfo = uni.getStorageSync("loginInfo")
+						wsApi.reconnect(process.env.WS_URL, loginInfo.accessToken);
 					}
 				})
 			},

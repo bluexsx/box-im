@@ -1,20 +1,12 @@
 let wsurl = "";
 let accessToken = "";
-let openCallBack = null;
 let messageCallBack = null;
 let closeCallBack = null;
 let isConnect = false; //连接标识 避免重复连接
-let hasInit = false;
+let rec = null;
 
-let init = (url, token) => {
-	wsurl = url;
-	accessToken = token;
-	// 防止重新注册事件
-	if(hasInit){
-		return;
-	}
-	hasInit = true;
-	
+let init = () => {
+
 	uni.onSocketOpen((res) => {
 		console.log("WebSocket连接已打开");
 		isConnect = true;
@@ -35,8 +27,6 @@ let init = (url, token) => {
 		if (sendInfo.cmd == 0) {
 			heartCheck.start()
 			console.log('WebSocket登录成功')
-			// 登录成功才算连接完成
-			openCallBack && openCallBack();
 		} else if (sendInfo.cmd == 1) {
 			// 重新开启心跳定时
 			heartCheck.reset();
@@ -48,7 +38,6 @@ let init = (url, token) => {
 	})
 	
 	uni.onSocketClose((res) => {
-		console.log(res)
 		console.log('WebSocket连接关闭')
 		isConnect = false; //断开后修改标识
 		closeCallBack && closeCallBack(res);
@@ -64,7 +53,9 @@ let init = (url, token) => {
 	})
 };
 
-let connect = ()=>{
+let connect = (url, token)=>{
+	wsurl = url;
+	accessToken = token;
 	if (isConnect) {
 		return;
 	}
@@ -83,6 +74,18 @@ let connect = ()=>{
 	});
 }
 
+//定义重连函数
+let reconnect = (wsurl,accessToken) => {
+	console.log("尝试重新连接");
+	if (isConnect){
+		//如果已经连上就不在重连了
+		return; 
+	}
+	rec && clearTimeout(rec);
+	rec = setTimeout(function() { // 延迟15秒重连  避免过多次过频繁请求重连
+		connect(wsurl,accessToken);
+	}, 15000);
+};
 
 //设置关闭连接
 let close = () => {
@@ -142,9 +145,6 @@ function onMessage(callback) {
 	messageCallBack = callback;
 }
 
-function onOpen(callback) {
-	openCallBack = callback;
-}
 
 function onClose(callback) {
 	closeCallBack = callback;
@@ -155,9 +155,9 @@ function onClose(callback) {
 export {
 	init,
 	connect,
+	reconnect,
 	close,
 	sendMessage,
 	onMessage,
-	onOpen,
 	onClose
 }

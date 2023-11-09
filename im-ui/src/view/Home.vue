@@ -74,7 +74,7 @@
 		data() {
 			return {
 				showSettingDialog: false,
-				lastPlayAudioTime: new Date()-1000
+				lastPlayAudioTime: new Date() - 1000
 			}
 		},
 		methods: {
@@ -84,16 +84,19 @@
 					this.loadPrivateMessage(this.$store.state.chatStore.privateMsgMaxId);
 					this.loadGroupMessage(this.$store.state.chatStore.groupMsgMaxId);
 					// ws初始化
-					this.$wsApi.init(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
-					this.$wsApi.connect();
-					this.$wsApi.onOpen();
+					this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
 					this.$wsApi.onMessage((cmd, msgInfo) => {
 						if (cmd == 2) {
+							// 关闭ws
+							this.$wsApi.close(3000)
 							// 异地登录，强制下线
-							this.$message.error("您已在其他地方登陆，将被强制下线");
-							setTimeout(() => {
-								location.href = "/";
-							}, 1000)
+							this.$alert("您已在其他地方登陆，将被强制下线", "强制下线通知", {
+								confirmButtonText: '确定',
+								callback: action => {
+									location.href = "/";
+								}
+							});
+
 						} else if (cmd == 3) {
 							// 插入私聊消息
 							this.handlePrivateMessage(msgInfo);
@@ -104,20 +107,18 @@
 					})
 					this.$wsApi.onClose((e) => {
 						console.log(e);
-						if (e.code == 1006) {
-							// 服务器主动断开
-							this.$message.error("连接已断开，请重新登录");
-							location.href = "/";
-						} else {
-							this.$wsApi.connect();
+						if (e.code != 3000) {   
+							// 断线重连
+							this.$message.error("连接断开，正在尝试重新连接...");
+							this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
 						}
 					});
 				}).catch((e) => {
-					console.log("初始化失败",e);
+					console.log("初始化失败", e);
 				})
 			},
 			loadPrivateMessage(minId) {
-				this.$store.commit("loadingPrivateMsg",true)
+				this.$store.commit("loadingPrivateMsg", true)
 				this.$http({
 					url: "/message/private/loadMessage?minId=" + minId,
 					method: 'get'
@@ -126,20 +127,20 @@
 						msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
 						let friendId = msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
 						let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
-						if(friend){
-							this.insertPrivateMessage(friend,msgInfo);
-						}	
+						if (friend) {
+							this.insertPrivateMessage(friend, msgInfo);
+						}
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadPrivateMessage(msgInfos[99].id);
-					}else{
-						this.$store.commit("loadingPrivateMsg",false)
+					} else {
+						this.$store.commit("loadingPrivateMsg", false)
 					}
 				})
 			},
 			loadGroupMessage(minId) {
-				this.$store.commit("loadingGroupMsg",true)
+				this.$store.commit("loadingGroupMsg", true)
 				this.$http({
 					url: "/message/group/loadMessage?minId=" + minId,
 					method: 'get'
@@ -148,15 +149,15 @@
 						msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
 						let groupId = msgInfo.groupId;
 						let group = this.$store.state.groupStore.groups.find((g) => g.id == groupId);
-						if(group){
-							this.insertGroupMessage(group,msgInfo);
+						if (group) {
+							this.insertGroupMessage(group, msgInfo);
 						}
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadGroupMessage(msgInfos[99].id);
-					}else{
-						this.$store.commit("loadingGroupMsg",false)
+					} else {
+						this.$store.commit("loadingGroupMsg", false)
 					}
 				})
 			},
@@ -212,7 +213,7 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				if(!msg.selfSend && msg.status != this.$enums.MESSAGE_STATUS.READED){
+				if (!msg.selfSend && msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
 				}
 			},
@@ -247,7 +248,7 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				if(!msg.selfSend && msg.status != this.$enums.MESSAGE_STATUS.READED){
+				if (!msg.selfSend && msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
 				}
 			},
@@ -257,14 +258,14 @@
 				location.href = "/";
 			},
 			playAudioTip() {
-				if(new Date() - this.lastPlayAudioTime > 1000){
+				if (new Date() - this.lastPlayAudioTime > 1000) {
 					this.lastPlayAudioTime = new Date();
 					let audio = new Audio();
 					let url = require(`@/assets/audio/tip.wav`);
 					audio.src = url;
 					audio.play();
-				} 
-				
+				}
+
 			},
 			showSetting() {
 				this.showSettingDialog = true;
