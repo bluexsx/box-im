@@ -18,7 +18,6 @@ let textToImg = (emoText) => {
 	if(idx==-1){
 		return emoText;
 	}
-	return emoText;
 	let url = require(`@/assets/emoji/${idx}.gif`);
 	return `<img src="${url}" style="width:40px;height:40px;vertical-align:bottom;"/>`
 }
