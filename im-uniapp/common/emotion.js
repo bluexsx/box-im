@@ -18,7 +18,7 @@ let textToImg = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
 	if (idx == -1) {
-		return "";
+		return emoText;
 	}
 	let path = textToPath(emoText);
 	// #ifdef MP

@@ -9,7 +9,7 @@
 				{{ chat.showName}}
 			</view>
 			<view class="chat-content">
-				<view class="chat-content-text" v-html="$emo.transform(chat.lastContent)"></view>
+				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
 				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime)}}</view>
 			</view>
 		</view>
