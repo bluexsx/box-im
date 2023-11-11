@@ -19,12 +19,22 @@ let textToImg = (emoText) => {
 		return emoText;
 	}
 	let url = require(`@/assets/emoji/${idx}.gif`);
-	return `<img src="${url}" style="width:40px;height:40px;vertical-align:bottom;"/>`
+	return `<img src="${url}" style="width:35px;height:35px;vertical-align:bottom;"/>`
 }
 
+let textToUrl = (emoText) => {
+	let word = emoText.replace(/\#|\;/gi, '');
+	let idx = emoTextList.indexOf(word);
+	if(idx==-1){
+		return "";
+	}
+	let url = require(`@/assets/emoji/${idx}.gif`);
+	return url;
+}
 
 export default {
 	emoTextList,
 	transform,
-	textToImg
+	textToImg,
+	textToUrl
 }

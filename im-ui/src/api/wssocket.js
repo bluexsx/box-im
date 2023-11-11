@@ -20,7 +20,6 @@ let connect = (wsurl,accessToken) => {
 			} else if (sendInfo.cmd == 1) {
 				// 重新开启心跳定时
 				heartCheck.reset();
-				console.log("")
 			} else {
 				// 其他消息转发出去
 				console.log("收到消息:",sendInfo);  
