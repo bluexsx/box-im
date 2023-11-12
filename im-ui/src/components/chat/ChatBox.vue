@@ -219,7 +219,6 @@
 			},
 			createSendText() {
 				let sendText = ""
-				console.log(this.$refs.editBox.childNodes);
 				this.$refs.editBox.childNodes.forEach((node) => {
 					if (node.nodeName == "#text") {
 						sendText += node.textContent;
@@ -233,10 +232,8 @@
 			},
 			createAtUserIds() {
 				let ids = [];
-				console.log(this.$refs.editBox.childNodes);
 				this.$refs.editBox.childNodes.forEach((node) => {
 					if (node.nodeName == "SPAN") {
-						console.log(node);
 						ids.push(node.dataset.id);
 					}
 				})

@@ -17,9 +17,7 @@
 							<radio :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>
 						</view>
 					</view>
-			
-						
-					
+		
 				</view>
 			</scroll-view>
 		</view>

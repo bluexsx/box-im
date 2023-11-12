@@ -1,5 +1,5 @@
 <template>
-	<view class="head-image" @click="showUserInfo($event)">
+	<view class="head-image" @click="showUserInfo($event)" :title="name">
 		<image class="avatar-image" v-if="url" :src="url" 
 		:style="avatarImageStyle"  lazy-load="true"  mode="aspectFill"/>
 		<view class="avatar-text" v-if="!url" :style="avatarTextStyle">
@@ -26,7 +26,7 @@
 			},
 			size: {
 				type: Number,
-				default: 50
+				default: 20
 			},
 			url: {
 				type: String
@@ -77,6 +77,8 @@
 			position: relative;
 			overflow: hidden;
 			border-radius: 10%;
+			border: 1px solid #ccc;
+			vertical-align: bottom;	
 		}
 
 		.avatar-text {

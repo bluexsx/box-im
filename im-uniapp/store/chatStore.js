@@ -158,6 +158,7 @@ export default {
 					chat.atAll = true;
 				}
 			}
+			
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
 				state.privateMsgMaxId = msgInfo.id;
