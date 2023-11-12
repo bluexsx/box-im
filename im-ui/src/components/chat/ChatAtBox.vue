@@ -4,7 +4,7 @@
 		<div v-for="(member,idx) in showMembers" :key="member.id">
 			<div class="member-item" :class="idx==activeIdx?'active':''" @click="onSelectMember(member)">
 				<div class="member-avatar">
-					<head-image :size="30" :name="member.aliasName" :url="member.headImage"> </head-image>
+					<head-image :size="25" :name="member.aliasName" :url="member.headImage"> </head-image>
 				</div>
 				<div class="member-name">
 					<div>{{member.aliasName}}</div>
@@ -140,9 +140,8 @@
 			height: 35px;
 			margin-bottom: 1px;
 			position: relative;
-			padding-left: 10px;
+			padding: 0 5px;
 			align-items: center;
-			padding-right: 5px;
 			background-color: #fafafa;
 			white-space: nowrap;
 			box-sizing: border-box;
@@ -157,8 +156,8 @@
 
 
 			.member-avatar {
-				width: 30px;
-				height: 30px;
+				width: 25px;
+				height: 25px;
 			}
 
 			.member-name {

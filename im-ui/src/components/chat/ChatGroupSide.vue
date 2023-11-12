@@ -39,9 +39,9 @@
 				</el-form-item>
 
 				<div class="btn-group">
-					<el-button v-show="editing" type="success" @click="handleSaveGroup()">提交</el-button>
+					<el-button v-show="editing" type="success" @click="onSaveGroup()">提交</el-button>
 					<el-button v-show="!editing" type="primary" @click="editing=!editing">编辑</el-button>
-					<el-button type="danger" v-show="!isOwner" @click="handleQuit()">退出群聊</el-button>
+					<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出群聊</el-button>
 				</div>
 			</el-form>
 		</el-scrollbar>
@@ -75,7 +75,7 @@
 			}
 		},
 		methods: {
-			handleClose() {
+			onClose() {
 				this.$emit('close');
 			},
 			loadGroupMembers() {
@@ -86,7 +86,7 @@
 					this.groupMembers = members;
 				})
 			},
-			handleSaveGroup() {
+			onSaveGroup() {
 				let vo = this.group;
 				this.$http({
 					url: "/group/modify",
@@ -98,7 +98,7 @@
 					this.$message.success("修改成功");
 				})
 			},
-			handleQuit() {
+			onQuit() {
 				this.$confirm('退出群聊后将不再接受群里的消息，确认退出吗？', '确认退出?', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',

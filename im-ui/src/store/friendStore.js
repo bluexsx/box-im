@@ -27,13 +27,10 @@ export default {
 		},
 		removeFriend(state, index) {
 			state.friends.splice(index, 1);
-			if(state.activeIndex  >= state.friends.length){
-				state.activeIndex = state.friends.length-1;
-			}
+			state.activeIndex = -1;
 		},
 		addFriend(state, friend) {
 			state.friends.push(friend);
-			state.activeIndex = state.friends.length-1;
 		},
 		refreshOnlineStatus(state){
 			let userIds = [];

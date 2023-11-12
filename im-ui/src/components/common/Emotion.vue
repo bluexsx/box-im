@@ -4,7 +4,7 @@
 			<el-scrollbar style="height:250px">
 				<div class="emotion-item-list">
 					<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="i"
-						@click="clickHandler(emoText)" v-html="$emo.textToImg(emoText)">
+						@click="onClickEmo(emoText)" v-html="$emo.textToImg(emoText)">
 					</div>
 				</div>
 			</el-scrollbar>
@@ -25,7 +25,7 @@
 			}
 		},
 		methods: {
-			clickHandler(emoText) {
+			onClickEmo(emoText) {
 				let emotion = `#${emoText};`
 				this.$emit('emotion', emotion)
 			},

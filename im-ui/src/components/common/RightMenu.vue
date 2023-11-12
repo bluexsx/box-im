@@ -3,7 +3,7 @@
 		<div class="right-menu" :style="{'left':pos.x+'px','top':pos.y+'px'}">
 			<el-menu text-color="#333333">
 				<el-menu-item v-for="(item) in items" :key="item.key" :title="item.name"
-					@click="handleSelectMenu(item)">
+					@click="onSelectMenu(item)">
 					<span :class="item.icon"></span>
 					<span>{{item.name}}</span>
 					
@@ -31,7 +31,7 @@
 			close() {
 				this.$emit("close");
 			},
-			handleSelectMenu(item) {
+			onSelectMenu(item) {
 				this.$emit("select", item);
 			}
 		}

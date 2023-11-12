@@ -1,12 +1,12 @@
 <template>
-	<el-dialog class="setting" title="设置" :visible.sync="visible"  width="500px" :before-close="handleClose">
+	<el-dialog class="setting" title="设置" :visible.sync="visible"  width="500px" :before-close="onClose">
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm">
 			<el-form-item label="头像">
 				<file-upload  class="avatar-uploader"
 				:action="imageAction" 
 				:showLoading="true"
 				:maxSize="maxSize"  
-				@success="handleUploadSuccess"
+				@success="onUploadSuccess"
 				
 				:fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
 					<img v-if="userInfo.headImage" :src="userInfo.headImage" class="avatar">
@@ -31,8 +31,8 @@
 		</el-form>
 
 		<span slot="footer" class="dialog-footer">
-			<el-button @click="handleClose()">取 消</el-button>
-			<el-button type="primary" @click="handleSubmit()">确 定</el-button>
+			<el-button @click="onClose()">取 消</el-button>
+			<el-button type="primary" @click="onSubmit()">确 定</el-button>
 		</span>
 	</el-dialog>
 </template>
@@ -65,10 +65,10 @@
 		},
 		methods: {
 
-			handleClose() {
+			onClose() {
 				this.$emit("close");
 			},
-			handleSubmit() {
+			onSubmit() {
 				this.$refs['settingForm'].validate((valid) => {
 					if (!valid) {
 						return false;
@@ -84,7 +84,7 @@
 					})	
 				});
 			},
-			handleUploadSuccess(res, file) {
+			onUploadSuccess(res, file) {
 				this.userInfo.headImage = res.data.originUrl;
 				this.userInfo.headImageThumb = res.data.thumbUrl;
 			}

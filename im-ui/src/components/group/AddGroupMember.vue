@@ -1,13 +1,13 @@
 <template>
-	<el-dialog title="邀请好友" :visible.sync="visible"  width="50%" :before-close="handleClose">
+	<el-dialog title="邀请好友" :visible.sync="visible"  width="50%" :before-close="onClose">
 		<div class="agm-container">
 			<div class="agm-l-box">
-				<el-input width="200px" placeholder="搜索好友" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">
-					<el-button slot="append" icon="el-icon-search" @click="handleSearch()"></el-button>
+				<el-input width="200px" placeholder="搜索好友" class="input-with-select" v-model="searchText" @keyup.enter.native="onSearch()">
+					<el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
 				</el-input>
 				<el-scrollbar style="height:400px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
-						<friend-item v-show="friend.nickName.startsWith(searchText)" :showDelete="false" @click.native="handleSwitchCheck(friend)"
+						<friend-item v-show="friend.nickName.startsWith(searchText)" :showDelete="false" @click.native="onSwitchCheck(friend)"
 						 :menu="false" :friend="friend" :index="index" :active="index === activeIndex">
 							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="agm-friend-checkbox" v-model="friend.isCheck"
 							 size="medium"></el-checkbox>
@@ -20,7 +20,7 @@
 				<el-scrollbar style="height:400px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
 						<friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" 
-						:index="index" :active="false" @del="handleRemoveFriend(friend,index)"
+						:index="index" :active="false" @del="onRemoveFriend(friend,index)"
 						:menu="false">
 						</friend-item>
 					</div>
@@ -28,8 +28,8 @@
 			</div>
 		</div>
 		<span slot="footer" class="dialog-footer">
-			<el-button @click="handleClose()">取 消</el-button>
-			<el-button type="primary" @click="handleOk()">确 定</el-button>
+			<el-button @click="onClose()">取 消</el-button>
+			<el-button type="primary" @click="onOk()">确 定</el-button>
 		</span>
 	</el-dialog>
 </template>
@@ -50,10 +50,10 @@
 			}
 		},
 		methods: {
-			handleClose() {
+			onClose() {
 				this.$emit("close");
 			},
-			handleOk() {
+			onOk() {
 
 				let inviteVO = {
 					groupId: this.groupId,
@@ -76,10 +76,10 @@
 					})
 				}
 			},
-			handleRemoveFriend(friend, index) {
+			onRemoveFriend(friend, index) {
 				friend.isCheck = false;
 			},
-			handleSwitchCheck(friend) {
+			onSwitchCheck(friend) {
 				if (!friend.disabled) {
 					friend.isCheck = !friend.isCheck
 				}

@@ -26,7 +26,7 @@
 							<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
 								@click="showFullImageBox()" />
 						</div>
-						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
+						<span title="发送失败" v-show="loadFail" @click="onSendFail"
 							class="send-fail el-icon-warning"></span>
 					</div>
 					<div class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
@@ -40,11 +40,11 @@
 								<span type="primary" class="el-icon-document"></span>
 							</div>
 						</div>
-						<span title="发送失败" v-show="loadFail" @click="handleSendFail"
+						<span title="发送失败" v-show="loadFail" @click="onSendFail"
 							class="send-fail el-icon-warning"></span>
 					</div>
 					<div class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO"
-						@click="handlePlayVoice()">
+						@click="onPlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
 					<span class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId 
@@ -56,7 +56,7 @@
 
 		</div>
 		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems"
-			@close="rightMenu.show=false" @select="handleSelectMenu"></right-menu>
+			@close="rightMenu.show=false" @select="onSelectMenu"></right-menu>
 	</div>
 </template>
 
@@ -110,7 +110,7 @@
 
 		},
 		methods: {
-			handleSendFail() {
+			onSendFail() {
 				this.$message.error("该文件已发送失败，目前不支持自动重新发送，建议手动重新发送")
 			},
 			showFullImageBox() {
@@ -119,13 +119,13 @@
 					this.$store.commit('showFullImageBox', imageUrl);
 				}
 			},
-			handlePlayVoice() {
+			onPlayVoice() {
 				if (!this.audio) {
 					this.audio = new Audio();
 				}
 				this.audio.src = JSON.parse(this.msgInfo.content).url;
 				this.audio.play();
-				this.handlePlayVoice = 'RUNNING';
+				this.onPlayVoice = 'RUNNING';
 			},
 			showRightMenu(e) {
 				this.rightMenu.pos = {
@@ -134,7 +134,7 @@
 				};
 				this.rightMenu.show = "true";
 			},
-			handleSelectMenu(item) {
+			onSelectMenu(item) {
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
 			}
 		},
@@ -233,7 +233,7 @@
 						line-height: 30px;
 						margin-top: 3px;
 						padding: 7px;
-						background-color: rgb(235, 235, 245);
+						background-color: white;
 						border-radius: 10px;
 						color: black;
 						display: block;
@@ -241,7 +241,7 @@
 						text-align: left;
 						white-space: pre-wrap;
 						word-break: break-all;
-						box-shadow: 2px 2px 2px #c0c0f0;
+						box-shadow: 1px 1px 1px #c0c0f0;
 
 						&:after {
 							content: "";
@@ -383,7 +383,7 @@
 							background-color: rgb(88, 127, 240);
 							color: #fff;
 							vertical-align: top;
-							box-shadow: 2px 2px 1px #ccc;
+							box-shadow: 1px 1px 1px #ccc;
 
 							&:after {
 								left: auto;

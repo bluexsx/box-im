@@ -691,9 +691,8 @@
 	.chat-box {
 		position: relative;
 		width: 100%;
-		background: white;
+		background: #f8f8f8;
 		border: #dddddd solid 1px;
-
 		.el-header {
 			padding: 5px;
 			background-color: white;
@@ -764,9 +763,9 @@
 				display: flex;
 				flex-direction: column;
 				height: 100%;
-				background-color: #f8f8f8 !important;
-				outline-color: rgba(83, 160, 231, 0.61);
-
+				background-color: white !important;
+				
+				
 				.send-text-area {
 					box-sizing: border-box;
 					padding: 5px;
@@ -775,8 +774,8 @@
 					resize: none;
 					font-size: 16px;
 					color: black;
-					background-color: #f8f8f8 !important;
 					outline-color: rgba(83, 160, 231, 0.61);
+					
 					text-align: left;
 					line-height: 30 px;
 
@@ -794,13 +793,13 @@
 
 				.send-image-area {
 					text-align: left;
-
+					border: #53a0e7 solid 1px;
 					.send-image-box {
 						position: relative;
 						display: inline-block;
 
 						.send-image {
-							max-height: 190px;
+							max-height: 180px;
 							border: 1px solid #ccc;
 							border-radius: 2%;
 							margin: 2px;

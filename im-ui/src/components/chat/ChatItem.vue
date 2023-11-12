@@ -1,7 +1,7 @@
 <template>
 	<div class="chat-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
 		<div class="chat-left">
-			<head-image :url="chat.headImage" :name="chat.showName" :size="50"
+			<head-image :url="chat.headImage" :name="chat.showName" :size="45"
 				:id="chat.type=='PRIVATE'?chat.targetId:0"></head-image>
 			<div v-show="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</div>
 		</div>
@@ -94,13 +94,13 @@
 
 <style lang="scss">
 	.chat-item {
-		height: 65px;
+		height: 50px;
 		display: flex;
 		margin-bottom: 1px;
 		position: relative;
+		padding: 5px;
 		padding-left: 10px;
 		align-items: center;
-		padding-right: 5px;
 		background-color: #fafafa;
 		white-space: nowrap;
 		color: black;
@@ -117,8 +117,8 @@
 		.chat-left {
 			position: relative;
 			display: flex;
-			width: 50px;
-			height: 50px;
+			width: 45px;
+			height: 45x;
 
 			.unread-text {
 				position: absolute;
@@ -147,7 +147,7 @@
 			.chat-name {
 				display: flex;
 				line-height: 25px;
-				
+				height: 25px;
 				.chat-name-text {
 					flex: 1;
 					font-size: 15px;
