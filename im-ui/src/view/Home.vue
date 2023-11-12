@@ -1,5 +1,5 @@
 <template>
-	<el-container>
+	<el-container class="home-page">
 		<el-aside width="80px" class="navi-bar">
 			<div class="user-head-image">
 				<head-image :name="$store.state.userStore.userInfo.nickName"
@@ -31,7 +31,7 @@
 				</el-menu-item>
 			</el-menu>
 
-			<div class="exit-box" @click="handleExit()" title="退出">
+			<div class="exit-box" @click="onExit()" title="退出">
 				<span class="el-icon-circle-close"></span>
 			</div>
 		</el-aside>
@@ -252,8 +252,8 @@
 					this.playAudioTip();
 				}
 			},
-			handleExit() {
-				this.$wsApi.close();
+			onExit() {
+				this.$wsApi.close(3000);
 				sessionStorage.removeItem("accessToken");
 				location.href = "/";
 			},
@@ -338,6 +338,7 @@
 </script>
 
 <style scoped lang="scss">
+
 	.navi-bar {
 		background: #333333;
 		padding: 10px;

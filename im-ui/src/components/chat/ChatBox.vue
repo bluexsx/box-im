@@ -1,5 +1,5 @@
 <template>
-	<div class="chat-box" @click="closeRefBox()">
+	<div class="chat-box" @click="closeRefBox()" @mousemove="readedMessage()">
 		<el-container>
 			<el-header height="60px">
 				<span>{{title}}</span>
@@ -29,8 +29,7 @@
 								<div title="发送图片">
 									<file-upload :action="imageAction" :maxSize="5*1024*1024"
 										:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
-										@before="onImageBefore" @success="onImageSuccess"
-										@fail="onImageFail">
+										@before="onImageBefore" @success="onImageSuccess" @fail="onImageFail">
 										<i class="el-icon-picture-outline"></i>
 									</file-upload>
 								</div>
@@ -52,8 +51,8 @@
 									:disabled="lockMessage" @paste.prevent="onEditorPaste"
 									@compositionstart="onEditorCompositionStart"
 									@compositionend="onEditorCompositionEnd" @input="onEditorInput"
-									placeholder="温馨提示:可以粘贴截图到这里了哦~" @blur="onEditBoxBlur()"
-									@keydown.down="onKeyDown" @keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter">
+									placeholder="温馨提示:可以粘贴截图到这里了哦~" @blur="onEditBoxBlur()" @keydown.down="onKeyDown"
+									@keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter">
 								</div>
 
 								<div v-show="sendImageUrl" class="send-image-area">
@@ -76,7 +75,7 @@
 				</el-container>
 			</el-main>
 			<emotion ref="emoBox" @emotion="onEmotion"></Emotion>
-			<chat-at-box ref="atBox" :members="groupMembers" :search-text="atSearchText"
+			<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers" :search-text="atSearchText"
 				@select="onAtSelect"></chat-at-box>
 			<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="onSendVoice"></chat-voice>
 			<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group"
@@ -154,7 +153,7 @@
 			},
 			onEditBoxBlur() {
 				let selection = window.getSelection()
-				// 记录光标位置
+				// 记录光标位置(点击emoji时)
 				this.focusNode = selection.focusNode;
 				this.focusOffset = selection.focusOffset;
 			},
@@ -196,10 +195,10 @@
 					y: pos.y
 				})
 			},
-			onAtSelect(member) {	
+			onAtSelect(member) {
 				let range = window.getSelection().getRangeAt(0)
 				// 选中输入的 @xx 符
-				range.setStart(this.focusNode, this.focusOffset - 1 -this.atSearchText.length)
+				range.setStart(this.focusNode, this.focusOffset - 1 - this.atSearchText.length)
 				range.setEnd(this.focusNode, this.focusOffset)
 				range.deleteContents()
 				// 创建元素节点
@@ -220,6 +219,7 @@
 			},
 			createSendText() {
 				let sendText = ""
+				console.log(this.$refs.editBox.childNodes);
 				this.$refs.editBox.childNodes.forEach((node) => {
 					if (node.nodeName == "#text") {
 						sendText += node.textContent;
@@ -233,22 +233,23 @@
 			},
 			createAtUserIds() {
 				let ids = [];
+				console.log(this.$refs.editBox.childNodes);
 				this.$refs.editBox.childNodes.forEach((node) => {
 					if (node.nodeName == "SPAN") {
+						console.log(node);
 						ids.push(node.dataset.id);
 					}
 				})
 				return ids;
 			},
 			onEditorPaste(e) {
-				
 				let txt = event.clipboardData.getData('Text')
 				if (typeof(txt) == 'string') {
 					let range = window.getSelection().getRangeAt(0)
 					let textNode = document.createTextNode(txt);
 					range.insertNode(textNode)
-					range.collapse();	
-					
+					range.collapse();
+
 				}
 				let items = (event.clipboardData || window.clipboardData).items
 				if (items.length) {
@@ -457,6 +458,8 @@
 				} else {
 					this.sendTextMessage();
 				}
+				// 消息已读
+				this.readedMessage()
 			},
 			sendImageMessage() {
 				let file = this.sendImageFile;
@@ -479,8 +482,6 @@
 			},
 			sendTextMessage() {
 				let sendText = this.createSendText();
-				// 清空输入框
-				this.$refs.editBox.innerHTML = "";
 				if (!sendText.trim()) {
 					return
 				}
@@ -491,6 +492,10 @@
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
+				// 被@人员列表
+				if (this.chat.type == "GROUP") {
+					msgInfo.atUserIds = this.createAtUserIds();
+				}
 				this.lockMessage = true;
 				this.$http({
 					url: this.messageAction,
@@ -541,6 +546,9 @@
 				});
 			},
 			readedMessage() {
+				if(this.chat.unreadCount==0){
+					return;
+				}
 				if (this.chat.type == "GROUP") {
 					var url = `/message/group/readed?groupId=${this.chat.targetId}`
 				} else {
@@ -551,7 +559,6 @@
 					method: 'put'
 				}).then(() => {
 					this.$store.commit("resetUnreadCount", this.chat)
-					this.scrollToBottom();
 				})
 			},
 			loadGroup(groupId) {
@@ -600,12 +607,13 @@
 					return msgInfo.sendId == this.mine.id ? this.mine.headImageThumb : this.chat.headImage
 				}
 			},
-			resetEditor(){
+			resetEditor() {
 				this.sendImageUrl = "";
 				this.sendImageFile = null;
-				this.$refs.editBox.innerHTML = "";
-				this.$refs.editBox.foucs();
-				
+				this.$nextTick(() => {
+					this.$refs.editBox.innerHTML = "";
+					this.$refs.editBox.focus();
+				});
 			},
 			scrollToBottom() {
 				this.$nextTick(() => {
@@ -666,8 +674,8 @@
 			unreadCount: {
 				handler(newCount, oldCount) {
 					if (newCount > 0) {
-						// 消息已读
-						this.readedMessage()
+						// 拉至底部
+						this.scrollToBottom();
 					}
 				}
 			}

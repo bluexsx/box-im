@@ -1,20 +1,23 @@
 <template>
 	<div class="chat-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
 		<div class="chat-left">
-			<head-image :url="chat.headImage" :name="chat.showName" :size="50" :id="chat.type=='PRIVATE'?chat.targetId:0"></head-image>
+			<head-image :url="chat.headImage" :name="chat.showName" :size="50"
+				:id="chat.type=='PRIVATE'?chat.targetId:0"></head-image>
 			<div v-show="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</div>
 		</div>
 		<div class="chat-right">
 			<div class="chat-name">
-				{{ chat.showName}}
+				<div class="chat-name-text">{{chat.showName}}</div>
+				<div class="chat-time-text">{{showTime}}</div>
 			</div>
 			<div class="chat-content">
+				<div class="chat-at-text">{{atText}}</div>
+				<div class="chat-send-name" v-show="chat.sendNickName">{{chat.sendNickName+':&nbsp;'}}</div>
 				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent)"></div>
-				<div class="chat-time">{{showTime}}</div>
 			</div>
 		</div>
-		<right-menu v-show="rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
-			@close="rightMenu.show=false" @select="handleSelectMenu"></right-menu>
+		<right-menu v-show="rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items" @close="rightMenu.show=false"
+			@select="onSelectMenu"></right-menu>
 	</div>
 
 </template>
@@ -22,7 +25,7 @@
 <script>
 	import HeadImage from '../common/HeadImage.vue';
 	import RightMenu from '../common/RightMenu.vue';
-	
+
 	export default {
 		name: "chatItem",
 		components: {
@@ -68,13 +71,22 @@
 				};
 				this.rightMenu.show = "true";
 			},
-			handleSelectMenu(item) {
+			onSelectMenu(item) {
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
 			}
 		},
 		computed: {
 			showTime() {
 				return this.$date.toTimeText(this.chat.lastSendTime, true)
+			},
+			atText() {
+				console.log(this.chat.atMe)
+				if (this.chat.atMe) {
+					return "[有人@我]"
+				} else if (this.chat.atAll) {
+					return "[@全体成员]"
+				}
+				return "";
 			}
 		}
 	}
@@ -131,36 +143,57 @@
 			padding-left: 10px;
 			text-align: left;
 			overflow: hidden;
-			.chat-name {
-				font-size: 15px;
-				font-weight: 600;
-				line-height: 30px;
-				white-space: nowrap;
-				overflow: hidden;
-			}
 
-			.chat-content {
+			.chat-name {
 				display: flex;
-				line-height: 30px;
-				.chat-content-text {
-					flex:1;
-					font-size: 14px;
+				line-height: 25px;
+				
+				.chat-name-text {
+					flex: 1;
+					font-size: 15px;
+					font-weight: 600;
 					white-space: nowrap;
 					overflow: hidden;
-					text-overflow: ellipsis;
-					img {
-						width: 30px !important;
-						height: 30px !important;
-					}
 				}
-
-				.chat-time {
+				
+				
+				.chat-time-text{
 					font-size: 13px;
 					text-align: right;
 					color: #888888;
 					white-space: nowrap;
 					overflow: hidden;
+					padding-left: 10px;
 				}
+			}
+
+			.chat-content {
+				display: flex;
+				line-height: 22px;
+				
+				.chat-at-text {
+					color: #c70b0b;
+					font-size: 12px;
+				}
+				
+				.chat-send-name{
+					font-size: 13px;
+				}
+					
+
+				.chat-content-text {
+					flex: 1;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					font-size: 13px;	
+					img {
+						width: 20px !important;
+						height: 20px !important;
+						vertical-align: bottom;
+					}
+				}
+
 			}
 		}
 	}

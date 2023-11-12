@@ -33,6 +33,7 @@ export default {
 		},
 		addFriend(state, friend) {
 			state.friends.push(friend);
+			state.activeIndex = state.friends.length-1;
 		},
 		refreshOnlineStatus(state){
 			let userIds = [];
