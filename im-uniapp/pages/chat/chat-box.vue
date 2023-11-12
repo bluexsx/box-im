@@ -179,9 +179,13 @@
 			createAtText() {
 				let atText = "";
 				this.atUserIds.forEach((id) => {
-					let member = this.groupMembers.find((m)=>m.userId==id);
-					if (member) {
-						atText += ` @${member.aliasName}`;
+					if(id==-1){
+						atText += ` @全体成员`;
+					}else{
+						let member = this.groupMembers.find((m)=>m.userId==id);
+						if (member) {
+							atText += ` @${member.aliasName}`;
+						}
 					}
 				})
 				return atText;
