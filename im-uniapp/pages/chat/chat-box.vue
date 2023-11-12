@@ -527,8 +527,6 @@
 					right: 30rpx;
 				}
 			}
-
-
 		}
 
 
@@ -538,7 +536,7 @@
 			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
-			background-color: white;
+			background-color: #f8f8f8;
 
 			.scroll-box {
 				height: 100%;

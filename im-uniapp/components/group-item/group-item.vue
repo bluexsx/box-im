@@ -1,7 +1,7 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
 		<head-image :name="group.remark"
-			:url="group.headImage" :size="100"></head-image>
+			:url="group.headImage" :size="90"></head-image>
 		<view class="group-name">
 			<view>{{ group.remark}}</view>
 		</view>
@@ -31,13 +31,13 @@
 
 <style scope lang="scss">
 	.group-item {
-		height: 120rpx;
+		height: 100rpx;
 		display: flex;
 		margin-bottom: 1rpx;
 		position: relative;
-		padding-left: 30rpx;
+		padding: 10rpx;
+		padding-left: 20rpx;
 		align-items: center;
-		padding-right: 10rpx;
 		background-color: white;
 		white-space: nowrap;
 		&:hover {

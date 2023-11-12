@@ -249,7 +249,6 @@
 			}
 		},
 		onLaunch() {
-
 			// 登录状态校验
 			if (uni.getStorageSync("loginInfo")) {
 				// 初始化

@@ -80,7 +80,6 @@
 				return this.$date.toTimeText(this.chat.lastSendTime, true)
 			},
 			atText() {
-				console.log(this.chat.atMe)
 				if (this.chat.atMe) {
 					return "[有人@我]"
 				} else if (this.chat.atAll) {

@@ -251,7 +251,7 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: rgb(235, 235, 245) transparent transparent;
+							border-color: white transparent transparent;
 							overflow: hidden;
 							border-width: 10px;
 						}

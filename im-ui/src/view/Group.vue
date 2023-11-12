@@ -36,7 +36,7 @@
 								:url="activeGroup.headImage"
 								:name="activeGroup.remark">
 							</head-image>
-							<el-button class="send-btn" icon="el-icon-chat-dot-round" type="primary" @click="onSendMessage()">发消息</el-button>
+							<el-button class="send-btn" icon="el-icon-chat-dot-round" type="primary" @click="onSendMessage()">发送消息</el-button>
 						</div>
 						<el-form class="group-form" label-width="130px" :model="activeGroup" :rules="rules"
 							ref="groupForm">
@@ -65,7 +65,7 @@
 						</el-form>
 					</div>
 					<el-divider content-position="center"></el-divider>
-					<el-scrollbar style="height:400px;">
+					<el-scrollbar style="height:200px;">
 						<div class="group-member-list">
 							<div v-for="(member) in groupMembers" :key="member.id">
 								<group-member v-show="!member.quit" class="group-member" :member="member"
@@ -134,8 +134,6 @@
 						name: o.value,
 						remark: o.value,
 						aliasName: userInfo.name,
-						headImage: userInfo.headImage,
-						headImageThumb: userInfo.headImageThumb,
 						ownerId: userInfo.id
 					}
 					this.$http({
@@ -328,8 +326,7 @@
 			}
 
 			.group-container {
-				padding: 50px;
-
+				padding: 20px;
 				.group-info {
 					display: flex;
 					padding: 5px 20px;
@@ -337,7 +334,7 @@
 					.group-form {
 						flex: 1;
 						padding-left: 40px;
-						max-width: 800px;
+						max-width: 700px;
 					}
 
 					.avatar-uploader {
