@@ -1,19 +1,11 @@
 var websock = null;
 let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
 let isConnect = false; //连接标识 避免重复连接
-let wsurl = "";
-let accessToken = "";
 let messageCallBack = null;
-let openCallBack = null;
 let closeCallBack = null
 
 
-let init = (url,token) => {
-	wsurl = url;
-	accessToken = token;
-};
-
-let connect = () => {
+let connect = (wsurl,accessToken) => {
 	try {
 		if (isConnect) {
 			return;
@@ -25,12 +17,9 @@ let connect = () => {
 			if (sendInfo.cmd == 0) {	
 				heartCheck.start()
 				console.log('WebSocket登录成功')
-				// 登录成功才算连接完成
-				openCallBack && openCallBack();
 			} else if (sendInfo.cmd == 1) {
 				// 重新开启心跳定时
 				heartCheck.reset();
-				console.log("")
 			} else {
 				// 其他消息转发出去
 				console.log("收到消息:",sendInfo);  
@@ -59,16 +48,16 @@ let connect = () => {
 		websock.onerror = function() {
 			console.log('WebSocket连接发生错误')
 			isConnect = false; //连接断开修改标识
-			reConnect();
+			reconnect(wsurl,accessToken);
 		}
 	} catch (e) {
 		console.log("尝试创建连接失败");
-		reConnect(); //如果无法连接上webSocket 那么重新连接！可能会因为服务器重新部署，或者短暂断网等导致无法创建连接
+		reconnect(wsurl,accessToken); //如果无法连接上webSocket 那么重新连接！可能会因为服务器重新部署，或者短暂断网等导致无法创建连接
 	}
 };
 
 //定义重连函数
-let reConnect = () => {
+let reconnect = (wsurl,accessToken) => {
 	console.log("尝试重新连接");
 	if (isConnect){
 		//如果已经连上就不在重连了
@@ -76,12 +65,12 @@ let reConnect = () => {
 	}
 	rec && clearTimeout(rec);
 	rec = setTimeout(function() { // 延迟5秒重连  避免过多次过频繁请求重连
-		connect();
-	}, 5000);
+		connect(wsurl,accessToken);
+	}, 15000);
 };
 //设置关闭连接
-let close = () => {
-	websock && websock.close();
+let close = (code) => {
+	websock && websock.close(code);
 };
 
 
@@ -136,20 +125,15 @@ let onMessage = (callback) => {
 }
 
 
-let onOpen = (callback) => {
-	openCallBack = callback;
-}
-
 let onClose = (callback) => {
 	closeCallBack = callback;
 }
 // 将方法暴露出去
 export {
-	init,
 	connect,
+	reconnect,
 	close,
 	sendMessage,
-	onOpen,
 	onMessage,
 	onClose
 }

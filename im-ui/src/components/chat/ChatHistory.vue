@@ -1,5 +1,5 @@
 <template>
-	<el-drawer title="聊天历史记录" size="700px"  :visible.sync="visible" direction="rtl" :before-close="handleClose">
+	<el-drawer title="聊天历史记录" size="700px"  :visible.sync="visible" direction="rtl" :before-close="onClose">
 		<div class="chat-history" v-loading="loading" 
 		 element-loading-text="拼命加载中">
 			<el-scrollbar  class="chat-history-scrollbar" ref="scrollbar" id="historyScrollbar" >
@@ -51,13 +51,13 @@
 			}
 		},
 		methods: {
-			handleClose() {
+			onClose() {
 				this.page = 1;
 				this.messages = [];
 				this.loadAll = false;
 				this.$emit('close');
 			},
-			handleScroll() {
+			onScroll() {
 				let high = this.$refs.scrollbar.$refs.wrap.scrollTop; //距离顶部的距离
 				let timeDiff = new Date().getTime() - this.lastScrollTime.getTime();
 				if ( high < 30 && timeDiff>500) {
@@ -139,7 +139,7 @@
 					if (newValue) {
 						this.loadMessages();
 						this.$nextTick(() => {
-							document.getElementById('historyScrollbar').addEventListener("mousewheel", this.handleScroll,true);
+							document.getElementById('historyScrollbar').addEventListener("mousewheel", this.onScroll,true);
 						});
 					}
 				}

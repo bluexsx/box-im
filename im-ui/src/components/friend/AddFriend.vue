@@ -1,7 +1,7 @@
 <template>
-	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-		<el-input  placeholder="输入用户名或昵称,最多展示20条" class="input-with-select" v-model="searchText" @keyup.enter.native="handleSearch()">
-			<el-button slot="append" icon="el-icon-search" @click="handleSearch()"></el-button>
+	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="30%" :before-close="onClose">
+		<el-input  placeholder="输入用户名或昵称,最多展示20条" class="input-with-select" v-model="searchText" @keyup.enter.native="onSearch()">
+			<el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
 		</el-input>
 		<el-scrollbar style="height:400px">
 			<div v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
@@ -21,7 +21,7 @@
 							<div>昵称:{{user.nickName}}</div>
 						</div>
 					</div>
-					 <el-button type="success" size="small" v-show="!isFriend(user.id)" plain @click="handleAddFriend(user)">添加</el-button>
+					 <el-button type="success" size="small" v-show="!isFriend(user.id)" plain @click="onAddFriend(user)">添加</el-button>
 					 <el-button type="info" size="small" v-show="isFriend(user.id)" plain disabled>已添加</el-button>
 				</div>
 			</div>
@@ -48,10 +48,10 @@
 			}
 		},
 		methods: {
-			handleClose() {
+			onClose() {
 				this.$emit("close");
 			},
-			handleSearch() {
+			onSearch() {
 				this.$http({
 					url: "/user/findByName",
 					method: "get",
@@ -62,7 +62,7 @@
 					this.users = data;
 				})
 			},
-			handleAddFriend(user){
+			onAddFriend(user){
 				this.$http({
 					url: "/friend/add",
 					method: "post",

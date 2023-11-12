@@ -1,79 +1,87 @@
 <template>
-	<el-container class="chat-box">
-		<el-header height="60px">
-			<span>{{title}}</span>
-			<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more"
-				@click="showSide=!showSide"></span>
-		</el-header>
-		<el-main style="padding: 0;">
-			<el-container>
-				<el-container class="content-box">
-					<el-main class="im-chat-main" id="chatScrollBox" @scroll="handleScroll">
-						<div class="im-chat-box">
-							<ul>
-								<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
-									<chat-message-item v-show="idx>=showMinIdx" :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
-										:showName="showName(msgInfo)" :msgInfo="msgInfo" @delete="deleteMessage"
-										@recall="recallMessage">
-									</chat-message-item>
-								</li>
-							</ul>
-						</div>
-					</el-main>
-					<el-footer height="240px" class="im-chat-footer">
-						<div class="chat-tool-bar">
-							<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion"
-								@click="switchEmotionBox()">
+	<div class="chat-box" @click="closeRefBox()" @mousemove="readedMessage()">
+		<el-container>
+			<el-header height="60px">
+				<span>{{title}}</span>
+				<span title="群聊信息" v-show="this.chat.type=='GROUP'" class="btn-side el-icon-more"
+					@click="showSide=!showSide"></span>
+			</el-header>
+			<el-main style="padding: 0;">
+				<el-container>
+					<el-container class="content-box">
+						<el-main class="im-chat-main" id="chatScrollBox" @scroll="onScroll">
+							<div class="im-chat-box">
+								<ul>
+									<li v-for="(msgInfo,idx) in chat.messages" :key="idx">
+										<chat-message-item v-show="idx>=showMinIdx" :mine="msgInfo.sendId == mine.id"
+											:headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
+											:msgInfo="msgInfo" @delete="deleteMessage" @recall="recallMessage">
+										</chat-message-item>
+									</li>
+								</ul>
 							</div>
-							<div title="发送图片">
-								<file-upload :action="imageAction" :maxSize="5*1024*1024"
-									:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
-									@before="handleImageBefore" @success="handleImageSuccess" @fail="handleImageFail">
-									<i class="el-icon-picture-outline"></i>
-								</file-upload>
+						</el-main>
+						<el-footer height="240px" class="im-chat-footer">
+							<div class="chat-tool-bar">
+								<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion"
+									@click.stop="showEmotionBox()">
+								</div>
+								<div title="发送图片">
+									<file-upload :action="imageAction" :maxSize="5*1024*1024"
+										:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
+										@before="onImageBefore" @success="onImageSuccess" @fail="onImageFail">
+										<i class="el-icon-picture-outline"></i>
+									</file-upload>
+								</div>
+								<div title="发送文件">
+									<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="onFileBefore"
+										@success="onFileSuccess" @fail="onFileFail">
+										<i class="el-icon-wallet"></i>
+									</file-upload>
+								</div>
+								<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
+								</div>
+								<div title="视频聊天" v-show="chat.type=='PRIVATE'" class="el-icon-phone-outline"
+									@click="showVideoBox()">
+								</div>
+								<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 							</div>
-							<div title="发送文件">
-								<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="handleFileBefore"
-									@success="handleFileSuccess" @fail="handleFileFail">
-									<i class="el-icon-wallet"></i>
-								</file-upload>
-							</div>
-							<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
-							</div>
-							<div title="视频聊天" v-show="chat.type=='PRIVATE'" class="el-icon-phone-outline"
-								@click="showVideoBox()">
-							</div>
-							<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
-						</div>
-						<div class="send-content-area">
-							<textarea v-show="!sendImageUrl" v-model="sendText" ref="sendBox" class="send-text-area"
-								:disabled="lockMessage" @keydown.enter="sendTextMessage()" @paste="handlePaste"
-								placeholder="温馨提示:可以粘贴截图到这里了哦~"></textarea>
+							<div class="send-content-area">
+								<div contenteditable="true" v-show="!sendImageUrl" ref="editBox" class="send-text-area"
+									:disabled="lockMessage" @paste.prevent="onEditorPaste"
+									@compositionstart="onEditorCompositionStart"
+									@compositionend="onEditorCompositionEnd" @input="onEditorInput"
+									placeholder="温馨提示:可以粘贴截图到这里了哦~" @blur="onEditBoxBlur()" @keydown.down="onKeyDown"
+									@keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter">
+								</div>
 
-							<div v-show="sendImageUrl" class="send-image-area">
-								<div class="send-image-box">
-									<img class="send-image" :src="sendImageUrl" />
-									<span class="send-image-close el-icon-close" title="删除"
-										@click="removeSendImage()"></span>
+								<div v-show="sendImageUrl" class="send-image-area">
+									<div class="send-image-box">
+										<img class="send-image" :src="sendImageUrl" />
+										<span class="send-image-close el-icon-close" title="删除"
+											@click="removeSendImage()"></span>
+									</div>
+								</div>
+								<div class="send-btn-area">
+									<el-button type="primary" size="small" @click="sendMessage()">发送</el-button>
 								</div>
 							</div>
-							<div class="send-btn-area">
-								<el-button type="primary" size="small" @click="handleSendMessage()">发送</el-button>
-							</div>
-						</div>
-					</el-footer>
+						</el-footer>
+					</el-container>
+					<el-aside class="chat-group-side-box" width="300px" v-show="showSide">
+						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
+						</chat-group-side>
+					</el-aside>
 				</el-container>
-				<el-aside class="chat-group-side-box" width="300px" v-show="showSide">
-					<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
-					</chat-group-side>
-				</el-aside>
-			</el-container>
-		</el-main>
-		<emotion v-show="showEmotion" :pos="emoBoxPos" @emotion="handleEmotion"></Emotion>
-		<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="handleSendVoice"></chat-voice>
-		<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group" :groupMembers="groupMembers"
-			@close="closeHistoryBox"></chat-history>
-	</el-container>
+			</el-main>
+			<emotion ref="emoBox" @emotion="onEmotion"></Emotion>
+			<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers" :search-text="atSearchText"
+				@select="onAtSelect"></chat-at-box>
+			<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="onSendVoice"></chat-voice>
+			<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group"
+				:groupMembers="groupMembers" @close="closeHistoryBox"></chat-history>
+		</el-container>
+	</div>
 </template>
 
 <script>
@@ -83,6 +91,7 @@
 	import Emotion from "../common/Emotion.vue";
 	import ChatVoice from "./ChatVoice.vue";
 	import ChatHistory from "./ChatHistory.vue";
+	import ChatAtBox from "./ChatAtBox.vue"
 
 	export default {
 		name: "chatPrivate",
@@ -92,7 +101,8 @@
 			ChatGroupSide,
 			Emotion,
 			ChatVoice,
-			ChatHistory
+			ChatHistory,
+			ChatAtBox
 		},
 		props: {
 			chat: {
@@ -104,28 +114,141 @@
 				friend: {},
 				group: {},
 				groupMembers: [],
-				sendText: "",
 				sendImageUrl: "",
 				sendImageFile: "",
 				showVoice: false, // 是否显示语音录制弹窗
 				showSide: false, // 是否显示群聊信息栏
-				showEmotion: false, // 是否显示emoji表情
-				emoBoxPos: { // emoji表情弹出位置
-					x: 0,
-					y: 0
-				},
 				showHistory: false, // 是否显示历史聊天记录
 				lockMessage: false, // 是否锁定发送，
-				showMinIdx: 0 // 下标低于showMinIdx的消息不显示，否则页面会很卡
+				showMinIdx: 0, // 下标低于showMinIdx的消息不显示，否则页面会很卡
+				atSearchText: "",
+				focusNode: null, // 缓存光标所在节点
+				focusOffset: null, // 缓存光标所在节点位置
+				zhLock: false // 解决中文输入法触发英文的情况
 			}
 		},
 		methods: {
-			handlePaste(e) {
+			closeRefBox() {
+				this.$refs.emoBox.close();
+				this.$refs.atBox.close();
+			},
+			onKeyDown() {
+				if (this.$refs.atBox.show) {
+					this.$refs.atBox.moveDown()
+				}
+			},
+			onKeyUp() {
+				if (this.$refs.atBox.show) {
+					this.$refs.atBox.moveUp()
+				}
+			},
+			onKeyEnter() {
+				if (this.$refs.atBox.show) {
+					// 键盘操作不会自动修正焦点，需要手动修正,原因不详
+					this.focusOffset += this.atSearchText.length;
+					this.$refs.atBox.select();
+				} else {
+					this.sendMessage();
+				}
+			},
+			onEditBoxBlur() {
+				let selection = window.getSelection()
+				// 记录光标位置(点击emoji时)
+				this.focusNode = selection.focusNode;
+				this.focusOffset = selection.focusOffset;
+			},
+			onEditorInput(e) {
+				// 如果触发 @
+				if (this.chat.type == "GROUP" && !this.zhLock) {
+					if (e.data == '@') {
+						// 打开选择弹窗
+						this.showAtBox(e);
+					} else {
+						let selection = window.getSelection()
+						let range = selection.getRangeAt(0)
+						this.focusNode = selection.focusNode;
+						// 截取@后面的名称作为过滤条件
+						let stIdx = this.focusNode.textContent.lastIndexOf('@');
+						this.atSearchText = this.focusNode.textContent.substring(stIdx + 1);
+					}
+				}
+
+			},
+			onEditorCompositionStart() {
+				this.zhLock = true;
+			},
+			onEditorCompositionEnd(e) {
+				this.zhLock = false;
+				this.onEditorInput(e);
+			},
+			showAtBox(e) {
+				this.atSearchText = "";
+				let selection = window.getSelection()
+				let range = selection.getRangeAt(0)
+				// 记录光标所在位置
+				this.focusNode = selection.focusNode;
+				this.focusOffset = selection.focusOffset;
+				// 光标所在坐标
+				let pos = range.getBoundingClientRect();
+				this.$refs.atBox.open({
+					x: pos.x,
+					y: pos.y
+				})
+			},
+			onAtSelect(member) {
+				let range = window.getSelection().getRangeAt(0)
+				// 选中输入的 @xx 符
+				range.setStart(this.focusNode, this.focusOffset - 1 - this.atSearchText.length)
+				range.setEnd(this.focusNode, this.focusOffset)
+				range.deleteContents()
+				// 创建元素节点
+				let element = document.createElement('SPAN')
+				element.className = "at"
+				element.dataset.id = member.userId;
+				element.contentEditable = 'false'
+				element.innerText = `@${member.aliasName}`
+				range.insertNode(element)
+				// 光标移动到末尾
+				range.collapse()
+				// 插入空格
+				let textNode = document.createTextNode('\u00A0');
+				range.insertNode(textNode)
+				range.collapse()
+				this.atSearchText = "";
+				this.$refs.editBox.focus()
+			},
+			createSendText() {
+				let sendText = ""
+				this.$refs.editBox.childNodes.forEach((node) => {
+					if (node.nodeName == "#text") {
+						sendText += node.textContent;
+					} else if (node.nodeName == "SPAN") {
+						sendText += node.innerText;
+					} else if (node.nodeName == "IMG") {
+						sendText += node.dataset.code;
+					}
+				})
+				return sendText;
+			},
+			createAtUserIds() {
+				let ids = [];
+				this.$refs.editBox.childNodes.forEach((node) => {
+					if (node.nodeName == "SPAN") {
+						ids.push(node.dataset.id);
+					}
+				})
+				return ids;
+			},
+			onEditorPaste(e) {
 				let txt = event.clipboardData.getData('Text')
 				if (typeof(txt) == 'string') {
-					this.sendText += txt
+					let range = window.getSelection().getRangeAt(0)
+					let textNode = document.createTextNode(txt);
+					range.insertNode(textNode)
+					range.collapse();
+
 				}
-				const items = (event.clipboardData || window.clipboardData).items
+				let items = (event.clipboardData || window.clipboardData).items
 				if (items.length) {
 					for (let i = 0; i < items.length; i++) {
 						if (items[i].type.indexOf('image') !== -1) {
@@ -140,7 +263,7 @@
 				this.sendImageUrl = "";
 				this.sendImageFile = null;
 			},
-			handleImageSuccess(data, file) {
+			onImageSuccess(data, file) {
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo || file.raw.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				this.$http({
@@ -153,12 +276,12 @@
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
-			handleImageFail(e, file) {
+			onImageFail(e, file) {
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo || file.raw.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
 			},
-			handleImageBefore(file) {
+			onImageBefore(file) {
 				let url = URL.createObjectURL(file);
 				let data = {
 					originUrl: url,
@@ -184,7 +307,7 @@
 				// 借助file对象保存
 				file.msgInfo = msgInfo;
 			},
-			handleFileSuccess(url, file) {
+			onFileSuccess(url, file) {
 				let data = {
 					name: file.name,
 					size: file.size,
@@ -202,13 +325,12 @@
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
-			handleFileFail(e, file) {
-
+			onFileFail(e, file) {
 				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
 			},
-			handleFileBefore(file) {
+			onFileBefore(file) {
 				let url = URL.createObjectURL(file);
 				let data = {
 					name: file.name,
@@ -234,34 +356,47 @@
 				// 借助file对象透传
 				file.msgInfo = msgInfo;
 			},
-			handleCloseSide() {
+			onCloseSide() {
 				this.showSide = false;
 			},
-			handleScrollToTop() {
+			onScrollToTop() {
 				// 多展示10条信息
 				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
 			},
-			handleScroll(e) {
+			onScroll(e) {
 				let scrollElement = e.target
 				let scrollTop = scrollElement.scrollTop
-				if (scrollTop < 30 ) { // 在顶部,不滚动的情况
+				if (scrollTop < 30) { // 在顶部,不滚动的情况
 					// 多展示20条信息
 					this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
 				}
 			},
-			switchEmotionBox() {
-				this.showEmotion = !this.showEmotion;
+			showEmotionBox() {
 				let width = this.$refs.emotion.offsetWidth;
 				let left = this.$elm.fixLeft(this.$refs.emotion);
 				let top = this.$elm.fixTop(this.$refs.emotion);
-				this.emoBoxPos.y = top;
-				this.emoBoxPos.x = left + width / 2;
+				this.$refs.emoBox.open({
+					x: left + width / 2,
+					y: top
+				})
+
 			},
-			handleEmotion(emoText) {
-				this.sendText += emoText;
-				this.showEmotion = false;
+			onEmotion(emoText) {
 				// 保持输入框焦点
-				this.$refs.sendBox.focus();
+				this.$refs.editBox.focus();
+				let range = window.getSelection().getRangeAt(0);
+				// 插入光标所在位置
+				range.setStart(this.focusNode, this.focusOffset)
+				let element = document.createElement('IMG')
+				element.className = "emo"
+				element.dataset.code = emoText;
+				element.contentEditable = 'true'
+				element.setAttribute("src", this.$emo.textToUrl(emoText));
+				// 选中元素节点
+				range.insertNode(element)
+				// 光标移动到末尾
+				range.collapse()
+
 			},
 			showVoiceBox() {
 				this.showVoice = true;
@@ -281,7 +416,7 @@
 			closeHistoryBox() {
 				this.showHistory = false;
 			},
-			handleSendVoice(data) {
+			onSendVoice(data) {
 				let msgInfo = {
 					content: JSON.stringify(data),
 					type: 3
@@ -300,7 +435,7 @@
 					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 					// 保持输入框焦点
-					this.$refs.sendBox.focus();
+					this.$refs.editBox.focus();
 					// 滚动到底部
 					this.scrollToBottom();
 					// 关闭录音窗口
@@ -314,16 +449,18 @@
 					msgInfo.recvId = targetId;
 				}
 			},
-			handleSendMessage() {
+			sendMessage() {
 				if (this.sendImageFile) {
 					this.sendImageMessage();
 				} else {
 					this.sendTextMessage();
 				}
+				// 消息已读
+				this.readedMessage()
 			},
 			sendImageMessage() {
 				let file = this.sendImageFile;
-				this.handleImageBefore(this.sendImageFile);
+				this.onImageBefore(this.sendImageFile);
 				let formData = new FormData()
 				formData.append('file', file.raw || file)
 				this.$http.post("/image/upload", formData, {
@@ -331,32 +468,37 @@
 						'Content-Type': 'multipart/form-data'
 					}
 				}).then((data) => {
-					this.handleImageSuccess(data, file);
+					this.onImageSuccess(data, file);
 				}).catch((res) => {
-					this.handleImageSuccess(res, file);
+					this.onImageSuccess(res, file);
 				})
 				this.sendImageFile = null;
 				this.sendImageUrl = "";
-				this.$nextTick(() => this.$refs.sendBox.focus());
+				this.$nextTick(() => this.$refs.editBox.focus());
 				this.scrollToBottom();
 			},
 			sendTextMessage() {
-				if (!this.sendText.trim()) {
+				let sendText = this.createSendText();
+				if (!sendText.trim()) {
 					return
 				}
+				this.$refs.editBox.cle
 				let msgInfo = {
-					content: this.sendText,
+					content: sendText,
 					type: 0
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
+				// 被@人员列表
+				if (this.chat.type == "GROUP") {
+					msgInfo.atUserIds = this.createAtUserIds();
+				}
 				this.lockMessage = true;
 				this.$http({
 					url: this.messageAction,
 					method: 'post',
 					data: msgInfo
 				}).then((id) => {
-					this.sendText = "";
 					msgInfo.id = id;
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
@@ -366,17 +508,10 @@
 				}).finally(() => {
 					// 解除锁定
 					this.lockMessage = false;
-					// 保持输入框焦点
-					this.$nextTick(() => this.$refs.sendBox.focus());
-					// 滚动到底部
 					this.scrollToBottom();
+					this.resetEditor();
 				});
-				const e = window.event || arguments[0];
-				if (e.key === 'Enter' || e.code === 'Enter' || e.keyCode === 13) {
-					e.returnValue = false;
-					e.preventDefault();
-					return false;
-				}
+
 			},
 			deleteMessage(msgInfo) {
 				this.$confirm('确认删除消息?', '删除消息', {
@@ -408,6 +543,9 @@
 				});
 			},
 			readedMessage() {
+				if(this.chat.unreadCount==0){
+					return;
+				}
 				if (this.chat.type == "GROUP") {
 					var url = `/message/group/readed?groupId=${this.chat.targetId}`
 				} else {
@@ -418,7 +556,6 @@
 					method: 'put'
 				}).then(() => {
 					this.$store.commit("resetUnreadCount", this.chat)
-					this.scrollToBottom();
 				})
 			},
 			loadGroup(groupId) {
@@ -467,6 +604,14 @@
 					return msgInfo.sendId == this.mine.id ? this.mine.headImageThumb : this.chat.headImage
 				}
 			},
+			resetEditor() {
+				this.sendImageUrl = "";
+				this.sendImageFile = null;
+				this.$nextTick(() => {
+					this.$refs.editBox.innerHTML = "";
+					this.$refs.editBox.focus();
+				});
+			},
 			scrollToBottom() {
 				this.$nextTick(() => {
 					let div = document.getElementById("chatScrollBox");
@@ -511,16 +656,14 @@
 						}
 						// 滚到底部
 						this.scrollToBottom();
-						this.sendText = "";
+						this.showSide = false;
 						// 消息已读
 						this.readedMessage()
 						// 初始状态只显示30条消息
 						let size = this.chat.messages.length;
 						this.showMinIdx = size > 30 ? size - 30 : 0;
-						// 保持输入框焦点
-						this.$nextTick(() => {
-							this.$refs.sendBox.focus();
-						})
+						// 重置输入框
+						this.resetEditor();
 					}
 				},
 				immediate: true
@@ -528,24 +671,25 @@
 			unreadCount: {
 				handler(newCount, oldCount) {
 					if (newCount > 0) {
-						// 消息已读
-						this.readedMessage()
+						// 拉至底部
+						this.scrollToBottom();
 					}
 				}
 			}
 		},
 		mounted() {
 			let div = document.getElementById("chatScrollBox");
-			div.addEventListener('scroll', this.handleScroll)
+			div.addEventListener('scroll', this.onScroll)
 		}
 	}
 </script>
 
 <style lang="scss">
 	.chat-box {
-		background: white;
+		position: relative;
+		width: 100%;
+		background: #f8f8f8;
 		border: #dddddd solid 1px;
-
 		.el-header {
 			padding: 5px;
 			background-color: white;
@@ -573,7 +717,7 @@
 
 			.im-chat-box {
 				>ul {
-					padding: 20px;
+					padding: 0 20px;
 
 					li {
 						list-style-type: none;
@@ -612,12 +756,13 @@
 			}
 
 			.send-content-area {
+				position: relative;
 				display: flex;
 				flex-direction: column;
 				height: 100%;
-				background-color: #f8f8f8 !important;
-				outline-color: rgba(83, 160, 231, 0.61);
-
+				background-color: white !important;
+				
+				
 				.send-text-area {
 					box-sizing: border-box;
 					padding: 5px;
@@ -626,20 +771,32 @@
 					resize: none;
 					font-size: 16px;
 					color: black;
-					background-color: #f8f8f8 !important;
 					outline-color: rgba(83, 160, 231, 0.61);
+					
+					text-align: left;
+					line-height: 30 px;
 
+					.at {
+						color: blue;
+						font-weight: 600;
+					}
+
+					.emo {
+						width: 30px;
+						height: 30px;
+						vertical-align: bottom;
+					}
 				}
 
 				.send-image-area {
 					text-align: left;
-
+					border: #53a0e7 solid 1px;
 					.send-image-box {
 						position: relative;
 						display: inline-block;
 
 						.send-image {
-							max-height: 190px;
+							max-height: 180px;
 							border: 1px solid #ccc;
 							border-radius: 2%;
 							margin: 2px;

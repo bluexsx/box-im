@@ -7,7 +7,7 @@
 
 		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			<head-image class="avatar" :id="msgInfo.sendId" :url="headImage" :name="showName" :size="80"></head-image>
+			<head-image class="avatar" @longpress="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage" :name="showName" :size="80"></head-image>
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
@@ -231,7 +231,7 @@
 						line-height: 60rpx;
 						margin-top: 10rpx;
 						padding: 10rpx 20rpx;
-						background-color: #ebebf5;
+						background-color: white;
 						border-radius: 10rpx;
 						color: #333;
 						font-size: 30rpx;
@@ -239,17 +239,17 @@
 						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-						box-shadow: 2px 2px 2px #c0c0f0;
+						box-shadow: 1px 1px 1px  #c0c0f0;
 
 						&:after {
 							content: "";
 							position: absolute;
 							left: -20rpx;
 							top: 26rpx;
-							width: 0;
-							height: 0;
+							width: 6rpx;
+							height: 6rpx;
 							border-style: solid dashed dashed;
-							border-color: #ebebf5 transparent transparent;
+							border-color: white transparent transparent;
 							overflow: hidden;
 							border-width: 18rpx;
 						}

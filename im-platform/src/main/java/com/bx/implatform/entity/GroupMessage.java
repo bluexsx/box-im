@@ -45,6 +45,17 @@ public class GroupMessage extends Model<GroupMessage> {
     private Long sendId;
 
     /**
+     * 发送用户昵称
+     */
+    @TableField("send_nick_name")
+    private String sendNickName;
+
+    /**
+     * @用户列表
+     */
+    @TableField("at_user_ids")
+    private String atUserIds;
+    /**
      * 发送内容
      */
     @TableField("content")

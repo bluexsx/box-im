@@ -35,9 +35,11 @@ export default {
 				if (state.chats[i].type == chatInfo.type &&
 					state.chats[i].targetId === chatInfo.targetId) {
 					chat = state.chats[i];
-					// 放置头部
-					state.chats.splice(i, 1);
-					state.chats.unshift(chat);
+					// 放置头部（这个操作非常耗资源，正在加载消息时不执行）
+					if(!state.loadingPrivateMsg && !state.loadingPrivateMsg){
+						state.chats.splice(i, 1);
+						state.chats.unshift(chat);
+					}
 					break;
 				}
 			}
@@ -68,6 +70,8 @@ export default {
 				if (state.chats[idx].type == chatInfo.type &&
 					state.chats[idx].targetId == chatInfo.targetId) {
 					state.chats[idx].unreadCount = 0;
+					state.chats[idx].atMe = false;
+					state.chats[idx].atAll = false; 
 				}
 			}
 			this.commit("saveToStorage");
@@ -77,7 +81,6 @@ export default {
 				if (state.chats[idx].type == 'PRIVATE' &&
 					state.chats[idx].targetId == friendId) {
 					state.chats[idx].messages.forEach((m) => {
-						console.log("readedMessage")
 						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
 							m.status = MESSAGE_STATUS.READED
 						}
@@ -126,21 +129,36 @@ export default {
 					break;
 				}
 			}
-			// 插入新的数据
-			if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
-				chat.lastContent = "[图片]";
-			} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
-				chat.lastContent = "[文件]";
-			} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
-				chat.lastContent = "[语音]";
-			} else {
-				chat.lastContent = msgInfo.content;
+			// 会话列表内容
+			if(!state.loadingPrivateMsg && !state.loadingPrivateMsg){
+				if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
+					chat.lastContent = "[图片]";
+				} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
+					chat.lastContent = "[文件]";
+				} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
+					chat.lastContent = "[语音]";
+				} else {
+					chat.lastContent = msgInfo.content;
+				}
+				chat.lastSendTime = msgInfo.sendTime;
+				chat.sendNickName = msgInfo.sendNickName;
 			}
-			chat.lastSendTime = msgInfo.sendTime;
+			
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 				chat.unreadCount++;
 			}
+			// 是否有人@我
+			if(!msgInfo.selfSend && chat.type=="GROUP" && msgInfo.atUserIds){
+				let userId = userStore.state.userInfo.id;
+				if(msgInfo.atUserIds.indexOf(userId)>=0){
+					chat.atMe = true;
+				}
+				if(msgInfo.atUserIds.indexOf(-1)>=0){
+					chat.atAll = true;
+				}
+			}
+			
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
 				state.privateMsgMaxId = msgInfo.id;
@@ -231,6 +249,29 @@ export default {
 		},
 		loadingGroupMsg(state, loadding) {
 			state.loadingGroupMsg = loadding;
+		},
+		refreshChats(state){
+			state.chats.forEach((chat)=>{
+				if(chat.messages.length>0){
+					let msgInfo = chat.messages[chat.messages.length-1];
+					if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
+						chat.lastContent = "[图片]";
+					} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
+						chat.lastContent = "[文件]";
+					} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
+						chat.lastContent = "[语音]";
+					} else {
+						chat.lastContent = msgInfo.content;
+					}
+					chat.lastSendTime = msgInfo.sendTime;
+				}else{
+					chat.lastContent = "";
+					chat.lastSendTime  = new Date()
+				}
+			})
+			state.chats.sort((chat1, chat2) => {
+				return chat2.lastSendTime-chat1.lastSendTime;
+			});
 		},
 		saveToStorage(state) {
 			let userId = userStore.state.userInfo.id;

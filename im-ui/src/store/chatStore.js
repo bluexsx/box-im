@@ -73,6 +73,8 @@ export default {
 				if (state.chats[idx].type == chatInfo.type &&
 					state.chats[idx].targetId == chatInfo.targetId) {
 					state.chats[idx].unreadCount = 0;
+					state.chats[idx].atMe = false;
+					state.chats[idx].atAll = false; 
 				}
 			}
 			this.commit("saveToStorage");
@@ -121,7 +123,6 @@ export default {
 			}
 		},
 		insertMessage(state, msgInfo) {
-
 			// 获取对方id或群id
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
 			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
@@ -144,9 +145,20 @@ export default {
 				chat.lastContent = msgInfo.content;
 			}
 			chat.lastSendTime = msgInfo.sendTime;
+			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 				chat.unreadCount++;
+			}
+			// 是否有人@我
+			if(!msgInfo.selfSend && chat.type=="GROUP" && msgInfo.atUserIds){
+				let userId = userStore.state.userInfo.id;
+				if(msgInfo.atUserIds.indexOf(userId)>=0){
+					chat.atMe = true;
+				}
+				if(msgInfo.atUserIds.indexOf(-1)>=0){
+					chat.atAll = true;
+				}
 			}
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {

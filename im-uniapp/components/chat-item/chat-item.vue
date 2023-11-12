@@ -1,16 +1,18 @@
 <template>
 	<view class="chat-item" @click="showChatBox()">
 		<view class="left">
-			<head-image  :url="chat.headImage" :name="chat.showName" :size="100"></head-image>
+			<head-image :url="chat.headImage" :name="chat.showName" :size="90"></head-image>
 			<view v-if="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</view>
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
-				{{ chat.showName}}
+				<view class="chat-name-text">{{chat.showName}}</view>
+				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime)}}</view>
 			</view>
 			<view class="chat-content">
-				<view class="chat-content-text" v-html="$emo.transform(chat.lastContent)"></view>
-				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime)}}</view>
+				<view class="chat-at-text">{{atText}}</view>
+				<view class="chat-send-name" v-show="chat.sendNickName">{{chat.sendNickName+':&nbsp;'}}</view>
+				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
 			</view>
 		</view>
 	</view>
@@ -36,19 +38,29 @@
 					url: "/pages/chat/chat-box?chatIdx=" + this.index
 				})
 			}
+		},
+		computed: {
+			atText() {
+				if (this.chat.atMe) {
+					return "[有人@我]"
+				} else if (this.chat.atAll) {
+					return "[@全体成员]"
+				}
+				return "";
+			}
 		}
 	}
 </script>
 
 <style scoped lang="scss">
 	.chat-item {
-		height: 120rpx;
+		height: 100rpx;
 		display: flex;
 		margin-bottom: 2rpx;
 		position: relative;
-		padding-left: 30rpx;
+		padding: 10rpx;
+		padding-left: 20rpx;
 		align-items: center;
-		padding-right: 10rpx;
 		background-color: white;
 		white-space: nowrap;
 
@@ -87,23 +99,16 @@
 			overflow: hidden;
 
 			.chat-name {
-				font-size: 30rpx;
-				font-weight: 600;
-				line-height: 60rpx;
-				white-space: nowrap;
-				overflow: hidden;
-			}
-
-			.chat-content {
 				display: flex;
+				line-height: 50rpx;
+				height: 50rpx;
 
-				.chat-content-text {
+				.chat-name-text {
 					flex: 1;
-					font-size: 28rpx;
+					font-size: 30rpx;
+					font-weight: 600;
 					white-space: nowrap;
 					overflow: hidden;
-					line-height: 50rpx;
-					text-overflow: ellipsis;
 				}
 
 				.chat-time {
@@ -112,6 +117,28 @@
 					color: #888888;
 					white-space: nowrap;
 					overflow: hidden;
+				}
+			}
+
+			.chat-content {
+				display: flex;
+				line-height: 44rpx;
+				.chat-at-text {
+					color: #c70b0b;
+					font-size: 24rpx;
+				}
+
+				.chat-send-name {
+					font-size: 26rpx;
+				}
+
+				.chat-content-text {
+					flex: 1;
+					font-size: 28rpx;
+					white-space: nowrap;
+					overflow: hidden;
+					line-height: 50rpx;
+					text-overflow: ellipsis;
 				}
 			}
 		}

@@ -28,10 +28,8 @@
 			},
 			initWebSocket() {
 				let loginInfo = uni.getStorageSync("loginInfo")
-				let userId = store.state.userStore.userInfo.id;
-				wsApi.init(process.env.WS_URL, loginInfo.accessToken);
-				wsApi.connect();
-				wsApi.onOpen()
+				wsApi.init();
+				wsApi.connect(process.env.WS_URL, loginInfo.accessToken);
 				wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
 						// 异地登录，强制下线
@@ -49,16 +47,15 @@
 					}
 				});
 				wsApi.onClose((res) => {
-					// 1006是服务器主动断开，3000是APP主动关闭
-					if (res.code == 1006) {
+					// 3000是客户端主动关闭
+					if (res.code != 3000) {
+						// 重新连接
 						uni.showToast({
-							title: '连接已断开，请重新登录',
+							title: '连接已断开，尝试重新连接...',
 							icon: 'none',
 						})
-						this.exit();
-					} else if (res.code != 3000) {
-						// 重新连接
-						wsApi.connect();
+						let loginInfo = uni.getStorageSync("loginInfo")
+						wsApi.reconnect(process.env.WS_URL, loginInfo.accessToken);
 					}
 				})
 			},
@@ -66,7 +63,7 @@
 				store.commit("loadingPrivateMsg", true)
 				http({
 					url: "/message/private/loadMessage?minId=" + minId,
-					method: 'get'
+					method: 'GET'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
 						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
@@ -76,6 +73,7 @@
 							this.insertPrivateMessage(friend,msgInfo);
 						}	
 					})
+					store.commit("refreshChats");
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadPrivateMessage(msgInfos[99].id);
@@ -88,7 +86,7 @@
 				store.commit("loadingGroupMsg", true)
 				http({
 					url: "/message/group/loadMessage?minId=" + minId,
-					method: 'get'
+					method: 'GET'
 				}).then((msgInfos) => {
 					msgInfos.forEach((msgInfo) => {
 						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
@@ -98,6 +96,7 @@
 							this.insertGroupMessage(group,msgInfo);
 						}
 					})
+					store.commit("refreshChats");
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadGroupMessage(msgInfos[99].id);
@@ -250,7 +249,6 @@
 			}
 		},
 		onLaunch() {
-
 			// 登录状态校验
 			if (uni.getStorageSync("loginInfo")) {
 				// 初始化

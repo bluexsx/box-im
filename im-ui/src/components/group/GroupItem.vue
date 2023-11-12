@@ -1,7 +1,7 @@
 <template>
 	<div class="group-item" :class="active ? 'active' : ''">
 		<div class="group-avatar">
-			<head-image :name="group.remark" :url="group.headImage"> </head-image>
+			<head-image :size="45" :name="group.remark" :url="group.headImage"> </head-image>
 		</div>
 		<div class="group-name">
 			<div>{{group.remark}}</div>
@@ -34,13 +34,13 @@
 
 <style lang="scss" >
 	.group-item {
-		height: 65px;
+		height: 50px;
 		display: flex;
 		margin-bottom: 1px;
 		position: relative;
+		padding: 5px;
 		padding-left: 10px;
 		align-items: center;
-		padding-right: 5px;
 		background-color: #fafafa;
 		white-space: nowrap;
 		&:hover {
@@ -52,15 +52,15 @@
 		}
 	
 		.group-avatar {
-			width: 50px;
-			height: 50px;
+			width: 45px;
+			height: 45px;
 		}
 	
 		.group-name {
 			padding-left: 10px;
 			height: 100%;
 			text-align: left;
-			line-height: 65px;
+			line-height: 50px;
 			white-space: nowrap;
 			overflow: hidden;
 			font-size: 14px;

@@ -1,6 +1,6 @@
 <template>
 	<el-upload :action="action" :headers="uploadHeaders" :accept="fileTypes==null?'':fileTypes.join(',')"
-	 :show-file-list="false" :on-success="handleSuccess" :on-error="handleError" :disabled="disabled" :before-upload="beforeUpload">
+	 :show-file-list="false" :on-success="onSuccess" :on-error="onError" :disabled="disabled" :before-upload="beforeUpload">
 		<slot></slot>
 	</el-upload>
 </template>
@@ -37,7 +37,7 @@
 			}
 		},
 		methods: {
-			handleSuccess(res, file) {
+			onSuccess(res, file) {
 				this.loading && this.loading.close();
 				if (res.code == 200) {
 					this.$emit("success", res.data, file);
@@ -46,7 +46,7 @@
 					this.$emit("fail", res, file);
 				}
 			},
-			handleError(err, file) {
+			onError(err, file) {
 				this.$emit("fail", err, file);
 			},
 			beforeUpload(file) {

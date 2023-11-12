@@ -18,8 +18,8 @@
 			</div>
 			<el-divider content-position="center"></el-divider>
 			<div class="user-btn-group">
-				<el-button v-show="isFriend" type="primary" @click="handleSendMessage()">发消息</el-button>
-				<el-button v-show="!isFriend" type="primary" @click="handleAddFriend()">加为好友</el-button>
+				<el-button v-show="isFriend" type="primary" @click="onSendMessage()">发消息</el-button>
+				<el-button v-show="!isFriend" type="primary" @click="onAddFriend()">加为好友</el-button>
 			</div>
 		</div>
 	</div>
@@ -47,7 +47,7 @@
 			}
 		},
 		methods: {
-			handleSendMessage() {
+			onSendMessage() {
 				let user = this.user;
 				let chat = {
 					type: 'PRIVATE',
@@ -62,7 +62,7 @@
 				}
 				this.$emit("close");
 			},
-			handleAddFriend() {
+			onAddFriend() {
 				this.$http({
 					url: "/friend/add",
 					method: "post",

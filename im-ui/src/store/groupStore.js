@@ -20,9 +20,7 @@ export default {
 			state.groups.forEach((g, index) => {
 				if (g.id == groupId) {
 					state.groups.splice(index, 1);
-					if (state.activeIndex >= state.groups.length) {
-						state.activeIndex = state.groups.length - 1;
-					}
+					state.activeIndex = -1;
 				}
 			})
 

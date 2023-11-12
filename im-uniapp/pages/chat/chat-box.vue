@@ -1,5 +1,5 @@
 <template>
-	<view class=" page chat-box">
+	<view class="page chat-box">
 		<view class="header">
 			<uni-icons class="btn-side left" type="back" size="30" @click="onNavBack()"></uni-icons>
 			<text class="title">{{title}}</text>
@@ -7,26 +7,37 @@
 		</view>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
 			<scroll-view class="scroll-box" scroll-y="true" @scrolltoupper="onScrollToTop"
-			:scroll-into-view="'chat-item-'+scrollMsgIdx">
+				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)" :showName="showName(msgInfo)"
-						@recall="onRecallMessage" @delete="onDeleteMessage" @download="onDownloadFile"
-						:id="'chat-item-'+idx" :msgInfo="msgInfo">
+					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
+						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
+						@longPressHead="onLongPressHead(msgInfo)"
+						@download="onDownloadFile" :id="'chat-item-'+idx" :msgInfo="msgInfo">
 					</chat-message-item>
 				</view>
 			</scroll-view>
 		</view>
+		<view v-if="atUserIds.length>0" class="chat-at-bar" @click="openAtBox()">
+			<view class="iconfont icon-at">:&nbsp;</view>
+			<scroll-view v-if="atUserIds.length>0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
+				<view class="chat-at-items">
+					<view v-for="m in atUserItems" class="chat-at-item">
+						<head-image :name="m.aliasName" :url="m.headImage" :size="50"></head-image>
+					</view>
+				</view>
+			</scroll-view>
+		</view>
 		<view class="send-bar">
-			<view class="iconfont icon-voice-circle" @click="showTip()"></view>
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
 					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
 					confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
 			</view>
+			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
 			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
-			<view v-show="sendText==''" class="iconfont icon-add" @click="switchChatTabBox('tools',true)">
+			<view v-if="sendText==''" class="iconfont icon-add" @click="switchChatTabBox('tools',true)">
 			</view>
-			<button v-show="sendText!=''" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
+			<button v-if="sendText!=''||atUserIds.length>0" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
 				size="mini">发送</button>
 		</view>
 
@@ -53,7 +64,6 @@
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
-
 				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音输入</view>
@@ -62,9 +72,7 @@
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">呼叫</view>
 				</view>
-
 			</view>
-
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
 				<view class="emotion-item-list">
 					<image class="emotion-item" :title="emoText" :src="$emo.textToPath(emoText)"
@@ -74,7 +82,8 @@
 			</scroll-view>
 			<view v-if="showKeyBoard"></view>
 		</view>
-
+		<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers"
+			@complete="onAtComplete"></chat-at-box>
 	</view>
 </template>
 
@@ -92,6 +101,7 @@
 				chatTabBox: 'none',
 				showKeyBoard: false,
 				keyboardHeight: 322,
+				atUserIds: [],
 				showMinIdx: 0 // 下标小于showMinIdx的消息不显示，否则可能很卡
 			}
 		},
@@ -101,6 +111,18 @@
 					title: "加班开发中...",
 					icon: "none"
 				})
+			},
+			openAtBox() {
+				this.$refs.atBox.init(this.atUserIds);
+				this.$refs.atBox.open();
+			},
+			onAtComplete(atUserIds) {
+				this.atUserIds = atUserIds;
+			},
+			onLongPressHead(msgInfo){
+				if(!msgInfo.selfSend && this.chat.type=="GROUP" && this.atUserIds.indexOf(msgInfo.sendId)<0){
+					this.atUserIds.push(msgInfo.sendId);
+				}
 			},
 			headImage(msgInfo) {
 				if (this.chat.type == 'GROUP') {
@@ -117,17 +139,19 @@
 				} else {
 					return msgInfo.selfSend ? this.mine.nickName : this.chat.showName
 				}
-
 			},
 			sendTextMessage() {
-				if (!this.sendText.trim()) {
+				if (!this.sendText.trim() && this.atUserIds.length==0) {
 					return uni.showToast({
 						title: "不能发送空白信息",
 						icon: "none"
 					});
+					
 				}
+				let atText = this.createAtText()
 				let msgInfo = {
-					content: this.sendText,
+					content: this.sendText + atText,
+					atUserIds: this.atUserIds,
 					type: 0
 				}
 				// 填充对方id
@@ -148,7 +172,23 @@
 				}).finally(() => {
 					// 滚动到底部
 					this.scrollToBottom();
+					// 清空@用户列表
+					this.atUserIds = [];
 				});
+			},
+			createAtText() {
+				let atText = "";
+				this.atUserIds.forEach((id) => {
+					if(id==-1){
+						atText += ` @全体成员`;
+					}else{
+						let member = this.groupMembers.find((m)=>m.userId==id);
+						if (member) {
+							atText += ` @${member.aliasName}`;
+						}
+					}
+				})
+				return atText;
 			},
 			fillTargetId(msgInfo, targetId) {
 				if (this.chat.type == "GROUP") {
@@ -175,7 +215,7 @@
 					return;
 				}
 				this.$nextTick(() => {
-					console.log("scrollToMsgIdx",this.scrollMsgIdx)
+					console.log("scrollToMsgIdx", this.scrollMsgIdx)
 					this.scrollMsgIdx = idx;
 				});
 
@@ -450,6 +490,20 @@
 			},
 			unreadCount() {
 				return this.chat.unreadCount;
+			},
+			atUserItems(){
+				let atUsers = [];
+				this.atUserIds.forEach((id)=>{
+					if(id==-1){
+						atUsers.push({id:-1,aliasName:"全体成员"})
+						return;
+					}
+					let member = this.groupMembers.find((m)=>m.userId==id);
+					if(member){
+						atUsers.push(member);
+					}
+				})
+				return atUsers;
 			}
 		},
 		watch: {
@@ -527,8 +581,6 @@
 					right: 30rpx;
 				}
 			}
-
-
 		}
 
 
@@ -538,11 +590,39 @@
 			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
-			background-color: white;
+			background-color: #f8f8f8;
 
 			.scroll-box {
 				height: 100%;
 			}
+		}
+
+		.chat-at-bar {
+			display: flex;
+			align-items: center;
+			padding: 0 10rpx;
+			border: #dddddd solid 1px;
+
+			.icon-at {
+				font-size: 35rpx;
+				color: darkblue;
+				font-weight: 600;
+			}
+
+			.chat-at-scroll-box {
+				flex: 1;
+				width: 80%;
+				.chat-at-items {
+					display: flex;
+					align-items: center;
+					height: 70rpx;
+
+					.chat-at-item {
+						padding: 0 3rpx;
+					}
+				}
+			}
+
 		}
 
 		.send-bar {
@@ -554,7 +634,7 @@
 			background-color: white;
 
 			.iconfont {
-				font-size: 70rpx;
+				font-size: 60rpx;
 				margin: 3rpx;
 			}
 
@@ -573,7 +653,6 @@
 				.send-text-area {
 					width: 100%;
 				}
-
 			}
 
 			.btn-send {
@@ -588,7 +667,6 @@
 			background-color: whitesmoke;
 
 			.chat-tools {
-
 				display: flex;
 				flex-wrap: wrap;
 				justify-content: space-between;
@@ -611,7 +689,6 @@
 						height: 60rpx;
 						line-height: 60rpx;
 						font-size: 25rpx;
-
 					}
 				}
 			}
