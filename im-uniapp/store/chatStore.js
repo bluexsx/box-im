@@ -143,13 +143,13 @@ export default {
 				chat.lastSendTime = msgInfo.sendTime;
 				chat.sendNickName = msgInfo.sendNickName;
 			}
-			
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
-			if(!msgInfo.selfSend && chat.type=="GROUP" && msgInfo.atUserIds){
+			if(!msgInfo.selfSend && chat.type=="GROUP" && msgInfo.atUserIds
+				&& msgInfo.status != MESSAGE_STATUS.READED){
 				let userId = userStore.state.userInfo.id;
 				if(msgInfo.atUserIds.indexOf(userId)>=0){
 					chat.atMe = true;
