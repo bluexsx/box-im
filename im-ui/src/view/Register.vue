@@ -1,7 +1,6 @@
 <template>
 	<el-container class="register-view">
 		<div>
-			
 			<el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" label-width="80px" class="web-ruleForm">
 				<div class="register-brand">欢迎成为盒子IM的用户</div>
 				<el-form-item label="用户名" prop="userName">
@@ -25,12 +24,17 @@
 				</div>
 			</el-form>
 		</div>
+		<icp></icp>
 	</el-container>
 </template>
 
 <script>
+	import Icp from '../components/common/Icp.vue'
 	export default {
 		name: "login",
+		components: {
+			Icp
+		},
 		data() {
 			var checkUserName = (rule, value, callback) => {
 				if (!value) {

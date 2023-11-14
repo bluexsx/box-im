@@ -158,9 +158,9 @@
 			onCloseAddGroupMember() {
 				this.showAddGroupMember = false;
 			},
-			onUploadSuccess(res) {
-				this.activeGroup.headImage = res.data.originUrl;
-				this.activeGroup.headImageThumb = res.data.thumbUrl;
+			onUploadSuccess(data) {
+				this.activeGroup.headImage =data.originUrl;
+				this.activeGroup.headImageThumb = data.thumbUrl;
 			},
 			onSaveGroup() {
 				this.$refs['groupForm'].validate((valid) => {
