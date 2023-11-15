@@ -10,6 +10,7 @@ import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +20,9 @@ import javax.validation.Valid;
 
 @Api(tags = "用户登录和注册")
 @RestController
+@AllArgsConstructor
 public class LoginController {
 
-    @Autowired
     private IUserService userService;
 
     @PostMapping("/login")

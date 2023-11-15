@@ -45,12 +45,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     private RedisTemplate<String, Object> redisTemplate;
     private IMClient imClient;
 
-    /**
-     * 发送群聊消息(高并发接口，查询mysql接口都要进行缓存)
-     *
-     * @param dto 群聊消息
-     * @return 群聊id
-     */
+
     @Override
     public Long sendMessage(GroupMessageDTO dto) {
         UserSession session = SessionContext.getSession();
@@ -92,11 +87,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     }
 
 
-    /**
-     * 撤回消息
-     *
-     * @param id 消息id
-     */
     @Override
     public void recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
@@ -146,9 +136,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     }
 
 
-    /**
-     * 异步拉取群聊消息，通过websocket异步推送
-     */
     @Override
     public void pullUnreadMessage() {
         UserSession session = SessionContext.getSession();
@@ -187,12 +174,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
     }
 
-    /**
-     * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
-     *
-     * @param minId  消息起始id
-     * @return 聊天消息列表
-     */
+
     @Override
     public List<GroupMessageVO> loadMessage(Long minId) {
         UserSession session = SessionContext.getSession();
@@ -243,11 +225,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         return vos;
     }
 
-    /**
-     * 消息已读,同步其他终端，清空未读数量
-     *
-     * @param groupId  群聊
-     */
+
     @Override
     public void readedMessage(Long groupId) {
         UserSession session = SessionContext.getSession();
@@ -279,14 +257,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
     }
 
-    /**
-     * 拉取历史聊天记录
-     *
-     * @param groupId 群聊id
-     * @param page    页码
-     * @param size    页码大小
-     * @return 聊天记录列表
-     */
+
     @Override
     public List<GroupMessageVO> findHistoryMessage(Long groupId, Long page, Long size) {
         page = page > 0 ? page : 1;

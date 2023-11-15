@@ -3,8 +3,6 @@ server:
   port: 8888
 #配置项目的数据源
 spring:
-  main:
-    allow-circular-references: true
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

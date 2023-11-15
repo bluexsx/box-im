@@ -10,17 +10,19 @@ import com.bx.imcommon.model.IMSendResult;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.service.IPrivateMessageService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 
 @Slf4j
 @IMListener(type = IMListenerType.PRIVATE_MESSAGE)
 public class PrivateMessageListener implements MessageListener<PrivateMessageVO> {
 
+    @Lazy
     @Autowired
     private IPrivateMessageService privateMessageService;
-
 
     @Override
     public void process(IMSendResult<PrivateMessageVO> result){

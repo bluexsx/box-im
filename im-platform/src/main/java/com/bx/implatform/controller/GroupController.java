@@ -9,6 +9,7 @@ import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +22,9 @@ import java.util.List;
 @Api(tags = "群聊")
 @RestController
 @RequestMapping("/group")
+@AllArgsConstructor
 public class GroupController {
 
-    @Autowired
     private IGroupService groupService;
 
     @ApiOperation(value = "创建群聊",notes="创建群聊")

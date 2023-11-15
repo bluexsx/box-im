@@ -10,6 +10,7 @@ import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.ws.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,13 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo> {
 
-
-    @Autowired
-    private WebSocketServer wsServer;
-
-    @Autowired
     RedisTemplate<String,Object> redisTemplate;
 
     @Override

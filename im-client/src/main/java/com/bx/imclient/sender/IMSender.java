@@ -8,6 +8,7 @@ import com.bx.imcommon.enums.IMListenerType;
 import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.*;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,13 +17,13 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class IMSender {
 
     @Autowired
     @Qualifier("IMRedisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
 
-    @Autowired
     private MessageListenerMulticaster listenerMulticaster;
 
     public<T> void sendPrivateMessage(IMPrivateMessage<T> message) {

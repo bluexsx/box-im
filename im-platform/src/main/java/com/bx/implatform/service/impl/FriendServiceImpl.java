@@ -35,12 +35,6 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     private  final UserMapper userMapper;
 
-    /**
-     * 查询用户的所有好友
-     *
-     * @param userId   用户id
-     * @return 好友列表
-     */
     @Override
     public List<Friend> findFriendByUserId(Long userId) {
         LambdaQueryWrapper<Friend> queryWrapper = Wrappers.lambdaQuery();
@@ -49,11 +43,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
-    /**
-     * 添加好友，互相建立好友关系
-     *
-     * @param friendId 好友的用户id
-     */
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void addFriend(Long friendId) {
@@ -69,11 +59,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
-    /**
-     * 删除好友，双方都会解除好友关系
-     *
-     * @param friendId 好友的用户id
-     */
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delFriend(Long friendId) {
@@ -86,12 +72,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
-    /**
-     * 判断用户2是否用户1的好友
-     *
-     * @param userId1 用户1的id
-     * @param userId2 用户2的id
-     */
+
     @Cacheable(key="#userId1+':'+#userId2")
     @Override
     public Boolean isFriend(Long userId1, Long userId2) {
@@ -103,11 +84,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
-    /**
-     * 更新好友信息，主要是头像和昵称
-     *
-     * @param vo  好友vo
-     */
+
     @Override
     public void update(FriendVO vo) {
         long userId = SessionContext.getSession().getUserId();
@@ -168,12 +145,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     }
 
 
-    /**
-     * 查询指定的某个好友信息
-     *
-     * @param friendId 好友的用户id
-     * @return 好友信息
-     */
+
     @Override
     public FriendVO findFriend(Long friendId) {
         UserSession session = SessionContext.getSession();

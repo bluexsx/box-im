@@ -8,7 +8,7 @@ import javax.annotation.PreDestroy;
 import java.util.concurrent.*;
 
 @Slf4j
-public abstract class AbstractPullMessageTask implements CommandLineRunner {
+public abstract class AbstractMessageResultTask implements CommandLineRunner {
 
     private int threadNum = 8;
 

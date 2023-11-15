@@ -1,6 +1,7 @@
 package com.bx.imserver.netty;
 
 import com.bx.imcommon.contant.IMRedisKey;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -12,14 +13,13 @@ import java.util.List;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class IMServerGroup implements CommandLineRunner  {
 
     public static volatile long serverId = 0;
 
-    @Autowired
     RedisTemplate<String,Object> redisTemplate;
 
-    @Autowired
     private List<IMServer> imServers;
 
     /***

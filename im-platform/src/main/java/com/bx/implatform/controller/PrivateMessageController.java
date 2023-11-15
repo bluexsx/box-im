@@ -8,6 +8,7 @@ import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.dto.PrivateMessageDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +19,9 @@ import java.util.List;
 @Api(tags = "私聊消息")
 @RestController
 @RequestMapping("/message/private")
+@AllArgsConstructor
 public class PrivateMessageController {
-
-    @Autowired
+    
     private IPrivateMessageService privateMessageService;
 
     @PostMapping("/send")

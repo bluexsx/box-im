@@ -50,12 +50,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private JwtProperties jwtProperties;
     private IMClient imClient;
 
-    /**
-     * 用户登录
-     *
-     * @param dto 登录dto
-     * @return 登录token
-     */
 
     @Override
     public LoginVO login(LoginDTO dto) {
@@ -81,15 +75,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return vo;
     }
 
-
-
-
-    /**
-     * 用refreshToken换取新 token
-     *
-     * @param refreshToken  刷新token
-     * @return 登录token
-     */
     @Override
     public LoginVO refreshToken(String refreshToken) {
         //验证 token
@@ -108,11 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return vo;
     }
 
-    /**
-     * 用户注册
-     *
-     * @param dto 注册dto
-     */
+
     @Override
     public void register(RegisterDTO dto) {
         User user = this.findUserByUserName(dto.getUserName());
@@ -138,12 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         log.info("用户修改密码，用户id:{},用户名:{},昵称:{}",user.getId(),user.getUserName(),user.getNickName());
     }
 
-    /**
-     * 根据用户名查询用户
-     *
-     * @param username 用户名
-     * @return 用户信息
-     */
+
     @Override
     public User findUserByUserName(String username) {
         LambdaQueryWrapper<User> queryWrapper =  Wrappers.lambdaQuery();
@@ -152,12 +128,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 
-    /**
-     * 更新用户信息，好友昵称和群聊昵称等冗余信息也会更新
-     *
-     * @param vo 用户信息vo
-     */
-    @Transactional
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
@@ -197,12 +169,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         log.info("用户信息更新，用户:{}}", user);
     }
 
-    /**
-     * 根据用户昵id查询用户以及在线状态
-     *
-     * @param id 用户id
-     * @return 用户信息
-     */
+
     @Override
     public UserVO findUserById(Long id) {
         User user = this.getById(id);
@@ -211,12 +178,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return vo;
     }
 
-    /**
-     * 根据用户昵称查询用户，最多返回20条数据
-     *
-     * @param name 用户名或昵称
-     * @return 用户列表
-     */
+
     @Override
     public List<UserVO> findUserByName(String name) {
         LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
@@ -235,13 +197,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 
-
-    /**
-     * 获取用户在线的终端类型
-     *
-     * @param userIds 用户id，多个用‘,’分割
-     * @return 在线用户终端
-     */
     @Override
     public List<OnlineTerminalVO> getOnlineTerminals(String userIds) {
         List<Long> userIdList = Arrays.stream(userIds.split(","))

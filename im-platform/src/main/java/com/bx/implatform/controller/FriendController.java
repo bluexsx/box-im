@@ -8,6 +8,7 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.FriendVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +20,9 @@ import java.util.stream.Collectors;
 @Api(tags = "好友")
 @RestController
 @RequestMapping("/friend")
+@AllArgsConstructor
 public class FriendController {
 
-    @Autowired
     private IFriendService friendService;
 
     @GetMapping("/list")

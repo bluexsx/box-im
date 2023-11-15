@@ -9,6 +9,7 @@ import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.model.IMSendResult;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,9 +20,9 @@ import java.util.List;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> {
-
-    @Autowired
+    
     private RedisTemplate<String,Object> redisTemplate;
 
     @Async

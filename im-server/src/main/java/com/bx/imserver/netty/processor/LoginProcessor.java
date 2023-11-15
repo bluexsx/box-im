@@ -14,6 +14,8 @@ import com.bx.imserver.netty.IMServerGroup;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +27,10 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
 
-    @Autowired
-    RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     @Value("${jwt.accessToken.secret}")
     private String accessTokenSecret;

@@ -6,6 +6,7 @@ import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IWebrtcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +15,9 @@ import java.util.List;
 @Api(tags = "webrtc视频单人通话")
 @RestController
 @RequestMapping("/webrtc/private")
+@AllArgsConstructor
 public class WebrtcController {
 
-    @Autowired
     private IWebrtcService webrtcService;
 
     @ApiOperation(httpMethod = "POST", value = "呼叫视频通话")

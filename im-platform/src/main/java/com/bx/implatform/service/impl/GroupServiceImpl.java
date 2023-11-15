@@ -49,12 +49,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private IFriendService friendsService;
     private IMClient imClient;
 
-    /**
-     * 创建新群聊
-     *
-     * @param  vo 群聊信息
-     * @return 群聊信息
-     **/
+
     @Override
     public GroupVO createGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();
@@ -79,12 +74,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return vo;
     }
 
-    /**
-     * 修改群聊信息
-     *
-     * @param  vo 群聊信息
-     * @return 群聊信息
-     **/
+
     @CacheEvict(value = "#vo.getId()")
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -110,11 +100,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
 
-    /**
-     * 删除群聊
-     * 
-     * @param groupId 群聊id
-     **/
+
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "#groupId")
     @Override
@@ -133,11 +119,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
 
-    /**
-     * 退出群聊
-     *
-     * @param groupId 群聊id
-     */
+
     @Override
     public void quitGroup(Long groupId) {
         Long userId = SessionContext.getSession().getUserId();
@@ -151,12 +133,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
 
-    /**
-     * 将用户踢出群聊
-     *
-     * @param groupId 群聊id
-     * @param userId 用户id
-     */
+
     @Override
     public void kickGroup(Long groupId, Long userId) {
         UserSession session = SessionContext.getSession();
@@ -186,12 +163,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return  vo;
     }
 
-    /**
-     * 根据id查找群聊，并进行缓存
-     *
-     * @param groupId 群聊id
-     * @return 群聊实体
-     */
+
     @Cacheable(value = "#groupId")
     @Override
     public  Group getById(Long groupId){
@@ -207,11 +179,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
 
 
-    /**
-     * 查询当前用户的所有群聊
-     *
-     * @return 群聊信息列表
-     **/
+
     @Override
     public List<GroupVO> findGroups() {
         UserSession session = SessionContext.getSession();
@@ -235,11 +203,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }).collect(Collectors.toList());
     }
 
-    /**
-     * 邀请好友进群
-     *
-     * @Param GroupInviteVO  群id、好友id列表
-     **/
+
     @Override
     public void invite(GroupInviteVO vo) {
         UserSession session = SessionContext.getSession();
@@ -280,12 +244,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         log.info("邀请进入群聊，群聊id:{},群聊名称:{},被邀请用户id:{}",group.getId(),group.getName(),vo.getFriendIds());
     }
 
-    /**
-     * 查询群成员
-     *
-     * @Param groupId 群聊id
-     * @return List<GroupMemberVO>
-     **/
+
     @Override
     public List<GroupMemberVO> findGroupMembers(Long groupId) {
         List<GroupMember> members = groupMemberService.findByGroupId(groupId);

@@ -1,6 +1,5 @@
 package com.bx.imserver.task;
 
-
 import com.alibaba.fastjson.JSONObject;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
@@ -16,8 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class PullUnreadPrivateMessageTask extends  AbstractPullMessageTask {
-
+public class PullGroupMessageTask extends  AbstractPullMessageTask {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -25,11 +23,11 @@ public class PullUnreadPrivateMessageTask extends  AbstractPullMessageTask {
     @Override
     public void pullMessage() {
         // 从redis拉取未读消息
-        String key = String.join(":", IMRedisKey.IM_MESSAGE_PRIVATE_QUEUE,IMServerGroup.serverId+"");
+        String key = String.join(":", IMRedisKey.IM_MESSAGE_GROUP_QUEUE,IMServerGroup.serverId+"");
         JSONObject jsonObject = (JSONObject)redisTemplate.opsForList().leftPop(key,10, TimeUnit.SECONDS);
-        if(jsonObject!=null){
+        if(jsonObject != null){
             IMRecvInfo recvInfo = jsonObject.toJavaObject(IMRecvInfo.class);
-            AbstractMessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.PRIVATE_MESSAGE);
+            AbstractMessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.GROUP_MESSAGE);
             processor.process(recvInfo);
         }
     }

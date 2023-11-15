@@ -19,10 +19,6 @@ import javax.annotation.Resource;
 @Configuration
 public class RedisConfig {
 
-    @Resource
-    private RedisConnectionFactory factory;
-
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate();

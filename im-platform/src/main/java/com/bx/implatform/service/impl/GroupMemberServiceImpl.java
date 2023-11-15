@@ -23,12 +23,7 @@ import java.util.stream.Collectors;
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements IGroupMemberService {
 
 
-    /**
-     * 添加群聊成员
-     *
-     * @param member 成员
-     * @return  成功或失败
-     */
+
     @CacheEvict(key="#member.getGroupId()")
     @Override
     public boolean save(GroupMember member) {
@@ -36,26 +31,14 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     }
 
 
-    /**
-     * 批量添加成员
-     *
-     * @param groupId 群聊id
-     * @param members 成员列表
-     * @return 成功或失败
-     */
+
     @CacheEvict(key="#groupId")
     @Override
     public boolean saveOrUpdateBatch(Long groupId,List<GroupMember> members) {
         return super.saveOrUpdateBatch(members);
     }
 
-    /**
-     * 根据群聊id和用户id查询群聊成员
-     *
-     * @param groupId 群聊id
-     * @param userId 用户id
-     * @return 群聊成员信息
-     */
+
     @Override
     public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
@@ -64,13 +47,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.getOne(wrapper);
     }
 
-
-    /**
-     * 根据用户id查询群聊成员
-     *
-     * @param userId 用户id
-     * @return 成员列表
-     */
     @Override
     public List<GroupMember> findByUserId(Long userId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
@@ -79,13 +55,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.list(memberWrapper);
     }
 
-
-    /**
-     * 根据群聊id查询群聊成员（包括已退出）
-     *
-     * @param groupId 群聊id
-     * @return 群聊成员列表
-     */
     @Override
     public List<GroupMember> findByGroupId(Long groupId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
@@ -93,13 +62,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.list(memberWrapper);
     }
 
-
-    /**
-     * 根据群聊id查询没有退出的群聊成员id
-     *
-     * @param groupId 群聊id
-     * @return 群聊成员id列表
-     */
     @Cacheable(key="#groupId")
     @Override
     public List<Long> findUserIdsByGroupId(Long groupId) {
@@ -110,12 +72,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
     }
 
-
-    /**
-     * 根据群聊id删除移除成员
-     *
-     * @param groupId  群聊id
-     */
     @CacheEvict(key = "#groupId")
     @Override
     public void removeByGroupId(Long groupId) {
@@ -125,12 +81,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         this.update(wrapper);
     }
 
-    /**
-     *根据群聊id和用户id移除成员
-     *
-     * @param groupId  群聊id
-     * @param userId  用户id
-     */
     @CacheEvict(key = "#groupId")
     @Override
     public void removeByGroupAndUserId(Long groupId, Long userId) {

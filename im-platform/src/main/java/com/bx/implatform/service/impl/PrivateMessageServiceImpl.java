@@ -44,12 +44,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
 
     private IMClient imClient;
 
-    /**
-     * 发送私聊消息(高并发接口，查询mysql接口都要进行缓存)
-     *
-     * @param dto 私聊消息
-     * @return 消息id
-     */
+
     @Override
     public Long sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
@@ -75,11 +70,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         return msg.getId();
     }
 
-    /**
-     * 撤回消息
-     *
-     * @param id 消息id
-     */
     @Override
     public void recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
@@ -119,14 +109,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
 
-    /**
-     * 拉取历史聊天记录
-     *
-     * @param friendId 好友id
-     * @param page     页码
-     * @param size     页码大小
-     * @return 聊天记录列表
-     */
+
     @Override
     public List<PrivateMessageVO> findHistoryMessage(Long friendId, Long page, Long size) {
         page = page > 0 ? page : 1;
@@ -149,9 +132,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         return messageInfos;
     }
 
-    /**
-     * 异步拉取私聊消息，通过websocket异步推送
-     */
+
     @Override
     public void pullUnreadMessage() {
         UserSession session = SessionContext.getSession();
@@ -188,12 +169,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
 
-    /**
-     * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
-     *
-     * @param minId 消息起始id
-     * @return 聊天消息列表
-     */
+
     @Override
     public List<PrivateMessageVO> loadMessage(Long minId) {
         UserSession session = SessionContext.getSession();
@@ -234,12 +210,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
 
-    /**
-     * 消息已读,将整个会话的消息都置为已读状态
-     *
-     * @param friendId 好友id
-     */
-    @Transactional
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void readedMessage(Long friendId) {
         UserSession session = SessionContext.getSession();
