@@ -5,19 +5,17 @@ import com.alibaba.fastjson.JSON;
 import com.bx.imcommon.contant.IMConstant;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.model.IMLoginInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.IMSessionInfo;
-import com.bx.imcommon.model.IMLoginInfo;
 import com.bx.imcommon.util.JwtUtil;
 import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.IMServerGroup;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -49,7 +47,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId,terminal);
         if(context != null && !ctx.channel().id().equals(context.channel().id())){
             // 不允许多地登录,强制下线
-            IMSendInfo sendInfo = new IMSendInfo();
+            IMSendInfo<Object> sendInfo = new IMSendInfo<>();
             sendInfo.setCmd(IMCmdType.FORCE_LOGUT.code());
             sendInfo.setData("您已在其他地方登陆，将被强制下线");
             context.channel().writeAndFlush(sendInfo);
@@ -70,7 +68,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
         redisTemplate.opsForValue().set(key, IMServerGroup.serverId, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
-        IMSendInfo sendInfo = new IMSendInfo();
+        IMSendInfo<Object> sendInfo = new IMSendInfo<>();
         sendInfo.setCmd(IMCmdType.LOGIN.code());
         ctx.channel().writeAndFlush(sendInfo);
     }
@@ -79,7 +77,6 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
     @Override
     public IMLoginInfo transForm(Object o) {
         HashMap map = (HashMap)o;
-        IMLoginInfo loginInfo = BeanUtil.fillBeanWithMap(map, new IMLoginInfo(), false);
-        return  loginInfo;
+        return BeanUtil.fillBeanWithMap(map, new IMLoginInfo(), false);
     }
 }

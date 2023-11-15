@@ -3,7 +3,6 @@ package com.bx.imcommon.model;
 import com.bx.imcommon.enums.IMTerminalType;
 import lombok.Data;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class IMGroupMessage<T> {
     /**
      * 接收者id列表(群成员列表,为空则不会推送)
      */
-    private List<Long> recvIds  = Collections.EMPTY_LIST;
+    private List<Long> recvIds  = new LinkedList<>();
 
 
     /**

@@ -1,17 +1,15 @@
 package com.bx.implatform.controller;
 
-
+import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
+import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IUserService;
-import com.bx.implatform.dto.LoginDTO;
-import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

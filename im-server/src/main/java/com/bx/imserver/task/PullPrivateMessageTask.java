@@ -1,6 +1,5 @@
 package com.bx.imserver.task;
 
-
 import com.alibaba.fastjson.JSONObject;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
@@ -8,19 +7,19 @@ import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imserver.netty.IMServerGroup;
 import com.bx.imserver.netty.processor.AbstractMessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class PullPrivateMessageTask extends  AbstractPullMessageTask {
 
-
-    @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public void pullMessage() {

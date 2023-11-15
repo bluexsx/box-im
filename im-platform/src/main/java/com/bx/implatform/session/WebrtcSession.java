@@ -1,7 +1,5 @@
 package com.bx.implatform.session;
 
-import com.bx.imcommon.enums.IMTerminalType;
-import io.swagger.models.auth.In;
 import lombok.Data;
 
 /*

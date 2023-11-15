@@ -13,9 +13,9 @@ public enum IMCmdType {
     GROUP_MESSAGE(4,"群发消息");
 
 
-    private Integer code;
+    private final Integer code;
 
-    private String desc;
+    private final String desc;
 
 
     public static IMCmdType fromCode(Integer code){

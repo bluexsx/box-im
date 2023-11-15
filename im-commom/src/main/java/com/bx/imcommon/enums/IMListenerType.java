@@ -8,9 +8,9 @@ public enum IMListenerType{
     PRIVATE_MESSAGE(1,"私聊消息"),
     GROUP_MESSAGE(2,"群聊消息");
 
-    private Integer code;
+    private final Integer code;
 
-    private String desc;
+    private final String desc;
 
 
 

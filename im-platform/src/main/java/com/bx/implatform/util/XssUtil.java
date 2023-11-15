@@ -11,9 +11,7 @@ public class XssUtil {
     public static boolean checkXss(String inputString) {
         if (inputString!=null) {
             Matcher matcher = PATTERN.matcher(inputString);
-            if (matcher.find()) {
-                return true;
-            }
+            return matcher.find();
         }
         return false;
     }

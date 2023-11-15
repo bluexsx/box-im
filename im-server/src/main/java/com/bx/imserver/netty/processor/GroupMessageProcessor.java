@@ -5,13 +5,12 @@ import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
-import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.model.IMSendResult;
+import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> {
     
-    private RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     @Async
     @Override

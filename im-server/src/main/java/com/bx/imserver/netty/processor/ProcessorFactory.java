@@ -9,16 +9,16 @@ public class ProcessorFactory {
         AbstractMessageProcessor processor = null;
         switch (cmd){
             case LOGIN:
-                processor = (AbstractMessageProcessor) SpringContextHolder.getApplicationContext().getBean(LoginProcessor.class);
+                processor =  SpringContextHolder.getApplicationContext().getBean(LoginProcessor.class);
                 break;
             case HEART_BEAT:
-                processor = (AbstractMessageProcessor) SpringContextHolder.getApplicationContext().getBean(HeartbeatProcessor.class);
+                processor = SpringContextHolder.getApplicationContext().getBean(HeartbeatProcessor.class);
                 break;
             case PRIVATE_MESSAGE:
-                processor = (AbstractMessageProcessor)SpringContextHolder.getApplicationContext().getBean(PrivateMessageProcessor.class);
+                processor = SpringContextHolder.getApplicationContext().getBean(PrivateMessageProcessor.class);
                 break;
             case GROUP_MESSAGE:
-                processor = (AbstractMessageProcessor)SpringContextHolder.getApplicationContext().getBean(GroupMessageProcessor.class);
+                processor = SpringContextHolder.getApplicationContext().getBean(GroupMessageProcessor.class);
                 break;
             default:
                 break;

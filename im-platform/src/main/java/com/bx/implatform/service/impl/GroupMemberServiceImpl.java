@@ -21,16 +21,11 @@ import java.util.stream.Collectors;
 @Service
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER_ID)
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements IGroupMemberService {
-
-
-
     @CacheEvict(key="#member.getGroupId()")
     @Override
     public boolean save(GroupMember member) {
         return super.save(member);
     }
-
-
 
     @CacheEvict(key="#groupId")
     @Override

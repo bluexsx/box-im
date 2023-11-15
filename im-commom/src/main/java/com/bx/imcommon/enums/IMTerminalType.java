@@ -12,9 +12,9 @@ public enum IMTerminalType {
     WEB(0,"web"),
     APP(1,"app");
 
-    private Integer code;
+    private final Integer code;
 
-    private String desc;
+    private final String desc;
 
 
     public static IMTerminalType fromCode(Integer code){

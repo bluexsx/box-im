@@ -6,8 +6,6 @@ import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMListenerType;
 import com.bx.imcommon.model.IMSendResult;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 

@@ -5,13 +5,12 @@ import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
-import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.model.IMSendResult;
+import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> {
 
-    private RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public void process(IMRecvInfo recvInfo) {
@@ -31,7 +30,7 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
             ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiver.getId(),receiver.getTerminal());
             if(channelCtx != null ){
                 // 推送消息到用户
-                IMSendInfo sendInfo = new IMSendInfo();
+                IMSendInfo<Object> sendInfo = new IMSendInfo<>();
                 sendInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
                 sendInfo.setData(recvInfo.getData());
                 channelCtx.channel().writeAndFlush(sendInfo);
@@ -52,7 +51,7 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
 
     private void sendResult(IMRecvInfo recvInfo,IMSendCode sendCode){
         if(recvInfo.getSendResult()) {
-            IMSendResult result = new IMSendResult();
+            IMSendResult<Object> result = new IMSendResult<>();
             result.setSender(recvInfo.getSender());
             result.setReceiver(recvInfo.getReceivers().get(0));
             result.setCode(sendCode.code());

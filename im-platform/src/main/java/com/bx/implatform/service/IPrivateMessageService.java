@@ -1,9 +1,9 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.bx.implatform.vo.PrivateMessageVO;
-import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.dto.PrivateMessageDTO;
+import com.bx.implatform.entity.PrivateMessage;
+import com.bx.implatform.vo.PrivateMessageVO;
 
 import java.util.List;
 

@@ -9,9 +9,8 @@ import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.implatform.dto.PrivateMessageDTO;
 import com.bx.implatform.entity.Friend;
-import com.bx.implatform.util.DateTimeUtils;
-import com.bx.implatform.vo.PrivateMessageVO;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
@@ -23,7 +22,8 @@ import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.dto.PrivateMessageDTO;
+import com.bx.implatform.util.DateTimeUtils;
+import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,10 +40,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements IPrivateMessageService {
 
-    private IFriendService friendService;
-
-    private IMClient imClient;
-
+    private final IFriendService friendService;
+    private final IMClient imClient;
 
     @Override
     public Long sendMessage(PrivateMessageDTO dto) {
