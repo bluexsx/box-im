@@ -2,20 +2,21 @@ package com.bx.imclient.task;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.*;
 
 @Slf4j
-public abstract class AbstractPullMessageTask {
+public abstract class AbstractPullMessageTask implements CommandLineRunner {
 
     private int threadNum = 8;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadNum);
 
-    @PostConstruct
-    public void init(){
+
+    @Override
+    public void run(String... args) throws Exception {
         // 初始化定时器
         for(int i=0;i<threadNum;i++){
             executorService.execute(new Runnable() {
@@ -35,6 +36,7 @@ public abstract class AbstractPullMessageTask {
             });
         }
     }
+
 
     @PreDestroy
     public void destroy(){
