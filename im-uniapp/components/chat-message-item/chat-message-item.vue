@@ -7,7 +7,7 @@
 
 		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			<head-image class="avatar" @longpress="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage" :name="showName" :size="80"></head-image>
+			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage" :name="showName" :size="80"></head-image>
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>

@@ -67,6 +67,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         GroupMember groupMember = new GroupMember();
         groupMember.setGroupId(group.getId());
         groupMember.setUserId(user.getId());
+        groupMember.setHeadImage(user.getHeadImageThumb());
         groupMember.setAliasName(StringUtils.isEmpty(vo.getAliasName())?session.getNickName():vo.getAliasName());
         groupMember.setRemark(StringUtils.isEmpty(vo.getRemark())?group.getName():vo.getRemark());
         groupMemberService.save(groupMember);
@@ -80,7 +81,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
     /**
      * 修改群聊信息
-     * 
+     *
      * @param  vo 群聊信息
      * @return 群聊信息
      **/

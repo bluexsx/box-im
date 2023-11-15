@@ -41,7 +41,6 @@
 		},
 		methods:{
 			showUserInfo(e){
-				console.log(this.id)
 				if(this.id && this.id>0){
 					this.$http({
 						url: `/user/find/${this.id}`,
