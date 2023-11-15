@@ -24,11 +24,12 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.dto.PrivateMessageDTO;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -36,12 +37,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements IPrivateMessageService {
 
-    @Autowired
     private IFriendService friendService;
 
-    @Autowired
     private IMClient imClient;
 
     /**
@@ -199,7 +199,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         UserSession session = SessionContext.getSession();
         List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
         if (friends.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return new ArrayList<>();
         }
         List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
         // 获取当前用户的消息

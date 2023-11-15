@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER_ID)
 @Service
+@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER_ID)
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements IGroupMemberService {
 
 
@@ -27,7 +27,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * 添加群聊成员
      *
      * @param member 成员
-     * @return
+     * @return  成功或失败
      */
     @CacheEvict(key="#member.getGroupId()")
     @Override
@@ -41,7 +41,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      *
      * @param groupId 群聊id
      * @param members 成员列表
-     * @return
+     * @return 成功或失败
      */
     @CacheEvict(key="#groupId")
     @Override
@@ -54,7 +54,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      *
      * @param groupId 群聊id
      * @param userId 用户id
-     * @return
+     * @return 群聊成员信息
      */
     @Override
     public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
@@ -69,7 +69,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * 根据用户id查询群聊成员
      *
      * @param userId 用户id
-     * @return
+     * @return 成员列表
      */
     @Override
     public List<GroupMember> findByUserId(Long userId) {
@@ -84,7 +84,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * 根据群聊id查询群聊成员（包括已退出）
      *
      * @param groupId 群聊id
-     * @return
+     * @return 群聊成员列表
      */
     @Override
     public List<GroupMember> findByGroupId(Long groupId) {
@@ -98,7 +98,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * 根据群聊id查询没有退出的群聊成员id
      *
      * @param groupId 群聊id
-     * @return
+     * @return 群聊成员id列表
      */
     @Cacheable(key="#groupId")
     @Override
@@ -115,7 +115,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * 根据群聊id删除移除成员
      *
      * @param groupId  群聊id
-     * @return
      */
     @CacheEvict(key = "#groupId")
     @Override
@@ -131,7 +130,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      *
      * @param groupId  群聊id
      * @param userId  用户id
-     * @return
      */
     @CacheEvict(key = "#groupId")
     @Override

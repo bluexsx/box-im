@@ -23,9 +23,9 @@ import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.GroupInviteVO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -42,18 +42,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
 @Service
+@AllArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
-
-    @Autowired
     private IUserService userService;
-
-    @Autowired
     private IGroupMemberService groupMemberService;
-
-    @Autowired
     private IFriendService friendsService;
-
-    @Autowired
     private IMClient imClient;
 
     /**
@@ -92,7 +85,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * @return 群聊信息
      **/
     @CacheEvict(value = "#vo.getId()")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public GroupVO modifyGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();
@@ -121,7 +114,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * 
      * @param groupId 群聊id
      **/
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "#groupId")
     @Override
     public void deleteGroup(Long groupId) {
@@ -301,9 +294,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             GroupMemberVO vo = BeanUtils.copyProperties(m,GroupMemberVO.class);
             vo.setOnline(onlineUserIds.contains(m.getUserId()));
             return vo;
-        }).sorted((m1,m2)->{
-            return m2.getOnline().compareTo(m1.getOnline());
-        }).collect(Collectors.toList());
+        }).sorted((m1,m2)-> m2.getOnline().compareTo(m1.getOnline())).collect(Collectors.toList());
     }
 
 }

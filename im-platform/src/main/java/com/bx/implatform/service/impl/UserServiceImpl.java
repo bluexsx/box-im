@@ -27,41 +27,29 @@ import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.LoginVO;
 import com.bx.implatform.vo.OnlineTerminalVO;
 import com.bx.implatform.vo.UserVO;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
-    @Autowired
     RedisTemplate<String,Object> redisTemplate;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private IGroupMemberService groupMemberService;
-
-    @Autowired
     private IFriendService friendService;
-
-    @Autowired
     private JwtProperties jwtProperties;
-
-    @Autowired
     private IMClient imClient;
+
     /**
      * 用户登录
      *
@@ -177,7 +165,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"不允许修改其他用户的信息!");
         }
         User user = this.getById(vo.getId());
-        if(null == user){
+        if(Objects.isNull(user)){
             throw  new GlobalException(ResultCode.PROGRAM_ERROR,"用户不存在");
         }
         // 更新好友昵称和头像

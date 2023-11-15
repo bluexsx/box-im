@@ -8,11 +8,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
-import com.bx.implatform.util.DateTimeUtils;
-import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.contant.RedisKey;
+import com.bx.implatform.dto.GroupMessageDTO;
 import com.bx.implatform.entity.Group;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.entity.GroupMessage;
@@ -27,10 +26,10 @@ import com.bx.implatform.service.IGroupService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.dto.GroupMessageDTO;
-import com.google.common.collect.Lists;
+import com.bx.implatform.util.DateTimeUtils;
+import com.bx.implatform.vo.GroupMessageVO;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -39,14 +38,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, GroupMessage> implements IGroupMessageService {
-    @Autowired
     private IGroupService groupService;
-    @Autowired
     private IGroupMemberService groupMemberService;
-    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-    @Autowired
     private IMClient imClient;
 
     /**
@@ -105,7 +101,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     public void recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
         GroupMessage msg = this.getById(id);
-        if (msg == null) {
+        if (Objects.isNull(msg)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
         }
         if (!msg.getSendId().equals(session.getUserId())) {
@@ -203,7 +199,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         List<Long> ids = members.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
         if(CollectionUtil.isEmpty(ids)){
-            return Collections.EMPTY_LIST;
+            return new ArrayList<>();
         }
         // 只能拉取最近1个月的
         Date minDate = DateTimeUtils.addMonths(new Date(), -1);
@@ -221,7 +217,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
             // 被@用户列表
             List<String> atIds = Arrays.asList(StrUtil.split(m.getAtUserIds(),","));
-            vo.setAtUserIds(atIds.stream().map(id->Long.parseLong(id)).collect(Collectors.toList()));
+            vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
             return vo;
         }).collect(Collectors.toList());
         // 消息状态,数据库没有存群聊的消息状态，需要从redis取

@@ -13,8 +13,8 @@ import com.bx.implatform.service.IWebrtcService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcSession;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,13 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class WebrtcServiceImpl implements IWebrtcService {
 
-    @Autowired
     private IMClient imClient;
-    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-    @Autowired
     private ICEServerConfig iceServerConfig;
 
     @Override
