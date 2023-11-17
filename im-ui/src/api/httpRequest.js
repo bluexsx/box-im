@@ -54,7 +54,9 @@ http.interceptors.response.use(async response => {
 		sessionStorage.setItem("accessToken", data.accessToken);
 		sessionStorage.setItem("refreshToken", data.refreshToken);
 		// 这里需要把headers清掉，否则请求时会报错，原因暂不详...
-		response.config.headers=undefined;
+		if(typeof response.config.data != 'object'){
+			response.config.headers=undefined;
+		}
 		// 重新发送刚才的请求
 		return http(response.config)
 	} else {

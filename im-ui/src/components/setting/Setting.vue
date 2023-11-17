@@ -93,7 +93,7 @@
 		},
 		computed:{
 			imageAction(){
-				return `${process.env.VUE_APP_BASE_API}/image/upload`;
+				return `/image/upload`;
 			}
 		},
 		watch: {

@@ -267,7 +267,7 @@
 				return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
 			},
 			imageAction() {
-				return `${process.env.VUE_APP_BASE_API}/image/upload`;
+				return `/image/upload`;
 			}
 		},
 		mounted() {
