@@ -50,6 +50,8 @@ export default {
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
 					messages: [],
+					atMe: false,
+					atAll: false
 				};
 				state.chats.unshift(chat);
 			}
