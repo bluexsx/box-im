@@ -73,7 +73,6 @@
 							this.insertPrivateMessage(friend,msgInfo);
 						}	
 					})
-					store.commit("refreshChats");
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadPrivateMessage(msgInfos[99].id);
@@ -96,7 +95,6 @@
 							this.insertGroupMessage(group,msgInfo);
 						}
 					})
-					store.commit("refreshChats");
 					if (msgInfos.length == 100) {
 						// 继续拉取
 						this.loadGroupMessage(msgInfos[99].id);

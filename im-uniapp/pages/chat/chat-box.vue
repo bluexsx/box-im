@@ -11,8 +11,8 @@
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
-						@longPressHead="onLongPressHead(msgInfo)"
-						@download="onDownloadFile" :id="'chat-item-'+idx" :msgInfo="msgInfo">
+						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
+						:msgInfo="msgInfo">
 					</chat-message-item>
 				</view>
 			</scroll-view>
@@ -31,14 +31,14 @@
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
 					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
-					confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
+					@input="onTextInput" confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
 			</view>
 			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
 			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
 			<view v-if="sendText==''" class="iconfont icon-add" @click="switchChatTabBox('tools',true)">
 			</view>
-			<button v-if="sendText!=''||atUserIds.length>0" class="btn-send" type="primary" @touchend.prevent="sendTextMessage()"
-				size="mini">发送</button>
+			<button v-if="sendText!=''||atUserIds.length>0" class="btn-send" type="primary"
+				@touchend.prevent="sendTextMessage()" size="mini">发送</button>
 		</view>
 
 		<view class="chat-tab-bar" v-show="chatTabBox!='none' ||showKeyBoard " :style="{height:`${keyboardHeight}px`}">
@@ -119,8 +119,8 @@
 			onAtComplete(atUserIds) {
 				this.atUserIds = atUserIds;
 			},
-			onLongPressHead(msgInfo){
-				if(!msgInfo.selfSend && this.chat.type=="GROUP" && this.atUserIds.indexOf(msgInfo.sendId)<0){
+			onLongPressHead(msgInfo) {
+				if (!msgInfo.selfSend && this.chat.type == "GROUP" && this.atUserIds.indexOf(msgInfo.sendId) < 0) {
 					this.atUserIds.push(msgInfo.sendId);
 				}
 			},
@@ -141,12 +141,12 @@
 				}
 			},
 			sendTextMessage() {
-				if (!this.sendText.trim() && this.atUserIds.length==0) {
+				if (!this.sendText.trim() && this.atUserIds.length == 0) {
 					return uni.showToast({
 						title: "不能发送空白信息",
 						icon: "none"
 					});
-					
+
 				}
 				let atText = this.createAtText()
 				let msgInfo = {
@@ -179,10 +179,10 @@
 			createAtText() {
 				let atText = "";
 				this.atUserIds.forEach((id) => {
-					if(id==-1){
+					if (id == -1) {
 						atText += ` @全体成员`;
-					}else{
-						let member = this.groupMembers.find((m)=>m.userId==id);
+					} else {
+						let member = this.groupMembers.find((m) => m.userId == id);
 						if (member) {
 							atText += ` @${member.aliasName}`;
 						}
@@ -414,6 +414,16 @@
 					})
 				}
 			},
+			onTextInput(e) {
+				let idx = e.detail.cursor - 1;
+				if (this.chat.type == 'GROUP' && e.detail.value[idx] == '@') {
+					this.openAtBox();
+					let sendText = e.detail.value.replace("@", '');
+					this.$nextTick(() => {
+						this.sendText = sendText;
+					})
+				}
+			},
 			readedMessage() {
 				if (this.chat.type == "GROUP") {
 					var url = `/message/group/readed?groupId=${this.chat.targetId}`
@@ -491,15 +501,18 @@
 			unreadCount() {
 				return this.chat.unreadCount;
 			},
-			atUserItems(){
+			atUserItems() {
 				let atUsers = [];
-				this.atUserIds.forEach((id)=>{
-					if(id==-1){
-						atUsers.push({id:-1,aliasName:"全体成员"})
+				this.atUserIds.forEach((id) => {
+					if (id == -1) {
+						atUsers.push({
+							id: -1,
+							aliasName: "全体成员"
+						})
 						return;
 					}
-					let member = this.groupMembers.find((m)=>m.userId==id);
-					if(member){
+					let member = this.groupMembers.find((m) => m.userId == id);
+					if (member) {
 						atUsers.push(member);
 					}
 				})
@@ -612,6 +625,7 @@
 			.chat-at-scroll-box {
 				flex: 1;
 				width: 80%;
+
 				.chat-at-items {
 					display: flex;
 					align-items: center;
