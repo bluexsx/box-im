@@ -15,7 +15,7 @@
 			<el-scrollbar class="friend-list-items">
 				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
 					<friend-item v-show="friend.nickName.startsWith(searchText)"  :index="index"
-						:active="index === $store.state.friendStore.activeIndex" @chat="onSendMessage(friend)"
+						:active="friend === $store.state.friendStore.activeFriend" @chat="onSendMessage(friend)"
 						@delete="onDelItem(friend,index)" @click.native="onActiveItem(friend,index)">
 					</friend-item>
 				</div>
@@ -46,7 +46,7 @@
 						<div class="frient-btn-group">
 							<el-button v-show="isFriend" icon="el-icon-chat-dot-round" type="primary"  @click="onSendMessage(userInfo)">发送消息</el-button>
 							<el-button v-show="!isFriend" icon="el-icon-plus" type="primary"  @click="onAddFriend(userInfo)">加为好友</el-button>
-							<el-button v-show="isFriend" icon="el-icon-delete"  type="danger" @click="onDelItem(userInfo,friendStore.activeIndex)">删除好友</el-button>
+							<el-button v-show="isFriend" icon="el-icon-delete"  type="danger" @click="onDelItem(userInfo,activeIdx)">删除好友</el-button>
 						</div>
 					</div>
 				</div>
@@ -74,6 +74,7 @@
 			return {
 				searchText: "",
 				showAddFriend: false,
+				activeIdx: -1,
 				userInfo: {}
 			}
 		},
@@ -84,11 +85,12 @@
 			onCloseAddFriend() {
 				this.showAddFriend = false;
 			},
-			onActiveItem(friend, index) {
-				this.$store.commit("activeFriend", index);
-				this.loadUserInfo(friend, index);
+			onActiveItem(friend, idx) {
+				this.$store.commit("activeFriend", idx);
+				this.activeIdx = idx
+				this.loadUserInfo(friend, idx);
 			},
-			onDelItem(friend, index) {
+			onDelItem(friend, idx) {
 				this.$confirm(`确认要解除与 '${friend.nickName}'的好友关系吗?`, '确认解除?', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
@@ -99,7 +101,7 @@
 						method: 'delete'
 					}).then((data) => {
 						this.$message.success("删除好友成功");
-						this.$store.commit("removeFriend", index);
+						this.$store.commit("removeFriend", idx);
 						this.$store.commit("removePrivateChat", friend.id);
 					})
 				})
@@ -173,14 +175,7 @@
 			isFriend(){
 				return this.friendStore.friends.find((f)=>f.id==this.userInfo.id);
 			}
-		},
-		mounted() {
-			if (this.friendStore.activeIndex >= 0) {
-				let friend = this.friendStore.friends[this.friendStore.activeIndex];
-				this.loadUserInfo(friend, this.friendStore.activeIndex);
-			}
 		}
-
 	}
 </script>
 

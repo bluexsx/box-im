@@ -14,12 +14,12 @@
 				<div v-for="(chat,index) in chatStore.chats" :key="index">
 					<chat-item v-show="chat.showName.startsWith(searchText)" :chat="chat" :index="index"
 						@click.native="onActiveItem(index)" @delete="onDelItem(index)" @top="onTop(index)"
-						:active="index === chatStore.activeIndex"></chat-item>
+						:active="chat === chatStore.activeChat"></chat-item>
 				</div>
 			</el-scrollbar>
 		</el-aside>
 		<el-container class="chat-box">
-			<chat-box v-show="activeChat.targetId>0" :chat="activeChat"></chat-box>
+			<chat-box v-if="chatStore.activeChat" :chat="chatStore.activeChat"></chat-box>
 		</el-container>
 	</el-container>
 </template>
@@ -56,21 +56,6 @@
 		computed: {
 			chatStore() {
 				return this.$store.state.chatStore;
-			},
-			activeChat() {
-				let index = this.chatStore.activeIndex;
-				let chats = this.chatStore.chats
-				if (index >= 0 && chats.length > 0) {
-					return chats[index];
-				}
-				// 当没有激活任何会话时，创建一个空会话，不然控制台会有很多报错
-				let emptyChat = {
-					targetId: -1,
-					showName: "",
-					headImage: "",
-					messages: []
-				}
-				return emptyChat;
 			},
 			loading(){
 				return this.chatStore.loadingGroupMsg || this.chatStore.loadingPrivateMsg

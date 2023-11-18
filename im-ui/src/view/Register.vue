@@ -56,7 +56,6 @@
 			};
 
 			var checkConfirmPassword = (rule, value, callback) => {
-				console.log("checkConfirmPassword");
 				if (value === '') {
 					return callback(new Error('请输入密码'));
 				}
