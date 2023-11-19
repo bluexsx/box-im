@@ -13,7 +13,7 @@ import java.util.Date;
 public class PrivateMessageVO {
 
     @ApiModelProperty(value = " 消息id")
-    private long id;
+    private Long id;
 
     @ApiModelProperty(value = " 发送者id")
     private Long sendId;

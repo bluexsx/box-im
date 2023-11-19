@@ -1,6 +1,6 @@
 <template>
-	<el-upload :action="action" :headers="uploadHeaders" :accept="fileTypes==null?'':fileTypes.join(',')"
-	 :show-file-list="false" :on-success="onSuccess" :on-error="onError" :disabled="disabled" :before-upload="beforeUpload">
+	<el-upload :action="'#'" :http-request="onFileUpload" :accept="fileTypes==null?'':fileTypes.join(',')" :show-file-list="false"
+		:disabled="disabled" :before-upload="beforeUpload">
 		<slot></slot>
 	</el-upload>
 </template>
@@ -11,13 +11,15 @@
 		data() {
 			return {
 				loading: null,
-				uploadHeaders: {"accessToken":sessionStorage.getItem('accessToken')}
+				uploadHeaders: {
+					"accessToken": sessionStorage.getItem('accessToken')
+				}
 			}
 		},
 		props: {
 			action: {
 				type: String,
-				required: true
+				required: false
 			},
 			fileTypes: {
 				type: Array,
@@ -37,17 +39,33 @@
 			}
 		},
 		methods: {
-			onSuccess(res, file) {
-				this.loading && this.loading.close();
-				if (res.code == 200) {
-					this.$emit("success", res.data, file);
-				} else {
-					this.$message.error(res.message);
-					this.$emit("fail", res, file);
+			onFileUpload(file) {
+				// 展示加载条
+				if (this.showLoading) {
+					this.loading = this.$loading({
+						lock: true,
+						text: '正在上传...',
+						spinner: 'el-icon-loading',
+						background: 'rgba(0, 0, 0, 0.7)'
+					});
 				}
-			},
-			onError(err, file) {
-				this.$emit("fail", err, file);
+
+				let formData = new FormData()
+				formData.append('file', file.file)
+				this.$http({
+					url: this.action,
+					data: formData,
+					method: 'post',
+					headers: {
+						'Content-Type': 'multipart/form-data'
+					}
+				}).then((data) => {
+					this.$emit("success", data, file.file);
+				}).catch((e) => {
+					this.$emit("fail", e, file.file);
+				}).finally(() => {
+					this.loading && this.loading.close();
+				})
 			},
 			beforeUpload(file) {
 				// 校验文件类型
@@ -64,20 +82,10 @@
 					this.$message.error(`文件大小不能超过 ${this.fileSizeStr}!`);
 					return false;
 				}
-				// 展示加载条
-				if (this.showLoading) {
-					this.loading = this.$loading({
-						lock: true,
-						text: '正在上传...',
-						spinner: 'el-icon-loading',
-						background: 'rgba(0, 0, 0, 0.7)'
-					});
-				}
+
 				this.$emit("before", file);
 				return true;
 			}
-			
-			
 		},
 		computed: {
 			fileSizeStr() {

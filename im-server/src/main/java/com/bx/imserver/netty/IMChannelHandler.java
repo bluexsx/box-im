@@ -27,12 +27,11 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     /**
      * 读取到消息后进行处理
      *
-     * @param ctx
-     * @param sendInfo
-     * @throws Exception
+     * @param ctx channel上下文
+     * @param sendInfo 发送消息
      */
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, IMSendInfo sendInfo) throws  Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, IMSendInfo sendInfo)  {
         // 创建处理器进行处理
         AbstractMessageProcessor processor = ProcessorFactory.createProcessor(IMCmdType.fromCode(sendInfo.getCmd()));
         processor.process(ctx,processor.transForm(sendInfo.getData()));
@@ -41,12 +40,11 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     /**
      * 出现异常的处理 打印报错日志
      *
-     * @param ctx
-     * @param cause
-     * @throws Exception
+     * @param ctx channel上下文
+     * @param cause 异常信息
      */
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws  Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
         log.error(cause.getMessage());
         //关闭上下文
         //ctx.close();
@@ -55,16 +53,15 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     /**
      * 监控浏览器上线
      *
-     * @param ctx
-     * @throws Exception
+     * @param ctx  channel上下文
      */
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws  Exception  {
+    public void handlerAdded(ChannelHandlerContext ctx)   {
         log.info(ctx.channel().id().asLongText() + "连接");
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws  Exception {
+    public void handlerRemoved(ChannelHandlerContext ctx) {
         AttributeKey<Long> userIdAttr = AttributeKey.valueOf(ChannelAttrKey.USER_ID);
         Long userId = ctx.channel().attr(userIdAttr).get();
         AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
@@ -75,7 +72,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
             // 移除channel
             UserChannelCtxMap.removeChannelCtx(userId,terminal);
             // 用户下线
-            RedisTemplate redisTemplate = SpringContextHolder.getBean("redisTemplate");
+            RedisTemplate<String,Object> redisTemplate = SpringContextHolder.getBean("redisTemplate");
             String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID,userId.toString(), terminal.toString());
             redisTemplate.delete(key);
             log.info("断开连接,userId:{},终端类型:{}",userId,terminal);

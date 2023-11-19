@@ -1,6 +1,5 @@
 package com.bx.implatform.controller;
 
-
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IGroupService;
@@ -9,11 +8,10 @@ import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -21,9 +19,9 @@ import java.util.List;
 @Api(tags = "群聊")
 @RestController
 @RequestMapping("/group")
+@AllArgsConstructor
 public class GroupController {
 
-    @Autowired
     private IGroupService groupService;
 
     @ApiOperation(value = "创建群聊",notes="创建群聊")

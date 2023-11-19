@@ -2,9 +2,9 @@ package com.bx.implatform.util;
 
 
 import io.minio.*;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,11 +14,10 @@ import java.util.Date;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class MinioUtil {
 
-
-    @Autowired
-    private MinioClient minioClient;
+    private final  MinioClient minioClient;
 
     /**
      * 查看存储bucket是否存在
@@ -35,25 +34,21 @@ public class MinioUtil {
 
     /**
      * 创建存储bucket
-     * @return Boolean
      */
-    public Boolean makeBucket(String bucketName) {
+    public void makeBucket(String bucketName) {
         try {
             minioClient.makeBucket(MakeBucketArgs.builder()
                     .bucket(bucketName)
                     .build());
         } catch (Exception e) {
             log.error("创建bucket失败,",e);
-            return false;
         }
-        return true;
     }
 
     /**
-     *  设置bucket权限为public
-     * @return Boolean
+     * 设置bucket权限为public
      */
-    public Boolean setBucketPublic(String bucketName) {
+    public void setBucketPublic(String bucketName) {
         try {
             // 设置公开
             String sb = "{\"Version\":\"2012-10-17\"," +
@@ -70,34 +65,13 @@ public class MinioUtil {
                             .build());
         } catch (Exception e) {
             log.error("创建bucket失败,",e);
-            return false;
         }
-        return true;
-
     }
-
-
-    /**
-     * 删除存储bucket
-     * @return Boolean
-     */
-    public Boolean removeBucket(String bucketName) {
-        try {
-            minioClient.removeBucket(RemoveBucketArgs.builder()
-                    .bucket(bucketName)
-                    .build());
-        } catch (Exception e) {
-            log.error("删除bucket失败,",e);
-            return false;
-        }
-        return true;
-    }
-
 
     /**
      * 文件上传
-     * @bucketName bucket名称
-     * @path 路径
+     * @param bucketName bucket名称
+     * @param path 路径
      * @param file 文件
      * @return Boolean
      */
@@ -129,8 +103,8 @@ public class MinioUtil {
      * @param path 路径
      * @param name 文件名
      * @param fileByte 文件内容
-     * @param contentType
-     * @return Boolean
+     * @param contentType  contentType
+     * @return  objectName
      */
     public String upload(String bucketName,String path,String name,byte[] fileByte,String contentType) {
 
@@ -142,9 +116,8 @@ public class MinioUtil {
                     .stream(stream, fileByte.length, -1).contentType(contentType).build();
             //文件名称相同会覆盖
             minioClient.putObject(objectArgs);
-
         } catch (Exception e) {
-            log.error("上传图片失败,",e);
+            log.error("上传文件失败,",e);
             return null;
         }
         return objectName;
@@ -154,16 +127,15 @@ public class MinioUtil {
     /**
      * 删除
      * @param bucketName bucket名称
-     * @path path
-     * @param fileName
-     * @return
-     * @throws Exception
+     * @param path  路径
+     * @param fileName 文件名
+     * @return true/false
      */
     public boolean remove(String bucketName,String path,String fileName){
         try {
             minioClient.removeObject( RemoveObjectArgs.builder().bucket(bucketName).object(path+fileName).build());
         }catch (Exception e){
-            log.error("删除图片失败,",e);
+            log.error("删除文件失败,",e);
             return false;
         }
         return true;

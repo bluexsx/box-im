@@ -5,6 +5,7 @@ import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.util.XssUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,8 +14,8 @@ import java.io.BufferedReader;
 import java.util.Map;
 
 @Slf4j
+@Component
 public class XssInterceptor implements HandlerInterceptor {
-
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

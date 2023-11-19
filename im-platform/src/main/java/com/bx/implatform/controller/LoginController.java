@@ -1,16 +1,15 @@
 package com.bx.implatform.controller;
 
-
+import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
+import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IUserService;
-import com.bx.implatform.dto.LoginDTO;
-import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.vo.LoginVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,9 +18,9 @@ import javax.validation.Valid;
 
 @Api(tags = "用户登录和注册")
 @RestController
+@AllArgsConstructor
 public class LoginController {
 
-    @Autowired
     private IUserService userService;
 
     @PostMapping("/login")

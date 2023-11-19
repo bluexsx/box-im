@@ -2,7 +2,6 @@ package com.bx.imserver.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -27,14 +27,14 @@
 									@click.stop="showEmotionBox()">
 								</div>
 								<div title="发送图片">
-									<file-upload :action="imageAction" :maxSize="5*1024*1024"
+									<file-upload :action="'/image/upload'" :maxSize="5*1024*1024"
 										:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp','image/gif']"
 										@before="onImageBefore" @success="onImageSuccess" @fail="onImageFail">
 										<i class="el-icon-picture-outline"></i>
 									</file-upload>
 								</div>
 								<div title="发送文件">
-									<file-upload :action="fileAction" :maxSize="10*1024*1024" @before="onFileBefore"
+									<file-upload :action="'/file/upload'" :maxSize="10*1024*1024" @before="onFileBefore"
 										@success="onFileSuccess" @fail="onFileFail">
 										<i class="el-icon-wallet"></i>
 									</file-upload>
@@ -264,7 +264,7 @@
 				this.sendImageFile = null;
 			},
 			onImageSuccess(data, file) {
-				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo || file.raw.msgInfo));
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				this.$http({
 					url: this.messageAction,
@@ -277,7 +277,7 @@
 				})
 			},
 			onImageFail(e, file) {
-				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo || file.raw.msgInfo));
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
 			},
@@ -313,7 +313,7 @@
 					size: file.size,
 					url: url
 				}
-				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				this.$http({
 					url: this.messageAction,
@@ -326,7 +326,7 @@
 				})
 			},
 			onFileFail(e, file) {
-				let msgInfo = JSON.parse(JSON.stringify(file.raw.msgInfo));
+				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.loadStatus = 'fail';
 				this.$store.commit("insertMessage", msgInfo);
 			},
@@ -462,7 +462,7 @@
 				let file = this.sendImageFile;
 				this.onImageBefore(this.sendImageFile);
 				let formData = new FormData()
-				formData.append('file', file.raw || file)
+				formData.append('file',  file)
 				this.$http.post("/image/upload", formData, {
 					headers: {
 						'Content-Type': 'multipart/form-data'
@@ -546,6 +546,7 @@
 				if(this.chat.unreadCount==0){
 					return;
 				}
+				this.$store.commit("resetUnreadCount", this.chat)
 				if (this.chat.type == "GROUP") {
 					var url = `/message/group/readed?groupId=${this.chat.targetId}`
 				} else {
@@ -554,9 +555,7 @@
 				this.$http({
 					url: url,
 					method: 'put'
-				}).then(() => {
-					this.$store.commit("resetUnreadCount", this.chat)
-				})
+				}).then(() => {})
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -630,12 +629,6 @@
 					title += `(${size})`;
 				}
 				return title;
-			},
-			imageAction() {
-				return `${process.env.VUE_APP_BASE_API}/image/upload`;
-			},
-			fileAction() {
-				return `${process.env.VUE_APP_BASE_API}/file/upload`;
 			},
 			messageAction() {
 				return `/message/${this.chat.type.toLowerCase()}/send`;

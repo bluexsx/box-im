@@ -2,6 +2,7 @@ package com.bx.implatform.config;
 
 import com.bx.implatform.interceptor.AuthInterceptor;
 import com.bx.implatform.interceptor.XssInterceptor;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,29 +12,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @Configuration
+@AllArgsConstructor
 public class MvcConfig implements WebMvcConfigurer {
 
+    private final AuthInterceptor authInterceptor;
+    private final XssInterceptor xssInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(xssInterceptor())
+        registry.addInterceptor(xssInterceptor)
                 .addPathPatterns("/**");
-        registry.addInterceptor(authInterceptor())
+        registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login","/logout","/register","/refreshToken",
                         "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
     }
-
-    @Bean
-    public AuthInterceptor authInterceptor() {
-        return new AuthInterceptor();
-    }
-
-    @Bean
-    public XssInterceptor xssInterceptor() {
-        return new XssInterceptor();
-    }
-
 
     @Bean
     public PasswordEncoder passwordEncoder(){

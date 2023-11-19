@@ -12,11 +12,11 @@ public class JwtUtil {
 
     /**
      * 生成jwt字符串  JWT(json web token)
-     * @param userId
-     * @param info
-     * @param expireIn
-     * @param secret
-     * @return
+     * @param userId  用户id
+     * @param info  用户细腻系
+     * @param expireIn 过期时间
+     * @param secret  秘钥
+     * @return token
      * */
     public static String sign(Long userId, String info,long expireIn,String secret) {
         try {
@@ -38,8 +38,8 @@ public class JwtUtil {
 
     /**
      * 根据token获取userId
-     * @param token
-     * @return
+     * @param token  登录token
+     * @return 用户id
      * */
     public static Long getUserId(String token) {
         try {
@@ -51,9 +51,9 @@ public class JwtUtil {
     }
 
     /**
-     * 根据token获取自定义数据info
-     * @param token
-     * @return
+     * 根据token获取用户数据
+     * @param token 用户登录token
+     * @return 用户数据
      * */
     public static String getInfo(String token) {
         try {
@@ -65,11 +65,11 @@ public class JwtUtil {
 
     /**
      * 校验token
-     * @param token
-     * @param secret
-     * @return
+     * @param token 用户登录token
+     * @param secret 秘钥
+     * @return true/false
      * */
-    public static boolean checkSign(String token,String secret) {
+    public static Boolean checkSign(String token,String secret) {
         try{
             Algorithm algorithm  = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm).build();

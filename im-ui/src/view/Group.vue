@@ -13,7 +13,7 @@
 			<el-scrollbar class="group-list-items">
 				<div v-for="(group,index) in groupStore.groups" :key="index">
 					<group-item v-show="group.remark.startsWith(searchText)" :group="group"
-						:active="index === groupStore.activeIndex" @click.native="onActiveItem(group,index)">
+						:active="group === groupStore.activeGroup" @click.native="onActiveItem(group,index)">
 					</group-item>
 				</div>
 			</el-scrollbar>
@@ -158,9 +158,9 @@
 			onCloseAddGroupMember() {
 				this.showAddGroupMember = false;
 			},
-			onUploadSuccess(res) {
-				this.activeGroup.headImage = res.data.originUrl;
-				this.activeGroup.headImageThumb = res.data.thumbUrl;
+			onUploadSuccess(data) {
+				this.activeGroup.headImage =data.originUrl;
+				this.activeGroup.headImageThumb = data.thumbUrl;
 			},
 			onSaveGroup() {
 				this.$refs['groupForm'].validate((valid) => {
@@ -267,16 +267,7 @@
 				return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
 			},
 			imageAction() {
-				return `${process.env.VUE_APP_BASE_API}/image/upload`;
-			}
-		},
-		mounted() {
-			if (this.groupStore.activeIndex >= 0) {
-				let activeGroup = this.groupStore.groups[this.groupStore.activeIndex];
-				// store数据不能直接修改，所以深拷贝一份内存
-				this.activeGroup = JSON.parse(JSON.stringify(activeGroup));
-				// 加载群成员
-				this.loadGroupMembers();
+				return `/image/upload`;
 			}
 		}
 	}

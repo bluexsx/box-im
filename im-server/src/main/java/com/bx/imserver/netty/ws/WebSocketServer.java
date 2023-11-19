@@ -37,7 +37,6 @@ public class WebSocketServer  implements IMServer {
 
     private volatile boolean ready = false;
 
-    private  ServerBootstrap bootstrap;
     private  EventLoopGroup bossGroup;
     private  EventLoopGroup workGroup;
 
@@ -49,7 +48,7 @@ public class WebSocketServer  implements IMServer {
 
     @Override
     public void start() {
-        bootstrap = new ServerBootstrap();
+        ServerBootstrap bootstrap = new ServerBootstrap();
         bossGroup = new NioEventLoopGroup();
         workGroup = new NioEventLoopGroup();
         // 设置为主从线程模型
@@ -60,7 +59,7 @@ public class WebSocketServer  implements IMServer {
                 .childHandler(new ChannelInitializer<Channel>() {
                     // 添加处理的Handler，通常包括消息编解码、业务处理，也可以是日志、权限、过滤等
                     @Override
-                    protected void initChannel(Channel ch) throws Exception {
+                    protected void initChannel(Channel ch) {
                         // 获取职责链
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new IdleStateHandler(120, 0, 0, TimeUnit.SECONDS));
@@ -82,7 +81,7 @@ public class WebSocketServer  implements IMServer {
 
         try {
             // 绑定端口，启动select线程，轮询监听channel事件，监听到事件之后就会交给从线程池处理
-            Channel channel = bootstrap.bind(port).sync().channel();
+            bootstrap.bind(port).sync().channel();
             // 就绪标志
             this.ready = true;
             log.info("websocket server 初始化完成,端口：{}",port);

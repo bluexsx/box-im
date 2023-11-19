@@ -1,25 +1,27 @@
 package com.bx.implatform.interceptor;
 
-
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.bx.imcommon.util.JwtUtil;
 import com.bx.implatform.config.JwtProperties;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.session.UserSession;
-import com.bx.imcommon.util.JwtUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
+@Component
+@AllArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

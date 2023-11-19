@@ -5,26 +5,25 @@ import com.bx.imclient.listener.MessageListenerMulticaster;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMListenerType;
 import com.bx.imcommon.model.IMSendResult;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 ;
 
 @Slf4j
 @Component
-public class PullSendResultPrivateMessageTask extends  AbstractPullMessageTask{
+@AllArgsConstructor
+public class PrivateMessageResultResultTask extends AbstractMessageResultTask {
 
 
-    @Qualifier("IMRedisTemplate")
-    @Autowired
+    @Resource(name = "IMRedisTemplate")
     private RedisTemplate<String,Object> redisTemplate;
 
-    @Autowired
     private MessageListenerMulticaster listenerMulticaster;
 
     @Override

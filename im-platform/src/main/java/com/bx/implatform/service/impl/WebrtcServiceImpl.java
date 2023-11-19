@@ -3,7 +3,6 @@ package com.bx.implatform.service.impl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
-import com.bx.implatform.vo.PrivateMessageVO;
 import com.bx.implatform.config.ICEServer;
 import com.bx.implatform.config.ICEServerConfig;
 import com.bx.implatform.contant.RedisKey;
@@ -13,8 +12,9 @@ import com.bx.implatform.service.IWebrtcService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcSession;
+import com.bx.implatform.vo.PrivateMessageVO;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,14 +25,12 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class WebrtcServiceImpl implements IWebrtcService {
 
-    @Autowired
-    private IMClient imClient;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-    @Autowired
-    private ICEServerConfig iceServerConfig;
+    private final IMClient imClient;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ICEServerConfig iceServerConfig;
 
     @Override
     public void call(Long uid, String offer) {

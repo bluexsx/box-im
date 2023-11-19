@@ -4,26 +4,27 @@ export default {
 
 	state: {
 		groups: [],
-		activeIndex: -1,
+		activeGroup: null,
 	},
 	mutations: {
 		setGroups(state, groups) {
 			state.groups = groups;
 		},
-		activeGroup(state, index) {
-			state.activeIndex = index;
+		activeGroup(state, idx) {
+			state.activeGroup = state.groups[idx];
 		},
 		addGroup(state, group) {
 			state.groups.unshift(group);
 		},
 		removeGroup(state, groupId) {
-			state.groups.forEach((g, index) => {
+			state.groups.forEach((g, idx) => {
 				if (g.id == groupId) {
-					state.groups.splice(index, 1);
-					state.activeIndex = -1;
+					state.groups.splice(idx, 1);
 				}
 			})
-
+			if (state.activeGroup.id == groupId) {
+				state.activeGroup = null;
+			}
 		},
 		updateGroup(state, group) {
 			state.groups.forEach((g, idx) => {
@@ -33,9 +34,9 @@ export default {
 				}
 			})
 		},
-		clear(state){
+		clear(state) {
 			state.groups = [];
-			state.activeGroup = -1;
+			state.activeGroup = null;
 		}
 	},
 	actions: {

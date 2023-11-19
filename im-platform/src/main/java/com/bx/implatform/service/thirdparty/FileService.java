@@ -9,9 +9,9 @@ import com.bx.implatform.util.FileUtil;
 import com.bx.implatform.util.ImageUtil;
 import com.bx.implatform.util.MinioUtil;
 import com.bx.implatform.vo.UploadImageVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,27 +22,24 @@ import java.io.IOException;
 /**
  * todo 通过校验文件MD5实现重复文件秒传
  * 文件上传服务
- * @Author Blue
- * @Date 2022/10/28
+ * @author Blue
+ * @date 2022/10/28
  *
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FileService {
-
-    @Autowired
-    private MinioUtil  minioUtil;
-
+    private final MinioUtil  minioUtil;
     @Value("${minio.public}")
-    private String  minIOServer;
+    private String minIoServer;
     @Value("${minio.bucketName}")
     private String bucketName;
-
     @Value("${minio.imagePath}")
     private String imagePath;
-
     @Value("${minio.filePath}")
     private String filePath;
+
 
     @PostConstruct
     public void init(){
@@ -108,7 +105,7 @@ public class FileService {
 
 
     public String generUrl(FileType fileTypeEnum, String fileName){
-        String url = minIOServer+"/"+bucketName;
+        String url = minIoServer +"/"+bucketName;
         switch (fileTypeEnum){
             case FILE:
                 url += "/file/";
@@ -118,6 +115,8 @@ public class FileService {
                 break;
             case VIDEO:
                 url += "/video/";
+                break;
+            default:
                 break;
         }
         url += fileName;

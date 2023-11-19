@@ -31,15 +31,12 @@ export default {
 		},
 		openChat(state, chatInfo) {
 			let chat = null;
-			for (let i in state.chats) {
-				if (state.chats[i].type == chatInfo.type &&
-					state.chats[i].targetId === chatInfo.targetId) {
-					chat = state.chats[i];
-					// 放置头部（这个操作非常耗资源，正在加载消息时不执行）
-					if(!state.loadingPrivateMsg && !state.loadingPrivateMsg){
-						state.chats.splice(i, 1);
-						state.chats.unshift(chat);
-					}
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == chatInfo.type &&
+					state.chats[idx].targetId === chatInfo.targetId) {
+					chat = state.chats[idx];
+					// 放置头部
+					this.commit("moveTop",idx)
 					break;
 				}
 			}
@@ -54,6 +51,8 @@ export default {
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
 					messages: [],
+					atMe: false,
+					atAll: false
 				};
 				state.chats.unshift(chat);
 			}
@@ -110,22 +109,27 @@ export default {
 			}
 		},
 		moveTop(state, idx) {
-			let chat = state.chats[idx];
-			// 放置头部
-			state.chats.splice(idx, 1);
-			state.chats.unshift(chat);
+			// 加载中不移动，很耗性能
+			if(state.loadingPrivateMsg || state.loadingGroupMsg){
+				return ;
+			}
+			if (idx > 0) {
+				let chat = state.chats[idx];
+				state.chats.splice(idx, 1);
+				state.chats.unshift(chat);
+				this.commit("saveToStorage");
+			}
 		},
 		insertMessage(state, msgInfo) {
 			// 获取对方id或群id
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
 			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
 			let chat = null;
-			let chatIdx = -1;
 			for (let idx in state.chats) {
 				if (state.chats[idx].type == type &&
 					state.chats[idx].targetId === targetId) {
 					chat = state.chats[idx];
-					chatIdx = idx;
+					this.commit("moveTop", idx)
 					break;
 				}
 			}
@@ -143,13 +147,13 @@ export default {
 				chat.lastSendTime = msgInfo.sendTime;
 				chat.sendNickName = msgInfo.sendNickName;
 			}
-			
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
-			if(!msgInfo.selfSend && chat.type=="GROUP" && msgInfo.atUserIds){
+			if(!msgInfo.selfSend && chat.type=="GROUP" && msgInfo.atUserIds
+				&& msgInfo.status != MESSAGE_STATUS.READED){
 				let userId = userStore.state.userInfo.id;
 				if(msgInfo.atUserIds.indexOf(userId)>=0){
 					chat.atMe = true;
@@ -158,7 +162,6 @@ export default {
 					chat.atAll = true;
 				}
 			}
-			
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
 				state.privateMsgMaxId = msgInfo.id;
@@ -246,9 +249,15 @@ export default {
 		},
 		loadingPrivateMsg(state, loadding) {
 			state.loadingPrivateMsg = loadding;
+			if(!state.loadingPrivateMsg && !state.loadingGroupMsg){
+				this.commit("refreshChats")
+			}
 		},
 		loadingGroupMsg(state, loadding) {
 			state.loadingGroupMsg = loadding;
+			if(!state.loadingPrivateMsg && !state.loadingGroupMsg){
+				this.commit("refreshChats")
+			}
 		},
 		refreshChats(state){
 			state.chats.forEach((chat)=>{

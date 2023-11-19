@@ -4,16 +4,16 @@ import com.bx.imclient.sender.IMSender;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMPrivateMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.Map;
 
 @Configuration
+@AllArgsConstructor
 public class IMClient {
 
-    @Autowired
     private IMSender imSender;
 
     /**

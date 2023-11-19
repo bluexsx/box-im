@@ -67,7 +67,7 @@
 		methods: {
 			init() {
 				if (!this.hasUserMedia() || !this.hasRTCPeerConnection()) {
-					this.$message.error("您的浏览器不支持WebRTC");
+					this.$message.error("初始化失败，原因可能是: 1.未部署ssl证书 2.您的浏览器不支持WebRTC");
 					if (!this.master) {
 						this.sendFailed("对方浏览器不支持WebRTC")
 					}

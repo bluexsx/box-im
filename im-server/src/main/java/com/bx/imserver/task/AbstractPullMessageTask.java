@@ -4,13 +4,14 @@ import com.bx.imserver.netty.IMServerGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
-public abstract class AbstractPullMessageTask {
+public abstract class AbstractPullMessageTask  implements CommandLineRunner {
 
     private int threadNum = 1;
     private ExecutorService executorService;
@@ -26,8 +27,9 @@ public abstract class AbstractPullMessageTask {
         this.threadNum = threadNum;
     }
 
-    @PostConstruct
-    public void init() {
+
+    @Override
+    public void run(String... args) {
         // 初始化定时器
         executorService = Executors.newFixedThreadPool(threadNum);
 
