@@ -133,41 +133,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         log.info("撤回群聊消息，发送id:{},群聊id:{},内容:{}", session.getUserId(), msg.getGroupId(), msg.getContent());
     }
 
-    @Override
-    public void pullUnreadMessage() {
-        UserSession session = SessionContext.getSession();
-        List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
-        for (GroupMember member : members) {
-            // 获取群聊已读的最大消息id，只推送未读消息
-            String key = String.join(":", RedisKey.IM_GROUP_READED_POSITION, member.getGroupId().toString(), session.getUserId().toString());
-            Integer maxReadedId = (Integer)redisTemplate.opsForValue().get(key);
-            LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-            wrapper.eq(GroupMessage::getGroupId, member.getGroupId()).gt(GroupMessage::getSendTime, member.getCreatedTime())
-                .ne(GroupMessage::getSendId, session.getUserId()).ne(GroupMessage::getStatus, MessageStatus.RECALL.code());
-            if (maxReadedId != null) {
-                wrapper.gt(GroupMessage::getId, maxReadedId);
-            }
-            wrapper.last("limit 100");
-            List<GroupMessage> messages = this.list(wrapper);
-            if (messages.isEmpty()) {
-                continue;
-            }
-            // 推送
-            for (GroupMessage message : messages) {
-                GroupMessageVO msgInfo = BeanUtils.copyProperties(message, GroupMessageVO.class);
-                IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
-                sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
-                // 只推给自己当前终端
-                sendMessage.setRecvIds(Collections.singletonList(session.getUserId()));
-                sendMessage.setRecvTerminals(Collections.singletonList(session.getTerminal()));
-                sendMessage.setData(msgInfo);
-                imClient.sendGroupMessage(sendMessage);
-            }
-            // 发送消息
-            log.info("拉取未读群聊消息，用户id:{},群聊id:{},数量:{}", session.getUserId(), member.getGroupId(), messages.size());
-        }
-
-    }
 
     @Override
     public List<GroupMessageVO> loadMessage(Long minId) {
@@ -234,7 +199,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setSendToSelf(true);
         sendMessage.setData(msgInfo);
-        sendMessage.setSendResult(false);
+        sendMessage.setSendResult(true);
         imClient.sendGroupMessage(sendMessage);
         // 记录已读消息位置
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId, session.getUserId());

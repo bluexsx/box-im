@@ -37,13 +37,6 @@ public class GroupMessageController {
         return ResultUtils.success();
     }
 
-    // todo 删除
-    @PostMapping("/pullUnreadMessage")
-    @ApiOperation(value = "拉取未读消息",notes="拉取未读消息")
-    public Result pullUnreadMessage(){
-        groupMessageService.pullUnreadMessage();
-        return ResultUtils.success();
-    }
 
     @GetMapping("/loadMessage")
     @ApiOperation(value = "拉取消息",notes="拉取消息,一次最多拉取100条")

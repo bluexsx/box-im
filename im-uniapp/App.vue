@@ -119,7 +119,7 @@
 						store.commit("resetUnreadCount", chatInfo)
 					} else {
 						// 对方已读我的消息，修改消息状态为已读
-						store.commit("readedMessage", friendId)
+						store.commit("readedMessage", {friendId:friendId})
 						
 					}
 					return;

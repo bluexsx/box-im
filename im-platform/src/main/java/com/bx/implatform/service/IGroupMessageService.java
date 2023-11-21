@@ -26,12 +26,6 @@ public interface IGroupMessageService extends IService<GroupMessage> {
     void recallMessage(Long id);
 
     /**
-     *
-     * 异步拉取群聊消息，通过websocket异步推送
-     */
-    void pullUnreadMessage();
-
-    /**
      * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
      *
      * @param minId  消息起始id

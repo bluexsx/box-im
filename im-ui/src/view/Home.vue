@@ -177,7 +177,7 @@
 						this.$store.commit("resetUnreadCount", chatInfo)
 					} else {
 						// 对方已读我的消息，修改消息状态为已读
-						this.$store.commit("readedMessage", friendId)
+						this.$store.commit("readedMessage", {friendId:friendId})
 					}
 					return;
 				}

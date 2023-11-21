@@ -424,6 +424,17 @@
 					})
 				}
 			},
+			loadReaded(fId) {
+				this.$http({
+					url: `/message/private/maxReadedId?friendId=${fId}`,
+					method: 'get'
+				}).then((id) => {
+					this.$store.commit("readedMessage", {
+						friendId: fId,
+						maxId: id
+					});
+				});
+			},
 			readedMessage() {
 				if (this.chat.type == "GROUP") {
 					var url = `/message/group/readed?groupId=${this.chat.targetId}`
@@ -552,6 +563,7 @@
 				this.loadGroup(this.chat.targetId);
 			} else {
 				this.loadFriend(this.chat.targetId);
+				this.loadReaded(this.chat.targetId)
 			}
 		},
 		onUnload() {

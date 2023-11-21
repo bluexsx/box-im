@@ -29,10 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -107,7 +104,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
 
-
     @Override
     public List<PrivateMessageVO> findHistoryMessage(Long friendId, Long page, Long size) {
         page = page > 0 ? page : 1;
@@ -129,43 +125,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         log.info("拉取聊天记录，用户id:{},好友id:{}，数量:{}", userId, friendId, messageInfos.size());
         return messageInfos;
     }
-
-
-    @Override
-    public void pullUnreadMessage() {
-        UserSession session = SessionContext.getSession();
-        // 获取当前连接的channelId
-        if (!imClient.isOnline(session.getUserId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "用户未建立连接");
-        }
-
-        List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
-        if (friends.isEmpty()) {
-            return;
-        }
-        List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
-        // 获取当前用户所有未读消息
-        LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(PrivateMessage::getRecvId, session.getUserId())
-                .eq(PrivateMessage::getStatus, MessageStatus.UNSEND)
-                .in(PrivateMessage::getSendId, friendIds);
-        List<PrivateMessage> messages = this.list(queryWrapper);
-        // 上传至redis，等待推送
-        for (PrivateMessage message : messages) {
-            PrivateMessageVO msgInfo = BeanUtils.copyProperties(message, PrivateMessageVO.class);
-            // 推送消息
-            IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-            sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
-            sendMessage.setRecvId(session.getUserId());
-            sendMessage.setRecvTerminals(Collections.singletonList(session.getTerminal()));
-            sendMessage.setSendToSelf(false);
-            sendMessage.setData(msgInfo);
-            imClient.sendPrivateMessage(sendMessage);
-        }
-        log.info("拉取未读私聊消息，用户id:{},数量:{}", session.getUserId(), messages.size());
-
-    }
-
 
 
     @Override
@@ -208,7 +167,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
 
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void readedMessage(Long friendId) {
@@ -234,5 +192,22 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
         log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);
+    }
+
+
+    @Override
+    public Long getMaxReadedId(Long friendId) {
+        UserSession session = SessionContext.getSession();
+        LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(PrivateMessage::getSendId, session.getUserId())
+                .eq(PrivateMessage::getRecvId, friendId)
+                .orderByDesc(PrivateMessage::getId)
+                .select(PrivateMessage::getId)
+                .last("limit 1");
+        PrivateMessage message = this.getOne(wrapper);
+        if(Objects.isNull(message)){
+            return -1L;
+        }
+        return message.getId();
     }
 }

@@ -462,7 +462,7 @@
 				let file = this.sendImageFile;
 				this.onImageBefore(this.sendImageFile);
 				let formData = new FormData()
-				formData.append('file',  file)
+				formData.append('file', file)
 				this.$http.post("/image/upload", formData, {
 					headers: {
 						'Content-Type': 'multipart/form-data'
@@ -543,7 +543,7 @@
 				});
 			},
 			readedMessage() {
-				if(this.chat.unreadCount==0){
+				if (this.chat.unreadCount == 0) {
 					return;
 				}
 				this.$store.commit("resetUnreadCount", this.chat)
@@ -556,6 +556,17 @@
 					url: url,
 					method: 'put'
 				}).then(() => {})
+			},
+			loadReaded(fId) {
+				this.$http({
+					url: `/message/private/maxReadedId?friendId=${fId}`,
+					method: 'get'
+				}).then((id) => {
+					this.$store.commit("readedMessage", {
+						friendId: fId,
+						maxId: id
+					});
+				});
 			},
 			loadGroup(groupId) {
 				this.$http({
@@ -646,6 +657,8 @@
 							this.loadGroup(this.chat.targetId);
 						} else {
 							this.loadFriend(this.chat.targetId);
+							// 加载已读状态
+							this.loadReaded(this.chat.targetId)
 						}
 						// 滚到底部
 						this.scrollToBottom();
@@ -683,6 +696,7 @@
 		width: 100%;
 		background: #f8f8f8;
 		border: #dddddd solid 1px;
+
 		.el-header {
 			padding: 5px;
 			background-color: white;
@@ -754,8 +768,8 @@
 				flex-direction: column;
 				height: 100%;
 				background-color: white !important;
-				
-				
+
+
 				.send-text-area {
 					box-sizing: border-box;
 					padding: 5px;
@@ -765,7 +779,7 @@
 					font-size: 16px;
 					color: black;
 					outline-color: rgba(83, 160, 231, 0.61);
-					
+
 					text-align: left;
 					line-height: 30 px;
 
@@ -784,6 +798,7 @@
 				.send-image-area {
 					text-align: left;
 					border: #53a0e7 solid 1px;
+
 					.send-image-box {
 						position: relative;
 						display: inline-block;

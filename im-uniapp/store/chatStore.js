@@ -75,13 +75,17 @@ export default {
 			}
 			this.commit("saveToStorage");
 		},
-		readedMessage(state, friendId) {
+		readedMessage(state, pos) {
 			for (let idx in state.chats) {
 				if (state.chats[idx].type == 'PRIVATE' &&
-					state.chats[idx].targetId == friendId) {
+					state.chats[idx].targetId == pos.friendId) {
 					state.chats[idx].messages.forEach((m) => {
 						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
-							m.status = MESSAGE_STATUS.READED
+							// pos.maxId为空表示整个会话已读
+							if(!pos.maxId || m.id <= pos.maxId){
+								m.status = MESSAGE_STATUS.READED
+							}
+							
 						}
 					})
 				}
