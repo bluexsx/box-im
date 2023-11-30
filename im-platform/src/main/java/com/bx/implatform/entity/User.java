@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * <p>
- *  用户
+ * 用户
  * </p>
  *
  * @author blue
@@ -24,7 +24,7 @@ import java.util.Date;
 @TableName("im_user")
 public class User extends Model<User> {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * id

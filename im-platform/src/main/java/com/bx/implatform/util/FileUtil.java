@@ -1,11 +1,14 @@
 package com.bx.implatform.util;
 
-public class FileUtil {
+public final class FileUtil {
+
+    private FileUtil() {
+    }
 
     /**
      * 获取文件后缀
      *
-     * @param fileName  文件名
+     * @param fileName 文件名
      * @return boolean
      */
     public static String getFileExtension(String fileName) {
@@ -15,13 +18,13 @@ public class FileUtil {
     /**
      * 判断文件是否图片类型
      *
-     * @param fileName  文件名
-     * @return  boolean
+     * @param fileName 文件名
+     * @return boolean
      */
     public static boolean isImage(String fileName) {
         String extension = getFileExtension(fileName);
-        String[] imageExtension = new String[]{"jpeg", "jpg", "bmp", "png","webp","gif"};
-        for (String e : imageExtension){
+        String[] imageExtension = new String[]{"jpeg", "jpg", "bmp", "png", "webp", "gif"};
+        for (String e : imageExtension) {
             if (extension.toLowerCase().equals(e)) {
                 return true;
             }

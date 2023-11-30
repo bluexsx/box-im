@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
 @Configuration
 @AllArgsConstructor
 public class MvcConfig implements WebMvcConfigurer {
@@ -24,12 +23,12 @@ public class MvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**");
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login","/logout","/register","/refreshToken",
+                .excludePathPatterns("/login", "/logout", "/register", "/refreshToken",
                         "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         // 使用BCrypt加密密码
         return new BCryptPasswordEncoder();
     }

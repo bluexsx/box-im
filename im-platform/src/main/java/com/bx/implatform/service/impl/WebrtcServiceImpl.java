@@ -13,7 +13,7 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcSession;
 import com.bx.implatform.vo.PrivateMessageVO;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebrtcServiceImpl implements IWebrtcService {
 
     private final IMClient imClient;
@@ -52,7 +52,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setContent(offer);
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
@@ -79,7 +79,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setContent(answer);
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         // 告知其他终端已经接受会话,中止呼叫
         sendMessage.setSendToSelf(true);
@@ -103,7 +103,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setSendId(session.getUserId());
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         // 告知其他终端已经拒绝会话,中止呼叫
         sendMessage.setSendToSelf(true);
@@ -125,7 +125,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setSendId(session.getUserId());
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
@@ -148,7 +148,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setSendId(session.getUserId());
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         // 告知其他终端已经会话失败,中止呼叫
         sendMessage.setSendToSelf(true);
@@ -174,7 +174,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setSendId(session.getUserId());
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
@@ -198,7 +198,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setContent(candidate);
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        sendMessage.setSender(new IMUserInfo(session.getUserId(),session.getTerminal()));
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
@@ -215,7 +215,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
 
     private WebrtcSession getWebrtcSession(Long userId, Long uid) {
         String key = getSessionKey(userId, uid);
-        WebrtcSession webrtcSession = (WebrtcSession)redisTemplate.opsForValue().get(key);
+        WebrtcSession webrtcSession = (WebrtcSession) redisTemplate.opsForValue().get(key);
         if (webrtcSession == null) {
             throw new GlobalException("视频通话已结束");
         }

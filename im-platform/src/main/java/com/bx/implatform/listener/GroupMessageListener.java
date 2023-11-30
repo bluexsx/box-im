@@ -11,21 +11,19 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 
-
 @Slf4j
 @IMListener(type = IMListenerType.GROUP_MESSAGE)
 @AllArgsConstructor
 public class GroupMessageListener implements MessageListener<GroupMessageVO> {
-    
-    private RedisTemplate<String,Object> redisTemplate;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void process(IMSendResult<GroupMessageVO> result){
+    public void process(IMSendResult<GroupMessageVO> result) {
         GroupMessageVO messageInfo = result.getData();
-        // todo 删除
         // 保存该用户已拉取的最大消息id
-        if(result.getCode().equals(IMSendCode.SUCCESS.code())) {
-            String key = String.join(":",RedisKey.IM_GROUP_READED_POSITION,messageInfo.getGroupId().toString(),result.getReceiver().getId().toString());
+        if (result.getCode().equals(IMSendCode.SUCCESS.code())) {
+            String key = String.join(":", RedisKey.IM_GROUP_READED_POSITION, messageInfo.getGroupId().toString(), result.getReceiver().getId().toString());
             redisTemplate.opsForValue().set(key, messageInfo.getId());
         }
     }

@@ -36,7 +36,7 @@ public class IMPrivateMessage<T> {
     private Boolean sendResult = true;
 
     /**
-     *  消息内容
+     * 消息内容
      */
     private T data;
 

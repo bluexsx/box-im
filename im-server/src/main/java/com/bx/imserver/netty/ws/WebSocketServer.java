@@ -20,29 +20,28 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-
 /**
- *  WS服务器,用于连接网页的客户端,协议格式: 直接IMSendInfo的JSON序列化
+ * WS服务器,用于连接网页的客户端,协议格式: 直接IMSendInfo的JSON序列化
  *
  * @author Blue
  * @date 2022-11-20
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "websocket", value = "enable", havingValue = "true",matchIfMissing = true)
-public class WebSocketServer  implements IMServer {
+@ConditionalOnProperty(prefix = "websocket", value = "enable", havingValue = "true", matchIfMissing = true)
+public class WebSocketServer implements IMServer {
 
     @Value("${websocket.port}")
     private int port;
 
     private volatile boolean ready = false;
 
-    private  EventLoopGroup bossGroup;
-    private  EventLoopGroup workGroup;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workGroup;
 
 
     @Override
-    public boolean isReady(){
+    public boolean isReady() {
         return ready;
     }
 
@@ -67,8 +66,8 @@ public class WebSocketServer  implements IMServer {
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65535));
                         pipeline.addLast("http-chunked", new ChunkedWriteHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler("/im"));
-                        pipeline.addLast("encode",new MessageProtocolEncoder());
-                        pipeline.addLast("decode",new MessageProtocolDecoder());
+                        pipeline.addLast("encode", new MessageProtocolEncoder());
+                        pipeline.addLast("decode", new MessageProtocolDecoder());
                         pipeline.addLast("handler", new IMChannelHandler());
                     }
                 })
@@ -84,20 +83,20 @@ public class WebSocketServer  implements IMServer {
             bootstrap.bind(port).sync().channel();
             // 就绪标志
             this.ready = true;
-            log.info("websocket server 初始化完成,端口：{}",port);
+            log.info("websocket server 初始化完成,端口：{}", port);
             // 等待服务端口关闭
             //channel.closeFuture().sync();
         } catch (InterruptedException e) {
-            log.info("websocket server 初始化异常",e);
+            log.info("websocket server 初始化异常", e);
         }
     }
 
     @Override
     public void stop() {
-        if(bossGroup != null && !bossGroup.isShuttingDown() && !bossGroup.isShutdown() ) {
+        if (bossGroup != null && !bossGroup.isShuttingDown() && !bossGroup.isShutdown()) {
             bossGroup.shutdownGracefully();
         }
-        if(workGroup != null && !workGroup.isShuttingDown() && !workGroup.isShutdown() ) {
+        if (workGroup != null && !workGroup.isShuttingDown() && !workGroup.isShutdown()) {
             workGroup.shutdownGracefully();
         }
         this.ready = false;

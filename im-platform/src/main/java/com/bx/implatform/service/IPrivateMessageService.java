@@ -7,7 +7,6 @@ import com.bx.implatform.vo.PrivateMessageVO;
 
 import java.util.List;
 
-
 public interface IPrivateMessageService extends IService<PrivateMessage> {
 
     /**
@@ -34,7 +33,7 @@ public interface IPrivateMessageService extends IService<PrivateMessage> {
      * @param size     页码大小
      * @return 聊天记录列表
      */
-    List<PrivateMessageVO> findHistoryMessage(Long friendId, Long page,Long size);
+    List<PrivateMessageVO> findHistoryMessage(Long friendId, Long page, Long size);
 
     /**
      * 异步拉取私聊消息，通过websocket异步推送

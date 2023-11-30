@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author blue
@@ -24,7 +24,7 @@ import java.util.Date;
 @TableName("im_private_message")
 public class PrivateMessage extends Model<PrivateMessage> {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * id

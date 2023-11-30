@@ -1,48 +1,43 @@
 package com.bx.imclient.task;
 
+import com.bx.imcommon.util.ThreadPoolExecutorFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
 public abstract class AbstractMessageResultTask implements CommandLineRunner {
 
-    private int threadNum = 8;
-
-    private ExecutorService executorService = Executors.newFixedThreadPool(threadNum);
-
+    private static final ExecutorService EXECUTOR_SERVICE = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         // 初始化定时器
-        for(int i=0;i<threadNum;i++){
-            executorService.execute(new Runnable() {
-                @SneakyThrows
-                @Override
-                public void run() {
-                    try{
-                        pullMessage();
-                    }catch (Exception e){
-                        log.error("任务调度异常",e);
-                        Thread.sleep(200);
-                    }
-                    if(!executorService.isShutdown()){
-                        executorService.execute(this);
-                    }
+        EXECUTOR_SERVICE.execute(new Runnable() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                try{
+                    pullMessage();
+                }catch (Exception e){
+                    log.error("任务调度异常",e);
+                    Thread.sleep(200);
                 }
-            });
-        }
+                if(!EXECUTOR_SERVICE.isShutdown()){
+                    EXECUTOR_SERVICE.execute(this);
+                }
+            }
+        });
     }
 
 
     @PreDestroy
     public void destroy(){
         log.info("{}线程任务关闭",this.getClass().getSimpleName());
-        executorService.shutdown();
+        EXECUTOR_SERVICE.shutdown();
     }
 
     public abstract void pullMessage();

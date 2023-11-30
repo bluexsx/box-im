@@ -23,7 +23,7 @@ public class IMRecvInfo {
     List<IMUserInfo> receivers;
 
     /**
-     *  是否需要回调发送结果
+     * 是否需要回调发送结果
      */
     private Boolean sendResult;
 

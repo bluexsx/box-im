@@ -1,5 +1,6 @@
 package com.bx.imserver.task;
 
+import com.bx.imcommon.util.ThreadPoolExecutorFactory;
 import com.bx.imserver.netty.IMServerGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -8,56 +9,40 @@ import org.springframework.boot.CommandLineRunner;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
-public abstract class AbstractPullMessageTask  implements CommandLineRunner {
+public abstract class AbstractPullMessageTask implements CommandLineRunner {
 
-    private int threadNum = 1;
-    private ExecutorService executorService;
+    private static final ExecutorService EXECUTOR_SERVICE = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 
     @Autowired
     private IMServerGroup serverGroup;
 
-    public AbstractPullMessageTask() {
-        this.threadNum = 1;
-    }
-
-    public AbstractPullMessageTask(int threadNum) {
-        this.threadNum = threadNum;
-    }
-
-
     @Override
     public void run(String... args) {
-        // 初始化定时器
-        executorService = Executors.newFixedThreadPool(threadNum);
-
-        for (int i = 0; i < threadNum; i++) {
-            executorService.execute(new Runnable() {
-                @SneakyThrows
-                @Override
-                public void run() {
-                    try {
-                        if (serverGroup.isReady()) {
-                            pullMessage();
-                        }
-                    } catch (Exception e) {
-                        log.error("任务调度异常", e);
-                        Thread.sleep(200);
+        EXECUTOR_SERVICE.execute(new Runnable() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                try {
+                    if (serverGroup.isReady()) {
+                        pullMessage();
                     }
-                    if (!executorService.isShutdown()) {
-                        executorService.execute(this);
-                    }
+                } catch (Exception e) {
+                    log.error("任务调度异常", e);
+                    Thread.sleep(200);
                 }
-            });
-        }
+                if (!EXECUTOR_SERVICE.isShutdown()) {
+                    EXECUTOR_SERVICE.execute(this);
+                }
+            }
+        });
     }
 
     @PreDestroy
     public void destroy() {
         log.info("{}线程任务关闭", this.getClass().getSimpleName());
-        executorService.shutdown();
+        EXECUTOR_SERVICE.shutdown();
     }
 
     public abstract void pullMessage();

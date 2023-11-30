@@ -11,7 +11,10 @@ import java.util.Date;
  *
  * @version 1.0
  */
-public class DateTimeUtils extends DateUtils {
+public final class DateTimeUtils extends DateUtils {
+
+    private DateTimeUtils() {
+    }
 
     public static final String FULL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String PARTDATEFORMAT = "yyyyMMdd";
@@ -31,5 +34,5 @@ public class DateTimeUtils extends DateUtils {
         return sdf.format(date);
     }
 
-    
+
 }
