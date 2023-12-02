@@ -21,11 +21,7 @@ public class GroupMessageListener implements MessageListener<GroupMessageVO> {
     @Override
     public void process(IMSendResult<GroupMessageVO> result) {
         GroupMessageVO messageInfo = result.getData();
-        // 保存该用户已拉取的最大消息id
-        if (result.getCode().equals(IMSendCode.SUCCESS.code())) {
-            String key = String.join(":", RedisKey.IM_GROUP_READED_POSITION, messageInfo.getGroupId().toString(), result.getReceiver().getId().toString());
-            redisTemplate.opsForValue().set(key, messageInfo.getId());
-        }
+        // 空空如也
     }
 
 }

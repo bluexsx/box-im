@@ -35,10 +35,6 @@ public interface IPrivateMessageService extends IService<PrivateMessage> {
      */
     List<PrivateMessageVO> findHistoryMessage(Long friendId, Long page, Long size);
 
-    /**
-     * 异步拉取私聊消息，通过websocket异步推送
-     */
-    void pullUnreadMessage();
 
     /**
      * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
@@ -48,10 +44,18 @@ public interface IPrivateMessageService extends IService<PrivateMessage> {
      */
     List<PrivateMessageVO> loadMessage(Long minId);
 
+
     /**
      * 消息已读,将整个会话的消息都置为已读状态
      *
      * @param friendId 好友id
      */
     void readedMessage(Long friendId);
+
+    /**
+     *  获取某个会话中已读消息的最大id
+     *
+     * @param friendId 好友id
+     */
+    Long getMaxReadedId(Long friendId);
 }
