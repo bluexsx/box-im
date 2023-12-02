@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Component
-@ConfigurationProperties(prefix="webrtc")
+@ConfigurationProperties(prefix = "webrtc")
 public class ICEServerConfig {
 
     private List<ICEServer> iceServers = new ArrayList<>();

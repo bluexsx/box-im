@@ -7,7 +7,6 @@ import com.bx.implatform.vo.GroupMessageVO;
 
 import java.util.List;
 
-
 public interface IGroupMessageService extends IService<GroupMessage> {
 
     /**
@@ -28,7 +27,7 @@ public interface IGroupMessageService extends IService<GroupMessage> {
     /**
      * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
      *
-     * @param minId  消息起始id
+     * @param minId 消息起始id
      * @return 聊天消息列表
      */
     List<GroupMessageVO> loadMessage(Long minId);
@@ -36,7 +35,7 @@ public interface IGroupMessageService extends IService<GroupMessage> {
     /**
      * 消息已读,同步其他终端，清空未读数量
      *
-     * @param groupId  群聊
+     * @param groupId 群聊
      */
     void readedMessage(Long groupId);
 

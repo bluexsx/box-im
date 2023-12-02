@@ -18,19 +18,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
- * todo 通过校验文件MD5实现重复文件秒传
+ * 通过校验文件MD5实现重复文件秒传
  * 文件上传服务
+ *
  * @author Blue
  * @date 2022/10/28
- *
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileService {
-    private final MinioUtil  minioUtil;
+    private final MinioUtil minioUtil;
     @Value("${minio.public}")
     private String minIoServer;
     @Value("${minio.bucketName}")
@@ -42,8 +43,8 @@ public class FileService {
 
 
     @PostConstruct
-    public void init(){
-        if(!minioUtil.bucketExists(bucketName)){
+    public void init() {
+        if (!minioUtil.bucketExists(bucketName)) {
             // 创建bucket
             minioUtil.makeBucket(bucketName);
             // 公开bucket
@@ -52,61 +53,61 @@ public class FileService {
     }
 
 
-    public String uploadFile(MultipartFile file){
+    public String uploadFile(MultipartFile file) {
         Long userId = SessionContext.getSession().getUserId();
         // 大小校验
-        if(file.getSize() > Constant.MAX_FILE_SIZE){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR,"文件大小不能超过10M");
+        if (file.getSize() > Constant.MAX_FILE_SIZE) {
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件大小不能超过10M");
         }
         // 上传
-        String fileName = minioUtil.upload(bucketName,filePath,file);
-        if(StringUtils.isEmpty(fileName)){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR,"文件上传失败");
+        String fileName = minioUtil.upload(bucketName, filePath, file);
+        if (StringUtils.isEmpty(fileName)) {
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件上传失败");
         }
-        String url =  generUrl(FileType.FILE,fileName);
-        log.info("文件文件成功，用户id:{},url:{}",userId,url);
+        String url = generUrl(FileType.FILE, fileName);
+        log.info("文件文件成功，用户id:{},url:{}", userId, url);
         return url;
     }
 
-    public UploadImageVO uploadImage(MultipartFile file){
+    public UploadImageVO uploadImage(MultipartFile file) {
         try {
             Long userId = SessionContext.getSession().getUserId();
             // 大小校验
-            if(file.getSize() > Constant.MAX_IMAGE_SIZE){
-                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片大小不能超过5M");
+            if (file.getSize() > Constant.MAX_IMAGE_SIZE) {
+                throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片大小不能超过5M");
             }
             // 图片格式校验
-            if(!FileUtil.isImage(file.getOriginalFilename())){
-                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片格式不合法");
+            if (!FileUtil.isImage(file.getOriginalFilename())) {
+                throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片格式不合法");
             }
             // 上传原图
             UploadImageVO vo = new UploadImageVO();
-            String fileName = minioUtil.upload(bucketName,imagePath,file);
-            if(StringUtils.isEmpty(fileName)){
-                throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+            String fileName = minioUtil.upload(bucketName, imagePath, file);
+            if (StringUtils.isEmpty(fileName)) {
+                throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
             }
-            vo.setOriginUrl(generUrl(FileType.IMAGE,fileName));
+            vo.setOriginUrl(generUrl(FileType.IMAGE, fileName));
             // 大于30K的文件需上传缩略图
-            if(file.getSize() > 30 * 1024){
-                byte[] imageByte = ImageUtil.compressForScale(file.getBytes(),30);
-                fileName = minioUtil.upload(bucketName,imagePath,file.getOriginalFilename(),imageByte,file.getContentType());
-                if(StringUtils.isEmpty(fileName)){
-                    throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+            if (file.getSize() > 30 * 1024) {
+                byte[] imageByte = ImageUtil.compressForScale(file.getBytes(), 30);
+                fileName = minioUtil.upload(bucketName, imagePath, Objects.requireNonNull(file.getOriginalFilename()), imageByte, file.getContentType());
+                if (StringUtils.isEmpty(fileName)) {
+                    throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
                 }
             }
-            vo.setThumbUrl(generUrl(FileType.IMAGE,fileName));
-            log.info("文件图片成功，用户id:{},url:{}",userId,vo.getOriginUrl());
+            vo.setThumbUrl(generUrl(FileType.IMAGE, fileName));
+            log.info("文件图片成功，用户id:{},url:{}", userId, vo.getOriginUrl());
             return vo;
         } catch (IOException e) {
-            log.error("上传图片失败，{}",e.getMessage(),e);
-            throw new GlobalException(ResultCode.PROGRAM_ERROR,"图片上传失败");
+            log.error("上传图片失败，{}", e.getMessage(), e);
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
         }
     }
 
 
-    public String generUrl(FileType fileTypeEnum, String fileName){
-        String url = minIoServer +"/"+bucketName;
-        switch (fileTypeEnum){
+    public String generUrl(FileType fileTypeEnum, String fileName) {
+        String url = minIoServer + "/" + bucketName;
+        switch (fileTypeEnum) {
             case FILE:
                 url += "/file/";
                 break;

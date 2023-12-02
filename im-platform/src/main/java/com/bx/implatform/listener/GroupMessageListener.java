@@ -11,16 +11,15 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 
-
 @Slf4j
 @IMListener(type = IMListenerType.GROUP_MESSAGE)
 @AllArgsConstructor
 public class GroupMessageListener implements MessageListener<GroupMessageVO> {
-    
-    private RedisTemplate<String,Object> redisTemplate;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void process(IMSendResult<GroupMessageVO> result){
+    public void process(IMSendResult<GroupMessageVO> result) {
         GroupMessageVO messageInfo = result.getData();
         // 空空如也
     }

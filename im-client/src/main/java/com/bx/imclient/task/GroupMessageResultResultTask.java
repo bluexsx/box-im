@@ -19,7 +19,7 @@ public class GroupMessageResultResultTask extends AbstractMessageResultTask {
     @Resource(name = "IMRedisTemplate")
     private RedisTemplate<String,Object> redisTemplate;
 
-    private MessageListenerMulticaster listenerMulticaster;
+    private final MessageListenerMulticaster listenerMulticaster;
 
     @Override
     public void pullMessage() {

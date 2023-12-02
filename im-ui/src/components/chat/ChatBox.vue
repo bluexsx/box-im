@@ -47,7 +47,7 @@
 								<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 							</div>
 							<div class="send-content-area">
-								<div contenteditable="true" v-show="!sendImageUrl" ref="editBox" class="send-text-area"
+								<div contenteditable="true" v-show="!sendImageUrl" id="inputText" ref="editBox" class="send-text-area"
 									:disabled="lockMessage" @paste.prevent="onEditorPaste"
 									@compositionstart="onEditorCompositionStart"
 									@compositionend="onEditorCompositionEnd" @input="onEditorInput"
@@ -221,7 +221,7 @@
 				let sendText = ""
 				this.$refs.editBox.childNodes.forEach((node) => {
 					if (node.nodeName == "#text") {
-						sendText += node.textContent;
+						sendText = document.getElementById("inputText").innerHTML;
 					} else if (node.nodeName == "SPAN") {
 						sendText += node.innerText;
 					} else if (node.nodeName == "IMG") {

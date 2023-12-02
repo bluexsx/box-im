@@ -25,7 +25,7 @@ public class RedisConfig {
     }
 
 
-    public FastJsonRedisSerializer fastJsonRedisSerializer(){
+    public FastJsonRedisSerializer fastJsonRedisSerializer() {
         return new FastJsonRedisSerializer<>(Object.class);
     }
 

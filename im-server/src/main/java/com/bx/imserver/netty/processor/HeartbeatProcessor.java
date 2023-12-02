@@ -9,7 +9,7 @@ import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imserver.constant.ChannelAttrKey;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo> {
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -48,8 +48,7 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo
 
     @Override
     public IMHeartbeatInfo transForm(Object o) {
-        HashMap map = (HashMap)o;
-        IMHeartbeatInfo heartbeatInfo = BeanUtil.fillBeanWithMap(map, new IMHeartbeatInfo(), false);
-        return heartbeatInfo;
+        HashMap map = (HashMap) o;
+        return BeanUtil.fillBeanWithMap(map, new IMHeartbeatInfo(), false);
     }
 }

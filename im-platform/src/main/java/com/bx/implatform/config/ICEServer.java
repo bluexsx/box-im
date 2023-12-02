@@ -1,8 +1,6 @@
 package com.bx.implatform.config;
 
-
 import lombok.Data;
-
 
 @Data
 public class ICEServer {

@@ -10,14 +10,16 @@ import java.io.IOException;
 
 @Component
 @ServletComponentScan
-@WebFilter(urlPatterns = "/*",filterName = "xssFilter")
+@WebFilter(urlPatterns = "/*", filterName = "xssFilter")
 public class CacheFilter implements Filter {
 
     @Override
-    public void init(FilterConfig filterConfig)  {}
+    public void init(FilterConfig filterConfig) {
+    }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {

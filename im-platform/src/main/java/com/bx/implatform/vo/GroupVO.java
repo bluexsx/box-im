@@ -11,11 +11,10 @@ import javax.validation.constraints.NotEmpty;
 @ApiModel("群信息VO")
 public class GroupVO {
 
-
     @ApiModelProperty(value = "群id")
     private Long id;
 
-    @Length(max=20,message = "群名称长度不能大于20")
+    @Length(max = 20, message = "群名称长度不能大于20")
     @NotEmpty(message = "群名称不可为空")
     @ApiModelProperty(value = "群名称")
     private String name;
@@ -29,15 +28,15 @@ public class GroupVO {
     @ApiModelProperty(value = "头像缩略图")
     private String headImageThumb;
 
-    @Length(max=1024,message = "群聊显示长度不能大于1024")
+    @Length(max = 1024, message = "群聊显示长度不能大于1024")
     @ApiModelProperty(value = "群公告")
     private String notice;
 
-    @Length(max=20,message = "群聊显示长度不能大于20")
+    @Length(max = 20, message = "群聊显示长度不能大于20")
     @ApiModelProperty(value = "用户在群显示昵称")
     private String aliasName;
 
-    @Length(max=20,message = "群聊显示长度不能大于20")
+    @Length(max = 20, message = "群聊显示长度不能大于20")
     @ApiModelProperty(value = "群聊显示备注")
     private String remark;
 

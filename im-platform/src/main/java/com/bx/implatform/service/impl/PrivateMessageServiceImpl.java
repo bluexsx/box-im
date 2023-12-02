@@ -25,6 +25,7 @@ import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.DateTimeUtils;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements IPrivateMessageService {
 
     private final IFriendService friendService;
@@ -44,7 +45,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public Long sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
         Boolean isFriends = friendService.isFriend(session.getUserId(), dto.getRecvId());
-        if (!isFriends) {
+        if (Boolean.FALSE.equals(isFriends)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不是对方好友，无法发送消息");
         }
         // 保存消息

@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
-;
-
 @Slf4j
 @Component
 @AllArgsConstructor
@@ -24,7 +22,7 @@ public class PrivateMessageResultResultTask extends AbstractMessageResultTask {
     @Resource(name = "IMRedisTemplate")
     private RedisTemplate<String,Object> redisTemplate;
 
-    private MessageListenerMulticaster listenerMulticaster;
+    private final MessageListenerMulticaster listenerMulticaster;
 
     @Override
     public void pullMessage() {

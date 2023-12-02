@@ -11,7 +11,6 @@ import com.bx.implatform.vo.UserVO;
 
 import java.util.List;
 
-
 public interface IUserService extends IService<User> {
 
     /**
@@ -32,7 +31,7 @@ public interface IUserService extends IService<User> {
     /**
      * 用refreshToken换取新 token
      *
-     * @param refreshToken  刷新token
+     * @param refreshToken 刷新token
      * @return 登录token
      */
     LoginVO refreshToken(String refreshToken);

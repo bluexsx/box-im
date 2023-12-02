@@ -1,16 +1,30 @@
 package com.bx.imcommon.enums;
 
-
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum IMCmdType {
 
-    LOGIN(0,"登陆"),
-    HEART_BEAT(1,"心跳"),
-    FORCE_LOGUT(2,"强制下线"),
-    PRIVATE_MESSAGE(3,"私聊消息"),
-    GROUP_MESSAGE(4,"群发消息");
+    /**
+     * 登陆
+     */
+    LOGIN(0, "登陆"),
+    /**
+     * 心跳
+     */
+    HEART_BEAT(1, "心跳"),
+    /**
+     * 强制下线
+     */
+    FORCE_LOGUT(2, "强制下线"),
+    /**
+     * 私聊消息
+     */
+    PRIVATE_MESSAGE(3, "私聊消息"),
+    /**
+     * 群发消息
+     */
+    GROUP_MESSAGE(4, "群发消息");
 
 
     private final Integer code;
@@ -18,8 +32,8 @@ public enum IMCmdType {
     private final String desc;
 
 
-    public static IMCmdType fromCode(Integer code){
-        for (IMCmdType typeEnum:values()) {
+    public static IMCmdType fromCode(Integer code) {
+        for (IMCmdType typeEnum : values()) {
             if (typeEnum.code.equals(code)) {
                 return typeEnum;
             }
@@ -28,7 +42,7 @@ public enum IMCmdType {
     }
 
 
-    public Integer code(){
+    public Integer code() {
         return this.code;
     }
 

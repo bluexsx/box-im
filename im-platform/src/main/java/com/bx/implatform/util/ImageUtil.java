@@ -1,6 +1,5 @@
 package com.bx.implatform.util;
 
-
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -8,7 +7,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 @Slf4j
-public class ImageUtil {
+public final class ImageUtil {
+
+    private ImageUtil() {
+    }
 
     //以下是常量,按照阿里代码开发规范,不允许代码中出现魔法值
     private static final Integer ZERO = 0;
@@ -51,8 +53,6 @@ public class ImageUtil {
         }
         return imageBytes;
     }
-
-
 
 
     /**

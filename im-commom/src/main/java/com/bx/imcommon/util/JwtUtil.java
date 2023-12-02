@@ -8,19 +8,23 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import java.util.Date;
 
-public class JwtUtil {
+public final class JwtUtil {
+
+    private JwtUtil() {
+    }
 
     /**
      * 生成jwt字符串  JWT(json web token)
-     * @param userId  用户id
-     * @param info  用户细腻系
+     *
+     * @param userId   用户id
+     * @param info     用户细腻系
      * @param expireIn 过期时间
-     * @param secret  秘钥
+     * @param secret   秘钥
      * @return token
-     * */
-    public static String sign(Long userId, String info,long expireIn,String secret) {
+     */
+    public static String sign(Long userId, String info, long expireIn, String secret) {
         try {
-            Date date = new Date(System.currentTimeMillis() + expireIn*1000);
+            Date date = new Date(System.currentTimeMillis() + expireIn * 1000);
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     //将userId保存到token里面
@@ -38,44 +42,47 @@ public class JwtUtil {
 
     /**
      * 根据token获取userId
-     * @param token  登录token
+     *
+     * @param token 登录token
      * @return 用户id
-     * */
+     */
     public static Long getUserId(String token) {
         try {
             String userId = JWT.decode(token).getAudience().get(0);
             return Long.parseLong(userId);
-        }catch (JWTDecodeException e) {
+        } catch (JWTDecodeException e) {
             return null;
         }
     }
 
     /**
      * 根据token获取用户数据
+     *
      * @param token 用户登录token
      * @return 用户数据
-     * */
+     */
     public static String getInfo(String token) {
         try {
             return JWT.decode(token).getClaim("info").asString();
-        }catch (JWTDecodeException e) {
+        } catch (JWTDecodeException e) {
             return null;
         }
     }
 
     /**
      * 校验token
-     * @param token 用户登录token
+     *
+     * @param token  用户登录token
      * @param secret 秘钥
      * @return true/false
-     * */
-    public static Boolean checkSign(String token,String secret) {
-        try{
-            Algorithm algorithm  = Algorithm.HMAC256(secret);
+     */
+    public static Boolean checkSign(String token, String secret) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm).build();
             verifier.verify(token);
             return true;
-        }catch (JWTVerificationException e) {
+        } catch (JWTVerificationException e) {
             return false;
         }
     }
