@@ -6,7 +6,7 @@
 				"browser":"chrome",
 				"env": {
 					"UNI_PLATFORM": "h5",
-					"BASE_URL": "http://127.0.0.1:8888",
+					"BASE_URL": "/api",
 					"WS_URL": "ws://127.0.0.1:8878/im"
 				}
 			},
