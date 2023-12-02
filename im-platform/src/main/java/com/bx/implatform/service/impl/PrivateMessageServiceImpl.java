@@ -25,6 +25,7 @@ import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.DateTimeUtils;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements IPrivateMessageService {
 
     private final IFriendService friendService;
@@ -47,7 +48,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public Long sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
         Boolean isFriends = friendService.isFriend(session.getUserId(), dto.getRecvId());
-        if (!isFriends) {
+        if (Boolean.FALSE.equals(isFriends)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不是对方好友，无法发送消息");
         }
         // 保存消息
@@ -105,7 +106,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         imClient.sendPrivateMessage(sendMessage);
         log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}", msg.getSendId(), msg.getRecvId(), msg.getContent());
     }
-
 
 
     @Override
@@ -167,7 +167,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
 
-
     @Override
     public List<PrivateMessageVO> loadMessage(Long minId) {
         UserSession session = SessionContext.getSession();
@@ -206,7 +205,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         log.info("拉取消息，用户id:{},数量:{}", session.getUserId(), messages.size());
         return messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
     }
-
 
 
     @Transactional(rollbackFor = Exception.class)

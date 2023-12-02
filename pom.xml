@@ -28,7 +28,7 @@
         <velocity.version>1.7</velocity.version>
         <ehcache.version>3.3.1</ehcache.version>
         <swagger.version>2.7.0</swagger.version>
-        <hutool.version>5.3.9</hutool.version>
+        <hutool.version>5.8.16</hutool.version>
         <druid.version>1.1.22</druid.version>
         <alipay.version>3.7.110.ALL</alipay.version>
         <zxing.version>3.3.3</zxing.version>

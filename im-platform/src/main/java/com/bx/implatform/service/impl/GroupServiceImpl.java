@@ -23,7 +23,7 @@ import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.GroupInviteVO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheConfig;
@@ -32,16 +32,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
     private final IUserService userService;
     private final IGroupMemberService groupMemberService;
@@ -90,7 +87,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您不是群聊的成员");
         }
         member.setAliasName(StringUtils.isEmpty(vo.getAliasName()) ? session.getNickName() : vo.getAliasName());
-        member.setRemark(StringUtils.isEmpty(vo.getRemark()) ? group.getName() : vo.getRemark());
+        member.setRemark(StringUtils.isEmpty(vo.getRemark()) ? Objects.requireNonNull(group).getName() : vo.getRemark());
         groupMemberService.updateById(member);
         log.info("修改群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
         return vo;
@@ -206,7 +203,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 找出好友信息
         List<Friend> friends = friendsService.findFriendByUserId(session.getUserId());
         List<Friend> friendsList = vo.getFriendIds().stream().map(id -> friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get())
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
         if (friendsList.size() != vo.getFriendIds().size()) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "部分用户不是您的好友，邀请失败");
         }

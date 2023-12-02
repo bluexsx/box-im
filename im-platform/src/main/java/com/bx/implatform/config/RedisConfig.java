@@ -26,7 +26,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import javax.annotation.Resource;
 import java.time.Duration;
-
+import java.util.Objects;
 
 @EnableCaching
 @Configuration
@@ -52,7 +52,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     }
 
     @Bean
-    public Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer(){
+    public Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer() {
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
@@ -68,7 +68,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Bean
     @Override
     public CacheResolver cacheResolver() {
-        return new SimpleCacheResolver(cacheManager());
+        return new SimpleCacheResolver(Objects.requireNonNull(cacheManager()));
     }
 
     @Bean

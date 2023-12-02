@@ -7,7 +7,7 @@ import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imserver.netty.IMServerGroup;
 import com.bx.imserver.netty.processor.AbstractMessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PullPrivateMessageTask extends  AbstractPullMessageTask {
 
     private final RedisTemplate<String,Object> redisTemplate;

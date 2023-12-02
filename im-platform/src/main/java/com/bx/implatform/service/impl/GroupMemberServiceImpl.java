@@ -17,19 +17,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER_ID)
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements IGroupMemberService {
-    @CacheEvict(key="#member.getGroupId()")
+    @CacheEvict(key = "#member.getGroupId()")
     @Override
     public boolean save(GroupMember member) {
         return super.save(member);
     }
 
-    @CacheEvict(key="#groupId")
+    @CacheEvict(key = "#groupId")
     @Override
-    public boolean saveOrUpdateBatch(Long groupId,List<GroupMember> members) {
+    public boolean saveOrUpdateBatch(Long groupId, List<GroupMember> members) {
         return super.saveOrUpdateBatch(members);
     }
 
@@ -37,8 +36,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(GroupMember::getGroupId,groupId)
-                .eq(GroupMember::getUserId,userId);
+        wrapper.lambda().eq(GroupMember::getGroupId, groupId)
+                .eq(GroupMember::getUserId, userId);
         return this.getOne(wrapper);
     }
 
@@ -46,7 +45,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     public List<GroupMember> findByUserId(Long userId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
         memberWrapper.eq(GroupMember::getUserId, userId)
-                .eq(GroupMember::getQuit,false);
+                .eq(GroupMember::getQuit, false);
         return this.list(memberWrapper);
     }
 
@@ -57,12 +56,12 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.list(memberWrapper);
     }
 
-    @Cacheable(key="#groupId")
+    @Cacheable(key = "#groupId")
     @Override
     public List<Long> findUserIdsByGroupId(Long groupId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
         memberWrapper.eq(GroupMember::getGroupId, groupId)
-                .eq(GroupMember::getQuit,false);
+                .eq(GroupMember::getQuit, false);
         List<GroupMember> members = this.list(memberWrapper);
         return members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
     }
@@ -71,8 +70,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public void removeByGroupId(Long groupId) {
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(GroupMember::getGroupId,groupId)
-                .set(GroupMember::getQuit,true);
+        wrapper.eq(GroupMember::getGroupId, groupId)
+                .set(GroupMember::getQuit, true);
         this.update(wrapper);
     }
 
@@ -80,9 +79,9 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public void removeByGroupAndUserId(Long groupId, Long userId) {
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(GroupMember::getGroupId,groupId)
-                .eq(GroupMember::getUserId,userId)
-                .set(GroupMember::getQuit,true);
+        wrapper.eq(GroupMember::getGroupId, groupId)
+                .eq(GroupMember::getUserId, userId)
+                .set(GroupMember::getQuit, true);
         this.update(wrapper);
     }
 }

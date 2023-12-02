@@ -1,6 +1,6 @@
 package com.bx.imclient.sender;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.bx.imclient.listener.MessageListenerMulticaster;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
@@ -79,7 +79,7 @@ public class IMSender {
         // 根据群聊每个成员所连的IM-server，进行分组
         Map<String, IMUserInfo> sendMap = new HashMap<>();
         for (Integer terminal : message.getRecvTerminals()) {
-            message.getRecvIds().stream().forEach(id -> {
+            message.getRecvIds().forEach(id -> {
                 String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
                 sendMap.put(key,new IMUserInfo(id, terminal));
             });
@@ -99,7 +99,7 @@ public class IMSender {
                 // 加入离线列表
                 offLineUsers.add(entry.getValue());
             }
-        };
+        }
         // 逐个server发送
         for (Map.Entry<Integer, List<IMUserInfo>> entry : serverMap.entrySet()) {
             IMRecvInfo recvInfo = new IMRecvInfo();
@@ -149,8 +149,8 @@ public class IMSender {
     }
 
     public Map<Long,List<IMTerminalType>> getOnlineTerminal(List<Long> userIds){
-        if(CollectionUtil.isEmpty(userIds)){
-            return Collections.EMPTY_MAP;
+        if(CollUtil.isEmpty(userIds)){
+            return Collections.emptyMap();
         }
         // 把所有用户的key都存起来
         Map<String,IMUserInfo> userMap = new HashMap<>();
@@ -178,7 +178,7 @@ public class IMSender {
 
     public Boolean isOnline(Long userId) {
         String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), "*");
-        return !redisTemplate.keys(key).isEmpty();
+        return !Objects.requireNonNull(redisTemplate.keys(key)).isEmpty();
     }
 
     public List<Long> getOnlineUser(List<Long> userIds){

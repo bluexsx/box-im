@@ -5,18 +5,16 @@ import com.bx.implatform.entity.GroupMember;
 
 import java.util.List;
 
-
 public interface IGroupMemberService extends IService<GroupMember> {
-
 
     /**
      * 根据群聊id和用户id查询群聊成员
      *
      * @param groupId 群聊id
-     * @param userId 用户id
+     * @param userId  用户id
      * @return 群聊成员信息
      */
-    GroupMember findByGroupAndUserId(Long groupId,Long userId);
+    GroupMember findByGroupAndUserId(Long groupId, Long userId);
 
     /**
      * 根据用户id查询群聊成员
@@ -24,7 +22,7 @@ public interface IGroupMemberService extends IService<GroupMember> {
      * @param userId 用户id
      * @return 成员列表
      */
-    List<GroupMember>  findByUserId(Long userId);
+    List<GroupMember> findByUserId(Long userId);
 
     /**
      * 根据群聊id查询群聊成员（包括已退出）
@@ -32,7 +30,7 @@ public interface IGroupMemberService extends IService<GroupMember> {
      * @param groupId 群聊id
      * @return 群聊成员列表
      */
-    List<GroupMember>  findByGroupId(Long groupId);
+    List<GroupMember> findByGroupId(Long groupId);
 
     /**
      * 根据群聊id查询没有退出的群聊成员id
@@ -49,20 +47,20 @@ public interface IGroupMemberService extends IService<GroupMember> {
      * @param members 成员列表
      * @return 成功或失败
      */
-    boolean saveOrUpdateBatch(Long groupId,List<GroupMember> members);
+    boolean saveOrUpdateBatch(Long groupId, List<GroupMember> members);
 
     /**
      * 根据群聊id删除移除成员
      *
-     * @param groupId  群聊id
+     * @param groupId 群聊id
      */
     void removeByGroupId(Long groupId);
 
     /**
-     *根据群聊id和用户id移除成员
+     * 根据群聊id和用户id移除成员
      *
-     * @param groupId  群聊id
+     * @param groupId 群聊id
      * @param userId  用户id
      */
-    void removeByGroupAndUserId(Long groupId,Long userId);
+    void removeByGroupAndUserId(Long groupId, Long userId);
 }

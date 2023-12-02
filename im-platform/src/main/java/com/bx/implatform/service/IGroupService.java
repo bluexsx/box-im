@@ -8,13 +8,12 @@ import com.bx.implatform.vo.GroupVO;
 
 import java.util.List;
 
-
 public interface IGroupService extends IService<Group> {
 
     /**
      * 创建新群聊
      *
-     * @param  vo 群聊信息
+     * @param vo 群聊信息
      * @return 群聊信息
      **/
     GroupVO createGroup(GroupVO vo);
@@ -22,7 +21,7 @@ public interface IGroupService extends IService<Group> {
     /**
      * 修改群聊信息
      *
-     * @param  vo 群聊信息
+     * @param vo 群聊信息
      * @return 群聊信息
      **/
     GroupVO modifyGroup(GroupVO vo);
@@ -45,21 +44,21 @@ public interface IGroupService extends IService<Group> {
      * 将用户踢出群聊
      *
      * @param groupId 群聊id
-     * @param userId 用户id
+     * @param userId  用户id
      */
-    void kickGroup(Long groupId,Long userId);
+    void kickGroup(Long groupId, Long userId);
 
     /**
      * 查询当前用户的所有群聊
      *
      * @return 群聊信息列表
      **/
-    List<GroupVO>  findGroups();
+    List<GroupVO> findGroups();
 
     /**
      * 邀请好友进群
      *
-     * @param vo  群id、好友id列表
+     * @param vo 群id、好友id列表
      **/
     void invite(GroupInviteVO vo);
 

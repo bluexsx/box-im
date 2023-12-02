@@ -6,7 +6,7 @@ import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IWebrtcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,22 +14,22 @@ import java.util.List;
 @Api(tags = "webrtc视频单人通话")
 @RestController
 @RequestMapping("/webrtc/private")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebrtcController {
 
-    private IWebrtcService webrtcService;
+    private final IWebrtcService webrtcService;
 
     @ApiOperation(httpMethod = "POST", value = "呼叫视频通话")
     @PostMapping("/call")
     public Result call(@RequestParam Long uid, @RequestBody String offer) {
-        webrtcService.call(uid,offer);
+        webrtcService.call(uid, offer);
         return ResultUtils.success();
     }
 
     @ApiOperation(httpMethod = "POST", value = "接受视频通话")
     @PostMapping("/accept")
-    public Result accept(@RequestParam Long uid,@RequestBody String answer) {
-        webrtcService.accept(uid,answer);
+    public Result accept(@RequestParam Long uid, @RequestBody String answer) {
+        webrtcService.accept(uid, answer);
         return ResultUtils.success();
     }
 
@@ -50,8 +50,8 @@ public class WebrtcController {
 
     @ApiOperation(httpMethod = "POST", value = "呼叫失败")
     @PostMapping("/failed")
-    public Result failed(@RequestParam Long uid,@RequestParam String reason) {
-        webrtcService.failed(uid,reason);
+    public Result failed(@RequestParam Long uid, @RequestParam String reason) {
+        webrtcService.failed(uid, reason);
         return ResultUtils.success();
     }
 
@@ -65,15 +65,15 @@ public class WebrtcController {
 
     @PostMapping("/candidate")
     @ApiOperation(httpMethod = "POST", value = "同步candidate")
-    public Result forwardCandidate(@RequestParam Long uid,@RequestBody String candidate ) {
-        webrtcService.candidate(uid,candidate);
+    public Result forwardCandidate(@RequestParam Long uid, @RequestBody String candidate) {
+        webrtcService.candidate(uid, candidate);
         return ResultUtils.success();
     }
 
 
     @GetMapping("/iceservers")
     @ApiOperation(httpMethod = "GET", value = "获取iceservers")
-    public Result<List<ICEServer>>  iceservers() {
+    public Result<List<ICEServer>> iceservers() {
         return ResultUtils.success(webrtcService.getIceServers());
     }
 }

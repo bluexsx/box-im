@@ -6,7 +6,6 @@ import com.bx.implatform.vo.FriendVO;
 
 import java.util.List;
 
-
 public interface IFriendService extends IService<Friend> {
 
     /**
@@ -22,7 +21,7 @@ public interface IFriendService extends IService<Friend> {
     /**
      * 查询用户的所有好友
      *
-     * @param userId   用户id
+     * @param userId 用户id
      * @return 好友列表
      */
     List<Friend> findFriendByUserId(Long userId);
@@ -44,7 +43,7 @@ public interface IFriendService extends IService<Friend> {
     /**
      * 更新好友信息，主要是头像和昵称
      *
-     * @param vo  好友vo
+     * @param vo 好友vo
      */
     void update(FriendVO vo);
 

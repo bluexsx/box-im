@@ -5,6 +5,7 @@ import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.util.XssUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -18,26 +19,26 @@ import java.util.Map;
 public class XssInterceptor implements HandlerInterceptor {
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
         // 检查参数
-        Map<String, String[]> paramMap =  request.getParameterMap();
-        for(String[] values:paramMap.values()){
-            for(String value:values){
-                if(XssUtil.checkXss(value)){
+        Map<String, String[]> paramMap = request.getParameterMap();
+        for (String[] values : paramMap.values()) {
+            for (String value : values) {
+                if (XssUtil.checkXss(value)) {
                     throw new GlobalException(ResultCode.XSS_PARAM_ERROR);
                 }
             }
         }
         //  检查body
         String body = getBody(request);
-        if(XssUtil.checkXss(body)){
+        if (XssUtil.checkXss(body)) {
             throw new GlobalException(ResultCode.XSS_PARAM_ERROR);
         }
         return true;
     }
 
     @SneakyThrows
-    private String getBody(HttpServletRequest request){
+    private String getBody(HttpServletRequest request) {
         BufferedReader reader = request.getReader();
         StringBuilder stringBuilder = new StringBuilder();
         String line;

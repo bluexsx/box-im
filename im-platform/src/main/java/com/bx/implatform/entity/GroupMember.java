@@ -45,17 +45,16 @@ public class GroupMember extends Model<GroupMember> {
     private Long userId;
 
     /**
-     *  群内显示名称
+     * 群内显示名称
      */
     @TableField("alias_name")
     private String aliasName;
 
     /**
-     *  头像
+     * 头像
      */
     @TableField("head_image")
     private String headImage;
-
 
 
     /**

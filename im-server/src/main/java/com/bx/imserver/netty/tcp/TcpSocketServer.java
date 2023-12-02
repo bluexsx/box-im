@@ -16,27 +16,24 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-
 /**
- *  TCP服务器,用于连接非网页的客户端,协议格式： 4字节内容的长度+IMSendInfo的JSON序列化
+ * TCP服务器,用于连接非网页的客户端,协议格式： 4字节内容的长度+IMSendInfo的JSON序列化
  *
  * @author Blue
  * @date 2022-11-20
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "tcpsocket", value = "enable", havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "tcpsocket", value = "enable", havingValue = "true", matchIfMissing = true)
 public class TcpSocketServer implements IMServer {
-
 
     private volatile boolean ready = false;
 
     @Value("${tcpsocket.port}")
     private int port;
 
-    private  ServerBootstrap bootstrap;
-    private  EventLoopGroup bossGroup;
-    private  EventLoopGroup workGroup;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workGroup;
 
     @Override
     public boolean isReady() {
@@ -45,7 +42,7 @@ public class TcpSocketServer implements IMServer {
 
     @Override
     public void start() {
-        bootstrap = new ServerBootstrap();
+        ServerBootstrap bootstrap = new ServerBootstrap();
         bossGroup = new NioEventLoopGroup();
         workGroup = new NioEventLoopGroup();
         // 设置为主从线程模型
@@ -60,8 +57,8 @@ public class TcpSocketServer implements IMServer {
                         // 获取职责链
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new IdleStateHandler(120, 0, 0, TimeUnit.SECONDS));
-                        pipeline.addLast("encode",new MessageProtocolEncoder());
-                        pipeline.addLast("decode",new MessageProtocolDecoder());
+                        pipeline.addLast("encode", new MessageProtocolEncoder());
+                        pipeline.addLast("decode", new MessageProtocolDecoder());
                         pipeline.addLast("handler", new IMChannelHandler());
                     }
                 })
@@ -77,20 +74,20 @@ public class TcpSocketServer implements IMServer {
             Channel channel = bootstrap.bind(port).sync().channel();
             // 就绪标志
             this.ready = true;
-            log.info("tcp server 初始化完成,端口：{}",port);
+            log.info("tcp server 初始化完成,端口：{}", port);
             // 等待服务端口关闭
             //channel.closeFuture().sync();
         } catch (InterruptedException e) {
-            log.info("tcp server 初始化异常",e);
+            log.info("tcp server 初始化异常", e);
         }
     }
 
     @Override
-    public void stop(){
-        if(bossGroup != null && !bossGroup.isShuttingDown() && !bossGroup.isShutdown() ) {
+    public void stop() {
+        if (bossGroup != null && !bossGroup.isShuttingDown() && !bossGroup.isShutdown()) {
             bossGroup.shutdownGracefully();
         }
-        if(workGroup != null && !workGroup.isShuttingDown() && !workGroup.isShutdown() ) {
+        if (workGroup != null && !workGroup.isShuttingDown() && !workGroup.isShutdown()) {
             workGroup.shutdownGracefully();
         }
         this.ready = false;

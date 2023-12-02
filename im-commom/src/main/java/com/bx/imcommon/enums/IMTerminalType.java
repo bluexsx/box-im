@@ -9,16 +9,22 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum IMTerminalType {
 
-    WEB(0,"web"),
-    APP(1,"app");
+    /**
+     * web
+     */
+    WEB(0, "web"),
+    /**
+     * app
+     */
+    APP(1, "app");
 
     private final Integer code;
 
     private final String desc;
 
 
-    public static IMTerminalType fromCode(Integer code){
-        for (IMTerminalType typeEnum:values()) {
+    public static IMTerminalType fromCode(Integer code) {
+        for (IMTerminalType typeEnum : values()) {
             if (typeEnum.code.equals(code)) {
                 return typeEnum;
             }
@@ -26,11 +32,11 @@ public enum IMTerminalType {
         return null;
     }
 
-    public static List<Integer> codes(){
+    public static List<Integer> codes() {
         return Arrays.stream(values()).map(IMTerminalType::code).collect(Collectors.toList());
     }
 
-    public Integer code(){
+    public Integer code() {
         return this.code;
     }
 

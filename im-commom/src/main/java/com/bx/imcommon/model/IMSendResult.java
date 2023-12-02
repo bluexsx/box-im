@@ -21,7 +21,7 @@ public class IMSendResult<T> {
     private Integer code;
 
     /**
-     *  消息内容
+     * 消息内容
      */
     private T data;
 

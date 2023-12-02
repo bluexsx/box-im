@@ -14,7 +14,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class IMClient {
 
-    private IMSender imSender;
+    private final IMSender imSender;
 
     /**
      * 判断用户是否在线

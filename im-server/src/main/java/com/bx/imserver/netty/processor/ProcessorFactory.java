@@ -5,11 +5,11 @@ import com.bx.imserver.util.SpringContextHolder;
 
 public class ProcessorFactory {
 
-    public static AbstractMessageProcessor createProcessor(IMCmdType cmd){
+    public static AbstractMessageProcessor createProcessor(IMCmdType cmd) {
         AbstractMessageProcessor processor = null;
-        switch (cmd){
+        switch (cmd) {
             case LOGIN:
-                processor =  SpringContextHolder.getApplicationContext().getBean(LoginProcessor.class);
+                processor = SpringContextHolder.getApplicationContext().getBean(LoginProcessor.class);
                 break;
             case HEART_BEAT:
                 processor = SpringContextHolder.getApplicationContext().getBean(HeartbeatProcessor.class);
