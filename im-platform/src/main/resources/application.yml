@@ -39,6 +39,7 @@ minio:
   bucketName: box-im
   imagePath: image
   filePath: file
+  videoPath: video
 
 webrtc:
   iceServers:
