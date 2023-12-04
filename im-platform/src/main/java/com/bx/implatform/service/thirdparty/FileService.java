@@ -111,13 +111,13 @@ public class FileService {
         String url = minIoServer + "/" + bucketName;
         switch (fileTypeEnum) {
             case FILE:
-                url += "/"+filePath+"/";
+                url += "/" + filePath + "/";
                 break;
             case IMAGE:
-                url += "/"+imagePath+"/";
+                url += "/" + imagePath + "/";
                 break;
             case VIDEO:
-                url += "/"+videoPath+"/";
+                url += "/" + videoPath + "/";
                 break;
             default:
                 break;
