@@ -1,6 +1,5 @@
 package com.bx.implatform.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -27,12 +26,13 @@ import com.bx.implatform.service.IGroupService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.util.DateTimeUtils;
+import com.bx.implatform.util.SensitiveFilterUtil;
 import com.bx.implatform.vo.GroupMessageVO;
 import com.google.common.base.Splitter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +47,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     private final IGroupMemberService groupMemberService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final IMClient imClient;
+    private final SensitiveFilterUtil sensitiveFilterUtil;
 
     @Override
     public Long sendMessage(GroupMessageDTO dto) {
@@ -55,12 +56,12 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         if (Objects.isNull(group)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊不存在");
         }
-        if (group.getDeleted()) {
+        if (Boolean.TRUE.equals(group.getDeleted())) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊已解散");
         }
         // 是否在群聊里面
         GroupMember member = groupMemberService.findByGroupAndUserId(dto.getGroupId(), session.getUserId());
-        if (Objects.isNull(member) || member.getQuit()) {
+        if (Objects.isNull(member) || Boolean.TRUE.equals(member.getQuit())) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不在群聊里面，无法发送消息");
         }
         // 群聊成员列表
@@ -72,10 +73,13 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         msg.setSendId(session.getUserId());
         msg.setSendTime(new Date());
         msg.setSendNickName(member.getAliasName());
-        if (CollUtil.isNotEmpty(dto.getAtUserIds())) {
+        if (CollectionUtil.isNotEmpty(dto.getAtUserIds())) {
             msg.setAtUserIds(StrUtil.join(",", dto.getAtUserIds()));
         }
         this.save(msg);
+        // 过滤消息内容
+        String content = sensitiveFilterUtil.filter(dto.getContent());
+        msg.setContent(content);
         // 群发
         GroupMessageVO msgInfo = BeanUtils.copyProperties(msg, GroupMessageVO.class);
         msgInfo.setAtUserIds(dto.getAtUserIds());
@@ -103,7 +107,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 判断是否在群里
         GroupMember member = groupMemberService.findByGroupAndUserId(msg.getGroupId(), session.getUserId());
-        if (Objects.isNull(member) || member.getQuit()) {
+        if (Objects.isNull(member) || Boolean.TRUE.equals(member.getQuit())) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不在群聊里面，无法撤回消息");
         }
         // 修改数据库
@@ -146,7 +150,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             return new ArrayList<>();
         }
         // 只能拉取最近1个月的
-        Date minDate = DateTimeUtils.addMonths(new Date(), -1);
+        Date minDate = DateUtils.addMonths(new Date(), -1);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.gt(GroupMessage::getId, minId).gt(GroupMessage::getSendTime, minDate).in(GroupMessage::getGroupId, ids)
                 .ne(GroupMessage::getStatus, MessageStatus.RECALL.code()).orderByAsc(GroupMessage::getId).last("limit 100");
@@ -220,7 +224,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         long stIdx = (page - 1) * size;
         // 群聊成员信息
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId, userId);
-        if (member == null || member.getQuit()) {
+        if (Objects.isNull(member) || member.getQuit()) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不在群聊中");
         }
         // 查询聊天记录，只查询加入群聊时间之后的消息

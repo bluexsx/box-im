@@ -22,11 +22,11 @@ import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.util.DateTimeUtils;
+import com.bx.implatform.util.SensitiveFilterUtil;
 import com.bx.implatform.vo.PrivateMessageVO;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +40,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
 
     private final IFriendService friendService;
     private final IMClient imClient;
+    private final SensitiveFilterUtil sensitiveFilterUtil;
 
     @Override
     public Long sendMessage(PrivateMessageDTO dto) {
@@ -54,6 +55,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msg.setStatus(MessageStatus.UNSEND.code());
         msg.setSendTime(new Date());
         this.save(msg);
+        // 过滤消息内容
+        String content = sensitiveFilterUtil.filter(dto.getContent());
+        msg.setContent(content);
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
@@ -70,7 +74,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public void recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
         PrivateMessage msg = this.getById(id);
-        if (msg == null) {
+        if (Objects.isNull(msg)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
         }
         if (!msg.getSendId().equals(session.getUserId())) {
@@ -139,7 +143,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
         // 只能拉取最近1个月的
-        Date minDate = DateTimeUtils.addMonths(new Date(), -1);
+        Date minDate = DateUtils.addMonths(new Date(), -1);
         queryWrapper.gt(PrivateMessage::getId, minId)
                 .ge(PrivateMessage::getSendTime, minDate)
                 .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
