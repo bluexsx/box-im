@@ -22,11 +22,11 @@ import com.bx.implatform.service.IPrivateMessageService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.util.DateTimeUtils;
+import com.bx.implatform.util.SensitiveFilterUtil;
 import com.bx.implatform.vo.PrivateMessageVO;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +40,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
 
     private final IFriendService friendService;
     private final IMClient imClient;
+    private final SensitiveFilterUtil sensitiveFilterUtil;
 
     @Override
     public Long sendMessage(PrivateMessageDTO dto) {
@@ -54,6 +55,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msg.setStatus(MessageStatus.UNSEND.code());
         msg.setSendTime(new Date());
         this.save(msg);
+        // 过滤消息内容
+        String content = sensitiveFilterUtil.filter(dto.getContent());
+        msg.setContent(content);
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
@@ -122,7 +126,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .last("limit " + stIdx + "," + size);
 
         List<PrivateMessage> messages = this.list(wrapper);
-        List<PrivateMessageVO> messageInfos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
+        List<PrivateMessageVO> messageInfos = messages.stream().map(m -> {
+            m.setContent(sensitiveFilterUtil.filter(m.getContent()));
+            return BeanUtils.copyProperties(m, PrivateMessageVO.class);
+        }).collect(Collectors.toList());
         log.info("拉取聊天记录，用户id:{},好友id:{}，数量:{}", userId, friendId, messageInfos.size());
         return messageInfos;
     }
@@ -139,7 +146,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
         // 只能拉取最近1个月的
-        Date minDate = DateTimeUtils.addMonths(new Date(), -1);
+        Date minDate = DateUtils.addMonths(new Date(), -1);
         queryWrapper.gt(PrivateMessage::getId, minId)
                 .ge(PrivateMessage::getSendTime, minDate)
                 .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
@@ -164,7 +171,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             this.update(updateWrapper);
         }
         log.info("拉取消息，用户id:{},数量:{}", session.getUserId(), messages.size());
-        return messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
+        return messages.stream().map(m -> {
+            m.setContent(sensitiveFilterUtil.filter(m.getContent()));
+            return BeanUtils.copyProperties(m, PrivateMessageVO.class);
+        }).collect(Collectors.toList());
     }
 
 

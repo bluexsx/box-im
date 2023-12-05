@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
  * @author Andrews
  * @date 2023/11/30 11:12
  */
+@Slf4j
 public final class ThreadPoolExecutorFactory {
     /**
      * 机器的CPU核数:Runtime.getRuntime().availableProcessors()
