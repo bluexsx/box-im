@@ -40,6 +40,8 @@ public class FileService {
     private String imagePath;
     @Value("${minio.filePath}")
     private String filePath;
+    @Value("${minio.videoPath}")
+    private String videoPath;
 
 
     @PostConstruct
@@ -109,13 +111,13 @@ public class FileService {
         String url = minIoServer + "/" + bucketName;
         switch (fileTypeEnum) {
             case FILE:
-                url += "/file/";
+                url += "/" + filePath + "/";
                 break;
             case IMAGE:
-                url += "/image/";
+                url += "/" + imagePath + "/";
                 break;
             case VIDEO:
-                url += "/video/";
+                url += "/" + videoPath + "/";
                 break;
             default:
                 break;
