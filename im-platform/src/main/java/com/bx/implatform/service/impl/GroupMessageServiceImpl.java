@@ -1,7 +1,7 @@
 package com.bx.implatform.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -73,8 +73,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         msg.setSendId(session.getUserId());
         msg.setSendTime(new Date());
         msg.setSendNickName(member.getAliasName());
-        if (CollUtil.isNotEmpty(dto.getAtUserIds())) {
-            msg.setAtUserIds(CharSequenceUtil.join(",", dto.getAtUserIds()));
+        if (CollectionUtil.isNotEmpty(dto.getAtUserIds())) {
+            msg.setAtUserIds(StrUtil.join(",", dto.getAtUserIds()));
         }
         this.save(msg);
         // 过滤消息内容
@@ -146,7 +146,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         UserSession session = SessionContext.getSession();
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         List<Long> ids = members.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
-        if (CollUtil.isEmpty(ids)) {
+        if (CollectionUtil.isEmpty(ids)) {
             return new ArrayList<>();
         }
         // 只能拉取最近1个月的
@@ -158,7 +158,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         List<GroupMessage> messages = this.list(wrapper);
         // 转成vo
         List<GroupMessageVO> vos = messages.stream().map(m -> {
-            m.setContent(sensitiveFilterUtil.filter(m.getContent()));
             GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
             // 被@用户列表
             if (StringUtils.isNotBlank(m.getAtUserIds())) {
@@ -212,7 +211,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         sendMessage.setSendResult(true);
         imClient.sendGroupMessage(sendMessage);
         // 记录已读消息位置
-        String key = CharSequenceUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId, session.getUserId());
+        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId, session.getUserId());
         redisTemplate.opsForValue().set(key, message.getId());
 
     }
@@ -225,7 +224,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         long stIdx = (page - 1) * size;
         // 群聊成员信息
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId, userId);
-        if (member == null || member.getQuit()) {
+        if (Objects.isNull(member) || member.getQuit()) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不在群聊中");
         }
         // 查询聊天记录，只查询加入群聊时间之后的消息
@@ -235,10 +234,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
         List<GroupMessage> messages = this.list(wrapper);
         List<GroupMessageVO> messageInfos =
-                messages.stream().map(m -> {
-                    m.setContent(sensitiveFilterUtil.filter(m.getContent()));
-                    return BeanUtils.copyProperties(m, GroupMessageVO.class);
-                }).collect(Collectors.toList());
+                messages.stream().map(m -> BeanUtils.copyProperties(m, GroupMessageVO.class)).collect(Collectors.toList());
         log.info("拉取群聊记录，用户id:{},群聊id:{}，数量:{}", userId, groupId, messageInfos.size());
         return messageInfos;
     }

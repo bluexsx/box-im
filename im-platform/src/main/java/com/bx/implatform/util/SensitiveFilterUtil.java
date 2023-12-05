@@ -1,5 +1,6 @@
 package com.bx.implatform.util;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,10 +23,8 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@NoArgsConstructor
 public final class SensitiveFilterUtil {
-
-    private SensitiveFilterUtil() {
-    }
 
     /**
      * 替换符

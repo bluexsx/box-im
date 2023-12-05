@@ -74,7 +74,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public void recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
         PrivateMessage msg = this.getById(id);
-        if (msg == null) {
+        if (Objects.isNull(msg)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
         }
         if (!msg.getSendId().equals(session.getUserId())) {
@@ -126,10 +126,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .last("limit " + stIdx + "," + size);
 
         List<PrivateMessage> messages = this.list(wrapper);
-        List<PrivateMessageVO> messageInfos = messages.stream().map(m -> {
-            m.setContent(sensitiveFilterUtil.filter(m.getContent()));
-            return BeanUtils.copyProperties(m, PrivateMessageVO.class);
-        }).collect(Collectors.toList());
+        List<PrivateMessageVO> messageInfos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
         log.info("拉取聊天记录，用户id:{},好友id:{}，数量:{}", userId, friendId, messageInfos.size());
         return messageInfos;
     }
@@ -171,10 +168,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             this.update(updateWrapper);
         }
         log.info("拉取消息，用户id:{},数量:{}", session.getUserId(), messages.size());
-        return messages.stream().map(m -> {
-            m.setContent(sensitiveFilterUtil.filter(m.getContent()));
-            return BeanUtils.copyProperties(m, PrivateMessageVO.class);
-        }).collect(Collectors.toList());
+        return messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
     }
 
 
