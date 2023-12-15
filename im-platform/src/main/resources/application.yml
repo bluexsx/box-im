@@ -3,6 +3,8 @@ server:
   port: 8888
 #配置项目的数据源
 spring:
+  application:
+    name: im-platform
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

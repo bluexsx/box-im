@@ -256,7 +256,6 @@
 					let textNode = document.createTextNode(txt);
 					range.insertNode(textNode)
 					range.collapse();
-
 				}
 				let items = (event.clipboardData || window.clipboardData).items
 				if (items.length) {

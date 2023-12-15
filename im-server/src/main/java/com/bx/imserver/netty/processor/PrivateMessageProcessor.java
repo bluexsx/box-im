@@ -1,5 +1,6 @@
 package com.bx.imserver.netty.processor;
 
+import cn.hutool.core.util.StrUtil;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
@@ -57,7 +58,7 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
             result.setCode(sendCode.code());
             result.setData(recvInfo.getData());
             // 推送到结果队列
-            String key = IMRedisKey.IM_RESULT_PRIVATE_QUEUE;
+            String key = StrUtil.join(":",IMRedisKey.IM_RESULT_PRIVATE_QUEUE,recvInfo.getServiceName());
             redisTemplate.opsForList().rightPush(key, result);
         }
     }

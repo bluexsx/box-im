@@ -9,6 +9,7 @@ import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ public class IMSender {
 
     @Resource(name="IMRedisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Value("${spring.application.name}")
+    private String appName;
 
     private final MessageListenerMulticaster listenerMulticaster;
 
@@ -35,6 +39,7 @@ public class IMSender {
                 IMRecvInfo recvInfo = new IMRecvInfo();
                 recvInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
                 recvInfo.setSendResult(message.getSendResult());
+                recvInfo.setServiceName(appName);
                 recvInfo.setSender(message.getSender());
                 recvInfo.setReceivers(Collections.singletonList(new IMUserInfo(message.getRecvId(), terminal)));
                 recvInfo.setData(message.getData());
@@ -106,6 +111,7 @@ public class IMSender {
             recvInfo.setCmd(IMCmdType.GROUP_MESSAGE.code());
             recvInfo.setReceivers(new LinkedList<>(entry.getValue()));
             recvInfo.setSender(message.getSender());
+            recvInfo.setServiceName(appName);
             recvInfo.setSendResult(message.getSendResult());
             recvInfo.setData(message.getData());
             // 推送至队列
