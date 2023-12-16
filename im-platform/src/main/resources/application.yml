@@ -54,6 +54,3 @@ jwt:
   refreshToken:
     expireIn: 604800 #7天
     secret: IKDiqVmn0VFU
-
-logging:
-  config: classpath:logback-prod.xml
