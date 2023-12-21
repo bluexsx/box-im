@@ -25,7 +25,6 @@ public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> 
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Async
     @Override
     public void process(IMRecvInfo recvInfo) {
         IMUserInfo sender = recvInfo.getSender();
