@@ -1,6 +1,8 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -146,10 +148,11 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     public List<GroupMessageVO> loadMessage(Long minId) {
         UserSession session = SessionContext.getSession();
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
-        List<Long> ids = members.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
-        if (CollectionUtil.isEmpty(ids)) {
+        if (CollectionUtil.isEmpty(members)) {
             return new ArrayList<>();
         }
+        Map<Long, GroupMember> groupMemberMap = CollStreamUtil.toIdentityMap(members, GroupMember::getGroupId);
+        Set<Long> ids = groupMemberMap.keySet();
         // 只能拉取最近1个月的
         Date minDate = DateUtils.addMonths(new Date(), -1);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
@@ -158,15 +161,21 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
         List<GroupMessage> messages = this.list(wrapper);
         // 转成vo
-        List<GroupMessageVO> vos = messages.stream().map(m -> {
-            GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
-            // 被@用户列表
-            if (StringUtils.isNotBlank(m.getAtUserIds())) {
-                List<String> atIds = Splitter.on(",").trimResults().splitToList(m.getAtUserIds());
-                vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
-            }
-            return vo;
-        }).collect(Collectors.toList());
+        List<GroupMessageVO> vos = messages.stream()
+            .filter(m -> {
+                //排除加群之前的消息
+                GroupMember member = groupMemberMap.get(m.getGroupId());
+                return Objects.nonNull(member) && DateUtil.compare(member.getCreatedTime(), m.getSendTime()) <= 0;
+            })
+            .map(m -> {
+                GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
+                // 被@用户列表
+                if (StringUtils.isNotBlank(m.getAtUserIds()) && Objects.nonNull(vo)) {
+                    List<String> atIds = Splitter.on(",").trimResults().splitToList(m.getAtUserIds());
+                    vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
+                }
+                return vo;
+            }).collect(Collectors.toList());
         // 消息状态,数据库没有存群聊的消息状态，需要从redis取
         List<String> keys = ids.stream().map(id -> String.join(":", RedisKey.IM_GROUP_READED_POSITION, id.toString(), session.getUserId().toString()))
                 .collect(Collectors.toList());
