@@ -41,13 +41,13 @@ public class PrivateMessageResultResultTask extends AbstractMessageResultTask {
             if(!results.isEmpty()){
                 listenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, results);
             }
-        } while (results.size() < batchSize);
+        } while (results.size() >= batchSize);
     }
 
     List<IMSendResult> loadBatch() {
         String key = StrUtil.join(":", IMRedisKey.IM_RESULT_PRIVATE_QUEUE, appName);
         //这个接口redis6.2以上才支持
-        //List<Object> list = redisTemplate.opsForList().leftPop(key, 100);
+        //List<Object> list = redisTemplate.opsForList().leftPop(key, batchSize);
         List<IMSendResult> results = new LinkedList<>();
         JSONObject jsonObject = (JSONObject) redisTemplate.opsForList().leftPop(key);
         while (!Objects.isNull(jsonObject) && results.size() < batchSize) {
