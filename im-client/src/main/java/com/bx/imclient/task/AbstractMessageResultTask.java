@@ -20,13 +20,13 @@ public abstract class AbstractMessageResultTask implements CommandLineRunner {
             @SneakyThrows
             @Override
             public void run() {
-                try{
+                try {
                     pullMessage();
-                }catch (Exception e){
-                    log.error("任务调度异常",e);
-                    Thread.sleep(200);
+                } catch (Exception e) {
+                    log.error("任务调度异常", e);
                 }
-                if(!EXECUTOR_SERVICE.isShutdown()){
+                if (!EXECUTOR_SERVICE.isShutdown()) {
+                    Thread.sleep(100);
                     EXECUTOR_SERVICE.execute(this);
                 }
             }
@@ -35,10 +35,10 @@ public abstract class AbstractMessageResultTask implements CommandLineRunner {
 
 
     @PreDestroy
-    public void destroy(){
-        log.info("{}线程任务关闭",this.getClass().getSimpleName());
+    public void destroy() {
+        log.info("{}线程任务关闭", this.getClass().getSimpleName());
         EXECUTOR_SERVICE.shutdown();
     }
 
-    public abstract void pullMessage();
+    public abstract void pullMessage() throws InterruptedException;
 }

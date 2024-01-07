@@ -65,6 +65,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         sendMessage.setRecvId(msgInfo.getRecvId());
         sendMessage.setSendToSelf(true);
         sendMessage.setData(msgInfo);
+        sendMessage.setSendResult(true);
         imClient.sendPrivateMessage(sendMessage);
         log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}", session.getUserId(), dto.getRecvId(), dto.getContent());
         return msg.getId();

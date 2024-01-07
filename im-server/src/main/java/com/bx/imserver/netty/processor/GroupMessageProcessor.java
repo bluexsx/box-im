@@ -1,5 +1,6 @@
 package com.bx.imserver.netty.processor;
 
+import cn.hutool.core.util.StrUtil;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.enums.IMSendCode;
@@ -24,7 +25,6 @@ public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> 
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Async
     @Override
     public void process(IMRecvInfo recvInfo) {
         IMUserInfo sender = recvInfo.getSender();
@@ -64,7 +64,7 @@ public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> 
             result.setCode(sendCode.code());
             result.setData(recvInfo.getData());
             // 推送到结果队列
-            String key = IMRedisKey.IM_RESULT_GROUP_QUEUE;
+            String key = StrUtil.join(":",IMRedisKey.IM_RESULT_GROUP_QUEUE,recvInfo.getServiceName());
             redisTemplate.opsForList().rightPush(key, result);
         }
     }

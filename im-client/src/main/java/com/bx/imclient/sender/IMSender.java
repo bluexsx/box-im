@@ -9,6 +9,7 @@ import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +23,13 @@ public class IMSender {
     @Resource(name="IMRedisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Value("${spring.application.name}")
+    private String appName;
+
     private final MessageListenerMulticaster listenerMulticaster;
 
     public<T> void sendPrivateMessage(IMPrivateMessage<T> message) {
+        List<IMSendResult> results = new LinkedList<>();
         for (Integer terminal : message.getRecvTerminals()) {
             // 获取对方连接的channelId
             String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, message.getRecvId().toString(), terminal.toString());
@@ -35,18 +40,18 @@ public class IMSender {
                 IMRecvInfo recvInfo = new IMRecvInfo();
                 recvInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
                 recvInfo.setSendResult(message.getSendResult());
+                recvInfo.setServiceName(appName);
                 recvInfo.setSender(message.getSender());
                 recvInfo.setReceivers(Collections.singletonList(new IMUserInfo(message.getRecvId(), terminal)));
                 recvInfo.setData(message.getData());
                 redisTemplate.opsForList().rightPush(sendKey, recvInfo);
-            } else if (message.getSendResult()) {
-                // 回复消息状态
+            } else {
                 IMSendResult result = new IMSendResult();
                 result.setSender(message.getSender());
                 result.setReceiver(new IMUserInfo(message.getRecvId(), terminal));
                 result.setCode(IMSendCode.NOT_ONLINE.code());
                 result.setData(message.getData());
-                listenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, result);
+                results.add(result);
             }
         }
         // 推送给自己的其他终端
@@ -72,10 +77,14 @@ public class IMSender {
                 }
             }
         }
-
+        // 对离线用户回复消息状态
+        if(message.getSendResult() && !results.isEmpty()){
+            listenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, results);
+        }
     }
 
     public<T> void sendGroupMessage(IMGroupMessage<T> message) {
+
         // 根据群聊每个成员所连的IM-server，进行分组
         Map<String, IMUserInfo> sendMap = new HashMap<>();
         for (Integer terminal : message.getRecvTerminals()) {
@@ -106,23 +115,14 @@ public class IMSender {
             recvInfo.setCmd(IMCmdType.GROUP_MESSAGE.code());
             recvInfo.setReceivers(new LinkedList<>(entry.getValue()));
             recvInfo.setSender(message.getSender());
+            recvInfo.setServiceName(appName);
             recvInfo.setSendResult(message.getSendResult());
             recvInfo.setData(message.getData());
             // 推送至队列
             String key = String.join(":", IMRedisKey.IM_MESSAGE_GROUP_QUEUE, entry.getKey().toString());
             redisTemplate.opsForList().rightPush(key, recvInfo);
         }
-        // 对离线用户回复消息状态
-        if (message.getSendResult()) {
-            for (IMUserInfo offLineUser : offLineUsers) {
-                IMSendResult result = new IMSendResult();
-                result.setSender(message.getSender());
-                result.setReceiver(offLineUser);
-                result.setCode(IMSendCode.NOT_ONLINE.code());
-                result.setData(message.getData());
-                listenerMulticaster.multicast(IMListenerType.GROUP_MESSAGE, result);
-            }
-        }
+
         // 推送给自己的其他终端
         if (message.getSendToSelf()) {
             for (Integer terminal : IMTerminalType.codes()) {
@@ -146,6 +146,20 @@ public class IMSender {
                 }
             }
         }
+        // 对离线用户回复消息状态
+        if(message.getSendResult() && !offLineUsers.isEmpty()){
+            List<IMSendResult> results = new LinkedList<>();
+            for (IMUserInfo offLineUser : offLineUsers) {
+                IMSendResult result = new IMSendResult();
+                result.setSender(message.getSender());
+                result.setReceiver(offLineUser);
+                result.setCode(IMSendCode.NOT_ONLINE.code());
+                result.setData(message.getData());
+                results.add(result);
+            }
+            listenerMulticaster.multicast(IMListenerType.GROUP_MESSAGE, results);
+        }
+
     }
 
     public Map<Long,List<IMTerminalType>> getOnlineTerminal(List<Long> userIds){

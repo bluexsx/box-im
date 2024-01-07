@@ -28,6 +28,10 @@ public class IMRecvInfo {
     private Boolean sendResult;
 
     /**
+     * 当前服务名（回调发送结果使用）
+     */
+    private String serviceName;
+    /**
      * 推送消息体
      */
     private Object data;

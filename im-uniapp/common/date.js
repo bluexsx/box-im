@@ -21,7 +21,7 @@ let toTimeText = (timeStamp, simple) => {
 		//不属于今年
 		timeText = formatDateTime(dateTime);
 		if(simple){
-			timeText = timeText.substring(2,5);
+			timeText = timeText.substr(2,8);
 		}
 	}
 	return timeText;

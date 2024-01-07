@@ -30,9 +30,9 @@ public abstract class AbstractPullMessageTask implements CommandLineRunner {
                     }
                 } catch (Exception e) {
                     log.error("任务调度异常", e);
-                    Thread.sleep(200);
                 }
                 if (!EXECUTOR_SERVICE.isShutdown()) {
+                    Thread.sleep(100);
                     EXECUTOR_SERVICE.execute(this);
                 }
             }
@@ -45,5 +45,5 @@ public abstract class AbstractPullMessageTask implements CommandLineRunner {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    public abstract void pullMessage();
+    public abstract void pullMessage() throws InterruptedException;
 }

@@ -7,7 +7,7 @@
 		<view class="chat-right">
 			<view class="chat-name">
 				<view class="chat-name-text">{{chat.showName}}</view>
-				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime)}}</view>
+				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime,true)}}</view>
 			</view>
 			<view class="chat-content">
 				<view class="chat-at-text">{{atText}}</view>
