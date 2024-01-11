@@ -41,7 +41,8 @@ H5地址: https://www.boxim.online/h5/ ,或扫码：
 
 也可以自行注册账号
 
-这个是网友基于盒子IM后端接口开发的仿QQ客户端，有需要的小伙伴可以关注一下:
+以下是网友基于盒子IM后端接口开发的仿QQ客户端，有需要的小伙伴可以关注一下:
+
 https://gitee.com/zyzyteam/crim
 
 
