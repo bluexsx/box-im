@@ -16,7 +16,11 @@ public enum IMTerminalType {
     /**
      * app
      */
-    APP(1, "app");
+    APP(1, "app"),
+    /**
+     * pc
+     */
+    PC(2, "pc");
 
     private final Integer code;
 
