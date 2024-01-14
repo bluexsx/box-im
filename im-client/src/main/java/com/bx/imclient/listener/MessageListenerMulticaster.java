@@ -27,7 +27,6 @@ public class MessageListenerMulticaster {
         for(MessageListener listener:messageListeners){
             IMListener annotation = listener.getClass().getAnnotation(IMListener.class);
             if(annotation!=null && (annotation.type().equals(IMListenerType.ALL) || annotation.type().equals(listenerType))){
-
                 results.forEach(result->{
                     // 将data转回对象类型
                     if(result.getData() instanceof JSONObject){
