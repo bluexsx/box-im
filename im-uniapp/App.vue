@@ -18,9 +18,6 @@
 					this.initAudit();
 					// 初始化websocket
 					this.initWebSocket();
-					// 加载离线消息
-					this.loadPrivateMessage(store.state.chatStore.privateMsgMaxId);
-					this.loadGroupMessage(store.state.chatStore.groupMsgMaxId);
 				}).catch((e) => {
 					console.log(e);
 					this.exit();
@@ -30,6 +27,11 @@
 				let loginInfo = uni.getStorageSync("loginInfo")
 				wsApi.init();
 				wsApi.connect(process.env.WS_URL, loginInfo.accessToken);
+				wsApi.onConnect(() => {
+					// 加载离线消息
+					this.loadPrivateMessage(store.state.chatStore.privateMsgMaxId);
+					this.loadGroupMessage(store.state.chatStore.groupMsgMaxId);
+				});
 				wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
 						// 异地登录，强制下线
@@ -69,9 +71,9 @@
 						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
 						let friendId = msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
 						let friend = store.state.friendStore.friends.find((f) => f.id == friendId);
-						if(friend){
-							this.insertPrivateMessage(friend,msgInfo);
-						}	
+						if (friend) {
+							this.insertPrivateMessage(friend, msgInfo);
+						}
 					})
 					if (msgInfos.length == 100) {
 						// 继续拉取
@@ -91,8 +93,8 @@
 						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
 						let groupId = msgInfo.groupId;
 						let group = store.state.groupStore.groups.find((g) => g.id == groupId);
-						if(group){
-							this.insertGroupMessage(group,msgInfo);
+						if (group) {
+							this.insertGroupMessage(group, msgInfo);
 						}
 					})
 					if (msgInfos.length == 100) {
@@ -119,8 +121,10 @@
 						store.commit("resetUnreadCount", chatInfo)
 					} else {
 						// 对方已读我的消息，修改消息状态为已读
-						store.commit("readedMessage", {friendId:friendId})
-						
+						store.commit("readedMessage", {
+							friendId: friendId
+						})
+
 					}
 					return;
 				}

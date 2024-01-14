@@ -35,7 +35,7 @@
 					<a class="login-icon" href="https://gitee.com/bluexsx/box-im" target="_blank">
 						<img src="https://gitee.com/bluexsx/box-im/badge/star.svg" />
 					</a>
-					<a class="login-icon" href="https://gitee.com/bluexsx/box-im" target="_blank">
+					<a class="login-icon" href="https://github.com/bluexsx/box-im" target="_blank">
 						<img src="https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub" />
 					</a>
 
