@@ -80,11 +80,14 @@
 		methods: {
 			init() {
 				this.$store.dispatch("load").then(() => {
-					// 加载离线消息
-					this.loadPrivateMessage(this.$store.state.chatStore.privateMsgMaxId);
-					this.loadGroupMessage(this.$store.state.chatStore.groupMsgMaxId);
+					
 					// ws初始化
 					this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
+					this.$wsApi.onConnect(()=>{
+						// 加载离线消息
+						this.loadPrivateMessage(this.$store.state.chatStore.privateMsgMaxId);
+						this.loadGroupMessage(this.$store.state.chatStore.groupMsgMaxId);
+					});
 					this.$wsApi.onMessage((cmd, msgInfo) => {
 						if (cmd == 2) {
 							// 关闭ws
@@ -104,7 +107,7 @@
 							// 插入群聊消息
 							this.handleGroupMessage(msgInfo);
 						}
-					})
+					});
 					this.$wsApi.onClose((e) => {
 						console.log(e);
 						if (e.code != 3000) {   

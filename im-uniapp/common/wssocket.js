@@ -2,6 +2,7 @@ let wsurl = "";
 let accessToken = "";
 let messageCallBack = null;
 let closeCallBack = null;
+let connectCallBack = null;
 let isConnect = false; //连接标识 避免重复连接
 let rec = null;
 let isInit = false;
@@ -31,6 +32,7 @@ let init = () => {
 		let sendInfo = JSON.parse(res.data)
 		if (sendInfo.cmd == 0) {
 			heartCheck.start()
+			connectCallBack && connectCallBack();
 			console.log('WebSocket登录成功')
 		} else if (sendInfo.cmd == 1) {
 			// 重新开启心跳定时
@@ -145,6 +147,10 @@ function sendMessage(agentData) {
 	})
 }
 
+let onConnect = (callback) => {
+	connectCallBack = callback;
+}
+
 
 function onMessage(callback) {
 	messageCallBack = callback;
@@ -163,6 +169,7 @@ export {
 	reconnect,
 	close,
 	sendMessage,
+	onConnect,
 	onMessage,
 	onClose
 }
