@@ -13,10 +13,10 @@ import javax.validation.constraints.NotNull;
 @ApiModel("用户登录DTO")
 public class LoginDTO {
 
-    @Max(value = 1, message = "登录终端类型取值范围:0,1")
-    @Min(value = 0, message = "登录终端类型取值范围:0,1")
+    @Max(value = 2, message = "登录终端类型取值范围:0,2")
+    @Min(value = 0, message = "登录终端类型取值范围:0,2")
     @NotNull(message = "登录终端类型不可为空")
-    @ApiModelProperty(value = "登录终端 0:web  1:app")
+    @ApiModelProperty(value = "登录终端 0:web 1:app 2:pc")
     private Integer terminal;
 
     @NotEmpty(message = "用户名不可为空")

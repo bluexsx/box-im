@@ -1,6 +1,7 @@
 var websock = null;
 let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
 let isConnect = false; //连接标识 避免重复连接
+let connectCallBack= null;
 let messageCallBack = null;
 let closeCallBack = null
 
@@ -16,6 +17,8 @@ let connect = (wsurl,accessToken) => {
 			let sendInfo = JSON.parse(e.data)
 			if (sendInfo.cmd == 0) {	
 				heartCheck.start()
+				// 登录成功才算真正完成连接
+				connectCallBack && connectCallBack();
 				console.log('WebSocket登录成功')
 			} else if (sendInfo.cmd == 1) {
 				// 重新开启心跳定时
@@ -119,6 +122,9 @@ let sendMessage = (agentData) => {
 	}
 }
 
+let onConnect = (callback) => {
+	connectCallBack = callback;
+}
 
 let onMessage = (callback) => {
 	messageCallBack = callback;
@@ -134,6 +140,7 @@ export {
 	reconnect,
 	close,
 	sendMessage,
+	onConnect,
 	onMessage,
-	onClose
+	onClose,
 }
