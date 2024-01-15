@@ -22,11 +22,9 @@ import java.util.Set;
 @Slf4j
 @IMListener(type = IMListenerType.PRIVATE_MESSAGE)
 public class PrivateMessageListener implements MessageListener<PrivateMessageVO> {
-
     @Lazy
     @Autowired
     private IPrivateMessageService privateMessageService;
-
     @Override
     public void process(List<IMSendResult<PrivateMessageVO>> results) {
         Set<Long> messageIds = new HashSet<>();
@@ -47,5 +45,4 @@ public class PrivateMessageListener implements MessageListener<PrivateMessageVO>
             privateMessageService.update(updateWrapper);
         }
     }
-
 }
