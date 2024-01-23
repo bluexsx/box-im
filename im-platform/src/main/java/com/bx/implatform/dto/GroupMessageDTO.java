@@ -27,6 +27,9 @@ public class GroupMessageDTO {
     @ApiModelProperty(value = "消息类型")
     private Integer type;
 
+    @ApiModelProperty(value = "是否回执消息")
+    private Boolean receipt = false;
+
     @Size(max = 20, message = "一次最多只能@20个小伙伴哦")
     @ApiModelProperty(value = "被@用户列表")
     private List<Long> atUserIds;

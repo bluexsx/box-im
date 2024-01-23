@@ -40,6 +40,13 @@ public interface IGroupMessageService extends IService<GroupMessage> {
     void readedMessage(Long groupId);
 
     /**
+     * 查询群里消息已读用户id列表
+     * @param groupId 群里id
+     * @param messageId 消息id
+     * @return 已读用户id集合
+     */
+    List<Long> findReadedUsers(Long groupId,Long messageId);
+    /**
      * 拉取历史聊天记录
      *
      * @param groupId 群聊id

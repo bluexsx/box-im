@@ -1,5 +1,6 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +46,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private final IGroupMemberService groupMemberService;
     private final IFriendService friendsService;
     private final IMClient imClient;
-
+    private final RedisTemplate<String, Object> redisTemplate;
     @Override
     public GroupVO createGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();
@@ -107,6 +109,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         this.updateById(group);
         // 删除成员数据
         groupMemberService.removeByGroupId(groupId);
+        // 清理已读缓存
+        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
+        redisTemplate.delete(key);
         log.info("删除群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
     }
 
@@ -119,6 +124,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
         // 删除群聊成员
         groupMemberService.removeByGroupAndUserId(groupId, userId);
+        // 清理已读缓存
+        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
+        redisTemplate.opsForHash().delete(key,userId.toString());
         log.info("退出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
     }
 
@@ -134,6 +142,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
         // 删除群聊成员
         groupMemberService.removeByGroupAndUserId(groupId, userId);
+        // 清理已读缓存
+        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
+        redisTemplate.opsForHash().delete(key,userId.toString());
         log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
     }
 

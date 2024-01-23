@@ -3,6 +3,7 @@ package com.bx.implatform.vo;
 import com.bx.imcommon.serializer.DateToLongSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import java.util.Date;
@@ -28,6 +29,12 @@ public class GroupMessageVO {
 
     @ApiModelProperty(value = "消息内容类型 具体枚举值由应用层定义")
     private Integer type;
+
+    @ApiModelProperty(value = "是否回执消息")
+    private Boolean receipt;
+
+    @ApiModelProperty(value = "已读消息数量")
+    private Integer readedCount = 0;
 
     @ApiModelProperty(value = "@用户列表")
     private List<Long> atUserIds;

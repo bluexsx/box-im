@@ -50,6 +50,11 @@ public class GroupMessageController {
         return ResultUtils.success();
     }
 
+    @GetMapping("/findReadedUsers")
+    @ApiOperation(value = "获取已读用户id", notes = "获取消息已读用户列表")
+    public Result<List<Long>> findReadedUsers(@RequestParam Long groupId,@RequestParam Long messageId) {
+        return ResultUtils.success(groupMessageService.findReadedUsers(groupId,messageId));
+    }
 
     @GetMapping("/history")
     @ApiOperation(value = "查询聊天记录", notes = "查询聊天记录")

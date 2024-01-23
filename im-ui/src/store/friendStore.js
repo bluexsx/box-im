@@ -96,7 +96,6 @@ export default {
 				}).then((friends) => {
 					context.commit("setFriends", friends);
 					context.commit("refreshOnlineStatus");
-					console.log("loadFriend")
 					resolve()
 				}).catch((res) => {
 					reject();

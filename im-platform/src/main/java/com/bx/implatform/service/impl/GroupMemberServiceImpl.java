@@ -61,7 +61,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     public List<Long> findUserIdsByGroupId(Long groupId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
         memberWrapper.eq(GroupMember::getGroupId, groupId)
-                .eq(GroupMember::getQuit, false);
+                .eq(GroupMember::getQuit, false)
+                .select(GroupMember::getUserId);
         List<GroupMember> members = this.list(memberWrapper);
         return members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
     }

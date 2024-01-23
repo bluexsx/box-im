@@ -12,7 +12,7 @@
 					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
 						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
-						:msgInfo="msgInfo">
+						:msgInfo="msgInfo" :groupMembers="groupMembers">
 					</chat-message-item>
 				</view>
 			</scroll-view>
@@ -30,6 +30,7 @@
 		<view class="send-bar">
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
+				:placeholder="isReceipt?'[回执消息]':''"
 					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
 					@input="onTextInput" confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
 			</view>
@@ -68,6 +69,10 @@
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音输入</view>
 				</view>
+				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
+					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
+					<view class="tool-name">回执消息</view>
+				</view>
 				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">呼叫</view>
@@ -96,6 +101,7 @@
 				group: {},
 				groupMembers: [],
 				sendText: "",
+				isReceipt: false, // 是否回执消息
 				showVoice: false, // 是否显示语音录制弹窗
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 				chatTabBox: 'none',
@@ -108,9 +114,12 @@
 		methods: {
 			showTip() {
 				uni.showToast({
-					title: "加班开发中...",
+					title: "暂未支持...",
 					icon: "none"
 				})
+			},
+			switchReceipt(){
+				this.isReceipt = !this.isReceipt;
 			},
 			openAtBox() {
 				this.$refs.atBox.init(this.atUserIds);
@@ -146,12 +155,13 @@
 						title: "不能发送空白信息",
 						icon: "none"
 					});
-
 				}
-				let atText = this.createAtText()
+				let receiptText = this.isReceipt? "【回执消息】":"";
+				let atText = this.createAtText();
 				let msgInfo = {
-					content: this.sendText + atText,
+					content: receiptText + this.sendText + atText,
 					atUserIds: this.atUserIds,
+					receipt : this.isReceipt,
 					type: 0
 				}
 				// 填充对方id
@@ -166,6 +176,7 @@
 					msgInfo.sendTime = new Date().getTime();
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
+					msgInfo.readedCount = 0,
 					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 					this.sendText = "";
@@ -174,6 +185,7 @@
 					this.scrollToBottom();
 					// 清空@用户列表
 					this.atUserIds = [];
+					this.isReceipt = false;
 				});
 			},
 			createAtText() {
@@ -215,7 +227,6 @@
 					return;
 				}
 				this.$nextTick(() => {
-					console.log("scrollToMsgIdx", this.scrollMsgIdx)
 					this.scrollMsgIdx = idx;
 				});
 
@@ -256,6 +267,7 @@
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: this.$enums.MESSAGE_TYPE.IMAGE,
+					readedCount: 0,
 					loadStatus: "loading",
 					status: this.$enums.MESSAGE_STATUS.UNSEND
 				}
@@ -272,6 +284,7 @@
 			onUploadImageSuccess(file, res) {
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(res.data);
+				msgInfo.receipt = this.isReceipt
 				this.$http({
 					url: this.messageAction,
 					method: 'POST',
@@ -279,6 +292,7 @@
 				}).then((id) => {
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = id;
+					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
@@ -300,6 +314,7 @@
 					sendTime: new Date().getTime(),
 					selfSend: true,
 					type: this.$enums.MESSAGE_TYPE.FILE,
+					readedCount: 0,
 					loadStatus: "loading",
 					status: this.$enums.MESSAGE_STATUS.UNSEND
 				}
@@ -321,6 +336,7 @@
 				}
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
+				msgInfo.receipt = this.isReceipt
 				this.$http({
 					url: this.messageAction,
 					method: 'POST',
@@ -328,6 +344,7 @@
 				}).then((id) => {
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = id;
+					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
@@ -399,7 +416,6 @@
 				// 防止滚动条定格在顶部，不能一直往上滚
 				this.scrollToMsgIdx(this.showMinIdx);
 				// #endif
-
 				// 多展示10条信息
 				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
 			},
@@ -565,6 +581,8 @@
 				this.loadFriend(this.chat.targetId);
 				this.loadReaded(this.chat.targetId)
 			}
+			// 复位回执消息
+			this.isReceipt = false;
 		},
 		onUnload() {
 			this.$store.commit("activeChat", -1);
@@ -709,6 +727,10 @@
 						font-size: 80rpx;
 						background-color: white;
 						border-radius: 20%;
+						
+						&.active{
+							background-color: #ddd;
+						}
 					}
 
 					.tool-name {

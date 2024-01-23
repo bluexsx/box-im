@@ -110,7 +110,6 @@
 						let friend = JSON.parse(JSON.stringify(f))
 						let m = this.members.filter((m) => !m.quit)
 							.find((m) => m.userId == f.id);
-						console.log(m);
 						if (m) {
 							// 好友已经在群里
 							friend.disabled = true;

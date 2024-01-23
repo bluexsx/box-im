@@ -62,13 +62,19 @@ public class GroupMessage extends Model<GroupMessage> {
     private String content;
 
     /**
-     * 消息类型 0:文字 1:图片 2:文件
+     * 消息类型 MessageType
      */
     @TableField("type")
     private Integer type;
 
     /**
-     * 状态
+     *  是否回执消息
+     */
+    @TableField("receipt")
+    private Boolean receipt;
+
+    /**
+     * 状态 MessageStatus
      */
     @TableField("status")
     private Integer status;

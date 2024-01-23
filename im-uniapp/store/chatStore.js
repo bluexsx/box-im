@@ -5,7 +5,6 @@ import {
 import userStore from './userStore';
 
 export default {
-
 	state: {
 		activeIndex: -1,
 		chats: [],
@@ -127,18 +126,23 @@ export default {
 		insertMessage(state, msgInfo) {
 			// 获取对方id或群id
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
-			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
-			let chat = null;
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == type &&
-					state.chats[idx].targetId === targetId) {
-					chat = state.chats[idx];
-					this.commit("moveTop", idx)
-					break;
-				}
+			// 记录消息的最大id
+			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
+				state.privateMsgMaxId = msgInfo.id;
+			}
+			if (msgInfo.id && type == "GROUP" && msgInfo.id > state.groupMsgMaxId) {
+				state.groupMsgMaxId = msgInfo.id;
+			}
+			// 如果是已存在消息，则覆盖旧的消息数据
+			let chat = this.getters.findChat(msgInfo);
+			let message = this.getters.findMessage(chat, msgInfo);
+			if(message){
+				Object.assign(message, msgInfo);
+				this.commit("saveToStorage");
+				return;
 			}
 			// 会话列表内容
-			if(!state.loadingPrivateMsg && !state.loadingPrivateMsg){
+			if(!state.loadingPrivateMsg && !state.loadingGroupMsg){
 				if (msgInfo.type == MESSAGE_TYPE.IMAGE) {
 					chat.lastContent = "[图片]";
 				} else if (msgInfo.type == MESSAGE_TYPE.FILE) {
@@ -166,28 +170,8 @@ export default {
 					chat.atAll = true;
 				}
 			}
-			// 记录消息的最大id
-			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
-				state.privateMsgMaxId = msgInfo.id;
-			}
-			if (msgInfo.id && type == "GROUP" && msgInfo.id > state.groupMsgMaxId) {
-				state.groupMsgMaxId = msgInfo.id;
-			}
-			// 如果是已存在消息，则覆盖旧的消息数据
-			for (let idx in chat.messages) {
-				if (msgInfo.id && chat.messages[idx].id == msgInfo.id) {
-					Object.assign(chat.messages[idx], msgInfo);
-					this.commit("saveToStorage");
-					return;
-				}
-				// 正在发送中的消息可能没有id,通过发送时间判断
-				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
-					chat.messages[idx].sendTime == msgInfo.sendTime) {
-					Object.assign(chat.messages[idx], msgInfo);
-					this.commit("saveToStorage");
-					return;
-				}
-			}
+			
+			
 			// 间隔大于10分钟插入时间显示
 			if (!chat.lastTimeTip || (chat.lastTimeTip < msgInfo.sendTime - 600 * 1000)) {
 				chat.messages.push({
@@ -199,21 +183,20 @@ export default {
 			// 新的消息
 			chat.messages.push(msgInfo);
 			this.commit("saveToStorage");
-
+		},
+		updateMessage(state, msgInfo) {
+			// 获取对方id或群id
+			let chat = this.getters.findChat(msgInfo);
+			let message = this.getters.findMessage(chat, msgInfo);
+			if(message){
+				// 属性拷贝
+				Object.assign(message, msgInfo);
+				this.commit("saveToStorage");
+			}
 		},
 		deleteMessage(state, msgInfo) {
 			// 获取对方id或群id
-			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
-			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
-			let chat = null;
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == type &&
-					state.chats[idx].targetId === targetId) {
-					chat = state.chats[idx];
-					break;
-				}
-			}
-
+			let chat = this.getters.findChat(msgInfo);
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
@@ -324,6 +307,37 @@ export default {
 				});
 			})
 		}
-
+	},
+	getters: {
+		findChat: (state) => (msgInfo) => {
+			// 获取对方id或群id
+			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
+			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
+			let chat = null;
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == type &&
+					state.chats[idx].targetId === targetId) {
+					chat = state.chats[idx];
+					break;
+				}
+			}
+			return chat;
+		},
+		findMessage: (state) => (chat, msgInfo) => {
+			if (!chat) {
+				return null;
+			}
+			for (let idx in chat.messages) {
+				// 通过id判断
+				if (msgInfo.id && chat.messages[idx].id == msgInfo.id) {
+					return chat.messages[idx];
+				}
+				// 正在发送中的消息可能没有id,通过发送时间判断
+				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
+					chat.messages[idx].sendTime == msgInfo.sendTime) {
+					return chat.messages[idx];
+				}
+			}
+		}
 	}
 }

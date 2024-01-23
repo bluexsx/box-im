@@ -44,17 +44,19 @@
 							&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
 					<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
 							&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</text>
-
+					<view class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
+						<text v-show="msgInfo.readedCount>=0">{{msgInfo.readedCount}}人已读</text>
+						<text v-show="msgInfo.readedCount<0" class="tool-icon iconfont icon-ok"></text>
+					</view>
 					<!--
 					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</view>
 					-->
 				</view>
-
 			</view>
-
 		</view>
+		<chat-group-readed ref="chatGroupReaded" :groupMembers="groupMembers" :msgInfo="msgInfo"></chat-group-readed>
 		<pop-menu v-if="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
 			@select="onSelectMenu"></pop-menu>
 	</view>
@@ -75,6 +77,9 @@
 			msgInfo: {
 				type: Object,
 				required: true
+			},
+			groupMembers: {
+				type: Array
 			}
 		},
 		data() {
@@ -135,6 +140,9 @@
 				uni.previewImage({
 					urls: [imageUrl]
 				})
+			},
+			onShowReadedBox() {
+				this.$refs.chatGroupReaded.open();
 			}
 		},
 		computed: {
@@ -344,6 +352,16 @@
 						font-size: 10px;
 						color: #ccc;
 						font-weight: 600;
+					}
+					.chat-receipt {
+						font-size: 13px;
+						color: darkblue;
+						font-weight: 600;
+						
+						.icon-ok {
+							font-size: 20px;
+							color: green;
+						}
 					}
 				}
 			}

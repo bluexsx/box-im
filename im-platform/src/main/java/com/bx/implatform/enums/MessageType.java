@@ -35,6 +35,10 @@ public enum MessageType {
     READED(11, "已读"),
 
     /**
+     * 消息已读回执(更新已读数量)
+     */
+    RECEIPT(12, "消息已读回执"),
+    /**
      * 呼叫
      */
     RTC_CALL(101, "呼叫"),

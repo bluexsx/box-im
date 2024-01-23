@@ -105,7 +105,6 @@ let heartCheck = {
 
 // 实际调用的方法
 let sendMessage = (agentData) => {
-	// console.log(globalCallback)
 	if (websock.readyState === websock.OPEN) {
 		// 若是ws开启状态
 		websock.send(JSON.stringify(agentData))

@@ -166,6 +166,17 @@
 					store.commit("resetUnreadCount", chatInfo)
 					return;
 				}
+				// 消息回执处理
+				if (msg.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
+					// 更新消息已读人数
+					let msgInfo = {
+						id: msg.id,
+						groupId: msg.groupId,
+						readedCount: msg.readedCount
+					};
+					this.$store.commit("updateMessage", msgInfo)
+					return;
+				}
 				this.loadGroupInfo(groupId).then((group) => {
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
@@ -234,7 +245,6 @@
 				// this.audioTip.play();
 			},
 			initAudit() {
-				console.log("initAudit")
 				if (store.state.userStore.userInfo.type == 1) {
 					// 显示群组功能
 					uni.setTabBarItem({
