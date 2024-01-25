@@ -233,6 +233,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         wrapper.eq(GroupMessage::getGroupId, groupId);
         wrapper.gt(!Objects.isNull(maxReadedId), GroupMessage::getId, maxReadedId);
         wrapper.le(!Objects.isNull(maxReadedId), GroupMessage::getId, message.getId());
+        wrapper.ne(GroupMessage::getStatus, MessageStatus.RECALL.code());
         wrapper.eq(GroupMessage::getReceipt, true);
         List<GroupMessage> receiptMessages = this.list(wrapper);
         if (CollectionUtil.isNotEmpty(receiptMessages)) {
@@ -240,10 +241,16 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             Map<Object, Object> maxIdMap = redisTemplate.opsForHash().entries(key);
             for (GroupMessage receiptMessage : receiptMessages) {
                 Integer readedCount = getReadedUserIds(maxIdMap, receiptMessage.getId(),receiptMessage.getSendId()).size();
+                // 如果所有人都已读，记录回执消息完成标记
+                if(readedCount >= userIds.size() - 1){
+                    receiptMessage.setReceiptOk(true);
+                    this.updateById(receiptMessage);
+                }
                 msgInfo = new GroupMessageVO();
                 msgInfo.setId(receiptMessage.getId());
                 msgInfo.setGroupId(groupId);
                 msgInfo.setReadedCount(readedCount);
+                msgInfo.setReceiptOk(receiptMessage.getReceiptOk());
                 msgInfo.setType(MessageType.RECEIPT.code());;
                 sendMessage = new IMGroupMessage<>();
                 sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));

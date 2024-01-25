@@ -33,6 +33,9 @@ public class GroupMessageVO {
     @ApiModelProperty(value = "是否回执消息")
     private Boolean receipt;
 
+    @ApiModelProperty(value = "回执消息是否完成")
+    private Boolean receiptOk;
+
     @ApiModelProperty(value = "已读消息数量")
     private Integer readedCount = 0;
 

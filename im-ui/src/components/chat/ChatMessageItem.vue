@@ -53,8 +53,9 @@
 					<span class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId
 						&& msgInfo.status != $enums.MESSAGE_STATUS.READED">未读</span>
 					<div class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
-						<span v-if="msgInfo.readedCount>=0">{{msgInfo.readedCount}}人已读</span>
-						<span v-else class="icon iconfont icon-ok" title="全体已读"></span>
+						<span v-if="msgInfo.receiptOk" class="icon iconfont icon-ok" title="全体已读"></span>
+						<span v-else>{{msgInfo.readedCount}}人已读</span>
+						
 					</div>
 				</div>
 			</div>
@@ -62,7 +63,7 @@
 		</div>
 		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems" @close="rightMenu.show = false"
 			@select="onSelectMenu"></right-menu>
-		<chat-group-readed ref="chatGroupReadedBox" :groupMembers="groupMembers"></chat-group-readed>
+		<chat-group-readed ref="chatGroupReadedBox" :msgInfo="msgInfo" :groupMembers="groupMembers"></chat-group-readed>
 	</div>
 </template>
 
@@ -149,7 +150,7 @@ export default {
 		},
 		onShowReadedBox() {
 			let rect = this.$refs.chatMsgBox.getBoundingClientRect();
-			this.$refs.chatGroupReadedBox.open(this.msgInfo, rect);
+			this.$refs.chatGroupReadedBox.open(rect);
 		}
 	},
 	computed: {
@@ -370,7 +371,7 @@ export default {
 					
 					.icon-ok {
 						font-size: 20px;
-						color: green;
+						color: #329432;
 					}
 				}
 			}

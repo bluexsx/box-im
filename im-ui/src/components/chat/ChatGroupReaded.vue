@@ -49,7 +49,6 @@ export default {
                 y: 0,
                 arrowY: 0
             },
-            msgInfo: {},
             readedMembers: [],
             unreadMembers: []
         }
@@ -57,15 +56,17 @@ export default {
     props: {
         groupMembers: {
             type: Array
-        }
+        },
+		msgInfo: {
+			type: Object
+		}
     },
     methods: {
         close() {
             this.show = false;
         },
-        open(msgInfo, rect) {
+        open(rect) {
             this.show = true;
-            this.msgInfo = msgInfo;
             this.pos.arrowY = 200;
             // 计算窗口位置
             if (this.msgInfo.selfSend) {
@@ -93,7 +94,7 @@ export default {
             }).then(userIds => {
                 this.groupMembers.forEach(member => {
                     // 发送者和已退群的不显示
-                    if (member.userId == this.msgInfo.sendId && member.quit) {
+                    if (member.userId == this.msgInfo.sendId || member.quit) {
                         return;
                     }
                     // 区分已读还是未读

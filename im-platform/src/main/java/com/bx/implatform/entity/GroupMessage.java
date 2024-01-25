@@ -74,6 +74,12 @@ public class GroupMessage extends Model<GroupMessage> {
     private Boolean receipt;
 
     /**
+     *  回执消息是否完成
+     */
+    @TableField("receipt_ok")
+    private Boolean receiptOk;
+
+    /**
      * 状态 MessageStatus
      */
     @TableField("status")

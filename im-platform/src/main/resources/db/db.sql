@@ -71,6 +71,7 @@ create table `im_group_message`(
     `content` text   comment '发送内容',
     `at_user_ids` varchar(1024) comment '被@的用户id列表，逗号分隔',
     `receipt` tinyint DEFAULT 0  comment '是否回执消息',
+    `receipt_ok` tinyint DEFAULT 0  comment '回执消息是否完成',
     `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 10:系统提示' ,
     `status` tinyint(1) DEFAULT 0 comment '状态 0:未发出 1:已送达  2:撤回 3:已读',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',

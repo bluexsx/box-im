@@ -45,8 +45,9 @@
 					<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
 							&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</text>
 					<view class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
-						<text v-show="msgInfo.readedCount>=0">{{msgInfo.readedCount}}人已读</text>
-						<text v-show="msgInfo.readedCount<0" class="tool-icon iconfont icon-ok"></text>
+						<text v-if="msgInfo.receiptOk" class="tool-icon iconfont icon-ok"></text>
+						<text v-else>{{msgInfo.readedCount}}人已读</text>
+						
 					</view>
 					<!--
 					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
@@ -360,7 +361,7 @@
 						
 						.icon-ok {
 							font-size: 20px;
-							color: green;
+							color: #329432;
 						}
 					}
 				}

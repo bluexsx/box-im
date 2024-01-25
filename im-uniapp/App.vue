@@ -172,7 +172,8 @@
 					let msgInfo = {
 						id: msg.id,
 						groupId: msg.groupId,
-						readedCount: msg.readedCount
+						readedCount: msg.readedCount,
+						receiptOk: msg.receiptOk
 					};
 					this.$store.commit("updateMessage", msgInfo)
 					return;
