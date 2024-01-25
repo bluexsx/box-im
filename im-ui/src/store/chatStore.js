@@ -273,6 +273,15 @@ export default {
 		}
 	},
 	getters: {
+		findChatIdx: (state) => (chat) => {
+			for (let idx in state.chats) {
+				if (state.chats[idx].type == chat.type &&
+					state.chats[idx].targetId === chat.targetId) {
+					chat = state.chats[idx];
+					return idx
+				}
+			}
+		},
 		findChat: (state) => (msgInfo) => {
 			// 获取对方id或群id
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';

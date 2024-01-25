@@ -118,6 +118,10 @@
 					icon: "none"
 				})
 			},
+			moveChatToTop(){
+				let chatIdx = this.$store.getters.findChatIdx(this.chat);
+				this.$store.commit("moveTop",chatIdx);
+			},
 			switchReceipt(){
 				this.isReceipt = !this.isReceipt;
 			},
@@ -179,6 +183,8 @@
 					msgInfo.readedCount = 0,
 					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
+					// 会话置顶
+					this.moveChatToTop();
 					this.sendText = "";
 				}).finally(() => {
 					// 滚动到底部
@@ -275,6 +281,8 @@
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
+				// 会话置顶
+				this.moveChatToTop();
 				// 借助file对象保存
 				file.msgInfo = msgInfo;
 				// 滚到最低部
@@ -322,6 +330,8 @@
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
 				this.$store.commit("insertMessage", msgInfo);
+				// 会话置顶
+				this.moveChatToTop();
 				// 借助file对象保存
 				file.msgInfo = msgInfo;
 				// 滚到最低部

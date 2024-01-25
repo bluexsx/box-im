@@ -22,28 +22,10 @@ import java.util.Set;
 @EnableAspectJAutoProxy(exposeProxy = true)
 @MapperScan(basePackages = {"com.bx.implatform.mapper"})
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})// 禁用secrity
-public class IMPlatformApp implements ApplicationRunner {
+public class IMPlatformApp {
 
     public static void main(String[] args) {
         SpringApplication.run(IMPlatformApp.class, args);
     }
 
-    @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-//        String matchKey = RedisKey.IM_GROUP_READED_POSITION+"*";
-//        Set<String> keys = redisTemplate.keys(matchKey);
-//        Map<String, Map<String,Object>> map = new HashMap<>();
-//        for(String key:keys){
-//            String[] arr = key.split(":");
-//            String groupId = arr[4];
-//            String userId = arr[5];
-//            Object messageId = redisTemplate.opsForValue().get(key);
-//            String newKey = StrUtil.join(":",RedisKey.IM_GROUP_READED_POSITION,groupId);
-//            redisTemplate.opsForHash().put(newKey,userId,messageId);
-//            redisTemplate.delete(key);
-//            log.info("key:{},value:{}",newKey,messageId);
-//        }
-    }
 }

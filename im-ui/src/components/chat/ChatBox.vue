@@ -131,6 +131,11 @@ export default {
 		}
 	},
 	methods: {
+		moveChatToTop(){
+			let chatIdx = this.$store.getters.findChatIdx(this.chat);
+			console.log(chatIdx);
+			this.$store.commit("moveTop",chatIdx);
+		},
 		closeRefBox() {
 			this.$refs.emoBox.close();
 			this.$refs.atBox.close();
@@ -320,6 +325,8 @@ export default {
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
 			this.$store.commit("insertMessage", msgInfo);
+			// 会话置顶
+			this.moveChatToTop();
 			// 滚动到底部
 			this.scrollToBottom();
 			// 借助file对象保存
@@ -372,6 +379,8 @@ export default {
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
 			this.$store.commit("insertMessage", msgInfo);
+			// 会话置顶
+			this.moveChatToTop();
 			// 滚动到底部
 			this.scrollToBottom();
 			// 借助file对象透传
@@ -456,6 +465,8 @@ export default {
 				msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 				msgInfo.readedCount = 0;
 				this.$store.commit("insertMessage", msgInfo);
+				// 会话置顶
+				this.moveChatToTop();
 				// 保持输入框焦点
 				this.$refs.editBox.focus();
 				// 滚动到底部
@@ -463,6 +474,7 @@ export default {
 				// 关闭录音窗口
 				this.showVoice = false;
 				this.isReceipt = false;
+				
 			})
 		},
 		fillTargetId(msgInfo, targetId) {
@@ -530,6 +542,8 @@ export default {
 				msgInfo.readedCount = 0;
 				msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 				this.$store.commit("insertMessage", msgInfo);
+				// 会话置顶
+				this.moveChatToTop();
 			}).finally(() => {
 				// 解除锁定
 				this.lockMessage = false;

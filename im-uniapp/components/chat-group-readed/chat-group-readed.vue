@@ -66,7 +66,7 @@
 				}).then(userIds => {
 					this.groupMembers.forEach(member => {
 						// 发送者和已退群的不显示
-						if (member.userId == this.msgInfo.sendId && member.quit) {
+						if (member.userId == this.msgInfo.sendId || member.quit) {
 						    return;
 						}
 						// 区分已读还是未读
