@@ -7,7 +7,6 @@
 					@click.native="showSettingDialog = true">
 				</head-image>
 			</div>
-
 			<el-menu background-color="#333333" text-color="#ddd" style="margin-top: 30px;">
 				<el-menu-item title="聊天">
 					<router-link v-bind:to="'/home/chat'">
@@ -25,12 +24,10 @@
 						<span class="icon iconfont icon-group_fill"></span>
 					</router-link>
 				</el-menu-item>
-
 				<el-menu-item title="设置" @click="showSetting()">
 					<span class="el-icon-setting"></span>
 				</el-menu-item>
 			</el-menu>
-
 			<div class="exit-box" @click="onExit()" title="退出">
 				<span class="el-icon-circle-close"></span>
 			</div>
@@ -61,7 +58,6 @@ import FullImage from '../components/common/FullImage.vue';
 import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
 import ChatVideoAcceptor from '../components/chat/ChatVideoAcceptor.vue';
 
-
 export default {
 	components: {
 		HeadImage,
@@ -80,7 +76,6 @@ export default {
 	methods: {
 		init() {
 			this.$store.dispatch("load").then(() => {
-
 				// ws初始化
 				this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
 				this.$wsApi.onConnect(() => {

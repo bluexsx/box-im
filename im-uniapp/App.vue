@@ -75,21 +75,21 @@
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
-				if (msg.type == this.$enums.MESSAGE_TYPE.LOADDING) {
-					this.$store.commit("loadingPrivateMsg", JSON.parse(msg.content))
+				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+					store.commit("loadingPrivateMsg", JSON.parse(msg.content))
 					return;
 				}
 				// 消息已读处理，清空已读数量
-				if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
-					this.$store.commit("resetUnreadCount", {
+				if (msg.type == enums.MESSAGE_TYPE.READED) {
+					store.commit("resetUnreadCount", {
 						type: 'PRIVATE',
 						targetId: msg.recvId
 					})
 					return;
 				}
 				// 消息回执处理,改消息状态为已读
-				if (msg.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
-					this.$store.commit("readedMessage", { friendId: msg.sendId })
+				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
+					store.commit("readedMessage", { friendId: msg.sendId })
 					return;
 				}
 				// 标记这条消息是不是自己发的
@@ -122,8 +122,8 @@
 			},
 			handleGroupMessage(msg) {
 				// 消息加载标志
-				if (msg.type == this.$enums.MESSAGE_TYPE.LOADDING) {
-					this.$store.commit("loadingGroupMsg",JSON.parse(msg.content))
+				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+					store.commit("loadingGroupMsg",JSON.parse(msg.content))
 					return;
 				}
 				// 消息已读处理
@@ -137,7 +137,7 @@
 					return;
 				}
 				// 消息回执处理
-				if (msg.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
+				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
 					// 更新消息已读人数
 					let msgInfo = {
 						id: msg.id,
@@ -145,7 +145,7 @@
 						readedCount: msg.readedCount,
 						receiptOk: msg.receiptOk
 					};
-					this.$store.commit("updateMessage", msgInfo)
+					store.commit("updateMessage", msgInfo)
 					return;
 				}
 				// 标记这条消息是不是自己发的
