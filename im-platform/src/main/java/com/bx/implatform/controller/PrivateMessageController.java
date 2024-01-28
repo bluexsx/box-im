@@ -43,6 +43,13 @@ public class PrivateMessageController {
         return ResultUtils.success(privateMessageService.loadMessage(minId));
     }
 
+    @GetMapping("/pullOfflineMessage")
+    @ApiOperation(value = "拉取离线消息", notes = "拉取离线消息,消息将通过webscoket异步推送")
+    public Result pullOfflineMessage(@RequestParam Long minId) {
+        privateMessageService.pullOfflineMessage(minId);
+        return ResultUtils.success();
+    }
+
     @PutMapping("/readed")
     @ApiOperation(value = "消息已读", notes = "将会话中接收的消息状态置为已读")
     public Result readedMessage(@RequestParam Long friendId) {

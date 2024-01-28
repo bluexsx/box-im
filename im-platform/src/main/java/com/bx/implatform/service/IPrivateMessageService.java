@@ -44,6 +44,12 @@ public interface IPrivateMessageService extends IService<PrivateMessage> {
      */
     List<PrivateMessageVO> loadMessage(Long minId);
 
+    /**
+     * 拉取离线消息，只能拉取最近1个月的消息，最多拉取1000条
+     *
+     * @param minId 消息起始id
+     */
+    void pullOfflineMessage(Long minId);
 
     /**
      * 消息已读,将整个会话的消息都置为已读状态

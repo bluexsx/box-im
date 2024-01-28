@@ -1,6 +1,6 @@
 <template>
 	<div class="chat-msg-item">
-		<div class="chat-msg-tip" v-show="msgInfo.type == $enums.MESSAGE_TYPE.RECALL">{{ msgInfo.content }}</div>
+		<div class="chat-msg-tip" v-show="msgInfo.type == $enums.MESSAGE_TYPE.RECALL || msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">{{ msgInfo.content }}</div>
 		<div class="chat-msg-tip" v-show="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
 			{{ $date.toTimeText(msgInfo.sendTime) }}
 		</div>

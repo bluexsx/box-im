@@ -10,8 +10,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
+import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.imcommon.util.CommaTextUtils;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.GroupMessageDTO;
 import com.bx.implatform.entity.Group;
@@ -39,6 +41,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -63,7 +66,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 是否在群聊里面
         GroupMember member = groupMemberService.findByGroupAndUserId(dto.getGroupId(), session.getUserId());
-        if (Objects.isNull(member) || Boolean.TRUE.equals(member.getQuit())) {
+        if (Objects.isNull(member) || member.getQuit()) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不在群聊里面，无法发送消息");
         }
         // 群聊成员列表
@@ -198,6 +201,98 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     }
 
     @Override
+    public void pullOfflineMessage(Long minId) {
+        UserSession session = SessionContext.getSession();
+        if(!imClient.isOnline(session.getUserId())){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "网络连接失败，无法拉取离线消息");
+        }
+        // 开启加载中标志
+        this.sendLoadingMessage(true);
+        // 查询用户加入的群组
+        List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
+        Map<Long, GroupMember> groupMemberMap = CollStreamUtil.toIdentityMap(members, GroupMember::getGroupId);
+        Set<Long> groupIds = groupMemberMap.keySet();
+        // 只能拉取最近1个月的,最多拉取1000条
+        Date minDate = DateUtils.addMonths(new Date(), -1);
+        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
+        wrapper.gt(GroupMessage::getId, minId)
+            .gt(GroupMessage::getSendTime, minDate)
+            .in(GroupMessage::getGroupId, groupIds)
+            .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
+            .orderByDesc(GroupMessage::getId).last("limit 1000");
+        List<GroupMessage> messages = this.list(wrapper);
+        // 通过群聊对消息进行分组
+        Map<Long, List<GroupMessage>> messageGroupMap = messages.stream().collect(Collectors.groupingBy(GroupMessage::getGroupId));
+        // 退群前的消息
+        List<GroupMember> quitMembers = groupMemberService.findQuitInMonth(session.getUserId());
+        for(GroupMember quitMember: quitMembers){
+            wrapper = Wrappers.lambdaQuery();
+            wrapper.gt(GroupMessage::getId, minId)
+                .between(GroupMessage::getSendTime, minDate,quitMember.getQuitTime())
+                .eq(GroupMessage::getGroupId, quitMember.getGroupId())
+                .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
+                .orderByDesc(GroupMessage::getId)
+                .last("limit 100");
+            List<GroupMessage> groupMessages = this.list(wrapper);
+            messageGroupMap.put(quitMember.getGroupId(),groupMessages);
+            groupMemberMap.put(quitMember.getGroupId(),quitMember);
+        }
+        // 推送消息
+        AtomicInteger sendCount = new AtomicInteger();
+        messageGroupMap.forEach((groupId, groupMessages) -> {
+            // id从小到大排序
+            CollectionUtil.reverse(groupMessages);
+            // 填充消息状态
+            String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
+            Object o = redisTemplate.opsForHash().get(key, session.getUserId().toString());
+            long readedMaxId = Objects.isNull(o) ? -1 : Long.parseLong(o.toString());
+            Map<Object, Object> maxIdMap = null;
+            for(GroupMessage m:groupMessages){
+                // 排除加群之前的消息
+                GroupMember member = groupMemberMap.get(m.getGroupId());
+                if(DateUtil.compare(member.getCreatedTime(), m.getSendTime()) > 0){
+                    continue;
+                }
+                // 排除不需要接收的消息
+                List<String> recvIds = CommaTextUtils.asList(m.getRecvIds());
+                if(!recvIds.isEmpty() && !recvIds.contains(session.getUserId().toString())){
+                    continue;
+                }
+                // 组装vo
+                GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
+                // 被@用户列表
+                if (StringUtils.isNotBlank(m.getAtUserIds()) && Objects.nonNull(vo)) {
+                    List<String> atIds = Splitter.on(",").trimResults().splitToList(m.getAtUserIds());
+                    vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
+                }
+                // 填充状态
+                vo.setStatus(readedMaxId >= m.getId() ? MessageStatus.READED.code() : MessageStatus.UNSEND.code());
+                // 针对回执消息填充已读人数
+                if(m.getReceipt()){
+                    if(Objects.isNull(maxIdMap)) {
+                        maxIdMap = redisTemplate.opsForHash().entries(key);
+                    }
+                    int count = getReadedUserIds(maxIdMap, m.getId(),m.getSendId()).size();
+                    vo.setReadedCount(count);
+                }
+                // 推送
+                IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+                sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
+                sendMessage.setRecvIds(Arrays.asList(session.getUserId()));
+                sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
+                sendMessage.setSendResult(false);
+                sendMessage.setSendToSelf(false);
+                sendMessage.setData(vo);
+                imClient.sendGroupMessage(sendMessage);
+                sendCount.getAndIncrement();
+            }
+        });
+        // 关闭加载中标志
+        this.sendLoadingMessage(false);
+        log.info("拉取离线群聊消息,用户id:{},数量:{}",session.getUserId(),sendCount.get());
+    }
+
+    @Override
     public void readedMessage(Long groupId) {
         UserSession session = SessionContext.getSession();
         // 取出最后的消息id
@@ -251,7 +346,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 msgInfo.setGroupId(groupId);
                 msgInfo.setReadedCount(readedCount);
                 msgInfo.setReceiptOk(receiptMessage.getReceiptOk());
-                msgInfo.setType(MessageType.RECEIPT.code());;
+                msgInfo.setType(MessageType.RECEIPT.code());
                 sendMessage = new IMGroupMessage<>();
                 sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
                 sendMessage.setRecvIds(userIds);
@@ -265,11 +360,17 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
     @Override
     public List<Long> findReadedUsers(Long groupId, Long messageId) {
+        UserSession session = SessionContext.getSession();
         GroupMessage message = this.getById(messageId);
         if (Objects.isNull(message)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
         }
-        // 已读位置key
+        // 是否在群聊里面
+        GroupMember member = groupMemberService.findByGroupAndUserId(groupId, session.getUserId());
+        if (Objects.isNull(member) || member.getQuit()) {
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不在群聊里面");
+        }
+            // 已读位置key
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
         // 一次获取所有用户的已读位置
         Map<Object, Object> maxIdMap = redisTemplate.opsForHash().entries(key);
@@ -304,7 +405,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         List<Long> userIds = new LinkedList<>();
         maxIdMap.forEach((k, v) -> {
             Long userId = Long.valueOf(k.toString());
-            Long maxId = Long.valueOf(v.toString());
+            long maxId = Long.parseLong(v.toString());
             // 发送者不计入已读人数
             if (!sendId.equals(userId) && maxId >= messageId) {
                 userIds.add(userId);
@@ -313,5 +414,19 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         return userIds;
     }
 
+    private void sendLoadingMessage(Boolean isLoadding){
+        UserSession session = SessionContext.getSession();
+        GroupMessageVO msgInfo = new GroupMessageVO();
+        msgInfo.setType(MessageType.LOADDING.code());
+        msgInfo.setContent(isLoadding.toString());
+        IMGroupMessage sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setRecvIds(Arrays.asList(session.getUserId()));
+        sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendToSelf(false);
+        sendMessage.setSendResult(false);
+        imClient.sendGroupMessage(sendMessage);
+    }
 
 }

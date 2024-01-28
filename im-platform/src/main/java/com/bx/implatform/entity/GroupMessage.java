@@ -51,6 +51,12 @@ public class GroupMessage extends Model<GroupMessage> {
     private String sendNickName;
 
     /**
+     * 接受用户id,为空表示全体发送
+     */
+    @TableField("recv_ids")
+    private String recvIds;
+
+    /**
      * @用户列表
      */
     @TableField("at_user_ids")

@@ -1,6 +1,8 @@
 package com.bx.implatform.enums;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 
 @AllArgsConstructor
 public enum MessageType {
@@ -35,9 +37,22 @@ public enum MessageType {
     READED(11, "已读"),
 
     /**
-     * 消息已读回执(更新已读数量)
+     * 消息已读回执
      */
     RECEIPT(12, "消息已读回执"),
+    /**
+     * 时间提示
+     */
+    TIP_TIME(20,"时间提示"),
+    /**
+     * 文字提示
+     */
+    TIP_TEXT(21,"文字提示"),
+
+    /**
+     * 消息加载标记
+     */
+    LOADDING(30,"加载中"),
     /**
      * 呼叫
      */

@@ -25,12 +25,22 @@ public interface IGroupMemberService extends IService<GroupMember> {
     List<GroupMember> findByUserId(Long userId);
 
     /**
+     * 根据用户id查询一个月内退的群
+     *
+     * @param userId 用户id
+     * @return 成员列表
+     */
+    List<GroupMember> findQuitInMonth(Long userId);
+
+    /**
      * 根据群聊id查询群聊成员（包括已退出）
      *
      * @param groupId 群聊id
      * @return 群聊成员列表
      */
     List<GroupMember> findByGroupId(Long groupId);
+
+
 
     /**
      * 根据群聊id查询没有退出的群聊成员id

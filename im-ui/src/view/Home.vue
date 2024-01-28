@@ -3,7 +3,8 @@
 		<el-aside width="80px" class="navi-bar">
 			<div class="user-head-image">
 				<head-image :name="$store.state.userStore.userInfo.nickName"
-					:url="$store.state.userStore.userInfo.headImageThumb" :size="60" @click.native="showSettingDialog = true">
+					:url="$store.state.userStore.userInfo.headImageThumb" :size="60"
+					@click.native="showSettingDialog = true">
 				</head-image>
 			</div>
 
@@ -84,8 +85,8 @@ export default {
 				this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
 				this.$wsApi.onConnect(() => {
 					// 加载离线消息
-					this.loadPrivateMessage(this.$store.state.chatStore.privateMsgMaxId);
-					this.loadGroupMessage(this.$store.state.chatStore.groupMsgMaxId);
+					this.pullPrivateOfflineMessage(this.$store.state.chatStore.privateMsgMaxId);
+					this.pullGroupOfflineMessage(this.$store.state.chatStore.groupMsgMaxId);
 				});
 				this.$wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
@@ -119,71 +120,41 @@ export default {
 				console.log("初始化失败", e);
 			})
 		},
-		loadPrivateMessage(minId) {
-			this.$store.commit("loadingPrivateMsg", true)
+		pullPrivateOfflineMessage(minId) {
 			this.$http({
-				url: "/message/private/loadMessage?minId=" + minId,
+				url: "/message/private/pullOfflineMessage?minId=" + minId,
 				method: 'get'
-			}).then((msgInfos) => {
-				msgInfos.forEach((msgInfo) => {
-					msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
-					let friendId = msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
-					let friend = this.$store.state.friendStore.friends.find((f) => f.id == friendId);
-					if (friend) {
-						this.insertPrivateMessage(friend, msgInfo);
-					}
-				})
-				if (msgInfos.length == 100) {
-					// 继续拉取
-					this.loadPrivateMessage(msgInfos[99].id);
-				} else {
-					this.$store.commit("loadingPrivateMsg", false)
-				}
-			})
+			});
 		},
-		loadGroupMessage(minId) {
-			this.$store.commit("loadingGroupMsg", true)
+		pullGroupOfflineMessage(minId) {
 			this.$http({
-				url: "/message/group/loadMessage?minId=" + minId,
+				url: "/message/group/pullOfflineMessage?minId=" + minId,
 				method: 'get'
-			}).then((msgInfos) => {
-				msgInfos.forEach((msgInfo) => {
-					msgInfo.selfSend = msgInfo.sendId == this.$store.state.userStore.userInfo.id;
-					let groupId = msgInfo.groupId;
-					let group = this.$store.state.groupStore.groups.find((g) => g.id == groupId);
-					if (group) {
-						this.insertGroupMessage(group, msgInfo);
-					}
-				})
-				if (msgInfos.length == 100) {
-					// 继续拉取
-					this.loadGroupMessage(msgInfos[99].id);
-				} else {
-					this.$store.commit("loadingGroupMsg", false)
-				}
-			})
+			});
 		},
 		handlePrivateMessage(msg) {
+			// 消息加载标志
+			if (msg.type == this.$enums.MESSAGE_TYPE.LOADDING) {
+				this.$store.commit("loadingPrivateMsg", JSON.parse(msg.content))
+				return;
+			}
+			// 消息已读处理，清空已读数量
+			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
+				this.$store.commit("resetUnreadCount", {
+					type: 'PRIVATE',
+					targetId: msg.recvId
+				})
+				return;
+			}
+			// 消息回执处理,改消息状态为已读
+			if (msg.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
+				this.$store.commit("readedMessage", { friendId: msg.sendId })
+				return;
+			}
 			// 标记这条消息是不是自己发的
 			msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
 			// 好友id
 			let friendId = msg.selfSend ? msg.recvId : msg.sendId;
-			// 消息已读处理
-			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
-				if (msg.selfSend) {
-					// 我已读对方的消息，清空已读数量
-					let chatInfo = {
-						type: 'PRIVATE',
-						targetId: friendId
-					}
-					this.$store.commit("resetUnreadCount", chatInfo)
-				} else {
-					// 对方已读我的消息，修改消息状态为已读
-					this.$store.commit("readedMessage", { friendId: friendId })
-				}
-				return;
-			}
-
 			this.loadFriendInfo(friendId).then((friend) => {
 				this.insertPrivateMessage(friend, msg);
 			})
@@ -220,6 +191,11 @@ export default {
 			}
 		},
 		handleGroupMessage(msg) {
+			// 消息加载标志
+			if (msg.type == this.$enums.MESSAGE_TYPE.LOADDING) {
+				this.$store.commit("loadingGroupMsg", JSON.parse(msg.content))
+				return;
+			}
 			// 消息已读处理
 			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
 				// 我已读对方的消息，清空已读数量

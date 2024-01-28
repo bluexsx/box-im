@@ -69,6 +69,11 @@ public class GroupMember extends Model<GroupMember> {
     @TableField("quit")
     private Boolean quit;
 
+    /**
+     * 退群时间
+     */
+    @TableField("quit_time")
+    private Date quitTime;
 
     /**
      * 创建时间

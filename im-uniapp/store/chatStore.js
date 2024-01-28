@@ -1,7 +1,4 @@
-import {
-	MESSAGE_TYPE,
-	MESSAGE_STATUS
-} from '@/common/enums.js';
+import { MESSAGE_TYPE, MESSAGE_STATUS } from '@/common/enums.js';
 import userStore from './userStore';
 
 export default {
@@ -95,14 +92,6 @@ export default {
 			state.chats.splice(idx, 1);
 			this.commit("saveToStorage");
 		},
-		removeGroupChat(state, groupId) {
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == 'GROUP' &&
-					state.chats[idx].targetId == groupId) {
-					this.commit("removeChat", idx);
-				}
-			}
-		},
 		removePrivateChat(state, userId) {
 			for (let idx in state.chats) {
 				if (state.chats[idx].type == 'PRIVATE' &&
@@ -149,14 +138,15 @@ export default {
 					chat.lastContent = "[文件]";
 				} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
 					chat.lastContent = "[语音]";
-				} else {
+				} else  if (msgInfo.type == MESSAGE_TYPE.TEXT || msgInfo.type == MESSAGE_TYPE.RECALL) {
 					chat.lastContent = msgInfo.content;
 				}
 				chat.lastSendTime = msgInfo.sendTime;
 				chat.sendNickName = msgInfo.sendNickName;
 			}
 			// 未读加1
-			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
+			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED 
+				&& msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
@@ -170,8 +160,6 @@ export default {
 					chat.atAll = true;
 				}
 			}
-			
-			
 			// 间隔大于10分钟插入时间显示
 			if (!chat.lastTimeTip || (chat.lastTimeTip < msgInfo.sendTime - 600 * 1000)) {
 				chat.messages.push({
@@ -256,7 +244,7 @@ export default {
 						chat.lastContent = "[文件]";
 					} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
 						chat.lastContent = "[语音]";
-					} else {
+					} else if (msgInfo.type == MESSAGE_TYPE.TEXT || msgInfo.type == MESSAGE_TYPE.RECALL) {
 						chat.lastContent = msgInfo.content;
 					}
 					chat.lastSendTime = msgInfo.sendTime;
