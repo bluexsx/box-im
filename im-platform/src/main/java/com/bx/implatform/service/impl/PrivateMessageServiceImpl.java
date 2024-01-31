@@ -212,7 +212,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
             IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
             sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
-            sendMessage.setRecvId(m.getRecvId());
+            sendMessage.setRecvId(session.getUserId());
             sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
             sendMessage.setSendToSelf(false);
             sendMessage.setData(vo);
