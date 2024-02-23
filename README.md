@@ -26,23 +26,23 @@
 
 
 #### 在线体验
-web地址：https://www.boxim.online
+
+账号：张三/123456 李四/123456,也可以在网页端自行注册账号
+
+网页端：https://www.boxim.online
+
+移动安卓端：https://www.boxim.online/download/boxim.apk
+
+移动H5端: https://www.boxim.online/h5/ ,或扫码：
+
+![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
 微信小程序：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/wx%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg)
 
-H5地址: https://www.boxim.online/h5/ ,或扫码：
-
-![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
 
-账号：
-
-张三/123456
-李四/123456
-
-也可以自行注册账号
 
 #### 相关项目
 
