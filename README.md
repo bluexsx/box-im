@@ -44,6 +44,12 @@ H5地址: https://www.boxim.online/h5/ ,或扫码：
 
 也可以自行注册账号
 
+#### 相关项目
+
+一位网友的开源项目，基于盒子IM接口开发的仿QQ客户端，有兴趣的小伙伴可以也关注一下:
+
+https://gitee.com/zyzyteam/crim
+
 
 #### 项目结构
 |  模块  |     功能 |
