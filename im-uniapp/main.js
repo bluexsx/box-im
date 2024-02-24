@@ -5,7 +5,6 @@ import * as  enums from './common/enums.js';
 import * as date from './common/date';
 import * as socketApi from './common/wssocket';
 import store from './store';
-
 import { createSSRApp } from 'vue'
 
 export function createApp() {

@@ -58,6 +58,8 @@
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
+				<!-- #ifndef APP-PLUS -->
+				<!-- APP 暂时不支持选择文件 -->
 				<view class="chat-tools-item">
 					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
@@ -65,6 +67,7 @@
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
+				<!-- #endif -->
 				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音输入</view>
@@ -113,6 +116,7 @@
 		},
 		methods: {
 			showTip() {
+				
 				uni.showToast({
 					title: "暂未支持...",
 					icon: "none"
@@ -723,17 +727,16 @@
 			.chat-tools {
 				display: flex;
 				flex-wrap: wrap;
-				justify-content: space-between;
-
+			
 				.chat-tools-item {
 					width: 140rpx;
-					padding: 15rpx;
+					padding: 16rpx;
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 
 					.tool-icon {
-						padding: 15rpx;
+						padding: 18rpx;
 						font-size: 80rpx;
 						background-color: white;
 						border-radius: 20%;

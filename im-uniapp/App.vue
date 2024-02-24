@@ -3,7 +3,8 @@
 	import http from './common/request';
 	import * as enums from './common/enums';
 	import * as wsApi from './common/wssocket';
-
+	import UNI_APP from '@/.env.js'
+	
 	export default {
 		data() {
 			return {
@@ -26,7 +27,7 @@
 			initWebSocket() {
 				let loginInfo = uni.getStorageSync("loginInfo")
 				wsApi.init();
-				wsApi.connect(process.env.WS_URL, loginInfo.accessToken);
+				wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 				wsApi.onConnect(() => {
 					// 加载离线消息
 					this.pullPrivateOfflineMessage(store.state.chatStore.privateMsgMaxId);
@@ -49,15 +50,15 @@
 					}
 				});
 				wsApi.onClose((res) => {
-					// 3000是客户端主动关闭
-					if (res.code != 3000) {
+					// 1000是客户端正常主动关闭
+					if (res.code != 1000) {
 						// 重新连接
 						uni.showToast({
 							title: '连接已断开，尝试重新连接...',
 							icon: 'none',
 						})
 						let loginInfo = uni.getStorageSync("loginInfo")
-						wsApi.reconnect(process.env.WS_URL, loginInfo.accessToken);
+						wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
 					}
 				})
 			},
@@ -204,7 +205,7 @@
 			},
 			exit() {
 				console.log("exit");
-				wsApi.close();
+				wsApi.close(1000);
 				uni.removeStorageSync("loginInfo");
 				uni.reLaunch({
 					url: "/pages/login/login"

@@ -47,6 +47,8 @@
 					method: 'POST'
 				}).then(data => {
 					console.log("登录成功,自动跳转到聊天页面...")
+					uni.setStorageSync("userName", this.loginForm.userName);
+					uni.setStorageSync("password", this.loginForm.password);
 					uni.setStorageSync("loginInfo", data);
 					// 调用App.vue的初始化方法
 					getApp().init()

@@ -5,6 +5,8 @@
 </template>
 
 <script>
+	import UNI_APP from '@/.env.js'
+
 	export default {
 		name: "image-upload",
 		data() {
@@ -65,7 +67,7 @@
 			},
 			uploadImage(file) {
 				uni.uploadFile({
-					url: process.env.BASE_URL + '/image/upload',
+					url: UNI_APP.BASE_URL + '/image/upload',
 					header: {
 						accessToken: uni.getStorageSync("loginInfo").accessToken
 					},

@@ -1,3 +1,5 @@
+import UNI_APP from '@/.env.js'
+
 // 请求队列
 let requestList = [];
 // 是否正在刷新中
@@ -11,7 +13,7 @@ const request = (options) => {
 	}
 	return new Promise(function(resolve, reject) {
 		uni.request({
-			url: process.env.BASE_URL + options.url,
+			url: UNI_APP.BASE_URL + options.url,
 			method: options.method || 'GET',
 			header: header,
 			data: options.data || {},
@@ -71,7 +73,7 @@ const reqRefreshToken = (loginInfo) => {
 	return new Promise(function(resolve, reject) {
 		uni.request({
 			method: 'PUT',
-			url: process.env.BASE_URL + '/refreshToken',
+			url: UNI_APP.BASE_URL + '/refreshToken',
 			header: {
 				refreshToken: loginInfo.refreshToken
 			},

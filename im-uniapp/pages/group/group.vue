@@ -14,7 +14,7 @@
 		<view class="group-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="group in $store.state.groupStore.groups" :key="group.id">
-					<group-item :group="group"></group-item>
+					<group-item v-if="!group.quit" :group="group"></group-item>
 				</view>
 			</scroll-view>
 		</view>
