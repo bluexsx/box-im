@@ -32,6 +32,7 @@
 						<li>uniapp端兼容ios和andriod,
 							<a href="https://www.boxim.online/download/boxim.apk" target="_blank">点击下载安卓客户端</a>
 						</li>
+						<li>uniapp端的启动和打包方式有所变化，具体请参考语雀文档</li>
 					</ul>
 				</div>
 				<div>
