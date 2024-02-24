@@ -95,7 +95,8 @@ npm run serve
 
 
 4.启动uniapp-h5
-将im-uniapp目录导入HBuilderX,点击菜单"运行"->"开发环境-h5"
+将im-uniapp目录导入到hbuilderx中，选择选中项目，通过菜单"运行"->"运行到浏览器"->"Chrome"启动
+
 访问 http://localhost:5173
 
 
