@@ -1,6 +1,7 @@
 {
 	"uni-app": {
 		"scripts": {
+			/*
 			"dev-h5": {
 				"title": "开发环境-H5",
 				"browser":"chrome",
@@ -35,6 +36,7 @@
 					"WS_URL": "wss://www.boxim.online:81/im"
 				}
 			}
+			*/
 		}
 	}
 }
