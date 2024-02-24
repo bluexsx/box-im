@@ -27,6 +27,14 @@
 					</ul>
 				</div>
 				<div>
+					<h3>最近更新(2024-02-24)：</h3>
+					<ul>
+						<li>uniapp端兼容ios和andriod,
+							<a href="https://www.boxim.online/download/boxim.apk" target="_blank">点击下载安卓客户端</a>
+						</li>
+					</ul>
+				</div>
+				<div>
 					<h3>项目依旧完全开源，可内网部署。如果项目对您有帮助,请帮忙点个star:</h3>
 				</div>
 				<div class="login-icons">
