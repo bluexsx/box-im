@@ -1,5 +1,6 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -7,6 +8,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
+import com.bx.imcommon.enums.IMTerminalType;
+import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.dto.PrivateMessageDTO;
@@ -23,6 +26,7 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.SensitiveFilterUtil;
+import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -172,23 +176,82 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         return messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
     }
 
+    @Override
+    public void pullOfflineMessage(Long minId) {
+        UserSession session = SessionContext.getSession();
+        if(!imClient.isOnline(session.getUserId())){
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "网络连接失败，无法拉取离线消息");
+        }
+
+        // 查询用户好友列表
+        List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
+        if (friends.isEmpty()) {
+            return;
+        }
+        // 开启加载中标志
+        this.sendLoadingMessage(true);
+        List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
+        // 获取当前用户的消息
+        LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
+        // 只能拉取最近1个月的1000条消息
+        Date minDate = DateUtils.addMonths(new Date(), -1);
+        queryWrapper.gt(PrivateMessage::getId, minId)
+            .ge(PrivateMessage::getSendTime, minDate)
+            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
+            .and(wrap -> wrap.and(
+                    wp -> wp.eq(PrivateMessage::getSendId, session.getUserId())
+                        .in(PrivateMessage::getRecvId, friendIds))
+                .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
+                    .in(PrivateMessage::getSendId, friendIds)))
+            .orderByDesc(PrivateMessage::getId)
+            .last("limit 1000");
+        List<PrivateMessage> messages = this.list(queryWrapper);
+        // 消息顺序从小到大
+        CollectionUtil.reverse(messages);
+        // 推送消息
+        for(PrivateMessage m:messages ){
+            PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
+            IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
+            sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
+            sendMessage.setRecvId(session.getUserId());
+            sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
+            sendMessage.setSendToSelf(false);
+            sendMessage.setData(vo);
+            sendMessage.setSendResult(true);
+            imClient.sendPrivateMessage(sendMessage);
+        }
+        // 关闭加载中标志
+        this.sendLoadingMessage(false);
+        log.info("拉取私聊消息，用户id:{},数量:{}", session.getUserId(), messages.size());
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void readedMessage(Long friendId) {
         UserSession session = SessionContext.getSession();
-        // 推送消息
+        // 推送消息给自己，清空会话列表上的已读数量
         PrivateMessageVO msgInfo = new PrivateMessageVO();
         msgInfo.setType(MessageType.READED.code());
-        msgInfo.setSendTime(new Date());
         msgInfo.setSendId(session.getUserId());
         msgInfo.setRecvId(friendId);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
+        sendMessage.setData(msgInfo);
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setRecvId(session.getUserId());
+        sendMessage.setSendToSelf(false);
+        sendMessage.setSendResult(false);
+        imClient.sendPrivateMessage(sendMessage);
+        // 推送回执消息给对方，更新已读状态
+        msgInfo = new PrivateMessageVO();
+        msgInfo.setType(MessageType.RECEIPT.code());
+        msgInfo.setSendId(session.getUserId());
+        msgInfo.setRecvId(friendId);
+        sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(friendId);
-        sendMessage.setSendToSelf(true);
-        sendMessage.setData(msgInfo);
+        sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
+        sendMessage.setData(msgInfo);
         imClient.sendPrivateMessage(sendMessage);
         // 修改消息状态为已读
         LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
@@ -216,5 +279,21 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             return -1L;
         }
         return message.getId();
+    }
+
+
+    private void sendLoadingMessage(Boolean isLoadding){
+        UserSession session = SessionContext.getSession();
+        PrivateMessageVO msgInfo = new PrivateMessageVO();
+        msgInfo.setType(MessageType.LOADDING.code());
+        msgInfo.setContent(isLoadding.toString());
+        IMPrivateMessage sendMessage = new IMPrivateMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setRecvId(session.getUserId());
+        sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendToSelf(false);
+        sendMessage.setSendResult(false);
+        imClient.sendPrivateMessage(sendMessage);
     }
 }

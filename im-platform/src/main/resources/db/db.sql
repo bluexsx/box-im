@@ -55,9 +55,10 @@ create table `im_group_member`(
     `group_id` bigint not null  comment '群id',
     `user_id` bigint not null  comment '用户id',
     `alias_name` varchar(255) DEFAULT '' comment '组内显示名称',
-    `head_image` varchar(255) default '' comment '用户头像',
+    `head_image` varchar(255) DEFAULT '' comment '用户头像',
     `remark` varchar(255) DEFAULT '' comment '备注',
     `quit` tinyint(1) DEFAULT 0  comment '是否已退出',
+    `quit_time` datetime DEFAULT NULL comment '退出时间',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_group_id`(`group_id`),
     key `idx_user_id`(`user_id`)
@@ -68,10 +69,13 @@ create table `im_group_message`(
     `group_id` bigint not null  comment '群id',
     `send_id` bigint not null  comment '发送用户id',
     `send_nick_name` varchar(255) DEFAULT ''  comment '发送用户昵称',
+    `recv_ids` varchar(1024) DEFAULT ''  comment '接收用户id,逗号分隔，为空表示发给所有成员',
     `content` text   comment '发送内容',
     `at_user_ids` varchar(1024) comment '被@的用户id列表，逗号分隔',
-    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 10:系统提示' ,
-    `status` tinyint(1) DEFAULT 0 comment '状态 0:正常  2:撤回',
+    `receipt` tinyint DEFAULT 0  comment '是否回执消息',
+    `receipt_ok` tinyint DEFAULT 0  comment '回执消息是否完成',
+    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 10:系统提示' ,
+    `status` tinyint(1) DEFAULT 0 comment '状态 0:未发出 1:已送达  2:撤回 3:已读',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_group_id` (group_id)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';

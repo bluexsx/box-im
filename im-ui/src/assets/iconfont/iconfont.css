@@ -1,8 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3791506 */
-  src: url('iconfont.woff2?t=1669336625993') format('woff2'),
-       url('iconfont.woff?t=1669336625993') format('woff'),
-       url('iconfont.ttf?t=1669336625993') format('truetype');
+  src: url('iconfont.ttf?t=1706022894868') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +9,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ok:before {
+  content: "\e6ac";
+}
+
+.icon-receipt:before {
+  content: "\e61a";
 }
 
 .icon-biaoqing:before {

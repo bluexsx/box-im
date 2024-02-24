@@ -47,7 +47,6 @@ export default {
 					method: 'GET'
 				}).then((groups) => {
 					context.commit("setGroups", groups);
-					console.log("loadGroup")
 					resolve();
 				}).catch((res) => {
 					reject(res);

@@ -1,26 +1,18 @@
 <template>
 	<el-scrollbar v-show="show" ref="scrollBox" class="group-member-choose"
 		:style="{'left':pos.x+'px','top':pos.y-300+'px'}">
-		<div v-for="(member,idx) in showMembers" :key="member.id">
-			<div class="member-item" :class="idx==activeIdx?'active':''" @click="onSelectMember(member)">
-				<div class="member-avatar">
-					<head-image :size="25" :name="member.aliasName" :url="member.headImage"> </head-image>
-				</div>
-				<div class="member-name">
-					<div>{{member.aliasName}}</div>
-				</div>
-			</div>
+		<div v-for="(member) in showMembers" :key="member.id">
+			<chat-group-member :member="member" :height="40" @click.native="onSelectMember(member)"></chat-group-member>
 		</div>
 	</el-scrollbar>
 </template>
 
 <script>
-	import HeadImage from '../common/HeadImage.vue';
-
+	import ChatGroupMember from "./ChatGroupMember.vue";
 	export default {
 		name: "chatAtBox",
 		components: {
-			HeadImage
+			ChatGroupMember
 		},
 		props: {
 			searchText: {
@@ -58,7 +50,7 @@
 					})
 				}
 				this.members.forEach((m) => {
-					if (m.userId != userId && m.aliasName.startsWith(this.searchText)) {
+					if (m.userId != userId && !m.quit && m.aliasName.startsWith(this.searchText)) {
 						this.showMembers.push(m);
 					}
 				})
@@ -134,42 +126,5 @@
 		border-radius: 5px;
 		background-color: #f5f5f5;
 		box-shadow: 0px 0px 10px #ccc;
-
-		.member-item {
-			display: flex;
-			height: 35px;
-			margin-bottom: 1px;
-			position: relative;
-			padding: 0 5px;
-			align-items: center;
-			background-color: #fafafa;
-			white-space: nowrap;
-			box-sizing: border-box;
-
-			&:hover {
-				background-color: #eeeeee;
-			}
-
-			&.active {
-				background-color: #eeeeee;
-			}
-
-
-			.member-avatar {
-				width: 25px;
-				height: 25px;
-			}
-
-			.member-name {
-				padding-left: 10px;
-				height: 100%;
-				text-align: left;
-				line-height: 40px;
-				white-space: nowrap;
-				overflow: hidden;
-				font-size: 14px;
-				font-weight: 600;
-			}
-		}
 	}
 </style>

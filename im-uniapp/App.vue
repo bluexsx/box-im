@@ -3,7 +3,8 @@
 	import http from './common/request';
 	import * as enums from './common/enums';
 	import * as wsApi from './common/wssocket';
-
+	import UNI_APP from '@/.env.js'
+	
 	export default {
 		data() {
 			return {
@@ -26,11 +27,11 @@
 			initWebSocket() {
 				let loginInfo = uni.getStorageSync("loginInfo")
 				wsApi.init();
-				wsApi.connect(process.env.WS_URL, loginInfo.accessToken);
+				wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 				wsApi.onConnect(() => {
 					// 加载离线消息
-					this.loadPrivateMessage(store.state.chatStore.privateMsgMaxId);
-					this.loadGroupMessage(store.state.chatStore.groupMsgMaxId);
+					this.pullPrivateOfflineMessage(store.state.chatStore.privateMsgMaxId);
+					this.pullGroupOfflineMessage(store.state.chatStore.groupMsgMaxId);
 				});
 				wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
@@ -49,85 +50,53 @@
 					}
 				});
 				wsApi.onClose((res) => {
-					// 3000是客户端主动关闭
-					if (res.code != 3000) {
+					// 1000是客户端正常主动关闭
+					if (res.code != 1000) {
 						// 重新连接
 						uni.showToast({
 							title: '连接已断开，尝试重新连接...',
 							icon: 'none',
 						})
 						let loginInfo = uni.getStorageSync("loginInfo")
-						wsApi.reconnect(process.env.WS_URL, loginInfo.accessToken);
+						wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
 					}
 				})
 			},
-			loadPrivateMessage(minId) {
-				store.commit("loadingPrivateMsg", true)
+			pullPrivateOfflineMessage(minId) {
 				http({
-					url: "/message/private/loadMessage?minId=" + minId,
-					method: 'GET'
-				}).then((msgInfos) => {
-					msgInfos.forEach((msgInfo) => {
-						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
-						let friendId = msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
-						let friend = store.state.friendStore.friends.find((f) => f.id == friendId);
-						if (friend) {
-							this.insertPrivateMessage(friend, msgInfo);
-						}
-					})
-					if (msgInfos.length == 100) {
-						// 继续拉取
-						this.loadPrivateMessage(msgInfos[99].id);
-					} else {
-						store.commit("loadingPrivateMsg", false)
-					}
-				})
+					url: "/message/private/pullOfflineMessage?minId=" + minId,
+					method: 'get'
+				});
 			},
-			loadGroupMessage(minId) {
-				store.commit("loadingGroupMsg", true)
+			pullGroupOfflineMessage(minId) {
 				http({
-					url: "/message/group/loadMessage?minId=" + minId,
-					method: 'GET'
-				}).then((msgInfos) => {
-					msgInfos.forEach((msgInfo) => {
-						msgInfo.selfSend = msgInfo.sendId == store.state.userStore.userInfo.id;
-						let groupId = msgInfo.groupId;
-						let group = store.state.groupStore.groups.find((g) => g.id == groupId);
-						if (group) {
-							this.insertGroupMessage(group, msgInfo);
-						}
-					})
-					if (msgInfos.length == 100) {
-						// 继续拉取
-						this.loadGroupMessage(msgInfos[99].id);
-					} else {
-						store.commit("loadingGroupMsg", false)
-					}
-				})
+					url: "/message/group/pullOfflineMessage?minId=" + minId,
+					method: 'get'
+				});
 			},
 			handlePrivateMessage(msg) {
+				// 消息加载标志
+				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+					store.commit("loadingPrivateMsg", JSON.parse(msg.content))
+					return;
+				}
+				// 消息已读处理，清空已读数量
+				if (msg.type == enums.MESSAGE_TYPE.READED) {
+					store.commit("resetUnreadCount", {
+						type: 'PRIVATE',
+						targetId: msg.recvId
+					})
+					return;
+				}
+				// 消息回执处理,改消息状态为已读
+				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
+					store.commit("readedMessage", { friendId: msg.sendId })
+					return;
+				}
 				// 标记这条消息是不是自己发的
 				msg.selfSend = msg.sendId == store.state.userStore.userInfo.id;
 				// 好友id
 				let friendId = msg.selfSend ? msg.recvId : msg.sendId;
-				// 消息已读处理
-				if (msg.type == enums.MESSAGE_TYPE.READED) {
-					if (msg.selfSend) {
-						// 我已读对方的消息，清空已读数量
-						let chatInfo = {
-							type: 'PRIVATE',
-							targetId: friendId
-						}
-						store.commit("resetUnreadCount", chatInfo)
-					} else {
-						// 对方已读我的消息，修改消息状态为已读
-						store.commit("readedMessage", {
-							friendId: friendId
-						})
-
-					}
-					return;
-				}
 				this.loadFriendInfo(friendId).then((friend) => {
 					this.insertPrivateMessage(friend, msg);
 				})
@@ -153,20 +122,36 @@
 
 			},
 			handleGroupMessage(msg) {
-				// 标记这条消息是不是自己发的
-				msg.selfSend = msg.sendId == store.state.userStore.userInfo.id;
-				let groupId = msg.groupId;
+				// 消息加载标志
+				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+					store.commit("loadingGroupMsg",JSON.parse(msg.content))
+					return;
+				}
 				// 消息已读处理
 				if (msg.type == enums.MESSAGE_TYPE.READED) {
 					// 我已读对方的消息，清空已读数量
 					let chatInfo = {
 						type: 'GROUP',
-						targetId: groupId
+						targetId: msg.groupId
 					}
 					store.commit("resetUnreadCount", chatInfo)
 					return;
 				}
-				this.loadGroupInfo(groupId).then((group) => {
+				// 消息回执处理
+				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
+					// 更新消息已读人数
+					let msgInfo = {
+						id: msg.id,
+						groupId: msg.groupId,
+						readedCount: msg.readedCount,
+						receiptOk: msg.receiptOk
+					};
+					store.commit("updateMessage", msgInfo)
+					return;
+				}
+				// 标记这条消息是不是自己发的
+				msg.selfSend = msg.sendId == store.state.userStore.userInfo.id;
+				this.loadGroupInfo(msg.groupId).then((group) => {
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
 				})
@@ -220,7 +205,7 @@
 			},
 			exit() {
 				console.log("exit");
-				wsApi.close();
+				wsApi.close(1000);
 				uni.removeStorageSync("loginInfo");
 				uni.reLaunch({
 					url: "/pages/login/login"
@@ -234,7 +219,6 @@
 				// this.audioTip.play();
 			},
 			initAudit() {
-				console.log("initAudit")
 				if (store.state.userStore.userInfo.type == 1) {
 					// 显示群组功能
 					uni.setTabBarItem({

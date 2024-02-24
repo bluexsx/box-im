@@ -19,7 +19,22 @@
 						</li>
 					</ul>
 				</div>
-				<br/>
+				<div>
+					<h3>最近更新(2024-01-28)：</h3>
+					<ul>
+						<li>支持群聊已读显示(回执消息)</li>
+						<li>群聊会话窗口增加邀请、退群、移除、解散提示</li>
+					</ul>
+				</div>
+				<div>
+					<h3>最近更新(2024-02-24)：</h3>
+					<ul>
+						<li>uniapp端兼容ios和andriod,
+							<a href="https://www.boxim.online/download/boxim.apk" target="_blank">点击下载安卓客户端</a>
+						</li>
+						<li>uniapp端的启动和打包方式有所变化，具体请参考语雀文档</li>
+					</ul>
+				</div>
 				<div>
 					<h3>项目依旧完全开源，可内网部署。如果项目对您有帮助,请帮忙点个star:</h3>
 				</div>

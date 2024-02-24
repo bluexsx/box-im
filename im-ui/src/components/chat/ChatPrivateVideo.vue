@@ -93,7 +93,6 @@
 					},
 					(stream) => {
 						this.stream = stream;
-						console.log(this.stream)
 						this.$refs.mineVideo.srcObject = stream;
 						this.$refs.mineVideo.muted = true;
 						callback(stream)

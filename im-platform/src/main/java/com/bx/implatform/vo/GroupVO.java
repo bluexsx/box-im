@@ -1,5 +1,6 @@
 package com.bx.implatform.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,5 +40,12 @@ public class GroupVO {
     @Length(max = 20, message = "群聊显示长度不能大于20")
     @ApiModelProperty(value = "群聊显示备注")
     private String remark;
+
+    @ApiModelProperty(value = "是否已删除")
+    private Boolean deleted;
+
+    @ApiModelProperty(value = "是否已退出")
+    private Boolean quit;
+
 
 }

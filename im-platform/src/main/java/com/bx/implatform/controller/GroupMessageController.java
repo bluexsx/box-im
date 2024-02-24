@@ -42,6 +42,12 @@ public class GroupMessageController {
         return ResultUtils.success(groupMessageService.loadMessage(minId));
     }
 
+    @GetMapping("/pullOfflineMessage")
+    @ApiOperation(value = "拉取离线消息", notes = "拉取离线消息,消息将通过webscoket异步推送")
+    public Result pullOfflineMessage(@RequestParam Long minId) {
+        groupMessageService.pullOfflineMessage(minId);
+        return ResultUtils.success();
+    }
 
     @PutMapping("/readed")
     @ApiOperation(value = "消息已读", notes = "将群聊中的消息状态置为已读")
@@ -50,6 +56,11 @@ public class GroupMessageController {
         return ResultUtils.success();
     }
 
+    @GetMapping("/findReadedUsers")
+    @ApiOperation(value = "获取已读用户id", notes = "获取消息已读用户列表")
+    public Result<List<Long>> findReadedUsers(@RequestParam Long groupId,@RequestParam Long messageId) {
+        return ResultUtils.success(groupMessageService.findReadedUsers(groupId,messageId));
+    }
 
     @GetMapping("/history")
     @ApiOperation(value = "查询聊天记录", notes = "查询聊天记录")

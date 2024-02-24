@@ -8,3 +8,5 @@
 /im-server/src/main/resources/logback-prod.xml
 /im-commom/im-commom.iml
 /im-uniapp/node_modules/
+/im-ui/jsconfig.json
+/package-lock.json

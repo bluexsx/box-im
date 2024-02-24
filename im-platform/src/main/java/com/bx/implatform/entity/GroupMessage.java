@@ -51,6 +51,12 @@ public class GroupMessage extends Model<GroupMessage> {
     private String sendNickName;
 
     /**
+     * 接受用户id,为空表示全体发送
+     */
+    @TableField("recv_ids")
+    private String recvIds;
+
+    /**
      * @用户列表
      */
     @TableField("at_user_ids")
@@ -62,13 +68,25 @@ public class GroupMessage extends Model<GroupMessage> {
     private String content;
 
     /**
-     * 消息类型 0:文字 1:图片 2:文件
+     * 消息类型 MessageType
      */
     @TableField("type")
     private Integer type;
 
     /**
-     * 状态
+     *  是否回执消息
+     */
+    @TableField("receipt")
+    private Boolean receipt;
+
+    /**
+     *  回执消息是否完成
+     */
+    @TableField("receipt_ok")
+    private Boolean receiptOk;
+
+    /**
+     * 状态 MessageStatus
      */
     @TableField("status")
     private Integer status;

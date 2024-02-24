@@ -16,33 +16,33 @@
 
 
 #### 近期更新
-发布2.0版本，本次更新加入了uniapp版本:
+发布2.0版本，本次更新加入了uniapp移动端:
 
 - 支持移动端和web端同时在线，多端消息同步
-- 目前仅兼容h5和微信小程序，后续会继续兼容更多终端类型
+- 目前已兼容h5、微信小程序，安卓和IOS
 - 聊天窗口加入已读未读显示
 - 群聊加入@功能
 - 界面风格升级,表情包更新、生成文字头像等
 
 
 #### 在线体验
-web地址：https://www.boxim.online
+
+账号：张三/123456 李四/123456,也可以在网页端自行注册账号
+
+网页端：https://www.boxim.online
+
+移动安卓端：https://www.boxim.online/download/boxim.apk
+
+移动H5端: https://www.boxim.online/h5/ ,或扫码：
+
+![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
 微信小程序：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/wx%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg)
 
-H5地址: https://www.boxim.online/h5/ ,或扫码：
-
-![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
 
-账号：
-
-张三/123456
-李四/123456
-
-也可以自行注册账号
 
 #### 相关项目
 

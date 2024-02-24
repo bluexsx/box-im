@@ -5,6 +5,8 @@
 </template>
 
 <script>
+	import UNI_APP from '@/.env.js';
+	
 	export default {
 		name: "file-upload",
 		data() {
@@ -34,8 +36,9 @@
 		},
 		methods: {
 			selectAndUpload() {
+				console.log(uni.chooseFile)
+				console.log(uni.chooseMessageFile)
 				let chooseFile = uni.chooseFile || uni.chooseMessageFile;
-				console.log(chooseFile)
 				chooseFile({
 					success: (res) => {
 						res.tempFiles.forEach((file) => {
@@ -56,7 +59,7 @@
 			},
 			uploadFile(file) {
 				uni.uploadFile({
-					url: process.env.BASE_URL + '/file/upload',
+					url: UNI_APP.BASE_URL + '/file/upload',
 					header: {
 						accessToken: uni.getStorageSync("loginInfo").accessToken
 					},

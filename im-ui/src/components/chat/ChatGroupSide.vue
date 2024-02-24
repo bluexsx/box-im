@@ -1,12 +1,12 @@
 <template>
 	<div class="chat-group-side">
-		<div class="group-side-search">
+		<div v-show="!group.quit" class="group-side-search">
 			<el-input placeholder="搜索群成员" v-model="searchText">
 				<el-button slot="append" icon="el-icon-search"></el-button>
 			</el-input>
 		</div>
 		<el-scrollbar class="group-side-scrollbar">
-			<div class="group-side-member-list">
+			<div v-show="!group.quit" class="group-side-member-list">
 				<div class="group-side-invite">
 					<div class="invite-member-btn" title="邀请好友进群聊" @click="showAddGroupMember=true">
 						<i class="el-icon-plus"></i>
@@ -20,7 +20,7 @@
 					 :showDel="false"></group-member>
 				</div>
 			</div>
-			<el-divider content-position="center"></el-divider>
+			<el-divider v-if="!group.quit" content-position="center"></el-divider>
 			<el-form labelPosition="top" class="group-side-form" :model="group">
 				<el-form-item label="群聊名称">
 					<el-input v-model="group.name" disabled maxlength="20"></el-input>
@@ -38,7 +38,7 @@
 					<el-input v-model="group.aliasName" :disabled="!editing" placeholder="xx" maxlength="20"></el-input>
 				</el-form-item>
 
-				<div class="btn-group">
+				<div v-show="!group.quit" class="btn-group">
 					<el-button v-show="editing" type="success" @click="onSaveGroup()">提交</el-button>
 					<el-button v-show="!editing" type="primary" @click="editing=!editing">编辑</el-button>
 					<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出群聊</el-button>

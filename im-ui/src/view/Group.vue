@@ -12,7 +12,7 @@
 			</div>
 			<el-scrollbar class="group-list-items">
 				<div v-for="(group,index) in groupStore.groups" :key="index">
-					<group-item v-show="group.remark.startsWith(searchText)" :group="group"
+					<group-item v-show="!group.quit&&group.remark.startsWith(searchText)" :group="group"
 						:active="group === groupStore.activeGroup" @click.native="onActiveItem(group,index)">
 					</group-item>
 				</div>
@@ -189,7 +189,6 @@
 					}).then(() => {
 						this.$message.success(`群聊'${this.activeGroup.name}'已解散`);
 						this.$store.commit("removeGroup", this.activeGroup.id);
-						this.$store.commit("removeGroupChat", this.activeGroup.id);
 						this.reset();
 					});
 				})

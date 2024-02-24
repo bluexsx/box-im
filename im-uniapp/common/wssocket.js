@@ -46,17 +46,15 @@ let init = () => {
 
 	uni.onSocketClose((res) => {
 		console.log('WebSocket连接关闭')
-		isConnect = false; //断开后修改标识
+		isConnect = false;
 		closeCallBack && closeCallBack(res);
 	})
 
 	uni.onSocketError((e) => {
 		console.log(e)
-		isConnect = false; //连接断开修改标识
-		uni.showModal({
-			content: '连接失败，可能是websocket服务不可用，请稍后再试',
-			showCancel: false,
-		})
+		isConnect = false;
+		// APP 应用切出超过一定时间(约1分钟)会触发报错，此处回调给应用进行重连
+		closeCallBack && closeCallBack({code: 1006});
 	})
 };
 
@@ -95,12 +93,12 @@ let reconnect = (wsurl, accessToken) => {
 };
 
 //设置关闭连接
-let close = () => {
+let close = (code) => {
 	if (!isConnect) {
 		return;
 	}
 	uni.closeSocket({
-		code: 3000,
+		code: code,
 		complete: (res) => {
 			console.log("关闭websocket连接");
 			isConnect = false;

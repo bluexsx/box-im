@@ -1,6 +1,6 @@
 <template>
 	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-info">
-		<view class="group-members">
+		<view v-if="!group.quit"  class="group-members">
 			<view class="member-items">
 				<view v-for="(member,idx) in  groupMembers" :key="idx">
 					<view class="member-item" v-if="idx<9">
@@ -42,9 +42,9 @@
 			<uni-section title="群公告:" titleFontSize="14px">
 				<uni-notice-bar :text="group.notice" />
 			</uni-section>
-			<view class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
+			<view v-if="!group.quit"  class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
-		<view class="btn-group">
+		<view v-if="!group.quit"  class="btn-group">
 			<button class="btn" type="primary" @click="onSendMessage()">发消息</button>
 			<button class="btn" v-show="!isOwner" type="warn" @click="onQuitGroup()">退出群聊</button>
 			<button class="btn" v-show="isOwner" type="warn" @click="onDissolveGroup()">解散群聊</button>
@@ -111,7 +111,6 @@
 											url:"/pages/group/group"
 										});
 										this.$store.commit("removeGroup", this.groupId);
-										this.$store.commit("removeGroupChat", this.groupId);
 									},100)
 								}
 							})
@@ -141,7 +140,6 @@
 											url:"/pages/group/group"
 										});
 										this.$store.commit("removeGroup", this.groupId);
-										this.$store.commit("removeGroupChat", this.groupId);
 									},100)	
 								}
 							})

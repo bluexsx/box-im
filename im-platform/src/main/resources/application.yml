@@ -1,7 +1,5 @@
-#这是配置服务的端口
 server:
   port: 8888
-#配置项目的数据源
 spring:
   application:
     name: im-platform
@@ -17,7 +15,6 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
-    database: 1
 
   servlet:
     multipart:
@@ -26,12 +23,10 @@ spring:
 
 mybatis-plus:
   configuration:
-    # 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN（下划线命名） 到经典 Java 属性名 aColumn（驼峰命名） 的类似映射
+    # 是否开启自动驼峰命名规则
     map-underscore-to-camel-case: false
-    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    # mapper
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations:
-    # *.xml的具体路径
     - classpath*:mapper/*.xml
 minio:
   endpoint: http://127.0.0.1:9001 #内网地址

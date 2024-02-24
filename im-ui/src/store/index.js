@@ -15,7 +15,6 @@ export default new Vuex.Store({
 	},
 	actions: {
 		load(context) {
-			console.log("load")
 			return this.dispatch("loadUser").then(() => {
 				const promises = [];
 				promises.push(this.dispatch("loadFriend"));

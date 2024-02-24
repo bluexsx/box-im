@@ -9,11 +9,13 @@ import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.mapper.GroupMemberMapper;
 import com.bx.implatform.service.IGroupMemberService;
+import com.bx.implatform.util.DateTimeUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
 
     @Override
-    public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
+    public GroupMember  findByGroupAndUserId(Long groupId, Long userId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(GroupMember::getGroupId, groupId)
                 .eq(GroupMember::getUserId, userId);
@@ -50,6 +52,16 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     }
 
     @Override
+    public List<GroupMember> findQuitInMonth(Long userId) {
+        Date monthTime = DateTimeUtils.addMonths(new Date(),-1);
+        LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
+        memberWrapper.eq(GroupMember::getUserId, userId)
+            .eq(GroupMember::getQuit, true)
+            .ge(GroupMember::getQuitTime,monthTime);
+        return this.list(memberWrapper);
+    }
+
+    @Override
     public List<GroupMember> findByGroupId(Long groupId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
         memberWrapper.eq(GroupMember::getGroupId, groupId);
@@ -61,7 +73,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     public List<Long> findUserIdsByGroupId(Long groupId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
         memberWrapper.eq(GroupMember::getGroupId, groupId)
-                .eq(GroupMember::getQuit, false);
+                .eq(GroupMember::getQuit, false)
+                .select(GroupMember::getUserId);
         List<GroupMember> members = this.list(memberWrapper);
         return members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
     }
@@ -71,7 +84,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     public void removeByGroupId(Long groupId) {
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
         wrapper.eq(GroupMember::getGroupId, groupId)
-                .set(GroupMember::getQuit, true);
+                .set(GroupMember::getQuit, true)
+                .set(GroupMember::getQuitTime,new Date());
         this.update(wrapper);
     }
 
@@ -81,7 +95,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
         wrapper.eq(GroupMember::getGroupId, groupId)
                 .eq(GroupMember::getUserId, userId)
-                .set(GroupMember::getQuit, true);
+                .set(GroupMember::getQuit, true)
+                .set(GroupMember::getQuitTime,new Date());
         this.update(wrapper);
     }
 }
