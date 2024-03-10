@@ -1,5 +1,5 @@
 {
-	"lazyCodeLoading":"requiredComponents",
+
 	"pages": [{
 		"path": "pages/login/login"
 	}, {
@@ -16,6 +16,8 @@
 		"path": "pages/common/user-info"
 	}, {
 		"path": "pages/chat/chat-box"
+	},{
+		"path": "pages/chat/chat-video"
 	}, {
 		"path": "pages/friend/friend-add"
 	}, {
@@ -30,7 +32,8 @@
 		"path": "pages/mine/mine-edit"
 	},{
 		"path": "pages/mine/mine-password"
-	}],
+	}
+	],
 	"globalStyle": {
 		"navigationBarTitleText": "盒子IM",
 		"navigationBarTextStyle": "black",

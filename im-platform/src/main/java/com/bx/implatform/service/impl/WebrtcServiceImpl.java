@@ -33,7 +33,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
     private final ICEServerConfig iceServerConfig;
 
     @Override
-    public void call(Long uid, String offer) {
+    public void call(Long uid, String mode, String offer) {
         UserSession session = SessionContext.getSession();
         if (!imClient.isOnline(uid)) {
             throw new GlobalException("对方目前不在线");
@@ -46,7 +46,8 @@ public class WebrtcServiceImpl implements IWebrtcService {
         redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
         // 向对方所有终端发起呼叫
         PrivateMessageVO messageInfo = new PrivateMessageVO();
-        messageInfo.setType(MessageType.RTC_CALL.code());
+        MessageType messageType = mode.equals("video") ? MessageType.RTC_CALL_VIDEO : MessageType.RTC_CALL_VOICE;
+        messageInfo.setType(messageType.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
         messageInfo.setContent(offer);
@@ -146,6 +147,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         messageInfo.setType(MessageType.RTC_FAILED.code());
         messageInfo.setRecvId(uid);
         messageInfo.setSendId(session.getUserId());
+        messageInfo.setContent(reason);
 
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
@@ -215,7 +217,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
 
     private WebrtcSession getWebrtcSession(Long userId, Long uid) {
         String key = getSessionKey(userId, uid);
-        WebrtcSession webrtcSession = (WebrtcSession) redisTemplate.opsForValue().get(key);
+        WebrtcSession webrtcSession = (WebrtcSession)redisTemplate.opsForValue().get(key);
         if (webrtcSession == null) {
             throw new GlobalException("视频通话已结束");
         }

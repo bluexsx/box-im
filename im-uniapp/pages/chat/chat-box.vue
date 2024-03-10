@@ -30,9 +30,9 @@
 		<view class="send-bar">
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
-				:placeholder="isReceipt?'[回执消息]':''"
-					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
-					@input="onTextInput" confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
+					:placeholder="isReceipt?'[回执消息]':''" :adjust-position="false" @confirm="sendTextMessage()"
+					@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send" confirm-hold
+					:hold-keyboard="true"></textarea>
 			</view>
 			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
 			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
@@ -71,14 +71,18 @@
 				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音输入</view>
-				</view>
+				</view>			
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
-				<view class="chat-tools-item" @click="showTip()">
+				<view class="chat-tools-item"  @click="onVideoCall()">
+					<view class="tool-icon iconfont icon-video"></view>
+					<view class="tool-name">视频通话</view>
+				</view>
+				<view class="chat-tools-item"  @click="onVoiceCall()">
 					<view class="tool-icon iconfont icon-call"></view>
-					<view class="tool-name">呼叫</view>
+					<view class="tool-name">语音通话</view>
 				</view>
 			</view>
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
@@ -116,17 +120,28 @@
 		},
 		methods: {
 			showTip() {
-				
 				uni.showToast({
 					title: "暂未支持...",
 					icon: "none"
 				})
 			},
-			moveChatToTop(){
-				let chatIdx = this.$store.getters.findChatIdx(this.chat);
-				this.$store.commit("moveTop",chatIdx);
+			onVideoCall(){
+				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
+				uni.navigateTo({
+					url: `/pages/chat/chat-video?mode=video&friend=${friendInfo}&isHost=true`
+				})
 			},
-			switchReceipt(){
+			onVoiceCall(){
+				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
+				uni.navigateTo({
+					url: `/pages/chat/chat-video?mode=voice&friend=${friendInfo}&isHost=true`
+				})
+			},
+			moveChatToTop() {
+				let chatIdx = this.$store.getters.findChatIdx(this.chat);
+				this.$store.commit("moveTop", chatIdx);
+			},
+			switchReceipt() {
 				this.isReceipt = !this.isReceipt;
 			},
 			openAtBox() {
@@ -164,12 +179,12 @@
 						icon: "none"
 					});
 				}
-				let receiptText = this.isReceipt? "【回执消息】":"";
+				let receiptText = this.isReceipt ? "【回执消息】" : "";
 				let atText = this.createAtText();
 				let msgInfo = {
 					content: receiptText + this.sendText + atText,
 					atUserIds: this.atUserIds,
-					receipt : this.isReceipt,
+					receipt: this.isReceipt,
 					type: 0
 				}
 				// 填充对方id
@@ -185,7 +200,7 @@
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
 					msgInfo.readedCount = 0,
-					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
+						msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 					// 会话置顶
 					this.moveChatToTop();
@@ -727,7 +742,7 @@
 			.chat-tools {
 				display: flex;
 				flex-wrap: wrap;
-			
+
 				.chat-tools-item {
 					width: 140rpx;
 					padding: 16rpx;
@@ -736,12 +751,12 @@
 					align-items: center;
 
 					.tool-icon {
-						padding: 18rpx;
-						font-size: 80rpx;
+						padding: 28rpx;
+						font-size: 60rpx;
 						background-color: white;
 						border-radius: 20%;
-						
-						&.active{
+
+						&.active {
 							background-color: #ddd;
 						}
 					}
