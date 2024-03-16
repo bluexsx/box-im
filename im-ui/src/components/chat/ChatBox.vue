@@ -13,7 +13,9 @@
 							<div class="im-chat-box">
 								<ul>
 									<li v-for="(msgInfo, idx) in chat.messages" :key="idx">
-										<chat-message-item v-show="idx >= showMinIdx" :mine="msgInfo.sendId == mine.id"
+										<chat-message-item v-show="idx >= showMinIdx" 
+											@call="onCall(msgInfo.type)"
+											:mine="msgInfo.sendId == mine.id"
 											:headImage="headImage(msgInfo)" :showName="showName(msgInfo)" :msgInfo="msgInfo"
 											:groupMembers="groupMembers" @delete="deleteMessage" @recall="recallMessage">
 										</chat-message-item>
@@ -44,8 +46,11 @@
 								</div>
 								<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
 								</div>
-								<div title="视频聊天" v-show="chat.type == 'PRIVATE'" class="el-icon-phone-outline"
-									@click="showVideoBox()">
+								<div title="语音通话" v-show="chat.type == 'PRIVATE'" class="el-icon-phone-outline"
+									@click="showChatVideo('voice')">
+								</div>
+								<div title="视频通话" v-show="chat.type == 'PRIVATE'" class="el-icon-video-camera"
+									@click="showChatVideo('video')">
 								</div>
 								<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 							</div>
@@ -133,12 +138,18 @@ export default {
 	methods: {
 		moveChatToTop(){
 			let chatIdx = this.$store.getters.findChatIdx(this.chat);
-			console.log(chatIdx);
 			this.$store.commit("moveTop",chatIdx);
 		},
 		closeRefBox() {
 			this.$refs.emoBox.close();
 			this.$refs.atBox.close();
+		},
+		onCall(type){
+			if(type == this.$enums.MESSAGE_TYPE.RT_VOICE){
+				this.showChatVideo('voice');
+			}else if(type == this.$enums.MESSAGE_TYPE.RT_VIDEO){
+				this.showChatVideo('video');
+			}
 		},
 		onKeyDown() {
 			if (this.$refs.atBox.show) {
@@ -433,11 +444,17 @@ export default {
 		closeVoiceBox() {
 			this.showVoice = false;
 		},
-		showVideoBox() {
-			this.$store.commit("showChatPrivateVideoBox", {
+		showChatVideo(mode) {
+			let rtcInfo = {
+				mode: mode,
+				isHost: true,
 				friend: this.friend,
-				master: true
-			});
+				sendId: this.$store.state.userStore.userInfo.id,
+				recvId: this.friend.id,
+				offer: "",
+				state: this.$enums.RTC_STATE.WAIT_CALL
+			}
+			this.$store.commit("setRtcInfo",rtcInfo);
 		},
 		showHistoryBox() {
 			this.showHistory = true;
@@ -686,6 +703,12 @@ export default {
 		},
 		unreadCount() {
 			return this.chat.unreadCount;
+		},
+		messageSize() {
+			if (!this.chat || !this.chat.messages) {
+				return 0;
+			}
+			return this.chat.messages.length;
 		}
 	},
 	watch: {
@@ -716,9 +739,9 @@ export default {
 			},
 			immediate: true
 		},
-		unreadCount: {
-			handler(newCount, oldCount) {
-				if (newCount > 0) {
+		messageSize: {
+			handler(newSize, oldSize) {
+				if (newSize > oldSize) {
 					// 拉至底部
 					this.scrollToBottom();
 				}
@@ -812,15 +835,12 @@ export default {
 			}
 		}
 
-
 		.send-content-area {
 			position: relative;
 			display: flex;
 			flex-direction: column;
 			height: 100%;
 			background-color: white !important;
-
-
 
 			.send-text-area {
 				box-sizing: border-box;

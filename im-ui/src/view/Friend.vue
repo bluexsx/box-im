@@ -129,7 +129,7 @@
 					type: 'PRIVATE',
 					targetId: user.id,
 					showName: user.nickName,
-					headImage: user.headImage,
+					headImage: user.headImageThumb,
 				};
 				this.$store.commit("openChat", chat);
 				this.$store.commit("activeChat", 0);

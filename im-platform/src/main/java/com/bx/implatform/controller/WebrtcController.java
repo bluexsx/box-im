@@ -57,8 +57,8 @@ public class WebrtcController {
 
     @ApiOperation(httpMethod = "POST", value = "挂断")
     @PostMapping("/handup")
-    public Result leave(@RequestParam Long uid) {
-        webrtcService.leave(uid);
+    public Result handup(@RequestParam Long uid) {
+        webrtcService.handup(uid);
         return ResultUtils.success();
     }
 

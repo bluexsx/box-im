@@ -22,7 +22,7 @@ public interface IWebrtcService {
 
     void failed(Long uid, String reason);
 
-    void leave(Long uid);
+    void handup(Long uid);
 
     void candidate(Long uid, String candidate);
 

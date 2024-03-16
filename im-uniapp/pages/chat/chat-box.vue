@@ -10,6 +10,7 @@
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
+						@click="onClickMessage(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
 						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
 						:msgInfo="msgInfo" :groupMembers="groupMembers">
@@ -76,11 +77,11 @@
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
-				<view class="chat-tools-item"  @click="onVideoCall()">
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item"  @click="onVideoCall()">
 					<view class="tool-icon iconfont icon-video"></view>
 					<view class="tool-name">视频通话</view>
 				</view>
-				<view class="chat-tools-item"  @click="onVoiceCall()">
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item"  @click="onVoiceCall()">
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
@@ -124,6 +125,13 @@
 					title: "暂未支持...",
 					icon: "none"
 				})
+			},
+			onClickMessage(msgInfo){
+				if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE){
+					this.onVoiceCall();
+				}else if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO){
+					this.onVideoCall();
+				}
 			},
 			onVideoCall(){
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
@@ -599,8 +607,6 @@
 			this.showMinIdx = size > 30 ? size - 30 : 0;
 			// 激活当前会话
 			this.$store.commit("activeChat", options.chatIdx);
-			// 页面滚到底部
-			this.scrollToBottom();
 			// 消息已读
 			this.readedMessage()
 			// 加载好友或群聊信息
@@ -612,6 +618,10 @@
 			}
 			// 复位回执消息
 			this.isReceipt = false;
+		},
+		onShow() {
+			// 页面滚到底部
+			this.scrollToBottom();
 		},
 		onUnload() {
 			this.$store.commit("activeChat", -1);

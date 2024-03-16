@@ -127,6 +127,10 @@ export default {
 			let message = this.getters.findMessage(chat, msgInfo);
 			if(message){
 				Object.assign(message, msgInfo);
+				// 撤回消息需要显示
+				if(msgInfo.type == MESSAGE_TYPE.RECALL){
+					chat.lastContent = msgInfo.content;
+				}
 				this.commit("saveToStorage");
 				return;
 			}
@@ -140,6 +144,10 @@ export default {
 					chat.lastContent = "[语音]";
 				} else  if (msgInfo.type == MESSAGE_TYPE.TEXT || msgInfo.type == MESSAGE_TYPE.RECALL) {
 					chat.lastContent = msgInfo.content;
+				} else  if (msgInfo.type == MESSAGE_TYPE.RT_VOICE) {
+					chat.lastContent = "[语音通话]";
+				}  else  if (msgInfo.type == MESSAGE_TYPE.RT_VIDEO) {
+					chat.lastContent = "[视频通话]";
 				}
 				chat.lastSendTime = msgInfo.sendTime;
 				chat.sendNickName = msgInfo.sendNickName;
@@ -250,7 +258,7 @@ export default {
 					chat.lastSendTime = msgInfo.sendTime;
 				}else{
 					chat.lastContent = "";
-					chat.lastSendTime  = new Date()
+					chat.lastSendTime  = new Date().getTime()
 				}
 			})
 			state.chats.sort((chat1, chat2) => {

@@ -152,8 +152,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(uid);
-        // 告知其他终端已经会话失败,中止呼叫
-        sendMessage.setSendToSelf(true);
+        sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);
         sendMessage.setRecvTerminals(Collections.singletonList(webrtcSession.getCallerTerminal()));
         sendMessage.setData(messageInfo);
@@ -163,7 +162,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
     }
 
     @Override
-    public void leave(Long uid) {
+    public void handup(Long uid) {
         UserSession session = SessionContext.getSession();
         // 查询webrtc会话
         WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
@@ -219,7 +218,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
         String key = getSessionKey(userId, uid);
         WebrtcSession webrtcSession = (WebrtcSession)redisTemplate.opsForValue().get(key);
         if (webrtcSession == null) {
-            throw new GlobalException("视频通话已结束");
+            throw new GlobalException("通话已结束");
         }
         return webrtcSession;
     }
