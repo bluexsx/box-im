@@ -40,7 +40,8 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<view class="chat-realtime chat-msg-text" v-if="isRTMessage">
+					<view class="chat-realtime chat-msg-text" v-if="isRTMessage" 
+						@click="$emit('call')">
 						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE"
 							class="iconfont icon-chat-voice"></text>
 						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO"

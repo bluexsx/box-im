@@ -5,9 +5,9 @@
 [![star](https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub)](https://github.com/bluexsx/box-im) 
 <a href="#加入交流群"><img src="https://img.shields.io/badge/QQ交流群-green.svg?style=plasticr"></a>
 
-1. 盒子IM是一个仿微信实现的网页版聊天软件，目前完全开源。
+1. 盒子IM是一个仿微信实现的网页版聊天软件，不依赖任何第三方收费组件。
 1. 支持私聊、群聊、离线消息、发送语音、图片、文件、emoji表情等功能
-1. 支持视频聊天(基于webrtc实现,需要ssl证书)
+1. 支持音视频通话(基于webrtc实现,需要ssl证书)
 1. 后端采用springboot+netty实现，网页端使用vue，移动端使用uniapp
 1. 服务器支持集群化部署，每个im-server仅处理自身连接用户的消息
 
