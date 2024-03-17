@@ -53,10 +53,15 @@ public enum MessageType {
      * 消息加载标记
      */
     LOADDING(30,"加载中"),
+
     /**
-     * 呼叫
+     * 语音呼叫
      */
-    RTC_CALL(101, "呼叫"),
+    RTC_CALL_VOICE(100, "语音呼叫"),
+    /**
+     * 视频呼叫
+     */
+    RTC_CALL_VIDEO(101, "视频呼叫"),
     /**
      * 接受
      */

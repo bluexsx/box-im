@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface IWebrtcService {
 
-    void call(Long uid, String offer);
+    void call(Long uid, String mode,String offer);
 
-    void accept(Long uid, @RequestBody String answer);
+    void accept(Long uid,  String answer);
 
     void reject(Long uid);
 
@@ -22,7 +22,7 @@ public interface IWebrtcService {
 
     void failed(Long uid, String reason);
 
-    void leave(Long uid);
+    void handup(Long uid);
 
     void candidate(Long uid, String candidate);
 

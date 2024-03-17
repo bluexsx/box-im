@@ -104,8 +104,26 @@
 			},
 			insertPrivateMessage(friend, msg) {
 				// webrtc 信令
-				if (msg.type >= enums.MESSAGE_TYPE.RTC_CALL &&
-					msg.type <= enums.MESSAGE_TYPE.RTC_CANDIDATE) {}
+				if (msg.type >= enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
+					msg.type <= enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+					// 被呼叫，弹出视频页面
+					if(msg.type == enums.MESSAGE_TYPE.RTC_CALL_VOICE 
+						|| msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO){
+						let mode = 	msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO? "video":"voice";
+						let pages = getCurrentPages();
+						let curPage = pages[pages.length-1].route;
+						if(curPage != "pages/chat/chat-video"){
+							const friendInfo = encodeURIComponent(JSON.stringify(friend));
+							uni.navigateTo({
+								url: `/pages/chat/chat-video?mode=${mode}&friend=${friendInfo}&isHost=false`
+							})
+						}
+					}
+					setTimeout(() => {
+						uni.$emit('WS_RTC',msg);
+					},500)
+					return;
+				}
 
 				let chatInfo = {
 					type: 'PRIVATE',

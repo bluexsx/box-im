@@ -40,14 +40,24 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
-							&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
-					<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
-							&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</text>
+					<view class="chat-realtime chat-msg-text" v-if="isRTMessage">
+						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE"
+							class="iconfont icon-chat-voice"></text>
+						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO"
+							class="iconfont icon-chat-video"></text>
+						<text>{{msgInfo.content}}</text>
+					</view>
+
+					<view class="chat-msg-status" v-if="!isRTMessage">
+						<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
+								&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
+						<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
+								&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</text>
+					</view>
+
 					<view class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
 						<text v-if="msgInfo.receiptOk" class="tool-icon iconfont icon-ok"></text>
 						<text v-else>{{msgInfo.readedCount}}人已读</text>
-						
 					</view>
 					<!--
 					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
@@ -188,6 +198,10 @@
 					});
 				}
 				return items;
+			},
+			isRTMessage() {
+				return this.msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE ||
+					this.msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO
 			}
 		}
 
@@ -248,7 +262,7 @@
 						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-						box-shadow: 1px 1px 1px  #c0c0f0;
+						box-shadow: 1px 1px 1px #c0c0f0;
 
 						&:after {
 							content: "";
@@ -342,23 +356,39 @@
 
 					}
 
+
 					
-					.chat-unread {
-						font-size: 10px;
-						color: #f23c0f;
-						font-weight: 600;
+
+					.chat-realtime {
+						display: flex;
+						align-items: center;
+						.iconfont {
+							font-size: 20px;
+							padding-right: 8px;
+						}
 					}
-					
-					.chat-readed {
-						font-size: 10px;
-						color: #ccc;
-						font-weight: 600;
+
+					.chat-msg-status {
+						display: block;
+
+						.chat-readed {
+							font-size: 10px;
+							color: #ccc;
+							font-weight: 600;
+						}
+						
+						.chat-unread {
+							font-size: 10px;
+							color: #f23c0f;
+							font-weight: 600;
+						}
 					}
+
 					.chat-receipt {
 						font-size: 13px;
 						color: darkblue;
 						font-weight: 600;
-						
+
 						.icon-ok {
 							font-size: 20px;
 							color: #329432;
@@ -404,6 +434,14 @@
 
 						.chat-msg-file {
 							flex-direction: row-reverse;
+						}
+						
+						.chat-realtime {
+							display: flex;
+							flex-direction: row-reverse;
+							.iconfont {
+								transform: rotateY(180deg);
+							}
 						}
 					}
 				}

@@ -10,6 +10,7 @@
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
+						@click="onClickMessage(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
 						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
 						:msgInfo="msgInfo" :groupMembers="groupMembers">
@@ -30,9 +31,9 @@
 		<view class="send-bar">
 			<view class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
-				:placeholder="isReceipt?'[回执消息]':''"
-					:adjust-position="false" @confirm="sendTextMessage()" @keyboardheightchange="onKeyboardheightchange"
-					@input="onTextInput" confirm-type="send" confirm-hold :hold-keyboard="true"></textarea>
+					:placeholder="isReceipt?'[回执消息]':''" :adjust-position="false" @confirm="sendTextMessage()"
+					@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send" confirm-hold
+					:hold-keyboard="true"></textarea>
 			</view>
 			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
 			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
@@ -71,14 +72,18 @@
 				<view class="chat-tools-item" @click="showTip()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音输入</view>
-				</view>
+				</view>			
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
-				<view class="chat-tools-item" @click="showTip()">
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item"  @click="onVideoCall()">
+					<view class="tool-icon iconfont icon-video"></view>
+					<view class="tool-name">视频通话</view>
+				</view>
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item"  @click="onVoiceCall()">
 					<view class="tool-icon iconfont icon-call"></view>
-					<view class="tool-name">呼叫</view>
+					<view class="tool-name">语音通话</view>
 				</view>
 			</view>
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
@@ -116,17 +121,35 @@
 		},
 		methods: {
 			showTip() {
-				
 				uni.showToast({
 					title: "暂未支持...",
 					icon: "none"
 				})
 			},
-			moveChatToTop(){
-				let chatIdx = this.$store.getters.findChatIdx(this.chat);
-				this.$store.commit("moveTop",chatIdx);
+			onClickMessage(msgInfo){
+				if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE){
+					this.onVoiceCall();
+				}else if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO){
+					this.onVideoCall();
+				}
 			},
-			switchReceipt(){
+			onVideoCall(){
+				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
+				uni.navigateTo({
+					url: `/pages/chat/chat-video?mode=video&friend=${friendInfo}&isHost=true`
+				})
+			},
+			onVoiceCall(){
+				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
+				uni.navigateTo({
+					url: `/pages/chat/chat-video?mode=voice&friend=${friendInfo}&isHost=true`
+				})
+			},
+			moveChatToTop() {
+				let chatIdx = this.$store.getters.findChatIdx(this.chat);
+				this.$store.commit("moveTop", chatIdx);
+			},
+			switchReceipt() {
 				this.isReceipt = !this.isReceipt;
 			},
 			openAtBox() {
@@ -164,12 +187,12 @@
 						icon: "none"
 					});
 				}
-				let receiptText = this.isReceipt? "【回执消息】":"";
+				let receiptText = this.isReceipt ? "【回执消息】" : "";
 				let atText = this.createAtText();
 				let msgInfo = {
 					content: receiptText + this.sendText + atText,
 					atUserIds: this.atUserIds,
-					receipt : this.isReceipt,
+					receipt: this.isReceipt,
 					type: 0
 				}
 				// 填充对方id
@@ -185,7 +208,7 @@
 					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
 					msgInfo.selfSend = true;
 					msgInfo.readedCount = 0,
-					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
+						msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
 					this.$store.commit("insertMessage", msgInfo);
 					// 会话置顶
 					this.moveChatToTop();
@@ -584,8 +607,6 @@
 			this.showMinIdx = size > 30 ? size - 30 : 0;
 			// 激活当前会话
 			this.$store.commit("activeChat", options.chatIdx);
-			// 页面滚到底部
-			this.scrollToBottom();
 			// 消息已读
 			this.readedMessage()
 			// 加载好友或群聊信息
@@ -597,6 +618,10 @@
 			}
 			// 复位回执消息
 			this.isReceipt = false;
+		},
+		onShow() {
+			// 页面滚到底部
+			this.scrollToBottom();
 		},
 		onUnload() {
 			this.$store.commit("activeChat", -1);
@@ -727,7 +752,7 @@
 			.chat-tools {
 				display: flex;
 				flex-wrap: wrap;
-			
+
 				.chat-tools-item {
 					width: 140rpx;
 					padding: 16rpx;
@@ -736,12 +761,12 @@
 					align-items: center;
 
 					.tool-icon {
-						padding: 18rpx;
-						font-size: 80rpx;
+						padding: 28rpx;
+						font-size: 60rpx;
 						background-color: white;
 						border-radius: 20%;
-						
-						&.active{
+
+						&.active {
 							background-color: #ddd;
 						}
 					}

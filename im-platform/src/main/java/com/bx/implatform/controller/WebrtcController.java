@@ -21,8 +21,8 @@ public class WebrtcController {
 
     @ApiOperation(httpMethod = "POST", value = "呼叫视频通话")
     @PostMapping("/call")
-    public Result call(@RequestParam Long uid, @RequestBody String offer) {
-        webrtcService.call(uid, offer);
+    public Result call(@RequestParam Long uid, @RequestParam(defaultValue = "video") String mode, @RequestBody String offer) {
+        webrtcService.call(uid, mode, offer);
         return ResultUtils.success();
     }
 
@@ -57,15 +57,15 @@ public class WebrtcController {
 
     @ApiOperation(httpMethod = "POST", value = "挂断")
     @PostMapping("/handup")
-    public Result leave(@RequestParam Long uid) {
-        webrtcService.leave(uid);
+    public Result handup(@RequestParam Long uid) {
+        webrtcService.handup(uid);
         return ResultUtils.success();
     }
 
 
     @PostMapping("/candidate")
     @ApiOperation(httpMethod = "POST", value = "同步candidate")
-    public Result forwardCandidate(@RequestParam Long uid, @RequestBody String candidate) {
+    public Result candidate(@RequestParam Long uid, @RequestBody String candidate) {
         webrtcService.candidate(uid, candidate);
         return ResultUtils.success();
     }
