@@ -10,7 +10,7 @@
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
-						@click="onClickMessage(msgInfo)"
+						@call="onRtCall(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
 						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
 						:msgInfo="msgInfo" :groupMembers="groupMembers">
@@ -126,7 +126,7 @@
 					icon: "none"
 				})
 			},
-			onClickMessage(msgInfo){
+			onRtCall(msgInfo){
 				if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE){
 					this.onVoiceCall();
 				}else if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO){

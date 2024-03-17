@@ -9,21 +9,10 @@
 						<li>目前移动端仅兼容h5和微信小程序，后续会继续兼容更多终端类型</li>
 						<li>聊天窗口支持粘贴截图、@群成员、已读未读显示</li>
 						<li>页面风格升级:表情包更新、自动生成文字头像等</li>
-					</ul>
-				</div>
-				<div>
-					<h3>最近更新(2024-01-19)：</h3>
-					<ul>
-						<li>最近给小伙伴们整理了一份
+						<li>支持群聊已读显示(回执消息)</li>
+						<li>语雀文档
 							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">盒子IM详细介绍文档</a>,目前限时免费开放中
 						</li>
-					</ul>
-				</div>
-				<div>
-					<h3>最近更新(2024-01-28)：</h3>
-					<ul>
-						<li>支持群聊已读显示(回执消息)</li>
-						<li>群聊会话窗口增加邀请、退群、移除、解散提示</li>
 					</ul>
 				</div>
 				<div>
@@ -36,7 +25,17 @@
 					</ul>
 				</div>
 				<div>
-					<h3>项目依旧完全开源，可内网部署。如果项目对您有帮助,请帮忙点个star:</h3>
+					<h3>最近更新(2024-03-17)：</h3>
+					<ul>
+						<li>web端音视频功能优化:支持语音呼叫、会话中加入通话状态消息</li>
+						<li>uniapp端支持音视频通话，并与web端打通</li>
+						<li>uniapp端音视频源码通话源码暂未开源，需付费获取:
+							<a href="https://www.yuque.com/u1475064/oncgyg/vi7engzluty594s2" target="_blank">uniapp端音视频通话源码购买说明</a>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<h3>如果本项目对您有帮助,请在gitee上帮忙点个star</h3>
 				</div>
 				<div class="login-icons">
 					<a class="login-icon">
