@@ -25,7 +25,7 @@
 					type: 'PRIVATE',
 					targetId: this.friend.id,
 					showName: this.friend.nickName,
-					headImage: this.friend.headImageThumb,
+					headImage: this.friend.headImage,
 				};
 				this.$store.commit("openChat",chat);
 				this.$store.commit("insertMessage", msgInfo);

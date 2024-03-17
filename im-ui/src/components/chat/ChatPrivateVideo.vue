@@ -139,7 +139,7 @@
 					type: 'PRIVATE',
 					targetId: this.rtcInfo.friend.id,
 					showName: this.rtcInfo.friend.nickName,
-					headImage: this.rtcInfo.friend.headImageThumb,
+					headImage: this.rtcInfo.friend.headImage,
 				};
 				this.$store.commit("openChat", chat);
 				// 插入消息
