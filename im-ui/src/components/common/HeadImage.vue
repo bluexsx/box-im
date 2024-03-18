@@ -1,6 +1,7 @@
 <template>
 	<div class="head-image" @click="showUserInfo($event)">
-		<img class="avatar-image" v-show="url" :src="url" :style="avatarImageStyle" />
+		<img class="avatar-image" v-show="url" :src="url" 
+			:style="avatarImageStyle" loading="lazy" />
 		<div class="avatar-text" v-show="!url" :style="avatarTextStyle">
 			{{name.substring(0,1).toUpperCase()}}</div>
 		<div v-show="online" class="online" title="用户当前在线"></div>

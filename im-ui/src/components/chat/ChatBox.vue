@@ -75,7 +75,7 @@
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="300px" v-show="showSide">
+					<el-aside class="chat-group-side-box" width="300px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>
