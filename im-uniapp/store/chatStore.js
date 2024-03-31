@@ -176,8 +176,16 @@ export default {
 				});
 				chat.lastTimeTip = msgInfo.sendTime;
 			}
-			// 新的消息
-			chat.messages.push(msgInfo);
+			// 根据id顺序插入，防止消息乱序
+			let insertPos = chat.messages.length;
+			for (let idx in chat.messages) {
+				if (chat.messages[idx].id && msgInfo.id < chat.messages[idx].id) {
+					insertPos = idx;
+					console.log(`消息出现乱序,位置:${chat.messages.length},修正至:${insertPos}`);
+					break;
+				}
+			}
+			chat.messages.splice(insertPos, 0, msgInfo);
 			this.commit("saveToStorage");
 		},
 		updateMessage(state, msgInfo) {

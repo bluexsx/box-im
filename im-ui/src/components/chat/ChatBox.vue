@@ -13,7 +13,7 @@
 							<div class="im-chat-box">
 								<ul>
 									<li v-for="(msgInfo, idx) in chat.messages" :key="idx">
-										<chat-message-item v-show="idx >= showMinIdx" 
+										<chat-message-item v-if="idx >= showMinIdx" 
 											@call="onCall(msgInfo.type)"
 											:mine="msgInfo.sendId == mine.id"
 											:headImage="headImage(msgInfo)" :showName="showName(msgInfo)" :msgInfo="msgInfo"
@@ -75,7 +75,7 @@
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="300px" v-show="showSide">
+					<el-aside class="chat-group-side-box" width="300px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>

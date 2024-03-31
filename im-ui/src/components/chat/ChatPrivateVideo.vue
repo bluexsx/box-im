@@ -139,7 +139,7 @@
 					type: 'PRIVATE',
 					targetId: this.rtcInfo.friend.id,
 					showName: this.rtcInfo.friend.nickName,
-					headImage: this.rtcInfo.friend.headImageThumb,
+					headImage: this.rtcInfo.friend.headImage,
 				};
 				this.$store.commit("openChat", chat);
 				// 插入消息
@@ -424,7 +424,8 @@
 				video {
 					width: 100%;
 					height: 100%;
-					object-fit: fill;
+					object-fit: cover;
+					transform: rotateY(180deg);
 				}
 			}
 
@@ -439,6 +440,8 @@
 
 				video {
 					width: 100%;
+					object-fit: cover;
+					transform: rotateY(180deg);
 				}
 			}
 		}

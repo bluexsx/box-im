@@ -9,8 +9,7 @@
 			<scroll-view class="scroll-box" scroll-y="true" @scrolltoupper="onScrollToTop"
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
-						@call="onRtCall(msgInfo)"
+					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
 						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
 						:msgInfo="msgInfo" :groupMembers="groupMembers">
@@ -29,15 +28,18 @@
 			</scroll-view>
 		</view>
 		<view class="send-bar">
-			<view class="send-text">
+			<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
+			<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
+			<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord" ></chat-record>
+			<view v-else class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
 					:placeholder="isReceipt?'[回执消息]':''" :adjust-position="false" @confirm="sendTextMessage()"
 					@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send" confirm-hold
 					:hold-keyboard="true"></textarea>
 			</view>
 			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
-			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
-			<view v-if="sendText==''" class="iconfont icon-add" @click="switchChatTabBox('tools',true)">
+			<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
+			<view v-if="sendText==''" class="iconfont icon-add" @click="onShowToolsChatTab()">
 			</view>
 			<button v-if="sendText!=''||atUserIds.length>0" class="btn-send" type="primary"
 				@touchend.prevent="sendTextMessage()" size="mini">发送</button>
@@ -69,22 +71,25 @@
 					<view class="tool-name">文件</view>
 				</view>
 				<!-- #endif -->
-				<view class="chat-tools-item" @click="showTip()">
+				<view class="chat-tools-item" @click="onVoiceInput()">
 					<view class="tool-icon iconfont icon-microphone"></view>
-					<view class="tool-name">语音输入</view>
-				</view>			
+					<view class="tool-name">语音消息</view>
+				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
-				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item"  @click="onVideoCall()">
+				<!-- #ifndef MP-WEIXIN -->
+				<!-- 音视频不支持小程序 -->
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onVideoCall()">
 					<view class="tool-icon iconfont icon-video"></view>
 					<view class="tool-name">视频通话</view>
 				</view>
-				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item"  @click="onVoiceCall()">
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onVoiceCall()">
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
+				<!-- #endif -->
 			</view>
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
 				<view class="emotion-item-list">
@@ -101,6 +106,7 @@
 </template>
 
 <script>
+	import UNI_APP from '@/.env.js';
 	export default {
 		data() {
 			return {
@@ -110,36 +116,68 @@
 				groupMembers: [],
 				sendText: "",
 				isReceipt: false, // 是否回执消息
-				showVoice: false, // 是否显示语音录制弹窗
 				scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 				chatTabBox: 'none',
 				showKeyBoard: false,
+				showRecord: false,
 				keyboardHeight: 322,
 				atUserIds: [],
+				recordText: "",
 				showMinIdx: 0 // 下标小于showMinIdx的消息不显示，否则可能很卡
 			}
 		},
 		methods: {
-			showTip() {
-				uni.showToast({
-					title: "暂未支持...",
-					icon: "none"
+			onRecorderInput() {
+				this.showRecord = true;
+				this.switchChatTabBox('none',true);
+			},
+			onKeyboardInput() {
+				this.showRecord = false;
+				this.switchChatTabBox('none',false);
+			},
+			onSendRecord(data) {
+				console.log(data);
+				let msgInfo = {
+					content: JSON.stringify(data),
+					type: this.$enums.MESSAGE_TYPE.AUDIO,
+					receipt: this.isReceipt
+				}
+				// 填充对方id
+				this.fillTargetId(msgInfo, this.chat.targetId);
+				this.$http({
+					url: this.messageAction,
+					method: 'POST',
+					data: msgInfo
+				}).then((id) => {
+					msgInfo.id = id;
+					msgInfo.sendTime = new Date().getTime();
+					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
+					msgInfo.selfSend = true;
+					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
+					msgInfo.readedCount = 0;
+					this.$store.commit("insertMessage", msgInfo);
+					// 会话置顶
+					this.moveChatToTop();
+					// 滚动到底部
+					this.scrollToBottom();
+					this.isReceipt = false;
+					
 				})
 			},
-			onRtCall(msgInfo){
-				if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE){
+			onRtCall(msgInfo) {
+				if (msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE) {
 					this.onVoiceCall();
-				}else if(msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO){
+				} else if (msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO) {
 					this.onVideoCall();
 				}
 			},
-			onVideoCall(){
+			onVideoCall() {
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
 				uni.navigateTo({
 					url: `/pages/chat/chat-video?mode=video&friend=${friendInfo}&isHost=true`
 				})
 			},
-			onVoiceCall(){
+			onVoiceCall() {
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
 				uni.navigateTo({
 					url: `/pages/chat/chat-video?mode=voice&friend=${friendInfo}&isHost=true`
@@ -264,10 +302,19 @@
 				});
 
 			},
+			onShowEmoChatTab(){
+				this.showRecord = false;
+				this.switchChatTabBox('emo',true)
+			},
+			onShowToolsChatTab(){
+				this.showRecord = false;
+				this.switchChatTabBox('tools',true)
+			},
 			switchChatTabBox(chatTabBox, hideKeyBoard) {
 				this.chatTabBox = chatTabBox;
 				if (hideKeyBoard) {
 					uni.hideKeyboard();
+					this.showKeyBoard = false;
 				}
 			},
 			selectEmoji(emoText) {
@@ -721,6 +768,11 @@
 				margin: 3rpx;
 			}
 
+			.chat-record {
+				flex: 1;
+
+			}
+
 			.send-text {
 				flex: 1;
 				background-color: #f8f8f8 !important;
@@ -728,8 +780,6 @@
 				padding: 20rpx;
 				background-color: #fff;
 				border-radius: 20rpx;
-				max-height: 300rpx;
-				min-height: 85rpx;
 				font-size: 30rpx;
 				box-sizing: border-box;
 

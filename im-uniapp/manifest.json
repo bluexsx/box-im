@@ -2,8 +2,8 @@
     "name" : "盒子IM",
     "appid" : "__UNI__69DD57A",
     "description" : "",
-    "versionName" : "1.0.6",
-    "versionCode" : 106,
+    "versionName" : "1.0.7",
+    "versionCode" : 107,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -100,6 +100,7 @@
     /* 小程序特有相关 */
     "mp-weixin" : {
         "appid" : "wxda94f40bfad0262c",
+		"libVersion": "latest",  
         "setting" : {
             "urlCheck" : false
         },
