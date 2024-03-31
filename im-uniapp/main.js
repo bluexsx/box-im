@@ -6,6 +6,13 @@ import * as date from './common/date';
 import * as socketApi from './common/wssocket';
 import store from './store';
 import { createSSRApp } from 'vue'
+// #ifdef H5
+import * as recorder from './common/recorder-h5';
+// #endif
+// #ifndef H5
+import * as recorder from './common/recorder-app';
+// #endif
+
 
 export function createApp() {
   const app = createSSRApp(App)
@@ -15,6 +22,7 @@ export function createApp() {
   app.config.globalProperties.$emo = emotion;
   app.config.globalProperties.$enums = enums;
   app.config.globalProperties.$date = date;
+  app.config.globalProperties.$rc = recorder;
   return {
     app
   }

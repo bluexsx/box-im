@@ -1,13 +1,16 @@
 <template>
 	<view class="chat-msg-item">
-		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.RECALL||msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">{{msgInfo.content}}</view>
+		<view class="chat-msg-tip"
+			v-if="msgInfo.type==$enums.MESSAGE_TYPE.RECALL||msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
+			{{msgInfo.content}}</view>
 		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
 			{{$date.toTimeText(msgInfo.sendTime)}}
 		</view>
 
 		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
-			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage" :name="showName" :size="80"></head-image>
+			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
+				:name="showName" :size="80"></head-image>
 			<view class="chat-msg-content" @longpress="onShowMenu($event)">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
@@ -26,7 +29,6 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-
 					<view class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
 						<view class="chat-file-box">
 							<view class="chat-file-info">
@@ -40,31 +42,28 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<view class="chat-realtime chat-msg-text" v-if="isRTMessage" 
-						@click="$emit('call')">
-						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE"
-							class="iconfont icon-chat-voice"></text>
-						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO"
-							class="iconfont icon-chat-video"></text>
+					<view class="chat-msg-audio chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO"
+						@click="onPlayAudio()">
+						<text class="iconfont icon-voice-play"></text>
+						<text class="chat-audio-text">{{JSON.parse(msgInfo.content).duration+'"'}}</text>
+						<text v-if="audioPlayState=='PAUSE'" class="iconfont icon-play"></text>
+						<text v-if="audioPlayState=='PLAYING'" class="iconfont icon-pause"></text>
+					</view>
+					<view class="chat-realtime chat-msg-text" v-if="isRTMessage" @click="$emit('call')">
+						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE" class="iconfont icon-chat-voice"></text>
+						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO" class="iconfont icon-chat-video"></text>
 						<text>{{msgInfo.content}}</text>
 					</view>
-
 					<view class="chat-msg-status" v-if="!isRTMessage">
 						<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
 								&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
 						<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
 								&& msgInfo.status!=$enums.MESSAGE_STATUS.READED">未读</text>
 					</view>
-
 					<view class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
 						<text v-if="msgInfo.receiptOk" class="tool-icon iconfont icon-ok"></text>
 						<text v-else>{{msgInfo.readedCount}}人已读</text>
 					</view>
-					<!--
-					<view class="chat-msg-voice" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
-						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
-					</view>
-					-->
 				</view>
 			</view>
 		</view>
@@ -97,6 +96,7 @@
 		data() {
 			return {
 				audioPlayState: 'STOP',
+				innerAudioContext: null,
 				menu: {
 					show: false,
 					style: ""
@@ -135,13 +135,27 @@
 					icon: "none"
 				})
 			},
-			onPlayVoice() {
-				if (!this.audio) {
-					this.audio = new Audio();
+			onPlayAudio() {
+				// 初始化音频播放器
+				if (!this.innerAudioContext) {
+					this.innerAudioContext = uni.createInnerAudioContext();
+					let url = JSON.parse(this.msgInfo.content).url
+					this.innerAudioContext.src = url;
+					this.innerAudioContext.onEnded((e) => {
+						console.log('停止')
+						this.audioPlayState = "STOP"
+					})
 				}
-				this.audio.src = JSON.parse(this.msgInfo.content).url;
-				this.audio.play();
-				this.handlePlayVoice = 'RUNNING';
+				if (this.audioPlayState == 'STOP') {
+					this.innerAudioContext.play();
+					this.audioPlayState = "PLAYING";
+				} else if (this.audioPlayState == 'PLAYING') {
+					this.innerAudioContext.pause();
+					this.audioPlayState = "PAUSE"
+				} else if (this.audioPlayState == 'PAUSE') {
+					this.innerAudioContext.play();
+					this.audioPlayState = "PLAYING"
+				}
 			},
 			onSelectMenu(item) {
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
@@ -357,12 +371,24 @@
 
 					}
 
+					.chat-msg-audio {
+						display: flex;
+						align-items: center;
 
-					
+						.chat-audio-text {
+							padding-right: 8px;
+						}
+
+						.icon-voice-play {
+							font-size: 20px;
+							padding-right: 8px;
+						}
+					}
 
 					.chat-realtime {
 						display: flex;
 						align-items: center;
+
 						.iconfont {
 							font-size: 20px;
 							padding-right: 8px;
@@ -373,13 +399,13 @@
 						display: block;
 
 						.chat-readed {
-							font-size: 10px;
-							color: #ccc;
+							font-size: 12px;
+							color: #888;
 							font-weight: 600;
 						}
-						
+
 						.chat-unread {
-							font-size: 10px;
+							font-size: 12px;
 							color: #f23c0f;
 							font-weight: 600;
 						}
@@ -436,14 +462,28 @@
 						.chat-msg-file {
 							flex-direction: row-reverse;
 						}
-						
+
+						.chat-msg-audio {
+							flex-direction: row-reverse;
+
+							.chat-audio-text {
+								padding-right: 0;
+								padding-left: 8px;
+							}
+							.icon-voice-play {
+								transform: rotateY(180deg);
+							}
+						}
+
 						.chat-realtime {
 							display: flex;
 							flex-direction: row-reverse;
+
 							.iconfont {
 								transform: rotateY(180deg);
 							}
 						}
+
 					}
 				}
 			}

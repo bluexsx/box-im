@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4272106 */
-  src: url('iconfont.ttf?t=1710556421604') format('truetype');
+  src: url('iconfont.ttf?t=1711870080646') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-pause:before {
+  content: "\e669";
+}
+
+.icon-play:before {
+  content: "\e620";
+}
+
+.icon-voice-play:before {
+  content: "\e675";
 }
 
 .icon-chat-video:before {
