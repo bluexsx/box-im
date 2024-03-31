@@ -28,7 +28,7 @@
 			</scroll-view>
 		</view>
 		<view class="send-bar">
-			<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onVoiceInput()"></view>
+			<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
 			<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
 			<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord" ></chat-record>
 			<view v-else class="send-text">
@@ -38,8 +38,8 @@
 					:hold-keyboard="true"></textarea>
 			</view>
 			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
-			<view class="iconfont icon-icon_emoji" @click="switchChatTabBox('emo',true)"></view>
-			<view v-if="sendText==''" class="iconfont icon-add" @click="switchChatTabBox('tools',true)">
+			<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
+			<view v-if="sendText==''" class="iconfont icon-add" @click="onShowToolsChatTab()">
 			</view>
 			<button v-if="sendText!=''||atUserIds.length>0" class="btn-send" type="primary"
 				@touchend.prevent="sendTextMessage()" size="mini">发送</button>
@@ -79,6 +79,8 @@
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
+				<!-- #ifndef MP-WEIXIN -->
+				<!-- 音视频不支持小程序 -->
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onVideoCall()">
 					<view class="tool-icon iconfont icon-video"></view>
 					<view class="tool-name">视频通话</view>
@@ -87,6 +89,7 @@
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
+				<!-- #endif -->
 			</view>
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
 				<view class="emotion-item-list">
@@ -124,7 +127,7 @@
 			}
 		},
 		methods: {
-			onVoiceInput() {
+			onRecorderInput() {
 				this.showRecord = true;
 				this.switchChatTabBox('none',true);
 			},
@@ -299,10 +302,19 @@
 				});
 
 			},
+			onShowEmoChatTab(){
+				this.showRecord = false;
+				this.switchChatTabBox('emo',true)
+			},
+			onShowToolsChatTab(){
+				this.showRecord = false;
+				this.switchChatTabBox('tools',true)
+			},
 			switchChatTabBox(chatTabBox, hideKeyBoard) {
 				this.chatTabBox = chatTabBox;
 				if (hideKeyBoard) {
 					uni.hideKeyboard();
+					this.showKeyBoard = false;
 				}
 			},
 			selectEmoji(emoText) {

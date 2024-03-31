@@ -139,12 +139,16 @@
 				// 初始化音频播放器
 				if (!this.innerAudioContext) {
 					this.innerAudioContext = uni.createInnerAudioContext();
-					let url = JSON.parse(this.msgInfo.content).url
+					let url = JSON.parse(this.msgInfo.content).url;
 					this.innerAudioContext.src = url;
 					this.innerAudioContext.onEnded((e) => {
 						console.log('停止')
 						this.audioPlayState = "STOP"
 					})
+					this.innerAudioContext.onError((e) =>{
+						console.log("播放音频出错");
+						console.log(e)
+					});
 				}
 				if (this.audioPlayState == 'STOP') {
 					this.innerAudioContext.play();

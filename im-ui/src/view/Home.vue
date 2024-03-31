@@ -29,7 +29,7 @@
 				</el-menu-item>
 			</el-menu>
 			<div class="exit-box" @click="onExit()" title="退出">
-				<span class="el-icon-circle-close"></span>
+				<span class="icon iconfont icon-exit"></span>
 			</div>
 		</el-aside>
 		<el-main class="content-box">
@@ -372,10 +372,12 @@
 			width: 60px;
 			bottom: 40px;
 			color: #aaaaaa;
-			font-size: 24px;
 			text-align: center;
 			cursor: pointer;
 
+			.icon {
+				font-size: 28px;
+			}
 			&:hover {
 				color: white !important;
 			}

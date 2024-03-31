@@ -106,6 +106,10 @@
 				// webrtc 信令
 				if (msg.type >= enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
 					msg.type <= enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+					// #ifdef MP-WEIXIN
+						// 小程序不支持音视频
+						return;
+					// #endif
 					// 被呼叫，弹出视频页面
 					if(msg.type == enums.MESSAGE_TYPE.RTC_CALL_VOICE 
 						|| msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO){
