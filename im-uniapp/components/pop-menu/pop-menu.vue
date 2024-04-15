@@ -1,11 +1,10 @@
 <template>
-	<view class="pop-menu" @tap="onClose()" @contextmenu.prevent="">
+	<view class="pop-menu" @tap="onClose()" @touchmove="onClose" @contextmenu.prevent="">
 		<view class="menu" :style="menuStyle">
 			<view class="menu-item" v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
 				<uni-icons :type="item.icon" size="22"></uni-icons>
 				<text> {{item.name}}</text>
 			</view>
-
 		</view>
 	</view>
 </template>
@@ -29,6 +28,7 @@
 				this.$emit("select", item);
 			},
 			onClose() {
+				console.log("@touchmove")
 				this.$emit("close");
 			}
 		}

@@ -6,8 +6,9 @@
 			<uni-icons class="btn-side right" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
 		</view>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
-			<scroll-view class="scroll-box" scroll-y="true" @scrolltoupper="onScrollToTop"
-				:scroll-into-view="'chat-item-'+scrollMsgIdx">
+			<scroll-view class="scroll-box" scroll-y="true" 
+					upper-threshold="200" @scrolltoupper="onScrollToTop"
+					:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
@@ -136,7 +137,6 @@
 				this.switchChatTabBox('none',false);
 			},
 			onSendRecord(data) {
-				console.log(data);
 				let msgInfo = {
 					content: JSON.stringify(data),
 					type: this.$enums.MESSAGE_TYPE.AUDIO,
@@ -496,12 +496,20 @@
 				});
 			},
 			onScrollToTop() {
-				// #ifdef MP
+				if(this.showMinIdx==0){
+					uni.showToast({
+						title: "没有更多消息啦",
+						icon: "none"
+					})
+					return;
+				}
+			
+				//  #ifndef H5
 				// 防止滚动条定格在顶部，不能一直往上滚
 				this.scrollToMsgIdx(this.showMinIdx);
 				// #endif
-				// 多展示10条信息
-				this.showMinIdx = this.showMinIdx > 10 ? this.showMinIdx - 10 : 0;
+				// 多展示0条信息
+				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
 			},
 			onShowMore() {
 				if (this.chat.type == "GROUP") {
@@ -649,9 +657,9 @@
 		onLoad(options) {
 			// 聊天数据
 			this.chat = this.$store.state.chatStore.chats[options.chatIdx];
-			// 初始状态只显示30条消息
+			// 初始状态只显示20条消息
 			let size = this.chat.messages.length;
-			this.showMinIdx = size > 30 ? size - 30 : 0;
+			this.showMinIdx = size > 20 ? size - 20 : 0;
 			// 激活当前会话
 			this.$store.commit("activeChat", options.chatIdx);
 			// 消息已读

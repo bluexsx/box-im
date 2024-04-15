@@ -186,7 +186,12 @@ export default {
 					}
 				} 
 			}
-			chat.messages.splice(insertPos, 0, msgInfo);
+			if(insertPos == chat.messages.length){
+				// 这种赋值效率最高
+				chat.messages[insertPos]= msgInfo;
+			}else{
+				chat.messages.splice(insertPos, 0, msgInfo);
+			}
 			this.commit("saveToStorage");
 		},
 		updateMessage(state, msgInfo) {

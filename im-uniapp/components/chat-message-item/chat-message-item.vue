@@ -11,16 +11,17 @@
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
 				:name="showName" :size="80"></head-image>
-			<view class="chat-msg-content" @longpress="onShowMenu($event)">
+			<view class="chat-msg-content">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
 				</view>
 
-				<view class="chat-msg-bottom">
+				<view class="chat-msg-bottom" @touchmove="onHideMenu()">
 					<rich-text class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"
-						:nodes="$emo.transform(msgInfo.content)"></rich-text>
+						:nodes="$emo.transform(msgInfo.content)"
+						@longpress="onShowMenu($event)"></rich-text>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
-						<view class="img-load-box">
+						<view class="img-load-box" @longpress="onShowMenu($event)">
 							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
 								lazy-load="true" @click.stop="onShowFullImage()">
 							</image>
@@ -30,7 +31,7 @@
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 					<view class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
-						<view class="chat-file-box">
+						<view class="chat-file-box" @longpress="onShowMenu($event)">
 							<view class="chat-file-info">
 								<uni-link class="chat-file-name" :text="data.name" showUnderLine="true" color="#007BFF"
 									:href="data.url"></uni-link>
@@ -43,13 +44,14 @@
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 					<view class="chat-msg-audio chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO"
-						@click="onPlayAudio()">
+						@click="onPlayAudio()" @longpress="onShowMenu($event)">
 						<text class="iconfont icon-voice-play"></text>
 						<text class="chat-audio-text">{{JSON.parse(msgInfo.content).duration+'"'}}</text>
 						<text v-if="audioPlayState=='PAUSE'" class="iconfont icon-play"></text>
 						<text v-if="audioPlayState=='PLAYING'" class="iconfont icon-pause"></text>
 					</view>
-					<view class="chat-realtime chat-msg-text" v-if="isRTMessage" @click="$emit('call')">
+					<view class="chat-realtime chat-msg-text" v-if="isRTMessage" 
+						@click="$emit('call')" @longpress="onShowMenu($event)">
 						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE" class="iconfont icon-chat-voice"></text>
 						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO" class="iconfont icon-chat-video"></text>
 						<text>{{msgInfo.content}}</text>
@@ -68,7 +70,7 @@
 			</view>
 		</view>
 		<chat-group-readed ref="chatGroupReaded" :groupMembers="groupMembers" :msgInfo="msgInfo"></chat-group-readed>
-		<pop-menu v-if="menu.show" :menu-style="menu.style" :items="menuItems" @close="menu.show=false"
+		<pop-menu v-if="menu.show" :menu-style="menu.style" :items="menuItems" @close="onHideMenu()"
 			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
@@ -128,6 +130,9 @@
 						});
 					}
 				})
+			},
+			onHideMenu(){
+				this.menu.show = false;
 			},
 			onSendFail() {
 				uni.showToast({
