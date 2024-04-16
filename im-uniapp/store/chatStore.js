@@ -4,11 +4,14 @@ import {
 } from '@/common/enums.js';
 import userStore from './userStore';
 
+/* uniapp渲染消息性能非常拉胯，所以这里先把离线消息存储到cacheChats,
+	等待所有离线消息拉取完成后，再统一进行渲染	*/
+let cacheChats = [];
+
 export default {
 	state: {
 		activeIndex: -1,
 		chats: [],
-		copyChats: [], 
 		privateMsgMaxId: 0,
 		groupMsgMaxId: 0,
 		loadingPrivateMsg: false,
@@ -17,19 +20,26 @@ export default {
 
 	mutations: {
 		initChats(state, chatsData) {
-			state.chats = chatsData.chats || [];
+			// 暂存至缓冲区
+			cacheChats = JSON.parse(JSON.stringify(chatsData.chats))
+			// 只取前10条数据做做样子,一切都为了加快初始化时间
+			let size = Math.min(chatsData.chats.length,10);
+			for (let i = 0; i < size; i++) {
+				let chat = chatsData.chats[i];
+				chat.messages = [];
+				state.chats[i] = chat;
+			}
 			state.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			state.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
 			// 防止图片一直处在加载中状态
-			state.chats.forEach((chat) => {
+			cacheChats.forEach((chat) => {
 				chat.messages.forEach((msg) => {
 					if (msg.loadStatus == "loading") {
 						msg.loadStatus = "fail"
 					}
 				})
 			})
-			// 拷贝一份,用于缓存离线消息
-			state.copyChats = JSON.parse(JSON.stringify(state.chats))
+
 		},
 		openChat(state, chatInfo) {
 			let chats = this.getters.findChats();
@@ -112,6 +122,10 @@ export default {
 			}
 		},
 		moveTop(state, idx) {
+			// 加载中不移动，防止卡顿
+			if (this.getters.isLoading()) {
+				return;
+			}
 			let chats = this.getters.findChats();
 			if (idx > 0) {
 				let chat = chats[idx];
@@ -158,7 +172,7 @@ export default {
 			}
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
-			
+
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
 				msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
@@ -186,7 +200,7 @@ export default {
 			// 根据id顺序插入，防止消息乱序
 			let insertPos = chat.messages.length;
 			// 防止 图片、文件 在发送方 显示 在顶端  因为还没存库，id=0
-			if (msgInfo.id && msgInfo.id > 0 ) {
+			if (msgInfo.id && msgInfo.id > 0) {
 				for (let idx in chat.messages) {
 					if (chat.messages[idx].id && msgInfo.id < chat.messages[idx].id) {
 						insertPos = idx;
@@ -195,10 +209,10 @@ export default {
 					}
 				}
 			}
-			if(insertPos == chat.messages.length){
+			if (insertPos == chat.messages.length) {
 				// 这种赋值效率最高
-				chat.messages[insertPos]= msgInfo;
-			}else{
+				chat.messages[insertPos] = msgInfo;
+			} else {
 				chat.messages.splice(insertPos, 0, msgInfo);
 			}
 			this.commit("saveToStorage");
@@ -268,13 +282,18 @@ export default {
 			}
 		},
 		refreshChats(state) {
-			// 将离线消息一次性装载回来
-			state.chats = JSON.parse(JSON.stringify(state.copyChats))
+			
+			// 排序
+			cacheChats.sort((chat1, chat2) => {
+				return chat2.lastSendTime - chat1.lastSendTime;
+			});
+			// 将消息一次性装载回来,只显示前30个会话，多了卡的不行
+			state.chats = JSON.parse(JSON.stringify(cacheChats.slice(0,30)))
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {
 			// 加载中不保存，防止卡顿
-			if(state.loadingPrivateMsg || state.loadingGroupMsg){
+			if (this.getters.isLoading()) {
 				return;
 			}
 			let userId = userStore.state.userInfo.id;
@@ -291,7 +310,6 @@ export default {
 		},
 		clear(state) {
 			state.chats = [];
-			state.copyChats = [];
 			state.activeIndex = -1;
 			state.privateMsgMaxId = 0;
 			state.groupMsgMaxId = 0;
@@ -317,11 +335,11 @@ export default {
 		}
 	},
 	getters: {
-		findChats: (state) => () => {
-			/* uniapp渲染消息性能非常拉胯，所以这里先把离线消息存储到state.copyChats，
-				等待所有离线消息拉取完成后，再统一进行渲染	*/
-			let isLoading = state.loadingPrivateMsg || state.loadingGroupMsg;
-			return isLoading ? state.copyChats : state.chats;
+		isLoading: (state) => () => {
+			return state.loadingPrivateMsg || state.loadingGroupMsg
+		},
+		findChats: (state, getters) => () => {
+			return getters.isLoading() ? cacheChats : state.chats;
 		},
 		findChatIdx: (state, getters) => (chat) => {
 			let chats = getters.findChats();

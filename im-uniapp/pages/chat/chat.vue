@@ -1,8 +1,8 @@
 <template>
 	<view class="tab-page">
 
-		<view v-if="loading" class="chat-loading" >
-			<loading  :size="50" :mask="false">
+		<view v-if="loading" class="chat-loading">
+			<loading :size="50" :mask="false">
 				<view>消息接收中...</view>
 			</loading>
 		</view>
@@ -129,21 +129,33 @@
 </script>
 
 <style scoped lang="scss">
-	.chat-tip {
-		position: absolute;
-		top: 400rpx;
-		padding: 50rpx;
-		line-height: 50rpx;
-		text-align: left;
-		color: darkblue;
-		font-size: 30rpx;
-	}
-
-	.chat-loading {
-		display: block;
-		height: 100rpx;
-		background: white;
+	.tab-page {
 		position: relative;
-		color: blue;
+		border: #dddddd solid 1px;
+		display: flex;
+		flex-direction: column;
+
+		.chat-tip {
+			position: absolute;
+			top: 400rpx;
+			padding: 50rpx;
+			line-height: 50rpx;
+			text-align: left;
+			color: darkblue;
+			font-size: 30rpx;
+		}
+
+		.chat-loading {
+			display: block;
+			height: 100rpx;
+			background: white;
+			position: relative;
+			color: blue;
+		}
+
+		.scroll-bar {
+			flex: 1;
+			height: 100%;
+		}
 	}
 </style>
