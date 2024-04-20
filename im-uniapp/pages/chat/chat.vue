@@ -10,12 +10,14 @@
 			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
-			<view v-for="(chat,index) in chatStore.chats" :key="index">
-				<chat-item :chat="chat" :index="index" @longpress.native="onShowMenu($event,index)"></chat-item>
+			<view v-for="(chatPos,i) in chatsPos" :key="i">
+				<chat-item v-if="!chatStore.chats[chatPos.idx].delete" :chat="chatStore.chats[chatPos.idx]"
+					:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"
+					@longpress.native="onShowMenu($event,chatPos.idx)"></chat-item>
 			</view>
 		</scroll-view>
 
-		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menu.items" @close="menu.show=false"
+		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menu.items" @close="onCloseMenu()"
 			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
@@ -30,12 +32,12 @@
 					chatIdx: -1,
 					items: [{
 							key: 'DELETE',
-							name: '删除',
+							name: '删除该聊天',
 							icon: 'trash'
 						},
 						{
 							key: 'TOP',
-							name: '置顶',
+							name: '置顶该聊天',
 							icon: 'arrow-up'
 						}
 					]
@@ -57,6 +59,7 @@
 				this.menu.show = false;
 			},
 			onShowMenu(e, chatIdx) {
+				this.menu.chatIdx = chatIdx;
 				uni.getSystemInfo({
 					success: (res) => {
 						let touches = e.touches[0];
@@ -81,6 +84,10 @@
 					}
 				})
 			},
+			onCloseMenu() {
+				this.menu.chatIdx = -1;
+				this.menu.show = false;
+			},
 			removeChat(chatIdx) {
 				this.$store.commit("removeChat", chatIdx);
 			},
@@ -103,13 +110,30 @@
 			}
 		},
 		computed: {
+			chatsPos() {
+				// 计算会话的顺序
+				let chatsPos = [];
+				let chats = this.chatStore.chats;
+				chats.forEach((chat, idx) => {
+					chatsPos.push({
+						idx: idx,
+						sendTime: chat.lastSendTime
+					})
+				})
+				chatsPos.sort((chatPos1, chatPos2) => {
+					return chatPos2.sendTime - chatPos1.sendTime;
+				});
+				return chatsPos;
+			},
 			chatStore() {
 				return this.$store.state.chatStore;
 			},
 			unreadCount() {
 				let count = 0;
 				this.chatStore.chats.forEach(chat => {
-					count += chat.unreadCount;
+					if (!chat.delete) {
+						count += chat.unreadCount;
+					}
 				})
 				return count;
 			},
@@ -147,10 +171,16 @@
 
 		.chat-loading {
 			display: block;
+			width: 100%;
 			height: 100rpx;
 			background: white;
 			position: relative;
 			color: blue;
+
+			.loading-box {
+				position: relative;
+
+			}
 		}
 
 		.scroll-bar {

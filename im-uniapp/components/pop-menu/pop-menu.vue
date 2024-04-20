@@ -28,7 +28,6 @@
 				this.$emit("select", item);
 			},
 			onClose() {
-				console.log("@touchmove")
 				this.$emit("close");
 			}
 		}

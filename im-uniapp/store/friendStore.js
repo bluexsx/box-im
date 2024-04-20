@@ -13,7 +13,7 @@ export default {
 		},
 		updateFriend(state, friend) {
 			state.friends.forEach((f, index) => {
-				if (f.id == friend.id) {
+				if (!f.delete && f.id == friend.id) {
 					// 拷贝属性
 					let online = state.friends[index].online;
 					Object.assign(state.friends[index], friend);
@@ -22,40 +22,24 @@ export default {
 			})
 		},
 		removeFriend(state, id) {
-			state.friends.forEach((f, idx) => {
-				if (f.id == id) {
-					state.friends.splice(idx, 1)
-				}
-			});
+			let friend = this.getters.findFriend(id);
+			if(friend){
+				friend.delete = true;
+			}
 		},
 		addFriend(state, friend) {
-			state.friends.push(friend);
+			let f = this.getters.findFriend(friend.id);
+			if(f){
+				Object.assign(f, friend);
+				f.delete = false;
+			}else{
+				state.friends.push(friend);
+			}
 		},
-
-		setOnlineStatus(state, onlineTerminals) {
+		setOnlineStatus(state, onlineUsers) {
 			state.friends.forEach((f) => {
-				let userTerminal = onlineTerminals.find((o) => f.id == o.userId);
-				if (userTerminal) {
-					f.online = true;
-					f.onlineTerminals = userTerminal.terminals;
-					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB) >= 0
-					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP) >= 0
-				} else {
-					f.online = false;
-					f.onlineTerminals = [];
-					f.onlineWeb = false;
-					f.onlineApp = false;
-				}
-			});
-
-			state.friends.sort((f1, f2) => {
-				if (f1.online && !f2.online) {
-					return -1;
-				}
-				if (f2.online && !f1.online) {
-					return 1;
-				}
-				return 0;
+				let onlineUser = onlineUsers.find((o) => f.id == o.userId);
+				f.online = !!onlineUser
 			});
 		},
 		refreshOnlineStatus(state) {
@@ -67,8 +51,8 @@ export default {
 				http({
 					url: '/user/terminal/online?userIds=' + userIds.join(','),
 					method: 'GET'
-				}).then((onlineTerminals) => {
-					this.commit("setOnlineStatus", onlineTerminals);
+				}).then((onlineUsers) => {
+					this.commit("setOnlineStatus", onlineUsers);
 				})
 			}
 			// 30s后重新拉取
@@ -97,6 +81,11 @@ export default {
 					reject();
 				})
 			});
+		}
+	},
+	getters:{
+		findFriend: (state) => (id) => {
+			return state.friends.find((f)=>f.id==id);
 		}
 	}
 }

@@ -79,11 +79,10 @@ public final class SensitiveFilterUtil {
      */
     @PostConstruct
     public void init() {
-        try (
-                // 类加载器
-                InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        ) {
+        try {
+            // 类加载器
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             String keyword;
             while ((keyword = reader.readLine()) != null) {
                 // 添加到前缀树

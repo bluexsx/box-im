@@ -3,14 +3,20 @@ import {
 	MESSAGE_STATUS
 } from '@/common/enums.js';
 import userStore from './userStore';
+/*
+	uniapp性能优化：
+	1.由于uniapp渲染消息性能非常拉胯,所以先把离线消息存储到cacheChats,等
+		待所有离线消息拉取完成后，再统一进行渲染
+	2.在vuex中对数组进行unshift,splice特别卡，所以删除会话、会话置顶、删
+		除消息等操作进行优化，不通过unshift,splice实现，改造方案如下：
+		删除会话： 通过delete标志判断是否删除
+		删除消息：通过delete标志判断是否删除
+		会话置顶：通过lastSendTime排序确定会话顺序
+*/
 
-/* uniapp渲染消息性能非常拉胯，所以这里先把离线消息存储到cacheChats,
-	等待所有离线消息拉取完成后，再统一进行渲染	*/
 let cacheChats = [];
-
 export default {
 	state: {
-		activeIndex: -1,
 		chats: [],
 		privateMsgMaxId: 0,
 		groupMsgMaxId: 0,
@@ -20,14 +26,19 @@ export default {
 
 	mutations: {
 		initChats(state, chatsData) {
-			// 暂存至缓冲区
-			cacheChats = JSON.parse(JSON.stringify(chatsData.chats))
-			// 只取前10条数据做做样子,一切都为了加快初始化时间
-			let size = Math.min(chatsData.chats.length,10);
-			for (let i = 0; i < size; i++) {
-				let chat = chatsData.chats[i];
-				chat.messages = [];
-				state.chats[i] = chat;
+			cacheChats = [];
+			for (let chat of chatsData.chats) {
+				// 已删除的会话直接丢弃
+				if (chat.delete) {
+					continue;
+				}
+				// 暂存至缓冲区
+				cacheChats.push(JSON.parse(JSON.stringify(chat)));
+				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
+				if (state.chats.length < 15) {
+					chat.messages = [];
+					state.chats.push(chat);
+				}
 			}
 			state.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			state.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
@@ -48,6 +59,7 @@ export default {
 				if (chats[idx].type == chatInfo.type &&
 					chats[idx].targetId === chatInfo.targetId) {
 					chat = chats[idx];
+					chat.delete = false;
 					// 放置头部
 					this.commit("moveTop", idx)
 					break;
@@ -65,15 +77,15 @@ export default {
 					unreadCount: 0,
 					messages: [],
 					atMe: false,
-					atAll: false
+					atAll: false,
+					delete: false
 				};
-				chats.unshift(chat);
+				chats.push(chat);
+				this.commit("moveTop", chats.length - 1)
 			}
-			this.commit("saveToStorage");
 		},
 		activeChat(state, idx) {
 			let chats = this.getters.findChats();
-			state.activeIndex = idx;
 			if (idx >= 0) {
 				chats[idx].unreadCount = 0;
 			}
@@ -109,7 +121,7 @@ export default {
 		},
 		removeChat(state, idx) {
 			let chats = this.getters.findChats();
-			chats.splice(idx, 1);
+			chats[idx].delete = true;
 			this.commit("saveToStorage");
 		},
 		removePrivateChat(state, userId) {
@@ -122,17 +134,11 @@ export default {
 			}
 		},
 		moveTop(state, idx) {
-			// 加载中不移动，防止卡顿
-			if (this.getters.isLoading()) {
-				return;
-			}
 			let chats = this.getters.findChats();
-			if (idx > 0) {
-				let chat = chats[idx];
-				chats.splice(idx, 1);
-				chats.unshift(chat);
-				this.commit("saveToStorage");
-			}
+			let chat = chats[idx];
+			// 最新的时间会显示在顶部
+			chat.lastSendTime = new Date().getTime();
+			this.commit("saveToStorage");
 		},
 		insertMessage(state, msgInfo) {
 			// 获取对方id或群id
@@ -233,13 +239,13 @@ export default {
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
-					chat.messages.splice(idx, 1);
+					chat.messages[idx].delete = true;
 					break;
 				}
 				// 正在发送中的消息可能没有id，根据发送时间删除
 				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
 					chat.messages[idx].sendTime == msgInfo.sendTime) {
-					chat.messages.splice(idx, 1);
+					chat.messages[idx].delete = true;
 					break;
 				}
 			}
@@ -271,24 +277,23 @@ export default {
 		},
 		loadingPrivateMsg(state, loadding) {
 			state.loadingPrivateMsg = loadding;
-			if (!state.loadingPrivateMsg && !state.loadingGroupMsg) {
+			if (!this.getters.isLoading()) {
 				this.commit("refreshChats")
 			}
 		},
 		loadingGroupMsg(state, loadding) {
 			state.loadingGroupMsg = loadding;
-			if (!state.loadingPrivateMsg && !state.loadingGroupMsg) {
+			if (!this.getters.isLoading()) {
 				this.commit("refreshChats")
 			}
 		},
 		refreshChats(state) {
-			
 			// 排序
 			cacheChats.sort((chat1, chat2) => {
 				return chat2.lastSendTime - chat1.lastSendTime;
 			});
-			// 将消息一次性装载回来,只显示前30个会话，多了卡的不行
-			state.chats = JSON.parse(JSON.stringify(cacheChats.slice(0,30)))
+			// 将消息一次性装载回来
+			state.chats = cacheChats;
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {
@@ -305,12 +310,12 @@ export default {
 			}
 			uni.setStorage({
 				key: key,
-				data: chatsData
+				data: chatsData ,
 			})
 		},
 		clear(state) {
+			cacheChats = [];
 			state.chats = [];
-			state.activeIndex = -1;
 			state.privateMsgMaxId = 0;
 			state.groupMsgMaxId = 0;
 			state.loadingPrivateMsg = false;

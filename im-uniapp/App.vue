@@ -63,12 +63,14 @@
 				})
 			},
 			pullPrivateOfflineMessage(minId) {
+				store.commit("loadingPrivateMsg",true)
 				http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
 					method: 'get'
 				});
 			},
 			pullGroupOfflineMessage(minId) {
+				store.commit("loadingGroupMsg",true)
 				http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
 					method: 'get'
@@ -195,7 +197,7 @@
 			},
 			loadFriendInfo(id) {
 				return new Promise((resolve, reject) => {
-					let friend = store.state.friendStore.friends.find((f) => f.id == id);
+					let friend = store.getters.findFriend(id);
 					if (friend) {
 						resolve(friend);
 					} else {

@@ -10,7 +10,7 @@
 					upper-threshold="200" @scrolltoupper="onScrollToTop"
 					:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
+					<chat-message-item v-if="idx>=showMinIdx&&!msgInfo.delete" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
 						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
 						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
 						:msgInfo="msgInfo" :groupMembers="groupMembers">
@@ -544,8 +544,14 @@
 				});
 			},
 			readedMessage() {
+				if(this.unreadCount == 0){
+					
+					console.log("0000000000")
+					return;
+				}
+				let url = ""
 				if (this.chat.type == "GROUP") {
-					var url = `/message/group/readed?groupId=${this.chat.targetId}`
+					url = `/message/group/readed?groupId=${this.chat.targetId}`
 				} else {
 					url = `/message/private/readed?friendId=${this.chat.targetId}`
 				}
@@ -565,7 +571,6 @@
 					this.group = group;
 					this.$store.commit("updateChatFromGroup", group);
 					this.$store.commit("updateGroup", group);
-
 				});
 
 				this.$http({
@@ -660,8 +665,6 @@
 			// 初始状态只显示20条消息
 			let size = this.chat.messages.length;
 			this.showMinIdx = size > 20 ? size - 20 : 0;
-			// 激活当前会话
-			this.$store.commit("activeChat", options.chatIdx);
 			// 消息已读
 			this.readedMessage()
 			// 加载好友或群聊信息
@@ -671,6 +674,8 @@
 				this.loadFriend(this.chat.targetId);
 				this.loadReaded(this.chat.targetId)
 			}
+			// 激活当前会话
+			this.$store.commit("activeChat", options.chatIdx);
 			// 复位回执消息
 			this.isReceipt = false;
 		},

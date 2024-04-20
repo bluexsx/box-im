@@ -17,9 +17,11 @@
 				</view>
 
 				<view class="chat-msg-bottom" @touchmove="onHideMenu()">
-					<rich-text class="chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT"
-						:nodes="$emo.transform(msgInfo.content)"
-						@longpress="onShowMenu($event)"></rich-text>
+					<view v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT" @longpress.native="onShowMenu($event)">
+						<rich-text class="chat-msg-text" 
+							:nodes="$emo.transform(msgInfo.content)"
+							></rich-text>
+					</view>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<view class="img-load-box" @longpress="onShowMenu($event)">
 							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"

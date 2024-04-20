@@ -5,8 +5,9 @@
 		</view>
 		<view class="friend-items">
 			<scroll-view  class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="(friend,index) in $store.state.friendStore.friends" v-show="searchText && friend.nickName.startsWith(searchText)"  :key="index">
-					<friend-item :friend="friend" :index="index"></friend-item>
+				<view v-for="(friend,index) in $store.state.friendStore.friends"  :key="index">
+					<friend-item v-if="searchText&&!friend.delete&&friend.nickName.startsWith(searchText)" 
+						:friend="friend" :index="index"></friend-item>
 				</view>
 			</scroll-view>
 		</view>

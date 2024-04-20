@@ -237,8 +237,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setData(msgInfo);
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
-        sendMessage.setRecvId(session.getUserId());
-        sendMessage.setSendToSelf(false);
+        sendMessage.setSendToSelf(true);
         sendMessage.setSendResult(false);
         imClient.sendPrivateMessage(sendMessage);
         // 推送回执消息给对方，更新已读状态

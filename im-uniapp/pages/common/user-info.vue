@@ -55,8 +55,9 @@
 					headImage: this.userInfo.headImage,
 				};
 				this.$store.commit("openChat", chat);
+				let chatIdx = this.$store.getters.findChatIdx(chat);
 				uni.navigateTo({
-					url:"/pages/chat/chat-box?chatIdx=0"
+					url:"/pages/chat/chat-box?chatIdx=" + chatIdx
 				})
 			},
 			onAddFriend() {
@@ -130,7 +131,7 @@
 		},
 		computed: {
 			isFriend() {
-				return this.friendInfo != undefined;
+				return this.friendInfo&&!this.friendInfo.delete;
 			},
 			friendInfo(){
 				let friends = this.$store.state.friendStore.friends;
