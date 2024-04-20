@@ -20,7 +20,7 @@
 						<li>web端音视频功能优化:支持语音呼叫、会话中加入通话状态消息</li>
 						<li>uniapp端支持音视频通话，并与web端打通</li>
 						<li>uniapp端音视频源码通话源码暂未开源，需付费获取:
-							<a href="https://www.yuque.com/u1475064/oncgyg/vi7engzluty594s2" target="_blank">uniapp端音视频通源码购买说明</a>
+							<a href="https://www.yuque.com/u1475064/mufu2a/vi7engzluty594s2" target="_blank">uniapp端音视频通源码购买说明</a>
 						</li>
 					</ul>
 				</div>

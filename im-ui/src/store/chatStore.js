@@ -176,9 +176,8 @@ export default {
 			}
 			// 根据id顺序插入，防止消息乱序
 			let insertPos = chat.messages.length;
-			
-			if(msgInfo.id>0){
-				//防止 图片、文件 在发送方 显示 在顶端  因为还没存库，id=0
+			// 防止 图片、文件 在发送方 显示 在顶端  因为还没存库，id=0
+			if(msgInfo.id && msgInfo.id > 0){
 				for (let idx in chat.messages) {
 					if (chat.messages[idx].id && msgInfo.id < chat.messages[idx].id) {
 						insertPos = idx;
@@ -187,8 +186,6 @@ export default {
 					}
 				} 
 			}
-			
-			
 			chat.messages.splice(insertPos, 0, msgInfo);
 			this.commit("saveToStorage");
 		},

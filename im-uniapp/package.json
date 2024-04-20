@@ -4,7 +4,6 @@
 		"scripts": {}
 	},
 	"dependencies": {
-		"js-audio-recorder": "^1.0.7",
-		"recorder-core": "^1.3.23122400"
+		"js-audio-recorder": "^1.0.7"
 	}
 }

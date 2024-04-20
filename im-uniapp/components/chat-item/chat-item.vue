@@ -1,5 +1,5 @@
 <template>
-	<view class="chat-item" @click="showChatBox()">
+	<view class="chat-item" :class="active?'active':''" @click="showChatBox()">
 		<view class="left">
 			<head-image :url="chat.headImage" :name="chat.showName" :size="90"></head-image>
 			<view v-if="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</view>
@@ -30,6 +30,10 @@
 			},
 			index: {
 				type: Number
+			},
+			active: {
+				type: Boolean,
+				default: false
 			}
 		},
 		methods: {
@@ -62,9 +66,13 @@
 		padding-left: 20rpx;
 		align-items: center;
 		background-color: white;
-		white-space: nowrap;
+		white-space: nowrap; 
 
 		&:hover {
+			background-color: #eeeeee;
+		}
+		
+		&.active {
 			background-color: #eeeeee;
 		}
 
@@ -100,8 +108,8 @@
 
 			.chat-name {
 				display: flex;
-				line-height: 50rpx;
-				height: 50rpx;
+				line-height: 44rpx;
+				height: 44rpx;
 
 				.chat-name-text {
 					flex: 1;
@@ -122,11 +130,12 @@
 
 			.chat-content {
 				display: flex;
-				line-height: 44rpx;
+				line-height: 60rpx;
+				height: 60rpx;
 				.chat-at-text {
 					color: #c70b0b;
 					font-size: 24rpx;
-				}
+				} 
 
 				.chat-send-name {
 					font-size: 26rpx;
@@ -137,8 +146,7 @@
 					font-size: 28rpx;
 					white-space: nowrap;
 					overflow: hidden;
-					line-height: 50rpx;
-					text-overflow: ellipsis;
+					text-overflow: ellipsis;	
 				}
 			}
 		}

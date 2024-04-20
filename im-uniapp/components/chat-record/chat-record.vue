@@ -1,7 +1,10 @@
 <template>
 	<view class="chat-record">
-		<view class="chat-record-bar" id="chat-record-bar" :style="recordBarStyle" @touchstart="onStartRecord"
-			@touchmove="onTouchMove" @touchend.prevent="onEndRecord">{{recording?'正在录音':'长按 说话'}}</view>
+		<view class="chat-record-bar" id="chat-record-bar" :style="recordBarStyle" 
+			@click.stop=""
+			@touchstart.prevent="onStartRecord"
+			@touchmove.prevent="onTouchMove" 
+			@touchend.prevent="onEndRecord">{{recording?'正在录音':'长按 说话'}}</view>
 		<view v-if="recording" class="chat-record-window" :style="recordWindowStyle">
 			<view class="rc-wave">
 				<text class="note" style="--d: 0"></text>
@@ -13,7 +16,7 @@
 				<text class="note" style="--d: 6"></text>
 			</view>
 			<view class="rc-tip">{{recordTip}}</view>
-			<view class="cancel-btn">
+			<view class="cancel-btn" @click="onCancel">
 				<uni-icons :class="moveToCancel?'red':'black'" type="clear" 
 				:size="moveToCancel?45:40"></uni-icons>
 			</view>
@@ -40,7 +43,19 @@
 				const moveY = e.touches[0].clientY;
 				this.moveToCancel = moveY < this.recordBarTop-40;
 			},
+			onCancel(){
+				if(this.recording){
+					this.moveToCancel = true;
+					this.onEndRecord();
+				}
+			},
 			onStartRecord() {
+				/* 用户第一次使用语音会唤醒录音权限请求，此时会导致@touchend失效，
+					一直处于录音状态，这里允许用户再次点击发送语音并结束录音 */
+				if(this.recording){
+					this.onEndRecord();
+					return;
+				}
 				console.log("开始录音")
 				this.moveToCancel = false;
 				this.initRecordBar();

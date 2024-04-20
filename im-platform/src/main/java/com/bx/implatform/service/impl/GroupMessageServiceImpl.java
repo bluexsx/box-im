@@ -206,12 +206,13 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         if(!imClient.isOnline(session.getUserId())){
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "网络连接失败，无法拉取离线消息");
         }
-
         // 查询用户加入的群组
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         Map<Long, GroupMember> groupMemberMap = CollStreamUtil.toIdentityMap(members, GroupMember::getGroupId);
         Set<Long> groupIds = groupMemberMap.keySet();
         if(CollectionUtil.isEmpty(groupIds)){
+            // 关闭加载中标志
+            this.sendLoadingMessage(false);
             return;
         }
         // 开启加载中标志

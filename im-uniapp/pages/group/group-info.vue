@@ -86,8 +86,9 @@
 					headImage: this.group.headImage,
 				};
 				this.$store.commit("openChat", chat);
+				let chatIdx = this.$store.getters.findChatIdx(chat);
 				uni.navigateTo({
-					url: "/pages/chat/chat-box?chatIdx=0"
+					url: "/pages/chat/chat-box?chatIdx=" + chatIdx
 				})
 			},
 			onQuitGroup() {

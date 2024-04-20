@@ -38,7 +38,7 @@ public class PrivateMessageController {
 
 
     @GetMapping("/loadMessage")
-    @ApiOperation(value = "拉取消息", notes = "拉取消息,一次最多拉取100条")
+    @ApiOperation(value = "拉取消息(已废弃)", notes = "拉取消息,一次最多拉取100条")
     public Result<List<PrivateMessageVO>> loadMessage(@RequestParam Long minId) {
         return ResultUtils.success(privateMessageService.loadMessage(minId));
     }

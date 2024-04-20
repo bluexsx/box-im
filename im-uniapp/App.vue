@@ -15,8 +15,6 @@
 			init() {
 				// 加载数据
 				store.dispatch("load").then(() => {
-					// 审核
-					this.initAudit();
 					// 初始化websocket
 					this.initWebSocket();
 				}).catch((e) => {
@@ -63,16 +61,22 @@
 				})
 			},
 			pullPrivateOfflineMessage(minId) {
+				store.commit("loadingPrivateMsg",true)
 				http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(()=>{
+					store.commit("loadingPrivateMsg",false)
+				})
 			},
 			pullGroupOfflineMessage(minId) {
+				store.commit("loadingGroupMsg",true)
 				http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(()=>{
+					store.commit("loadingGroupMsg",false)
+				})
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
@@ -195,13 +199,13 @@
 			},
 			loadFriendInfo(id) {
 				return new Promise((resolve, reject) => {
-					let friend = store.state.friendStore.friends.find((f) => f.id == id);
+					let friend = store.getters.findFriend(id);
 					if (friend) {
 						resolve(friend);
 					} else {
 						http({
 							url: `/friend/find/${id}`,
-							method: 'get'
+							method: 'GET'
 						}).then((friend) => {
 							store.commit("addFriend", friend);
 							resolve(friend)
@@ -217,7 +221,7 @@
 					} else {
 						http({
 							url: `/group/find/${id}`,
-							method: 'get'
+							method: 'GET'
 						}).then((group) => {
 							resolve(group)
 							store.commit("addGroup", group);
@@ -239,21 +243,6 @@
 				// this.audioTip = uni.createInnerAudioContext();
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
-			},
-			initAudit() {
-				if (store.state.userStore.userInfo.type == 1) {
-					// 显示群组功能
-					uni.setTabBarItem({
-						index: 2,
-						text: "群聊"
-					})
-				} else {
-					// 隐藏群组功能
-					uni.setTabBarItem({
-						index: 2,
-						text: "搜索"
-					})
-				}
 			}
 		},
 		onLaunch() {

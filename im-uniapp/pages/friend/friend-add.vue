@@ -70,7 +70,7 @@
 			isFriend(userId) {
 				let friends = this.$store.state.friendStore.friends;
 				let friend = friends.find((f) => f.id == userId);
-				return friend != undefined;
+				return friend&&!friend.delete;
 			}
 		}
 	}

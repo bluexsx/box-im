@@ -30,30 +30,33 @@ public class IMSender {
 
     public<T> void sendPrivateMessage(IMPrivateMessage<T> message) {
         List<IMSendResult> results = new LinkedList<>();
-        for (Integer terminal : message.getRecvTerminals()) {
-            // 获取对方连接的channelId
-            String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, message.getRecvId().toString(), terminal.toString());
-            Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
-            // 如果对方在线，将数据存储至redis，等待拉取推送
-            if (serverId != null) {
-                String sendKey = String.join(":", IMRedisKey.IM_MESSAGE_PRIVATE_QUEUE, serverId.toString());
-                IMRecvInfo recvInfo = new IMRecvInfo();
-                recvInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
-                recvInfo.setSendResult(message.getSendResult());
-                recvInfo.setServiceName(appName);
-                recvInfo.setSender(message.getSender());
-                recvInfo.setReceivers(Collections.singletonList(new IMUserInfo(message.getRecvId(), terminal)));
-                recvInfo.setData(message.getData());
-                redisTemplate.opsForList().rightPush(sendKey, recvInfo);
-            } else {
-                IMSendResult result = new IMSendResult();
-                result.setSender(message.getSender());
-                result.setReceiver(new IMUserInfo(message.getRecvId(), terminal));
-                result.setCode(IMSendCode.NOT_ONLINE.code());
-                result.setData(message.getData());
-                results.add(result);
+        if(!Objects.isNull(message.getRecvId())){
+            for (Integer terminal : message.getRecvTerminals()) {
+                // 获取对方连接的channelId
+                String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, message.getRecvId().toString(), terminal.toString());
+                Integer serverId = (Integer)redisTemplate.opsForValue().get(key);
+                // 如果对方在线，将数据存储至redis，等待拉取推送
+                if (serverId != null) {
+                    String sendKey = String.join(":", IMRedisKey.IM_MESSAGE_PRIVATE_QUEUE, serverId.toString());
+                    IMRecvInfo recvInfo = new IMRecvInfo();
+                    recvInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());
+                    recvInfo.setSendResult(message.getSendResult());
+                    recvInfo.setServiceName(appName);
+                    recvInfo.setSender(message.getSender());
+                    recvInfo.setReceivers(Collections.singletonList(new IMUserInfo(message.getRecvId(), terminal)));
+                    recvInfo.setData(message.getData());
+                    redisTemplate.opsForList().rightPush(sendKey, recvInfo);
+                } else {
+                    IMSendResult result = new IMSendResult();
+                    result.setSender(message.getSender());
+                    result.setReceiver(new IMUserInfo(message.getRecvId(), terminal));
+                    result.setCode(IMSendCode.NOT_ONLINE.code());
+                    result.setData(message.getData());
+                    results.add(result);
+                }
             }
         }
+
         // 推送给自己的其他终端
         if(message.getSendToSelf()){
             for (Integer terminal : IMTerminalType.codes()) {

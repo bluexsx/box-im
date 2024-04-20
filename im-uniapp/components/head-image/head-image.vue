@@ -83,9 +83,7 @@
 
 		.avatar-text {
 			background-color: #f2f2f2;
-			/* 默认背景色 */
-			border-radius: 50%;
-			/* 圆角效果 */
+			border-radius: 10%;
 			display: flex;
 			align-items: center;
 			justify-content: center;

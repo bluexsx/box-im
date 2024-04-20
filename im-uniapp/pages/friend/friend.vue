@@ -8,13 +8,18 @@
 				<uni-icons type="personadd" size="30"></uni-icons>
 			</view>
 		</view>
-		<view class="friend-tip" v-if="$store.state.friendStore.friends.length==0">
+		<view class="friend-tip" v-if="friends.length==0">
 			温馨提示：您现在还没有任何好友，快点击右上方'+'按钮添加好友吧~
 		</view>
 		<view class="friend-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
-					<friend-item :friend="friend"></friend-item>
+				<!-- 先展示在线好友-->
+				<view v-for="(friend,index) in friends" :key="index">
+					<friend-item v-if="!friend.delete&&friend.online" :friend="friend"></friend-item>
+				</view>
+				<!-- 再展示离线好友-->
+				<view v-for="(friend,index) in friends" :key="index">
+					<friend-item v-if="!friend.delete&&!friend.online" :friend="friend"></friend-item>
 				</view>
 			</scroll-view>
 		</view>
@@ -40,8 +45,12 @@
 					url: "/pages/friend/friend-add"
 				})
 			}
+		},
+		computed:{
+			friends(){
+				return this.$store.state.friendStore.friends;
+			}
 		}
-	
 	}
 </script>
 
