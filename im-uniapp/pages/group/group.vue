@@ -1,5 +1,5 @@
 <template>
-	<view v-if="$store.state.userStore.userInfo.type == 1" class="tab-page group">
+	<view class="tab-page group">
 		<view class="nav-bar">
 			<view class="nav-search">
 				<uni-search-bar @focus="onFocusSearch" cancelButton="none" placeholder="点击搜索群聊"></uni-search-bar>
@@ -18,10 +18,6 @@
 				</view>
 			</scroll-view>
 		</view>
-	</view>
-	<!-- wx audit -->
-	<view v-else>
-		<user-search></user-search>
 	</view>
 </template>
 
