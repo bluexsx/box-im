@@ -497,10 +497,7 @@
 			},
 			onScrollToTop() {
 				if(this.showMinIdx==0){
-					uni.showToast({
-						title: "没有更多消息啦",
-						icon: "none"
-					})
+					console.log("消息已滚动到顶部")
 					return;
 				}
 			
@@ -575,7 +572,7 @@
 
 				this.$http({
 					url: `/group/members/${groupId}`,
-					method: 'get'
+					method: 'GET'
 				}).then((groupMembers) => {
 					this.groupMembers = groupMembers;
 				});

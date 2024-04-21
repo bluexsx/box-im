@@ -64,15 +64,19 @@
 				store.commit("loadingPrivateMsg",true)
 				http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(()=>{
+					store.commit("loadingPrivateMsg",false)
+				})
 			},
 			pullGroupOfflineMessage(minId) {
 				store.commit("loadingGroupMsg",true)
 				http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(()=>{
+					store.commit("loadingGroupMsg",false)
+				})
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
@@ -201,7 +205,7 @@
 					} else {
 						http({
 							url: `/friend/find/${id}`,
-							method: 'get'
+							method: 'GET'
 						}).then((friend) => {
 							store.commit("addFriend", friend);
 							resolve(friend)
@@ -217,7 +221,7 @@
 					} else {
 						http({
 							url: `/group/find/${id}`,
-							method: 'get'
+							method: 'GET'
 						}).then((group) => {
 							resolve(group)
 							store.commit("addGroup", group);

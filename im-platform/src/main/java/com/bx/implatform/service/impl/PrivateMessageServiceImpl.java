@@ -182,10 +182,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         if(!imClient.isOnline(session.getUserId())){
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "网络连接失败，无法拉取离线消息");
         }
-
         // 查询用户好友列表
         List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
         if (friends.isEmpty()) {
+            // 关闭加载中标志
+            this.sendLoadingMessage(false);
             return;
         }
         // 开启加载中标志
