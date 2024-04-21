@@ -194,9 +194,8 @@ import * as wsApi from './api/wssocket';
 
 let wsUrl = 'ws://localhost:8878/im'
 let token = "您的token";
-wsApi.init(wsUrl,token);
-wsApi.connect();
-wsApi.onOpen(() => {
+wsApi.connect(wsUrl,token);
+wsApi.onConnect(() => {
     // 连接打开
     console.log("连接成功");
 });
@@ -213,7 +212,12 @@ wsApi.onMessage((cmd,msgInfo) => {
     }
 })
 wsApi.onClose((e) => {
-    console.log("连接关闭");
+  	if (e.code != 3000) {
+      	console.log("意外断开，进行重连");
+      	wsApi.reconnect(wsUrl,token);
+    }else{
+    		console.log("主动断开");
+  	}
 });
 ```
 
