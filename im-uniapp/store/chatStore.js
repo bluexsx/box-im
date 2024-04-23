@@ -302,7 +302,7 @@ export default {
 				return;
 			}
 			let userId = userStore.state.userInfo.id;
-			let key = "chats-" + userId;
+			let key = "chats-app-" + userId;
 			let chatsData = {
 				privateMsgMaxId: state.privateMsgMaxId,
 				groupMsgMaxId: state.groupMsgMaxId,
@@ -327,7 +327,7 @@ export default {
 			return new Promise((resolve, reject) => {
 				let userId = userStore.state.userInfo.id;
 				uni.getStorage({
-					key: "chats-" + userId,
+					key: "chats-app-" + userId,
 					success(res) {
 						context.commit("initChats", res.data);
 						resolve()
