@@ -341,10 +341,6 @@
 					&.router-link-active .icon {
 						color: #d5894c;
 					}
-					
-					&:hover .icon{
-						color: white;
-					}
 				}
 				
 				.icon  {
@@ -389,7 +385,7 @@
 
 	.content-box {
 		padding: 0;
-		background-color: #eee;
+		background-color: #f8f8f8;
 		color: black;
 		text-align: center;
 	}

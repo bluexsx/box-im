@@ -282,7 +282,6 @@
 				display: flex;
 				align-items: center;
 				padding: 3px 8px;
-				background-color: #5870e6;
 				
 				.el-input__inner {
 					border-radius: 10px !important;

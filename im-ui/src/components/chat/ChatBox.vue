@@ -778,7 +778,7 @@ export default {
 	width: 100%;
 	background: #f8f8f8;
 	border: #dddddd solid 1px;
-
+	
 	.el-header {
 		padding: 3px;
 		background-color: #5870e6;

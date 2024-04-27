@@ -75,7 +75,6 @@
 
 			.chat-list-header {
 				padding: 3px 8px;
-				background-color: #5870e6;
 				line-height: 50px;
 				
 				.el-input__inner {
