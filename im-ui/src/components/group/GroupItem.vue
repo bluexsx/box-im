@@ -43,6 +43,8 @@
 		align-items: center;
 		background-color: white;
 		white-space: nowrap;
+		cursor: pointer;
+		
 		&:hover {
 			background-color: #F8FAFF;
 		}
