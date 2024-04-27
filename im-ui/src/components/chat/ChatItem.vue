@@ -100,19 +100,19 @@
 		padding: 5px;
 		padding-left: 10px;
 		align-items: center;
-		background-color: #fafafa;
+		background-color: white;
 		white-space: nowrap;
 		color: black;
 		cursor: pointer;
 
 		&:hover {
-			background-color: #eeeeee;
+			background-color: #F8FAFF;
 		}
-
+			
 		&.active {
-			background-color: #e8e8f0;
+			background-color: #F4F9FF;
 		}
-
+			
 		.chat-left {
 			position: relative;
 			display: flex;

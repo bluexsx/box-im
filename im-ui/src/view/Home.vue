@@ -3,29 +3,29 @@
 		<el-aside width="80px" class="navi-bar">
 			<div class="user-head-image">
 				<head-image :name="$store.state.userStore.userInfo.nickName"
-					:url="$store.state.userStore.userInfo.headImageThumb" :size="60"
+					:url="$store.state.userStore.userInfo.headImageThumb" :size="50"
 					@click.native="showSettingDialog = true">
 				</head-image>
 			</div>
-			<el-menu background-color="#333333" text-color="#ddd" style="margin-top: 30px;">
+			<el-menu background-color="#19082f"  style="margin-top: 25px;">
 				<el-menu-item title="聊天">
-					<router-link v-bind:to="'/home/chat'">
-						<span class="el-icon-chat-dot-round"></span>
+					<router-link class="link" v-bind:to="'/home/chat'">
+						<span class="icon iconfont icon-chat"></span>
 						<div v-show="unreadCount > 0" class="unread-text">{{ unreadCount }}</div>
 					</router-link>
 				</el-menu-item>
 				<el-menu-item title="好友">
-					<router-link v-bind:to="'/home/friend'">
-						<span class="el-icon-user"></span>
+					<router-link class="link" v-bind:to="'/home/friend'">
+						<span class="icon iconfont icon-friend"></span>
 					</router-link>
 				</el-menu-item>
 				<el-menu-item title="群聊">
-					<router-link v-bind:to="'/home/group'">
-						<span class="icon iconfont icon-group_fill"></span>
+					<router-link class="link" v-bind:to="'/home/group'">
+						<span class="icon iconfont icon-group"></span>
 					</router-link>
 				</el-menu-item>
 				<el-menu-item title="设置" @click="showSetting()">
-					<span class="el-icon-setting"></span>
+					<span class="icon iconfont icon-setting"></span>
 				</el-menu-item>
 			</el-menu>
 			<div class="exit-box" @click="onExit()" title="退出">
@@ -322,8 +322,8 @@
 
 <style scoped lang="scss">
 	.navi-bar {
-		background: #333333;
-		padding: 10px;
+		background: #19082f;
+		padding: 15px;
 		padding-top: 50px;
 
 		.el-menu {
@@ -331,21 +331,25 @@
 			flex: 1;
 
 			.el-menu-item {
-				margin: 25px 0;
-
-				.router-link-exact-active span {
-					color: white !important;
-				}
-
-
-
-				span {
-					font-size: 24px !important;
-					color: #aaaaaa;
-
-					&:hover {
-						color: white !important;
+				margin: 20px 0;
+				background-color: #19082f !important;
+				padding: 0 !important;
+				text-align: center;
+				.link {
+					text-decoration: none;
+					
+					&.router-link-active .icon {
+						color: #d5894c;
 					}
+					
+					&:hover .icon{
+						color: white;
+					}
+				}
+				
+				.icon  {
+					font-size: 26px !important;
+					color: #ddd;
 				}
 
 				.unread-text {
@@ -365,30 +369,28 @@
 			}
 		}
 
-
-
 		.exit-box {
 			position: absolute;
 			width: 60px;
 			bottom: 40px;
-			color: #aaaaaa;
+			color: #ccc;
 			text-align: center;
 			cursor: pointer;
 
 			.icon {
 				font-size: 28px;
 			}
+			
 			&:hover {
-				color: white !important;
+				color: white;
 			}
 		}
 	}
 
 	.content-box {
 		padding: 0;
-		background-color: #E9EEF3;
-		color: #333;
+		background-color: #eee;
+		color: black;
 		text-align: center;
-
 	}
 </style>

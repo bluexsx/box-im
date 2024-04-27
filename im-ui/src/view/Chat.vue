@@ -2,8 +2,8 @@
 	<el-container class="chat-page">
 		<el-aside width="260px" class="chat-list-box">
 			<div class="chat-list-header">
-				<el-input width="200px" placeholder="搜索" v-model="searchText">
-					<el-button slot="append" icon="el-icon-search"></el-button>
+				<el-input class="search-text" placeholder="搜索" v-model="searchText">
+					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
 				</el-input>
 			</div>
 			<div class="chat-list-loadding"  v-if="loading" v-loading="true" element-loading-text="消息接收中..."
@@ -74,9 +74,15 @@
 			width: 3rem;
 
 			.chat-list-header {
-				padding: 5px;
-				background-color: white;
+				padding: 3px 8px;
+				background-color: #5870e6;
 				line-height: 50px;
+				
+				.el-input__inner {
+					border-radius: 10px !important;
+					background-color: #F8F8F8;
+				}
+				
 			}
 			
 			.chat-list-loadding{
@@ -90,6 +96,8 @@
 			
 			.chat-list-items {
 				flex: 1;
+				background: #F8F8F8;
+				margin: 0 3px;
 			}
 		}
 	}

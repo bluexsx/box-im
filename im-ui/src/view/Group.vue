@@ -2,13 +2,11 @@
 	<el-container class="group-page">
 		<el-aside width="260px" class="group-list-box">
 			<div class="group-list-header">
-				<div class="group-list-search">
-					<el-input width="200px" placeholder="搜索群聊" v-model="searchText">
-						<el-button slot="append" icon="el-icon-search"></el-button>
-					</el-input>
-				</div>
-				<el-button plain icon="el-icon-plus" style="border: none; padding: 12px; font-size: 20px;color: black;"
-					title="创建群聊" @click="onCreateGroup()"></el-button>
+				<el-input class="search-text" placeholder="搜索" v-model="searchText">
+					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
+				</el-input>
+				<el-button plain class="add-btn" icon="el-icon-plus" title="创建群聊"
+					@click="onCreateGroup()"></el-button>
 			</div>
 			<el-scrollbar class="group-list-items">
 				<div v-for="(group,index) in groupStore.groups" :key="index">
@@ -26,17 +24,17 @@
 				<div v-show="activeGroup.id">
 					<div class="group-info">
 						<div>
-							<file-upload  v-show="isOwner" class="avatar-uploader" :action="imageAction"
+							<file-upload v-show="isOwner" class="avatar-uploader" :action="imageAction"
 								:showLoading="true" :maxSize="maxSize" @success="onUploadSuccess"
 								:fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
 								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 							</file-upload>
-							<head-image  v-show="!isOwner" class="avatar" :size="200" 
-								:url="activeGroup.headImage"
+							<head-image v-show="!isOwner" class="avatar" :size="200" :url="activeGroup.headImage"
 								:name="activeGroup.remark">
 							</head-image>
-							<el-button class="send-btn" icon="el-icon-chat-dot-round" type="primary" @click="onSendMessage()">发送消息</el-button>
+							<el-button class="send-btn" icon="el-icon-position" type="primary"
+								@click="onSendMessage()">发消息</el-button>
 						</div>
 						<el-form class="group-form" label-width="130px" :model="activeGroup" :rules="rules"
 							ref="groupForm">
@@ -58,7 +56,7 @@
 									maxlength="1024" placeholder="群主未设置"></el-input>
 							</el-form-item>
 							<div>
-								<el-button type="success" @click="onSaveGroup()">提交</el-button>
+								<el-button type="success" @click="onSaveGroup()">保存</el-button>
 								<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出群聊</el-button>
 								<el-button type="danger" v-show="isOwner" @click="onDissolve()">解散群聊</el-button>
 							</div>
@@ -69,8 +67,7 @@
 						<div class="group-member-list">
 							<div v-for="(member) in groupMembers" :key="member.id">
 								<group-member v-show="!member.quit" class="group-member" :member="member"
-									:showDel="isOwner&&member.userId!=activeGroup.ownerId"
-									@del="onKick"></group-member>
+									:showDel="isOwner&&member.userId!=activeGroup.ownerId" @del="onKick"></group-member>
 							</div>
 							<div class="group-invite">
 								<div class="invite-member-btn" title="邀请好友进群聊" @click="onInviteMember()">
@@ -159,7 +156,7 @@
 				this.showAddGroupMember = false;
 			},
 			onUploadSuccess(data) {
-				this.activeGroup.headImage =data.originUrl;
+				this.activeGroup.headImage = data.originUrl;
 				this.activeGroup.headImageThumb = data.thumbUrl;
 			},
 			onSaveGroup() {
@@ -249,9 +246,9 @@
 					this.groupMembers = members;
 				})
 			},
-			reset(){
-				this.activeGroup={};
-				this.groupMembers=[];
+			reset() {
+				this.activeGroup = {};
+				this.groupMembers = [];
 			}
 		},
 		computed: {
@@ -278,22 +275,34 @@
 			display: flex;
 			flex-direction: column;
 			border: #dddddd solid 1px;
-			background: white;
+			background: #F8F8F8;
 
 			.group-list-header {
 				height: 50px;
 				display: flex;
 				align-items: center;
-				padding: 5px;
-				background-color: white;
-
-				.group-list-search {
-					flex: 1;
+				padding: 3px 8px;
+				background-color: #5870e6;
+				
+				.el-input__inner {
+					border-radius: 10px !important;
+				}
+				
+				.add-btn {
+					padding: 5px !important;
+					margin: 5px;
+					font-size: 20px;
+					color: #587FF0;
+					border: #587FF0 1px solid;
+					background-color: #F0F8FF;
+					border-radius: 50%;
 				}
 			}
 
 			.group-list-items {
 				flex: 1;
+				margin: 0 3px;
+				background: #F8F8F8;
 			}
 		}
 
@@ -301,26 +310,25 @@
 			display: flex;
 			flex-direction: column;
 			border: #dddddd solid 1px;
-
 			.group-header {
-				width: 100%;
+				padding: 3px;
 				height: 50px;
-				padding: 5px;
 				line-height: 50px;
 				font-size: 20px;
 				font-weight: 600;
-				text-align: left;
-				text-indent: 10px;
-				background-color: white;
-				border: #dddddd solid 1px;
+				text-align: center;
+				color: #f8f8f8;
+				background-color: #5870e6;
 			}
 
 			.group-container {
-				padding: 20px;
+				margin: 20px;
+
 				.group-info {
 					display: flex;
 					padding: 5px 20px;
-
+					
+					
 					.group-form {
 						flex: 1;
 						padding-left: 40px;

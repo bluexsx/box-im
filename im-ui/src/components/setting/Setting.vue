@@ -1,6 +1,6 @@
 <template>
 	<el-dialog class="setting" title="设置" :visible.sync="visible"  width="500px" :before-close="onClose">
-		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm">
+		<el-form :model="userInfo" label-width="70px" :rules="rules" ref="settingForm">
 			<el-form-item label="头像">
 				<file-upload  class="avatar-uploader"
 				:action="imageAction" 
@@ -108,6 +108,7 @@
 
 <style lang="scss" >
 	.setting {
+		
 		.avatar-uploader {
 			
 			.el-upload {

@@ -31,6 +31,13 @@
 					</ul>
 				</div>
 				<div>
+					<h3>最近更新(2024-04-27)：</h3>
+					<ul>
+						<li>uniapp端加载离线消息慢以及卡顿问题优化</li>
+						<li>web端样式风格调整</li>
+					</ul>
+				</div>
+				<div>
 					<h3>如果本项目对您有帮助,请在gitee上帮忙点个star</h3>
 				</div>
 				<div class="login-icons">
@@ -178,7 +185,7 @@
 	.login-view {
 		width: 100%;
 		height: 100%;
-		background: rgb(232, 242, 255);
+		background: #E8F2FF;
 		background-size: cover;
 		box-sizing: border-box;
 
