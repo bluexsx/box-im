@@ -95,13 +95,13 @@
 		cursor: pointer;
 
 		&:hover {
-			background-color: #eeeeee;
+			background-color: #F8FAFF;
 		}
-
+			
 		&.active {
-			background-color: #dddddd;
+			background-color: #F4F9FF;
 		}
-
+			
 		.friend-avatar {
 			display: flex;
 			justify-content: center;

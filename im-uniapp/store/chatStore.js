@@ -27,6 +27,7 @@ export default {
 	mutations: {
 		initChats(state, chatsData) {
 			cacheChats = [];
+			state.chats = [];
 			for (let chat of chatsData.chats) {
 				// 已删除的会话直接丢弃
 				if (chat.delete) {
@@ -50,7 +51,7 @@ export default {
 					}
 				})
 			})
-
+			console.log(cacheChats.length)
 		},
 		openChat(state, chatInfo) {
 			let chats = this.getters.findChats();
@@ -294,6 +295,7 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
+			console.log(cacheChats.length)
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {
@@ -302,7 +304,7 @@ export default {
 				return;
 			}
 			let userId = userStore.state.userInfo.id;
-			let key = "chats-" + userId;
+			let key = "chats-app-" + userId;
 			let chatsData = {
 				privateMsgMaxId: state.privateMsgMaxId,
 				groupMsgMaxId: state.groupMsgMaxId,
@@ -327,7 +329,7 @@ export default {
 			return new Promise((resolve, reject) => {
 				let userId = userStore.state.userInfo.id;
 				uni.getStorage({
-					key: "chats-" + userId,
+					key: "chats-app-" + userId,
 					success(res) {
 						context.commit("initChats", res.data);
 						resolve()

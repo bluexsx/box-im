@@ -243,18 +243,32 @@
 				// this.audioTip = uni.createInnerAudioContext();
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
-			}
+			},
+			isExpired(loginInfo){
+				if(!loginInfo || !loginInfo.expireTime){
+					return true;
+				}
+				return loginInfo.expireTime < new Date().getTime();
+			},
 		},
 		onLaunch() {
 			// 登录状态校验
-			if (uni.getStorageSync("loginInfo")) {
+			let loginInfo = uni.getStorageSync("loginInfo")
+			if (!this.isExpired(loginInfo)) {
+				console.log("初始化")
 				// 初始化
-				this.init()
-			} else {
-				// 跳转到登录页
-				uni.navigateTo({
-					url: "/pages/login/login"
+				this.init();
+				// 跳转到聊天页面
+				uni.switchTab({
+					url: "/pages/chat/chat"
 				})
+			} else{
+				// 跳转到登录页
+				// #ifdef H5
+					uni.navigateTo({
+						url: "/pages/login/login"
+					})
+				// #endif
 			}
 		}
 	}

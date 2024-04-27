@@ -3,7 +3,7 @@
 		<view class="login-title">欢迎登录</view>
 		<uni-forms style="margin-top: 100px;" :modelValue="loginForm" :rules="rules" validate-trigger="bind">
 			<uni-forms-item name="userName">
-				<uni-easyinput type="text" v-model="loginForm.userName" prefix-icon="person" focus placeholder="用户名" />
+				<uni-easyinput type="text" v-model="loginForm.userName" prefix-icon="person"  placeholder="用户名" />
 			</uni-forms-item>
 			<uni-forms-item name="password">
 				<uni-easyinput type="password" v-model="loginForm.password" prefix-icon="locked" placeholder="密码" />
@@ -45,11 +45,12 @@
 					url: '/login',
 					data: this.loginForm,
 					method: 'POST'
-				}).then(data => {
+				}).then(loginInfo => {
 					console.log("登录成功,自动跳转到聊天页面...")
 					uni.setStorageSync("userName", this.loginForm.userName);
 					uni.setStorageSync("password", this.loginForm.password);
-					uni.setStorageSync("loginInfo", data);
+					loginInfo.expireTime = new Date().getTime() + loginInfo.refreshTokenExpiresIn*1000;
+					uni.setStorageSync("loginInfo", loginInfo);
 					// 调用App.vue的初始化方法
 					getApp().init()
 					// 跳转到聊天页面   
@@ -59,17 +60,10 @@
 				})
 			}
 		},
+		
 		onLoad() {
 			this.loginForm.userName = uni.getStorageSync("userName");
 			this.loginForm.password = uni.getStorageSync("password");
-			let loginInfo = uni.getStorageSync("loginInfo");
-			if (loginInfo) {
-				// 跳转到聊天页面
-				uni.switchTab({
-					url: "/pages/chat/chat"
-				})
-				
-			}
 		}
 	}
 </script>

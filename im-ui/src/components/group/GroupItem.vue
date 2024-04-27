@@ -41,14 +41,16 @@
 		padding: 5px;
 		padding-left: 10px;
 		align-items: center;
-		background-color: #fafafa;
+		background-color: white;
 		white-space: nowrap;
+		cursor: pointer;
+		
 		&:hover {
-			background-color: #eeeeee;
+			background-color: #F8FAFF;
 		}
 	
 		&.active {
-			background-color: #dddddd;
+			background-color: #F4F9FF;
 		}
 	
 		.group-avatar {
@@ -63,7 +65,7 @@
 			line-height: 50px;
 			white-space: nowrap;
 			overflow: hidden;
-			font-size: 14px;
+			font-size: 15px;
 			font-weight: 600;
 		}
 	}

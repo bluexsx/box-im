@@ -1,7 +1,7 @@
 <template>
 	<div class="chat-box" @click="closeRefBox()" @mousemove="readedMessage()">
 		<el-container>
-			<el-header height="60px">
+			<el-header height="56px">
 				<span>{{ title }}</span>
 				<span title="群聊信息" v-show="this.chat.type == 'GROUP'" class="btn-side el-icon-more"
 					@click="showSide = !showSide"></span>
@@ -25,7 +25,7 @@
 						</el-main>
 						<el-footer height="240px" class="im-chat-footer">
 							<div class="chat-tool-bar">
-								<div title="表情" class="icon iconfont icon-biaoqing" ref="emotion"
+								<div title="表情" class="icon iconfont icon-emoji" ref="emotion"
 									@click.stop="showEmotionBox()">
 								</div>
 								<div title="发送图片">
@@ -58,7 +58,7 @@
 								<div contenteditable="true" v-show="!sendImageUrl" ref="editBox" class="send-text-area"
 									:disabled="lockMessage" @paste.prevent="onEditorPaste"
 									@compositionstart="onEditorCompositionStart" @compositionend="onEditorCompositionEnd"
-									@input="onEditorInput" :placeholder="isReceipt ? '【回执消息】' : ''" @blur="onEditBoxBlur()"
+									@input="onEditorInput" :placeholder="placeholder" @blur="onEditBoxBlur()"
 									@keydown.down="onKeyDown" @keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter">x
 								</div>
 
@@ -123,6 +123,7 @@ export default {
 			groupMembers: [],
 			sendImageUrl: "",
 			sendImageFile: "",
+			placeholder: "",
 			isReceipt: true,
 			showVoice: false, // 是否显示语音录制弹窗
 			showSide: false, // 是否显示群聊信息栏
@@ -191,6 +192,7 @@ export default {
 					this.atSearchText = this.focusNode.textContent.substring(stIdx + 1);
 				}
 			}
+			this.refreshPlaceHolder();
 
 		},
 		onEditorCompositionStart() {
@@ -238,6 +240,7 @@ export default {
 		},
 		onSwitchReceipt() {
 			this.isReceipt = !this.isReceipt;
+			this.refreshPlaceHolder();
 		},
 		createSendText() {
 			let sendText = this.isReceipt ? "【回执消息】" : "";
@@ -684,6 +687,17 @@ export default {
 				let div = document.getElementById("chatScrollBox");
 				div.scrollTop = div.scrollHeight;
 			});
+		},
+		refreshPlaceHolder(){
+			console.log("placeholder")
+			if(this.isReceipt){
+				this.placeholder = "【回执消息】"
+			}else if(this.$refs.editBox && this.$refs.editBox.innerHTML){
+				this.placeholder = ""
+			}else{
+				this.placeholder = "聊点什么吧~";
+			}
+			
 		}
 	},
 	computed: {
@@ -710,6 +724,7 @@ export default {
 			}
 			return this.chat.messages.length;
 		}
+		
 	},
 	watch: {
 		chat: {
@@ -735,6 +750,8 @@ export default {
 					this.resetEditor();
 					// 复位回执消息
 					this.isReceipt = false;
+					// 更新placeholder
+					this.refreshPlaceHolder();
 				}
 			},
 			immediate: true
@@ -761,32 +778,28 @@ export default {
 	width: 100%;
 	background: #f8f8f8;
 	border: #dddddd solid 1px;
-
+	
 	.el-header {
-		padding: 5px;
-		background-color: white;
+		padding: 3px;
+		background-color: #5870e6;
 		line-height: 50px;
 		font-size: 20px;
 		font-weight: 600;
-		border: #dddddd solid 1px;
-
+		color: #f8f8f8;
+	
 		.btn-side {
 			position: absolute;
 			right: 20px;
-			line-height: 60px;
-			font-size: 22px;
+			line-height: 50px;
+			font-size: 25px;
 			cursor: pointer;
 
-			&:hover {
-				font-size: 30px;
-			}
 		}
 	}
 
 	.im-chat-main {
 		padding: 0;
-		border: #dddddd solid 1px;
-
+	
 		.im-chat-box {
 			>ul {
 				padding: 0 20px;
@@ -802,23 +815,21 @@ export default {
 		display: flex;
 		flex-direction: column;
 		padding: 0;
-		border: #dddddd solid 1px;
-
+		
 		.chat-tool-bar {
-
 			display: flex;
 			position: relative;
 			width: 100%;
 			height: 40px;
 			text-align: left;
 			box-sizing: border-box;
-			border: #dddddd solid 1px;
+			border-top: #ccc solid 1px;
 			padding: 2px;
-
+			background-color: #E8F2FF;
 			>div {
 				font-size: 22px;
 				cursor: pointer;
-				color: #333333;
+				color: black;
 				line-height: 34px;
 				width: 34px;
 				height: 34px;

@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3791506 */
-  src: url('iconfont.ttf?t=1711892447736') format('truetype');
+  src: url('iconfont.ttf?t=1714220334746') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-chat:before {
+  content: "\e600";
+}
+
+.icon-setting:before {
+  content: "\e620";
+}
+
+.icon-friend:before {
+  content: "\e604";
 }
 
 .icon-exit:before {
@@ -31,32 +43,12 @@
   content: "\e61a";
 }
 
-.icon-biaoqing:before {
+.icon-emoji:before {
   content: "\e60c";
 }
 
-.icon-youyinpin:before {
-  content: "\e649";
-}
-
-.icon-audio:before {
-  content: "\e800";
-}
-
-.icon-group_fill:before {
+.icon-group:before {
   content: "\e7f4";
-}
-
-.icon-yinpin:before {
-  content: "\e68a";
-}
-
-.icon-emoji:before {
-  content: "\e6f6";
-}
-
-.icon-voiceprint:before {
-  content: "\e953";
 }
 
 .icon-phone-reject:before {

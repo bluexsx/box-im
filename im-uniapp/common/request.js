@@ -41,7 +41,9 @@ const request = (options) => {
 						getApp().exit();
 						return;
 					}
-					uni.setStorageSync("loginInfo", res.data.data);
+					let newInfo = res.data.data;
+					newInfo.expireTime = new Date().getTime() + newInfo.refreshTokenExpiresIn*1000;
+					uni.setStorageSync("loginInfo", newInfo);
 					requestList.forEach(cb => cb());
 					requestList = [];
 					isRefreshToken = false;
