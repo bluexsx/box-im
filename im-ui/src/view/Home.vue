@@ -340,7 +340,6 @@
 					
 					&.router-link-active .icon {
 						color: #ba785a;
-						font-size: 30px !important;
 					}
 				}
 				
