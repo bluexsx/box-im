@@ -282,6 +282,8 @@
 				display: flex;
 				align-items: center;
 				padding: 3px 8px;
+				background-color: white;
+				border-bottom: 1px #ddd solid;
 				
 				.el-input__inner {
 					border-radius: 10px !important;
@@ -316,17 +318,16 @@
 				font-size: 20px;
 				font-weight: 600;
 				text-align: center;
-				color: #f8f8f8;
-				background-color: #5870e6;
+				background-color: white;
+				border-bottom: 1px #ddd solid;
 			}
 
 			.group-container {
-				margin: 20px;
-
+				padding: 20px;
+				flex: 1;
 				.group-info {
 					display: flex;
 					padding: 5px 20px;
-					
 					
 					.group-form {
 						flex: 1;

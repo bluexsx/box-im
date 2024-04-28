@@ -781,12 +781,11 @@ export default {
 	
 	.el-header {
 		padding: 3px;
-		background-color: #5870e6;
+		background-color: white;
 		line-height: 50px;
 		font-size: 20px;
 		font-weight: 600;
-		color: #f8f8f8;
-	
+		border-bottom: 1px #ddd solid;
 		.btn-side {
 			position: absolute;
 			right: 20px;
@@ -799,11 +798,11 @@ export default {
 
 	.im-chat-main {
 		padding: 0;
-	
+		background-color: #f8f8f8;
 		.im-chat-box {
 			>ul {
 				padding: 0 20px;
-
+					
 				li {
 					list-style-type: none;
 				}

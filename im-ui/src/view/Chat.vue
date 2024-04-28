@@ -76,6 +76,7 @@
 			.chat-list-header {
 				padding: 3px 8px;
 				line-height: 50px;
+				border-bottom: 1px #ddd solid;
 				
 				.el-input__inner {
 					border-radius: 10px !important;

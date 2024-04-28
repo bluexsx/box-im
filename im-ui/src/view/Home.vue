@@ -339,7 +339,7 @@
 					text-decoration: none;
 					
 					&.router-link-active .icon {
-						color: #d5894c;
+						color: #ba785a;
 					}
 				}
 				
