@@ -190,7 +190,8 @@
 				display: flex;
 				align-items: center;
 				padding: 3px 8px;
-
+				border-bottom: 1px #ddd solid;
+				
 				.el-input__inner {
 					border-radius: 10px !important;
 					background-color: #F8F8F8;
@@ -226,19 +227,21 @@
 				font-size: 20px;
 				font-weight: 600;
 				text-align: center;
-				color: #f8f8f8;
-				background-color: #5870e6;
+				background-color: white;
+				border-bottom: 1px #ddd solid;
 			}
 
 			.friend-detail {
 				display: flex;
 				padding: 50px 80px 20px 80px;
 				text-align: center;
-
+				
+				
 				.info-item {
 					margin-left: 20px;
 					background-color: #ffffff;
 					border-radius: 10px ;
+					border: 1px #ddd solid;
 				}
 
 				.description {
