@@ -2,19 +2,16 @@
 	<el-container class="friend-page">
 		<el-aside width="260px" class="friend-list-box">
 			<div class="friend-list-header">
-				<div class="friend-list-search">
-					<el-input width="200px" placeholder="搜索好友" v-model="searchText">
-						<el-button slot="append" icon="el-icon-search"></el-button>
-					</el-input>
-				</div>
-				<el-button plain icon="el-icon-plus" style="border: none; padding:12px; font-size: 20px;color: black;"
-					title="添加好友" @click="onShowAddFriend()"></el-button>
-				<add-friend :dialogVisible="showAddFriend" @close="onCloseAddFriend">
-				</add-friend>
+				<el-input class="search-text" placeholder="搜索" v-model="searchText">
+					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
+				</el-input>
+				<el-button plain class="add-btn" icon="el-icon-plus" title="添加好友"
+					@click="onShowAddFriend()"></el-button>
+				<add-friend :dialogVisible="showAddFriend" @close="onCloseAddFriend"></add-friend>
 			</div>
 			<el-scrollbar class="friend-list-items">
 				<div v-for="(friend,index) in $store.state.friendStore.friends" :key="index">
-					<friend-item v-show="friend.nickName.startsWith(searchText)"  :index="index"
+					<friend-item v-show="friend.nickName.startsWith(searchText)" :index="index"
 						:active="friend === $store.state.friendStore.activeFriend" @chat="onSendMessage(friend)"
 						@delete="onDelItem(friend,index)" @click.native="onActiveItem(friend,index)">
 					</friend-item>
@@ -27,9 +24,7 @@
 			</div>
 			<div v-show="userInfo.id">
 				<div class="friend-detail">
-					<head-image  :size="200" 
-						:name="userInfo.nickName"
-						:url="userInfo.headImage"
+					<head-image :size="200" :name="userInfo.nickName" :url="userInfo.headImage"
 						@click.native="showFullImage()"></head-image>
 					<div>
 						<div class="info-item">
@@ -41,17 +36,20 @@
 								<el-descriptions-item label="性别">{{ userInfo.sex==0?"男":"女" }}</el-descriptions-item>
 								<el-descriptions-item label="签名">{{ userInfo.signature }}</el-descriptions-item>
 							</el-descriptions>
-							
+
 						</div>
 						<div class="frient-btn-group">
-							<el-button v-show="isFriend" icon="el-icon-chat-dot-round" type="primary"  @click="onSendMessage(userInfo)">发送消息</el-button>
-							<el-button v-show="!isFriend" icon="el-icon-plus" type="primary"  @click="onAddFriend(userInfo)">加为好友</el-button>
-							<el-button v-show="isFriend" icon="el-icon-delete"  type="danger" @click="onDelItem(userInfo,activeIdx)">删除好友</el-button>
+							<el-button v-show="isFriend" icon="el-icon-position" type="primary"
+								@click="onSendMessage(userInfo)">发消息</el-button>
+							<el-button v-show="!isFriend" icon="el-icon-plus" type="primary"
+								@click="onAddFriend(userInfo)">加为好友</el-button>
+							<el-button v-show="isFriend" icon="el-icon-delete" type="danger"
+								@click="onDelItem(userInfo,activeIdx)">删除好友</el-button>
 						</div>
 					</div>
 				</div>
 				<el-divider content-position="center"></el-divider>
-				
+
 			</div>
 		</el-container>
 	</el-container>
@@ -106,7 +104,7 @@
 					})
 				})
 			},
-			onAddFriend(user){
+			onAddFriend(user) {
 				this.$http({
 					url: "/friend/add",
 					method: "post",
@@ -116,12 +114,12 @@
 				}).then((data) => {
 					this.$message.success("添加成功，对方已成为您的好友");
 					let friend = {
-						id:user.id,
+						id: user.id,
 						nickName: user.nickName,
 						headImage: user.headImage,
 						online: user.online
 					}
-					this.$store.commit("addFriend",friend);
+					this.$store.commit("addFriend", friend);
 				})
 			},
 			onSendMessage(user) {
@@ -172,14 +170,14 @@
 			friendStore() {
 				return this.$store.state.friendStore;
 			},
-			isFriend(){
-				return this.friendStore.friends.find((f)=>f.id==this.userInfo.id);
+			isFriend() {
+				return this.friendStore.friends.find((f) => f.id == this.userInfo.id);
 			}
 		}
 	}
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 	.friend-page {
 		.friend-list-box {
 			display: flex;
@@ -191,16 +189,29 @@
 				height: 50px;
 				display: flex;
 				align-items: center;
-				padding: 5px;
-				background-color: white;
-
-				.friend-list-search {
-					flex: 1;
+				padding: 3px 8px;
+				border-bottom: 1px #ddd solid;
+				
+				.el-input__inner {
+					border-radius: 10px !important;
+					background-color: #F8F8F8;
+				}
+				
+				.add-btn {
+					padding: 5px !important;
+					margin: 5px;
+					font-size: 20px;
+					color: #587FF0;
+					border: #587FF0 1px solid;
+					background-color: #F0F8FF;
+					border-radius: 50%;
 				}
 			}
 
 			.friend-list-items {
 				flex: 1;
+				margin: 0 3px;
+				background: #F8F8F8;
 			}
 		}
 
@@ -210,26 +221,27 @@
 			border: #dddddd solid 1px;
 
 			.friend-header {
-				width: 100%;
+				padding: 3px;	
 				height: 50px;
-				padding: 5px;
 				line-height: 50px;
 				font-size: 20px;
-				text-align: left;
-				text-indent: 10px;
 				font-weight: 600;
+				text-align: center;
 				background-color: white;
-				border: #dddddd solid 1px;
+				border-bottom: 1px #ddd solid;
 			}
 
 			.friend-detail {
 				display: flex;
 				padding: 50px 80px 20px 80px;
 				text-align: center;
-
+				
+				
 				.info-item {
 					margin-left: 20px;
 					background-color: #ffffff;
+					border-radius: 10px ;
+					border: 1px #ddd solid;
 				}
 
 				.description {

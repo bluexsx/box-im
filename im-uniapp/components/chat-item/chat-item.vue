@@ -1,5 +1,7 @@
 <template>
-	<view class="chat-item" :class="active?'active':''" @click="showChatBox()">
+	<view class="chat-item" :class="active?'active':''" >
+		<!--rich-text中的表情包会屏蔽事件，所以这里用一个遮罩层捕获点击事件 -->
+		<view class="mask" @tap="showChatBox()"></view>
 		<view class="left">
 			<head-image :url="chat.headImage" :name="chat.showName" :size="90"></head-image>
 			<view v-if="chat.unreadCount>0" class="unread-text">{{chat.unreadCount}}</view>
@@ -12,7 +14,7 @@
 			<view class="chat-content">
 				<view class="chat-at-text">{{atText}}</view>
 				<view class="chat-send-name" v-show="chat.sendNickName">{{chat.sendNickName+':&nbsp;'}}</view>
-				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
+				<rich-text class="chat-content-text"  :nodes="$emo.transform(chat.lastContent)"></rich-text>
 			</view>
 		</view>
 	</view>
@@ -75,7 +77,13 @@
 		&.active {
 			background-color: #eeeeee;
 		}
-
+		
+		
+		.mask {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
 		.left {
 			position: relative;
 			display: flex;

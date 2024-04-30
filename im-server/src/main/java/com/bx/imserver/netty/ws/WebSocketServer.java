@@ -61,7 +61,7 @@ public class WebSocketServer implements IMServer {
                     protected void initChannel(Channel ch) {
                         // 获取职责链
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new IdleStateHandler(120, 0, 0, TimeUnit.SECONDS));
+                        pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS));
                         pipeline.addLast("http-codec", new HttpServerCodec());
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65535));
                         pipeline.addLast("http-chunked", new ChunkedWriteHandler());

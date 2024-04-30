@@ -66,15 +66,19 @@
 				store.commit("loadingPrivateMsg",true)
 				http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(()=>{
+					store.commit("loadingPrivateMsg",false)
+				})
 			},
 			pullGroupOfflineMessage(minId) {
 				store.commit("loadingGroupMsg",true)
 				http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(()=>{
+					store.commit("loadingGroupMsg",false)
+				})
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
@@ -203,7 +207,7 @@
 					} else {
 						http({
 							url: `/friend/find/${id}`,
-							method: 'get'
+							method: 'GET'
 						}).then((friend) => {
 							store.commit("addFriend", friend);
 							resolve(friend)
@@ -219,7 +223,7 @@
 					} else {
 						http({
 							url: `/group/find/${id}`,
-							method: 'get'
+							method: 'GET'
 						}).then((group) => {
 							resolve(group)
 							store.commit("addGroup", group);
@@ -242,6 +246,12 @@
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
 			},
+			isExpired(loginInfo){
+				if(!loginInfo || !loginInfo.expireTime){
+					return true;
+				}
+				return loginInfo.expireTime < new Date().getTime();
+			},
 			initAudit() {
 				if (store.state.userStore.userInfo.type == 1) {
 					// 显示群组功能
@@ -260,14 +270,22 @@
 		},
 		onLaunch() {
 			// 登录状态校验
-			if (uni.getStorageSync("loginInfo")) {
+			let loginInfo = uni.getStorageSync("loginInfo")
+			if (!this.isExpired(loginInfo)) {
+				console.log("初始化")
 				// 初始化
-				this.init()
-			} else {
-				// 跳转到登录页
-				uni.navigateTo({
-					url: "/pages/login/login"
+				this.init();
+				// 跳转到聊天页面
+				uni.switchTab({
+					url: "/pages/chat/chat"
 				})
+			} else{
+				// 跳转到登录页
+				// #ifdef H5
+					uni.navigateTo({
+						url: "/pages/login/login"
+					})
+				// #endif
 			}
 		}
 	}

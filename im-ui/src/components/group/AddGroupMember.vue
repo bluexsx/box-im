@@ -2,9 +2,9 @@
 	<el-dialog title="邀请好友" :visible.sync="visible" width="50%" :before-close="onClose">
 		<div class="agm-container">
 			<div class="agm-l-box">
-				<el-input width="200px" placeholder="搜索好友" class="input-with-select" v-model="searchText"
+				<el-input placeholder="搜索好友" v-model="searchText"
 					@keyup.enter.native="onSearch()">
-					<el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
+					<i class="el-icon-search el-input__icon" slot="suffix"> </i>
 				</el-input>
 				<el-scrollbar style="height:400px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
@@ -132,9 +132,10 @@
 		display: flex;
 		.agm-l-box {
 			flex: 1;
-			border: #53a0e79c solid 1px;
+			border: #587FF0 solid 1px;
 			border-radius: 5px;
 			overflow: hidden;
+			
 			.el-checkbox {
 				display: flex;
 				align-items: center;
@@ -171,14 +172,14 @@
 			display: flex;
 			align-items: center;
 			font-size: 20px;
-			padding: 5px;
+			padding: 10px;
 			font-weight: 600;
-			color: #53a0e7cc;
+			color: #687Ff0;
 		}
 
 		.agm-r-box {
 			flex: 1;
-			border: #53a0e79c solid 1px;
+			border: #587FF0 solid 1px;
 			border-radius: 5px;
 
 			.agm-select-tip {

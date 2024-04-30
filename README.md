@@ -194,9 +194,8 @@ import * as wsApi from './api/wssocket';
 
 let wsUrl = 'ws://localhost:8878/im'
 let token = "您的token";
-wsApi.init(wsUrl,token);
-wsApi.connect();
-wsApi.onOpen(() => {
+wsApi.connect(wsUrl,token);
+wsApi.onConnect(() => {
     // 连接打开
     console.log("连接成功");
 });
@@ -213,7 +212,12 @@ wsApi.onMessage((cmd,msgInfo) => {
     }
 })
 wsApi.onClose((e) => {
-    console.log("连接关闭");
+  	if (e.code != 3000) {
+      	console.log("意外断开，进行重连");
+      	wsApi.reconnect(wsUrl,token);
+    }else{
+    		console.log("主动断开");
+  	}
 });
 ```
 
@@ -245,13 +249,6 @@ wsApi.onClose((e) => {
 
 欢迎进群与小伙们一起交流， **申请加群前请务必先star哦** 
 
-
-#### 嘿嘿
-![输入图片说明](%E6%88%AA%E5%9B%BE/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.png)
-
-悄悄放个二维码在这，宝子们..你懂我意思吧
-
-
 #### 点下star吧
 如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
 
@@ -260,4 +257,5 @@ wsApi.onClose((e) => {
 1. 本系统允许用于商业用途，且不收费（自愿投币）。**但切记不要用于任何非法用途** ，本软件作者不会为此承担任何责任
 1. 基于本系统二次开发后再次开源的项目，请注明引用出处，以避免引发不必要的误会
 1. 如果您也想体验开源(bei bai piao)的快感，成为本项目的贡献者，欢迎提交PR。开发前最好提前联系作者，避免功能重复开发
+1. 作者目前不打算接项目，如果能接受1k/天以上的报价，也可以聊聊
 
