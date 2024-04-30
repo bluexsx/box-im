@@ -148,59 +148,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
 
     @Override
-    public List<GroupMessageVO> loadMessage(Long minId) {
-        UserSession session = SessionContext.getSession();
-        List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
-        if (CollectionUtil.isEmpty(members)) {
-            return new ArrayList<>();
-        }
-        Map<Long, GroupMember> groupMemberMap = CollStreamUtil.toIdentityMap(members, GroupMember::getGroupId);
-        Set<Long> groupIds = groupMemberMap.keySet();
-        // 只能拉取最近1个月的
-        Date minDate = DateUtils.addMonths(new Date(), -1);
-        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-        wrapper.gt(GroupMessage::getId, minId).gt(GroupMessage::getSendTime, minDate).in(GroupMessage::getGroupId, groupIds)
-                .ne(GroupMessage::getStatus, MessageStatus.RECALL.code()).orderByAsc(GroupMessage::getId).last("limit 100");
-
-        List<GroupMessage> messages = this.list(wrapper);
-        // 转成vo
-        List<GroupMessageVO> vos = messages.stream()
-                .filter(m -> {
-                    //排除加群之前的消息
-                    GroupMember member = groupMemberMap.get(m.getGroupId());
-                    return Objects.nonNull(member) && DateUtil.compare(member.getCreatedTime(), m.getSendTime()) <= 0;
-                })
-                .map(m -> {
-                    GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
-                    // 被@用户列表
-                    if (StringUtils.isNotBlank(m.getAtUserIds()) && Objects.nonNull(vo)) {
-                        List<String> atIds = Splitter.on(",").trimResults().splitToList(m.getAtUserIds());
-                        vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
-                    }
-                    return vo;
-                }).collect(Collectors.toList());
-        // 通过群聊对消息进行分组
-        Map<Long, List<GroupMessageVO>> messageGroupMap = vos.stream().collect(Collectors.groupingBy(GroupMessageVO::getGroupId));
-        messageGroupMap.forEach((groupId, messageVos) -> {
-            // 填充消息状态
-            String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
-            Object o = redisTemplate.opsForHash().get(key, session.getUserId().toString());
-            long readedMaxId = Objects.isNull(o) ? -1 : Long.parseLong(o.toString());
-            messageVos.forEach(messageVo -> messageVo.setStatus(readedMaxId >= messageVo.getId() ? MessageStatus.READED.code() : MessageStatus.UNSEND.code()));
-            // 针对回执消息填充已读人数
-            List<GroupMessageVO> receiptMessageVos = messageVos.stream().filter(GroupMessageVO::getReceipt).collect(Collectors.toList());
-            if (!receiptMessageVos.isEmpty()) {
-                Map<Object, Object> maxIdMap = redisTemplate.opsForHash().entries(key);
-                receiptMessageVos.forEach(receiptMessageVo -> {
-                    int count = getReadedUserIds(maxIdMap, receiptMessageVo.getId(),receiptMessageVo.getSendId()).size();
-                    receiptMessageVo.setReadedCount(count);
-                });
-            }
-        });
-        return vos;
-    }
-
-    @Override
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
         if(!imClient.isOnline(session.getUserId())){
