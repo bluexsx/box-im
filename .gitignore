@@ -2,11 +2,14 @@
 /box-im.iml
 /im-server/im-server.iml
 /im-platform/im-platform.iml
+/im-client/im-client.iml
 /im-platform/src/main/resources/application-prod.yml
 /im-platform/src/main/resources/logback-prod.xml
 /im-server/src/main/resources/application-prod.yml
 /im-server/src/main/resources/logback-prod.xml
 /im-commom/im-commom.iml
 /im-uniapp/node_modules/
-/im-ui/jsconfig.json
-/package-lock.json
+/im-ui/package-lock.json
+/im-uniapp/unpackage/
+/im-uniapp/hybrid/
+/im-uniapp/package-lock.json
