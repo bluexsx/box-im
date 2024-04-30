@@ -72,7 +72,7 @@
 					<view class="tool-name">文件</view>
 				</view>
 				<!-- #endif -->
-				<view class="chat-tools-item" @click="onVoiceInput()">
+				<view class="chat-tools-item" @click="onRecorderInput()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音消息</view>
 				</view>
@@ -542,8 +542,6 @@
 			},
 			readedMessage() {
 				if(this.unreadCount == 0){
-					
-					console.log("0000000000")
 					return;
 				}
 				let url = ""
@@ -675,12 +673,11 @@
 			this.$store.commit("activeChat", options.chatIdx);
 			// 复位回执消息
 			this.isReceipt = false;
-		},
-		onShow() {
-			// 页面滚到底部
+			// 滚动至底部
 			this.scrollToBottom();
 		},
 		onUnload() {
+			
 			this.$store.commit("activeChat", -1);
 		}
 	}
