@@ -37,14 +37,6 @@ public interface IPrivateMessageService extends IService<PrivateMessage> {
 
 
     /**
-     * 拉取消息，只能拉取最近1个月的消息，一次拉取100条
-     *
-     * @param minId 消息起始id
-     * @return 聊天消息列表
-     */
-    List<PrivateMessageVO> loadMessage(Long minId);
-
-    /**
      * 拉取离线消息，只能拉取最近1个月的消息，最多拉取1000条
      *
      * @param minId 消息起始id

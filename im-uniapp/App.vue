@@ -15,6 +15,8 @@
 			init() {
 				// 加载数据
 				store.dispatch("load").then(() => {
+					// 审核
+					this.initAudit();
 					// 初始化websocket
 					this.initWebSocket();
 				}).catch((e) => {
@@ -250,6 +252,21 @@
 				}
 				return loginInfo.expireTime < new Date().getTime();
 			},
+			initAudit() {
+				if (store.state.userStore.userInfo.type == 1) {
+					// 显示群组功能
+					uni.setTabBarItem({
+						index: 2,
+						text: "群聊"
+					})
+				} else {
+					// 隐藏群组功能
+					uni.setTabBarItem({
+						index: 2,
+						text: "搜索"
+					})
+				}
+			}
 		},
 		onLaunch() {
 			// 登录状态校验

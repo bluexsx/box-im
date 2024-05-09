@@ -136,46 +136,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         return messageInfos;
     }
 
-
-    @Override
-    public List<PrivateMessageVO> loadMessage(Long minId) {
-        UserSession session = SessionContext.getSession();
-        List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
-        if (friends.isEmpty()) {
-            return new ArrayList<>();
-        }
-        List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
-        // 获取当前用户的消息
-        LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近1个月的
-        Date minDate = DateUtils.addMonths(new Date(), -1);
-        queryWrapper.gt(PrivateMessage::getId, minId)
-                .ge(PrivateMessage::getSendTime, minDate)
-                .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
-                .and(wrap -> wrap.and(
-                        wp -> wp.eq(PrivateMessage::getSendId, session.getUserId())
-                                .in(PrivateMessage::getRecvId, friendIds))
-                        .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
-                                .in(PrivateMessage::getSendId, friendIds)))
-                .orderByAsc(PrivateMessage::getId)
-                .last("limit 100");
-
-        List<PrivateMessage> messages = this.list(queryWrapper);
-        // 更新发送状态
-        List<Long> ids = messages.stream()
-                .filter(m -> !m.getSendId().equals(session.getUserId()) && m.getStatus().equals(MessageStatus.UNSEND.code()))
-                .map(PrivateMessage::getId)
-                .collect(Collectors.toList());
-        if (!ids.isEmpty()) {
-            LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
-            updateWrapper.in(PrivateMessage::getId, ids)
-                    .set(PrivateMessage::getStatus, MessageStatus.SENDED.code());
-            this.update(updateWrapper);
-        }
-        log.info("拉取消息，用户id:{},数量:{}", session.getUserId(), messages.size());
-        return messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
-    }
-
     @Override
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();

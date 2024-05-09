@@ -36,13 +36,6 @@ public class PrivateMessageController {
         return ResultUtils.success();
     }
 
-
-    @GetMapping("/loadMessage")
-    @ApiOperation(value = "拉取消息(已废弃)", notes = "拉取消息,一次最多拉取100条")
-    public Result<List<PrivateMessageVO>> loadMessage(@RequestParam Long minId) {
-        return ResultUtils.success(privateMessageService.loadMessage(minId));
-    }
-
     @GetMapping("/pullOfflineMessage")
     @ApiOperation(value = "拉取离线消息", notes = "拉取离线消息,消息将通过webscoket异步推送")
     public Result pullOfflineMessage(@RequestParam Long minId) {
