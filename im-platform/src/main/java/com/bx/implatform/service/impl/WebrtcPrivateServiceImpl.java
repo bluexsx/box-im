@@ -8,10 +8,10 @@ import com.bx.implatform.config.ICEServerConfig;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
-import com.bx.implatform.service.IWebrtcService;
+import com.bx.implatform.service.IWebrtcPrivateService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
-import com.bx.implatform.session.WebrtcSession;
+import com.bx.implatform.session.WebrtcPrivateSession;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WebrtcServiceImpl implements IWebrtcService {
+public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
 
     private final IMClient imClient;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -39,10 +39,10 @@ public class WebrtcServiceImpl implements IWebrtcService {
             throw new GlobalException("对方目前不在线");
         }
         // 创建webrtc会话
-        WebrtcSession webrtcSession = new WebrtcSession();
+        WebrtcPrivateSession webrtcSession = new WebrtcPrivateSession();
         webrtcSession.setCallerId(session.getUserId());
         webrtcSession.setCallerTerminal(session.getTerminal());
-        String key = getSessionKey(session.getUserId(), uid);
+        String key = getWebRtcSessionKey(session.getUserId(), uid);
         redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
         // 向对方所有终端发起呼叫
         PrivateMessageVO messageInfo = new PrivateMessageVO();
@@ -66,11 +66,11 @@ public class WebrtcServiceImpl implements IWebrtcService {
     public void accept(Long uid, @RequestBody String answer) {
         UserSession session = SessionContext.getSession();
         // 查询webrtc会话
-        WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
+        WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 更新接受者信息
         webrtcSession.setAcceptorId(session.getUserId());
         webrtcSession.setAcceptorTerminal(session.getTerminal());
-        String key = getSessionKey(session.getUserId(), uid);
+        String key = getWebRtcSessionKey(session.getUserId(), uid);
         redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
         // 向发起人推送接受通话信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
@@ -94,7 +94,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
     public void reject(Long uid) {
         UserSession session = SessionContext.getSession();
         // 查询webrtc会话
-        WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
+        WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
         // 向发起人推送拒绝通话信令
@@ -139,7 +139,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
     public void failed(Long uid, String reason) {
         UserSession session = SessionContext.getSession();
         // 查询webrtc会话
-        WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
+        WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
         // 向发起方推送通话失败信令
@@ -165,7 +165,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
     public void handup(Long uid) {
         UserSession session = SessionContext.getSession();
         // 查询webrtc会话
-        WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
+        WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
         // 向对方推送挂断通话信令
@@ -190,7 +190,7 @@ public class WebrtcServiceImpl implements IWebrtcService {
     public void candidate(Long uid, String candidate) {
         UserSession session = SessionContext.getSession();
         // 查询webrtc会话
-        WebrtcSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
+        WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 向发起方推送同步candidate信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_CANDIDATE.code());
@@ -214,9 +214,9 @@ public class WebrtcServiceImpl implements IWebrtcService {
         return iceServerConfig.getIceServers();
     }
 
-    private WebrtcSession getWebrtcSession(Long userId, Long uid) {
-        String key = getSessionKey(userId, uid);
-        WebrtcSession webrtcSession = (WebrtcSession)redisTemplate.opsForValue().get(key);
+    private WebrtcPrivateSession getWebrtcSession(Long userId, Long uid) {
+        String key = getWebRtcSessionKey(userId, uid);
+        WebrtcPrivateSession webrtcSession = (WebrtcPrivateSession)redisTemplate.opsForValue().get(key);
         if (webrtcSession == null) {
             throw new GlobalException("通话已结束");
         }
@@ -224,17 +224,17 @@ public class WebrtcServiceImpl implements IWebrtcService {
     }
 
     private void removeWebrtcSession(Long userId, Long uid) {
-        String key = getSessionKey(userId, uid);
+        String key = getWebRtcSessionKey(userId, uid);
         redisTemplate.delete(key);
     }
 
-    private String getSessionKey(Long id1, Long id2) {
+    private String getWebRtcSessionKey(Long id1, Long id2) {
         Long minId = id1 > id2 ? id2 : id1;
         Long maxId = id1 > id2 ? id1 : id2;
-        return String.join(":", RedisKey.IM_WEBRTC_SESSION, minId.toString(), maxId.toString());
+        return String.join(":", RedisKey.IM_WEBRTC_PRIVATE_SESSION, minId.toString(), maxId.toString());
     }
 
-    private Integer getTerminalType(Long uid, WebrtcSession webrtcSession) {
+    private Integer getTerminalType(Long uid, WebrtcPrivateSession webrtcSession) {
         if (uid.equals(webrtcSession.getCallerId())) {
             return webrtcSession.getCallerTerminal();
         }

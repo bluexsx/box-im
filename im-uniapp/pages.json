@@ -17,7 +17,9 @@
 	}, {
 		"path": "pages/chat/chat-box"
 	},{
-		"path": "pages/chat/chat-video"
+		"path": "pages/chat/chat-private-video"
+	},{
+		"path": "pages/chat/chat-group-video"
 	}, {
 		"path": "pages/friend/friend-add"
 	}, {

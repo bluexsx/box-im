@@ -6,14 +6,13 @@
 			<uni-icons class="btn-side right" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
 		</view>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
-			<scroll-view class="scroll-box" scroll-y="true" 
-					upper-threshold="200" @scrolltoupper="onScrollToTop"
-					:scroll-into-view="'chat-item-'+scrollMsgIdx">
+			<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
+				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx>=showMinIdx&&!msgInfo.delete" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
-						:showName="showName(msgInfo)" @recall="onRecallMessage" @delete="onDeleteMessage"
-						@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile" :id="'chat-item-'+idx"
-						:msgInfo="msgInfo" :groupMembers="groupMembers">
+					<chat-message-item v-if="idx>=showMinIdx&&!msgInfo.delete" :headImage="headImage(msgInfo)"
+						@call="onRtCall(msgInfo)" :showName="showName(msgInfo)" @recall="onRecallMessage"
+						@delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
+						:id="'chat-item-'+idx" :msgInfo="msgInfo" :groupMembers="groupMembers">
 					</chat-message-item>
 				</view>
 			</scroll-view>
@@ -31,7 +30,7 @@
 		<view class="send-bar">
 			<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
 			<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
-			<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord" ></chat-record>
+			<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
 			<view v-else class="send-text">
 				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
 					:placeholder="isReceipt?'[回执消息]':''" :adjust-position="false" @confirm="sendTextMessage()"
@@ -90,6 +89,10 @@
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
+				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
+					<view class="tool-icon iconfont icon-call"></view>
+					<view class="tool-name">语音通话</view>
+				</view>
 				<!-- #endif -->
 			</view>
 			<scroll-view v-if="chatTabBox==='emo'" class="chat-emotion" scroll-y="true">
@@ -101,8 +104,12 @@
 			</scroll-view>
 			<view v-if="showKeyBoard"></view>
 		</view>
+		<!-- @用户时选择成员 -->
 		<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers"
 			@complete="onAtComplete"></chat-at-box>
+		<!-- 群语音通话时选择成员 -->
+		<group-member-selector ref="selBox" :members="groupMembers"
+			@complete="onSelectMember"></group-member-selector>
 	</view>
 </template>
 
@@ -130,11 +137,11 @@
 		methods: {
 			onRecorderInput() {
 				this.showRecord = true;
-				this.switchChatTabBox('none',true);
+				this.switchChatTabBox('none', true);
 			},
 			onKeyboardInput() {
 				this.showRecord = false;
-				this.switchChatTabBox('none',false);
+				this.switchChatTabBox('none', false);
 			},
 			onSendRecord(data) {
 				let msgInfo = {
@@ -161,7 +168,7 @@
 					// 滚动到底部
 					this.scrollToBottom();
 					this.isReceipt = false;
-					
+
 				})
 			},
 			onRtCall(msgInfo) {
@@ -174,13 +181,38 @@
 			onVideoCall() {
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
 				uni.navigateTo({
-					url: `/pages/chat/chat-video?mode=video&friend=${friendInfo}&isHost=true`
+					url: `/pages/chat/chat-private-video?mode=video&friend=${friendInfo}&isHost=true`
 				})
 			},
 			onVoiceCall() {
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
 				uni.navigateTo({
-					url: `/pages/chat/chat-video?mode=voice&friend=${friendInfo}&isHost=true`
+					url: `/pages/chat/chat-private-video?mode=voice&friend=${friendInfo}&isHost=true`
+				})
+			},
+			onGroupVideo() {
+				let ids = [this.mine.id];
+				this.$refs.selBox.init(ids, ids);
+				this.$refs.selBox.open();
+			},
+			onSelectMember(ids) {
+				let users = [];
+				ids.forEach(id => {
+					let m = this.groupMembers.find(m => m.userId == id);
+					// 只取部分字段,压缩url长度
+					users.push({
+						id: m.userId,
+						nickName: m.aliasName,
+						headImage: m.headImage,
+						isCamera: false
+					})
+				})
+				const groupId = this.group.id;
+				const inviterId = this.mine.id;
+				const userInfos = encodeURIComponent(JSON.stringify(users));
+				uni.navigateTo({
+					url: `/pages/chat/chat-group-video?groupId=${groupId}&isHost=true
+						&inviterId=${inviterId}&userInfos=${userInfos}`
 				})
 			},
 			moveChatToTop() {
@@ -302,13 +334,13 @@
 				});
 
 			},
-			onShowEmoChatTab(){
+			onShowEmoChatTab() {
 				this.showRecord = false;
-				this.switchChatTabBox('emo',true)
+				this.switchChatTabBox('emo', true)
 			},
-			onShowToolsChatTab(){
+			onShowToolsChatTab() {
 				this.showRecord = false;
-				this.switchChatTabBox('tools',true)
+				this.switchChatTabBox('tools', true)
 			},
 			switchChatTabBox(chatTabBox, hideKeyBoard) {
 				this.chatTabBox = chatTabBox;
@@ -496,11 +528,11 @@
 				});
 			},
 			onScrollToTop() {
-				if(this.showMinIdx==0){
+				if (this.showMinIdx == 0) {
 					console.log("消息已滚动到顶部")
 					return;
 				}
-			
+
 				//  #ifndef H5
 				// 防止滚动条定格在顶部，不能一直往上滚
 				this.scrollToMsgIdx(this.showMinIdx);
@@ -541,7 +573,8 @@
 				});
 			},
 			readedMessage() {
-				if(this.unreadCount == 0){
+				console.log("readedMessage")
+				if (this.unreadCount == 0) {
 					return;
 				}
 				let url = ""
@@ -717,7 +750,6 @@
 				}
 			}
 		}
-
 
 		.chat-msg {
 			flex: 1;

@@ -8,7 +8,7 @@ import lombok.Data;
  * @Date 2022/10/21
  */
 @Data
-public class WebrtcSession {
+public class WebrtcPrivateSession {
     /**
      * 发起者id
      */

@@ -109,9 +109,8 @@
 
 			},
 			insertPrivateMessage(friend, msg) {
-				// webrtc 信令
-				if (msg.type >= enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
-					msg.type <= enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+				// 单人视频信令
+				if (msg.type >= 100 && msg.type <= 199) {
 					// #ifdef MP-WEIXIN
 						// 小程序不支持音视频
 						return;
@@ -122,19 +121,18 @@
 						let mode = 	msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO? "video":"voice";
 						let pages = getCurrentPages();
 						let curPage = pages[pages.length-1].route;
-						if(curPage != "pages/chat/chat-video"){
+						if(curPage != "pages/chat/chat-private-video"){
 							const friendInfo = encodeURIComponent(JSON.stringify(friend));
 							uni.navigateTo({
-								url: `/pages/chat/chat-video?mode=${mode}&friend=${friendInfo}&isHost=false`
+								url: `/pages/chat/chat-private-video?mode=${mode}&friend=${friendInfo}&isHost=false`
 							})
 						}
 					}
 					setTimeout(() => {
-						uni.$emit('WS_RTC',msg);
+						uni.$emit('WS_RTC_PRIVATE',msg);
 					},500)
 					return;
 				}
-
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
@@ -186,6 +184,35 @@
 
 			},
 			insertGroupMessage(group, msg) {
+				// 群视频信令
+				if (msg.type >= 200 && msg.type <= 299) {
+					// #ifdef MP-WEIXIN
+						// 小程序不支持音视频
+						return;
+					// #endif
+					// 被呼叫，弹出视频页面
+					let delayTime = 10;
+					if(msg.type == enums.MESSAGE_TYPE.RTC_GROUP_SETUP){
+						let pages = getCurrentPages();
+						let curPage = pages[pages.length-1].route;
+						if(curPage != "pages/chat/chat-group-video"){
+							const userInfos = encodeURIComponent(msg.content);
+							const inviterId = msg.sendId;
+							const groupId = msg.groupId
+							uni.navigateTo({
+								url: `/pages/chat/chat-group-video?groupId=${groupId}&isHost=false
+									&inviterId=${inviterId}&userInfos=${userInfos}`
+							})
+							delayTime = 500;
+						}
+					}
+					// 消息转发到chat-group-video页面进行处理
+					setTimeout(() => {
+						uni.$emit('WS_RTC_GROUP',msg);
+					},delayTime)
+					return;
+				}
+				
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
