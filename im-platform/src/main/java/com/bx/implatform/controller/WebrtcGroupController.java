@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.config.WebrtcConfig;
 import com.bx.implatform.dto.*;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
@@ -120,5 +121,11 @@ public class WebrtcGroupController {
     public Result heartbeat(@RequestParam Long groupId) {
         webrtcGroupService.heartbeat(groupId);
         return ResultUtils.success();
+    }
+
+    @GetMapping("/config")
+    @ApiOperation(httpMethod = "GET", value = "获取系统配置")
+    public Result<WebrtcConfig> loadConfig() {
+        return ResultUtils.success(webrtcGroupService.loadConfig());
     }
 }

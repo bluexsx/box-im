@@ -1,5 +1,6 @@
 package com.bx.implatform.service;
 
+import com.bx.implatform.config.WebrtcConfig;
 import com.bx.implatform.dto.*;
 import com.bx.implatform.vo.WebrtcGroupInfoVO;
 
@@ -74,5 +75,11 @@ public interface IWebrtcGroupService {
      * 心跳保持, 用户每15s上传一次心跳
      */
     void heartbeat(Long groupId);
+
+
+    /**
+     * 加载配置
+     */
+    WebrtcConfig loadConfig();
 
 }

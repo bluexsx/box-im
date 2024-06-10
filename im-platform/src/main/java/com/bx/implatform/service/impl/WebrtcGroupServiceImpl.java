@@ -6,28 +6,31 @@ import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.annotation.RedisLock;
+import com.bx.implatform.config.WebrtcConfig;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.*;
 import com.bx.implatform.entity.GroupMember;
+import com.bx.implatform.entity.GroupMessage;
+import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.service.IGroupMemberService;
+import com.bx.implatform.service.IGroupMessageService;
 import com.bx.implatform.service.IWebrtcGroupService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcGroupSession;
 import com.bx.implatform.session.WebrtcUserInfo;
+import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.UserStateUtils;
 import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.vo.WebrtcGroupFailedVO;
 import com.bx.implatform.vo.WebrtcGroupInfoVO;
-import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Member;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -45,25 +48,27 @@ import java.util.stream.Collectors;
 public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
 
     private final IGroupMemberService groupMemberService;
+    private final IGroupMessageService groupMessageService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final IMClient imClient;
     private final UserStateUtils userStateUtils;
-    /**
-     * 最多支持8路视频
-     */
-    private final int maxChannel = 9;
+    private final WebrtcConfig webrtcConfig;
+
 
     @RedisLock(prefixKey = RedisKey.IM_LOCK_RTC_GROUP, key = "#dto.groupId")
     @Override
     public void setup(WebrtcGroupSetupDTO dto) {
         UserSession userSession = SessionContext.getSession();
+        if (dto.getUserInfos().size() > webrtcConfig.getMaxChannel()) {
+            throw new GlobalException("最多支持" + webrtcConfig.getMaxChannel() + "人进行通话");
+        }
         List<Long> userIds = getRecvIds(dto.getUserInfos());
+        if (!groupMemberService.isInGroup(dto.getGroupId(), userIds)) {
+            throw new GlobalException("部分用户不在群聊中");
+        }
         String key = buildWebrtcSessionKey(dto.getGroupId());
         if (redisTemplate.hasKey(key)) {
             throw new GlobalException("该群聊已存在一个通话");
-        }
-        if (!groupMemberService.isInGroup(dto.getGroupId(), userIds)) {
-            throw new GlobalException("存在不在群聊中的用户");
         }
         // 有效用户
         List<WebrtcUserInfo> userInfos = new LinkedList<>();
@@ -95,18 +100,22 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             WebrtcGroupFailedVO vo = new WebrtcGroupFailedVO();
             vo.setUserIds(offlineUserIds);
             vo.setReason("用户不在线");
-            sendMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), userInfo, JSON.toJSONString(vo));
+            sendRtcMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), userInfo, JSON.toJSONString(vo));
         }
         if (!busyUserIds.isEmpty()) {
             WebrtcGroupFailedVO vo = new WebrtcGroupFailedVO();
             vo.setUserIds(busyUserIds);
             vo.setReason("用户正忙");
             IMUserInfo reciver = new IMUserInfo(userSession.getUserId(), userSession.getTerminal());
-            sendMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
+            sendRtcMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
         }
         // 向被邀请的用户广播消息，发起呼叫
         List<Long> recvIds = getRecvIds(dto.getUserInfos());
-        sendMessage1(MessageType.RTC_GROUP_SETUP, dto.getGroupId(), recvIds, JSON.toJSONString(userInfos));
+        sendRtcMessage1(MessageType.RTC_GROUP_SETUP, dto.getGroupId(), recvIds, JSON.toJSONString(userInfos));
+        // 发送文字提示信息
+        WebrtcUserInfo mineInfo = findUserInfo(webrtcSession,userSession.getUserId());
+        String content = mineInfo.getNickName() + " 发起了语音通话";
+        sendTipMessage(dto.getGroupId(),content);
         log.info("发起群通话,userId:{},groupId:{}", userSession.getUserId(), dto.getGroupId());
     }
 
@@ -128,7 +137,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         saveWebrtcSession(groupId, webrtcSession);
         // 广播信令
         List<Long> recvIds = getRecvIds(webrtcSession.getUserInfos());
-        sendMessage1(MessageType.RTC_GROUP_ACCEPT, groupId, recvIds, "");
+        sendRtcMessage1(MessageType.RTC_GROUP_ACCEPT, groupId, recvIds, "");
         log.info("加入群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
     }
 
@@ -155,7 +164,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         userStateUtils.setFree(userSession.getUserId());
         // 广播消息给的所有用户
         List<Long> recvIds = getRecvIds(userInfos);
-        sendMessage1(MessageType.RTC_GROUP_REJECT, groupId, recvIds, "");
+        sendRtcMessage1(MessageType.RTC_GROUP_REJECT, groupId, recvIds, "");
         log.info("拒绝群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
     }
 
@@ -184,7 +193,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         vo.setUserIds(Arrays.asList(userSession.getUserId()));
         vo.setReason(dto.getReason());
         List<Long> recvIds = getRecvIds(userInfos);
-        sendMessage1(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), recvIds, JSON.toJSONString(vo));
+        sendRtcMessage1(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), recvIds, JSON.toJSONString(vo));
         log.info("群通话失败,userId:{},groupId:{},原因:{}", userSession.getUserId(), dto.getReason());
     }
 
@@ -193,7 +202,9 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
     public void join(Long groupId) {
         UserSession userSession = SessionContext.getSession();
         WebrtcGroupSession webrtcSession = getWebrtcSession(groupId);
-        // 校验
+        if (webrtcSession.getUserInfos().size() >= webrtcConfig.getMaxChannel()) {
+            throw new GlobalException("人员已满，无法进入通话");
+        }
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId, userSession.getUserId());
         if (Objects.isNull(member) || member.getQuit()) {
             throw new GlobalException("您不在群里中");
@@ -217,7 +228,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         userStateUtils.setBusy(userSession.getUserId());
         // 广播信令
         List<Long> recvIds = getRecvIds(webrtcSession.getUserInfos());
-        sendMessage1(MessageType.RTC_GROUP_JOIN, groupId, recvIds, JSON.toJSONString(userInfo));
+        sendRtcMessage1(MessageType.RTC_GROUP_JOIN, groupId, recvIds, JSON.toJSONString(userInfo));
         log.info("加入群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
     }
 
@@ -226,6 +237,14 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
     public void invite(WebrtcGroupInviteDTO dto) {
         UserSession userSession = SessionContext.getSession();
         WebrtcGroupSession webrtcSession = getWebrtcSession(dto.getGroupId());
+        if (dto.getUserInfos().size() + dto.getUserInfos().size() > webrtcConfig.getMaxChannel()) {
+            throw new GlobalException("最多支持" + webrtcConfig.getMaxChannel() + "人进行通话");
+        }
+        if (!groupMemberService.isInGroup(dto.getGroupId(), getRecvIds(dto.getUserInfos()))) {
+            throw new GlobalException("部分用户不在群聊中");
+        }
+        // 保存开启通话提示消息
+
         // 过滤掉已经在通话中的用户
         List<WebrtcUserInfo> userInfos = webrtcSession.getUserInfos();
         // 原用户id
@@ -260,20 +279,20 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             vo.setUserIds(offlineUserIds);
             vo.setReason("用户不在线");
             IMUserInfo reciver = new IMUserInfo(userSession.getUserId(), userSession.getTerminal());
-            sendMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
+            sendRtcMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
         }
         if (!busyUserIds.isEmpty()) {
             WebrtcGroupFailedVO vo = new WebrtcGroupFailedVO();
             vo.setUserIds(busyUserIds);
             vo.setReason("用户正在忙");
             IMUserInfo reciver = new IMUserInfo(userSession.getUserId(), userSession.getTerminal());
-            sendMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
+            sendRtcMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
         }
         // 向被邀请的发起呼叫
         List<Long> newUserIds = getRecvIds(newUserInfos);
-        sendMessage1(MessageType.RTC_GROUP_SETUP, dto.getGroupId(), newUserIds, JSON.toJSONString(userInfos));
+        sendRtcMessage1(MessageType.RTC_GROUP_SETUP, dto.getGroupId(), newUserIds, JSON.toJSONString(userInfos));
         // 向已在通话中的用户同步新邀请的用户信息
-        sendMessage1(MessageType.RTC_GROUP_INVITE, dto.getGroupId(), userIds, JSON.toJSONString(newUserInfos));
+        sendRtcMessage1(MessageType.RTC_GROUP_INVITE, dto.getGroupId(), userIds, JSON.toJSONString(newUserInfos));
         log.info("邀请加入群通话,userId:{},groupId:{},邀请用户:{}", userSession.getUserId(), dto.getGroupId(),
             newUserIds);
     }
@@ -293,7 +312,9 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         webrtcSession.getUserInfos().forEach(user -> userStateUtils.setFree(user.getId()));
         // 广播消息给的所有用户
         List<Long> recvIds = getRecvIds(webrtcSession.getUserInfos());
-        sendMessage1(MessageType.RTC_GROUP_CANCEL, groupId, recvIds, "");
+        sendRtcMessage1(MessageType.RTC_GROUP_CANCEL, groupId, recvIds, "");
+        // 发送文字提示信息
+        sendTipMessage(groupId,"通话结束");
         log.info("发起人取消群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
     }
 
@@ -319,7 +340,9 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             webrtcSession.getUserInfos().forEach(user -> userStateUtils.setFree(user.getId()));
             // 广播给还在呼叫中的用户，取消通话
             List<Long> recvIds = getRecvIds(webrtcSession.getUserInfos());
-            sendMessage1(MessageType.RTC_GROUP_CANCEL, groupId, recvIds, "");
+            sendRtcMessage1(MessageType.RTC_GROUP_CANCEL, groupId, recvIds, "");
+            // 发送文字提示信息
+            sendTipMessage(groupId,"通话结束");
             log.info("群通话结束,groupId:{}", groupId);
         } else {
             // 更新会话信息
@@ -330,7 +353,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             userStateUtils.setFree(userSession.getUserId());
             // 广播信令
             List<Long> recvIds = getRecvIds(userInfos);
-            sendMessage1(MessageType.RTC_GROUP_QUIT, groupId, recvIds, "");
+            sendRtcMessage1(MessageType.RTC_GROUP_QUIT, groupId, recvIds, "");
             log.info("用户退出群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
         }
     }
@@ -346,7 +369,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             return;
         }
         // 推送offer给对方
-        sendMessage2(MessageType.RTC_GROUP_OFFER, dto.getGroupId(), userInfo, dto.getOffer());
+        sendRtcMessage2(MessageType.RTC_GROUP_OFFER, dto.getGroupId(), userInfo, dto.getOffer());
         log.info("推送offer信息,userId:{},对方id:{},groupId:{}", userSession.getUserId(), dto.getUserId(),
             dto.getGroupId());
     }
@@ -363,7 +386,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             return;
         }
         // 推送answer信息给对方
-        sendMessage2(MessageType.RTC_GROUP_ANSWER, dto.getGroupId(), userInfo, dto.getAnswer());
+        sendRtcMessage2(MessageType.RTC_GROUP_ANSWER, dto.getGroupId(), userInfo, dto.getAnswer());
         log.info("回复answer信息,userId:{},对方id:{},groupId:{}", userSession.getUserId(), dto.getUserId(),
             dto.getGroupId());
     }
@@ -380,7 +403,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             return;
         }
         // 推送candidate信息给对方
-        sendMessage2(MessageType.RTC_GROUP_CANDIDATE, dto.getGroupId(), userInfo, dto.getCandidate());
+        sendRtcMessage2(MessageType.RTC_GROUP_CANDIDATE, dto.getGroupId(), userInfo, dto.getCandidate());
         log.info("同步candidate信息,userId:{},groupId:{}", userSession.getUserId(), dto.getGroupId());
     }
 
@@ -399,7 +422,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         saveWebrtcSession(dto.getGroupId(), webrtcSession);
         // 广播信令
         List<Long> recvIds = getRecvIds(webrtcSession.getUserInfos());
-        sendMessage1(MessageType.RTC_GROUP_DEVICE, dto.getGroupId(), recvIds, JSON.toJSONString(dto));
+        sendRtcMessage1(MessageType.RTC_GROUP_DEVICE, dto.getGroupId(), recvIds, JSON.toJSONString(dto));
         log.info("设备操作,userId:{},groupId:{},摄像头:{}", userSession.getUserId(), dto.getGroupId(),
             dto.getIsCamera());
     }
@@ -417,10 +440,10 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             vo.setIsChating(true);
             vo.setUserInfos(webrtcSession.getUserInfos());
             Long hostId = webrtcSession.getHost().getId();
-            WebrtcUserInfo host = findUserInfo(webrtcSession,hostId);
+            WebrtcUserInfo host = findUserInfo(webrtcSession, hostId);
             if (Objects.isNull(host)) {
                 // 如果发起人已经退出了通话，则从数据库查询发起人数据
-                GroupMember member = groupMemberService.findByGroupAndUserId(groupId,hostId);
+                GroupMember member = groupMemberService.findByGroupAndUserId(groupId, hostId);
                 host = new WebrtcUserInfo();
                 host.setId(hostId);
                 host.setNickName(member.getAliasName());
@@ -437,9 +460,14 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         UserSession userSession = SessionContext.getSession();
         // 给通话session续命
         String key = buildWebrtcSessionKey(groupId);
-        redisTemplate.expire(key,30,TimeUnit.SECONDS);
+        redisTemplate.expire(key, 30, TimeUnit.SECONDS);
         // 用户忙线状态续命
         userStateUtils.expire(userSession.getUserId());
+    }
+
+    @Override
+    public WebrtcConfig loadConfig() {
+        return webrtcConfig;
     }
 
     private WebrtcGroupSession getWebrtcSession(Long groupId) {
@@ -492,7 +520,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         return webrtcSession.getUserInfos().stream().anyMatch(user -> user.getId().equals(userId));
     }
 
-    private void sendMessage1(MessageType messageType, Long groupId, List<Long> recvIds, String content) {
+    private void sendRtcMessage1(MessageType messageType, Long groupId, List<Long> recvIds, String content) {
         UserSession userSession = SessionContext.getSession();
         GroupMessageVO messageInfo = new GroupMessageVO();
         messageInfo.setType(messageType.code());
@@ -508,7 +536,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         imClient.sendGroupMessage(sendMessage);
     }
 
-    private void sendMessage2(MessageType messageType, Long groupId, IMUserInfo receiver, String content) {
+    private void sendRtcMessage2(MessageType messageType, Long groupId, IMUserInfo receiver, String content) {
         UserSession userSession = SessionContext.getSession();
         GroupMessageVO messageInfo = new GroupMessageVO();
         messageInfo.setType(messageType.code());
@@ -524,4 +552,28 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         sendMessage.setData(messageInfo);
         imClient.sendGroupMessage(sendMessage);
     }
+
+    private void sendTipMessage(Long groupId,String content){
+        UserSession userSession = SessionContext.getSession();
+        // 群聊成员列表
+        List<Long> userIds = groupMemberService.findUserIdsByGroupId(groupId);
+        // 保存消息
+        GroupMessage msg = new GroupMessage();
+        msg.setGroupId(groupId);
+        msg.setContent(content);
+        msg.setSendId(userSession.getUserId());
+        msg.setSendTime(new Date());
+        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setSendNickName(userSession.getNickName());
+        msg.setType(MessageType.TIP_TEXT.code());
+        groupMessageService.save(msg);
+        // 群发罅隙
+        GroupMessageVO msgInfo = BeanUtils.copyProperties(msg, GroupMessageVO.class);
+        IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(userSession.getUserId(), userSession.getTerminal()));
+        sendMessage.setRecvIds(userIds);
+        sendMessage.setSendResult(false);
+        sendMessage.setData(msgInfo);
+        imClient.sendGroupMessage(sendMessage);
+    };
 }

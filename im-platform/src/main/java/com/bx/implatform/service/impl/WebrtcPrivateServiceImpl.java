@@ -4,7 +4,7 @@ import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.config.ICEServer;
-import com.bx.implatform.config.ICEServerConfig;
+import com.bx.implatform.config.WebrtcConfig;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
@@ -30,7 +30,7 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
 
     private final IMClient imClient;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ICEServerConfig iceServerConfig;
+    private final WebrtcConfig iceServerConfig;
 
     @Override
     public void call(Long uid, String mode, String offer) {
