@@ -109,6 +109,7 @@
 			@complete="onAtComplete"></chat-at-box>
 		<!-- 群语音通话时选择成员 -->
 		<group-member-selector ref="selBox" :members="groupMembers"
+			:maxSize="$store.state.configStore.webrtc.maxChannel"
 			@complete="onSelectMember"></group-member-selector>
 		<group-rtc-join ref="rtcJoin" :groupId="group.id"></group-rtc-join>
 	</view>

@@ -2,15 +2,16 @@ import chatStore from './chatStore.js';
 import friendStore from './friendStore.js';
 import userStore from './userStore.js';
 import groupStore from './groupStore.js';
-import {
-	createStore
-} from 'vuex';
+import configStore from './configStore.js';
+import { createStore } from 'vuex';
+
 const store = createStore({
 	modules: {
 		chatStore,
 		friendStore,
 		userStore,
-		groupStore
+		groupStore,
+		configStore
 	},
 	state: {},
 	actions: {
@@ -20,6 +21,7 @@ const store = createStore({
 				promises.push(this.dispatch("loadFriend"));
 				promises.push(this.dispatch("loadGroup"));
 				promises.push(this.dispatch("loadChat"));
+				promises.push(this.dispatch("loadConfig"));
 				return Promise.all(promises);
 			})
 		},

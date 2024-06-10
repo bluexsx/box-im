@@ -12,6 +12,7 @@ import com.bx.implatform.service.IWebrtcPrivateService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcPrivateSession;
+import com.bx.implatform.util.UserStateUtils;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
     private final IMClient imClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private final WebrtcConfig iceServerConfig;
+    private final UserStateUtils userStateUtils;
 
     @Override
     public void call(Long uid, String mode, String offer) {
@@ -38,12 +40,18 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
         if (!imClient.isOnline(uid)) {
             throw new GlobalException("对方目前不在线");
         }
+        if(userStateUtils.isBusy(uid)){
+            throw new GlobalException("对方正忙");
+        }
         // 创建webrtc会话
         WebrtcPrivateSession webrtcSession = new WebrtcPrivateSession();
         webrtcSession.setCallerId(session.getUserId());
         webrtcSession.setCallerTerminal(session.getTerminal());
         String key = getWebRtcSessionKey(session.getUserId(), uid);
-        redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(key, webrtcSession, 60, TimeUnit.SECONDS);
+        // 设置用户忙线状态
+        userStateUtils.setBusy(uid);
+        userStateUtils.setBusy(session.getUserId());
         // 向对方所有终端发起呼叫
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         MessageType messageType = mode.equals("video") ? MessageType.RTC_CALL_VIDEO : MessageType.RTC_CALL_VOICE;
@@ -71,7 +79,7 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
         webrtcSession.setAcceptorId(session.getUserId());
         webrtcSession.setAcceptorTerminal(session.getTerminal());
         String key = getWebRtcSessionKey(session.getUserId(), uid);
-        redisTemplate.opsForValue().set(key, webrtcSession, 12, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(key, webrtcSession, 60, TimeUnit.SECONDS);
         // 向发起人推送接受通话信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_ACCEPT.code());
@@ -97,6 +105,9 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
+        // 设置用户空闲状态
+        userStateUtils.setFree(uid);
+        userStateUtils.setFree(session.getUserId());
         // 向发起人推送拒绝通话信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_REJECT.code());
@@ -119,6 +130,9 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
         UserSession session = SessionContext.getSession();
         // 删除会话信息
         removeWebrtcSession(session.getUserId(), uid);
+        // 设置用户空闲状态
+        userStateUtils.setFree(uid);
+        userStateUtils.setFree(session.getUserId());
         // 向对方所有终端推送取消通话信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_CANCEL.code());
@@ -142,6 +156,9 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
+        // 设置用户空闲状态
+        userStateUtils.setFree(uid);
+        userStateUtils.setFree(session.getUserId());
         // 向发起方推送通话失败信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_FAILED.code());
@@ -168,6 +185,9 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
         removeWebrtcSession(uid, session.getUserId());
+        // 设置用户空闲状态
+        userStateUtils.setFree(uid);
+        userStateUtils.setFree(session.getUserId());
         // 向对方推送挂断通话信令
         PrivateMessageVO messageInfo = new PrivateMessageVO();
         messageInfo.setType(MessageType.RTC_HANDUP.code());
@@ -210,8 +230,13 @@ public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
     }
 
     @Override
-    public List<ICEServer> getIceServers() {
-        return iceServerConfig.getIceServers();
+    public void heartbeat(Long uid) {
+        UserSession session = SessionContext.getSession();
+        // 会话续命
+        String key = getWebRtcSessionKey(session.getUserId(), uid);
+        redisTemplate.expire(key,60,TimeUnit.SECONDS);
+        // 用户状态续命
+        userStateUtils.expire(session.getUserId());
     }
 
     private WebrtcPrivateSession getWebrtcSession(Long userId, Long uid) {

@@ -19,7 +19,7 @@
 			</view>
 			<view class="member-items">
 				<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-					<view v-for="m in members"  v-show="!m.quit && m.aliasName.startsWith(searchText)" :key="m.userId">
+					<view v-for="m in members" v-show="!m.quit && m.aliasName.startsWith(searchText)" :key="m.userId">
 						<view class="member-item" @click="onSwitchChecked(m)">
 							<head-image :name="m.aliasName" :online="m.online" :url="m.headImage"
 								:size="90"></head-image>
@@ -42,6 +42,10 @@
 		props: {
 			members: {
 				type: Array
+			},
+			maxSize: {
+				type: Number,
+				default: -1
 			}
 		},
 		data() {
@@ -60,8 +64,16 @@
 				this.$refs.popup.open();
 			},
 			onSwitchChecked(m) {
-				if(!m.locked){
+				if (!m.locked) {
 					m.checked = !m.checked;
+				}
+				// 达到选择上限
+				if (this.maxSize > 0 && this.checkedIds.length > this.maxSize) {
+					m.checked = false;
+					uni.showToast({
+						title: `最多选择${this.maxSize}位用户`,
+						icon: "none"
+					})
 				}
 			},
 			onClean() {

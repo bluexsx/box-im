@@ -70,10 +70,10 @@ public class WebrtcPrivateController {
         return ResultUtils.success();
     }
 
-
-    @GetMapping("/iceservers")
-    @ApiOperation(httpMethod = "GET", value = "获取iceservers")
-    public Result<List<ICEServer>> iceservers() {
-        return ResultUtils.success(webrtcPrivateService.getIceServers());
+    @ApiOperation(httpMethod = "POST", value = "获取通话信息")
+    @PostMapping("/heartbeat")
+    public Result heartbeat(@RequestParam Long uid) {
+        webrtcPrivateService.heartbeat(uid);
+        return ResultUtils.success();
     }
 }

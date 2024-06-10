@@ -76,6 +76,7 @@
 				this.url += "&isHost=" + this.isHost;
 				this.url += "&loginInfo=" + JSON.stringify(uni.getStorageSync("loginInfo"));
 				this.url += "&userInfos=" + JSON.stringify(this.userInfos);
+				this.url += "&config=" + JSON.stringify(this.$store.state.configStore.webrtc);
 			},
 		},
 		onBackPress() {

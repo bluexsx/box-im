@@ -49,6 +49,7 @@
 				peerConnection: null,
 				videoTime: 0,
 				videoTimer: null,
+				heartbeatTimer: null,
 				candidates: [],
 				configuration: {
 					iceServers: []
@@ -78,6 +79,8 @@
 						this.accept(this.rtcInfo.offer);
 					}
 				});
+				// 开启心跳
+				this.startHeartBeat();
 			},
 			openCamera(callback) {
 				navigator.getUserMedia({
@@ -275,6 +278,7 @@
 				this.loading = false;
 				this.videoTime = 0;
 				this.videoTimer && clearInterval(this.videoTimer);
+				this.heartbeatTimer && clearInterval(this.heartbeatTimer);
 				this.audio.pause();
 				this.candidates = [];
 				if (this.peerConnection) {
@@ -294,6 +298,16 @@
 				this.videoTimer = setInterval(() => {
 					this.videoTime++;
 				}, 1000)
+			},
+			startHeartBeat() {
+				// 每15s推送一次心跳
+				this.heartbeatTimer && clearInterval(this.heartbeatTimer);
+				this.heartbeatTimer = setInterval(() => {
+					this.$http({
+						url: `/webrtc/private/heartbeat?uid=${this.rtcInfo.friend.id}`,
+						method: 'post'
+					})
+				}, 15000)
 			},
 			handleClose() {
 				if (this.isAccepted) {
@@ -325,14 +339,9 @@
 				this.audio.loop = true;
 			},
 			initICEServers() {
-				this.$http({
-					url: '/webrtc/private/iceservers',
-					method: 'get'
-				}).then((servers) => {
-					this.configuration.iceServers = servers;
-				})
+				let iceServers = this.$store.state.configStore.webrtc.iceServers;
+				this.configuration.iceServers = iceServers;
 			}
-
 		},
 		watch: {
 			rtcState: {

@@ -123,9 +123,4 @@ public class WebrtcGroupController {
         return ResultUtils.success();
     }
 
-    @GetMapping("/config")
-    @ApiOperation(httpMethod = "GET", value = "获取系统配置")
-    public Result<WebrtcConfig> loadConfig() {
-        return ResultUtils.success(webrtcGroupService.loadConfig());
-    }
-}
+ }

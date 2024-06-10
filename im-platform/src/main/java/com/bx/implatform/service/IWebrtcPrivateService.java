@@ -25,7 +25,6 @@ public interface IWebrtcPrivateService {
 
     void candidate(Long uid, String candidate);
 
-    List<ICEServer> getIceServers();
-
+    void heartbeat(Long uid);
 
 }

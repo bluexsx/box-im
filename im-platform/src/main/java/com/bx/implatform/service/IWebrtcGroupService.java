@@ -76,10 +76,4 @@ public interface IWebrtcGroupService {
      */
     void heartbeat(Long groupId);
 
-
-    /**
-     * 加载配置
-     */
-    WebrtcConfig loadConfig();
-
 }

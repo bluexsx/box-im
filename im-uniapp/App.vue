@@ -191,7 +191,7 @@
 						return;
 					// #endif
 					// 被呼叫，弹出视频页面
-					let delayTime = 10;
+					let delayTime = 100;
 					if(msg.type == enums.MESSAGE_TYPE.RTC_GROUP_SETUP){
 						let pages = getCurrentPages();
 						let curPage = pages[pages.length-1].route;

@@ -110,7 +110,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
             sendRtcMessage2(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), reciver, JSON.toJSONString(vo));
         }
         // 向被邀请的用户广播消息，发起呼叫
-        List<Long> recvIds = getRecvIds(dto.getUserInfos());
+        List<Long> recvIds = getRecvIds(userInfos);
         sendRtcMessage1(MessageType.RTC_GROUP_SETUP, dto.getGroupId(), recvIds, JSON.toJSONString(userInfos));
         // 发送文字提示信息
         WebrtcUserInfo mineInfo = findUserInfo(webrtcSession,userSession.getUserId());
@@ -463,11 +463,6 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         redisTemplate.expire(key, 30, TimeUnit.SECONDS);
         // 用户忙线状态续命
         userStateUtils.expire(userSession.getUserId());
-    }
-
-    @Override
-    public WebrtcConfig loadConfig() {
-        return webrtcConfig;
     }
 
     private WebrtcGroupSession getWebrtcSession(Long groupId) {
