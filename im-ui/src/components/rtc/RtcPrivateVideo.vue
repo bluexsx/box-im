@@ -1,27 +1,27 @@
 <template>
 	<el-dialog v-dialogDrag :title="title" top="5vh" :close-on-click-modal="false" :close-on-press-escape="false"
 		:visible="isShow" width="50%" height="70%" :before-close="handleClose">
-		<div class="chat-video">
-			<div v-show="rtcInfo.mode=='video'" class="chat-video-box">
-				<div class="chat-video-friend" v-loading="loading" element-loading-text="等待对方接听..." 
+		<div class="rtc-private-video">
+			<div v-show="rtcInfo.mode=='video'" class="rtc-video-box">
+				<div class="rtc-video-friend" v-loading="loading" element-loading-text="等待对方接听..." 
 					element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.3)">
 					<head-image class="friend-head-image" :id="rtcInfo.friend.id" :size="80" :name="rtcInfo.friend.nickName"
 						:url="rtcInfo.friend.headImage">
 					</head-image>
 					<video ref="friendVideo" autoplay=""></video>
 				</div>
-				<div class="chat-video-mine">
+				<div class="rtc-video-mine">
 					<video ref="mineVideo" autoplay=""></video>
 				</div>
 			</div>
-			<div v-show="rtcInfo.mode=='voice'" class="chat-voice-box" v-loading="loading" element-loading-text="等待对方接听..."
+			<div v-show="rtcInfo.mode=='voice'" class="rtc-voice-box" v-loading="loading" element-loading-text="等待对方接听..."
 				element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.3)">
 				<head-image class="friend-head-image" :id="rtcInfo.friend.id" :size="200" :name="rtcInfo.friend.nickName"
 					:url="rtcInfo.friend.headImage">
-					<div class="chat-voice-name">{{rtcInfo.friend.nickName}}</div>
+					<div class="rtc-voice-name">{{rtcInfo.friend.nickName}}</div>
 				</head-image>
 			</div>
-			<div class="chat-video-controllbar">
+			<div class="rtc-control-bar">
 				<div v-show="isWaiting" title="取消呼叫" class="icon iconfont icon-phone-reject reject" style="color: red;"
 					@click="cancel()"></div>
 				<div v-show="isAccepted" title="挂断" class="icon iconfont icon-phone-reject reject" style="color: red;"
@@ -36,7 +36,7 @@
 	import HeadImage from '../common/HeadImage.vue';
 
 	export default {
-		name: 'chatVideo',
+		name: 'rtcPrivateVideo',
 		components: {
 			HeadImage
 		},
@@ -405,7 +405,7 @@
 </script>
 
 <style lang="scss">
-	.chat-video {
+	.rtc-private-video {
 		position: relative;
 
 		.el-loading-text {
@@ -418,12 +418,12 @@
 			font-size: 30px !important;
 		}
 		
-		.chat-video-box {
+		.rtc-video-box {
 			position: relative;
 			border: #4880b9 solid 1px;
 			background-color: #eeeeee;
 
-			.chat-video-friend {
+			.rtc-video-friend {
 				height: 70vh;
 
 				.friend-head-image {
@@ -438,7 +438,7 @@
 				}
 			}
 
-			.chat-video-mine {
+			.rtc-video-mine {
 				position: absolute;
 				z-index: 99999;
 				width: 25vh;
@@ -455,7 +455,7 @@
 			}
 		}
 
-		.chat-voice-box {
+		.rtc-voice-box {
 			position: relative;
 			display: flex;
 			justify-content: center;
@@ -465,14 +465,14 @@
 			padding-top: 10vh;
 			background-color: aliceblue;
 
-			.chat-voice-name {
+			.rtc-voice-name {
 				text-align: center;
 				font-size: 22px;
 				font-weight: 600;
 			}
 		}
 
-		.chat-video-controllbar {
+		.rtc-control-bar {
 			display: flex;
 			justify-content: space-around;
 			padding: 10px;

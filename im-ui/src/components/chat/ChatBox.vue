@@ -47,10 +47,10 @@
 								<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
 								</div>
 								<div title="语音通话" v-show="chat.type == 'PRIVATE'" class="el-icon-phone-outline"
-									@click="showChatVideo('voice')">
+									@click="showPrivateVideo('voice')">
 								</div>
 								<div title="视频通话" v-show="chat.type == 'PRIVATE'" class="el-icon-video-camera"
-									@click="showChatVideo('video')">
+									@click="showPrivateVideo('video')">
 								</div>
 								<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 							</div>
@@ -147,9 +147,9 @@ export default {
 		},
 		onCall(type){
 			if(type == this.$enums.MESSAGE_TYPE.RT_VOICE){
-				this.showChatVideo('voice');
+				this.showPrivateVideo('voice');
 			}else if(type == this.$enums.MESSAGE_TYPE.RT_VIDEO){
-				this.showChatVideo('video');
+				this.showPrivateVideo('video');
 			}
 		},
 		onKeyDown() {
@@ -447,7 +447,7 @@ export default {
 		closeVoiceBox() {
 			this.showVoice = false;
 		},
-		showChatVideo(mode) {
+		showPrivateVideo(mode) {
 			let rtcInfo = {
 				mode: mode,
 				isHost: true,

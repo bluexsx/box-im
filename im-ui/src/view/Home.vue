@@ -40,8 +40,8 @@
 			@close="$store.commit('closeUserInfoBox')"></user-info>
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
 			@close="$store.commit('closeFullImageBox')"></full-image>
-		<chat-private-video ref="privateVideo"></chat-private-video>
-		<chat-video-acceptor ref="videoAcceptor"></chat-video-acceptor>
+		<rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
+		<rtc-private-acceptor ref="rtcPrivateAcceptor"></rtc-private-acceptor>
 	</el-container>
 </template>
 
@@ -50,8 +50,8 @@
 	import Setting from '../components/setting/Setting.vue';
 	import UserInfo from '../components/common/UserInfo.vue';
 	import FullImage from '../components/common/FullImage.vue';
-	import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
-	import ChatVideoAcceptor from '../components/chat/ChatVideoAcceptor.vue';
+	import RtcPrivateVideo from '../components/rtc/RtcPrivateVideo.vue';
+	import RtcPrivateAcceptor from '../components/rtc/RtcPrivateAcceptor.vue';
 
 	export default {
 		components: {
@@ -59,8 +59,8 @@
 			Setting,
 			UserInfo,
 			FullImage,
-			ChatPrivateVideo,
-			ChatVideoAcceptor
+			RtcPrivateVideo,
+			RtcPrivateAcceptor
 		},
 		data() {
 			return {
@@ -162,9 +162,9 @@
 						msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO ||
 						rtcInfo.state == this.$enums.RTC_STATE.FREE ||
 						rtcInfo.state == this.$enums.RTC_STATE.WAIT_ACCEPT) {
-						this.$refs.videoAcceptor.onRTCMessage(msg,friend)
+						this.$refs.rtcPrivateAcceptor.onRTCMessage(msg,friend)
 					} else {
-						this.$refs.privateVideo.onRTCMessage(msg)
+						this.$refs.rtcPrivateVideo.onRTCMessage(msg)
 					}
 					return;
 				}
