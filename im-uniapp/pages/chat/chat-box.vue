@@ -110,6 +110,7 @@
 		<!-- 群语音通话时选择成员 -->
 		<group-member-selector ref="selBox" :members="groupMembers"
 			@complete="onSelectMember"></group-member-selector>
+		<group-rtc-join ref="rtcJoin" :groupId="group.id"></group-rtc-join>
 	</view>
 </template>
 
@@ -191,9 +192,20 @@
 				})
 			},
 			onGroupVideo() {
-				let ids = [this.mine.id];
-				this.$refs.selBox.init(ids, ids);
-				this.$refs.selBox.open();
+				this.$http({
+					url: "/webrtc/group/info?groupId="+this.group.id,
+					method: 'GET'
+				}).then((rtcInfo)=>{
+					if(rtcInfo.isChating){
+						// 已在通话中，可以直接加入通话
+						this.$refs.rtcJoin.open(rtcInfo);
+					}else {
+						// 邀请成员发起通话
+						let ids = [this.mine.id];
+						this.$refs.selBox.init(ids, ids);
+						this.$refs.selBox.open();
+					}
+				})
 			},
 			onSelectMember(ids) {
 				let users = [];

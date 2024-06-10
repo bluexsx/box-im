@@ -76,10 +76,10 @@
 				this.url += "&isHost=" + this.isHost;
 				this.url += "&loginInfo=" + JSON.stringify(uni.getStorageSync("loginInfo"));
 				this.url += "&userInfos=" + JSON.stringify(this.userInfos);
-				console.log(this.url)
 			},
 		},
 		onBackPress() {
+			console.log("onBackPress")
 			this.sendMessageToWebView("NAV_BACK", {})
 		},
 		onLoad(options) {

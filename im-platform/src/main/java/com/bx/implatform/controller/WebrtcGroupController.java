@@ -4,6 +4,7 @@ import com.bx.implatform.dto.*;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.IWebrtcGroupService;
+import com.bx.implatform.vo.WebrtcGroupInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -108,4 +109,16 @@ public class WebrtcGroupController {
         return ResultUtils.success();
     }
 
+    @ApiOperation(httpMethod = "GET", value = "获取通话信息")
+    @GetMapping("/info")
+    public Result<WebrtcGroupInfoVO> info(@RequestParam Long groupId) {
+        return ResultUtils.success(webrtcGroupService.info(groupId));
+    }
+
+    @ApiOperation(httpMethod = "POST", value = "获取通话信息")
+    @PostMapping("/heartbeat")
+    public Result heartbeat(@RequestParam Long groupId) {
+        webrtcGroupService.heartbeat(groupId);
+        return ResultUtils.success();
+    }
 }

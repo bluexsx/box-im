@@ -2,9 +2,10 @@ package com.bx.implatform.contant;
 
 public final class RedisKey {
 
-    private RedisKey() {
-    }
-
+    /**
+     *  用户状态 无值:空闲  1:正在忙
+     */
+    public static final String IM_USER_STATE = "im:user:state";
     /**
      * 已读群聊消息位置(已读最大id)
      */
