@@ -51,7 +51,6 @@ export default {
 					}
 				})
 			})
-			console.log(cacheChats.length)
 		},
 		openChat(state, chatInfo) {
 			let chats = this.getters.findChats();
@@ -295,7 +294,6 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
-			console.log(cacheChats.length)
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {
