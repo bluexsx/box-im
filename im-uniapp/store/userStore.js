@@ -5,6 +5,9 @@ import http from '../common/request'
 export default {
 	state: {
 		userInfo: {},
+		config:{
+			webrtc:{}
+		},
 		state: USER_STATE.FREE 
 	},
 

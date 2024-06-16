@@ -85,4 +85,31 @@
 .el-button {
 	padding: 8px 15px !important;
 }
+
+.el-checkbox {
+	display: flex;
+	align-items: center;
+
+	//修改选中框的大小
+	.el-checkbox__inner {
+		width: 20px;
+		height: 20px;
+
+		//修改选中框中的对勾的大小和位置
+		&::after {
+			height: 12px;
+			left: 7px;
+		}
+	}
+
+	//修改点击文字颜色不变
+	.el-checkbox__input.is-checked+.el-checkbox__label {
+		color: #333333;
+	}
+
+	.el-checkbox__label {
+		line-height: 20px;
+		padding-left: 8px;
+	}
+}
 </style>

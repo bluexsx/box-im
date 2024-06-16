@@ -1,6 +1,6 @@
 <template>
-	<view class="page chat-video">
-		<web-view id="chat-video-wv" @message="onMessage"	:src="url"></web-view>
+	<view class="page chat-private-video">
+		<web-view id="chat-video-wv" @message="onMessage" :src="url"></web-view>
 	</view>
 </template>
 
@@ -72,20 +72,21 @@
 				// #endif
 			},
 			initUrl(){
-				this.url = "/hybrid/html/index.html";
+				this.url = "/hybrid/html/rtc-private/index.html";
 				this.url += "?mode="+this.mode;
 				this.url += "&isHost="+this.isHost;
 				this.url += "&baseUrl="+UNI_APP.BASE_URL;
 				this.url += "&loginInfo="+JSON.stringify(uni.getStorageSync("loginInfo"));
 				this.url += "&userInfo="+JSON.stringify(this.$store.state.userStore.userInfo);
 				this.url += "&friend="+JSON.stringify(this.friend);
+				this.url += "&config=" + JSON.stringify(this.$store.state.configStore.webrtc);
 			},
 		},
 		onBackPress() {
 			this.sendMessageToWebView("NAV_BACK",{})
 		},
 		onLoad(options) {
-			uni.$on('WS_RTC', msg => {
+			uni.$on('WS_RTC_PRIVATE', msg => {
 				// 推送给web-view处理
 				this.sendMessageToWebView("RTC_MESSAGE", msg);
 			})
@@ -104,7 +105,7 @@
 			this.initUrl();
 		},
 		onUnload() {
-			uni.$off('WS_RTC')
+			uni.$off('WS_RTC_PRIVATE')
 		}
 	}
 </script>

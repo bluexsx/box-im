@@ -10,7 +10,9 @@ import java.util.List;
 @Data
 @Component
 @ConfigurationProperties(prefix = "webrtc")
-public class ICEServerConfig {
+public class WebrtcConfig {
+
+    private Integer maxChannel = 9;
 
     private List<ICEServer> iceServers = new ArrayList<>();
 

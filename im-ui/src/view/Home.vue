@@ -40,8 +40,9 @@
 			@close="$store.commit('closeUserInfoBox')"></user-info>
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
 			@close="$store.commit('closeFullImageBox')"></full-image>
-		<chat-private-video ref="privateVideo"></chat-private-video>
-		<chat-video-acceptor ref="videoAcceptor"></chat-video-acceptor>
+		<rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
+		<rtc-private-acceptor ref="rtcPrivateAcceptor"></rtc-private-acceptor>
+		<rtc-group-video ref="rtcGroupVideo" ></rtc-group-video>
 	</el-container>
 </template>
 
@@ -50,8 +51,9 @@
 	import Setting from '../components/setting/Setting.vue';
 	import UserInfo from '../components/common/UserInfo.vue';
 	import FullImage from '../components/common/FullImage.vue';
-	import ChatPrivateVideo from '../components/chat/ChatPrivateVideo.vue';
-	import ChatVideoAcceptor from '../components/chat/ChatVideoAcceptor.vue';
+	import RtcPrivateVideo from '../components/rtc/RtcPrivateVideo.vue';
+	import RtcPrivateAcceptor from '../components/rtc/RtcPrivateAcceptor.vue';
+	import RtcGroupVideo from '../components/rtc/RtcGroupVideo.vue';
 
 	export default {
 		components: {
@@ -59,8 +61,9 @@
 			Setting,
 			UserInfo,
 			FullImage,
-			ChatPrivateVideo,
-			ChatVideoAcceptor
+			RtcPrivateVideo,
+			RtcPrivateAcceptor,
+			RtcGroupVideo
 		},
 		data() {
 			return {
@@ -70,6 +73,12 @@
 		},
 		methods: {
 			init() {
+				this.$eventBus.$on('openGroupVideo', (rctInfo)=>{
+					// 进入多人视频通话
+					console.log(this.$refs.rtcGroupVideo)
+					this.$refs.rtcGroupVideo.open(rctInfo);
+				});
+				
 				this.$store.dispatch("load").then(() => {
 					// ws初始化
 					this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
@@ -153,18 +162,17 @@
 				})
 			},
 			insertPrivateMessage(friend, msg) {
-				// webrtc 信令
-				if (msg.type >= this.$enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
-					msg.type <= this.$enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+				// 单人webrtc 信令
+				if (msg.type >= 100 && msg.type <= 199) {
 					let rtcInfo = this.$store.state.userStore.rtcInfo;
 					// 呼叫
 					if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL_VOICE ||
 						msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO ||
 						rtcInfo.state == this.$enums.RTC_STATE.FREE ||
 						rtcInfo.state == this.$enums.RTC_STATE.WAIT_ACCEPT) {
-						this.$refs.videoAcceptor.onRTCMessage(msg,friend)
+						this.$refs.rtcPrivateAcceptor.onRTCMessage(msg,friend)
 					} else {
-						this.$refs.privateVideo.onRTCMessage(msg)
+						this.$refs.rtcPrivateVideo.onRTCMessage(msg)
 					}
 					return;
 				}
@@ -180,7 +188,8 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				if (!msg.selfSend && msg.status != this.$enums.MESSAGE_STATUS.READED) {
+				if (!msg.selfSend && msg.type < 10 
+					&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
 				}
 			},
@@ -214,12 +223,20 @@
 				}
 				// 标记这条消息是不是自己发的
 				msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
+				// 群视频信令
+				if (msg.type >= 200 && msg.type <= 299) {
+					this.$nextTick(()=>{
+						this.$refs.rtcGroupVideo.onRTCMessage(msg);
+					})
+					return;
+				}
 				this.loadGroupInfo(msg.groupId).then((group) => {
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
 				})
 			},
 			insertGroupMessage(group, msg) {
+				
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
@@ -231,7 +248,8 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				if (!msg.selfSend && msg.status != this.$enums.MESSAGE_STATUS.READED) {
+				if (!msg.selfSend && msg.type < 10 
+					&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
 				}
 			},

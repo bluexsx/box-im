@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3791506 */
-  src: url('iconfont.ttf?t=1714220334746') format('truetype');
+  src: url('iconfont.ttf?t=1718373714629') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,38 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-invite-rtc:before {
+  content: "\e65f";
+}
+
+.icon-quit:before {
+  content: "\e606";
+}
+
+.icon-camera-off:before {
+  content: "\e6b5";
+}
+
+.icon-speaker-off:before {
+  content: "\ea3c";
+}
+
+.icon-microphone-on:before {
+  content: "\e63b";
+}
+
+.icon-speaker-on:before {
+  content: "\e6a4";
+}
+
+.icon-camera-on:before {
+  content: "\e627";
+}
+
+.icon-microphone-off:before {
+  content: "\efe5";
 }
 
 .icon-chat:before {

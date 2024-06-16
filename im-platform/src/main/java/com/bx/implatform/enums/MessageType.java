@@ -1,8 +1,6 @@
 package com.bx.implatform.enums;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 
 @AllArgsConstructor
 public enum MessageType {
@@ -54,38 +52,27 @@ public enum MessageType {
      */
     LOADDING(30,"加载中"),
 
-    /**
-     * 语音呼叫
-     */
     RTC_CALL_VOICE(100, "语音呼叫"),
-    /**
-     * 视频呼叫
-     */
     RTC_CALL_VIDEO(101, "视频呼叫"),
-    /**
-     * 接受
-     */
     RTC_ACCEPT(102, "接受"),
-    /**
-     * 拒绝
-     */
     RTC_REJECT(103, "拒绝"),
-    /**
-     * 取消呼叫
-     */
     RTC_CANCEL(104, "取消呼叫"),
-    /**
-     * 呼叫失败
-     */
     RTC_FAILED(105, "呼叫失败"),
-    /**
-     * 挂断
-     */
     RTC_HANDUP(106, "挂断"),
-    /**
-     * 同步candidate
-     */
-    RTC_CANDIDATE(107, "同步candidate");
+    RTC_CANDIDATE(107, "同步candidate"),
+    RTC_GROUP_SETUP(200,"发起群视频通话"),
+    RTC_GROUP_ACCEPT(201,"接受通话呼叫"),
+    RTC_GROUP_REJECT(202,"拒绝通话呼叫"),
+    RTC_GROUP_FAILED(203,"拒绝通话呼叫"),
+    RTC_GROUP_CANCEL(204,"取消通话呼叫"),
+    RTC_GROUP_QUIT(205,"退出通话"),
+    RTC_GROUP_INVITE(206,"邀请进入通话"),
+    RTC_GROUP_JOIN(207,"主动进入通话"),
+    RTC_GROUP_OFFER(208,"推送offer信息"),
+    RTC_GROUP_ANSWER(209,"推送answer信息"),
+    RTC_GROUP_CANDIDATE(210,"同步candidate"),
+    RTC_GROUP_DEVICE(211,"设备操作"),
+    ;
 
     private final Integer code;
 

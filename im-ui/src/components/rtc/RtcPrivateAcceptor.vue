@@ -1,5 +1,5 @@
 <template>
-	<div v-show="isShow" class="chat-video-acceptor">
+	<div v-show="isShow" class="rtc-private-acceptor">
 		<head-image :id="rtcInfo.friend.id" :name="rtcInfo.friend.nickName" :url="rtcInfo.friend.headImage" :size="100"></head-image>
 		<div class="acceptor-text">
 			{{tip}}
@@ -15,7 +15,7 @@
 	import HeadImage from '../common/HeadImage.vue';
 
 	export default {
-		name: "videoAcceptor",
+		name: "rtcPrivateAcceptor",
 		components: {
 			HeadImage
 		},
@@ -191,7 +191,7 @@
 </script>
 
 <style scoped lang="scss">
-	.chat-video-acceptor {
+	.rtc-private-acceptor {
 		position: absolute;
 		display: flex;
 		flex-direction: column;
