@@ -81,8 +81,8 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         List<Long> busyUserIds = new LinkedList<>();
         for (WebrtcUserInfo userInfo : dto.getUserInfos()) {
             if (!imClient.isOnline(userInfo.getId())) {
-                userInfos.add(userInfo);
-                //offlineUserIds.add(userInfo.getId());
+                //userInfos.add(userInfo);
+                offlineUserIds.add(userInfo.getId());
             } else if (userStateUtils.isBusy(userInfo.getId())) {
                 busyUserIds.add(userInfo.getId());
             } else {
@@ -266,9 +266,9 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
                 continue;
             }
             if (!imClient.isOnline(userInfo.getId())) {
-               // offlineUserIds.add(userInfo.getId());
-                userStateUtils.setBusy(userInfo.getId());
-                newUserInfos.add(userInfo);
+                offlineUserIds.add(userInfo.getId());
+//                userStateUtils.setBusy(userInfo.getId());
+//                newUserInfos.add(userInfo);
             } else if (userStateUtils.isBusy(userInfo.getId())) {
                 busyUserIds.add(userInfo.getId());
             } else {
