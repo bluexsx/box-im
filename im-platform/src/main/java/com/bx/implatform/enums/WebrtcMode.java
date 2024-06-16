@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * @author: 谢绍许
+ * @author: Blue
  * @date: 2024-06-01
  * @version: 1.0
  */

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author: 谢绍许
+ * @author: Blue
  * @date: 2024-06-09
  * @version: 1.0
  */

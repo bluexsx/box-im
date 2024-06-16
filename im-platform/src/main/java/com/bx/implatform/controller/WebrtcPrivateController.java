@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.annotation.OnlineCheck;
 import com.bx.implatform.config.ICEServer;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
@@ -19,6 +20,7 @@ public class WebrtcPrivateController {
 
     private final IWebrtcPrivateService webrtcPrivateService;
 
+    @OnlineCheck
     @ApiOperation(httpMethod = "POST", value = "呼叫视频通话")
     @PostMapping("/call")
     public Result call(@RequestParam Long uid, @RequestParam(defaultValue = "video") String mode, @RequestBody String offer) {

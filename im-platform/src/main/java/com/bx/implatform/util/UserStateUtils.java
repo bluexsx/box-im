@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author: 谢绍许
+ * @author: Blue
  * @date: 2024-06-10
  * @version: 1.0
  */

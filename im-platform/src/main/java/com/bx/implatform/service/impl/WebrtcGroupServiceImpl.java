@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.implatform.annotation.OnlineCheck;
 import com.bx.implatform.annotation.RedisLock;
 import com.bx.implatform.config.WebrtcConfig;
 import com.bx.implatform.contant.RedisKey;
@@ -55,6 +56,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
     private final WebrtcConfig webrtcConfig;
 
 
+    @OnlineCheck
     @RedisLock(prefixKey = RedisKey.IM_LOCK_RTC_GROUP, key = "#dto.groupId")
     @Override
     public void setup(WebrtcGroupSetupDTO dto) {
@@ -200,6 +202,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         log.info("群通话失败,userId:{},groupId:{},原因:{}", userSession.getUserId(), dto.getReason());
     }
 
+    @OnlineCheck
     @RedisLock(prefixKey = RedisKey.IM_LOCK_RTC_GROUP, key = "#groupId")
     @Override
     public void join(Long groupId) {
@@ -239,6 +242,7 @@ public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
         log.info("加入群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
     }
 
+    @OnlineCheck
     @RedisLock(prefixKey = RedisKey.IM_LOCK_RTC_GROUP, key = "#dto.groupId")
     @Override
     public void invite(WebrtcGroupInviteDTO dto) {
