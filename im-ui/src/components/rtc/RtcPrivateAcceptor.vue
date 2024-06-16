@@ -15,7 +15,7 @@
 	import HeadImage from '../common/HeadImage.vue';
 
 	export default {
-		name: "videoAcceptor",
+		name: "rtcPrivateAcceptor",
 		components: {
 			HeadImage
 		},

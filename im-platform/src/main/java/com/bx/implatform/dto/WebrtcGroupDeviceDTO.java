@@ -21,6 +21,9 @@ public class WebrtcGroupDeviceDTO {
     private Long groupId;
 
     @ApiModelProperty(value = "是否开启摄像头")
-    private Boolean isCamera = false;
+    private Boolean isCamera;
+
+    @ApiModelProperty(value = "是否开启麦克风")
+    private Boolean isMicroPhone;
 
 }

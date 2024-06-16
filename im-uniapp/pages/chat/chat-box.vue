@@ -81,11 +81,11 @@
 				</view>
 				<!-- #ifndef MP-WEIXIN -->
 				<!-- 音视频不支持小程序 -->
-				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onVideoCall()">
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
 					<view class="tool-icon iconfont icon-video"></view>
 					<view class="tool-name">视频通话</view>
 				</view>
-				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onVoiceCall()">
+				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
 					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
@@ -110,7 +110,7 @@
 		<!-- 群语音通话时选择成员 -->
 		<group-member-selector ref="selBox" :members="groupMembers"
 			:maxSize="$store.state.configStore.webrtc.maxChannel"
-			@complete="onSelectMember"></group-member-selector>
+			@complete="onInviteOk"></group-member-selector>
 		<group-rtc-join ref="rtcJoin" :groupId="group.id"></group-rtc-join>
 	</view>
 </template>
@@ -175,18 +175,18 @@
 			},
 			onRtCall(msgInfo) {
 				if (msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE) {
-					this.onVoiceCall();
+					this.onPriviteVoice();
 				} else if (msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO) {
-					this.onVideoCall();
+					this.onPriviteVideo();
 				}
 			},
-			onVideoCall() {
+			onPriviteVideo() {
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
 				uni.navigateTo({
 					url: `/pages/chat/chat-private-video?mode=video&friend=${friendInfo}&isHost=true`
 				})
 			},
-			onVoiceCall() {
+			onPriviteVoice() {
 				const friendInfo = encodeURIComponent(JSON.stringify(this.friend));
 				uni.navigateTo({
 					url: `/pages/chat/chat-private-video?mode=voice&friend=${friendInfo}&isHost=true`
@@ -208,7 +208,10 @@
 					}
 				})
 			},
-			onSelectMember(ids) {
+			onInviteOk(ids) {
+				if(ids.length < 2){
+					return;
+				}
 				let users = [];
 				ids.forEach(id => {
 					let m = this.groupMembers.find(m => m.userId == id);
@@ -217,7 +220,8 @@
 						id: m.userId,
 						nickName: m.aliasName,
 						headImage: m.headImage,
-						isCamera: false
+						isCamera: false,
+						isMicroPhone: true
 					})
 				})
 				const groupId = this.group.id;

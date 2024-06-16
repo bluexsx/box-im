@@ -23,4 +23,7 @@ public class WebrtcUserInfo {
 
     @ApiModelProperty(value = "是否开启摄像头")
     private Boolean isCamera;
+
+    @ApiModelProperty(value = "是否开启麦克风")
+    private Boolean isMicroPhone;
 }
