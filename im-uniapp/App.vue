@@ -15,8 +15,6 @@
 			init() {
 				// 加载数据
 				store.dispatch("load").then(() => {
-					// 审核
-					this.initAudit();
 					// 初始化websocket
 					this.initWebSocket();
 				}).catch((e) => {
@@ -50,6 +48,7 @@
 					}
 				});
 				wsApi.onClose((res) => {
+					console.log("ws断开",res);
 					// 1000是客户端正常主动关闭
 					if (res.code != 1000) {
 						// 重新连接
@@ -278,21 +277,6 @@
 					return true;
 				}
 				return loginInfo.expireTime < new Date().getTime();
-			},
-			initAudit() {
-				if (store.state.userStore.userInfo.type == 1) {
-					// 显示群组功能
-					uni.setTabBarItem({
-						index: 2,
-						text: "群聊"
-					})
-				} else {
-					// 隐藏群组功能
-					uni.setTabBarItem({
-						index: 2,
-						text: "搜索"
-					})
-				}
 			}
 		},
 		onLaunch() {

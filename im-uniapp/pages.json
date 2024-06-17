@@ -63,7 +63,7 @@
 				"pagePath": "pages/group/group",
 				"iconPath": "static/tarbar/group.png",
 				"selectedIconPath": "static/tarbar/group_active.png",
-				"text": "搜索"
+				"text": "群聊"
 			},
 			{
 				"pagePath": "pages/mine/mine",
