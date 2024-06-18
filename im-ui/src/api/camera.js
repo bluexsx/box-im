@@ -9,15 +9,15 @@ ImCamera.prototype.isEnable = function() {
 	return !!navigator && !!navigator.mediaDevices && !!navigator.mediaDevices.getUserMedia;
 }
 
-ImCamera.prototype.openVideo = function(isFacing) {
+ImCamera.prototype.openVideo = function() {
 	return new Promise((resolve, reject) => {
 		if(this.stream){
 			this.close()
 		}
-		let facingMode = isFacing ? "user" : "environment";
 		let constraints = {
 			video: {
-				facingMode: facingMode
+				with: window.screen.width,
+				height: window.screen.height
 			},
 			audio: {
 				echoCancellation: true, //音频开启回音消除

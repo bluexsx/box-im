@@ -498,7 +498,7 @@
 				return new Promise((resolve, reject) => {
 					if (this.isCamera) {
 						// 打开摄像头+麦克风
-						this.camera.openVideo(this.isFacing).then((stream) => {
+						this.camera.openVideo().then((stream) => {
 							console.log("摄像头打开成功")
 							this.stream = stream;
 							// 显示本地视频
