@@ -33,9 +33,11 @@ ImWebRtc.prototype.setStream = function(stream) {
 	if(this.stream){
 		this.peerConnection.removeStream(this.stream)
 	}
-	stream.getTracks().forEach((track) => {
-		this.peerConnection.addTrack(track, stream);
-	});
+	if(stream){
+		stream.getTracks().forEach((track) => {
+			this.peerConnection.addTrack(track, stream);
+		});
+	}
 	this.stream = stream;
 }
 
@@ -111,6 +113,7 @@ ImWebRtc.prototype.close = function(uid) {
 		this.peerConnection.close();
 		this.peerConnection.onicecandidate = null;
 		this.peerConnection.onaddstream = null;
+		this.peerConnection = null;
 	}
 }
 

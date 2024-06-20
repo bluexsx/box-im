@@ -44,7 +44,7 @@
 								<div title="回执消息" v-show="chat.type == 'GROUP'" class="icon iconfont icon-receipt"
 									:class="isReceipt ? 'chat-tool-active' : ''" @click="onSwitchReceipt">
 								</div>
-								<div title="发送语音" class="el-icon-microphone" @click="showVoiceBox()">
+								<div title="发送语音" class="el-icon-microphone" @click="showRecordBox()">
 								</div>
 								<div title="语音通话" v-show="chat.type == 'PRIVATE'" class="el-icon-phone-outline"
 									@click="showPrivateVideo('voice')">
@@ -88,7 +88,7 @@
 			<emotion ref="emoBox" @emotion="onEmotion"></Emotion>
 			<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers" :search-text="atSearchText"
 				@select="onAtSelect"></chat-at-box>
-			<chat-voice :visible="showVoice" @close="closeVoiceBox" @send="onSendVoice"></chat-voice>
+			<chat-record :visible="showRecord" @close="closeRecordBox" @send="onSendRecord"></chat-record>
 			<group-member-selector ref="rtcSel" :groupId="group.id" @complete="onInviteOk"></group-member-selector>
 			<rtc-group-join ref="rtcJoin" :groupId="group.id"></rtc-group-join>
 			<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group"
@@ -102,7 +102,7 @@
 	import ChatMessageItem from "./ChatMessageItem.vue";
 	import FileUpload from "../common/FileUpload.vue";
 	import Emotion from "../common/Emotion.vue";
-	import ChatVoice from "./ChatVoice.vue";
+	import ChatRecord from "./ChatRecord.vue";
 	import ChatHistory from "./ChatHistory.vue";
 	import ChatAtBox from "./ChatAtBox.vue"
 	import GroupMemberSelector from "../group/GroupMemberSelector.vue"
@@ -116,7 +116,7 @@
 			FileUpload,
 			ChatGroupSide,
 			Emotion,
-			ChatVoice,
+			ChatRecord,
 			ChatHistory,
 			ChatAtBox,
 			GroupMemberSelector,
@@ -136,7 +136,7 @@
 				sendImageFile: "",
 				placeholder: "",
 				isReceipt: true,
-				showVoice: false, // 是否显示语音录制弹窗
+				showRecord: false, // 是否显示语音录制弹窗
 				showSide: false, // 是否显示群聊信息栏
 				showHistory: false, // 是否显示历史聊天记录
 				lockMessage: false, // 是否锁定发送，
@@ -452,23 +452,20 @@
 				range.collapse()
 
 			},
-			showVoiceBox() {
-				this.showVoice = true;
+			showRecordBox() {
+				this.showRecord = true;
 			},
-			closeVoiceBox() {
-				this.showVoice = false;
+			closeRecordBox() {
+				this.showRecord = false;
 			},
 			showPrivateVideo(mode) {
 				let rtcInfo = {
 					mode: mode,
 					isHost: true,
 					friend: this.friend,
-					sendId: this.$store.state.userStore.userInfo.id,
-					recvId: this.friend.id,
-					offer: "",
-					state: this.$enums.RTC_STATE.WAIT_CALL
 				}
-				this.$store.commit("setRtcInfo", rtcInfo);
+				// 通过home.vue打开单人视频窗口
+				this.$eventBus.$emit("openPrivateVideo", rtcInfo);
 			},
 			onGroupVideo() {
 				this.$http({
@@ -517,7 +514,7 @@
 			closeHistoryBox() {
 				this.showHistory = false;
 			},
-			onSendVoice(data) {
+			onSendRecord(data) {
 				let msgInfo = {
 					content: JSON.stringify(data),
 					type: 3,
@@ -544,7 +541,7 @@
 					// 滚动到底部
 					this.scrollToBottom();
 					// 关闭录音窗口
-					this.showVoice = false;
+					this.showRecord = false;
 					this.isReceipt = false;
 
 				})

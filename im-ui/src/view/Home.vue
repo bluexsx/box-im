@@ -41,7 +41,6 @@
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
 			@close="$store.commit('closeFullImageBox')"></full-image>
 		<rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
-		<rtc-private-acceptor ref="rtcPrivateAcceptor"></rtc-private-acceptor>
 		<rtc-group-video ref="rtcGroupVideo" ></rtc-group-video>
 	</el-container>
 </template>
@@ -73,9 +72,12 @@
 		},
 		methods: {
 			init() {
+				this.$eventBus.$on('openPrivateVideo', (rctInfo)=>{
+					// 进入单人视频通话
+					this.$refs.rtcPrivateVideo.open(rctInfo);
+				});
 				this.$eventBus.$on('openGroupVideo', (rctInfo)=>{
 					// 进入多人视频通话
-					console.log(this.$refs.rtcGroupVideo)
 					this.$refs.rtcGroupVideo.open(rctInfo);
 				});
 				
@@ -155,6 +157,11 @@
 				}
 				// 标记这条消息是不是自己发的
 				msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
+				// 单人webrtc 信令
+				if (msg.type >= 100 && msg.type <= 199) {
+					this.$refs.rtcPrivateVideo.onRTCMessage(msg)
+					return;
+				}
 				// 好友id
 				let friendId = msg.selfSend ? msg.recvId : msg.sendId;
 				this.loadFriendInfo(friendId).then((friend) => {
@@ -162,21 +169,7 @@
 				})
 			},
 			insertPrivateMessage(friend, msg) {
-				// 单人webrtc 信令
-				if (msg.type >= 100 && msg.type <= 199) {
-					let rtcInfo = this.$store.state.userStore.rtcInfo;
-					// 呼叫
-					if (msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL_VOICE ||
-						msg.type == this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO ||
-						rtcInfo.state == this.$enums.RTC_STATE.FREE ||
-						rtcInfo.state == this.$enums.RTC_STATE.WAIT_ACCEPT) {
-						this.$refs.rtcPrivateAcceptor.onRTCMessage(msg,friend)
-					} else {
-						this.$refs.rtcPrivateVideo.onRTCMessage(msg)
-					}
-					return;
-				}
-
+				
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
