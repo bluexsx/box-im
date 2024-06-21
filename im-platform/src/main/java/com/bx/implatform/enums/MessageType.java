@@ -2,6 +2,17 @@ package com.bx.implatform.enums;
 
 import lombok.AllArgsConstructor;
 
+
+/**
+ * 0-9: 真正的消息，需要存储到数据库
+ * 10-19: 状态类消息: 撤回、已读、回执
+ * 20-29: 提示类消息: 在会话中间显示的提示
+ * 30-39: UI交互类消息: 显示加载状态等
+ * 40-49: 操作交互类消息: 语音通话、视频通话消息等
+ * 100-199: 单人语音通话rtc信令
+ * 200-299: 多人语音通话rtc信令
+ *
+ */
 @AllArgsConstructor
 public enum MessageType {
 
@@ -25,6 +36,7 @@ public enum MessageType {
      * 视频
      */
     VIDEO(4, "视频"),
+
     /**
      * 撤回
      */
@@ -46,11 +58,19 @@ public enum MessageType {
      * 文字提示
      */
     TIP_TEXT(21,"文字提示"),
-
     /**
      * 消息加载标记
      */
-    LOADDING(30,"加载中"),
+    LOADING(30,"加载中"),
+
+    /**
+     *  语音通话提示
+     */
+    ACT_RT_VOICE(40,"语音通话"),
+    /**
+     *  视频通话提示
+     */
+    ACT_RT_VIDEO(41,"视频通话"),
 
     RTC_CALL_VOICE(100, "语音呼叫"),
     RTC_CALL_VIDEO(101, "视频呼叫"),

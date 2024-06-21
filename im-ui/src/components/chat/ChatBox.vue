@@ -157,9 +157,9 @@
 				this.$refs.atBox.close();
 			},
 			onCall(type) {
-				if (type == this.$enums.MESSAGE_TYPE.RT_VOICE) {
+				if (type == this.$enums.MESSAGE_TYPE.ACT_RT_VOICE) {
 					this.showPrivateVideo('voice');
-				} else if (type == this.$enums.MESSAGE_TYPE.RT_VIDEO) {
+				} else if (type == this.$enums.MESSAGE_TYPE.ACT_RT_VIDEO) {
 					this.showPrivateVideo('video');
 				}
 			},

@@ -20,16 +20,6 @@
 			onMessage(e) {
 				this.onWebviewMessage(e.detail.data[0]);
 			},
-			onInsertMessage(msgInfo){
-				let chat = {
-					type: 'PRIVATE',
-					targetId: this.friend.id,
-					showName: this.friend.nickName,
-					headImage: this.friend.headImage,
-				};
-				this.$store.commit("openChat",chat);
-				this.$store.commit("insertMessage", msgInfo);
-			},
 			onWebviewMessage(event) {
 				console.log("来自webview的消息:" + JSON.stringify(event))
 				switch (event.key) {
@@ -38,9 +28,6 @@
 						break;
 					case "WV_CLOSE":
 						uni.navigateBack();
-						break;
-					case "INSERT_MESSAGE":
-						this.onInsertMessage(event.data);
 						break;
 				}
 			},

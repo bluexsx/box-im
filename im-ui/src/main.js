@@ -6,6 +6,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './assets/iconfont/iconfont.css';
 import httpRequest from './api/httpRequest';
 import * as socketApi from './api/wssocket';
+import * as messageType from './api/messageType';
 import emotion from './api/emotion.js';
 import element from './api/element.js';
 import store from './store';
@@ -16,6 +17,7 @@ import './utils/directive/dialogDrag';
 Vue.use(ElementUI);
 // 挂载全局
 Vue.prototype.$wsApi = socketApi;
+Vue.prototype.$msgType = messageType
 Vue.prototype.$date = date;
 Vue.prototype.$http = httpRequest // http请求方法
 Vue.prototype.$emo = emotion; // emo表情

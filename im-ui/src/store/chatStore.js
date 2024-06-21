@@ -142,11 +142,13 @@ export default {
 				chat.lastContent = "[文件]";
 			} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
 				chat.lastContent = "[语音]";
-			} else if (msgInfo.type == MESSAGE_TYPE.TEXT || msgInfo.type == MESSAGE_TYPE.RECALL) {
+			} else if (msgInfo.type == MESSAGE_TYPE.TEXT 
+				|| msgInfo.type == MESSAGE_TYPE.RECALL
+				|| msgInfo.type == MESSAGE_TYPE.TIP_TEXT	) {
 				chat.lastContent = msgInfo.content;
-			} else if (msgInfo.type == MESSAGE_TYPE.RT_VOICE) {
+			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VOICE) {
 				chat.lastContent = "[语音通话]";
-			} else if (msgInfo.type == MESSAGE_TYPE.RT_VIDEO) {
+			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VIDEO) {
 				chat.lastContent = "[视频通话]";
 			}
 			chat.lastSendTime = msgInfo.sendTime;
@@ -239,14 +241,14 @@ export default {
 			this.commit("saveToStorage");
 		},
 
-		loadingPrivateMsg(state, loadding) {
-			state.loadingPrivateMsg = loadding;
+		loadingPrivateMsg(state, loading) {
+			state.loadingPrivateMsg = loading;
 			if (!state.loadingPrivateMsg && !state.loadingGroupMsg) {
 				this.commit("sort")
 			}
 		},
-		loadingGroupMsg(state, loadding) {
-			state.loadingGroupMsg = loadding;
+		loadingGroupMsg(state, loading) {
+			state.loadingGroupMsg = loading;
 			if (!state.loadingPrivateMsg && !state.loadingGroupMsg) {
 				this.commit("sort")
 			}

@@ -4,8 +4,8 @@
 			:visible.sync="showRoom" width="50%" height="70%" :before-close="onQuit">
 			<div class="rtc-private-video">
 				<div v-show="isVideo" class="rtc-video-box">
-					<div class="rtc-video-friend" v-loading="!isChating"
-						element-loading-spinner="el-icon-loading" >
+					<div class="rtc-video-friend" v-loading="!isChating"  element-loading-text="等待对方接听..."
+						element-loading-background="rgba(0, 0, 0, 0.3)" >
 						<head-image class="friend-head-image" :id="friend.id" :size="80" :name="friend.nickName"
 							:url="friend.headImage">
 						</head-image>
@@ -23,10 +23,8 @@
 					</head-image>
 				</div>
 				<div class="rtc-control-bar">
-					<div v-show="isWaiting" title="取消呼叫" class="icon iconfont icon-phone-reject reject"
-						style="color: red;" @click="onCancel()"></div>
-					<div v-show="isChating" title="挂断" class="icon iconfont icon-phone-reject reject"
-						style="color: red;" @click="onHandup()"></div>
+					<div title="取消" class="icon iconfont icon-phone-reject reject"
+						style="color: red;" @click="onQuit()"></div>
 				</div>
 			</div>
 		</el-dialog>

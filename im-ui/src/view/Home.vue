@@ -7,7 +7,7 @@
 					@click.native="showSettingDialog = true">
 				</head-image>
 			</div>
-			<el-menu background-color="#19082f"  style="margin-top: 25px;">
+			<el-menu background-color="#19082f" style="margin-top: 25px;">
 				<el-menu-item title="聊天">
 					<router-link class="link" v-bind:to="'/home/chat'">
 						<span class="icon iconfont icon-chat"></span>
@@ -41,7 +41,7 @@
 		<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
 			@close="$store.commit('closeFullImageBox')"></full-image>
 		<rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
-		<rtc-group-video ref="rtcGroupVideo" ></rtc-group-video>
+		<rtc-group-video ref="rtcGroupVideo"></rtc-group-video>
 	</el-container>
 </template>
 
@@ -72,15 +72,15 @@
 		},
 		methods: {
 			init() {
-				this.$eventBus.$on('openPrivateVideo', (rctInfo)=>{
+				this.$eventBus.$on('openPrivateVideo', (rctInfo) => {
 					// 进入单人视频通话
 					this.$refs.rtcPrivateVideo.open(rctInfo);
 				});
-				this.$eventBus.$on('openGroupVideo', (rctInfo)=>{
+				this.$eventBus.$on('openGroupVideo', (rctInfo) => {
 					// 进入多人视频通话
 					this.$refs.rtcGroupVideo.open(rctInfo);
 				});
-				
+
 				this.$store.dispatch("load").then(() => {
 					// ws初始化
 					this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
@@ -136,7 +136,7 @@
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
-				if (msg.type == this.$enums.MESSAGE_TYPE.LOADDING) {
+				if (msg.type == this.$enums.MESSAGE_TYPE.LOADING) {
 					this.$store.commit("loadingPrivateMsg", JSON.parse(msg.content))
 					return;
 				}
@@ -158,7 +158,7 @@
 				// 标记这条消息是不是自己发的
 				msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
 				// 单人webrtc 信令
-				if (msg.type >= 100 && msg.type <= 199) {
+				if (this.$msgType.isRtcPrivate(msg.type)) {
 					this.$refs.rtcPrivateVideo.onRTCMessage(msg)
 					return;
 				}
@@ -169,7 +169,7 @@
 				})
 			},
 			insertPrivateMessage(friend, msg) {
-				
+
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
@@ -181,14 +181,14 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				if (!msg.selfSend && msg.type < 10 
-					&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
+				if (!msg.selfSend && this.$msgType.isNormal(msg.type) &&
+					msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
 				}
 			},
 			handleGroupMessage(msg) {
 				// 消息加载标志
-				if (msg.type == this.$enums.MESSAGE_TYPE.LOADDING) {
+				if (msg.type == this.$enums.MESSAGE_TYPE.LOADING) {
 					this.$store.commit("loadingGroupMsg", JSON.parse(msg.content))
 					return;
 				}
@@ -217,8 +217,8 @@
 				// 标记这条消息是不是自己发的
 				msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
 				// 群视频信令
-				if (msg.type >= 200 && msg.type <= 299) {
-					this.$nextTick(()=>{
+				if (this.$msgType.isRtcGroup(msg.type)) {
+					this.$nextTick(() => {
 						this.$refs.rtcGroupVideo.onRTCMessage(msg);
 					})
 					return;
@@ -229,7 +229,7 @@
 				})
 			},
 			insertGroupMessage(group, msg) {
-				
+
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
@@ -241,8 +241,8 @@
 				// 插入消息
 				this.$store.commit("insertMessage", msg);
 				// 播放提示音
-				if (!msg.selfSend && msg.type < 10 
-					&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
+				if (!msg.selfSend && msg.type <= this.$enums.MESSAGE_TYPE.VIDEO &&
+					msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
 				}
 			},
@@ -346,15 +346,16 @@
 				background-color: #19082f !important;
 				padding: 0 !important;
 				text-align: center;
+
 				.link {
 					text-decoration: none;
-					
+
 					&.router-link-active .icon {
 						color: #ba785a;
 					}
 				}
-				
-				.icon  {
+
+				.icon {
 					font-size: 26px !important;
 					color: #ddd;
 				}
@@ -387,7 +388,7 @@
 			.icon {
 				font-size: 28px;
 			}
-			
+
 			&:hover {
 				color: white;
 			}

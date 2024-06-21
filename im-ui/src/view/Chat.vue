@@ -6,7 +6,7 @@
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
 				</el-input>
 			</div>
-			<div class="chat-list-loadding"  v-if="loading" v-loading="true" element-loading-text="消息接收中..."
+			<div class="chat-list-loading"  v-if="loading" v-loading="true" element-loading-text="消息接收中..."
 				element-loading-spinner="el-icon-loading" element-loading-background="#eee">
 				<div class="chat-loading-box"></div>
 			</div>
@@ -85,7 +85,7 @@
 				
 			}
 			
-			.chat-list-loadding{
+			.chat-list-loading{
 				height: 50px;
 				background-color: #eee;
 				

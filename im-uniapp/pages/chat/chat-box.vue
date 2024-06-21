@@ -8,7 +8,7 @@
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
 			<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
-				<view v-for="(msgInfo,idx) in chat.messages" :key="idx">
+				<view v-if="chat" v-for="(msgInfo,idx) in chat.messages" :key="idx">
 					<chat-message-item v-if="idx>=showMinIdx&&!msgInfo.delete" :headImage="headImage(msgInfo)"
 						@call="onRtCall(msgInfo)" :showName="showName(msgInfo)" @recall="onRecallMessage"
 						@delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
@@ -37,7 +37,7 @@
 					@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send" confirm-hold
 					:hold-keyboard="true"></textarea>
 			</view>
-			<view v-if="chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
+			<view v-if="chat && chat.type=='GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
 			<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
 			<view v-if="sendText==''" class="iconfont icon-add" @click="onShowToolsChatTab()">
 			</view>
@@ -133,6 +133,7 @@
 				keyboardHeight: 322,
 				atUserIds: [],
 				recordText: "",
+				needScrollToBottom: false, // 需要滚动到底部 
 				showMinIdx: 0 // 下标小于showMinIdx的消息不显示，否则可能很卡
 			}
 		},
@@ -174,9 +175,9 @@
 				})
 			},
 			onRtCall(msgInfo) {
-				if (msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE) {
+				if (msgInfo.type == this.$enums.MESSAGE_TYPE.ACT_RT_VOICE) {
 					this.onPriviteVoice();
-				} else if (msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO) {
+				} else if (msgInfo.type == this.$enums.MESSAGE_TYPE.ACT_RT_VIDEO) {
 					this.onPriviteVideo();
 				}
 			},
@@ -692,7 +693,14 @@
 			messageSize: function(newSize, oldSize) {
 				// 接收到消息时滚动到底部
 				if (newSize > oldSize) {
-					this.scrollToBottom();
+					console.log("messageSize",newSize,oldSize)
+					let pages = getCurrentPages();
+					let curPage = pages[pages.length-1].route;
+					if(curPage == "pages/chat/chat-box"){
+						this.scrollToBottom();
+					}else {
+						this.needScrollToBottom = true;
+					}
 				}
 			},
 			unreadCount: {
@@ -723,11 +731,16 @@
 			this.$store.commit("activeChat", options.chatIdx);
 			// 复位回执消息
 			this.isReceipt = false;
-			// 页面滚到底部
-			this.scrollToBottom();
 		},
 		onUnload() {
 			this.$store.commit("activeChat", -1);
+		},
+		onShow(){
+			if(this.needScrollToBottom){
+				// 页面滚到底部
+				this.scrollToBottom();
+				this.needScrollToBottom = false;
+			}
 		}
 	}
 </script>

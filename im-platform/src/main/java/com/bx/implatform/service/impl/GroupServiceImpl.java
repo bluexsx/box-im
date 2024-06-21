@@ -50,6 +50,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private final IFriendService friendsService;
     private final IMClient imClient;
     private final RedisTemplate<String, Object> redisTemplate;
+
     @Override
     public GroupVO createGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();

@@ -1,14 +1,13 @@
 <template>
 	<div class="chat-msg-item">
 		<div class="chat-msg-tip"
-			v-show="msgInfo.type == $enums.MESSAGE_TYPE.RECALL || msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
+			v-if="msgInfo.type == $enums.MESSAGE_TYPE.RECALL || msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
 			{{ msgInfo.content }}
 		</div>
-		<div class="chat-msg-tip" v-show="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
+		<div class="chat-msg-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
 			{{ $date.toTimeText(msgInfo.sendTime) }}
 		</div>
-
-		<div class="chat-msg-normal" v-show="msgInfo.type >= 0 && msgInfo.type < 10" :class="{ 'chat-msg-mine': mine }">
+		<div class="chat-msg-normal" v-if="isNormal" :class="{ 'chat-msg-mine': mine }">
 			<div class="head-image">
 				<head-image :name="showName" :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
@@ -28,7 +27,7 @@
 							<div class="img-load-box" v-loading="loading" element-loading-text="上传中.."
 								element-loading-background="rgba(0, 0, 0, 0.4)">
 								<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
-									@click="showFullImageBox()" loading="lazy"/>
+									@click="showFullImageBox()" loading="lazy" />
 							</div>
 							<span title="发送失败" v-show="loadFail" @click="onSendFail"
 								class="send-fail el-icon-warning"></span>
@@ -51,14 +50,14 @@
 					<div class="chat-msg-voice" v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
-					<div class="chat-realtime chat-msg-text" v-if="isRealtime">
-						<span v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE" title="重新呼叫"
-							@click="$emit('call')" class="iconfont icon-chat-voice"></span>
-						<span v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO" title="重新呼叫"
-							@click="$emit('call')" class="iconfont icon-chat-video"></span>
+					<div class="chat-action chat-msg-text" v-if="isAction">
+						<span v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VOICE" title="重新呼叫" @click="$emit('call')"
+							class="iconfont icon-chat-voice"></span>
+						<span v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VIDEO" title="重新呼叫" @click="$emit('call')"
+							class="iconfont icon-chat-video"></span>
 						<span>{{msgInfo.content}}</span>
 					</div>
-					<div class="chat-msg-status" v-if="!isRealtime">
+					<div class="chat-msg-status" v-if="!isAction">
 						<span class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
 						&& msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</span>
 						<span class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId
@@ -201,9 +200,12 @@
 				}
 				return items;
 			},
-			isRealtime() {
-				return this.msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE ||
-					this.msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO
+			isAction(){
+				return this.$msgType.isAction(this.msgInfo.type);
+			},
+			isNormal() {
+				const type = this.msgInfo.type;
+				return this.$msgType.isNormal(type) || this.$msgType.isAction(type)
 			}
 		}
 	}
@@ -369,7 +371,7 @@
 						}
 					}
 
-					.chat-realtime {
+					.chat-action {
 						display: flex;
 						align-items: center;
 
@@ -458,7 +460,7 @@
 							flex-direction: row-reverse;
 						}
 
-						.chat-realtime {
+						.chat-action {
 							flex-direction: row-reverse;
 
 							.iconfont {

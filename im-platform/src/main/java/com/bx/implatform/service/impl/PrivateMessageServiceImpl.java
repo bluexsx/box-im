@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
 import com.bx.imcommon.enums.IMTerminalType;
-import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.dto.PrivateMessageDTO;
@@ -26,7 +25,6 @@ import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.SensitiveFilterUtil;
-import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -245,7 +243,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private void sendLoadingMessage(Boolean isLoadding){
         UserSession session = SessionContext.getSession();
         PrivateMessageVO msgInfo = new PrivateMessageVO();
-        msgInfo.setType(MessageType.LOADDING.code());
+        msgInfo.setType(MessageType.LOADING.code());
         msgInfo.setContent(isLoadding.toString());
         IMPrivateMessage sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));

@@ -27,4 +27,13 @@ public class WebrtcPrivateSession {
      * 接受者终端类型
      */
     private Integer acceptorTerminal;
+
+    /**
+     *  通话模式
+     */
+    private String mode;
+    /**
+     * 开始聊天时间戳
+     */
+    private Long  chatTimeStamp;
 }

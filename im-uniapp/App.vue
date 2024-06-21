@@ -81,7 +81,7 @@
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
-				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 					store.commit("loadingPrivateMsg", JSON.parse(msg.content))
 					return;
 				}
@@ -109,12 +109,13 @@
 			},
 			insertPrivateMessage(friend, msg) {
 				// 单人视频信令
-				if (msg.type >= 100 && msg.type <= 199) {
+				if (this.$msgType.isRtcPrivate(msg.type)) {
 					// #ifdef MP-WEIXIN
 						// 小程序不支持音视频
 						return;
 					// #endif
 					// 被呼叫，弹出视频页面
+					let delayTime = 100;
 					if(msg.type == enums.MESSAGE_TYPE.RTC_CALL_VOICE 
 						|| msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO){
 						let mode = 	msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO? "video":"voice";
@@ -125,11 +126,12 @@
 							uni.navigateTo({
 								url: `/pages/chat/chat-private-video?mode=${mode}&friend=${friendInfo}&isHost=false`
 							})
+							delayTime = 500;
 						}
 					}
 					setTimeout(() => {
 						uni.$emit('WS_RTC_PRIVATE',msg);
-					},500)
+					},delayTime)
 					return;
 				}
 				let chatInfo = {
@@ -143,12 +145,12 @@
 				// 插入消息
 				store.commit("insertMessage", msg);
 				// 播放提示音
-				!msg.selfSend && this.playAudioTip();
+				this.playAudioTip();
 
 			},
 			handleGroupMessage(msg) {
 				// 消息加载标志
-				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 					store.commit("loadingGroupMsg",JSON.parse(msg.content))
 					return;
 				}
@@ -184,7 +186,7 @@
 			},
 			insertGroupMessage(group, msg) {
 				// 群视频信令
-				if (msg.type >= 200 && msg.type <= 299) {
+				if (this.$msgType.isRtcGroup(msg.type)) {
 					// #ifdef MP-WEIXIN
 						// 小程序不支持音视频
 						return;
@@ -223,7 +225,7 @@
 				// 插入消息
 				store.commit("insertMessage", msg);
 				// 播放提示音
-				!msg.selfSend && this.playAudioTip();
+				this.playAudioTip();
 			},
 			loadFriendInfo(id) {
 				return new Promise((resolve, reject) => {
