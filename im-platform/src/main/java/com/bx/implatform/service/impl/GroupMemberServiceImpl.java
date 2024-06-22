@@ -3,6 +3,7 @@ package com.bx.implatform.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.contant.RedisKey;
@@ -34,30 +35,26 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return super.saveOrUpdateBatch(members);
     }
 
-
     @Override
-    public GroupMember  findByGroupAndUserId(Long groupId, Long userId) {
+    public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
         QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(GroupMember::getGroupId, groupId)
-                .eq(GroupMember::getUserId, userId);
+        wrapper.lambda().eq(GroupMember::getGroupId, groupId).eq(GroupMember::getUserId, userId);
         return this.getOne(wrapper);
     }
 
     @Override
     public List<GroupMember> findByUserId(Long userId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
-        memberWrapper.eq(GroupMember::getUserId, userId)
-                .eq(GroupMember::getQuit, false);
+        memberWrapper.eq(GroupMember::getUserId, userId).eq(GroupMember::getQuit, false);
         return this.list(memberWrapper);
     }
 
     @Override
     public List<GroupMember> findQuitInMonth(Long userId) {
-        Date monthTime = DateTimeUtils.addMonths(new Date(),-1);
+        Date monthTime = DateTimeUtils.addMonths(new Date(), -1);
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
-        memberWrapper.eq(GroupMember::getUserId, userId)
-            .eq(GroupMember::getQuit, true)
-            .ge(GroupMember::getQuitTime,monthTime);
+        memberWrapper.eq(GroupMember::getUserId, userId).eq(GroupMember::getQuit, true)
+            .ge(GroupMember::getQuitTime, monthTime);
         return this.list(memberWrapper);
     }
 
@@ -72,9 +69,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public List<Long> findUserIdsByGroupId(Long groupId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
-        memberWrapper.eq(GroupMember::getGroupId, groupId)
-                .eq(GroupMember::getQuit, false)
-                .select(GroupMember::getUserId);
+        memberWrapper.eq(GroupMember::getGroupId, groupId).eq(GroupMember::getQuit, false)
+            .select(GroupMember::getUserId);
         List<GroupMember> members = this.list(memberWrapper);
         return members.stream().map(GroupMember::getUserId).collect(Collectors.toList());
     }
@@ -83,9 +79,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public void removeByGroupId(Long groupId) {
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(GroupMember::getGroupId, groupId)
-                .set(GroupMember::getQuit, true)
-                .set(GroupMember::getQuitTime,new Date());
+        wrapper.eq(GroupMember::getGroupId, groupId).set(GroupMember::getQuit, true)
+            .set(GroupMember::getQuitTime, new Date());
         this.update(wrapper);
     }
 
@@ -93,10 +88,19 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public void removeByGroupAndUserId(Long groupId, Long userId) {
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(GroupMember::getGroupId, groupId)
-                .eq(GroupMember::getUserId, userId)
-                .set(GroupMember::getQuit, true)
-                .set(GroupMember::getQuitTime,new Date());
+        wrapper.eq(GroupMember::getGroupId, groupId).eq(GroupMember::getUserId, userId).set(GroupMember::getQuit, true)
+            .set(GroupMember::getQuitTime, new Date());
         this.update(wrapper);
+    }
+
+    @Override
+    public Boolean isInGroup(Long groupId, List<Long> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return true;
+        }
+        LambdaQueryWrapper<GroupMember> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GroupMember::getGroupId, groupId).eq(GroupMember::getQuit, false)
+            .in(GroupMember::getUserId, userIds);
+        return userIds.size() == this.count(wrapper);
     }
 }

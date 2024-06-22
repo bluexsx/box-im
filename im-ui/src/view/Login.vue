@@ -8,33 +8,18 @@
 						<li>加入uniapp移动端,支持移动端和web端同时在线，多端消息同步</li>
 						<li>目前uniapp移动端支持安卓、ios、h5、微信小程序</li>
 						<li>聊天窗口支持粘贴截图、@群成员、已读未读显示</li>
-						<li>支持群聊已读显示(回执消息)</li>
-						<li>语雀文档
-							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">盒子IM详细介绍文档</a>,目前限时免费开放中
+						<li>语雀文档:
+							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">盒子IM详细介绍文档</a>
 						</li>
 					</ul>
 				</div>
 				<div>
-					<h3>最近更新(2024-03-17)：</h3>
+					<h3>最近更新(2024-06-22)：</h3>
 					<ul>
-						<li>web端音视频功能优化:支持语音呼叫、会话中加入通话状态消息</li>
-						<li>uniapp端支持音视频通话，并与web端打通</li>
-						<li>uniapp端音视频源码通话源码暂未开源，需付费获取:
-							<a href="https://www.yuque.com/u1475064/mufu2a/vi7engzluty594s2" target="_blank">uniapp端音视频通源码购买说明</a>
+						<li>群语音通话功能上线,且同时支持web端和uniapp端</li>
+						<li>音视频通话部分源码未开源，可付费获取:
+							<a href="https://www.yuque.com/u1475064/mufu2a/vi7engzluty594s2" target="_blank">音视频源码购买说明</a>
 						</li>
-					</ul>
-				</div>
-				<div>
-					<h3>最近更新(2024-03-31)：</h3>
-					<ul>
-						<li>uniapp移动端支持发送语音消息</li>
-					</ul>
-				</div>
-				<div>
-					<h3>最近更新(2024-04-27)：</h3>
-					<ul>
-						<li>uniapp端加载离线消息慢以及卡顿问题优化</li>
-						<li>web端样式风格调整</li>
 					</ul>
 				</div>
 				<div>

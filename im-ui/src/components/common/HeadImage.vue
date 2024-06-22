@@ -28,6 +28,16 @@
 				type: Number,
 				default: 50
 			},
+			width: {
+				type: Number
+			},
+			height: {
+				type: Number
+			},
+			radius:{
+				type: String,
+				default: "10%"
+			},
 			url: {
 				type: String
 			},
@@ -54,12 +64,18 @@
 			}
 		},
 		computed:{
-			avatarImageStyle(){
-				return `width:${this.size}px; height:${this.size}px;`
+			avatarImageStyle() {
+				let w = this.width ? this.width : this.size;
+				let h = this.height ? this.height : this.size;
+				return `width:${w}px; height:${h}px;
+					border-radius: ${this.radius};`
 			},
-			avatarTextStyle(){
-				return `width: ${this.size}px;height:${this.size}px;
-				color:${this.textColor};font-size:${this.size*0.6}px;`
+			avatarTextStyle() {
+				let w = this.width ? this.width : this.size;
+				let h = this.height ? this.height : this.size;
+				return `width: ${w}px;height:${h}px;
+					color:${this.textColor};font-size:${w*0.6}px;
+					border-radius: ${this.radius};`
 			},
 			textColor(){
 				let hash = 0;
@@ -79,7 +95,7 @@
 		.avatar-image {
 			position: relative;
 			overflow: hidden;
-			border-radius: 10%;
+			display: block;
 		}
 		
 		.avatar-text{

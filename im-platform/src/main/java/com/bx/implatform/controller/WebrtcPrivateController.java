@@ -1,9 +1,10 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.annotation.OnlineCheck;
 import com.bx.implatform.config.ICEServer;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IWebrtcService;
+import com.bx.implatform.service.IWebrtcPrivateService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -15,21 +16,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/webrtc/private")
 @RequiredArgsConstructor
-public class WebrtcController {
+public class WebrtcPrivateController {
 
-    private final IWebrtcService webrtcService;
+    private final IWebrtcPrivateService webrtcPrivateService;
 
+    @OnlineCheck
     @ApiOperation(httpMethod = "POST", value = "呼叫视频通话")
     @PostMapping("/call")
     public Result call(@RequestParam Long uid, @RequestParam(defaultValue = "video") String mode, @RequestBody String offer) {
-        webrtcService.call(uid, mode, offer);
+        webrtcPrivateService.call(uid, mode, offer);
         return ResultUtils.success();
     }
 
     @ApiOperation(httpMethod = "POST", value = "接受视频通话")
     @PostMapping("/accept")
     public Result accept(@RequestParam Long uid, @RequestBody String answer) {
-        webrtcService.accept(uid, answer);
+        webrtcPrivateService.accept(uid, answer);
         return ResultUtils.success();
     }
 
@@ -37,28 +39,28 @@ public class WebrtcController {
     @ApiOperation(httpMethod = "POST", value = "拒绝视频通话")
     @PostMapping("/reject")
     public Result reject(@RequestParam Long uid) {
-        webrtcService.reject(uid);
+        webrtcPrivateService.reject(uid);
         return ResultUtils.success();
     }
 
     @ApiOperation(httpMethod = "POST", value = "取消呼叫")
     @PostMapping("/cancel")
     public Result cancel(@RequestParam Long uid) {
-        webrtcService.cancel(uid);
+        webrtcPrivateService.cancel(uid);
         return ResultUtils.success();
     }
 
     @ApiOperation(httpMethod = "POST", value = "呼叫失败")
     @PostMapping("/failed")
     public Result failed(@RequestParam Long uid, @RequestParam String reason) {
-        webrtcService.failed(uid, reason);
+        webrtcPrivateService.failed(uid, reason);
         return ResultUtils.success();
     }
 
     @ApiOperation(httpMethod = "POST", value = "挂断")
     @PostMapping("/handup")
     public Result handup(@RequestParam Long uid) {
-        webrtcService.handup(uid);
+        webrtcPrivateService.handup(uid);
         return ResultUtils.success();
     }
 
@@ -66,14 +68,14 @@ public class WebrtcController {
     @PostMapping("/candidate")
     @ApiOperation(httpMethod = "POST", value = "同步candidate")
     public Result candidate(@RequestParam Long uid, @RequestBody String candidate) {
-        webrtcService.candidate(uid, candidate);
+        webrtcPrivateService.candidate(uid, candidate);
         return ResultUtils.success();
     }
 
-
-    @GetMapping("/iceservers")
-    @ApiOperation(httpMethod = "GET", value = "获取iceservers")
-    public Result<List<ICEServer>> iceservers() {
-        return ResultUtils.success(webrtcService.getIceServers());
+    @ApiOperation(httpMethod = "POST", value = "获取通话信息")
+    @PostMapping("/heartbeat")
+    public Result heartbeat(@RequestParam Long uid) {
+        webrtcPrivateService.heartbeat(uid);
+        return ResultUtils.success();
     }
 }

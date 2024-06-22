@@ -100,7 +100,7 @@
     /* 小程序特有相关 */
     "mp-weixin" : {
         "appid" : "wxda94f40bfad0262c",
-		"libVersion": "latest",  
+        "libVersion" : "latest",
         "setting" : {
             "urlCheck" : false
         },

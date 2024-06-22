@@ -1,12 +1,12 @@
 <template>
-	<el-dialog class="chat-voice" title="语音录制" :visible.sync="visible" width="600px" :before-close="onClose">
+	<el-dialog class="chat-record" title="语音录制" :visible.sync="visible" width="600px" :before-close="onClose">
 		<div v-show="mode=='RECORD'">
-			<div class="chat-voice-tip">{{stateTip}}</div>
+			<div class="tip">{{stateTip}}</div>
 			<div>时长: {{state=='STOP'?0:parseInt(rc.duration)}}s</div>
 		</div>
 		<audio v-show="mode=='PLAY'" :src="url" controls ref="audio" @ended="onStopAudio()"></audio>
 		<el-divider content-position="center"></el-divider>
-		<el-row class="chat-voice-btn-group">
+		<el-row class="btn-group">
 			<el-button round type="primary" v-show="state=='STOP'" @click="onStartRecord()">开始录音</el-button>
 			<el-button round type="warning" v-show="state=='RUNNING'" @click="onPauseRecord()">暂停录音</el-button>
 			<el-button round type="primary" v-show="state=='PAUSE'" @click="onResumeRecord()">继续录音</el-button>
@@ -27,7 +27,7 @@
 	import Recorder from 'js-audio-recorder';
 
 	export default {
-		name: 'chatVoice',
+		name: 'chatRecord',
 		props: {
 			visible: {
 				type: Boolean
@@ -126,13 +126,13 @@
 </script>
 
 <style lang="scss">
-	.chat-voice {
+	.chat-record {
 
-		.chat-voice-tip {
+		.tip {
 			font-size: 18px;
 		}
 
-		.chat-voice-btn-group {
+		.btn-group {
 			margin-bottom: 20px;
 		}
 	}

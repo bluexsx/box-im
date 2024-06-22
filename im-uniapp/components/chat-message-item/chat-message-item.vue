@@ -7,7 +7,7 @@
 			{{$date.toTimeText(msgInfo.sendTime)}}
 		</view>
 
-		<view class="chat-msg-normal" v-if="msgInfo.type>=0 && msgInfo.type<10"
+		<view class="chat-msg-normal" v-if="isNormal"
 			:class="{'chat-msg-mine':msgInfo.selfSend}">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
 				:name="showName" :size="80"></head-image>
@@ -52,13 +52,13 @@
 						<text v-if="audioPlayState=='PAUSE'" class="iconfont icon-play"></text>
 						<text v-if="audioPlayState=='PLAYING'" class="iconfont icon-pause"></text>
 					</view>
-					<view class="chat-realtime chat-msg-text" v-if="isRTMessage" 
+					<view class="chat-realtime chat-msg-text" v-if="isAction" 
 						@click="$emit('call')" @longpress="onShowMenu($event)">
-						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VOICE" class="iconfont icon-chat-voice"></text>
-						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.RT_VIDEO" class="iconfont icon-chat-video"></text>
+						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VOICE" class="iconfont icon-chat-voice"></text>
+						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VIDEO" class="iconfont icon-chat-video"></text>
 						<text>{{msgInfo.content}}</text>
 					</view>
-					<view class="chat-msg-status" v-if="!isRTMessage">
+					<view class="chat-msg-status" v-if="!isAction">
 						<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
 								&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
 						<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId 
@@ -225,9 +225,12 @@
 				}
 				return items;
 			},
-			isRTMessage() {
-				return this.msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VOICE ||
-					this.msgInfo.type == this.$enums.MESSAGE_TYPE.RT_VIDEO
+			isAction(){
+				return this.$msgType.isAction(this.msgInfo.type);
+			},
+			isNormal() {
+				const type = this.msgInfo.type;
+				return this.$msgType.isNormal(type) || this.$msgType.isAction(type)
 			}
 		}
 

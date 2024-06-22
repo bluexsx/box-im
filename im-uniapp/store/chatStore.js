@@ -51,7 +51,6 @@ export default {
 					}
 				})
 			})
-			console.log(cacheChats.length)
 		},
 		openChat(state, chatInfo) {
 			let chats = this.getters.findChats();
@@ -172,9 +171,9 @@ export default {
 				chat.lastContent = "[语音]";
 			} else if (msgInfo.type == MESSAGE_TYPE.TEXT || msgInfo.type == MESSAGE_TYPE.RECALL) {
 				chat.lastContent = msgInfo.content;
-			} else if (msgInfo.type == MESSAGE_TYPE.RT_VOICE) {
+			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VOICE) {
 				chat.lastContent = "[语音通话]";
-			} else if (msgInfo.type == MESSAGE_TYPE.RT_VIDEO) {
+			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VIDEO) {
 				chat.lastContent = "[视频通话]";
 			}
 			chat.lastSendTime = msgInfo.sendTime;
@@ -276,14 +275,14 @@ export default {
 			}
 			this.commit("saveToStorage");
 		},
-		loadingPrivateMsg(state, loadding) {
-			state.loadingPrivateMsg = loadding;
+		loadingPrivateMsg(state, loading) {
+			state.loadingPrivateMsg = loading;
 			if (!this.getters.isLoading()) {
 				this.commit("refreshChats")
 			}
 		},
-		loadingGroupMsg(state, loadding) {
-			state.loadingGroupMsg = loadding;
+		loadingGroupMsg(state, loading) {
+			state.loadingGroupMsg = loading;
 			if (!this.getters.isLoading()) {
 				this.commit("refreshChats")
 			}
@@ -295,7 +294,6 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
-			console.log(cacheChats.length)
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {

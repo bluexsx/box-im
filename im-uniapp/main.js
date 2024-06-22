@@ -4,6 +4,7 @@ import emotion from './common/emotion.js';
 import * as  enums from './common/enums.js';
 import * as date from './common/date';
 import * as socketApi from './common/wssocket';
+import * as messageType from './common/messageType';
 import store from './store';
 import { createSSRApp } from 'vue'
 // #ifdef H5
@@ -19,6 +20,7 @@ export function createApp() {
   app.use(store);
   app.config.globalProperties.$http = request;
   app.config.globalProperties.$wsApi = socketApi;
+  app.config.globalProperties.$msgType = messageType;
   app.config.globalProperties.$emo = emotion;
   app.config.globalProperties.$enums = enums;
   app.config.globalProperties.$date = date;

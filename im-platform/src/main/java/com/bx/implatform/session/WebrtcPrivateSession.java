@@ -8,7 +8,7 @@ import lombok.Data;
  * @Date 2022/10/21
  */
 @Data
-public class WebrtcSession {
+public class WebrtcPrivateSession {
     /**
      * 发起者id
      */
@@ -27,4 +27,13 @@ public class WebrtcSession {
      * 接受者终端类型
      */
     private Integer acceptorTerminal;
+
+    /**
+     *  通话模式
+     */
+    private String mode;
+    /**
+     * 开始聊天时间戳
+     */
+    private Long  chatTimeStamp;
 }

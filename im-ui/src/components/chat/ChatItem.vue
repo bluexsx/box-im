@@ -12,7 +12,7 @@
 			</div>
 			<div class="chat-content">
 				<div class="chat-at-text">{{atText}}</div>
-				<div class="chat-send-name" v-show="chat.sendNickName">{{chat.sendNickName+':&nbsp;'}}</div>
+				<div class="chat-send-name" v-show="isShowSendName">{{chat.sendNickName+':&nbsp;'}}</div>
 				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent)"></div>
 			</div>
 		</div>
@@ -76,6 +76,18 @@
 			}
 		},
 		computed: {
+			isShowSendName() {
+				if (!this.chat.sendNickName) {
+					return false;
+				}
+				let size = this.chat.messages.length;
+				if (size == 0) {
+					return false;
+				}
+				// 只有群聊的普通消息需要显示名称
+				let lastMsg = this.chat.messages[size - 1];
+				return this.$msgType.isNormal(lastMsg.type)
+			},
 			showTime() {
 				return this.$date.toTimeText(this.chat.lastSendTime, true)
 			},
@@ -108,11 +120,11 @@
 		&:hover {
 			background-color: #F8FAFF;
 		}
-			
+
 		&.active {
 			background-color: #F4F9FF;
 		}
-			
+
 		.chat-left {
 			position: relative;
 			display: flex;
@@ -147,6 +159,7 @@
 				display: flex;
 				line-height: 25px;
 				height: 25px;
+
 				.chat-name-text {
 					flex: 1;
 					font-size: 15px;
@@ -154,9 +167,9 @@
 					white-space: nowrap;
 					overflow: hidden;
 				}
-				
-				
-				.chat-time-text{
+
+
+				.chat-time-text {
 					font-size: 13px;
 					text-align: right;
 					color: #888888;
@@ -169,23 +182,24 @@
 			.chat-content {
 				display: flex;
 				line-height: 22px;
-				
+
 				.chat-at-text {
 					color: #c70b0b;
 					font-size: 12px;
 				}
-				
-				.chat-send-name{
+
+				.chat-send-name {
 					font-size: 13px;
 				}
-					
+
 
 				.chat-content-text {
 					flex: 1;
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;
-					font-size: 13px;	
+					font-size: 13px;
+
 					img {
 						width: 20px !important;
 						height: 20px !important;

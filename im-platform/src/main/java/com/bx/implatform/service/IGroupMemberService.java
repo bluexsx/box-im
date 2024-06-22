@@ -73,4 +73,12 @@ public interface IGroupMemberService extends IService<GroupMember> {
      * @param userId  用户id
      */
     void removeByGroupAndUserId(Long groupId, Long userId);
+
+    /**
+     * 用户用户是否在群中
+     *
+     * @param groupId 群聊id
+     * @param userIds  用户id
+     */
+    Boolean isInGroup(Long groupId,List<Long> userIds);
 }

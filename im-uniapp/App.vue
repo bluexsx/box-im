@@ -15,8 +15,6 @@
 			init() {
 				// 加载数据
 				store.dispatch("load").then(() => {
-					// 审核
-					this.initAudit();
 					// 初始化websocket
 					this.initWebSocket();
 				}).catch((e) => {
@@ -50,6 +48,7 @@
 					}
 				});
 				wsApi.onClose((res) => {
+					console.log("ws断开",res);
 					// 1000是客户端正常主动关闭
 					if (res.code != 1000) {
 						// 重新连接
@@ -82,7 +81,7 @@
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
-				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 					store.commit("loadingPrivateMsg", JSON.parse(msg.content))
 					return;
 				}
@@ -109,32 +108,32 @@
 
 			},
 			insertPrivateMessage(friend, msg) {
-				// webrtc 信令
-				if (msg.type >= enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
-					msg.type <= enums.MESSAGE_TYPE.RTC_CANDIDATE) {
+				// 单人视频信令
+				if (this.$msgType.isRtcPrivate(msg.type)) {
 					// #ifdef MP-WEIXIN
 						// 小程序不支持音视频
 						return;
 					// #endif
 					// 被呼叫，弹出视频页面
+					let delayTime = 100;
 					if(msg.type == enums.MESSAGE_TYPE.RTC_CALL_VOICE 
 						|| msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO){
 						let mode = 	msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO? "video":"voice";
 						let pages = getCurrentPages();
 						let curPage = pages[pages.length-1].route;
-						if(curPage != "pages/chat/chat-video"){
+						if(curPage != "pages/chat/chat-private-video"){
 							const friendInfo = encodeURIComponent(JSON.stringify(friend));
 							uni.navigateTo({
-								url: `/pages/chat/chat-video?mode=${mode}&friend=${friendInfo}&isHost=false`
+								url: `/pages/chat/chat-private-video?mode=${mode}&friend=${friendInfo}&isHost=false`
 							})
+							delayTime = 500;
 						}
 					}
 					setTimeout(() => {
-						uni.$emit('WS_RTC',msg);
-					},500)
+						uni.$emit('WS_RTC_PRIVATE',msg);
+					},delayTime)
 					return;
 				}
-
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
@@ -146,12 +145,12 @@
 				// 插入消息
 				store.commit("insertMessage", msg);
 				// 播放提示音
-				!msg.selfSend && this.playAudioTip();
+				this.playAudioTip();
 
 			},
 			handleGroupMessage(msg) {
 				// 消息加载标志
-				if (msg.type == enums.MESSAGE_TYPE.LOADDING) {
+				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 					store.commit("loadingGroupMsg",JSON.parse(msg.content))
 					return;
 				}
@@ -186,6 +185,35 @@
 
 			},
 			insertGroupMessage(group, msg) {
+				// 群视频信令
+				if (this.$msgType.isRtcGroup(msg.type)) {
+					// #ifdef MP-WEIXIN
+						// 小程序不支持音视频
+						return;
+					// #endif
+					// 被呼叫，弹出视频页面
+					let delayTime = 100;
+					if(msg.type == enums.MESSAGE_TYPE.RTC_GROUP_SETUP){
+						let pages = getCurrentPages();
+						let curPage = pages[pages.length-1].route;
+						if(curPage != "pages/chat/chat-group-video"){
+							const userInfos = encodeURIComponent(msg.content);
+							const inviterId = msg.sendId;
+							const groupId = msg.groupId
+							uni.navigateTo({
+								url: `/pages/chat/chat-group-video?groupId=${groupId}&isHost=false
+									&inviterId=${inviterId}&userInfos=${userInfos}`
+							})
+							delayTime = 500;
+						}
+					}
+					// 消息转发到chat-group-video页面进行处理
+					setTimeout(() => {
+						uni.$emit('WS_RTC_GROUP',msg);
+					},delayTime)
+					return;
+				}
+				
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
@@ -197,7 +225,7 @@
 				// 插入消息
 				store.commit("insertMessage", msg);
 				// 播放提示音
-				!msg.selfSend && this.playAudioTip();
+				this.playAudioTip();
 			},
 			loadFriendInfo(id) {
 				return new Promise((resolve, reject) => {
@@ -251,21 +279,6 @@
 					return true;
 				}
 				return loginInfo.expireTime < new Date().getTime();
-			},
-			initAudit() {
-				if (store.state.userStore.userInfo.type == 1) {
-					// 显示群组功能
-					uni.setTabBarItem({
-						index: 2,
-						text: "群聊"
-					})
-				} else {
-					// 隐藏群组功能
-					uni.setTabBarItem({
-						index: 2,
-						text: "搜索"
-					})
-				}
 			}
 		},
 		onLaunch() {
