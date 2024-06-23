@@ -23,6 +23,12 @@
 					</ul>
 				</div>
 				<div>
+					<h3>最近更新(2024-06-23)：</h3>
+					<ul>
+						<li>文件发送功能兼容安卓、ios，并支持多选</li>
+					</ul>
+				</div>
+				<div>
 					<h3>如果本项目对您有帮助,请在gitee上帮忙点个star</h3>
 				</div>
 				<div class="login-icons">
