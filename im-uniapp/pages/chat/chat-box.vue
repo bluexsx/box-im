@@ -61,8 +61,7 @@
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
-				<!-- #ifndef APP-PLUS -->
-				<!-- APP 暂时不支持选择文件 -->
+				
 				<view class="chat-tools-item">
 					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
@@ -70,7 +69,7 @@
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
-				<!-- #endif -->
+		
 				<view class="chat-tools-item" @click="onRecorderInput()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音消息</view>
@@ -331,7 +330,7 @@
 				}
 			},
 			scrollToBottom() {
-				let size = this.chat.messages.length;
+				let size = this.messageSize;
 				if (size > 0) {
 					this.scrollToMsgIdx(size - 1);
 				}
@@ -391,6 +390,7 @@
 				}
 				let msgInfo = {
 					id: 0,
+					tmpId: this.generateId(),
 					fileId: file.uid,
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
@@ -441,6 +441,7 @@
 				}
 				let msgInfo = {
 					id: 0,
+					tmpId: this.generateId(),
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
@@ -537,7 +538,6 @@
 						}
 					},
 					fail(e) {
-						console.log(e);
 						uni.showToast({
 							title: "文件下载失败",
 							icon: "none"
@@ -550,7 +550,6 @@
 					console.log("消息已滚动到顶部")
 					return;
 				}
-
 				//  #ifndef H5
 				// 防止滚动条定格在顶部，不能一直往上滚
 				this.scrollToMsgIdx(this.showMinIdx);
@@ -591,7 +590,6 @@
 				});
 			},
 			readedMessage() {
-				console.log("readedMessage")
 				if (this.unreadCount == 0) {
 					return;
 				}
@@ -642,6 +640,10 @@
 				let info = uni.getSystemInfoSync()
 				let px = info.windowWidth * rpx / 750;
 				return Math.floor(rpx);
+			},
+			generateId(){
+				// 生成临时id
+				return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
 			}
 		},
 		computed: {
@@ -669,6 +671,9 @@
 				return this.chat.messages.length;
 			},
 			unreadCount() {
+				if (!this.chat || !this.chat.unreadCount) {
+					return 0;
+				}
 				return this.chat.unreadCount;
 			},
 			atUserItems() {
@@ -693,7 +698,6 @@
 			messageSize: function(newSize, oldSize) {
 				// 接收到消息时滚动到底部
 				if (newSize > oldSize) {
-					console.log("messageSize",newSize,oldSize)
 					let pages = getCurrentPages();
 					let curPage = pages[pages.length-1].route;
 					if(curPage == "pages/chat/chat-box"){
@@ -716,7 +720,7 @@
 			// 聊天数据
 			this.chat = this.$store.state.chatStore.chats[options.chatIdx];
 			// 初始状态只显示20条消息
-			let size = this.chat.messages.length;
+			let size = this.messageSize;
 			this.showMinIdx = size > 20 ? size - 20 : 0;
 			// 消息已读
 			this.readedMessage()

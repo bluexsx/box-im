@@ -318,9 +318,9 @@ export default {
 				if (msgInfo.id && chat.messages[idx].id == msgInfo.id) {
 					return chat.messages[idx];
 				}
-				// 正在发送中的消息可能没有id,通过发送时间判断
-				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
-					chat.messages[idx].sendTime == msgInfo.sendTime) {
+				// 正在发送中的消息可能没有id,只有tmpId
+				if (msgInfo.tmpId && chat.messages[idx].tmpId &&
+					chat.messages[idx].tmpId == msgInfo.tmpId) {
 					return chat.messages[idx];
 				}
 			}

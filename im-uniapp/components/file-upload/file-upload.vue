@@ -1,25 +1,33 @@
 <template>
-	<view @click="selectAndUpload()">
-		<slot></slot>
+	<view>
+		<lsj-upload ref="lsjUpload" :height="'100%'" :option="option" @uploadEnd="onUploadEnd" @change="onChange"
+			:size="maxSize" :instantly="true">
+			<slot></slot>
+		</lsj-upload>
 	</view>
 </template>
 
 <script>
 	import UNI_APP from '@/.env.js';
-	
+
 	export default {
 		name: "file-upload",
 		data() {
 			return {
-				uploadHeaders: {
-					"accessToken": uni.getStorageSync('loginInfo').accessToken
+				fileMap: new Map(),
+				option: {
+					url: UNI_APP.BASE_URL + '/file/upload',
+					name: 'file',
+					header: {
+						accessToken: uni.getStorageSync('loginInfo').accessToken
+					}
 				}
 			}
 		},
 		props: {
 			maxSize: {
 				type: Number,
-				default: 10*1024*1024
+				default: 10
 			},
 			onBefore: {
 				type: Function,
@@ -35,61 +43,74 @@
 			}
 		},
 		methods: {
-			selectAndUpload() {
-				console.log(uni.chooseFile)
-				console.log(uni.chooseMessageFile)
-				let chooseFile = uni.chooseFile || uni.chooseMessageFile;
-				chooseFile({
-					success: (res) => {
-						res.tempFiles.forEach((file) => {
-							// 校验大小
-							if (this.maxSize && file.size > this.maxSize) {
-								this.$message.error(`文件大小不能超过 ${this.fileSizeStr}!`);
-								this.$emit("fail", file);
-								return;
-							}
-
-							if (!this.onBefore || this.onBefore(file)) {
-								// 调用上传图片的接口
-								this.uploadFile(file);
-							}
-						})
+			onUploadEnd(item) {
+				let file = this.fileMap.get(item.path);
+				if (item.type == 'fail') {
+					this.onError(file)
+					return;
+				}
+				let res = JSON.parse(item.responseText);
+				if (res.code == 200) {
+					// 上传成功
+					this.onOk(file, res);
+				} else if (res.code == 401) {
+					// token已过期，重新获取token
+					this.refreshToken().then((res) => {
+						let newToken = res.data.accessToken;
+						this.option.header.accessToken = newToken;
+						this.$refs.lsjUpload.setData(this.option);
+						// 重新上传
+						this.$refs.lsjUpload.upload(file.name);
+					}).catch(() => {
+						this.onError(file, res);
+					})
+				} else {
+					// 上传失败
+					this.onError(file, res);
+				}
+			},
+			onChange(files) {
+				if (!files.size) {
+					return;
+				}
+				files.forEach((file, name) => {
+					if(!this.fileMap.has(file.path)){
+						this.onBefore && this.onBefore(file)
+						this.fileMap.set(file.path, file);
+						console.log(file)
 					}
 				})
 			},
-			uploadFile(file) {
-				uni.uploadFile({
-					url: UNI_APP.BASE_URL + '/file/upload',
-					header: {
-						accessToken: uni.getStorageSync("loginInfo").accessToken
-					},
-					filePath: file.path, // 要上传文件资源的路径
-					name: 'file',
-					success: (res) => {
-						let data = JSON.parse(res.data);
-						if(data.code != 200){
-							this.onError && this.onError(file, data);
-						}else{
-							this.onSuccess && this.onSuccess(file, data);
+			onOk(file, res) {
+				this.fileMap.delete(file.path);
+				this.$refs.lsjUpload.clear(file.name);
+				this.onSuccess && this.onSuccess(file, res);
+			},
+			onFailed(file, res) {
+				this.fileMap.delete(file.path);
+				this.$refs.lsjUpload.clear(file.name);
+				this.onError && this.onError(file, res);
+			},
+			refreshToken() {
+				return new Promise((resolve, reject) => {
+					let loginInfo = uni.getStorageSync('loginInfo')
+					uni.request({
+						method: 'PUT',
+						url: UNI_APP.BASE_URL + '/refreshToken',
+						header: {
+							refreshToken: loginInfo.refreshToken
+						},
+						success: (res) => {
+							resolve(res.data);
+						},
+						fail: (res) => {
+							reject(res);
 						}
-					},
-					fail: (err) => {
-						this.onError && this.onError(file, err);
-					}
+					})
 				})
 			}
-		},
-		computed: {
-			fileSizeStr() {
-				if (this.maxSize > 1024 * 1024) {
-					return Math.round(this.maxSize / 1024 / 1024) + "M";
-				}
-				if (this.maxSize > 1024) {
-					return Math.round(this.maxSize / 1024) + "KB";
-				}
-				return this.maxSize + "B";
-			}
 		}
+
 	}
 </script>
 

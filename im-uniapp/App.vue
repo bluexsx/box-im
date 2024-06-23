@@ -1,6 +1,7 @@
 <script>
 	import store from './store';
 	import http from './common/request';
+	import * as msgType from './common/messageType';
 	import * as enums from './common/enums';
 	import * as wsApi from './common/wssocket';
 	import UNI_APP from '@/.env.js'
@@ -109,7 +110,7 @@
 			},
 			insertPrivateMessage(friend, msg) {
 				// 单人视频信令
-				if (this.$msgType.isRtcPrivate(msg.type)) {
+				if (msgType.isRtcPrivate(msg.type)) {
 					// #ifdef MP-WEIXIN
 						// 小程序不支持音视频
 						return;
@@ -186,7 +187,7 @@
 			},
 			insertGroupMessage(group, msg) {
 				// 群视频信令
-				if (this.$msgType.isRtcGroup(msg.type)) {
+				if (msgType.isRtcGroup(msg.type)) {
 					// #ifdef MP-WEIXIN
 						// 小程序不支持音视频
 						return;

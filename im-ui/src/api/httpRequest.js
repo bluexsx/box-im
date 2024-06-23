@@ -7,10 +7,7 @@ import {
 const http = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API,
 	timeout: 1000 * 30,
-	withCredentials: true,
-	headers: {
-		'Content-Type': 'application/json; charset=utf-8'
-	}
+	withCredentials: true
 })
 
 /**
@@ -53,10 +50,6 @@ http.interceptors.response.use(async response => {
 		// 保存token
 		sessionStorage.setItem("accessToken", data.accessToken);
 		sessionStorage.setItem("refreshToken", data.refreshToken);
-		// 这里需要把headers清掉，否则请求时会报错，原因暂不详...
-		if(typeof response.config.data != 'object'){
-			response.config.headers=undefined;
-		}
 		// 重新发送刚才的请求
 		return http(response.config)
 	} else {
