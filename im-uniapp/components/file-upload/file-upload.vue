@@ -77,7 +77,6 @@
 					if(!this.fileMap.has(file.path)){
 						this.onBefore && this.onBefore(file)
 						this.fileMap.set(file.path, file);
-						console.log(file)
 					}
 				})
 			},
