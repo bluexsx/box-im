@@ -336,6 +336,7 @@
 				}
 				let msgInfo = {
 					id: 0,
+					tmpId: this.generateId(),
 					fileId: file.uid,
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
@@ -391,6 +392,7 @@
 				}
 				let msgInfo = {
 					id: 0,
+					tmpId: this.generateId(),
 					sendId: this.mine.id,
 					content: JSON.stringify(data),
 					sendTime: new Date().getTime(),
@@ -738,7 +740,6 @@
 				});
 			},
 			refreshPlaceHolder() {
-				console.log("placeholder")
 				if (this.isReceipt) {
 					this.placeholder = "【回执消息】"
 				} else if (this.$refs.editBox && this.$refs.editBox.innerHTML) {
@@ -746,7 +747,10 @@
 				} else {
 					this.placeholder = "聊点什么吧~";
 				}
-
+			},
+			generateId(){
+				// 生成临时id
+				return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
 			}
 		},
 		computed: {

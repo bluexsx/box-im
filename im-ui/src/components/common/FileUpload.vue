@@ -1,6 +1,6 @@
 <template>
 	<el-upload :action="'#'" :http-request="onFileUpload" :accept="fileTypes==null?'':fileTypes.join(',')" :show-file-list="false"
-		:disabled="disabled" :before-upload="beforeUpload">
+		:disabled="disabled" :before-upload="beforeUpload" :multiple="true">
 		<slot></slot>
 	</el-upload>
 </template>
@@ -49,7 +49,6 @@
 						background: 'rgba(0, 0, 0, 0.7)'
 					});
 				}
-
 				let formData = new FormData()
 				formData.append('file', file.file)
 				this.$http({
@@ -82,7 +81,6 @@
 					this.$message.error(`文件大小不能超过 ${this.fileSizeStr}!`);
 					return false;
 				}
-
 				this.$emit("before", file);
 				return true;
 			}
