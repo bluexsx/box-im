@@ -50,13 +50,7 @@
 					sizeType: ['original'], //original 原图，compressed 压缩图，默认二者都有
 					success: (res) => {
 						res.tempFiles.forEach((file) => {
-							// 校验大小
-							if (this.maxSize && file.size > this.maxSize) {
-								this.$message.error(`文件大小不能超过 ${this.fileSizeStr}!`);
-								this.$emit("fail", file);
-								return;
-							}
-
+							console.log("文件:",file)
 							if (!this.onBefore || this.onBefore(file)) {
 								// 调用上传图片的接口
 								this.uploadImage(file);
@@ -76,6 +70,10 @@
 					success: (res) => {
 						let data = JSON.parse(res.data);
 						if(data.code != 200){
+							uni.showToast({
+								icon: "none",
+								title: data.message,
+							})
 							this.onError && this.onError(file, data);
 						}else{
 							this.onSuccess && this.onSuccess(file, data);
@@ -86,17 +84,6 @@
 						this.onError && this.onError(file, err);
 					}
 				})
-			}
-		},
-		computed: {
-			fileSizeStr() {
-				if (this.maxSize > 1024 * 1024) {
-					return Math.round(this.maxSize / 1024 / 1024) + "M";
-				}
-				if (this.maxSize > 1024) {
-					return Math.round(this.maxSize / 1024) + "KB";
-				}
-				return this.maxSize + "B";
 			}
 		}
 	}

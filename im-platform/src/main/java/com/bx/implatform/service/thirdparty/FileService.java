@@ -59,7 +59,7 @@ public class FileService {
         Long userId = SessionContext.getSession().getUserId();
         // 大小校验
         if (file.getSize() > Constant.MAX_FILE_SIZE) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件大小不能超过10M");
+            throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件大小不能超过20M");
         }
         // 上传
         String fileName = minioUtil.upload(bucketName, filePath, file);
@@ -76,7 +76,7 @@ public class FileService {
             Long userId = SessionContext.getSession().getUserId();
             // 大小校验
             if (file.getSize() > Constant.MAX_IMAGE_SIZE) {
-                throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片大小不能超过5M");
+                throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片大小不能超过20M");
             }
             // 图片格式校验
             if (!FileUtil.isImage(file.getOriginalFilename())) {
