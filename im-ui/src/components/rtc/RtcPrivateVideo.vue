@@ -114,7 +114,7 @@
 				// 启动心跳
 				this.startHeartBeat();
 				// 打开摄像头
-				this.openStream().finally(() => {
+				this.openStream().then(() => {
 					this.webrtc.setStream(this.localStream);
 					this.webrtc.createOffer().then((offer) => {
 						// 发起呼叫
@@ -127,6 +127,9 @@
 							this.close();
 						})
 					})
+				}).catch(()=>{
+					// 呼叫方必须能打开摄像头，否则无法正常建立连接
+					this.close();
 				})
 			},
 			onAccept() {
