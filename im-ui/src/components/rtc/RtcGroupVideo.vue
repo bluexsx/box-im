@@ -29,6 +29,9 @@
 		methods: {
 			open() {
 				this.isShow = true;
+			},
+			onRTCMessage(){
+				//this.isShow = true;
 			}
 		}
 	}

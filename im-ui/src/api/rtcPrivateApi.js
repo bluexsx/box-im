@@ -7,7 +7,10 @@ RtcPrivateApi.prototype.call = function(uid, mode, offer) {
 	return http({
 		url: `/webrtc/private/call?uid=${uid}&mode=${mode}`,
 		method: 'post',
-		data: JSON.stringify(offer)
+		data: JSON.stringify(offer),
+		headers: {
+			'Content-Type': 'application/json; charset=utf-8'
+		}
 	})
 }
 
@@ -15,7 +18,10 @@ RtcPrivateApi.prototype.accept = function(uid, answer) {
 	return http({
 		url: `/webrtc/private/accept?uid=${uid}`,
 		method: 'post',
-		data: JSON.stringify(answer)
+		data: JSON.stringify(answer),
+		headers: {
+			'Content-Type': 'application/json; charset=utf-8'
+		}
 	})
 }
 
@@ -52,7 +58,10 @@ RtcPrivateApi.prototype.sendCandidate = function(uid, candidate) {
 	return http({
 		url: `/webrtc/private/candidate?uid=${uid}`,
 		method: 'post',
-		data: JSON.stringify(candidate)
+		data: JSON.stringify(candidate),
+		headers: {
+			'Content-Type': 'application/json; charset=utf-8'
+		}
 	});
 }
 
