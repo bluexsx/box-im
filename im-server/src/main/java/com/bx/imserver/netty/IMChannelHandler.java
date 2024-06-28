@@ -74,7 +74,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
             RedisTemplate<String, Object> redisTemplate = SpringContextHolder.getBean("redisTemplate");
             String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
             redisTemplate.delete(key);
-            log.info("断开连接,userId:{},终端类型:{}", userId, terminal);
+            log.info("断开连接,userId:{},终端类型:{},{}", userId, terminal, ctx.channel().id().asLongText());
         }
     }
 
