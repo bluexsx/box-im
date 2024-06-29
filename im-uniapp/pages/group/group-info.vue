@@ -112,6 +112,7 @@
 											url:"/pages/group/group"
 										});
 										this.$store.commit("removeGroup", this.groupId);
+										this.$store.commit("removeGroupChat",this.groupId);
 									},100)
 								}
 							})
@@ -141,6 +142,7 @@
 											url:"/pages/group/group"
 										});
 										this.$store.commit("removeGroup", this.groupId);
+										this.$store.commit("removeGroupChat",this.groupId);
 									},100)	
 								}
 							})

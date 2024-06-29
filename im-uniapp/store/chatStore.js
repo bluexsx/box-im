@@ -133,6 +133,15 @@ export default {
 				}
 			}
 		},
+		removeGroupChat(state, groupId) {
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == 'GROUP' &&
+					chats[idx].targetId == groupId) {
+					this.commit("removeChat", idx);
+				}
+			}
+		},
 		moveTop(state, idx) {
 			let chats = this.getters.findChats();
 			let chat = chats[idx];
