@@ -294,6 +294,8 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
+			// 断线重连后不能使用缓存模式，否则会导致聊天窗口的消息不刷新
+			cacheChats = state.chats;
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {

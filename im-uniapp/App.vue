@@ -49,16 +49,11 @@
 					}
 				});
 				wsApi.onClose((res) => {
-					console.log("ws断开",res);
-					// 1000是客户端正常主动关闭
-					if (res.code != 1000) {
+					console.log("ws断开", res);
+					// 3099是客户端正常主动关闭
+					if (res.code != 3099) {
 						// 重新连接
-						uni.showToast({
-							title: '连接已断开，尝试重新连接...',
-							icon: 'none',
-						})
-						let loginInfo = uni.getStorageSync("loginInfo")
-						wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
+						this.reconnectWs();
 					}
 				})
 			},
@@ -96,7 +91,9 @@
 				}
 				// 消息回执处理,改消息状态为已读
 				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
-					store.commit("readedMessage", { friendId: msg.sendId })
+					store.commit("readedMessage", {
+						friendId: msg.sendId
+					})
 					return;
 				}
 				// 标记这条消息是不是自己发的
@@ -280,6 +277,27 @@
 					return true;
 				}
 				return loginInfo.expireTime < new Date().getTime();
+			},
+			reconnectWs() {
+				// 重新加载一次个人信息，主要是防止断线太久导致token已经过期
+				this.reloadUserInfo().then((userInfo) => {
+					store.commit("setUserInfo", userInfo);
+					// 重新连接
+					uni.showToast({
+						title: '连接已断开，尝试重新连接...',
+						icon: 'none',
+					})
+					let loginInfo = uni.getStorageSync("loginInfo")
+					wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
+				}).catch(() => {
+					this.exit();
+				})
+			},
+			reloadUserInfo() {
+				return http({
+					url: '/user/self',
+					method: 'GET'
+				})
 			}
 		},
 		onLaunch() {
