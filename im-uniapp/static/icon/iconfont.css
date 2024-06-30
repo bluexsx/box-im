@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4272106 */
-  src: url('iconfont.ttf?t=1711870080646') format('truetype');
+  src: url('iconfont.ttf?t=1719727774055') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-receipt:before {
+  content: "\e601";
 }
 
 .icon-pause:before {
@@ -33,10 +37,6 @@
 
 .icon-video:before {
   content: "\e685";
-}
-
-.icon-receipt:before {
-  content: "\e61a";
 }
 
 .icon-ok:before {
