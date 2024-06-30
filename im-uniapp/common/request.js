@@ -61,7 +61,8 @@ const request = (options) => {
 			},
 			fail(error) {
 				uni.showToast({
-					title: "网络似乎有点不给力，请稍后重试",
+					title: "网络似乎有点不给力哟",
+					icon: "none",
 					duration: 1500
 				})
 				return reject(error)

@@ -30,7 +30,7 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo
         IMSendInfo sendInfo = new IMSendInfo();
         sendInfo.setCmd(IMCmdType.HEART_BEAT.code());
         ctx.channel().writeAndFlush(sendInfo);
-
+        ;
         // 设置属性
         AttributeKey<Long> heartBeatAttr = AttributeKey.valueOf(ChannelAttrKey.HEARTBEAT_TIMES);
         Long heartbeatTimes = ctx.channel().attr(heartBeatAttr).get();
@@ -44,6 +44,9 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo
             String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
             redisTemplate.expire(key, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         }
+        AttributeKey<Long> userIdAttr = AttributeKey.valueOf(ChannelAttrKey.USER_ID);
+        Long userId = ctx.channel().attr(userIdAttr).get();
+        log.info("心跳,userId:{},{}",userId,ctx.channel().id().asLongText());
     }
 
     @Override

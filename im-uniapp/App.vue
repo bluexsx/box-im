@@ -5,11 +5,12 @@
 	import * as enums from './common/enums';
 	import * as wsApi from './common/wssocket';
 	import UNI_APP from '@/.env.js'
-	
+
 	export default {
 		data() {
 			return {
-				audioTip: null
+				audioTip: null,
+				reconnecting: false // 正在重连标志
 			}
 		},
 		methods: {
@@ -28,6 +29,14 @@
 				wsApi.init();
 				wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 				wsApi.onConnect(() => {
+					// 重连成功提示
+					if(this.reconnecting){
+						this.reconnecting = false;
+						uni.showToast({
+							title: "已重新连接",
+							icon: 'none'
+						})
+					}
 					// 加载离线消息
 					this.pullPrivateOfflineMessage(store.state.chatStore.privateMsgMaxId);
 					this.pullGroupOfflineMessage(store.state.chatStore.groupMsgMaxId);
@@ -49,35 +58,30 @@
 					}
 				});
 				wsApi.onClose((res) => {
-					console.log("ws断开",res);
-					// 1000是客户端正常主动关闭
-					if (res.code != 1000) {
+					console.log("ws断开", res);
+					// 3099是客户端正常主动关闭
+					if (res.code != 3099) {
 						// 重新连接
-						uni.showToast({
-							title: '连接已断开，尝试重新连接...',
-							icon: 'none',
-						})
-						let loginInfo = uni.getStorageSync("loginInfo")
-						wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
+						this.reconnectWs();
 					}
 				})
 			},
 			pullPrivateOfflineMessage(minId) {
-				store.commit("loadingPrivateMsg",true)
+				store.commit("loadingPrivateMsg", true)
 				http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
 					method: 'GET'
-				}).catch(()=>{
-					store.commit("loadingPrivateMsg",false)
+				}).catch(() => {
+					store.commit("loadingPrivateMsg", false)
 				})
 			},
 			pullGroupOfflineMessage(minId) {
-				store.commit("loadingGroupMsg",true)
+				store.commit("loadingGroupMsg", true)
 				http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
 					method: 'GET'
-				}).catch(()=>{
-					store.commit("loadingGroupMsg",false)
+				}).catch(() => {
+					store.commit("loadingGroupMsg", false)
 				})
 			},
 			handlePrivateMessage(msg) {
@@ -96,7 +100,9 @@
 				}
 				// 消息回执处理,改消息状态为已读
 				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
-					store.commit("readedMessage", { friendId: msg.sendId })
+					store.commit("readedMessage", {
+						friendId: msg.sendId
+					})
 					return;
 				}
 				// 标记这条消息是不是自己发的
@@ -112,17 +118,17 @@
 				// 单人视频信令
 				if (msgType.isRtcPrivate(msg.type)) {
 					// #ifdef MP-WEIXIN
-						// 小程序不支持音视频
-						return;
+					// 小程序不支持音视频
+					return;
 					// #endif
 					// 被呼叫，弹出视频页面
 					let delayTime = 100;
-					if(msg.type == enums.MESSAGE_TYPE.RTC_CALL_VOICE 
-						|| msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO){
-						let mode = 	msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO? "video":"voice";
+					if (msg.type == enums.MESSAGE_TYPE.RTC_CALL_VOICE ||
+						msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO) {
+						let mode = msg.type == enums.MESSAGE_TYPE.RTC_CALL_VIDEO ? "video" : "voice";
 						let pages = getCurrentPages();
-						let curPage = pages[pages.length-1].route;
-						if(curPage != "pages/chat/chat-private-video"){
+						let curPage = pages[pages.length - 1].route;
+						if (curPage != "pages/chat/chat-private-video") {
 							const friendInfo = encodeURIComponent(JSON.stringify(friend));
 							uni.navigateTo({
 								url: `/pages/chat/chat-private-video?mode=${mode}&friend=${friendInfo}&isHost=false`
@@ -131,8 +137,8 @@
 						}
 					}
 					setTimeout(() => {
-						uni.$emit('WS_RTC_PRIVATE',msg);
-					},delayTime)
+						uni.$emit('WS_RTC_PRIVATE', msg);
+					}, delayTime)
 					return;
 				}
 				let chatInfo = {
@@ -152,7 +158,7 @@
 			handleGroupMessage(msg) {
 				// 消息加载标志
 				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
-					store.commit("loadingGroupMsg",JSON.parse(msg.content))
+					store.commit("loadingGroupMsg", JSON.parse(msg.content))
 					return;
 				}
 				// 消息已读处理
@@ -189,15 +195,15 @@
 				// 群视频信令
 				if (msgType.isRtcGroup(msg.type)) {
 					// #ifdef MP-WEIXIN
-						// 小程序不支持音视频
-						return;
+					// 小程序不支持音视频
+					return;
 					// #endif
 					// 被呼叫，弹出视频页面
 					let delayTime = 100;
-					if(msg.type == enums.MESSAGE_TYPE.RTC_GROUP_SETUP){
+					if (msg.type == enums.MESSAGE_TYPE.RTC_GROUP_SETUP) {
 						let pages = getCurrentPages();
-						let curPage = pages[pages.length-1].route;
-						if(curPage != "pages/chat/chat-group-video"){
+						let curPage = pages[pages.length - 1].route;
+						if (curPage != "pages/chat/chat-group-video") {
 							const userInfos = encodeURIComponent(msg.content);
 							const inviterId = msg.sendId;
 							const groupId = msg.groupId
@@ -210,11 +216,11 @@
 					}
 					// 消息转发到chat-group-video页面进行处理
 					setTimeout(() => {
-						uni.$emit('WS_RTC_GROUP',msg);
-					},delayTime)
+						uni.$emit('WS_RTC_GROUP', msg);
+					}, delayTime)
 					return;
 				}
-				
+
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
@@ -275,11 +281,37 @@
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
 			},
-			isExpired(loginInfo){
-				if(!loginInfo || !loginInfo.expireTime){
+			isExpired(loginInfo) {
+				if (!loginInfo || !loginInfo.expireTime) {
 					return true;
 				}
 				return loginInfo.expireTime < new Date().getTime();
+			},
+			reconnectWs() {
+				// 记录标志
+				this.reconnecting = true;
+				// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
+				this.reloadUserInfo().then((userInfo) => {
+					uni.showToast({
+						title: '连接已断开，尝试重新连接...',
+						icon: 'none',
+					})
+					store.commit("setUserInfo", userInfo);
+					// 重新连接
+					let loginInfo = uni.getStorageSync("loginInfo")
+					wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
+				}).catch(() => {
+					// 5s后重试
+					setTimeout(()=>{
+						this.reconnectWs();
+					},5000)
+				})
+			},
+			reloadUserInfo() {
+				return http({
+					url: '/user/self',
+					method: 'GET'
+				})
 			}
 		},
 		onLaunch() {
@@ -293,12 +325,12 @@
 				uni.switchTab({
 					url: "/pages/chat/chat"
 				})
-			} else{
+			} else {
 				// 跳转到登录页
 				// #ifdef H5
-					uni.navigateTo({
-						url: "/pages/login/login"
-					})
+				uni.navigateTo({
+					url: "/pages/login/login"
+				})
 				// #endif
 			}
 		}
