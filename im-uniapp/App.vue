@@ -9,7 +9,8 @@
 	export default {
 		data() {
 			return {
-				audioTip: null
+				audioTip: null,
+				reconnecting: false // 正在重连标志
 			}
 		},
 		methods: {
@@ -28,6 +29,14 @@
 				wsApi.init();
 				wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 				wsApi.onConnect(() => {
+					// 重连成功提示
+					if(this.reconnecting){
+						this.reconnecting = false;
+						uni.showToast({
+							title: "已重新连接",
+							icon: 'none'
+						})
+					}
 					// 加载离线消息
 					this.pullPrivateOfflineMessage(store.state.chatStore.privateMsgMaxId);
 					this.pullGroupOfflineMessage(store.state.chatStore.groupMsgMaxId);
@@ -279,18 +288,23 @@
 				return loginInfo.expireTime < new Date().getTime();
 			},
 			reconnectWs() {
-				// 重新加载一次个人信息，主要是防止断线太久导致token已经过期
+				// 记录标志
+				this.reconnecting = true;
+				// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
 				this.reloadUserInfo().then((userInfo) => {
-					store.commit("setUserInfo", userInfo);
-					// 重新连接
 					uni.showToast({
 						title: '连接已断开，尝试重新连接...',
 						icon: 'none',
 					})
+					store.commit("setUserInfo", userInfo);
+					// 重新连接
 					let loginInfo = uni.getStorageSync("loginInfo")
 					wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
 				}).catch(() => {
-					this.exit();
+					// 5s后重试
+					setTimeout(()=>{
+						this.reconnectWs();
+					},5000)
 				})
 			},
 			reloadUserInfo() {
