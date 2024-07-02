@@ -6,6 +6,7 @@ let connectCallBack = null;
 let isConnect = false; //连接标识 避免重复连接
 let rec = null;
 let isInit = false;
+let lastConnectTime = new Date(); // 最后一次连接时间
 
 let init = () => {
 	// 防止重复初始化
@@ -64,6 +65,7 @@ let connect = (url, token) => {
 	if (isConnect) {
 		return;
 	}
+	lastConnectTime = new Date();
 	uni.connectSocket({
 		url: wsurl,
 		success: (res) => {
@@ -86,10 +88,13 @@ let reconnect = (wsurl, accessToken) => {
 		//如果已经连上就不在重连了
 		return;
 	}
+	// 延迟10秒重连  避免过多次过频繁请求重连
+	let timeDiff = new Date().getTime() - lastConnectTime.getTime()
+	let delay = timeDiff < 10000 ? 10000 - timeDiff : 0;
 	rec && clearTimeout(rec);
-	rec = setTimeout(function() { // 延迟15秒重连  避免过多次过频繁请求重连
+	rec = setTimeout(function() {
 		connect(wsurl, accessToken);
-	}, 15000);
+	}, delay);
 };
 
 //设置关闭连接

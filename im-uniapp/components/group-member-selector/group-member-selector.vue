@@ -4,7 +4,7 @@
 			<view class="top-bar">
 				<view class="top-tip">选择成员</view>
 				<button class="top-btn" type="warn" size="mini" @click="onClean()">清空 </button>
-				<button class="top--btn" type="primary" size="mini" @click="onOk()">确定({{checkedIds.length}})
+				<button class="top-btn" type="primary" size="mini" @click="onOk()">确定({{checkedIds.length}})
 				</button>
 			</view>
 			<scroll-view v-show="checkedIds.length>0" scroll-x="true" scroll-left="120">
@@ -120,7 +120,7 @@
 			display: flex;
 			align-items: center;
 			height: 70rpx;
-			padding: 10rpx;
+			padding: 10rpx 30rpx;
 
 			.top-tip {
 				flex: 1;
@@ -135,7 +135,7 @@
 			display: flex;
 			align-items: center;
 			height: 90rpx;
-
+			padding: 0 30rpx;
 			.user-item {
 				padding: 3rpx;
 			}

@@ -133,6 +133,15 @@ export default {
 				}
 			}
 		},
+		removeGroupChat(state, groupId) {
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == 'GROUP' &&
+					chats[idx].targetId == groupId) {
+					this.commit("removeChat", idx);
+				}
+			}
+		},
 		moveTop(state, idx) {
 			let chats = this.getters.findChats();
 			let chat = chats[idx];
@@ -294,6 +303,8 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
+			// 断线重连后不能使用缓存模式，否则会导致聊天窗口的消息不刷新
+			cacheChats = state.chats;
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {
