@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.3.2</version>
+            <version>${mybatisplus.version}</version>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>
