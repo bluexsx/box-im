@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "element-ui": "^2.15.10",
     "js-audio-recorder": "^1.0.7",
+    "localforage": "^1.10.0",
     "sass": "^1.47.0",
     "sass-loader": "^10.1.1",
     "vue": "^2.6.11",
