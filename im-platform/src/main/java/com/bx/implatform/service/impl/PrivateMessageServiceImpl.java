@@ -21,6 +21,7 @@ import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.PrivateMessageMapper;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IPrivateMessageService;
+import com.bx.implatform.service.INotifyPrivateService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -43,7 +44,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private final IFriendService friendService;
     private final IMClient imClient;
     private final SensitiveFilterUtil sensitiveFilterUtil;
-
+    private final INotifyPrivateService notifyPrivateService;
     @Override
     public Long sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
@@ -218,6 +219,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .eq(PrivateMessage::getStatus, MessageStatus.SENDED.code())
                 .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
+        // 清除通知会话信息
+        notifyPrivateService.removeNotifySession(msgInfo.getSendId(),msgInfo.getRecvId());
+
         log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);
     }
 

@@ -115,6 +115,11 @@
             <artifactId>redisson</artifactId>
             <version>3.17.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.getui.push</groupId>
+            <artifactId>restful-sdk</artifactId>
+            <version>1.0.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>

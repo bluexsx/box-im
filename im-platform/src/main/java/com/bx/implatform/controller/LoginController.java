@@ -1,6 +1,7 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.dto.LoginDTO;
+import com.bx.implatform.dto.LogoutDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.result.Result;
@@ -21,11 +22,19 @@ public class LoginController {
 
     private final IUserService userService;
 
+
     @PostMapping("/login")
-    @ApiOperation(value = "用户注册", notes = "用户注册")
-    public Result register(@Valid @RequestBody LoginDTO dto) {
+    @ApiOperation(value = "用户登陆", notes = "用户注册")
+    public Result login(@Valid @RequestBody LoginDTO dto) {
         LoginVO vo = userService.login(dto);
         return ResultUtils.success(vo);
+    }
+
+    @PostMapping("/logout")
+    @ApiOperation(value = "用户退出登陆", notes = "用户退出登陆")
+    public Result logout(@Valid @RequestBody LogoutDTO dto) {
+        userService.logout(dto);
+        return ResultUtils.success();
     }
 
 

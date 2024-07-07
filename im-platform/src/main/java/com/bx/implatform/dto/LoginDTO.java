@@ -27,4 +27,7 @@ public class LoginDTO {
     @ApiModelProperty(value = "用户密码")
     private String password;
 
+    @ApiModelProperty(value = "用户客户端id")
+    private String cid;
+
 }

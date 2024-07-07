@@ -6,10 +6,12 @@ import com.bx.imclient.annotation.IMListener;
 import com.bx.imclient.listener.MessageListener;
 import com.bx.imcommon.enums.IMListenerType;
 import com.bx.imcommon.enums.IMSendCode;
+import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMSendResult;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.service.IPrivateMessageService;
+import com.bx.implatform.service.INotifyPrivateService;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +27,49 @@ public class PrivateMessageListener implements MessageListener<PrivateMessageVO>
     @Lazy
     @Autowired
     private IPrivateMessageService privateMessageService;
+
+    @Lazy
+    @Autowired
+    private INotifyPrivateService uniPushService;
+
     @Override
     public void process(List<IMSendResult<PrivateMessageVO>> results) {
+        // 更新消息状态
+        updateMessageStatus(results);
+        // 推送离线通知
+        sendOfflineNotify(results);
+    }
+
+    private void updateMessageStatus(List<IMSendResult<PrivateMessageVO>> results) {
         Set<Long> messageIds = new HashSet<>();
-        for(IMSendResult<PrivateMessageVO> result : results){
+        for (IMSendResult<PrivateMessageVO> result : results) {
             PrivateMessageVO messageInfo = result.getData();
             // 更新消息状态,这里只处理成功消息，失败的消息继续保持未读状态
             if (result.getCode().equals(IMSendCode.SUCCESS.code())) {
                 messageIds.add(messageInfo.getId());
-                log.info("消息送达，消息id:{}，发送者:{},接收者:{},终端:{}", messageInfo.getId(), result.getSender().getId(), result.getReceiver().getId(), result.getReceiver().getTerminal());
+                log.info("消息送达，消息id:{}，发送者:{},接收者:{},终端:{}", messageInfo.getId(),
+                    result.getSender().getId(), result.getReceiver().getId(), result.getReceiver().getTerminal());
             }
         }
-        // 批量修改状态
-        if(CollUtil.isNotEmpty(messageIds)){
+        // 对发送成功的消息修改状态
+        if (CollUtil.isNotEmpty(messageIds)) {
             UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().in(PrivateMessage::getId, messageIds)
-                    .eq(PrivateMessage::getStatus, MessageStatus.UNSEND.code())
-                    .set(PrivateMessage::getStatus, MessageStatus.SENDED.code());
+                .eq(PrivateMessage::getStatus, MessageStatus.UNSEND.code())
+                .set(PrivateMessage::getStatus, MessageStatus.SENDED.code());
             privateMessageService.update(updateWrapper);
+        }
+    }
+
+    private void sendOfflineNotify(List<IMSendResult<PrivateMessageVO>> results) {
+        for (IMSendResult<PrivateMessageVO> result : results) {
+            PrivateMessageVO messageInfo = result.getData();
+            if (result.getCode().equals(IMSendCode.SUCCESS.code()) && result.getReceiver().getTerminal()
+                .equals(IMTerminalType.APP.code())) {
+                uniPushService.sendMessage(messageInfo.getSendId(), messageInfo.getRecvId(), messageInfo.getContent());
+                log.info("推送离线通知，消息id:{}，发送者:{},接收者:{}", messageInfo.getId(), result.getSender().getId(),
+                    result.getReceiver().getId());
+            }
         }
     }
 }

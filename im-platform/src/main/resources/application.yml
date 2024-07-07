@@ -43,6 +43,16 @@ webrtc:
   iceServers:
     - urls: stun:stun.l.google.com:19302
 
+notify:
+  enable: true
+  max:
+    private: -1 # 私聊单个会话最大通知数量，-1表示不显示
+    group: 10  # 群聊单个会话最大通知数量，-1表示不显示
+  uniPush:
+    appId: nyK71XQYUy9s7Vlzoutlp1
+    appKey: XtG6NkUSL98evtpLSE0jYA
+    masterSecret: MxApXxsx057jcPCeC0cXk6
+
 jwt:
   accessToken:
     expireIn: 1800 #半个小时

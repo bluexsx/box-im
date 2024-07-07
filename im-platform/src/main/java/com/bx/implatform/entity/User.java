@@ -80,6 +80,11 @@ public class User extends Model<User> {
     private String password;
 
     /**
+     * 客户端id,用于uni-push推送
+     */
+    @TableField("cid")
+    private String cid;
+    /**
      * 最后登录时间
      */
     @TableField("last_login_time")

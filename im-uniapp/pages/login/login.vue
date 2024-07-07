@@ -21,7 +21,8 @@
 				loginForm: {
 					terminal: 1, // APP终端
 					userName: '',
-					password: ''
+					password: '',
+					cid: ''
 				},
 				rules: {
 					userName: {
@@ -41,6 +42,11 @@
 		},
 		methods: {
 			submit() {
+				// APP需要上报cid，用于离线推送
+				// #ifdef APP-PLUS
+					const clientInfo = plus.push.getClientInfo();
+					this.loginForm.cid = clientInfo.clientid;
+				// #endif  
 				this.$http({
 					url: '/login',
 					data: this.loginForm,

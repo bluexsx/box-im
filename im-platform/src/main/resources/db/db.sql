@@ -9,6 +9,7 @@ create table `im_user`(
     `sex`  tinyint(1) default 0 comment '性别 0:男 1:女',
     `type`  smallint default 1 comment '用户类型 1:普通用户 2:审核账户',
     `signature` varchar(1024) default '' comment '个性签名',
+    `cid` varchar(255) default '' comment '客户端id,用于uni-push推送',
     `last_login_time`  datetime DEFAULT null comment '最后登录时间',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     unique key `idx_user_name`(user_name),
