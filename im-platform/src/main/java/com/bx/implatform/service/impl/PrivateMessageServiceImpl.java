@@ -220,7 +220,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
         // 清除通知会话信息
-        notifyPrivateService.removeNotifySession(msgInfo.getSendId(),msgInfo.getRecvId());
+        notifyPrivateService.removeNotifySession(friendId,session.getUserId());
 
         log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);
     }

@@ -7,7 +7,9 @@ import com.bx.implatform.session.NotifySession;
 import com.bx.implatform.service.thirdparty.UniPushService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +29,10 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class INotifyPrivateService {
+    @Lazy
+    @Autowired
+    private IUserService userService;
     private final UniPushService uniPushService;
-    private final IUserService userService;
     private final RedisTemplate<String, Object> redisTemplate;
     @Value("${notify.enable}")
     private Boolean enable = false;
@@ -64,10 +68,15 @@ public class INotifyPrivateService {
         saveNotifySession(session,sendId,recvId);
     }
 
-    public void removeNotifySession(Long sendId, Long recvId){
+    public void removeNotifySession( Long recvId){
         String key = StrUtil.join(":", RedisKey.IM_OFFLINE_NOTIFY_PRIVATE, "*", recvId);
         Set<String> keys =  redisTemplate.keys(key);
         redisTemplate.delete(keys);
+    }
+
+    public void removeNotifySession(Long sendId, Long recvId){
+        String key = StrUtil.join(":", RedisKey.IM_OFFLINE_NOTIFY_PRIVATE, sendId, recvId);
+        redisTemplate.delete(key);
     }
 
     private NotifySession createNotifySession(Long sendId, Long recvId) {

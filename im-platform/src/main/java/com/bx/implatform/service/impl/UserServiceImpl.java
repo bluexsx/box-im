@@ -23,6 +23,7 @@ import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.UserMapper;
 import com.bx.implatform.service.IFriendService;
 import com.bx.implatform.service.IGroupMemberService;
+import com.bx.implatform.service.INotifyPrivateService;
 import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
@@ -50,7 +51,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private final IFriendService friendService;
     private final JwtProperties jwtProperties;
     private final IMClient imClient;
-
+    private final INotifyPrivateService notifyPrivateService;
 
     @Override
     public LoginVO login(LoginDTO dto) {
@@ -63,8 +64,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         // 更新用户登陆时间和cid
         user.setLastLoginTime(new Date());
-        if(StrUtil.isNotEmpty(dto.getCid())){
+        // 用户更换了设备，记录新的cid
+        if(StrUtil.isNotEmpty(dto.getCid()) && dto.getCid().equals(user.getCid())){
             user.setCid(dto.getCid());
+            notifyPrivateService.removeNotifySession(user.getId());
         }
         this.updateById(user);
         // 生成token
@@ -87,6 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         UserSession session = SessionContext.getSession();
         if(StrUtil.isNotEmpty(dto.getCid())){
             // 清除cid,不再推送离线通知
+            notifyPrivateService.removeNotifySession(session.getUserId());
             LambdaUpdateWrapper<User> wrapper =  Wrappers.lambdaUpdate();
             wrapper.eq(User::getId,session.getUserId());
             wrapper.eq(User::getCid,dto.getCid());
