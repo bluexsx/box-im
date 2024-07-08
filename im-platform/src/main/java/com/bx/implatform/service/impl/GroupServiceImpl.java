@@ -75,7 +75,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return vo;
     }
 
-    @CacheEvict(value = "#vo.getId()")
+    @CacheEvict(key = "#vo.getId()")
     @Transactional(rollbackFor = Exception.class)
     @Override
     public GroupVO modifyGroup(GroupVO vo) {
@@ -100,7 +100,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(value = "#groupId")
+    @CacheEvict(key = "#groupId")
     @Override
     public void deleteGroup(Long groupId) {
         UserSession session = SessionContext.getSession();
@@ -178,7 +178,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return vo;
     }
 
-    @Cacheable(value = "#groupId")
+    @Cacheable(key = "#groupId")
     @Override
     public Group getById(Long groupId) {
         Group group = super.getById(groupId);

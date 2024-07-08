@@ -46,7 +46,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Override
     public void addFriend(Long friendId) {
         long userId = SessionContext.getSession().getUserId();
-        if (userId == friendId) {
+        if (friendId.equals(userId)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "不允许添加自己为好友");
         }
         // 互相绑定好友关系
