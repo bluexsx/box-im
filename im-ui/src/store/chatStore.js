@@ -1,8 +1,7 @@
-import {
-	MESSAGE_TYPE,
-	MESSAGE_STATUS
-} from "../api/enums.js"
+import { MESSAGE_TYPE, MESSAGE_STATUS } from "../api/enums.js"
 import userStore from './userStore';
+import localForage from 'localforage';
+
 export default {
 
 	state: {
@@ -142,9 +141,9 @@ export default {
 				chat.lastContent = "[文件]";
 			} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
 				chat.lastContent = "[语音]";
-			} else if (msgInfo.type == MESSAGE_TYPE.TEXT 
-				|| msgInfo.type == MESSAGE_TYPE.RECALL
-				|| msgInfo.type == MESSAGE_TYPE.TIP_TEXT	) {
+			} else if (msgInfo.type == MESSAGE_TYPE.TEXT ||
+				msgInfo.type == MESSAGE_TYPE.RECALL ||
+				msgInfo.type == MESSAGE_TYPE.TIP_TEXT) {
 				chat.lastContent = msgInfo.content;
 			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VOICE) {
 				chat.lastContent = "[语音通话]";
@@ -179,14 +178,14 @@ export default {
 			// 根据id顺序插入，防止消息乱序
 			let insertPos = chat.messages.length;
 			// 防止 图片、文件 在发送方 显示 在顶端  因为还没存库，id=0
-			if(msgInfo.id && msgInfo.id > 0){
+			if (msgInfo.id && msgInfo.id > 0) {
 				for (let idx in chat.messages) {
 					if (chat.messages[idx].id && msgInfo.id < chat.messages[idx].id) {
 						insertPos = idx;
 						console.log(`消息出现乱序,位置:${chat.messages.length},修正至:${insertPos}`);
 						break;
 					}
-				} 
+				}
 			}
 			chat.messages.splice(insertPos, 0, msgInfo);
 			this.commit("saveToStorage");
@@ -264,7 +263,7 @@ export default {
 				groupMsgMaxId: state.groupMsgMaxId,
 				chats: state.chats
 			}
-			localStorage.setItem(key, JSON.stringify(chatsData));
+			localForage.setItem(key, chatsData)
 		},
 		clear(state) {
 			state.activeChat = null;
@@ -276,12 +275,19 @@ export default {
 			return new Promise((resolve, reject) => {
 				let userId = userStore.state.userInfo.id;
 				let key = "chats-" + userId;
-				let item = localStorage.getItem(key)
-				if (item) {
-					let chatsData = JSON.parse(item);
-					context.commit("initChats", chatsData);
-				}
-				resolve();
+				localForage.getItem(key).then((item)=>{
+					let chatsData = item;
+					// 兼容历史数据,以后要删除
+					if(!chatsData){
+						chatsData = JSON.parse(localStorage.getItem(key));
+					}
+					if (chatsData) {
+						context.commit("initChats", chatsData);
+					}
+					resolve();
+				}).catch(()=>{
+					reject();
+				})
 			})
 		}
 	},
