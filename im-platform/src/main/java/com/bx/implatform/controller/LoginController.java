@@ -1,7 +1,6 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.dto.LoginDTO;
-import com.bx.implatform.dto.LogoutDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.result.Result;
@@ -22,19 +21,11 @@ public class LoginController {
 
     private final IUserService userService;
 
-
     @PostMapping("/login")
-    @ApiOperation(value = "用户登陆", notes = "用户注册")
+    @ApiOperation(value = "用户登陆", notes = "用户登陆")
     public Result login(@Valid @RequestBody LoginDTO dto) {
         LoginVO vo = userService.login(dto);
         return ResultUtils.success(vo);
-    }
-
-    @PostMapping("/logout")
-    @ApiOperation(value = "用户退出登陆", notes = "用户退出登陆")
-    public Result logout(@Valid @RequestBody LogoutDTO dto) {
-        userService.logout(dto);
-        return ResultUtils.success();
     }
 
 
@@ -55,7 +46,7 @@ public class LoginController {
 
     @PutMapping("/modifyPwd")
     @ApiOperation(value = "修改密码", notes = "修改用户密码")
-    public Result update(@Valid @RequestBody ModifyPwdDTO dto) {
+    public Result modifyPassword(@Valid @RequestBody ModifyPwdDTO dto) {
         userService.modifyPassword(dto);
         return ResultUtils.success();
     }
