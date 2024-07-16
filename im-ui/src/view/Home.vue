@@ -107,6 +107,9 @@
 						} else if (cmd == 4) {
 							// 插入群聊消息
 							this.handleGroupMessage(msgInfo);
+						} else if (cmd == 5){
+							// 处理系统消息
+							this.handleSystemMessage(msgInfo);
 						}
 					});
 					this.$wsApi.onClose((e) => {
@@ -244,6 +247,20 @@
 				if (!msg.selfSend && msg.type <= this.$enums.MESSAGE_TYPE.VIDEO &&
 					msg.status != this.$enums.MESSAGE_STATUS.READED) {
 					this.playAudioTip();
+				}
+			},
+			handleSystemMessage(msg){
+				// 用户被封禁
+				
+				if (msg.type == this.$enums.MESSAGE_TYPE.USER_BANNED) {
+					this.$wsApi.close(3000);
+					this.$alert("您的账号已被管理员封禁,原因:"+ msg.content, "账号被封禁", {
+						confirmButtonText: '确定',
+						callback: action => {
+							this.onExit();
+						}
+					});
+					return;
 				}
 			},
 			onExit() {

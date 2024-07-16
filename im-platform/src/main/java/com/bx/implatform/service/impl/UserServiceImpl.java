@@ -50,8 +50,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public LoginVO login(LoginDTO dto) {
         User user = this.findUserByUserName(dto.getUserName());
-        if (null == user) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "用户不存在");
+        if (Objects.isNull(user)) {
+            throw new GlobalException("用户不存在");
+        }
+        if (user.getIsBanned()) {
+            String tip = String.format("您的账号因'%s'已被管理员封禁,请联系客服!",user.getReason());
+            throw new GlobalException(tip);
         }
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new GlobalException(ResultCode.PASSWOR_ERROR);
@@ -61,8 +65,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         session.setUserId(user.getId());
         session.setTerminal(dto.getTerminal());
         String strJson = JSON.toJSONString(session);
-        String accessToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
-        String refreshToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getRefreshTokenExpireIn(), jwtProperties.getRefreshTokenSecret());
+        String accessToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getAccessTokenExpireIn(),
+            jwtProperties.getAccessTokenSecret());
+        String refreshToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getRefreshTokenExpireIn(),
+            jwtProperties.getRefreshTokenSecret());
         LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
@@ -79,8 +85,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         String strJson = JwtUtil.getInfo(refreshToken);
         Long userId = JwtUtil.getUserId(refreshToken);
-        String accessToken = JwtUtil.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
-        String newRefreshToken = JwtUtil.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(), jwtProperties.getRefreshTokenSecret());
+        User user = this.getById(userId);
+        if (Objects.isNull(user)) {
+            throw new GlobalException("用户不存在");
+        }
+        if (user.getIsBanned()) {
+            String tip = String.format("您的账号因'%s'被管理员封禁,请联系客服!",user.getReason());
+            throw new GlobalException(tip);
+        }
+        String accessToken =
+            JwtUtil.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
+        String newRefreshToken = JwtUtil.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(),
+            jwtProperties.getRefreshTokenSecret());
         LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());

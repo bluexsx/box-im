@@ -74,10 +74,22 @@ public class User extends Model<User> {
     @TableField("signature")
     private String signature;
     /**
-     * 密码(明文)
+     * 密码
      */
     @TableField("password")
     private String password;
+
+    /**
+     * 是否被封禁
+     */
+    @TableField("is_banned")
+    private Boolean isBanned;
+
+    /**
+     * 被封禁原因
+     */
+    @TableField("reason")
+    private String reason;
 
     /**
      * 最后登录时间

@@ -30,7 +30,7 @@
 				wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 				wsApi.onConnect(() => {
 					// 重连成功提示
-					if(this.reconnecting){
+					if (this.reconnecting) {
 						this.reconnecting = false;
 						uni.showToast({
 							title: "已重新连接",
@@ -55,6 +55,9 @@
 					} else if (cmd == 4) {
 						// 群聊消息
 						this.handleGroupMessage(msgInfo);
+					} else if (cmd == 5) {
+						// 系统消息
+						this.handleSystemMessage(msgInfo);
 					}
 				});
 				wsApi.onClose((res) => {
@@ -189,7 +192,17 @@
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
 				})
-
+			},
+			handleSystemMessage(msg) {
+				if (msg.type == enums.MESSAGE_TYPE.USER_BANNED) {
+					// 用户被封禁
+					wsApi.close(3099);
+					uni.showModal({
+						content: '您的账号已被管理员封禁，原因:' + msg.content,
+						showCancel: false,
+					})
+					this.exit();
+				}
 			},
 			insertGroupMessage(group, msg) {
 				// 群视频信令
@@ -268,7 +281,7 @@
 			},
 			exit() {
 				console.log("exit");
-				wsApi.close(1000);
+				wsApi.close(3099);
 				uni.removeStorageSync("loginInfo");
 				uni.reLaunch({
 					url: "/pages/login/login"
@@ -302,9 +315,9 @@
 					wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
 				}).catch(() => {
 					// 5s后重试
-					setTimeout(()=>{
+					setTimeout(() => {
 						this.reconnectWs();
-					},5000)
+					}, 5000)
 				})
 			},
 			reloadUserInfo() {
