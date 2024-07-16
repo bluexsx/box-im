@@ -49,18 +49,20 @@ public class RedisMQPullTask implements CommandLineRunner {
                 public void run() {
                     List<Object> datas = new LinkedList<>();
                     try {
-                        // 拉取一个批次的数据
-                        List<Object> objects = pullBatch(key, batchSize);
-                        for (Object obj : objects) {
-                            if (obj instanceof JSONObject) {
-                                JSONObject jsonObject = (JSONObject)obj;
-                                Object data = jsonObject.toJavaObject(type);
-                                consumer.onMessage(data);
-                                datas.add(data);
+                        if(consumer.isReady()){
+                            // 拉取一个批次的数据
+                            List<Object> objects = pullBatch(key, batchSize);
+                            for (Object obj : objects) {
+                                if (obj instanceof JSONObject) {
+                                    JSONObject jsonObject = (JSONObject)obj;
+                                    Object data = jsonObject.toJavaObject(type);
+                                    consumer.onMessage(data);
+                                    datas.add(data);
+                                }
                             }
-                        }
-                        if(!datas.isEmpty()){
-                            consumer.onMessage(datas);
+                            if(!datas.isEmpty()){
+                                consumer.onMessage(datas);
+                            }
                         }
                     } catch (Exception e) {
                         log.error("数据消费异常,队列:{}", key, e);
