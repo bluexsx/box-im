@@ -7,6 +7,8 @@ create table `im_user`(
     `head_image_thumb` varchar(255) default '' comment '用户头像缩略图',
     `password` varchar(255) not null comment '密码(明文)',
     `sex`  tinyint(1) default 0 comment '性别 0:男 1:女',
+    `is_banned` tinyint(1) default 0 comment '是否被封禁 0:否 1:是',
+    `reason` varchar(255) comment '被封禁原因',
     `type`  smallint default 1 comment '用户类型 1:普通用户 2:审核账户',
     `signature` varchar(1024) default '' comment '个性签名',
     `last_login_time`  datetime DEFAULT null comment '最后登录时间',
@@ -45,7 +47,8 @@ create table `im_group`(
     `head_image` varchar(255) default '' comment '群头像',
     `head_image_thumb` varchar(255) default '' comment '群头像缩略图',
     `notice` varchar(1024)  default '' comment '群公告',
-    `remark` varchar(255) default '' comment '群备注',
+    `is_banned` tinyint(1) default 0 comment '是否被封禁 0:否 1:是',
+    `reason` varchar(255) comment '被封禁原因',
     `deleted` tinyint(1) default 0   comment '是否已删除',
     `created_time` datetime default CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群';

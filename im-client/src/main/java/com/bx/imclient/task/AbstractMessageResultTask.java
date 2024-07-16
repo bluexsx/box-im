@@ -5,13 +5,13 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 
-import javax.annotation.PreDestroy;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public abstract class AbstractMessageResultTask implements CommandLineRunner {
 
-    private static final ExecutorService EXECUTOR_SERVICE = ThreadPoolExecutorFactory.getThreadPoolExecutor();
+    private static final ScheduledThreadPoolExecutor EXECUTOR_SERVICE = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 
     @Override
     public void run(String... args) {
@@ -26,19 +26,12 @@ public abstract class AbstractMessageResultTask implements CommandLineRunner {
                     log.error("任务调度异常", e);
                 }
                 if (!EXECUTOR_SERVICE.isShutdown()) {
-                    Thread.sleep(100);
-                    EXECUTOR_SERVICE.execute(this);
+                    EXECUTOR_SERVICE.schedule(this,100, TimeUnit.MICROSECONDS);
                 }
             }
         });
     }
 
-
-    @PreDestroy
-    public void destroy() {
-        log.info("{}线程任务关闭", this.getClass().getSimpleName());
-        EXECUTOR_SERVICE.shutdown();
-    }
 
     public abstract void pullMessage() throws InterruptedException;
 }
