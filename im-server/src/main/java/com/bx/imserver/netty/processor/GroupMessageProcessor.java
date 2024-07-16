@@ -13,10 +13,10 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -33,7 +33,7 @@ public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> 
         for (IMUserInfo receiver : receivers) {
             try {
                 ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiver.getId(), receiver.getTerminal());
-                if (channelCtx != null) {
+                if (!Objects.isNull(channelCtx)) {
                     // 推送消息到用户
                     IMSendInfo sendInfo = new IMSendInfo();
                     sendInfo.setCmd(IMCmdType.GROUP_MESSAGE.code());

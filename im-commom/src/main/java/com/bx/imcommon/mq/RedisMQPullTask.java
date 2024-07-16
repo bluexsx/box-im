@@ -1,18 +1,12 @@
 package com.bx.imcommon.mq;
 
 import com.alibaba.fastjson.JSONObject;
-
 import com.bx.imcommon.util.ThreadPoolExecutorFactory;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -44,7 +38,7 @@ public class RedisMQPullTask implements CommandLineRunner {
         consumers.forEach((consumer -> {
             // 注解参数
             RedisMQListener annotation = consumer.getClass().getAnnotation(RedisMQListener.class);
-            String key = annotation.queue();
+            String key = consumer.generateKey();
             int batchSize = annotation.batchSize();
             int period = annotation.period();
             // 获取泛型类型

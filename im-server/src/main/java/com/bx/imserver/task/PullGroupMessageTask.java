@@ -23,7 +23,7 @@ public class PullGroupMessageTask extends AbstractPullMessageTask {
 
     @Override
     public void pullMessage() {
-        // 从redis拉取未读消息
+        // 从redis拉取消息
         String key = String.join(":", IMRedisKey.IM_MESSAGE_GROUP_QUEUE, IMServerGroup.serverId + "");
         JSONObject jsonObject = (JSONObject) redisTemplate.opsForList().leftPop(key);
         while (!Objects.isNull(jsonObject)) {
