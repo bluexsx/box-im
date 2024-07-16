@@ -268,7 +268,7 @@
 			},
 			exit() {
 				console.log("exit");
-				wsApi.close(1000);
+				wsApi.close(3099);
 				uni.removeStorageSync("loginInfo");
 				uni.reLaunch({
 					url: "/pages/login/login"
