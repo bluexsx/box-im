@@ -1,6 +1,5 @@
 package com.bx.implatform.service;
 
-import com.bx.implatform.config.WebrtcConfig;
 import com.bx.implatform.dto.*;
 import com.bx.implatform.vo.WebrtcGroupInfoVO;
 

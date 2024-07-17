@@ -7,7 +7,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/box-im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     username: root
     password: root
@@ -22,12 +22,13 @@ spring:
       max-request-size: 50MB
 
 mybatis-plus:
+  global-config:
+    db-config:
+      id-type: AUTO # ID自增
   configuration:
-    # 是否开启自动驼峰命名规则
-    map-underscore-to-camel-case: false
+    map-underscore-to-camel-case: true  #开启自动驼峰命名规则
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  mapper-locations:
-    - classpath*:mapper/*.xml
+
 minio:
   endpoint: http://127.0.0.1:9001 #内网地址
   public: http://127.0.0.1:9001  #外网访问地址

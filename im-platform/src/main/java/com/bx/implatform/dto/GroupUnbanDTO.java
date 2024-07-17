@@ -1,7 +1,6 @@
 package com.bx.implatform.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -10,10 +9,10 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-@ApiModel(description = "群组解锁")
+@Schema(description = "群组解锁")
 public class GroupUnbanDTO {
 
-    @ApiModelProperty(value = "群组id")
+    @Schema(description = "群组id")
     private Long id;
 
 }

@@ -1,9 +1,5 @@
 package com.bx.implatform.service;
 
-import com.bx.implatform.config.ICEServer;
-
-import java.util.List;
-
 /**
  * webrtc 通信服务
  *

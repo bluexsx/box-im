@@ -1,14 +1,9 @@
 package com.bx.implatform.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -20,93 +15,78 @@ import java.util.Date;
  * @since 2022-10-01
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @TableName("im_user")
-public class User extends Model<User> {
-
-    private static final long serialVersionUID = 1L;
+public class User {
 
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId
     private Long id;
 
     /**
      * 用户名
      */
-    @TableField("user_name")
     private String userName;
 
     /**
-     * 用户名
+     * 用户昵称
      */
-    @TableField("nick_name")
     private String nickName;
 
     /**
-     * 性别
+     * 用户头像
      */
-    @TableField("sex")
-    private Integer sex;
-
-    /**
-     * 头像
-     */
-    @TableField("head_image")
     private String headImage;
 
     /**
-     * 头像缩略图
+     * 用户头像缩略图
      */
-    @TableField("head_image_thumb")
     private String headImageThumb;
 
     /**
-     * 用户类型  1:普通用户 2:审核专用账户
+     * 密码(明文)
      */
-    @TableField("type")
-    private Integer type;
+    private String password;
+
+    /**
+     * 性别 0:男 1::女
+     */
+    private Integer sex;
 
     /**
      * 个性签名
      */
-    @TableField("signature")
     private String signature;
-    /**
-     * 密码
-     */
-    @TableField("password")
-    private String password;
 
     /**
-     * 是否被封禁
+     * 账号是否被封禁
      */
-    @TableField("is_banned")
     private Boolean isBanned;
 
     /**
-     * 被封禁原因
+     * 账号被封禁原因
      */
-    @TableField("reason")
     private String reason;
 
     /**
      * 最后登录时间
      */
-    @TableField("last_login_time")
     private Date lastLoginTime;
 
     /**
-     * 创建时间
+     * 创建时间(注册时间)
      */
-    @TableField("created_time")
     private Date createdTime;
 
+    /**
+     *  账号类型 1:普通用户 2:wx小程序审核账户
+     */
+    private Integer type;
 
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
-    }
+    /**
+     * 客户端id,用于uni-push推送
+     */
+    private String cid;
 
 }

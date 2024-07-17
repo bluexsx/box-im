@@ -1,11 +1,8 @@
 package com.bx.implatform.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author: Blue
@@ -13,17 +10,17 @@ import javax.validation.constraints.NotNull;
  * @version: 1.0
  */
 @Data
-@ApiModel("用户设备操作DTO")
+@Schema(description = "用户设备操作DTO")
 public class WebrtcGroupDeviceDTO {
 
     @NotNull(message = "群聊id不可为空")
-    @ApiModelProperty(value = "群聊id")
+    @Schema(description = "群聊id")
     private Long groupId;
 
-    @ApiModelProperty(value = "是否开启摄像头")
+    @Schema(description = "是否开启摄像头")
     private Boolean isCamera;
 
-    @ApiModelProperty(value = "是否开启麦克风")
+    @Schema(description = "是否开启麦克风")
     private Boolean isMicroPhone;
 
 }

@@ -1,7 +1,7 @@
 package com.bx.implatform.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -10,12 +10,12 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-@ApiModel(description = "群组封禁")
+@Schema(description = "群组封禁")
 public class GroupBanDTO {
 
-    @ApiModelProperty(value = "群组id")
+    @Schema(description = "群组id")
     private Long id;
 
-    @ApiModelProperty(value = "封禁原因")
+    @Schema(description = "封禁原因")
     private String reason;
 }

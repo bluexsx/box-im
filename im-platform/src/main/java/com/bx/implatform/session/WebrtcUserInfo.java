@@ -1,7 +1,6 @@
 package com.bx.implatform.session;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -10,20 +9,20 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-@ApiModel("用户信息")
+@Schema(description = "用户信息")
 public class WebrtcUserInfo {
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long id;
 
-    @ApiModelProperty(value = "用户昵称")
+    @Schema(description = "用户昵称")
     private String nickName;
 
-    @ApiModelProperty(value = "用户头像")
+    @Schema(description = "用户头像")
     private String headImage;
 
-    @ApiModelProperty(value = "是否开启摄像头")
+    @Schema(description = "是否开启摄像头")
     private Boolean isCamera;
 
-    @ApiModelProperty(value = "是否开启麦克风")
+    @Schema(description = "是否开启麦克风")
     private Boolean isMicroPhone;
 }

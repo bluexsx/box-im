@@ -1,6 +1,5 @@
 package com.bx.imcommon.mq;
 
-import cn.hutool.core.util.StrUtil;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;

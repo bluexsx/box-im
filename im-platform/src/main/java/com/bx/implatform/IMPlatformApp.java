@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
@@ -14,7 +13,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy(exposeProxy = true)
 @ComponentScan(basePackages = {"com.bx"})
 @MapperScan(basePackages = {"com.bx.implatform.mapper"})
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})// 禁用secrity
+@SpringBootApplication
 public class IMPlatformApp {
 
     public static void main(String[] args) {

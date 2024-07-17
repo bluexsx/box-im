@@ -1,7 +1,6 @@
 package com.bx.implatform.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -10,13 +9,13 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-@ApiModel("用户锁定DTO")
+@Schema(description = "用户锁定DTO")
 public class UserBanDTO {
 
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long id;
 
-    @ApiModelProperty(value = "锁定原因")
+    @Schema(description = "锁定原因")
     private String reason;
 
 }

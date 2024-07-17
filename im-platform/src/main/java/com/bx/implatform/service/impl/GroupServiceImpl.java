@@ -18,7 +18,10 @@ import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.GroupMapper;
 import com.bx.implatform.mapper.GroupMessageMapper;
-import com.bx.implatform.service.*;
+import com.bx.implatform.service.IFriendService;
+import com.bx.implatform.service.IGroupMemberService;
+import com.bx.implatform.service.IGroupService;
+import com.bx.implatform.service.IUserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -40,7 +43,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
+@CacheConfig(cacheManager = "cacheManager",cacheNames = RedisKey.IM_CACHE_GROUP)
 @Service
 @RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
