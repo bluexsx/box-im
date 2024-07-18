@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.util.Properties;
 
 /**
- * @author: 谢绍许
+ * @author: Blue
  * @date: 2024-07-16
  * @version: 1.0
  */

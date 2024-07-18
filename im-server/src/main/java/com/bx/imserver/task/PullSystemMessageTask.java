@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * @author: 谢绍许
+ * @author: Blue
  * @date: 2024-07-16
  * @version: 1.0
  */
