@@ -30,37 +30,37 @@ public class PrivateMessageController {
 
     @DeleteMapping("/recall/{id}")
     @Operation(summary = "撤回消息", description = "撤回私聊消息")
-    public Result<Long> recallMessage(@NotNull(message = "消息id不能为空") @PathVariable("id") Long id) {
+    public Result<Long> recallMessage(@NotNull(message = "消息id不能为空") @PathVariable Long id) {
         privateMessageService.recallMessage(id);
         return ResultUtils.success();
     }
 
     @GetMapping("/pullOfflineMessage")
     @Operation(summary = "拉取离线消息", description = "拉取离线消息,消息将通过webscoket异步推送")
-    public Result pullOfflineMessage(@RequestParam("minId") Long minId) {
+    public Result pullOfflineMessage(@RequestParam Long minId) {
         privateMessageService.pullOfflineMessage(minId);
         return ResultUtils.success();
     }
 
     @PutMapping("/readed")
     @Operation(summary = "消息已读", description = "将会话中接收的消息状态置为已读")
-    public Result readedMessage(@RequestParam("friendId") Long friendId) {
+    public Result readedMessage(@RequestParam Long friendId) {
         privateMessageService.readedMessage(friendId);
         return ResultUtils.success();
     }
 
     @GetMapping("/maxReadedId")
     @Operation(summary = "获取最大已读消息的id", description = "获取某个会话中已读消息的最大id")
-    public Result<Long> getMaxReadedId(@RequestParam("friendId") Long friendId) {
+    public Result<Long> getMaxReadedId(@RequestParam Long friendId) {
         return ResultUtils.success(privateMessageService.getMaxReadedId(friendId));
     }
 
     @GetMapping("/history")
     @Operation(summary = "查询聊天记录", description = "查询聊天记录")
     public Result<List<PrivateMessageVO>> recallMessage(
-        @NotNull(message = "好友id不能为空") @RequestParam("friendId") Long friendId,
-        @NotNull(message = "页码不能为空") @RequestParam("page") Long page,
-        @NotNull(message = "size不能为空") @RequestParam("size") Long size) {
+        @NotNull(message = "好友id不能为空") @RequestParam Long friendId,
+        @NotNull(message = "页码不能为空") @RequestParam Long page,
+        @NotNull(message = "size不能为空") @RequestParam Long size) {
         return ResultUtils.success(privateMessageService.findHistoryMessage(friendId, page, size));
     }
 

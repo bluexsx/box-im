@@ -20,7 +20,7 @@ public class WebrtcPrivateController {
     @OnlineCheck
     @Operation(summary = "呼叫视频通话")
     @PostMapping("/call")
-    public Result call(@RequestParam("uid") Long uid, @RequestParam(name = "mode", defaultValue = "video") String mode,
+    public Result call(@RequestParam Long uid, @RequestParam(defaultValue = "video") String mode,
         @RequestBody String offer) {
         webrtcPrivateService.call(uid, mode, offer);
         return ResultUtils.success();
@@ -28,49 +28,49 @@ public class WebrtcPrivateController {
 
     @Operation(summary = "接受视频通话")
     @PostMapping("/accept")
-    public Result accept(@RequestParam("uid") Long uid, @RequestBody String answer) {
+    public Result accept(@RequestParam Long uid, @RequestBody String answer) {
         webrtcPrivateService.accept(uid, answer);
         return ResultUtils.success();
     }
 
     @Operation(summary = "拒绝视频通话")
     @PostMapping("/reject")
-    public Result reject(@RequestParam("uid") Long uid) {
+    public Result reject(@RequestParam Long uid) {
         webrtcPrivateService.reject(uid);
         return ResultUtils.success();
     }
 
     @Operation(summary = "取消呼叫")
     @PostMapping("/cancel")
-    public Result cancel(@RequestParam("uid") Long uid) {
+    public Result cancel(@RequestParam Long uid) {
         webrtcPrivateService.cancel(uid);
         return ResultUtils.success();
     }
 
     @Operation(summary = "呼叫失败")
     @PostMapping("/failed")
-    public Result failed(@RequestParam("uid") Long uid, @RequestParam String reason) {
+    public Result failed(@RequestParam Long uid, @RequestParam String reason) {
         webrtcPrivateService.failed(uid, reason);
         return ResultUtils.success();
     }
 
     @Operation(summary = "挂断")
     @PostMapping("/handup")
-    public Result handup(@RequestParam("uid") Long uid) {
+    public Result handup(@RequestParam Long uid) {
         webrtcPrivateService.handup(uid);
         return ResultUtils.success();
     }
 
     @PostMapping("/candidate")
     @Operation(summary = "同步candidate")
-    public Result candidate(@RequestParam("uid") Long uid, @RequestBody String candidate) {
+    public Result candidate(@RequestParam Long uid, @RequestBody String candidate) {
         webrtcPrivateService.candidate(uid, candidate);
         return ResultUtils.success();
     }
 
     @Operation(summary = "获取通话信息")
     @PostMapping("/heartbeat")
-    public Result heartbeat(@RequestParam("uid") Long uid) {
+    public Result heartbeat(@RequestParam Long uid) {
         webrtcPrivateService.heartbeat(uid);
         return ResultUtils.success();
     }

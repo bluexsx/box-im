@@ -14,7 +14,6 @@ import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.*;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
-import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.GroupMapper;
 import com.bx.implatform.mapper.GroupMessageMapper;
@@ -43,9 +42,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@CacheConfig(cacheManager = "cacheManager",cacheNames = RedisKey.IM_CACHE_GROUP)
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
     private final IUserService userService;
     private final IGroupMemberService groupMemberService;
@@ -84,7 +83,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public GroupVO modifyGroup(GroupVO vo) {
         UserSession session = SessionContext.getSession();
         // 校验是不是群主，只有群主能改信息
-        Group group = this.getById(vo.getId());
+        Group group = this.getAndCheckById(vo.getId());
         // 群主有权修改群基本信息
         if (group.getOwnerId().equals(session.getUserId())) {
             group = BeanUtils.copyProperties(vo, Group.class);
@@ -93,7 +92,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 更新成员信息
         GroupMember member = groupMemberService.findByGroupAndUserId(vo.getId(), session.getUserId());
         if (Objects.isNull(member) || member.getQuit()) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您不是群聊的成员");
+            throw new GlobalException( "您不是群聊的成员");
         }
         member.setAliasName(StringUtils.isEmpty(vo.getAliasName()) ? session.getNickName() : vo.getAliasName());
         member.setRemark(StringUtils.isEmpty(vo.getRemark()) ? Objects.requireNonNull(group).getName() : vo.getRemark());
@@ -109,7 +108,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         UserSession session = SessionContext.getSession();
         Group group = this.getById(groupId);
         if (!group.getOwnerId().equals(session.getUserId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "只有群主才有权限解除群聊");
+            throw new GlobalException("只有群主才有权限解除群聊");
         }
         // 群聊用户id
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(groupId);
@@ -131,7 +130,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         Long userId = SessionContext.getSession().getUserId();
         Group group = this.getById(groupId);
         if (group.getOwnerId().equals(userId)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您是群主，不可退出群聊");
+            throw new GlobalException( "您是群主，不可退出群聊");
         }
         // 删除群聊成员
         groupMemberService.removeByGroupAndUserId(groupId, userId);
@@ -146,12 +145,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public void kickGroup(Long groupId, Long userId) {
         UserSession session = SessionContext.getSession();
-        Group group = this.getById(groupId);
+        Group group = this.getAndCheckById(groupId);
         if (!group.getOwnerId().equals(session.getUserId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您不是群主，没有权限踢人");
+            throw new GlobalException( "您不是群主，没有权限踢人");
         }
         if (userId.equals(session.getUserId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "亲，不能移除自己哟");
+            throw new GlobalException( "亲，不能移除自己哟");
         }
         // 删除群聊成员
         groupMemberService.removeByGroupAndUserId(groupId, userId);
@@ -168,11 +167,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         UserSession session = SessionContext.getSession();
         Group group = super.getById(groupId);
         if (Objects.isNull(group)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群组不存在");
+            throw new GlobalException( "群组不存在");
         }
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId, session.getUserId());
         if (Objects.isNull(member)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您未加入群聊");
+            throw new GlobalException( "您未加入群聊");
         }
         GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
         vo.setAliasName(member.getAliasName());
@@ -183,13 +182,16 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
     @Cacheable(key = "#groupId")
     @Override
-    public Group getById(Long groupId) {
+    public Group getAndCheckById(Long groupId) {
         Group group = super.getById(groupId);
         if (Objects.isNull(group)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群组不存在");
+            throw new GlobalException( "群组不存在");
         }
         if (group.getDeleted()) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群组'" + group.getName() + "'已解散");
+            throw new GlobalException( "群组'" + group.getName() + "'已解散");
+        }
+        if (group.getIsBanned()) {
+            throw new GlobalException( "群组'" + group.getName() + "'已被封禁,原因:"+group.getReason());
         }
         return group;
     }
@@ -223,26 +225,23 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public void invite(GroupInviteVO vo) {
         UserSession session = SessionContext.getSession();
-        Group group = this.getById(vo.getGroupId());
-        if (Objects.isNull(group)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊不存在");
-        }
+        Group group = this.getAndCheckById(vo.getGroupId());
         GroupMember member = groupMemberService.findByGroupAndUserId(vo.getGroupId(), session.getUserId());
         if (Objects.isNull(group) || member.getQuit()) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您不在群聊中,邀请失败");
+            throw new GlobalException("您不在群聊中,邀请失败");
         }
         // 群聊人数校验
         List<GroupMember> members = groupMemberService.findByGroupId(vo.getGroupId());
         long size = members.stream().filter(m -> !m.getQuit()).count();
         if (vo.getFriendIds().size() + size > Constant.MAX_GROUP_MEMBER) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "群聊人数不能大于" + Constant.MAX_GROUP_MEMBER + "人");
+            throw new GlobalException("群聊人数不能大于" + Constant.MAX_GROUP_MEMBER + "人");
         }
         // 找出好友信息
         List<Friend> friends = friendsService.findFriendByUserId(session.getUserId());
         List<Friend> friendsList = vo.getFriendIds().stream().map(id -> friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get())
                 .collect(Collectors.toList());
         if (friendsList.size() != vo.getFriendIds().size()) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "部分用户不是您的好友，邀请失败");
+            throw new GlobalException( "部分用户不是您的好友，邀请失败");
         }
         // 批量保存成员数据
         List<GroupMember> groupMembers = friendsList.stream().map(f -> {

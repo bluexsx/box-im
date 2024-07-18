@@ -108,7 +108,9 @@
 
 <style lang="scss" >
 	.setting {
-		
+		.el-form {
+			padding: 30px;
+		}
 		.avatar-uploader {
 			
 			.el-upload {

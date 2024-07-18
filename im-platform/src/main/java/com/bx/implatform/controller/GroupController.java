@@ -37,14 +37,14 @@ public class GroupController {
 
     @Operation(summary = "解散群聊", description = "解散群聊")
     @DeleteMapping("/delete/{groupId}")
-    public Result deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable("groupId") Long groupId) {
+    public Result deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
         groupService.deleteGroup(groupId);
         return ResultUtils.success();
     }
 
     @Operation(summary = "查询群聊", description = "查询单个群聊信息")
     @GetMapping("/find/{groupId}")
-    public Result<GroupVO> findGroup(@NotNull(message = "群聊id不能为空") @PathVariable("groupId") Long groupId) {
+    public Result<GroupVO> findGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
         return ResultUtils.success(groupService.findById(groupId));
     }
 
@@ -64,20 +64,20 @@ public class GroupController {
     @Operation(summary = "查询群聊成员", description = "查询群聊成员")
     @GetMapping("/members/{groupId}")
     public Result<List<GroupMemberVO>> findGroupMembers(
-        @NotNull(message = "群聊id不能为空") @PathVariable("groupId") Long groupId) {
+        @NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
         return ResultUtils.success(groupService.findGroupMembers(groupId));
     }
 
     @Operation(summary = "退出群聊", description = "退出群聊")
     @DeleteMapping("/quit/{groupId}")
-    public Result quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable("groupId") Long groupId) {
+    public Result quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
         groupService.quitGroup(groupId);
         return ResultUtils.success();
     }
 
     @Operation(summary = "踢出群聊", description = "将用户踢出群聊")
     @DeleteMapping("/kick/{groupId}")
-    public Result kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable("groupId") Long groupId,
+    public Result kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,
         @NotNull(message = "用户id不能为空") @RequestParam Long userId) {
         groupService.kickGroup(groupId, userId);
         return ResultUtils.success();

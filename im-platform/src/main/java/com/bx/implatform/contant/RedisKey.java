@@ -32,7 +32,7 @@ public final class RedisKey {
     /**
      * 群聊解封消息队列
      */
-    public static final String IM_QUEUE_GROUP_UNBAN = "im:queue:user:unban";
+    public static final String IM_QUEUE_GROUP_UNBAN = "im:queue:group:unban";
 
 
     /**

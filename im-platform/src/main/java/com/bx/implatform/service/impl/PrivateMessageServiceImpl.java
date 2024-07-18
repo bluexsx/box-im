@@ -49,7 +49,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         UserSession session = SessionContext.getSession();
         Boolean isFriends = friendService.isFriend(session.getUserId(), dto.getRecvId());
         if (Boolean.FALSE.equals(isFriends)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不是对方好友，无法发送消息");
+            throw new GlobalException("您已不是对方好友，无法发送消息");
         }
         // 保存消息
         PrivateMessage msg = BeanUtils.copyProperties(dto, PrivateMessage.class);
@@ -78,13 +78,13 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         UserSession session = SessionContext.getSession();
         PrivateMessage msg = this.getById(id);
         if (Objects.isNull(msg)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
+            throw new GlobalException("消息不存在");
         }
         if (!msg.getSendId().equals(session.getUserId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "这条消息不是由您发送,无法撤回");
+            throw new GlobalException("这条消息不是由您发送,无法撤回");
         }
         if (System.currentTimeMillis() - msg.getSendTime().getTime() > IMConstant.ALLOW_RECALL_SECOND * 1000) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息已发送超过5分钟，无法撤回");
+            throw new GlobalException("消息已发送超过5分钟，无法撤回");
         }
         // 修改消息状态
         msg.setStatus(MessageStatus.RECALL.code());
@@ -138,7 +138,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
         if(!imClient.isOnline(session.getUserId())){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "网络连接失败，无法拉取离线消息");
+            throw new GlobalException("网络连接失败，无法拉取离线消息");
         }
         // 查询用户好友列表
         List<Friend> friends = friendService.findFriendByUserId(session.getUserId());

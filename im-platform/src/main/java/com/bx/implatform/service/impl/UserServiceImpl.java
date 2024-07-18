@@ -141,11 +141,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
         if (!session.getUserId().equals(vo.getId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "不允许修改其他用户的信息!");
+            throw new GlobalException("不允许修改其他用户的信息!");
         }
         User user = this.getById(vo.getId());
         if (Objects.isNull(user)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "用户不存在");
+            throw new GlobalException("用户不存在");
         }
         // 更新好友昵称和头像
         if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {

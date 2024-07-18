@@ -68,7 +68,7 @@ public interface IGroupService extends IService<Group> {
      * @param groupId 群聊id
      * @return 群聊实体
      */
-    Group getById(Long groupId);
+    Group getAndCheckById(Long groupId);
 
     /**
      * 根据id查找群聊

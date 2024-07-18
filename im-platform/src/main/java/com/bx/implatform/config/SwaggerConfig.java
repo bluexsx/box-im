@@ -26,7 +26,7 @@ public class SwaggerConfig {
         Contact contact = new Contact();
         contact.setName("Blue");
         return new OpenAPI().info(new Info()
-            .title("盒子IM")
+            .title("盒子IM接口文档")
             .description("盒子IM业务平台服务")
             .contact(contact)
             .version("3.0")

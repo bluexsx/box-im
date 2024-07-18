@@ -30,29 +30,29 @@ public class GroupMessageController {
 
     @DeleteMapping("/recall/{id}")
     @Operation(summary = "撤回消息", description = "撤回群聊消息")
-    public Result<Long> recallMessage(@NotNull(message = "消息id不能为空") @PathVariable("id") Long id) {
+    public Result<Long> recallMessage(@NotNull(message = "消息id不能为空") @PathVariable Long id) {
         groupMessageService.recallMessage(id);
         return ResultUtils.success();
     }
 
     @GetMapping("/pullOfflineMessage")
     @Operation(summary = "拉取离线消息", description = "拉取离线消息,消息将通过webscoket异步推送")
-    public Result pullOfflineMessage(@RequestParam("minId") Long minId) {
+    public Result pullOfflineMessage(@RequestParam Long minId) {
         groupMessageService.pullOfflineMessage(minId);
         return ResultUtils.success();
     }
 
     @PutMapping("/readed")
     @Operation(summary = "消息已读", description = "将群聊中的消息状态置为已读")
-    public Result readedMessage(@RequestParam("groupId") Long groupId) {
+    public Result readedMessage(@RequestParam Long groupId) {
         groupMessageService.readedMessage(groupId);
         return ResultUtils.success();
     }
 
     @GetMapping("/findReadedUsers")
     @Operation(summary = "获取已读用户id", description = "获取消息已读用户列表")
-    public Result<List<Long>> findReadedUsers(@RequestParam("groupId") Long groupId,
-        @RequestParam("messageId") Long messageId) {
+    public Result<List<Long>> findReadedUsers(@RequestParam Long groupId,
+        @RequestParam Long messageId) {
         return ResultUtils.success(groupMessageService.findReadedUsers(groupId, messageId));
     }
 
