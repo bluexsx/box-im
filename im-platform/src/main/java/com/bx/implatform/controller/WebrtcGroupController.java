@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * @date: 2024-06-01
  * @version: 1.0
  */
-@Tag(name = "webrtc视频多人通话")
+@Tag(name = "多人通话")
 @RestController
 @RequestMapping("/webrtc/group")
 @RequiredArgsConstructor

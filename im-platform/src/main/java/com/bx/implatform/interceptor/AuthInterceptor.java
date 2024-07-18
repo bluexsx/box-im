@@ -37,7 +37,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         String strJson = JwtUtil.getInfo(token);
         UserSession userSession = JSON.parseObject(strJson, UserSession.class);
-        //验证 token
+        // 验证 token
         if (!JwtUtil.checkSign(token, jwtProperties.getAccessTokenSecret())) {
             log.error("token已失效，用户:{}", userSession.getUserName());
             log.error("token:{}", token);

@@ -13,7 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "用户登录和注册")
+@Tag(name = "注册登陆")
 @RestController
 @RequiredArgsConstructor
 public class LoginController {

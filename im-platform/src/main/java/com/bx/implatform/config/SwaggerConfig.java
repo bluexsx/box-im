@@ -16,7 +16,7 @@ public class SwaggerConfig {
     public GroupedOpenApi userApi() {
         String[] paths = {"/**"};
         String[] packagedToMatch = {"com.bx"};
-        return GroupedOpenApi.builder().group("BoxIM")
+        return GroupedOpenApi.builder().group("IM-Platform")
             .pathsToMatch(paths)
             .packagesToScan(packagedToMatch).build();
     }
@@ -26,8 +26,8 @@ public class SwaggerConfig {
         Contact contact = new Contact();
         contact.setName("Blue");
         return new OpenAPI().info(new Info()
-            .title("Box-IM")
-            .description("盒子IM")
+            .title("盒子IM")
+            .description("盒子IM业务平台服务")
             .contact(contact)
             .version("3.0")
             .termsOfService("https://www.boxim.online")

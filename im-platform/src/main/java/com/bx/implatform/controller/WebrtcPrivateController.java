@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "webrtc视频单人通话")
+@Tag(name = "单人通话")
 @RestController
 @RequestMapping("/webrtc/private")
 @RequiredArgsConstructor

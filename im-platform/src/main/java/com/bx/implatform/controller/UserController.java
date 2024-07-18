@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "用户")
+@Tag(name = "用户相关")
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
