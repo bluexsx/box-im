@@ -5,7 +5,7 @@ create table `im_user`(
     `nick_name` varchar(255) not null comment '用户昵称',
     `head_image` varchar(255) default '' comment '用户头像',
     `head_image_thumb` varchar(255) default '' comment '用户头像缩略图',
-    `password` varchar(255) not null comment '密码(明文)',
+    `password` varchar(255) not null comment '密码',
     `sex`  tinyint(1) default 0 comment '性别 0:男 1:女',
     `is_banned` tinyint(1) default 0 comment '是否被封禁 0:否 1:是',
     `reason` varchar(255) default ''  comment '被封禁原因',
@@ -33,8 +33,8 @@ create table `im_private_message`(
     `send_id` bigint not null  comment '发送用户id',
     `recv_id` bigint not null  comment '接收用户id',
     `content` text   comment '发送内容',
-    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 10:系统提示',
-    `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 2:撤回',
+    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 21:提示',
+    `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 2:撤回 3:已读',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_send_recv_id` (`send_id`,`recv_id`)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '私聊消息';
@@ -77,8 +77,8 @@ create table `im_group_message`(
     `at_user_ids` varchar(1024) comment '被@的用户id列表，逗号分隔',
     `receipt` tinyint DEFAULT 0  comment '是否回执消息',
     `receipt_ok` tinyint DEFAULT 0  comment '回执消息是否完成',
-    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 10:系统提示' ,
-    `status` tinyint(1) DEFAULT 0 comment '状态 0:未发出 1:已送达  2:撤回 3:已读',
+    `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 21:提示' ,
+    `status` tinyint(1) DEFAULT 0 comment '状态 0:未发出  2:撤回 ',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_group_id` (group_id)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';
