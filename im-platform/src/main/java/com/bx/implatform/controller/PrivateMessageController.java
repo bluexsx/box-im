@@ -3,7 +3,7 @@ package com.bx.implatform.controller;
 import com.bx.implatform.dto.PrivateMessageDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IPrivateMessageService;
+import com.bx.implatform.service.PrivateMessageService;
 import com.bx.implatform.vo.PrivateMessageVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PrivateMessageController {
 
-    private final IPrivateMessageService privateMessageService;
+    private final PrivateMessageService privateMessageService;
 
     @PostMapping("/send")
     @Operation(summary = "发送消息", description = "发送私聊消息")

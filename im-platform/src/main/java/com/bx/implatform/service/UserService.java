@@ -11,7 +11,7 @@ import com.bx.implatform.vo.UserVO;
 
 import java.util.List;
 
-public interface IUserService extends IService<User> {
+public interface UserService extends IService<User> {
 
     /**
      * 用户登录

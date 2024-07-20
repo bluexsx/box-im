@@ -5,7 +5,7 @@ import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IUserService;
+import com.bx.implatform.service.UserService;
 import com.bx.implatform.vo.LoginVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final IUserService userService;
+    private final UserService userService;
 
     @PostMapping("/login")
     @Operation(summary = "用户登陆", description = "用户登陆")

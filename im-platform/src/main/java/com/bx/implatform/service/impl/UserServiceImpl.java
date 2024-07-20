@@ -18,9 +18,9 @@ import com.bx.implatform.entity.User;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.UserMapper;
-import com.bx.implatform.service.IFriendService;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IUserService;
+import com.bx.implatform.service.FriendService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -39,11 +39,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final PasswordEncoder passwordEncoder;
-    private final IGroupMemberService groupMemberService;
-    private final IFriendService friendService;
+    private final GroupMemberService groupMemberService;
+    private final FriendService friendService;
     private final JwtProperties jwtProperties;
     private final IMClient imClient;
 

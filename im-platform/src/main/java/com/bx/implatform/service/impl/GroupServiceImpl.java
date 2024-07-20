@@ -17,10 +17,10 @@ import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.GroupMapper;
 import com.bx.implatform.mapper.GroupMessageMapper;
-import com.bx.implatform.service.IFriendService;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IGroupService;
-import com.bx.implatform.service.IUserService;
+import com.bx.implatform.service.FriendService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.GroupService;
+import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -45,11 +45,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP)
-public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements IGroupService {
-    private final IUserService userService;
-    private final IGroupMemberService groupMemberService;
+public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements GroupService {
+    private final UserService userService;
+    private final GroupMemberService groupMemberService;
     private final GroupMessageMapper groupMessageMapper;
-    private final IFriendService friendsService;
+    private final FriendService friendsService;
     private final IMClient imClient;
     private final RedisTemplate<String, Object> redisTemplate;
 

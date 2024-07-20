@@ -1,6 +1,5 @@
 package com.bx.implatform.task;
 
-import cn.hutool.core.util.StrUtil;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
@@ -9,13 +8,12 @@ import com.bx.imcommon.mq.RedisMQConsumer;
 import com.bx.imcommon.mq.RedisMQListener;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
-import com.bx.implatform.dto.GroupBanDTO;
 import com.bx.implatform.dto.GroupUnbanDTO;
 import com.bx.implatform.entity.GroupMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IGroupMessageService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.GroupMessageService;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.GroupMessageVO;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +36,9 @@ public class GroupUnbanConsumerTask extends RedisMQConsumer<GroupUnbanDTO> {
 
     private final IMClient imClient;
 
-    private final IGroupMessageService groupMessageService;
+    private final GroupMessageService groupMessageService;
 
-    private final IGroupMemberService groupMemberService;
+    private final GroupMemberService groupMemberService;
 
     @Override
     public void onMessage(GroupUnbanDTO dto) {

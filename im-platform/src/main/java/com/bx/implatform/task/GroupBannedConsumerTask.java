@@ -1,34 +1,25 @@
 package com.bx.implatform.task;
 
-import cn.hutool.core.util.StrUtil;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
-import com.bx.imcommon.model.IMSystemMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.mq.RedisMQConsumer;
 import com.bx.imcommon.mq.RedisMQListener;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.GroupBanDTO;
-import com.bx.implatform.dto.UserBanDTO;
-import com.bx.implatform.entity.Group;
 import com.bx.implatform.entity.GroupMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IGroupMessageService;
-import com.bx.implatform.service.IGroupService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.GroupMessageService;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.vo.GroupMessageVO;
-import com.bx.implatform.vo.SystemMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.boot.context.properties.source.ConfigurationPropertyState;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,9 +36,9 @@ public class GroupBannedConsumerTask extends RedisMQConsumer<GroupBanDTO> {
 
     private final IMClient imClient;
 
-    private final IGroupMessageService groupMessageService;
+    private final GroupMessageService groupMessageService;
 
-    private final IGroupMemberService groupMemberService;
+    private final GroupMemberService groupMemberService;
 
     @Override
     public void onMessage(GroupBanDTO dto) {

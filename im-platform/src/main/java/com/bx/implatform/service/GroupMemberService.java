@@ -5,7 +5,7 @@ import com.bx.implatform.entity.GroupMember;
 
 import java.util.List;
 
-public interface IGroupMemberService extends IService<GroupMember> {
+public interface GroupMemberService extends IService<GroupMember> {
 
     /**
      * 根据群聊id和用户id查询群聊成员

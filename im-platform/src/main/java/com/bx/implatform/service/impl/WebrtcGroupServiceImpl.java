@@ -15,10 +15,10 @@ import com.bx.implatform.entity.GroupMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IGroupMessageService;
-import com.bx.implatform.service.IGroupService;
-import com.bx.implatform.service.IWebrtcGroupService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.GroupMessageService;
+import com.bx.implatform.service.GroupService;
+import com.bx.implatform.service.WebrtcGroupService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcGroupSession;
@@ -47,10 +47,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WebrtcGroupServiceImpl implements IWebrtcGroupService {
-    private final IGroupService groupService;
-    private final IGroupMemberService groupMemberService;
-    private final IGroupMessageService groupMessageService;
+public class WebrtcGroupServiceImpl implements WebrtcGroupService {
+    private final GroupService groupService;
+    private final GroupMemberService groupMemberService;
+    private final GroupMessageService groupMessageService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final IMClient imClient;
     private final UserStateUtils userStateUtils;

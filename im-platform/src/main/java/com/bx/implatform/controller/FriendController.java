@@ -3,7 +3,7 @@ package com.bx.implatform.controller;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IFriendService;
+import com.bx.implatform.service.FriendService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.FriendVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FriendController {
 
-    private final IFriendService friendService;
+    private final FriendService friendService;
 
     @GetMapping("/list")
     @Operation(summary = "好友列表", description = "获取好友列表")

@@ -3,7 +3,7 @@ package com.bx.implatform.controller;
 import com.bx.implatform.annotation.OnlineCheck;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IWebrtcPrivateService;
+import com.bx.implatform.service.WebrtcPrivateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WebrtcPrivateController {
 
-    private final IWebrtcPrivateService webrtcPrivateService;
+    private final WebrtcPrivateService webrtcPrivateService;
 
     @OnlineCheck
     @Operation(summary = "呼叫视频通话")

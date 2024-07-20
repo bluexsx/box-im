@@ -7,11 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.User;
-import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FriendMapper;
 import com.bx.implatform.mapper.UserMapper;
-import com.bx.implatform.service.IFriendService;
+import com.bx.implatform.service.FriendService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.vo.FriendVO;
@@ -31,7 +30,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_FRIEND)
-public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements IFriendService {
+public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements FriendService {
 
     private final UserMapper userMapper;
 

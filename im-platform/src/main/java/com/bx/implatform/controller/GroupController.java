@@ -2,7 +2,7 @@ package com.bx.implatform.controller;
 
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IGroupService;
+import com.bx.implatform.service.GroupService;
 import com.bx.implatform.vo.GroupInviteVO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GroupController {
 
-    private final IGroupService groupService;
+    private final GroupService groupService;
 
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")

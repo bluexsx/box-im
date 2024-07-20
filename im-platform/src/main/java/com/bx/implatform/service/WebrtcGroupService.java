@@ -3,7 +3,7 @@ package com.bx.implatform.service;
 import com.bx.implatform.dto.*;
 import com.bx.implatform.vo.WebrtcGroupInfoVO;
 
-public interface IWebrtcGroupService {
+public interface WebrtcGroupService {
 
     /**
      * 发起通话

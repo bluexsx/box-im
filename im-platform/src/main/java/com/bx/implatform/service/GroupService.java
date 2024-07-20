@@ -8,7 +8,7 @@ import com.bx.implatform.vo.GroupVO;
 
 import java.util.List;
 
-public interface IGroupService extends IService<Group> {
+public interface GroupService extends IService<Group> {
 
     /**
      * 创建新群聊

@@ -3,7 +3,7 @@ package com.bx.implatform.controller;
 import com.bx.implatform.entity.User;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IUserService;
+import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final IUserService userService;
+    private final UserService userService;
 
     @GetMapping("/terminal/online")
     @Operation(summary = "判断用户哪个终端在线", description = "返回在线的用户id的终端集合")

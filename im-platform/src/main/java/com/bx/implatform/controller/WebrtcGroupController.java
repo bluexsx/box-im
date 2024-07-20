@@ -3,7 +3,7 @@ package com.bx.implatform.controller;
 import com.bx.implatform.dto.*;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
-import com.bx.implatform.service.IWebrtcGroupService;
+import com.bx.implatform.service.WebrtcGroupService;
 import com.bx.implatform.vo.WebrtcGroupInfoVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WebrtcGroupController {
 
-    private final IWebrtcGroupService webrtcGroupService;
+    private final WebrtcGroupService webrtcGroupService;
 
     @Operation(summary = "发起群视频通话")
     @PostMapping("/setup")

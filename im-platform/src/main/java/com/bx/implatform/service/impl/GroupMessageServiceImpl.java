@@ -23,9 +23,9 @@ import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.GroupMessageMapper;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IGroupMessageService;
-import com.bx.implatform.service.IGroupService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.GroupMessageService;
+import com.bx.implatform.service.GroupService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -46,9 +46,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, GroupMessage> implements IGroupMessageService {
-    private final IGroupService groupService;
-    private final IGroupMemberService groupMemberService;
+public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, GroupMessage> implements
+    GroupMessageService {
+    private final GroupService groupService;
+    private final GroupMemberService groupMemberService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final IMClient imClient;
     private final SensitiveFilterUtil sensitiveFilterUtil;

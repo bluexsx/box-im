@@ -7,7 +7,7 @@ import com.bx.implatform.vo.GroupMessageVO;
 
 import java.util.List;
 
-public interface IGroupMessageService extends IService<GroupMessage> {
+public interface GroupMessageService extends IService<GroupMessage> {
 
     /**
      * 发送群聊消息(高并发接口，查询mysql接口都要进行缓存)

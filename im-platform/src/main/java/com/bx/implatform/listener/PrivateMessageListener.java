@@ -9,7 +9,7 @@ import com.bx.imcommon.enums.IMSendCode;
 import com.bx.imcommon.model.IMSendResult;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
-import com.bx.implatform.service.IPrivateMessageService;
+import com.bx.implatform.service.PrivateMessageService;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class PrivateMessageListener implements MessageListener<PrivateMessageVO> {
     @Lazy
     @Autowired
-    private IPrivateMessageService privateMessageService;
+    private PrivateMessageService privateMessageService;
     @Override
     public void process(List<IMSendResult<PrivateMessageVO>> results) {
         Set<Long> messageIds = new HashSet<>();

@@ -5,7 +5,7 @@ package com.bx.implatform.service;
  *
  * @author
  */
-public interface IWebrtcPrivateService {
+public interface WebrtcPrivateService {
 
     void call(Long uid, String mode,String offer);
 
