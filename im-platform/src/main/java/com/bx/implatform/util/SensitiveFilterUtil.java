@@ -1,29 +1,30 @@
 package com.bx.implatform.util;
 
+import cn.hutool.core.util.StrUtil;
+import com.bx.imcommon.util.ThreadPoolExecutorFactory;
+import com.bx.implatform.service.SensitiveWordService;
 import jakarta.annotation.PostConstruct;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 敏感词过滤器——SensitiveFilter
  *
  * @author Andrews
  * @date 2023/12/4 11:12
- * @return null
  */
 @Slf4j
 @Component
-@NoArgsConstructor
+@RequiredArgsConstructor
 public final class SensitiveFilterUtil {
 
     /**
@@ -37,11 +38,18 @@ public final class SensitiveFilterUtil {
     private static final TrieNode ROOT_NODE = new TrieNode();
 
     /**
+     * 线程池
+     */
+    private static final ScheduledThreadPoolExecutor EXECUTOR_SERVICE =
+        ThreadPoolExecutorFactory.getThreadPoolExecutor();
+
+    private final SensitiveWordService sensitiveWordService;
+
+    /**
      * 1、 前缀树  前缀树某一个节点
      *
      * @author NXY
      * @date 2023/12/4 11:17
-     * @return null
      */
     private static class TrieNode {
         // 关键词结束标识
@@ -79,18 +87,16 @@ public final class SensitiveFilterUtil {
      */
     @PostConstruct
     public void init() {
-        try {
-            // 类加载器
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String keyword;
-            while ((keyword = reader.readLine()) != null) {
-                // 添加到前缀树
-                this.addKeyword(keyword);
-            }
-        } catch (IOException e) {
-            log.error("加载敏感词文件失败: " + e.getMessage());
-        }
+        // 每120s装载一次敏感词
+        EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
+            List<String> keywords = sensitiveWordService.findAllEnabledWords();
+            keywords.forEach(keyword->{
+                if(StrUtil.isNotEmpty(keyword)){
+                    // 添加到前缀树
+                    addKeyword(keyword);
+                }
+            });
+        },0,120, TimeUnit.SECONDS);
     }
 
     /**
@@ -189,10 +195,9 @@ public final class SensitiveFilterUtil {
     /**
      * 判断是否为符号 ——特殊符号
      *
-     * @param c
-     * @return boolean
      * @author NXY
      * @date 2023/12/4 11:17
+     * @return boolean
      */
     private boolean isSymbol(Character c) {
         // 0x2E80~0x9FFF 是东亚文字范围
