@@ -1,5 +1,5 @@
 use `box-im`;
-create table `im_user`(
+create table if not exist `im_user`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_name` varchar(255) not null comment '用户名',
     `nick_name` varchar(255) not null comment '用户昵称',
@@ -82,3 +82,11 @@ create table `im_group_message`(
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_group_id` (group_id)
 )ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';
+
+create table `im_sensitive_word`(
+    `id` bigint not null auto_increment primary key comment 'id',
+    `content` varchar(64) not null  comment '敏感词内容',
+    `enabled` tinyint DEFAULT 0 COMMENT '是否启用 0:未启用 1:启用',
+    `creator` bigint DEFAULT NULL COMMENT '创建者',
+    `create_time` datetime  DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+)ENGINE=InnoDB CHARSET=utf8mb3 comment '敏感词';
