@@ -21,7 +21,7 @@ public class PrivateMessageDTO {
     private String content;
 
     @NotNull(message = "消息类型不可为空")
-    @Schema(description = "消息类型")
+    @Schema(description = "消息类型 0:文字 1:图片 2:文件 3:语音 4:视频")
     private Integer type;
 
 }

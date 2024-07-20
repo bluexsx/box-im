@@ -15,7 +15,7 @@ public interface GroupMessageService extends IService<GroupMessage> {
      * @param dto 群聊消息
      * @return 群聊id
      */
-    Long sendMessage(GroupMessageDTO dto);
+    GroupMessageVO sendMessage(GroupMessageDTO dto);
 
     /**
      * 撤回消息

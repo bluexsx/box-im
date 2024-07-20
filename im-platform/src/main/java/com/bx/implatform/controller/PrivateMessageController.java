@@ -24,7 +24,7 @@ public class PrivateMessageController {
 
     @PostMapping("/send")
     @Operation(summary = "发送消息", description = "发送私聊消息")
-    public Result<Long> sendMessage(@Valid @RequestBody PrivateMessageDTO vo) {
+    public Result<PrivateMessageVO> sendMessage(@Valid @RequestBody PrivateMessageDTO vo) {
         return ResultUtils.success(privateMessageService.sendMessage(vo));
     }
 

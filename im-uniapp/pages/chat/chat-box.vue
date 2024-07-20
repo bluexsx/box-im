@@ -157,14 +157,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
-					msgInfo.id = id;
-					msgInfo.sendTime = new Date().getTime();
-					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
-					msgInfo.selfSend = true;
-					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
-					msgInfo.readedCount = 0;
-					this.$store.commit("insertMessage", msgInfo);
+				}).then((m) => {
+					m.selfSend = true;
+					this.$store.commit("insertMessage", m);
 					// 会话置顶
 					this.moveChatToTop();
 					// 滚动到底部
@@ -289,14 +284,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
-					msgInfo.id = id;
-					msgInfo.sendTime = new Date().getTime();
-					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
-					msgInfo.selfSend = true;
-					msgInfo.readedCount = 0,
-						msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
-					this.$store.commit("insertMessage", msgInfo);
+				}).then((m) => {
+					m.selfSend = true;
+					this.$store.commit("insertMessage", m);
 					// 会话置顶
 					this.moveChatToTop();
 					this.sendText = "";
@@ -421,9 +411,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
+				}).then((m) => {
 					msgInfo.loadStatus = 'ok';
-					msgInfo.id = id;
+					msgInfo.id = m.id;
 					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})
@@ -476,9 +466,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
+				}).then((m) => {
 					msgInfo.loadStatus = 'ok';
-					msgInfo.id = id;
+					msgInfo.id = m.id;
 					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})

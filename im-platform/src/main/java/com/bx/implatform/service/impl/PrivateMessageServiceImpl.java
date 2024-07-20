@@ -45,7 +45,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private final SensitiveFilterUtil sensitiveFilterUtil;
 
     @Override
-    public Long sendMessage(PrivateMessageDTO dto) {
+    public PrivateMessageVO sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
         Boolean isFriends = friendService.isFriend(session.getUserId(), dto.getRecvId());
         if (Boolean.FALSE.equals(isFriends)) {
@@ -57,9 +57,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msg.setStatus(MessageStatus.UNSEND.code());
         msg.setSendTime(new Date());
         this.save(msg);
-        // 过滤消息内容
-        String content = sensitiveFilterUtil.filter(dto.getContent());
-        msg.setContent(content);
+        // 过滤内容中的敏感词
+        if(MessageType.TEXT.code().equals(dto.getType())){
+            msg.setContent(sensitiveFilterUtil.filter(dto.getContent()));
+        }
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
@@ -70,7 +71,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         sendMessage.setSendResult(true);
         imClient.sendPrivateMessage(sendMessage);
         log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}", session.getUserId(), dto.getRecvId(), dto.getContent());
-        return msg.getId();
+        return msgInfo;
     }
 
     @Override

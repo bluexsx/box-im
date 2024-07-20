@@ -24,7 +24,7 @@ public class GroupMessageController {
 
     @PostMapping("/send")
     @Operation(summary = "发送群聊消息", description = "发送群聊消息")
-    public Result<Long> sendMessage(@Valid @RequestBody GroupMessageDTO vo) {
+    public Result<GroupMessageVO> sendMessage(@Valid @RequestBody GroupMessageDTO vo) {
         return ResultUtils.success(groupMessageService.sendMessage(vo));
     }
 

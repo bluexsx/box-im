@@ -15,7 +15,7 @@ public interface PrivateMessageService extends IService<PrivateMessage> {
      * @param dto 私聊消息
      * @return 消息id
      */
-    Long sendMessage(PrivateMessageDTO dto);
+    PrivateMessageVO sendMessage(PrivateMessageDTO dto);
 
 
     /**

@@ -55,7 +55,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     private final SensitiveFilterUtil sensitiveFilterUtil;
 
     @Override
-    public Long sendMessage(GroupMessageDTO dto) {
+    public GroupMessageVO sendMessage(GroupMessageDTO dto) {
         UserSession session = SessionContext.getSession();
         Group group = groupService.getAndCheckById(dto.getGroupId());
         // 是否在群聊里面
@@ -76,9 +76,10 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             msg.setAtUserIds(StrUtil.join(",", dto.getAtUserIds()));
         }
         this.save(msg);
-        // 过滤消息内容
-        String content = sensitiveFilterUtil.filter(dto.getContent());
-        msg.setContent(content);
+        // 过滤内容中的敏感词
+        if(MessageType.TEXT.code().equals(dto.getType())){
+            msg.setContent(sensitiveFilterUtil.filter(dto.getContent()));
+        }
         // 群发
         GroupMessageVO msgInfo = BeanUtils.copyProperties(msg, GroupMessageVO.class);
         msgInfo.setAtUserIds(dto.getAtUserIds());
@@ -89,7 +90,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         sendMessage.setData(msgInfo);
         imClient.sendGroupMessage(sendMessage);
         log.info("发送群聊消息，发送id:{},群聊id:{},内容:{}", session.getUserId(), dto.getGroupId(), dto.getContent());
-        return msg.getId();
+        return msgInfo;
     }
 
     @Override
