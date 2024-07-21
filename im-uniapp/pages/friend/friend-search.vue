@@ -1,6 +1,6 @@
 <template>
 	<view class="page friend-search" >
-		<view>
+		<view class="search-bar">
 		  	<uni-search-bar  v-model="searchText"  :focus="true"  @cancel="onCancel()" placeholder="输入好友昵称搜索"></uni-search-bar>
 		</view>
 		<view class="friend-items">

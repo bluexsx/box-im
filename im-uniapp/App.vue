@@ -351,8 +351,9 @@
 </script>
 
 <style lang="scss">
+	@import "@/uni_modules/uview-plus/index.scss";
 	@import url('./static/icon/iconfont.css');
-
+	
 	.tab-page {
 		// #ifdef H5
 		height: calc(100vh - 46px - 50px); // h5平台100vh是包含了顶部和底部，需要减去

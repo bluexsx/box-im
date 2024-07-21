@@ -42,7 +42,7 @@ public class RedisMQPullTask implements CommandLineRunner {
         consumers.forEach((consumer -> {
             // 注解参数
             RedisMQListener annotation = consumer.getClass().getAnnotation(RedisMQListener.class);
-            String key = consumer.generateKey();
+            String queue = annotation.queue();
             int batchSize = annotation.batchSize();
             int period = annotation.period();
             // 获取泛型类型
@@ -54,6 +54,7 @@ public class RedisMQPullTask implements CommandLineRunner {
                     List<Object> datas = new LinkedList<>();
                     try {
                         if(consumer.isReady()){
+                            String key = consumer.generateKey();
                             // 拉取一个批次的数据
                             List<Object> objects = pullBatch(key, batchSize);
                             for (Object obj : objects) {
@@ -69,7 +70,7 @@ public class RedisMQPullTask implements CommandLineRunner {
                             }
                         }
                     } catch (Exception e) {
-                        log.error("数据消费异常,队列:{}", key, e);
+                        log.error("数据消费异常,队列:{}", queue, e);
                     }
                     // 继续消费数据
                     if (!EXECUTOR_SERVICE.isShutdown()) {
@@ -90,7 +91,7 @@ public class RedisMQPullTask implements CommandLineRunner {
         List<Object> objects = new LinkedList<>();
         if (redisMQTemplate.isSupportBatchPull()) {
             // 版本大于6.2，支持批量拉取
-            objects = redisMQTemplate.opsForList().leftPop(key, 100);
+            objects = redisMQTemplate.opsForList().leftPop(key, batchSize);
         } else {
             // 版本小于6.2，只能逐条拉取
             Object obj = redisMQTemplate.opsForList().leftPop(key);

@@ -64,8 +64,7 @@
 		display: flex;
 		margin-bottom: 2rpx;
 		position: relative;
-		padding: 10rpx;
-		padding-left: 20rpx;
+		padding: 10rpx 20rpx;
 		align-items: center;
 		background-color: white;
 		white-space: nowrap; 

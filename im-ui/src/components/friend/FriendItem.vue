@@ -59,7 +59,7 @@
 			},
 			onSelectMenu(item) {
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
-			}
+			} 
 		},
 		computed:{
 			friend(){
@@ -78,6 +78,7 @@
 				default: true
 			}
 		}
+	
 	}
 </script>
 

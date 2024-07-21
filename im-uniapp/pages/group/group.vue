@@ -2,7 +2,7 @@
 	<view  class="tab-page group">
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar @focus="onFocusSearch" cancelButton="none" placeholder="点击搜索群聊"></uni-search-bar>
+				<uni-search-bar v-model="searchText"  cancelButton="none" placeholder="点击搜索群聊"></uni-search-bar>
 			</view>
 			<view class="nav-add" @click="onCreateNewGroup()">
 				<uni-icons type="personadd" size="30"></uni-icons>
@@ -14,7 +14,7 @@
 		<view class="group-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="group in $store.state.groupStore.groups" :key="group.id">
-					<group-item v-if="!group.quit" :group="group"></group-item>
+					<group-item v-if="!group.quit&&group.remark.startsWith(searchText)" :group="group"></group-item>
 				</view>
 			</scroll-view>
 		</view>
@@ -25,11 +25,13 @@
 	export default {
 		data() {
 			return {
-
+				searchText:""
 			}
 		},
 		methods: {
-			onFocusSearch() {},
+			onFocusSearch() {
+				
+			},
 			onCreateNewGroup() {
 				uni.navigateTo({
 					url: "/pages/group/group-edit"

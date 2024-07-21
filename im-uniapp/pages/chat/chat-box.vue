@@ -50,14 +50,14 @@
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
 						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-picture"></view>
+						<view class="tool-icon iconfont icon-picture" style="background-color:#497eed;"></view>
 					</image-upload>
 					<view class="tool-name">相册</view>
 				</view>
 				<view class="chat-tools-item">
 					<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
 						:onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-camera"></view>
+						<view class="tool-icon iconfont icon-camera" style="background-color: #7454b0;"></view>
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
@@ -65,31 +65,32 @@
 				<view class="chat-tools-item">
 					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
-						<view class="tool-icon iconfont icon-folder"></view>
+						<view class="tool-icon iconfont icon-folder" style="background-color: #c99122;"></view>
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
 		
 				<view class="chat-tools-item" @click="onRecorderInput()">
-					<view class="tool-icon iconfont icon-microphone"></view>
+					<view class="tool-icon iconfont icon-microphone" style="background-color: #a8a53f;"></view>
 					<view class="tool-name">语音消息</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
-					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
+					<view class="tool-icon iconfont icon-receipt" style="background-color: #663399;"
+						:class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
 				<!-- #ifndef MP-WEIXIN -->
 				<!-- 音视频不支持小程序 -->
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
-					<view class="tool-icon iconfont icon-video"></view>
+					<view class="tool-icon iconfont icon-video" style="background-color: #8380E7;"></view>
 					<view class="tool-name">视频通话</view>
 				</view>
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
-					<view class="tool-icon iconfont icon-call"></view>
+					<view class="tool-icon iconfont icon-call" style="background-color: #8380E7;"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
-					<view class="tool-icon iconfont icon-call"></view>
+					<view class="tool-icon iconfont icon-call" style="background-color: #8380E7;"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<!-- #endif -->
@@ -752,7 +753,7 @@
 			align-items: center;
 			height: 60rpx;
 			padding: 5px;
-			background-color: white;
+			background-color: #f8f8f8;
 			line-height: 50px;
 			font-size: 40rpx;
 			font-weight: 600;
@@ -781,7 +782,7 @@
 			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
-			background-color: #f8f8f8;
+			background-color: #f7f8fd;
 
 			.scroll-box {
 				height: 100%;
@@ -823,11 +824,12 @@
 			padding: 10rpx;
 			margin-bottom: 10rpx;
 			border: #dddddd solid 1px;
-			background-color: white;
+			background-color: #f7f8fd;
 
 			.iconfont {
-				font-size: 60rpx;
-				margin: 3rpx;
+				font-size: 68rpx;
+				margin: 6rpx;
+				color: $uni-text-color-icon;
 			}
 
 			.chat-record {
@@ -837,14 +839,13 @@
 
 			.send-text {
 				flex: 1;
-				background-color: #f8f8f8 !important;
+				background-color: white !important;
 				overflow: auto;
 				padding: 20rpx;
 				background-color: #fff;
 				border-radius: 20rpx;
 				font-size: 30rpx;
 				box-sizing: border-box;
-
 				.send-text-area {
 					width: 100%;
 				}
@@ -852,6 +853,7 @@
 
 			.btn-send {
 				margin: 5rpx;
+				background-color: $uni-text-color-icon;
 			}
 		}
 
@@ -859,7 +861,7 @@
 		.chat-tab-bar {
 			height: 500rpx;
 			padding: 20rpx;
-			background-color: whitesmoke;
+			background-color: #f8ffff;
 
 			.chat-tools {
 				display: flex;
@@ -871,13 +873,13 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-
+						
 					.tool-icon {
 						padding: 28rpx;
 						font-size: 60rpx;
-						background-color: white;
-						border-radius: 20%;
-
+						background-color: rebeccapurple;
+						border-radius: 50%;
+						color: white;
 						&.active {
 							background-color: #ddd;
 						}
@@ -886,7 +888,7 @@
 					.tool-name {
 						height: 60rpx;
 						line-height: 60rpx;
-						font-size: 25rpx;
+						font-size: 28rpx;
 					}
 				}
 			}
