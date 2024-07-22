@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 创建单例线程池
+ *
  * @author Andrews
  * @date 2023/11/30 11:12
  */
@@ -19,7 +20,8 @@ public final class ThreadPoolExecutorFactory {
      * CPU 密集型：核心线程数 = CPU核数 + 1
      * IO 密集型：核心线程数 = CPU核数 * 2
      */
-    private static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
+    private static final int CORE_POOL_SIZE =
+        Math.min(ThreadPoolExecutorFactory.MAX_IMUM_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
     /**
      * maximumPoolSize - 池中允许的最大线程数(采用LinkedBlockingQueue时没有作用)。
      */
@@ -63,19 +65,18 @@ public final class ThreadPoolExecutorFactory {
             synchronized (ThreadPoolExecutorFactory.class) {
                 if (null == threadPoolExecutor) {
                     threadPoolExecutor = new ThreadPoolExecutor(
-                            //核心线程数
-                            CORE_POOL_SIZE,
-                            //最大线程数，包含临时线程
-                            MAX_IMUM_POOL_SIZE,
-                            //临时线程的存活时间
-                            KEEP_ALIVE_TIME,
-                            //时间单位(毫秒)
-                            TimeUnit.MILLISECONDS,
-                            //等待队列
-                            new LinkedBlockingQueue<>(QUEUE_SIZE),
-                            //拒绝策略
-                            new ThreadPoolExecutor.CallerRunsPolicy()
-                    );
+                        //核心线程数
+                        CORE_POOL_SIZE,
+                        //最大线程数，包含临时线程
+                        MAX_IMUM_POOL_SIZE,
+                        //临时线程的存活时间
+                        KEEP_ALIVE_TIME,
+                        //时间单位(毫秒)
+                        TimeUnit.MILLISECONDS,
+                        //等待队列
+                        new LinkedBlockingQueue<>(QUEUE_SIZE),
+                        //拒绝策略
+                        new ThreadPoolExecutor.CallerRunsPolicy());
                 }
             }
         }
