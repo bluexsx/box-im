@@ -50,14 +50,14 @@
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
 						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-picture" style="background-color:#497eed;"></view>
+						<view class="tool-icon iconfont icon-picture" ></view>
 					</image-upload>
 					<view class="tool-name">相册</view>
 				</view>
 				<view class="chat-tools-item">
 					<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
 						:onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-camera" style="background-color: #7454b0;"></view>
+						<view class="tool-icon iconfont icon-camera" ></view>
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
@@ -65,32 +65,32 @@
 				<view class="chat-tools-item">
 					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
-						<view class="tool-icon iconfont icon-folder" style="background-color: #c99122;"></view>
+						<view class="tool-icon iconfont icon-folder" ></view>
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
 		
 				<view class="chat-tools-item" @click="onRecorderInput()">
-					<view class="tool-icon iconfont icon-microphone" style="background-color: #a8a53f;"></view>
+					<view class="tool-icon iconfont icon-microphone" ></view>
 					<view class="tool-name">语音消息</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
-					<view class="tool-icon iconfont icon-receipt" style="background-color: #663399;"
+					<view class="tool-icon iconfont icon-receipt" 
 						:class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
 				<!-- #ifndef MP-WEIXIN -->
 				<!-- 音视频不支持小程序 -->
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
-					<view class="tool-icon iconfont icon-video" style="background-color: #8380E7;"></view>
+					<view class="tool-icon iconfont icon-video" ></view>
 					<view class="tool-name">视频通话</view>
 				</view>
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
-					<view class="tool-icon iconfont icon-call" style="background-color: #8380E7;"></view>
+					<view class="tool-icon iconfont icon-call" ></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
-					<view class="tool-icon iconfont icon-call" style="background-color: #8380E7;"></view>
+					<view class="tool-icon iconfont icon-call" ></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<!-- #endif -->
@@ -829,7 +829,6 @@
 			.iconfont {
 				font-size: 68rpx;
 				margin: 6rpx;
-				color: $uni-text-color-icon;
 			}
 
 			.chat-record {
@@ -839,7 +838,6 @@
 
 			.send-text {
 				flex: 1;
-				background-color: white !important;
 				overflow: auto;
 				padding: 20rpx;
 				background-color: #fff;
@@ -853,7 +851,6 @@
 
 			.btn-send {
 				margin: 5rpx;
-				background-color: $uni-text-color-icon;
 			}
 		}
 
@@ -861,7 +858,7 @@
 		.chat-tab-bar {
 			height: 500rpx;
 			padding: 20rpx;
-			background-color: #f8ffff;
+			background-color: #f8f8f8;
 
 			.chat-tools {
 				display: flex;
@@ -877,9 +874,9 @@
 					.tool-icon {
 						padding: 28rpx;
 						font-size: 60rpx;
-						background-color: rebeccapurple;
-						border-radius: 50%;
-						color: white;
+						border-radius: 20%;
+						background-color: white;
+						color: black;
 						&.active {
 							background-color: #ddd;
 						}

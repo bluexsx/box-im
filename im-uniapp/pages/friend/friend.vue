@@ -61,7 +61,7 @@
 			isEnglish(character) {
 				return /^[A-Za-z]+$/.test(character);
 			},
-			init() {
+			refreshFriendGroup() {
 				// 按首字母分组
 				let groupMap = new Map();
 				this.friends.forEach((f) => {
@@ -103,7 +103,7 @@
 			},
 		},
 		onShow() {
-			this.init();
+			this.refreshFriendGroup();
 		}
 
 	}
@@ -141,10 +141,6 @@
 			.nav-add {
 				line-height: 56px;
 				cursor: pointer;
-				.uni-icons {
-					color: $uni-text-color-icon !important;
-				}
-				
 			}
 		}
 
