@@ -6,12 +6,17 @@
 				<view>消息接收中...</view>
 			</loading>
 		</view>
+		<view class="nav-bar">
+			<view class="nav-search">
+				<uni-search-bar radius="100" v-model="searchText" cancelButton="none" placeholder="搜索"></uni-search-bar>
+			</view>
+		</view>
 		<view class="chat-tip" v-if="!loading && chatStore.chats.length==0">
 			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
 			<view v-for="(chatPos,i) in chatsPos" :key="i">
-				<chat-item v-if="!chatStore.chats[chatPos.idx].delete" :chat="chatStore.chats[chatPos.idx]"
+				<chat-item v-if="isShowChat(chatStore.chats[chatPos.idx])" :chat="chatStore.chats[chatPos.idx]"
 					:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"
 					@longpress.native="onShowMenu($event,chatPos.idx)"></chat-item>
 			</view>
@@ -26,6 +31,7 @@
 	export default {
 		data() {
 			return {
+				searchText: "",
 				menu: {
 					show: false,
 					style: "",
@@ -33,7 +39,8 @@
 					items: [{
 							key: 'DELETE',
 							name: '删除该聊天',
-							icon: 'trash'
+							icon: 'trash',
+							color: '#e64e4e'
 						},
 						{
 							key: 'TOP',
@@ -93,6 +100,12 @@
 			},
 			moveToTop(chatIdx) {
 				this.$store.commit("moveTop", chatIdx);
+			},
+			isShowChat(chat){
+				if(chat.delete){
+					return false;
+				}
+				return !this.searchText || chat.showName.includes(this.searchText)
 			},
 			refreshUnreadBadge() {
 				if (this.unreadCount > 0) {
@@ -158,7 +171,23 @@
 		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
+		
 
+		.nav-bar {
+			padding: 2rpx 20rpx;
+			display: flex;
+			align-items: center;
+			background-color: white;
+			border-bottom: 1px solid #ddd;
+			height: 110rpx;
+			.nav-search {
+				flex: 1;
+				height: 110rpx;
+			}
+		
+			
+		}
+		
 		.chat-tip {
 			position: absolute;
 			top: 400rpx;

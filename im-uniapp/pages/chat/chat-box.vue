@@ -782,7 +782,7 @@
 			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
-			background-color: #f7f8fd;
+			background-color: white;
 
 			.scroll-box {
 				height: 100%;

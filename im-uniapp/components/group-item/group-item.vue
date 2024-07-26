@@ -41,7 +41,7 @@
 		background-color: white;
 		white-space: nowrap;
 		&:hover {
-			background-color: #eeeeee;
+			background-color: #f5f6ff;
 		}
 
 		.group-name {

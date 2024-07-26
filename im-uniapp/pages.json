@@ -18,8 +18,6 @@
 	}, {
 		"path": "pages/mine/mine"
 	}, {
-		"path": "pages/friend/friend-search"
-	}, {
 		"path": "pages/common/user-info"
 	}, {
 		"path": "pages/chat/chat-box"

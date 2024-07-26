@@ -126,7 +126,7 @@
 							style += `left:${touches.clientX}px;`;
 						}
 						this.menu.style = style;
-						// 
+						//
 						this.$nextTick(() => {
 							this.menu.show = true;
 						});
@@ -207,7 +207,8 @@
 				items.push({
 					key: 'DELETE',
 					name: '删除',
-					icon: 'trash'
+					icon: 'trash',
+					color: '#e64e4e'
 				});
 				if (this.msgInfo.selfSend && this.msgInfo.id > 0) {
 					items.push({
@@ -282,16 +283,16 @@
 						position: relative;
 						line-height: 60rpx;
 						margin-top: 10rpx;
-						padding: 10rpx 20rpx;
-						background-color: white;
-						border-radius: 10rpx;
+						padding: 8rpx 20rpx;
+						background-color: #eee;
+						border-radius: 20rpx;
 						color: #333;
 						font-size: 30rpx;
 						text-align: left;
 						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-						box-shadow: 1px 1px 1px #c0c0f0;
+				
 
 						&:after {
 							content: "";
@@ -301,7 +302,7 @@
 							width: 6rpx;
 							height: 6rpx;
 							border-style: solid dashed dashed;
-							border-color: white transparent transparent;
+							border-color: #eee transparent transparent;
 							overflow: hidden;
 							border-width: 18rpx;
 						}
@@ -460,7 +461,6 @@
 							margin-left: 10px;
 							background-color: #587ff0;
 							color: #fff;
-							box-shadow: 1px 1px 1px #ccc;
 
 							&:after {
 								left: auto;

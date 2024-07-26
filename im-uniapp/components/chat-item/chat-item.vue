@@ -1,5 +1,5 @@
 <template>
-	<view class="chat-item" :class="active?'active':''" >
+	<view class="chat-item" :class="active?'active':''">
 		<!--rich-text中的表情包会屏蔽事件，所以这里用一个遮罩层捕获点击事件 -->
 		<view class="mask" @tap="showChatBox()"></view>
 		<view class="left">
@@ -8,13 +8,16 @@
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
-				<view class="chat-name-text">{{chat.showName}}</view>
+				<view class="chat-name-text">
+					{{chat.showName}}
+					<uni-tag v-if="chat.type=='GROUP'" disabled text="群" size="mini" type="primary"></uni-tag>
+				</view>
 				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime,true)}}</view>
 			</view>
 			<view class="chat-content">
 				<view class="chat-at-text">{{atText}}</view>
 				<view class="chat-send-name" v-show="chat.sendNickName">{{chat.sendNickName+':&nbsp;'}}</view>
-				<rich-text class="chat-content-text"  :nodes="$emo.transform(chat.lastContent)"></rich-text>
+				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
 			</view>
 		</view>
 	</view>
@@ -67,22 +70,23 @@
 		padding: 10rpx 20rpx;
 		align-items: center;
 		background-color: white;
-		white-space: nowrap; 
+		white-space: nowrap;
 
 		&:hover {
-			background-color: #eeeeee;
+			background-color: #f5f6ff;
 		}
-		
+
 		&.active {
-			background-color: #eeeeee;
+			background-color: #f5f6ff;
 		}
-		
-		
+
+
 		.mask {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 		}
+
 		.left {
 			position: relative;
 			display: flex;
@@ -139,10 +143,11 @@
 				display: flex;
 				line-height: 60rpx;
 				height: 60rpx;
+
 				.chat-at-text {
 					color: #c70b0b;
 					font-size: 24rpx;
-				} 
+				}
 
 				.chat-send-name {
 					font-size: 26rpx;
@@ -153,7 +158,7 @@
 					font-size: 28rpx;
 					white-space: nowrap;
 					overflow: hidden;
-					text-overflow: ellipsis;	
+					text-overflow: ellipsis;
 				}
 			}
 		}

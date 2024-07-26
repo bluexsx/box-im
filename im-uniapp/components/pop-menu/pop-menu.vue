@@ -1,9 +1,10 @@
 <template>
-	<view class="pop-menu" @tap="onClose()" @touchmove="onClose" @contextmenu.prevent="">
+	<view>
+		<view class="pop-menu" @tap="onClose()" @contextmenu.prevent=""></view>
 		<view class="menu" :style="menuStyle">
-			<view class="menu-item" v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
-				<uni-icons :type="item.icon" size="22"></uni-icons>
-				<text> {{item.name}}</text>
+			<view class="menu-item"  v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
+				<uni-icons :type="item.icon" :style="itemStyle(item)" size="22"></uni-icons>
+				<text :style="itemStyle(item)"> {{item.name}}</text>
 			</view>
 		</view>
 	</view>
@@ -29,6 +30,12 @@
 			},
 			onClose() {
 				this.$emit("close");
+			},
+			itemStyle(item){
+				if(item.color){
+					return `color:${item.color};`
+				}
+				return `color:#4f76e6;`;
 			}
 		}
 	}
@@ -43,25 +50,30 @@
 		bottom: 0;
 		width: 100%;
 		height: 100%;
-		z-index: 9999;
-	}
+		background-color: #333;
+		z-index: 99;
+		opacity: 0.5;
 
+	}
+	
 	.menu {
 		position: fixed;
 		border: 1px solid #b4b4b4;
 		border-radius: 7px;
 		overflow: hidden;
-		box-shadow: 0px 0px 10px #ccc;
-		background-color: #eeeeee;
-
+		background-color: #f5f6ff;
+		z-index: 100;
 		.menu-item {
 			height: 25px;
+			min-width: 150rpx;
 			line-height: 25px;
 			font-size: 18px;
 			display: flex;
 			padding: 10px;
-			align-items: center;
+			justify-content: center;
 			border-bottom: 1px solid #d0d0d8;
 		}
 	}
+
+	
 </style>

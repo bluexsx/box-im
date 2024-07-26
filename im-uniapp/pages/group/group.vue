@@ -2,10 +2,10 @@
 	<view  class="tab-page group">
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar v-model="searchText"  cancelButton="none" placeholder="点击搜索群聊"></uni-search-bar>
+				<uni-search-bar v-model="searchText"  cancelButton="none" radius="100" placeholder="点击搜索群聊"></uni-search-bar>
 			</view>
 			<view class="nav-add" @click="onCreateNewGroup()">
-				<uni-icons type="personadd" size="30"></uni-icons>
+				<uni-icons type="personadd" size="35"></uni-icons>
 			</view>
 		</view>
 		<view class="group-tip" v-if="$store.state.groupStore.groups.length==0">
@@ -14,7 +14,7 @@
 		<view class="group-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="group in $store.state.groupStore.groups" :key="group.id">
-					<group-item v-if="!group.quit&&group.remark.startsWith(searchText)" :group="group"></group-item>
+					<group-item v-if="!group.quit&&group.remark.includes(searchText)" :group="group"></group-item>
 				</view>
 			</scroll-view>
 		</view>
@@ -50,7 +50,7 @@
 		flex-direction: column;
 
 		.nav-bar {
-			margin: 5rpx;
+			padding: 2rpx 10rpx;
 			display: flex;
 			align-items: center;
 			background-color: white;
@@ -60,7 +60,6 @@
 			}
 
 			.nav-add {
-				line-height: 56px;
 				cursor: pointer;
 			}
 		}

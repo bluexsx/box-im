@@ -2,7 +2,7 @@
 	<view class="tab-page friend">
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar radius="100" @focus="onFocusSearch" cancelButton="none" placeholder="点击搜索好友"></uni-search-bar>
+				<uni-search-bar radius="100" @input="onInput" cancelButton="none" placeholder="点击搜索好友"></uni-search-bar>
 			</view>
 			<view class="nav-add" @click="onAddNewFriends()">
 				<uni-icons type="personadd" size="35"></uni-icons>
@@ -34,15 +34,15 @@
 	export default {
 		data() {
 			return {
+				searchText: '',
 				friendIdx: [],
 				friendGroup: []
 			}
 		},
 		methods: {
-			onFocusSearch() {
-				uni.navigateTo({
-					url: "/pages/friend/friend-search"
-				})
+			onInput(searchText){
+				this.searchText = searchText;
+				this.refreshFriendGroup()
 			},
 			onAddNewFriends() {
 				uni.navigateTo({
@@ -66,6 +66,9 @@
 				let groupMap = new Map();
 				this.friends.forEach((f) => {
 					if (f.delete) {
+						return;
+					}
+					if(this.searchText && !f.nickName.includes(this.searchText)){
 						return;
 					}
 					let letter = this.firstLetter(f.nickName).toUpperCase();
@@ -135,11 +138,9 @@
 
 			.nav-search {
 				flex: 1;
-			
 			}
 
 			.nav-add {
-				line-height: 56px;
 				cursor: pointer;
 			}
 		}
