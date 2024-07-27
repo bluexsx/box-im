@@ -15,7 +15,7 @@
 						<view class="member-name">{{ member.aliasName}}</view>
 						
 						<view class="member-kick">
-							<button type="warn" v-show="isOwner && !isSelf(member.userId)" size="mini"
+							<button type="warn" plain v-show="isOwner && !isSelf(member.userId)" size="mini"
 								@click.stop="onKickOut(member,idx)">移出群聊</button>
 						</view>
 					</view>

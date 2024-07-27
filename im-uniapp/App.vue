@@ -353,10 +353,16 @@
 <style lang="scss">
 	@import "@/uni_modules/uview-plus/index.scss";
 	@import url('./static/icon/iconfont.css');
-	
+
+	// #ifdef H5 
+	uni-page-head {
+		display: none; // h5浏览器本身就有标题
+	}
+	// #endif
+
 	.tab-page {
 		// #ifdef H5
-		height: calc(100vh - 46px - 50px); // h5平台100vh是包含了顶部和底部，需要减去
+		height: calc(100vh  - 50px); // h5平台100vh是包含了底部高度，需要减去
 		// #endif
 		// #ifndef H5
 		height: calc(100vh);
@@ -365,12 +371,7 @@
 	}
 
 	.page {
-		// #ifdef H5
-		height: calc(100vh - 45px); // h5平台100vh是包含了顶部，需要减去
-		// #endif
-		// #ifndef H5
 		height: calc(100vh);
-		// #endif
 		background-color: #f8f8f8;
 	}
 </style>

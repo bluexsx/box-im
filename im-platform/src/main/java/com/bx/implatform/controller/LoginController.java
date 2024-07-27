@@ -22,7 +22,7 @@ public class LoginController {
 
     @PostMapping("/login")
     @Operation(summary = "用户登陆", description = "用户登陆")
-    public Result login(@Valid @RequestBody LoginDTO dto) {
+    public Result<LoginVO> login(@Valid @RequestBody LoginDTO dto) {
         LoginVO vo = userService.login(dto);
         return ResultUtils.success(vo);
     }
