@@ -2,7 +2,7 @@ package com.bx.implatform.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
@@ -147,24 +147,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (Objects.isNull(user)) {
             throw new GlobalException("用户不存在");
         }
-        // 更新好友昵称和头像
+
         if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-            QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(Friend::getFriendId, session.getUserId());
-            List<Friend> friends = friendService.list(queryWrapper);
-            for (Friend friend : friends) {
-                friend.setFriendNickName(vo.getNickName());
-                friend.setFriendHeadImage(vo.getHeadImageThumb());
-            }
-            friendService.updateBatchById(friends);
-        }
-        // 更新群聊中的头像
-        if (!user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-            List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
-            for (GroupMember member : members) {
-                member.setHeadImage(vo.getHeadImageThumb());
-            }
-            groupMemberService.updateBatchById(members);
+            // 更新好友昵称和头像
+            LambdaUpdateWrapper<Friend> wrapper1 = Wrappers.lambdaUpdate();
+            wrapper1.eq(Friend::getFriendId, session.getUserId());
+            wrapper1.set(Friend::getFriendNickName,vo.getNickName());
+            wrapper1.set(Friend::getFriendHeadImage,vo.getHeadImageThumb());
+            friendService.update(wrapper1);
+            // 更新群聊中的昵称和头像
+            LambdaUpdateWrapper<GroupMember> wrapper2 = Wrappers.lambdaUpdate();
+            wrapper2.eq(GroupMember::getUserId, session.getUserId());
+            wrapper2.set(GroupMember::getHeadImage,vo.getHeadImageThumb());
+            wrapper2.set(GroupMember::getUserNickName,vo.getNickName());
+            groupMemberService.update(wrapper2);
         }
         // 更新用户信息
         user.setNickName(vo.getNickName());

@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * 群语音通话服务类,所有涉及修改webtcSession的方法都要挂分布式锁
  *
- * @author:  blue
+ * @author: blue
  * @date: 2024-06-01
  * @version: 1.0
  */
@@ -197,7 +197,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
         vo.setReason(dto.getReason());
         List<Long> recvIds = getRecvIds(userInfos);
         sendRtcMessage1(MessageType.RTC_GROUP_FAILED, dto.getGroupId(), recvIds, JSON.toJSONString(vo), false);
-        log.info("群通话失败,userId:{},groupId:{},原因:{}", userSession.getUserId(),dto.getGroupId(), dto.getReason());
+        log.info("群通话失败,userId:{},groupId:{},原因:{}", userSession.getUserId(), dto.getGroupId(), dto.getReason());
     }
 
     @OnlineCheck
@@ -219,7 +219,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
         }
         WebrtcUserInfo userInfo = new WebrtcUserInfo();
         userInfo.setId(userSession.getUserId());
-        userInfo.setNickName(member.getAliasName());
+        userInfo.setNickName(member.getShowNickName());
         userInfo.setHeadImage(member.getHeadImage());
         // 默认是开启麦克风，关闭摄像头
         userInfo.setIsCamera(false);
@@ -455,7 +455,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
                 GroupMember member = groupMemberService.findByGroupAndUserId(groupId, hostId);
                 host = new WebrtcUserInfo();
                 host.setId(hostId);
-                host.setNickName(member.getAliasName());
+                host.setNickName(member.getShowNickName());
                 host.setHeadImage(member.getHeadImage());
             }
             vo.setHost(host);

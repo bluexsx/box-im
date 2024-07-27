@@ -238,7 +238,7 @@
 				element.className = "at"
 				element.dataset.id = member.userId;
 				element.contentEditable = 'false'
-				element.innerText = `@${member.aliasName}`
+				element.innerText = `@${member.showNickName}`
 				range.insertNode(element)
 				// 光标移动到末尾
 				range.collapse()
@@ -495,7 +495,7 @@
 				members.forEach(m => {
 					userInfos.push({
 						id: m.userId,
-						nickName: m.aliasName,
+						nickName: m.showNickName,
 						headImage: m.headImage,
 						isCamera: false,
 						isMicroPhone: true
@@ -701,7 +701,7 @@
 			showName(msgInfo) {
 				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
-					return member ? member.aliasName : "";
+					return member ? member.showNickName : "";
 				} else {
 					return msgInfo.sendId == this.mine.id ? this.mine.nickName : this.chat.showName
 				}

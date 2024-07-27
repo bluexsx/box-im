@@ -236,7 +236,7 @@
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
-					showName: group.remark,
+					showName: group.showGroupName,
 					headImage: group.headImageThumb
 				};
 				// 打开会话

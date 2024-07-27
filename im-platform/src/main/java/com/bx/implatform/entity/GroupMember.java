@@ -1,5 +1,6 @@
 package com.bx.implatform.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -38,9 +39,14 @@ public class GroupMember extends Model<GroupMember> {
     private Long userId;
 
     /**
-     * 组内显示名称
+     * 用户昵称
      */
-    private String aliasName;
+    private String userNickName;
+
+    /**
+     * 显示昵称备注
+     */
+    private String remarkNickName;
 
     /**
      * 用户头像
@@ -48,9 +54,9 @@ public class GroupMember extends Model<GroupMember> {
     private String headImage;
 
     /**
-     * 备注
+     * 显示群名备注
      */
-    private String remark;
+    private String remarkGroupName;
 
     /**
      * 是否已退出
@@ -67,5 +73,8 @@ public class GroupMember extends Model<GroupMember> {
      */
     private Date quitTime;
 
+    public String getShowNickName() {
+        return StrUtil.isEmpty(remarkNickName) ? userNickName : remarkNickName;
+    }
 
 }

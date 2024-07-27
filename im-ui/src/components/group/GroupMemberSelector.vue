@@ -7,7 +7,7 @@
 				</el-input>
 				<el-scrollbar style="height:400px;">
 					<div v-for="m in members" :key="m.userId">
-						<group-member-item v-show="!m.quit&&m.aliasName.startsWith(searchText)"
+						<group-member-item v-show="!m.quit&&m.showNickName.includes(searchText)"
 							:member="m" @click.native="onClickMember(m)">
 							<el-checkbox :disabled="m.locked" v-model="m.checked" @change="onChange(m)"
 								@click.native.stop=""></el-checkbox>

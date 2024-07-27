@@ -11,7 +11,10 @@ public class GroupMemberVO {
     private Long userId;
 
     @Schema(description = "群内显示名称")
-    private String aliasName;
+    private String showNickName;
+
+    @Schema(description = "群内昵称备注")
+    private String remarkNickName;
 
     @Schema(description = "头像")
     private String headImage;
@@ -22,7 +25,10 @@ public class GroupMemberVO {
     @Schema(description = "是否在线")
     private Boolean online;
 
-    @Schema(description = "备注")
-    private String remark;
+    @Schema(description = "群名显示名称")
+    private String showGroupName;
+
+    @Schema(description = "群名备注")
+    private String remarkGroupName;
 
 }

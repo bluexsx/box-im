@@ -71,7 +71,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         GroupMessage msg = BeanUtils.copyProperties(dto, GroupMessage.class);
         msg.setSendId(session.getUserId());
         msg.setSendTime(new Date());
-        msg.setSendNickName(member.getAliasName());
+        msg.setSendNickName(member.getShowNickName());
         if (CollectionUtil.isNotEmpty(dto.getAtUserIds())) {
             msg.setAtUserIds(StrUtil.join(",", dto.getAtUserIds()));
         }
@@ -120,7 +120,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         userIds = userIds.stream().filter(uid -> !session.getUserId().equals(uid)).collect(Collectors.toList());
         GroupMessageVO msgInfo = BeanUtils.copyProperties(msg, GroupMessageVO.class);
         msgInfo.setType(MessageType.RECALL.code());
-        String content = String.format("'%s'撤回了一条消息", member.getAliasName());
+        String content = String.format("'%s'撤回了一条消息", member.getShowNickName());
         msgInfo.setContent(content);
         msgInfo.setSendTime(new Date());
 

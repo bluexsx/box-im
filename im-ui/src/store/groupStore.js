@@ -22,7 +22,7 @@ export default {
 					state.groups.splice(idx, 1);
 				}
 			})
-			if (state.activeGroup.id == groupId) {
+			if (state.activeGroup && state.activeGroup.id == groupId) {
 				state.activeGroup = null;
 			}
 		},

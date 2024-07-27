@@ -5,12 +5,11 @@
 				<el-input class="search-text" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
 				</el-input>
-				<el-button plain class="add-btn" icon="el-icon-plus" title="创建群聊"
-					@click="onCreateGroup()"></el-button>
+				<el-button plain class="add-btn" icon="el-icon-plus" title="创建群聊" @click="onCreateGroup()"></el-button>
 			</div>
 			<el-scrollbar class="group-list-items">
 				<div v-for="(group,index) in groupStore.groups" :key="index">
-					<group-item v-show="!group.quit&&group.remark.startsWith(searchText)" :group="group"
+					<group-item v-show="!group.quit&&group.showGroupName.includes(searchText)" :group="group"
 						:active="group === groupStore.activeGroup" @click.native="onActiveItem(group,index)">
 					</group-item>
 				</div>
@@ -18,7 +17,7 @@
 		</el-aside>
 		<el-container class="group-box">
 			<div class="group-header" v-show="activeGroup.id">
-				{{activeGroup.remark}}({{groupMembers.length}})
+				{{activeGroup.showGroupName}}({{groupMembers.length}})
 			</div>
 			<el-scrollbar class="group-container">
 				<div v-show="activeGroup.id">
@@ -31,7 +30,7 @@
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 							</file-upload>
 							<head-image v-show="!isOwner" class="avatar" :size="200" :url="activeGroup.headImage"
-								:name="activeGroup.remark">
+								:name="activeGroup.showGroupName">
 							</head-image>
 							<el-button class="send-btn" icon="el-icon-position" type="primary"
 								@click="onSendMessage()">发消息</el-button>
@@ -44,12 +43,13 @@
 							<el-form-item label="群主">
 								<el-input :value="ownerName" disabled></el-input>
 							</el-form-item>
-							<el-form-item label="备注">
-								<el-input v-model="activeGroup.remark" placeholder="群聊的备注仅自己可见"
+							<el-form-item label="群名备注">
+								<el-input v-model="activeGroup.remarkGroupName" :placeholder="activeGroup.name"
 									maxlength="20"></el-input>
 							</el-form-item>
 							<el-form-item label="我在本群的昵称">
-								<el-input v-model="activeGroup.aliasName" placeholder="" maxlength="20"></el-input>
+								<el-input v-model="activeGroup.remarkNickName" maxlength="20"
+									:placeholder="$store.state.userStore.userInfo.nickName"></el-input>
 							</el-form-item>
 							<el-form-item label="群公告">
 								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea"
@@ -128,10 +128,7 @@
 				}).then((o) => {
 					let userInfo = this.$store.state.userStore.userInfo;
 					let data = {
-						name: o.value,
-						remark: o.value,
-						aliasName: userInfo.name,
-						ownerId: userInfo.id
+						name: o.value
 					}
 					this.$http({
 						url: `/group/create?groupName=${o.value}`,
@@ -192,7 +189,7 @@
 
 			},
 			onKick(member) {
-				this.$confirm(`确定将成员'${member.aliasName}'移出群聊吗？`, '确认移出?', {
+				this.$confirm(`确定将成员'${member.showNickName}'移出群聊吗？`, '确认移出?', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
@@ -204,7 +201,7 @@
 							userId: member.userId
 						}
 					}).then(() => {
-						this.$message.success(`已将${member.aliasName}移出群聊`);
+						this.$message.success(`已将${member.showNickName}移出群聊`);
 						member.quit = true;
 					});
 				})
@@ -231,7 +228,7 @@
 				let chat = {
 					type: 'GROUP',
 					targetId: this.activeGroup.id,
-					showName: this.activeGroup.remark,
+					showName: this.activeGroup.showGroupName,
 					headImage: this.activeGroup.headImage,
 				};
 				this.$store.commit("openChat", chat);
@@ -257,7 +254,7 @@
 			},
 			ownerName() {
 				let member = this.groupMembers.find((m) => m.userId == this.activeGroup.ownerId);
-				return member && member.aliasName;
+				return member && member.showNickName;
 			},
 			isOwner() {
 				return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
@@ -284,11 +281,11 @@
 				padding: 3px 8px;
 				background-color: white;
 				border-bottom: 1px #ddd solid;
-				
+
 				.el-input__inner {
 					border-radius: 10px !important;
 				}
-				
+
 				.add-btn {
 					padding: 5px !important;
 					margin: 5px;
@@ -311,6 +308,7 @@
 			display: flex;
 			flex-direction: column;
 			border: #dddddd solid 1px;
+
 			.group-header {
 				padding: 3px;
 				height: 50px;
@@ -325,10 +323,11 @@
 			.group-container {
 				padding: 20px;
 				flex: 1;
+
 				.group-info {
 					display: flex;
 					padding: 5px 20px;
-					
+
 					.group-form {
 						flex: 1;
 						padding-left: 40px;

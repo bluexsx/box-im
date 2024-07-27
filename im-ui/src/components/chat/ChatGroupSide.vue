@@ -16,7 +16,7 @@
 					 @close="showAddGroupMember=false"></add-group-member>
 				</div>
 				<div v-for="(member) in groupMembers" :key="member.id">
-					<group-member class="group-side-member" v-show="!member.quit && member.aliasName.startsWith(searchText)" :member="member"
+					<group-member class="group-side-member" v-show="!member.quit && member.showNickName.includes(searchText)" :member="member"
 					 :showDel="false"></group-member>
 				</div>
 			</div>
@@ -32,12 +32,12 @@
 					<el-input v-model="group.notice" disabled type="textarea" maxlength="1024" placeholder="群主未设置"></el-input>
 				</el-form-item>
 				<el-form-item label="备注">
-					<el-input v-model="group.remark" :disabled="!editing" placeholder="群聊的备注仅自己可见" maxlength="20"></el-input>
+					<el-input v-model="group.remarkGroupName" :disabled="!editing" :placeholder="group.name" maxlength="20"></el-input>
 				</el-form-item>
 				<el-form-item label="我在本群的昵称">
-					<el-input v-model="group.aliasName" :disabled="!editing" placeholder="xx" maxlength="20"></el-input>
+					<el-input v-model="group.remarkNickName" :disabled="!editing"  maxlength="20"
+						:placeholder="$store.state.userStore.userInfo.nickName" ></el-input>
 				</el-form-item>
-
 				<div v-show="!group.quit" class="btn-group">
 					<el-button v-show="editing" type="success" @click="onSaveGroup()">提交</el-button>
 					<el-button v-show="!editing" type="primary" @click="editing=!editing">编辑</el-button>
@@ -119,7 +119,7 @@
 		computed: {
 			ownerName() {
 				let member = this.groupMembers.find((m) => m.userId == this.group.ownerId);
-				return member && member.aliasName;
+				return member && member.showNickName;
 			},
 			isOwner() {
 				return this.group.ownerId == this.$store.state.userStore.userInfo.id;

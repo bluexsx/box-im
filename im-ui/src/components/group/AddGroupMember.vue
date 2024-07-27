@@ -8,7 +8,7 @@
 				</el-input>
 				<el-scrollbar style="height:400px;">
 					<div v-for="(friend,index) in friends" :key="friend.id">
-						<friend-item v-show="friend.nickName.startsWith(searchText)" :showDelete="false"
+						<friend-item v-show="friend.nickName.includes(searchText)" :showDelete="false"
 							@click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :index="index"
 							:active="false">
 							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="agm-friend-checkbox"

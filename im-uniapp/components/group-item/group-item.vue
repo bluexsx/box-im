@@ -1,9 +1,9 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
-		<head-image :name="group.remark"
+		<head-image :name="group.showGroupName"
 			:url="group.headImage" :size="90"></head-image>
 		<view class="group-name">
-			<view>{{ group.remark}}</view>
+			<view>{{ group.showGroupName}}</view>
 		</view>
 	</view>
 </template>

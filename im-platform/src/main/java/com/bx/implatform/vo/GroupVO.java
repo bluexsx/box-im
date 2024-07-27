@@ -30,13 +30,19 @@ public class GroupVO {
     @Schema(description = "群公告")
     private String notice;
 
-    @Length(max = 20, message = "群聊显示长度不能大于20")
+    @Length(max = 20, message = "显示昵称长度不能大于20")
     @Schema(description = "用户在群显示昵称")
-    private String aliasName;
+    private String remarkNickName;
 
-    @Length(max = 20, message = "群聊显示长度不能大于20")
-    @Schema(description = "群聊显示备注")
-    private String remark;
+    @Schema(description = "群内显示名称")
+    private String showNickName;
+
+    @Schema(description = "群名显示名称")
+    private String showGroupName;
+
+    @Length(max = 20, message = "群备注长度不能大于20")
+    @Schema(description = "群名备注")
+    private String remarkGroupName;
 
     @Schema(description = "是否已删除")
     private Boolean deleted;

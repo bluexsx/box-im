@@ -1,10 +1,10 @@
 <template>
     <div class="chat-group-member" :style="{'height':height+'px'}">
         <div class="member-avatar">
-            <head-image :size="headImageSize" :name="member.aliasName" :url="member.headImage"> </head-image>
+            <head-image :size="headImageSize" :name="member.showNickName" :url="member.headImage"> </head-image>
         </div>
         <div class="member-name" :style="{'line-height':height+'px'}">
-            <div>{{ member.aliasName }}</div>
+            <div>{{ member.showNickName }}</div>
         </div>
     </div>
 </template>

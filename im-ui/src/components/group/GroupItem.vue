@@ -1,10 +1,10 @@
 <template>
 	<div class="group-item" :class="active ? 'active' : ''">
 		<div class="group-avatar">
-			<head-image :size="45" :name="group.remark" :url="group.headImage"> </head-image>
+			<head-image :size="45" :name="group.showGroupName" :url="group.headImage"> </head-image>
 		</div>
 		<div class="group-name">
-			<div>{{group.remark}}</div>
+			<div>{{group.showGroupName}}</div>
 		</div>
 	</div>
 </template>

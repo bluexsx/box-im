@@ -1,8 +1,9 @@
 <template>
-	<view  class="tab-page group">
+	<view class="tab-page group">
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar v-model="searchText"  cancelButton="none" radius="100" placeholder="点击搜索群聊"></uni-search-bar>
+				<uni-search-bar v-model="searchText" cancelButton="none" radius="100"
+					placeholder="点击搜索群聊"></uni-search-bar>
 			</view>
 			<view class="nav-add" @click="onCreateNewGroup()">
 				<uni-icons type="personadd" size="35"></uni-icons>
@@ -14,7 +15,8 @@
 		<view class="group-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="group in $store.state.groupStore.groups" :key="group.id">
-					<group-item v-if="!group.quit&&group.remark.includes(searchText)" :group="group"></group-item>
+					<group-item v-if="!group.quit&&group.showGroupName.includes(searchText)"
+						:group="group"></group-item>
 				</view>
 			</scroll-view>
 		</view>
@@ -25,12 +27,12 @@
 	export default {
 		data() {
 			return {
-				searchText:""
+				searchText: ""
 			}
 		},
 		methods: {
 			onFocusSearch() {
-				
+
 			},
 			onCreateNewGroup() {
 				uni.navigateTo({
@@ -38,7 +40,7 @@
 				})
 			}
 		}
-		
+
 	}
 </script>
 
@@ -64,7 +66,7 @@
 			}
 		}
 
-		.group-tip{
+		.group-tip {
 			position: absolute;
 			top: 400rpx;
 			padding: 50rpx;

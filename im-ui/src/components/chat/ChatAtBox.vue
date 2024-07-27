@@ -46,11 +46,11 @@
 				if (this.ownerId == userId && name.startsWith(this.searchText)) {
 					this.showMembers.push({
 						userId: -1,
-						aliasName: name
+						showNickName: name
 					})
 				}
 				this.members.forEach((m) => {
-					if (m.userId != userId && !m.quit && m.aliasName.startsWith(this.searchText)) {
+					if (m.userId != userId && !m.quit && m.showNickName.startsWith(this.searchText)) {
 						this.showMembers.push(m);
 					}
 				})

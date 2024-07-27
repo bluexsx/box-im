@@ -98,7 +98,7 @@
 			showName(msgInfo) {
 				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
-					return member ? member.aliasName : "";
+					return member ? member.showNickName : "";
 				} else {
 					return msgInfo.sendId == this.mine.id ? this.mine.nickName : this.chat.showName
 				}
