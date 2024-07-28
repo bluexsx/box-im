@@ -266,7 +266,7 @@
 						line-height: 26px;
 						margin-top: 3px;
 						padding: 7px;
-						background-color: white;
+						background-color: #eee;
 						border-radius: 10px;
 						color: black;
 						display: block;
@@ -274,7 +274,6 @@
 						text-align: left;
 						white-space: pre-wrap;
 						word-break: break-all;
-						box-shadow: 1px 1px 1px #c0c0f0;
 
 						&:after {
 							content: "";
@@ -284,7 +283,7 @@
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
-							border-color: white transparent transparent;
+							border-color: #eee transparent transparent;
 							overflow: hidden;
 							border-width: 10px;
 						}
@@ -443,8 +442,7 @@
 							background-color: rgb(88, 127, 240);
 							color: #fff;
 							vertical-align: top;
-							box-shadow: 1px 1px 1px #ccc;
-
+							
 							&:after {
 								left: auto;
 								right: -10px;

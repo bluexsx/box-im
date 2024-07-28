@@ -69,7 +69,7 @@
 		.chat-list-box {
 			display: flex;
 			flex-direction: column;
-			border: #dddddd solid 1px;
+			border-right: #53a0e79c solid 1px;	
 			background: white;
 			width: 3rem;
 

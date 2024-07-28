@@ -271,7 +271,7 @@
 		.group-list-box {
 			display: flex;
 			flex-direction: column;
-			border: #dddddd solid 1px;
+			border-right: #53a0e79c solid 1px;
 			background: #F8F8F8;
 
 			.group-list-header {
@@ -307,8 +307,7 @@
 		.group-box {
 			display: flex;
 			flex-direction: column;
-			border: #dddddd solid 1px;
-
+			
 			.group-header {
 				padding: 3px;
 				height: 50px;

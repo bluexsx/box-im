@@ -182,7 +182,7 @@
 		.friend-list-box {
 			display: flex;
 			flex-direction: column;
-			border: #dddddd solid 1px;
+			border-right: #53a0e79c solid 1px;
 			background: white;
 
 			.friend-list-header {
@@ -217,8 +217,7 @@
 
 		.friend-box {
 			display: flex;
-			flex-direction: column;
-			border: #dddddd solid 1px;
+			flex-direction: column;	
 
 			.friend-header {
 				padding: 3px;	

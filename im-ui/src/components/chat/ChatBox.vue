@@ -824,8 +824,7 @@
 		position: relative;
 		width: 100%;
 		background: #f8f8f8;
-		border: #dddddd solid 1px;
-
+		
 		.el-header {
 			padding: 3px;
 			background-color: white;
@@ -846,7 +845,7 @@
 
 		.im-chat-main {
 			padding: 0;
-			background-color: #f8f8f8;
+			background-color: white;
 
 			.im-chat-box {
 				>ul {

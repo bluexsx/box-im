@@ -7,7 +7,7 @@
 					@click.native="showSettingDialog = true">
 				</head-image>
 			</div>
-			<el-menu background-color="#f0f4f8" style="margin-top: 25px;">
+			<el-menu background-color="#E8F2FF" style="margin-top: 25px;">
 				<el-menu-item title="聊天">
 					<router-link class="link" v-bind:to="'/home/chat'">
 						<span class="icon iconfont icon-chat"></span>
@@ -350,17 +350,18 @@
 
 <style scoped lang="scss">
 	.navi-bar {
-		background: #f0f4f8;
+		background: #E8F2FF;
 		padding: 10px;
 		padding-top: 50px;
-
+		border-right: #53a0e79c solid 1px;
+		
 		.el-menu {
 			border: none;
 			flex: 1;
 
 			.el-menu-item {
 				margin: 20px 0;
-				background-color: #f0f4f8 !important;
+				background-color: #E8F2FF !important;
 				padding: 0 !important;
 				text-align: center;
 
