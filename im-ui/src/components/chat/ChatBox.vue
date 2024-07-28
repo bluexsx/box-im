@@ -320,6 +320,7 @@
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
+					this.refreshPlaceHolder();
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
@@ -375,6 +376,7 @@
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
+					this.refreshPlaceHolder();
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
@@ -540,6 +542,7 @@
 					// 关闭录音窗口
 					this.showRecord = false;
 					this.isReceipt = false;
+					this.refreshPlaceHolder();
 
 				})
 			},
@@ -611,6 +614,7 @@
 					this.scrollToBottom();
 					this.resetEditor();
 					this.isReceipt = false;
+					this.refreshPlaceHolder();
 				});
 
 			},

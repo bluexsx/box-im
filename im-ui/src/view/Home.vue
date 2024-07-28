@@ -3,11 +3,11 @@
 		<el-aside width="80px" class="navi-bar">
 			<div class="user-head-image">
 				<head-image :name="$store.state.userStore.userInfo.nickName"
-					:url="$store.state.userStore.userInfo.headImageThumb" :size="50"
+					:url="$store.state.userStore.userInfo.headImageThumb" :size="60"
 					@click.native="showSettingDialog = true">
 				</head-image>
 			</div>
-			<el-menu background-color="#19082f" style="margin-top: 25px;">
+			<el-menu background-color="#f0f4f8" style="margin-top: 25px;">
 				<el-menu-item title="聊天">
 					<router-link class="link" v-bind:to="'/home/chat'">
 						<span class="icon iconfont icon-chat"></span>
@@ -350,8 +350,8 @@
 
 <style scoped lang="scss">
 	.navi-bar {
-		background: #19082f;
-		padding: 15px;
+		background: #f0f4f8;
+		padding: 10px;
 		padding-top: 50px;
 
 		.el-menu {
@@ -360,7 +360,7 @@
 
 			.el-menu-item {
 				margin: 20px 0;
-				background-color: #19082f !important;
+				background-color: #f0f4f8 !important;
 				padding: 0 !important;
 				text-align: center;
 
@@ -368,13 +368,14 @@
 					text-decoration: none;
 
 					&.router-link-active .icon {
-						color: #ba785a;
+						color: #587ff0;
+						font-size: 28px;
 					}
 				}
 
 				.icon {
-					font-size: 26px !important;
-					color: #ddd;
+					font-size: 26px;
+					color: #406080;
 				}
 
 				.unread-text {
@@ -398,7 +399,6 @@
 			position: absolute;
 			width: 60px;
 			bottom: 40px;
-			color: #ccc;
 			text-align: center;
 			cursor: pointer;
 
@@ -407,7 +407,7 @@
 			}
 
 			&:hover {
-				color: white;
+				font-weight: 600;
 			}
 		}
 	}

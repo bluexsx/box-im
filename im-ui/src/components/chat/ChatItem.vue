@@ -7,6 +7,9 @@
 		</div>
 		<div class="chat-right">
 			<div class="chat-name">
+				<div class="chat-tag" v-if="chat.type=='GROUP'">
+					<el-tag size="mini" >群</el-tag>
+				</div>
 				<div class="chat-name-text">{{chat.showName}}</div>
 				<div class="chat-time-text">{{showTime}}</div>
 			</div>
@@ -109,8 +112,7 @@
 		display: flex;
 		margin-bottom: 1px;
 		position: relative;
-		padding: 5px;
-		padding-left: 10px;
+		padding: 5px 10px;
 		align-items: center;
 		background-color: white;
 		white-space: nowrap;
@@ -159,6 +161,13 @@
 				display: flex;
 				line-height: 25px;
 				height: 25px;
+
+				.chat-tag {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					margin-right: 1px;
+				}
 
 				.chat-name-text {
 					flex: 1;

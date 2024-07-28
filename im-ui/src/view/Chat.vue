@@ -1,6 +1,6 @@
 <template>
 	<el-container class="chat-page">
-		<el-aside width="260px" class="chat-list-box">
+		<el-aside width="280px" class="chat-list-box">
 			<div class="chat-list-header">
 				<el-input class="search-text" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>

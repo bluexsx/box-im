@@ -88,8 +88,7 @@
 		display: flex;
 		margin-bottom: 1px;
 		position: relative;
-		padding: 5px;
-		padding-left: 10px;
+		padding: 5px 10px;
 		align-items: center;
 		background-color: #fafafa;
 		white-space: nowrap;

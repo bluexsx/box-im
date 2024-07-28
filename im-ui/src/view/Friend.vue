@@ -1,6 +1,6 @@
 <template>
 	<el-container class="friend-page">
-		<el-aside width="260px" class="friend-list-box">
+		<el-aside width="280px" class="friend-list-box">
 			<div class="friend-list-header">
 				<el-input class="search-text" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
