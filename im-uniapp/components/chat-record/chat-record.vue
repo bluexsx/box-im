@@ -99,7 +99,6 @@
 					})
 				}).finally(() => {
 					this.$rc.close();
-					console.log("录音完成")
 				})
 			},
 			startTimer() {
@@ -132,7 +131,7 @@
 				return `bottom:${bottom}px;`
 			},
 			recordBarStyle() {
-				const bgColor = this.recording ? "royalblue" : "#f8f8f8";
+				const bgColor = this.recording ? "royalblue" : "white";
 				const textColor = this.recording ? "white" : "black";
 				return `background-color:${bgColor};
 						color:${textColor};`

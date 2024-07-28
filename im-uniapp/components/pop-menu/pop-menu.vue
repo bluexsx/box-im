@@ -1,7 +1,11 @@
 <template>
 	<view>
-		<view class="pop-menu" @tap="onClose()" @contextmenu.prevent=""></view>
-		<view class="menu" :style="menuStyle">
+		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
+			<slot></slot>
+		</view>
+		
+		<view v-if="isShowMenu" class="pop-menu" @tap="onClose()" @contextmenu.prevent=""></view>
+		<view v-if="isShowMenu" class="menu" :style="menuStyle">
 			<view class="menu-item"  v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
 				<uni-icons :type="item.icon" :style="itemStyle(item)" size="22"></uni-icons>
 				<text :style="itemStyle(item)"> {{item.name}}</text>
@@ -14,22 +18,56 @@
 	export default {
 		name: "pop-menu",
 		data() {
-			return {}
+			return {
+				isShowMenu : false,
+				style : ""
+			}
 		},
 		props: {
-			menuStyle: {
-				type: String
-			},
 			items: {
 				type: Array
 			}
 		},
 		methods: {
+			onLongPress(e){
+				if(this.isTouchMove){
+					return;
+				}
+				uni.getSystemInfo({
+					success: (res) => {
+						let touches = e.touches[0];
+						let style = "";
+						/* 因 非H5端不兼容 style 属性绑定 Object ，所以拼接字符 */
+						if (touches.clientY > (res.windowHeight / 2)) {
+							style = `bottom:${res.windowHeight-touches.clientY}px;`;
+						} else {
+							style = `top:${touches.clientY}px;`;
+						}
+						if (touches.clientX > (res.windowWidth / 2)) {
+							style += `right:${res.windowWidth-touches.clientX}px;`;
+						} else {
+							style += `left:${touches.clientX}px;`;
+						}
+						this.menuStyle = style;
+						//
+						this.$nextTick(() => {
+							this.isShowMenu = true;
+						});
+					}
+				})
+			},
+			onTouchMove(){
+				this.isTouchMove = true;
+			},
+			onTouchEnd(){
+				this.isTouchMove = false;
+			},
 			onSelectMenu(item) {
 				this.$emit("select", item);
+				this.isShowMenu = false;
 			},
 			onClose() {
-				this.$emit("close");
+				this.isShowMenu = false;
 			},
 			itemStyle(item){
 				if(item.color){

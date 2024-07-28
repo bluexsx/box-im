@@ -16,14 +16,13 @@
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
 			<view v-for="(chatPos,i) in chatsPos" :key="i">
-				<chat-item v-if="isShowChat(chatStore.chats[chatPos.idx])" :chat="chatStore.chats[chatPos.idx]"
-					:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"
-					@longpress.native="onShowMenu($event,chatPos.idx)"></chat-item>
+				<pop-menu v-if="isShowChat(chatStore.chats[chatPos.idx])" :items="menu.items"
+					@select="onSelectMenu($event,chatPos.idx)">
+					<chat-item  :chat="chatStore.chats[chatPos.idx]"
+						:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"></chat-item>
+				</pop-menu>
 			</view>
 		</scroll-view>
-
-		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menu.items" @close="onCloseMenu()"
-			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
 
@@ -36,6 +35,7 @@
 					show: false,
 					style: "",
 					chatIdx: -1,
+					isTouchMove: false,
 					items: [{
 							key: 'DELETE',
 							name: '删除该聊天',
@@ -52,47 +52,17 @@
 			}
 		},
 		methods: {
-			onSelectMenu(item) {
+			onSelectMenu(item,chatIdx) {
 				switch (item.key) {
 					case 'DELETE':
-						this.removeChat(this.menu.chatIdx);
+						this.removeChat(chatIdx);
 						break;
 					case 'TOP':
-						this.moveToTop(this.menu.chatIdx);
+						this.moveToTop(chatIdx);
 						break;
 					default:
 						break;
 				}
-				this.menu.show = false;
-			},
-			onShowMenu(e, chatIdx) {
-				this.menu.chatIdx = chatIdx;
-				uni.getSystemInfo({
-					success: (res) => {
-						let touches = e.touches[0];
-						let style = "";
-						/* 因 非H5端不兼容 style 属性绑定 Object ，所以拼接字符 */
-						if (touches.clientY > (res.windowHeight / 2)) {
-							style = `bottom:${res.windowHeight-touches.clientY}px;`;
-						} else {
-							style = `top:${touches.clientY}px;`;
-						}
-						if (touches.clientX > (res.windowWidth / 2)) {
-							style += `right:${res.windowWidth-touches.clientX}px;`;
-						} else {
-							style += `left:${touches.clientX}px;`;
-						}
-						this.menu.style = style;
-						this.menu.chatIdx = chatIdx;
-						// 
-						this.$nextTick(() => {
-							this.menu.show = true;
-						});
-					}
-				})
-			},
-			onCloseMenu() {
-				this.menu.chatIdx = -1;
 				this.menu.show = false;
 			},
 			removeChat(chatIdx) {

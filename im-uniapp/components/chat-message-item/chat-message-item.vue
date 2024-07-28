@@ -2,62 +2,68 @@
 	<view class="chat-msg-item">
 		<view class="chat-msg-tip"
 			v-if="msgInfo.type==$enums.MESSAGE_TYPE.RECALL||msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
-			{{msgInfo.content}}</view>
+			{{msgInfo.content}}
+		</view>
 		<view class="chat-msg-tip" v-if="msgInfo.type==$enums.MESSAGE_TYPE.TIP_TIME">
 			{{$date.toTimeText(msgInfo.sendTime)}}
 		</view>
-
-		<view class="chat-msg-normal" v-if="isNormal"
-			:class="{'chat-msg-mine':msgInfo.selfSend}">
+		<view class="chat-msg-normal" v-if="isNormal" :class="{'chat-msg-mine':msgInfo.selfSend}">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
 				:name="showName" :size="80"></head-image>
 			<view class="chat-msg-content">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
 				</view>
-
-				<view class="chat-msg-bottom" @touchmove="onHideMenu()">
-					<view v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT" @longpress.native="onShowMenu($event)">
-						<rich-text class="chat-msg-text" 
-							:nodes="$emo.transform(msgInfo.content)"
-							></rich-text>
+				<view class="chat-msg-bottom">
+					<view v-if="msgInfo.type==$enums.MESSAGE_TYPE.TEXT">
+						<pop-menu :items="menuItems" @select="onSelectMenu">
+							<rich-text class="chat-msg-text" :nodes="$emo.transform(msgInfo.content)"></rich-text>
+						</pop-menu>
 					</view>
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
-						<view class="img-load-box" @longpress="onShowMenu($event)">
-							<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
-								lazy-load="true" @click.stop="onShowFullImage()">
-							</image>
-							<loading v-if="loading"></loading>
-						</view>
+						<pop-menu :items="menuItems" @select="onSelectMenu">
+							<view class="img-load-box">
+								<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
+									lazy-load="true" @click.stop="onShowFullImage()">
+								</image>
+								<loading v-if="loading"></loading>
+							</view>
+						</pop-menu>
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
 					<view class="chat-msg-file" v-if="msgInfo.type==$enums.MESSAGE_TYPE.FILE">
-						<view class="chat-file-box" @longpress="onShowMenu($event)">
-							<view class="chat-file-info">
-								<uni-link class="chat-file-name" :text="data.name" showUnderLine="true" color="#007BFF"
-									:href="data.url"></uni-link>
-								<view class="chat-file-size">{{fileSize}}</view>
+						<pop-menu :items="menuItems" @select="onSelectMenu">
+							<view class="chat-file-box">
+								<view class="chat-file-info">
+									<uni-link class="chat-file-name" :text="data.name" showUnderLine="true"
+										color="#007BFF" :href="data.url"></uni-link>
+									<view class="chat-file-size">{{fileSize}}</view>
+								</view>
+								<view class="chat-file-icon iconfont icon-file"></view>
+								<loading v-if="loading"></loading>
 							</view>
-							<view class="chat-file-icon iconfont icon-file"></view>
-							<loading v-if="loading"></loading>
-						</view>
+						</pop-menu>
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<view class="chat-msg-audio chat-msg-text" v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO"
-						@click="onPlayAudio()" @longpress="onShowMenu($event)">
-						<text class="iconfont icon-voice-play"></text>
-						<text class="chat-audio-text">{{JSON.parse(msgInfo.content).duration+'"'}}</text>
-						<text v-if="audioPlayState=='PAUSE'" class="iconfont icon-play"></text>
-						<text v-if="audioPlayState=='PLAYING'" class="iconfont icon-pause"></text>
-					</view>
-					<view class="chat-realtime chat-msg-text" v-if="isAction" 
-						@click="$emit('call')" @longpress="onShowMenu($event)">
-						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VOICE" class="iconfont icon-chat-voice"></text>
-						<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VIDEO" class="iconfont icon-chat-video"></text>
-						<text>{{msgInfo.content}}</text>
-					</view>
+					<pop-menu v-if="msgInfo.type==$enums.MESSAGE_TYPE.AUDIO" :items="menuItems" @select="onSelectMenu">
+						<view class="chat-msg-audio chat-msg-text" @click="onPlayAudio()">
+							<text class="iconfont icon-voice-play"></text>
+							<text class="chat-audio-text">{{JSON.parse(msgInfo.content).duration+'"'}}</text>
+							<text v-if="audioPlayState=='PAUSE'" class="iconfont icon-play"></text>
+							<text v-if="audioPlayState=='PLAYING'" class="iconfont icon-pause"></text>
+						</view>
+					</pop-menu>
+					<pop-menu v-if="isAction" :items="menuItems" @select="onSelectMenu">
+						<view class="chat-realtime chat-msg-text"  @click="$emit('call')">
+							<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VOICE"
+								class="iconfont icon-chat-voice"></text>
+							<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VIDEO"
+								class="iconfont icon-chat-video"></text>
+							<text>{{msgInfo.content}}</text>
+						</view>
+					</pop-menu>
 					<view class="chat-msg-status" v-if="!isAction">
 						<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
 								&& msgInfo.status==$enums.MESSAGE_STATUS.READED">已读</text>
@@ -72,8 +78,7 @@
 			</view>
 		</view>
 		<chat-group-readed ref="chatGroupReaded" :groupMembers="groupMembers" :msgInfo="msgInfo"></chat-group-readed>
-		<pop-menu v-if="menu.show" :menu-style="menu.style" :items="menuItems" @close="onHideMenu()"
-			@select="onSelectMenu"></pop-menu>
+
 	</view>
 </template>
 
@@ -106,36 +111,8 @@
 					style: ""
 				}
 			}
-
 		},
 		methods: {
-			onShowMenu(e) {
-				uni.getSystemInfo({
-					success: (res) => {
-						let touches = e.touches[0];
-						let style = "";
-						/* 因 非H5端不兼容 style 属性绑定 Object ，所以拼接字符 */
-						if (touches.clientY > (res.windowHeight / 2)) {
-							style = `bottom:${res.windowHeight-touches.clientY}px;`;
-						} else {
-							style = `top:${touches.clientY}px;`;
-						}
-						if (touches.clientX > (res.windowWidth / 2)) {
-							style += `right:${res.windowWidth-touches.clientX}px;`;
-						} else {
-							style += `left:${touches.clientX}px;`;
-						}
-						this.menu.style = style;
-						//
-						this.$nextTick(() => {
-							this.menu.show = true;
-						});
-					}
-				})
-			},
-			onHideMenu(){
-				this.menu.show = false;
-			},
 			onSendFail() {
 				uni.showToast({
 					title: "该文件已发送失败，目前不支持自动重新发送，建议手动重新发送",
@@ -148,11 +125,12 @@
 					this.innerAudioContext = uni.createInnerAudioContext();
 					let url = JSON.parse(this.msgInfo.content).url;
 					this.innerAudioContext.src = url;
+					console.log(url);
 					this.innerAudioContext.onEnded((e) => {
 						console.log('停止')
 						this.audioPlayState = "STOP"
 					})
-					this.innerAudioContext.onError((e) =>{
+					this.innerAudioContext.onError((e) => {
 						console.log("播放音频出错");
 						console.log(e)
 					});
@@ -226,7 +204,7 @@
 				}
 				return items;
 			},
-			isAction(){
+			isAction() {
 				return this.$msgType.isAction(this.msgInfo.type);
 			},
 			isNormal() {
@@ -292,7 +270,7 @@
 						display: block;
 						word-break: break-all;
 						white-space: pre-line;
-				
+
 
 						&:after {
 							content: "";
@@ -484,6 +462,7 @@
 								padding-right: 0;
 								padding-left: 8px;
 							}
+
 							.icon-voice-play {
 								transform: rotateY(180deg);
 							}

@@ -10,8 +10,7 @@
 			</uni-forms-item>
 			<button class="btn-submit" @click="submit" type="primary">登录</button>
 		</uni-forms>
-		<navigator class="nav-register" url="/pages/register/register" render-link="true"
-			hover-class="other-navigator-hover">
+		<navigator class="nav-register" url="/pages/register/register">
 			没有账号,前往注册
 		</navigator>
 

@@ -16,7 +16,7 @@
 			</uni-forms-item>
 			<button class="btn-submit" @click="submit" type="warn">注册并登陆</button>
 		</uni-forms>
-		<navigator class="nav-login" url="/pages/login/login" render-link="true" hover-class="other-navigator-hover">
+		<navigator class="nav-login" url="/pages/login/login"  >
 			返回登陆页面
 		</navigator>
 	</view>
