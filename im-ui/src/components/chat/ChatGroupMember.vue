@@ -1,5 +1,5 @@
 <template>
-    <div class="chat-group-member" :style="{'height':height+'px'}">
+    <div class="chat-group-member" :class="active?'active':''" :style="{'height':height+'px'}">
         <div class="member-avatar">
             <head-image :size="headImageSize" :name="member.showNickName" :url="member.headImage"> </head-image>
         </div>
@@ -25,7 +25,11 @@ export default {
         height:{
             type: Number,
             default: 50
-        }
+        },
+		active: {
+			type: Boolean,
+			default: false
+		}
     },
     computed:{
         headImageSize(){
@@ -47,11 +51,11 @@ export default {
     box-sizing: border-box;
 
     &:hover {
-        background-color: #eeeeee;
+        background-color: #F8FAFF;
     }
 
     &.active {
-        background-color: #eeeeee;
+        background-color: #E8F2FF;
     }
 
     .member-name {

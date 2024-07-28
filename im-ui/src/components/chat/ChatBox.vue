@@ -62,8 +62,8 @@
 									:disabled="lockMessage" @paste.prevent="onEditorPaste"
 									@compositionstart="onEditorCompositionStart"
 									@compositionend="onEditorCompositionEnd" @input="onEditorInput"
-									:placeholder="placeholder" @blur="onEditBoxBlur()" @keydown.down="onKeyDown"
-									@keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter">x
+									:placeholder="placeholder" @blur="onEditBoxBlur()" @keyup.down="onKeyDown"
+									@keyup.up.prevent="onKeyUp" @keydown.enter.prevent="onKeyEnter">x
 								</div>
 
 								<div v-show="sendImageUrl" class="send-image-area">
@@ -107,7 +107,7 @@
 	import ChatAtBox from "./ChatAtBox.vue"
 	import GroupMemberSelector from "../group/GroupMemberSelector.vue"
 	import RtcGroupJoin from "../rtc/RtcGroupJoin.vue"
-	
+
 
 	export default {
 		name: "chatPrivate",
@@ -164,6 +164,7 @@
 				}
 			},
 			onKeyDown() {
+				console.log("onKeyDown")
 				if (this.$refs.atBox.show) {
 					this.$refs.atBox.moveDown()
 				}
@@ -188,13 +189,17 @@
 				this.focusNode = selection.focusNode;
 				this.focusOffset = selection.focusOffset;
 			},
-			onEditorInput(e) {
+			onEditorInput(e, e2, e3) {
 				// 如果触发 @
 				if (this.chat.type == "GROUP" && !this.zhLock) {
+					console.log("onEditorInput")
+					if (e.inputType === "deleteContentBackward" && !this.atSearchText) {
+						this.$refs.atBox.close();
+					}
 					if (e.data == '@') {
 						// 打开选择弹窗
 						this.showAtBox(e);
-					} else {
+					} else if(this.$refs.atBox.show){
 						let selection = window.getSelection()
 						let range = selection.getRangeAt(0)
 						this.focusNode = selection.focusNode;
@@ -490,7 +495,7 @@
 
 			},
 			onInviteOk(members) {
-				if(members.length < 2){
+				if (members.length < 2) {
 					return;
 				}
 				let userInfos = [];
@@ -742,7 +747,7 @@
 					this.placeholder = "聊点什么吧~";
 				}
 			},
-			generateId(){
+			generateId() {
 				// 生成临时id
 				return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
 			}
@@ -824,7 +829,7 @@
 		position: relative;
 		width: 100%;
 		background: #f8f8f8;
-		
+
 		.el-header {
 			padding: 3px;
 			background-color: white;

@@ -1,8 +1,9 @@
 <template>
 	<el-scrollbar v-show="show" ref="scrollBox" class="group-member-choose"
 		:style="{'left':pos.x+'px','top':pos.y-300+'px'}">
-		<div v-for="(member) in showMembers" :key="member.id">
-			<chat-group-member :member="member" :height="40" @click.native="onSelectMember(member)"></chat-group-member>
+		<div v-for="(member,idx) in showMembers" :key="member.id">
+			<chat-group-member :member="member" :height="40" :active='activeIdx==idx'
+			@click.native="onSelectMember(member)"></chat-group-member>
 		</div>
 	</el-scrollbar>
 </template>
@@ -55,6 +56,10 @@
 					}
 				})
 				this.activeIdx = this.showMembers.length > 0 ? 0: -1;
+				console.log(this.showMembers.length)
+				if(this.showMembers.length == 0){
+					this.close();
+				}
 			},
 			open(pos) {
 				this.show = true;
@@ -122,7 +127,7 @@
 		position: fixed;
 		width: 200px;
 		height: 300px;
-		border: 1px solid #b4b4b4;
+		border: 1px solid #53a0e79c;
 		border-radius: 5px;
 		background-color: #f5f5f5;
 		box-shadow: 0px 0px 10px #ccc;

@@ -55,7 +55,7 @@
 		width: 500px;
 		box-sizing: border-box;
 		padding: 5px;
-		border: 1px solid #b4b4b4;
+		border: 1px solid #53a0e79c;
 		border-radius: 5px;
 		background-color: #f5f5f5;
 		box-shadow: 0px 0px 10px #ccc;
