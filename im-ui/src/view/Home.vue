@@ -352,7 +352,7 @@
 	.navi-bar {
 		background: #E8F2FF;
 		padding: 10px;
-		padding-top: 50px;
+		padding-top: 20px;
 		border-right: #53a0e79c solid 1px;
 		
 		.el-menu {
@@ -369,14 +369,14 @@
 					text-decoration: none;
 
 					&.router-link-active .icon {
-						color: #587ff0;
+						color: #195ee2;
 						font-size: 28px;
 					}
 				}
 
 				.icon {
 					font-size: 26px;
-					color: #406080;
+					color: black;
 				}
 
 				.unread-text {
