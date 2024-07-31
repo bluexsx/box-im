@@ -159,14 +159,14 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 开启加载中标志
         this.sendLoadingMessage(true);
-        // 只能拉取最近1个月的,最多拉取1000条
-        Date minDate = DateUtils.addMonths(new Date(), -1);
+        // 只能拉取最近3个月的,最多拉取3000条
+        Date minDate = DateUtils.addMonths(new Date(), -3);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.gt(GroupMessage::getId, minId)
             .gt(GroupMessage::getSendTime, minDate)
             .in(GroupMessage::getGroupId, groupIds)
             .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
-            .orderByDesc(GroupMessage::getId).last("limit 1000");
+            .orderByDesc(GroupMessage::getId).last("limit 3000");
         List<GroupMessage> messages = this.list(wrapper);
         // 通过群聊对消息进行分组
         Map<Long, List<GroupMessage>> messageGroupMap = messages.stream().collect(Collectors.groupingBy(GroupMessage::getGroupId));

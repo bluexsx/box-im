@@ -360,14 +360,14 @@
 			flex: 1;
 
 			.el-menu-item {
-				margin: 20px 0;
+				margin: 25px 0;
 				background-color: #E8F2FF !important;
 				padding: 0 !important;
 				text-align: center;
 
 				.link {
 					text-decoration: none;
-
+						
 					&.router-link-active .icon {
 						color: #195ee2;
 						font-size: 28px;
@@ -376,7 +376,7 @@
 
 				.icon {
 					font-size: 26px;
-					color: black;
+					color: #888;
 				}
 
 				.unread-text {

@@ -2,8 +2,11 @@ import { MESSAGE_TYPE, MESSAGE_STATUS } from "../api/enums.js"
 import userStore from './userStore';
 import localForage from 'localforage';
 
-export default {
+/* 为了加速拉取离线消息效率，拉取时消息暂时存储到cacheChats,等
+待所有离线消息拉取完成后，再统一放至vuex中进行渲染*/
+let cacheChats = [];
 
+export default {
 	state: {
 		activeChat: null,
 		privateMsgMaxId: 0,
@@ -15,11 +18,12 @@ export default {
 
 	mutations: {
 		initChats(state, chatsData) {
-			state.chats = chatsData.chats || [];
+			state.chats = [];
 			state.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			state.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
+			cacheChats = chatsData.chats||[];
 			// 防止图片一直处在加载中状态
-			state.chats.forEach((chat) => {
+			cacheChats.forEach((chat) => {
 				chat.messages.forEach((msg) => {
 					if (msg.loadStatus == "loading") {
 						msg.loadStatus = "fail"
@@ -28,11 +32,12 @@ export default {
 			})
 		},
 		openChat(state, chatInfo) {
+			let chats = this.getters.findChats()
 			let chat = null;
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == chatInfo.type &&
-					state.chats[idx].targetId === chatInfo.targetId) {
-					chat = state.chats[idx];
+			for (let idx in chats) {
+				if (chats[idx].type == chatInfo.type &&
+					chats[idx].targetId === chatInfo.targetId) {
+					chat = chats[idx];
 					// 放置头部
 					this.commit("moveTop", idx)
 					break;
@@ -52,28 +57,31 @@ export default {
 					atMe: false,
 					atAll: false
 				};
-				state.chats.unshift(chat);
+				chats.unshift(chat);
 			}
 		},
 		activeChat(state, idx) {
-			state.activeChat = state.chats[idx];
+			let chats = this.getters.findChats();
+			state.activeChat = chats[idx];
 		},
 		resetUnreadCount(state, chatInfo) {
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == chatInfo.type &&
-					state.chats[idx].targetId == chatInfo.targetId) {
-					state.chats[idx].unreadCount = 0;
-					state.chats[idx].atMe = false;
-					state.chats[idx].atAll = false;
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == chatInfo.type &&
+					chats[idx].targetId == chatInfo.targetId) {
+					chats[idx].unreadCount = 0;
+					chats[idx].atMe = false;
+					chats[idx].atAll = false;
 				}
 			}
 			this.commit("saveToStorage");
 		},
 		readedMessage(state, pos) {
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == 'PRIVATE' &&
-					state.chats[idx].targetId == pos.friendId) {
-					state.chats[idx].messages.forEach((m) => {
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == 'PRIVATE' &&
+					chats[idx].targetId == pos.friendId) {
+					chats[idx].messages.forEach((m) => {
 						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
 							// pos.maxId为空表示整个会话已读
 							if (!pos.maxId || m.id <= pos.maxId) {
@@ -87,28 +95,31 @@ export default {
 			this.commit("saveToStorage");
 		},
 		removeChat(state, idx) {
-			if (state.chats[idx] == state.activeChat) {
+			let chats = this.getters.findChats();
+			if (chats[idx] == state.activeChat) {
 				state.activeChat = null;
 			}
-			state.chats.splice(idx, 1);
+			chats.splice(idx, 1);
 			this.commit("saveToStorage");
 		},
 		moveTop(state, idx) {
 			// 加载中不移动，很耗性能
-			if (state.loadingPrivateMsg || state.loadingGroupMsg) {
+			if (this.getters.isLoading()) {
 				return;
 			}
 			if (idx > 0) {
-				let chat = state.chats[idx];
-				state.chats.splice(idx, 1);
-				state.chats.unshift(chat);
+				let chats = this.getters.findChats();
+				let chat = chats[idx];
+				chats.splice(idx, 1);
+				chats.unshift(chat);
 				this.commit("saveToStorage");
 			}
 		},
 		removePrivateChat(state, friendId) {
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == 'PRIVATE' &&
-					state.chats[idx].targetId == friendId) {
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == 'PRIVATE' &&
+					chats[idx].targetId == friendId) {
 					this.commit("removeChat", idx);
 				}
 			}
@@ -218,8 +229,9 @@ export default {
 			this.commit("saveToStorage");
 		},
 		updateChatFromFriend(state, friend) {
-			for (let i in state.chats) {
-				let chat = state.chats[i];
+			let chats = this.getters.findChats();
+			for (let i in chats) {
+				let chat = chats[i];
 				if (chat.type == 'PRIVATE' && chat.targetId == friend.id) {
 					chat.headImage = friend.headImageThumb;
 					chat.showName = friend.nickName;
@@ -229,8 +241,9 @@ export default {
 			this.commit("saveToStorage");
 		},
 		updateChatFromGroup(state, group) {
-			for (let i in state.chats) {
-				let chat = state.chats[i];
+			let chats = this.getters.findChats();
+			for (let i in chats) {
+				let chat = chats[i];
 				if (chat.type == 'GROUP' && chat.targetId == group.id) {
 					chat.headImage = group.headImageThumb;
 					chat.showName = group.showGroupName;
@@ -239,23 +252,34 @@ export default {
 			}
 			this.commit("saveToStorage");
 		},
-
 		loadingPrivateMsg(state, loading) {
 			state.loadingPrivateMsg = loading;
-			if (!state.loadingPrivateMsg && !state.loadingGroupMsg) {
-				this.commit("sort")
+			if (!this.getters.isLoading()) {
+				this.commit("refreshChats")
 			}
 		},
 		loadingGroupMsg(state, loading) {
 			state.loadingGroupMsg = loading;
-			if (!state.loadingPrivateMsg && !state.loadingGroupMsg) {
-				this.commit("sort")
+			if (!this.getters.isLoading()) {
+				this.commit("refreshChats")
 			}
 		},
-		sort(state) {
-			state.chats.sort((c1, c2) => c2.lastSendTime - c1.lastSendTime);
+		refreshChats(state) {
+			// 排序
+			cacheChats.sort((chat1, chat2) => {
+				return chat2.lastSendTime - chat1.lastSendTime;
+			});
+			// 将消息一次性装载回来
+			state.chats = cacheChats;
+			// 断线重连后不能使用缓存模式，否则会导致聊天窗口的消息不刷新
+			cacheChats = state.chats;
+			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {
+			// 加载中不保存，防止卡顿
+			if (this.getters.isLoading()) {
+				return;
+			}
 			let userId = userStore.state.userInfo.id;
 			let key = "chats-" + userId;
 			let chatsData = {
@@ -266,8 +290,10 @@ export default {
 			localForage.setItem(key, chatsData)
 		},
 		clear(state) {
-			state.activeChat = null;
+			cacheChats = []
 			state.chats = [];
+			state.activeChat = null;
+			
 		}
 	},
 	actions: {
@@ -292,24 +318,32 @@ export default {
 		}
 	},
 	getters: {
-		findChatIdx: (state) => (chat) => {
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == chat.type &&
-					state.chats[idx].targetId === chat.targetId) {
-					chat = state.chats[idx];
+		isLoading: (state) => () => {
+			return state.loadingPrivateMsg || state.loadingGroupMsg
+		},
+		findChats: (state, getters) => () => {
+			return getters.isLoading() ? cacheChats : state.chats;
+		},
+		findChatIdx: (state, getters) => (chat) => {
+			let chats = getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == chat.type &&
+					chats[idx].targetId === chat.targetId) {
+					chat = chats[idx];
 					return idx
 				}
 			}
 		},
-		findChat: (state) => (msgInfo) => {
+		findChat: (state, getters) => (msgInfo) => {
+			let chats = getters.findChats();
 			// 获取对方id或群id
 			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
 			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
 			let chat = null;
-			for (let idx in state.chats) {
-				if (state.chats[idx].type == type &&
-					state.chats[idx].targetId === targetId) {
-					chat = state.chats[idx];
+			for (let idx in chats) {
+				if (chats[idx].type == type &&
+					chats[idx].targetId === targetId) {
+					chat = chats[idx];
 					break;
 				}
 			}

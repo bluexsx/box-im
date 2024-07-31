@@ -153,8 +153,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近1个月的1000条消息
-        Date minDate = DateUtils.addMonths(new Date(), -1);
+        // 只能拉取最近3个月的3000条消息
+        Date minDate = DateUtils.addMonths(new Date(), -3);
         queryWrapper.gt(PrivateMessage::getId, minId)
             .ge(PrivateMessage::getSendTime, minDate)
             .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
@@ -164,7 +164,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
                     .in(PrivateMessage::getSendId, friendIds)))
             .orderByDesc(PrivateMessage::getId)
-            .last("limit 1000");
+            .last("limit 3000");
         List<PrivateMessage> messages = this.list(queryWrapper);
         // 消息顺序从小到大
         CollectionUtil.reverse(messages);
