@@ -1,9 +1,8 @@
 spring:
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      database: 2
+  profiles:
+    active: dev
+  application:
+    name: im-server
 
 websocket:
   enable: true

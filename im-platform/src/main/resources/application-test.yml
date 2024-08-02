@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/box-im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+minio:
+  endpoint: http://127.0.0.1:9001 #内网地址
+  public: http://127.0.0.1:9001  #外网访问地址
+  accessKey: admin
+  secretKey: admin123456
+  bucketName: box-im
+  imagePath: image
+  filePath: file
+  videoPath: video
+
+webrtc:
+  max-channel: 9 # 多人通话最大通道数量，最大不能超过16,建议值:4,9,16
+  iceServers:
+    - urls: stun:stun.l.google.com:19302
