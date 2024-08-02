@@ -4,10 +4,11 @@
 [![star](https://gitee.com/bluexsx/box-im/badge/star.svg)](https://gitee.com/bluexsx/box-im) 
 [![star](https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub)](https://github.com/bluexsx/box-im) 
 <a href="#加入交流群"><img src="https://img.shields.io/badge/QQ交流群-green.svg?style=plasticr"></a>
-
+<a href="https://gitee.com/bluexsx/box-im-admin"><img src="https://img.shields.io/badge/后台管理-blue.svg?style=plasticr"></a>
 1. 盒子IM是一个仿微信实现的网页版聊天软件，不依赖任何第三方收费组件。
-1. 支持私聊、群聊、离线消息、发送语音、图片、文件、emoji表情等功能
-1. 支持音视频通话(基于webrtc实现,需要ssl证书)
+1. 支持私聊、群聊、离线消息、发送语音、图片、文件、已读未读、群@等功能
+1. 支持单人、多人音视频通话(基于原生webrtc实现,需要ssl证书)
+1. uniapp端兼容app、h5、微信小程序,可与web端同时在线，并保持消息同步
 1. 后端采用springboot+netty实现，网页端使用vue，移动端使用uniapp
 1. 服务器支持集群化部署，每个im-server仅处理自身连接用户的消息
 
@@ -16,13 +17,11 @@
 
 
 #### 近期更新
-发布2.0版本，本次更新加入了uniapp移动端:
+发布3.0版本
 
-- 支持移动端和web端同时在线，多端消息同步
-- 目前已兼容h5、微信小程序，安卓和IOS
-- 聊天窗口加入已读未读显示
-- 群聊加入@功能
-- 界面风格升级,表情包更新、生成文字头像等
+- 支持后台管理功能,后台仓库地址:https://gitee.com/bluexsx/box-im-admin
+- 组件框架版本升级: jdk17、springboot3.3、node18
+- 部分ui，功能、性能优化
 
 
 #### 在线体验
@@ -42,22 +41,16 @@
 ![输入图片说明](%E6%88%AA%E5%9B%BE/wx%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg)
 
 
-#### 相关项目
-
-一位网友的开源项目，基于盒子IM接口开发的仿QQ客户端，有兴趣的小伙伴可以也关注一下:
-
-https://gitee.com/zyzyteam/crim
-
 
 #### 项目结构
-|  模块  |     功能 |
-|-------------|------------|
-| im-platform | 与页面进行交互，处理业务请求 |
-| im-server   | 推送聊天消息|
-| im-client   | 消息推送sdk|
-| im-common   | 公共包  |
-| im-ui       | web页面  |
-| im-uniapp   | app页面  |
+|  模块  | 功能                              |
+|-------------|---------------------------------|
+| im-platform | 业务平台服务，负责处理来自用户的业务请求(http)      |
+| im-server   | 消息推送服务，不依赖业务,负责将消息推送给用户(ws)     |
+| im-client   | 消息推送sdk, 任何服务均可集成此sdk与im-server通信 |
+| im-common   | 公共包                             |
+| im-ui       | web页面                           |
+| im-uniapp   | uniapp页面                        |
 
 #### 消息推送方案
 ![输入图片说明](%E6%88%AA%E5%9B%BE/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E9%9B%86%E7%BE%A4%E5%8C%96.jpg)
@@ -69,12 +62,12 @@ https://gitee.com/zyzyteam/crim
 
 #### 本地快速部署
 1.安装运行环境
-- 安装node:v14.16.0
-- 安装jdk:1.8
-- 安装maven:3.6.3
-- 安装mysql:5.7,密码分别为root/root,运行sql脚本(脚本在im-platfrom的resources/db目录)
-- 安装redis:5.0
-- 安装minio，命令端口使用9001，并创建一个名为"box-im"的bucket，并设置访问权限为公开
+- 安装node:v18.19.0
+- 安装jdk:17
+- 安装maven:3.9.6
+- 安装mysql:8.0,账号密码分别为root/root,运行sql脚本(脚本在im-platfrom的resources/db目录)
+- 安装redis:6.2
+- 安装minio:8.5.1,账号密码分别为admin/12345678,命令端口使用9001，并创建一个名为"box-im"的bucket，并设置访问权限为公开
 
 2.启动后端服务
 ```
@@ -91,133 +84,9 @@ npm run serve
 ```
 访问 http://localhost:8080
 
-
 4.启动uniapp-h5
 将im-uniapp目录导入HBuilderX,点击菜单"运行"->"开发环境-h5"
 访问 http://localhost:5173
-
-
-#### 快速接入
-消息推送的请求代码已经封装在im-client包中，对于需要接入im-server的小伙伴，可以按照下面的教程快速的将IM功能集成到自己的项目中。
-
-注意服务器端和前端都需要接入，服务器端发送消息，前端接收消息。
-
-4.1 服务器端接入
-
-引入pom文件
-```
-<dependency>
-    <groupId>com.bx</groupId>
-    <artifactId>im-client</artifactId>
-    <version>2.0.0</version>
-</dependency>
-```
-内容使用了redis进行通信,所以要配置redis地址：
-
-```
-spring:
-  redis:
-    host: 127.0.0.1
-    port: 6379
-```
-
-直接把IMClient通过@Autowire导进来就可以发送消息了，IMClient 只有2个接口：
-```
-public class IMClient {
-
-    /**
-     * 发送私聊消息
-     *
-     * @param message 私有消息
-     */
-    public<T> void sendPrivateMessage(IMPrivateMessage<T> message);
-
-    /**
-     * 发送群聊消息（发送结果通过MessageListener接收）
-     *
-     * @param message 群聊消息
-     */
-    public<T> void sendGroupMessage(IMGroupMessage<T> message);    
-}
-```
-
-发送私聊消息(群聊也是类似的方式)：
-```
- @Autowired
- private IMClient imClient;
-
- public void sendMessage(){
-        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-        // 发送方的id和终端类型
-        sendMessage.setSender(new IMUserInfo(1L, IMTerminalType.APP.code()));
-        // 对方的id
-        sendMessage.setRecvId(2L);
-        // 推送给对方所有终端
-        sendMessage.setRecvTerminals(IMTerminalType.codes());
-        // 同时推送给自己的其他类型终端
-        sendMessage.setSendToSelf(true);
-        // 需要回推发送结果，将在IMListener接收发送结果
-        sendMessage.setSendResult(true);
-        // 推送的内容
-        sendMessage.setData(msgInfo);
-        // 推送消息
-        imClient.sendPrivateMessage(sendMessage);
-}
-
-```
-监听发送结果:
-1.编写消息监听类，实现MessageListener,并加上@IMListener
-2.发送消息时指定sendResult为true
-```
-@Slf4j
-@IMListener(type = IMListenerType.ALL)
-public class PrivateMessageListener implements MessageListener {
-    
-    @Override
-    public void process(IMSendResult<PrivateMessageVO> result){
-        PrivateMessageVO messageInfo = result.getData();
-        if(result.getCode().equals(IMSendCode.SUCCESS.code())){
-            log.info("消息发送成功，消息id:{}，发送者:{},接收者:{},终端:{}",messageInfo.getId(),result.getSender().getId(),result.getReceiver().getId(),result.getReceiver().getTerminal());
-        }
-    }
-}
-```
-
-4.2 前端接入
-首先将im-ui/src/api/wssocket.js拷贝到自己的项目。
-
-接入代码如下：
-```
-import * as wsApi from './api/wssocket';
-
-let wsUrl = 'ws://localhost:8878/im'
-let token = "您的token";
-wsApi.connect(wsUrl,token);
-wsApi.onConnect(() => {
-    // 连接打开
-    console.log("连接成功");
-});
-wsApi.onMessage((cmd,msgInfo) => {
-    if (cmd == 2) {
-    	// 异地登录，强制下线
-    	console.log("您已在其他地方登陆，将被强制下线");
-    } else if (cmd == 3) {
-    	// 私聊消息
-    	console.log(msgInfo);
-    } else if (cmd == 4) {
-    	// 群聊消息
-    	console.log(msgInfo);
-    }
-})
-wsApi.onClose((e) => {
-  	if (e.code != 3000) {
-      	console.log("意外断开，进行重连");
-      	wsApi.reconnect(wsUrl,token);
-    }else{
-    		console.log("主动断开");
-  	}
-});
-```
 
 
 #### 界面截图
