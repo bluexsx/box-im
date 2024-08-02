@@ -1,5 +1,5 @@
 use `box_im`;
-create table if not exist `im_user`(
+create table `im_user`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_name` varchar(255) not null comment '用户名',
     `nick_name` varchar(255) not null comment '用户昵称',
@@ -15,7 +15,7 @@ create table if not exist `im_user`(
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     unique key `idx_user_name`(user_name),
     key `idx_nick_name`(nick_name)
-) ENGINE=InnoDB CHARSET=utf8mb3 comment '用户';
+) ENGINE=InnoDB CHARSET=utf8mb4 comment '用户';
 
 create table `im_friend`(
     `id` bigint not null auto_increment primary key  comment 'id',
@@ -26,7 +26,7 @@ create table `im_friend`(
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_user_id` (`user_id`),
     key `idx_friend_id` (`friend_id`)
-) ENGINE=InnoDB CHARSET=utf8mb3 comment '好友';
+) ENGINE=InnoDB CHARSET=utf8mb4 comment '好友';
 
 create table `im_private_message`(
     `id` bigint not null auto_increment primary key comment 'id',
@@ -37,7 +37,7 @@ create table `im_private_message`(
     `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 2:撤回 3:已读',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_send_recv_id` (`send_id`,`recv_id`)
-)ENGINE=InnoDB CHARSET=utf8mb3 comment '私聊消息';
+)ENGINE=InnoDB CHARSET=utf8mb4 comment '私聊消息';
 
 
 create table `im_group`(
@@ -51,7 +51,7 @@ create table `im_group`(
     `reason` varchar(255) default '' comment '被封禁原因',
     `deleted` tinyint(1) default 0   comment '是否已删除',
     `created_time` datetime default CURRENT_TIMESTAMP comment '创建时间'
-)ENGINE=InnoDB CHARSET=utf8mb3 comment '群';
+)ENGINE=InnoDB CHARSET=utf8mb4 comment '群';
 
 create table `im_group_member`(
     `id` bigint not null auto_increment primary key comment 'id',
@@ -66,7 +66,7 @@ create table `im_group_member`(
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_group_id`(`group_id`),
     key `idx_user_id`(`user_id`)
-)ENGINE=InnoDB CHARSET=utf8mb3 comment '群成员';
+)ENGINE=InnoDB CHARSET=utf8mb4 comment '群成员';
 
 create table `im_group_message`(
     `id` bigint not null auto_increment primary key comment 'id',
@@ -82,7 +82,7 @@ create table `im_group_message`(
     `status` tinyint(1) DEFAULT 0 comment '状态 0:未发出  2:撤回 ',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
     key `idx_group_id` (group_id)
-)ENGINE=InnoDB CHARSET=utf8mb3 comment '群消息';
+)ENGINE=InnoDB CHARSET=utf8mb4 comment '群消息';
 
 create table `im_sensitive_word`(
     `id` bigint not null auto_increment primary key comment 'id',
@@ -90,4 +90,4 @@ create table `im_sensitive_word`(
     `enabled` tinyint DEFAULT 0 COMMENT '是否启用 0:未启用 1:启用',
     `creator` bigint DEFAULT NULL COMMENT '创建者',
     `create_time` datetime  DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-)ENGINE=InnoDB CHARSET=utf8mb3 comment '敏感词';
+)ENGINE=InnoDB CHARSET=utf8mb4 comment '敏感词';
