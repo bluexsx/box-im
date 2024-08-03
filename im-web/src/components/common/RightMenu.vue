@@ -63,11 +63,11 @@
 			.el-menu-item {
 				height: 40px;
 				line-height: 40px;
+				border-bottom: 1px solid #d0d0d0;
+
 				span {
 					font-weight: 600;
 				}
-				border-bottom: 1px solid #d0d0d0;
-
 			}
 		}
 	}
