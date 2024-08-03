@@ -1,4 +1,3 @@
-use `box_im`;
 create table `im_user`(
     `id` bigint not null auto_increment primary key  comment 'id',
     `user_name` varchar(255) not null comment '用户名',
