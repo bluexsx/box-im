@@ -1,6 +1,5 @@
 <template>
 	<view class="tab-page">
-
 		<view v-if="loading" class="chat-loading">
 			<loading :size="50" :mask="false">
 				<view>消息接收中...</view>
@@ -171,9 +170,11 @@
 		.chat-loading {
 			display: block;
 			width: 100%;
-			height: 100rpx;
+			height: 120rpx;
 			background: white;
-			position: relative;
+			position: fixed;
+			top:  0;
+			z-index: 999;
 			color: blue;
 
 			.loading-box {

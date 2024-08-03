@@ -269,6 +269,11 @@
 				location.href = "/";
 			},
 			playAudioTip() {
+				// 离线消息不播放铃声
+				if(this.$store.getters.isLoading()){
+					return;
+				}
+				// 防止过于密集播放
 				if (new Date().getTime() - this.lastPlayAudioTime > 1000) {
 					this.lastPlayAudioTime = new Date().getTime();
 					let audio = new Audio();

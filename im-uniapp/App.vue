@@ -9,12 +9,14 @@
 	export default {
 		data() {
 			return {
+				isExit: false, // 是否已退出
 				audioTip: null,
 				reconnecting: false // 正在重连标志
 			}
 		},
 		methods: {
 			init() {
+				this.isExit = false;
 				// 加载数据
 				store.dispatch("load").then(() => {
 					// 初始化websocket
@@ -62,11 +64,9 @@
 				});
 				wsApi.onClose((res) => {
 					console.log("ws断开", res);
-					// 3099是客户端正常主动关闭
-					if (res.code != 3099) {
-						// 重新连接
-						this.reconnectWs();
-					}
+					// 重新连接
+					this.reconnectWs();
+					
 				})
 			},
 			pullPrivateOfflineMessage(minId) {
@@ -281,6 +281,7 @@
 			},
 			exit() {
 				console.log("exit");
+				this.isExit = true;
 				wsApi.close(3099);
 				uni.removeStorageSync("loginInfo");
 				uni.reLaunch({
@@ -301,6 +302,10 @@
 				return loginInfo.expireTime < new Date().getTime();
 			},
 			reconnectWs() {
+				// 已退出则不再重连
+				if (this.isExit) {
+					return;
+				}
 				// 记录标志
 				this.reconnecting = true;
 				// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效

@@ -83,7 +83,6 @@ export default {
 	},
 	actions: {
 		loadFriend(context) {
-			console.log("loadFriend")
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/friend/list',
@@ -92,7 +91,6 @@ export default {
 					context.commit("setFriends", friends);
 					context.commit("refreshOnlineStatus");
 					resolve()
-					console.log("loadFriend ok")
 				}).catch((res) => {
 					reject();
 				})

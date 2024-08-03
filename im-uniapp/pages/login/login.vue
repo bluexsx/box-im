@@ -13,7 +13,6 @@
 		<navigator class="nav-register" url="/pages/register/register">
 			没有账号,前往注册
 		</navigator>
-
 	</view>
 </template>
 
@@ -77,7 +76,7 @@
 
 		.title {
 			padding-top: 150rpx;
-			padding-bottom: 100rpx;
+			padding-bottom: 50rpx;
 			color: royalblue;
 			text-align: center;
 			font-size: 60rpx;

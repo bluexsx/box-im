@@ -2,7 +2,7 @@
 	<view class="tab-page friend">
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar radius="100" @input="onInput" cancelButton="none" placeholder="点击搜索好友"></uni-search-bar>
+				<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="点击搜索好友"></uni-search-bar>
 			</view>
 			<view class="nav-add" @click="onAddNewFriends()">
 				<uni-icons type="personadd" size="35"></uni-icons>
@@ -13,7 +13,7 @@
 		</view>
 		<view class="friend-items" v-else>
 			<up-index-list :index-list="friendIdx" >
-				<template v-for="(friends,i) in friendGroup">
+				<template v-for="(friends,i) in friendGroups">
 					<up-index-item>
 						<up-index-anchor :text="friendIdx[i]=='*'?'在线':friendIdx[i]"
 							bgColor="#f2f3fd"></up-index-anchor>
@@ -34,16 +34,10 @@
 	export default {
 		data() {
 			return {
-				searchText: '',
-				friendIdx: [],
-				friendGroup: []
+				searchText: ''
 			}
 		},
 		methods: {
-			onInput(searchText){
-				this.searchText = searchText;
-				this.refreshFriendGroup()
-			},
 			onAddNewFriends() {
 				uni.navigateTo({
 					url: "/pages/friend/friend-add"
@@ -60,8 +54,13 @@
 			},
 			isEnglish(character) {
 				return /^[A-Za-z]+$/.test(character);
+			}
+		},
+		computed: {
+			friends() {
+				return this.$store.state.friendStore.friends;
 			},
-			refreshFriendGroup() {
+			friendGroupMap(){
 				// 按首字母分组
 				let groupMap = new Map();
 				this.friends.forEach((f) => {
@@ -95,20 +94,15 @@
 					return a[0].localeCompare(b[0])
 				})
 				groupMap = new Map(arrayObj.map(i => [i[0], i[1]]));
-				this.friendIdx = Array.from(groupMap.keys())
-				this.friendGroup = Array.from(groupMap.values());
-			}
-
-		},
-		computed: {
-			friends() {
-				return this.$store.state.friendStore.friends;
+				return groupMap;
 			},
-		},
-		onShow() {
-			this.refreshFriendGroup();
+			friendIdx(){
+				return Array.from(this.friendGroupMap.keys());
+			},
+			friendGroups(){
+				return Array.from(this.friendGroupMap.values());
+			}
 		}
-
 	}
 </script>
 

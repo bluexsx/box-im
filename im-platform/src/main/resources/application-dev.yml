@@ -8,6 +8,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      database: 1
 
 minio:
   endpoint: http://127.0.0.1:9001 #内网地址
