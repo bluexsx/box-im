@@ -108,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void register(RegisterDTO dto) {
         User user = this.findUserByUserName(dto.getUserName());
-        if (Objects.isNull(user)) {
+        if (!Objects.isNull(user)) {
             throw new GlobalException(ResultCode.USERNAME_ALREADY_REGISTER);
         }
         user = BeanUtils.copyProperties(dto, User.class);

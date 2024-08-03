@@ -84,9 +84,4 @@ public class User {
      */
     private Integer type;
 
-    /**
-     * 客户端id,用于uni-push推送
-     */
-    private String cid;
-
 }

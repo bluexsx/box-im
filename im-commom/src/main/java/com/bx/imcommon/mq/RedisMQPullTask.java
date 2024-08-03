@@ -28,8 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisMQPullTask implements CommandLineRunner {
 
-    private static final ScheduledThreadPoolExecutor EXECUTOR_SERVICE =
-        ThreadPoolExecutorFactory.getThreadPoolExecutor();
+    private static final ScheduledThreadPoolExecutor EXECUTOR = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 
     @Autowired(required = false)
     private List<RedisMQConsumer> consumers = Collections.emptyList();
@@ -48,12 +47,15 @@ public class RedisMQPullTask implements CommandLineRunner {
             // 获取泛型类型
             Type superClass = consumer.getClass().getGenericSuperclass();
             Type type = ((ParameterizedType)superClass).getActualTypeArguments()[0];
-            EXECUTOR_SERVICE.execute(new Runnable() {
+            EXECUTOR.execute(new Runnable() {
                 @Override
                 public void run() {
                     List<Object> datas = new LinkedList<>();
                     try {
-                        if(consumer.isReady()){
+                        if(redisMQTemplate.isClose()){
+                            return;
+                        }
+                        if (consumer.isReady()) {
                             String key = consumer.generateKey();
                             // 拉取一个批次的数据
                             List<Object> objects = pullBatch(key, batchSize);
@@ -65,23 +67,22 @@ public class RedisMQPullTask implements CommandLineRunner {
                                     datas.add(data);
                                 }
                             }
-                            if(!datas.isEmpty()){
+                            if (!datas.isEmpty()) {
                                 consumer.onMessage(datas);
                             }
                         }
                     } catch (Exception e) {
                         log.error("数据消费异常,队列:{}", queue, e);
-                        EXECUTOR_SERVICE.schedule(this, period, TimeUnit.MICROSECONDS);
                         return;
                     }
                     // 继续消费数据
-                    if (!EXECUTOR_SERVICE.isShutdown()) {
+                    if (!EXECUTOR.isShutdown()) {
                         if (datas.size() < batchSize) {
                             // 数据已经消费完，等待下一个周期继续拉取
-                            EXECUTOR_SERVICE.schedule(this, period, TimeUnit.MICROSECONDS);
+                            EXECUTOR.schedule(this, period, TimeUnit.MICROSECONDS);
                         } else {
                             // 数据没有消费完，直接开启下一个消费周期
-                            EXECUTOR_SERVICE.execute(this);
+                            EXECUTOR.execute(this);
                         }
                     }
                 }
@@ -106,7 +107,8 @@ public class RedisMQPullTask implements CommandLineRunner {
     }
 
     @PreDestroy
-    public void destory(){
+    public void destory() {
+        log.info("消费线程停止...");
         ThreadPoolExecutorFactory.shutDown();
     }
 }
