@@ -71,6 +71,8 @@ public class RedisMQPullTask implements CommandLineRunner {
                         }
                     } catch (Exception e) {
                         log.error("数据消费异常,队列:{}", queue, e);
+                        EXECUTOR_SERVICE.schedule(this, period, TimeUnit.MICROSECONDS);
+                        return;
                     }
                     // 继续消费数据
                     if (!EXECUTOR_SERVICE.isShutdown()) {
