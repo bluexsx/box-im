@@ -9,6 +9,11 @@ export default {
 	},
 	mutations: {
 		setFriends(state, friends) {
+			friends.forEach((f)=>{
+				f.online = false;
+				f.onlineWeb = false;
+				f.onlineApp = false;
+			})
 			state.friends = friends;
 		},
 		updateFriend(state, friend) {
@@ -41,12 +46,10 @@ export default {
 				let userTerminal = onlineTerminals.find((o)=> f.id==o.userId);
 				if(userTerminal){
 					f.online = true;
-					f.onlineTerminals = userTerminal.terminals;
 					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB)>=0
 					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP)>=0
 				}else{
 					f.online = false;
-					f.onlineTerminals = [];
 					f.onlineWeb = false;
 					f.onlineApp = false;
 				}
@@ -80,6 +83,7 @@ export default {
 	},
 	actions: {
 		loadFriend(context) {
+			console.log("loadFriend")
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/friend/list',
@@ -88,6 +92,7 @@ export default {
 					context.commit("setFriends", friends);
 					context.commit("refreshOnlineStatus");
 					resolve()
+					console.log("loadFriend ok")
 				}).catch((res) => {
 					reject();
 				})
