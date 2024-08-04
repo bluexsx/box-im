@@ -33,12 +33,12 @@ export default new VueRouter({
 		    component: () => import("../view/Chat"),
 		  },
 		{
-		  name: "Friends",
+		  name: "Friend",
 		  path: "/home/friend",
 		  component: () => import("../view/Friend"),
 		},
 		{
-		  name: "Friends",
+		  name: "GROUP",
 		  path: "/home/group",
 		  component: () => import("../view/Group"),
 		}
