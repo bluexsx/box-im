@@ -1,8 +1,6 @@
 import axios from 'axios'
-import router from '@/router'
-import {
-	Message
-} from 'element-ui'
+
+import { Message } from 'element-ui'
 
 const http = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API,
@@ -30,12 +28,12 @@ http.interceptors.response.use(async response => {
 	if (response.data.code == 200) {
 		return response.data.data;
 	} else if (response.data.code == 400) {
-		router.replace("/login");
+		location.href = "/";
 	} else if (response.data.code == 401) {
 		console.log("token失效，尝试重新获取")
 		let refreshToken = sessionStorage.getItem("refreshToken");
 		if (!refreshToken) {
-			router.replace("/login");
+			location.href = "/";
 		}
 		// 发送请求, 进行刷新token操作, 获取新的token
 		const data = await http({
@@ -45,7 +43,7 @@ http.interceptors.response.use(async response => {
 				refreshToken: refreshToken
 			}
 		}).catch(()=>{
-			router.replace("/login");
+			location.href = "/";
 		})
 		// 保存token
 		sessionStorage.setItem("accessToken", data.accessToken);
@@ -72,7 +70,7 @@ http.interceptors.response.use(async response => {
 			})
 			break
 		case 401:
-			router.replace("/login");
+			location.href = "/";
 			break
 		case 405:
 			Message({

@@ -10,6 +10,11 @@ export default {
 	},
 	mutations: {
 		setFriends(state, friends) {
+			friends.forEach((f)=>{
+				f.online = false;
+				f.onlineWeb = false;
+				f.onlineApp = false;
+			})
 			state.friends = friends;
 		},
 		updateFriend(state,friend){
@@ -49,7 +54,7 @@ export default {
 			})
 			
 			// 30s后重新拉取
-			clearTimeout(state.timer);
+			state.timer && clearTimeout(state.timer);
 			state.timer = setTimeout(()=>{
 				this.commit("refreshOnlineStatus");
 			},30000)
@@ -59,12 +64,10 @@ export default {
 				let userTerminal = onlineTerminals.find((o)=> f.id==o.userId);
 				if(userTerminal){
 					f.online = true;
-					f.onlineTerminals = userTerminal.terminals;
 					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB)>=0
 					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP)>=0
 				}else{
 					f.online = false;
-					f.onlineTerminals = [];
 					f.onlineWeb = false;
 					f.onlineApp = false;
 				}
@@ -81,7 +84,7 @@ export default {
 			});
 		},
 		clear(state) {
-			clearTimeout(state.timer);
+			state.timer && clearTimeout(state.timer);
 			state.friends = [];
 			state.timer = null;
 			state.activeFriend = [];
