@@ -39,12 +39,18 @@ let upload = () => {
 				filePath: wavFile.tempFilePath,
 				name: 'file',
 				success: (res) => {
-					const duration = (new Date().getTime() - startTime.getTime()) / 1000
-					const data = {
-						duration: Math.round(duration),
-						url: JSON.parse(res.data).data
+					let r = JSON.parse(res.data);
+					if (r.code != 200) {
+						reject(r.message);
+					} else {
+						const duration = (new Date().getTime() - startTime.getTime()) /
+							1000
+						const data = {
+							duration: Math.round(duration),
+							url: r.data
+						}
+						resolve(data);
 					}
-					resolve(data);
 				},
 				fail: (e) => {
 					reject(e);

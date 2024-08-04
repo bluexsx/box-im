@@ -9,12 +9,14 @@
 	export default {
 		data() {
 			return {
+				isExit: false, // 是否已退出
 				audioTip: null,
 				reconnecting: false // 正在重连标志
 			}
 		},
 		methods: {
 			init() {
+				this.isExit = false;
 				// 加载数据
 				store.dispatch("load").then(() => {
 					// 初始化websocket
@@ -30,7 +32,7 @@
 				wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 				wsApi.onConnect(() => {
 					// 重连成功提示
-					if(this.reconnecting){
+					if (this.reconnecting) {
 						this.reconnecting = false;
 						uni.showToast({
 							title: "已重新连接",
@@ -55,15 +57,16 @@
 					} else if (cmd == 4) {
 						// 群聊消息
 						this.handleGroupMessage(msgInfo);
+					} else if (cmd == 5) {
+						// 系统消息
+						this.handleSystemMessage(msgInfo);
 					}
 				});
 				wsApi.onClose((res) => {
 					console.log("ws断开", res);
-					// 3099是客户端正常主动关闭
-					if (res.code != 3099) {
-						// 重新连接
-						this.reconnectWs();
-					}
+					// 重新连接
+					this.reconnectWs();
+					
 				})
 			},
 			pullPrivateOfflineMessage(minId) {
@@ -189,7 +192,17 @@
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
 				})
-
+			},
+			handleSystemMessage(msg) {
+				if (msg.type == enums.MESSAGE_TYPE.USER_BANNED) {
+					// 用户被封禁
+					wsApi.close(3099);
+					uni.showModal({
+						content: '您的账号已被管理员封禁，原因:' + msg.content,
+						showCancel: false,
+					})
+					this.exit();
+				}
 			},
 			insertGroupMessage(group, msg) {
 				// 群视频信令
@@ -224,7 +237,7 @@
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
-					showName: group.remark,
+					showName: group.showGroupName,
 					headImage: group.headImageThumb
 				};
 				// 打开会话
@@ -268,6 +281,7 @@
 			},
 			exit() {
 				console.log("exit");
+				this.isExit = true;
 				wsApi.close(3099);
 				uni.removeStorageSync("loginInfo");
 				uni.reLaunch({
@@ -288,6 +302,10 @@
 				return loginInfo.expireTime < new Date().getTime();
 			},
 			reconnectWs() {
+				// 已退出则不再重连
+				if (this.isExit) {
+					return;
+				}
 				// 记录标志
 				this.reconnecting = true;
 				// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
@@ -302,9 +320,9 @@
 					wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
 				}).catch(() => {
 					// 5s后重试
-					setTimeout(()=>{
+					setTimeout(() => {
 						this.reconnectWs();
-					},5000)
+					}, 5000)
 				})
 			},
 			reloadUserInfo() {
@@ -338,11 +356,18 @@
 </script>
 
 <style lang="scss">
+	@import "@/uni_modules/uview-plus/index.scss";
 	@import url('./static/icon/iconfont.css');
+
+	// #ifdef H5 
+	uni-page-head {
+		display: none; // h5浏览器本身就有标题
+	}
+	// #endif
 
 	.tab-page {
 		// #ifdef H5
-		height: calc(100vh - 46px - 50px); // h5平台100vh是包含了顶部和底部，需要减去
+		height: calc(100vh  - 50px); // h5平台100vh是包含了底部高度，需要减去
 		// #endif
 		// #ifndef H5
 		height: calc(100vh);
@@ -351,12 +376,7 @@
 	}
 
 	.page {
-		// #ifdef H5
-		height: calc(100vh - 45px); // h5平台100vh是包含了顶部，需要减去
-		// #endif
-		// #ifndef H5
 		height: calc(100vh);
-		// #endif
 		background-color: #f8f8f8;
 	}
 </style>

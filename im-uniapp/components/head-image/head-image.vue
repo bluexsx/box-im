@@ -55,7 +55,9 @@
 			},
 			avatarTextStyle() {
 				return `width: ${this.size}rpx;height:${this.size}rpx;
-				color:${this.textColor};font-size:${this.size*0.6}rpx;`
+				color:${this.textColor};font-size:${this.size*0.5}rpx;
+				border: 2px solid ${this.textColor};
+				box-shadow: 0px 0px 5rpx ${this.textColor}`
 			},
 			textColor() {
 				let hash = 0;
@@ -76,18 +78,18 @@
 		.avatar-image {
 			position: relative;
 			overflow: hidden;
-			border-radius: 10%;
-			border: 1px solid #ccc;
+			border-radius: 50%;
+			border: 2px solid #6664eb;
 			vertical-align: bottom;	
+			box-shadow: 0px 0px 10rpx #6664eb;
 		}
 
 		.avatar-text {
 			background-color: #f2f2f2;
-			border-radius: 10%;
+			border-radius: 50%;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border: 1px solid #ccc;
 		}
 
 		.online {

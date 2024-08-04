@@ -1,8 +1,17 @@
 {
-
+	"easycom": {
+			"autoscan": true,
+			"custom": {
+				"^u--(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+				"^up-(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+		    "^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
+			}
+		},
 	"pages": [{
 		"path": "pages/login/login"
 	}, {
+		"path" : "pages/register/register"
+	},{
 		"path": "pages/chat/chat"
 	}, {
 		"path": "pages/friend/friend"
@@ -10,8 +19,6 @@
 		"path": "pages/group/group"
 	}, {
 		"path": "pages/mine/mine"
-	}, {
-		"path": "pages/friend/friend-search"
 	}, {
 		"path": "pages/common/user-info"
 	}, {
@@ -43,8 +50,8 @@
 		"backgroundColor": "#fdfdfd"
 	},
 	"tabBar": {
-		"color": "#999999",
-		"selectedColor": "#09C160",
+		"color": "#000000",
+		"selectedColor": "#587ff0",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
 		"list": [{
@@ -52,6 +59,7 @@
 				"iconPath": "static/tarbar/chat.png",
 				"selectedIconPath": "static/tarbar/chat_active.png",
 				"text": "消息"
+				
 			},
 			{
 				"pagePath": "pages/friend/friend",

@@ -161,10 +161,12 @@
 				flex-direction: column;
 				padding-left: 40rpx;
 				flex: 1;
-
+				
+				
 				.info-primary {
 					display: flex;
-
+					align-items: center;
+					
 					.info-username {
 						font-size: 40rpx;
 						font-weight: 600;
