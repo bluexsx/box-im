@@ -17,11 +17,11 @@
 
 
 #### 近期更新
-发布3.0版本
+发布3.0版本：
 
-- 支持后台管理功能,后台管理代码仓库地址:https://gitee.com/bluexsx/box-im-admin
+- 后台管理端上线,后台管理代码仓库地址:https://gitee.com/bluexsx/box-im-admin
 - 组件框架版本升级至: jdk17、springboot3.3、node18
-- 部分ui，功能、性能优化
+- 部分界面，功能、性能优化
 
 
 #### 在线体验
@@ -37,7 +37,6 @@
 ![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
 由于微信小程序每次发布审核过于严苛和繁琐，暂时不再提供体验环境，但uniapp端依然会继续兼容小程序
-
 
 
 #### 项目结构
@@ -63,7 +62,7 @@
 - 安装node:v18.19.0
 - 安装jdk:17
 - 安装maven:3.9.6
-- 安装mysql:8.0,账号密码分别为root/root,运行sql脚本(脚本在im-platfrom的resources/db目录)
+- 安装mysql:8.0,账号密码分别为root/root,创建名为im_platform的数据库，运行db/im_platfrom.sql脚本
 - 安装redis:6.2
 - 安装minio:RELEASE.2024-xx,使用默认账号、密码、端口
 
@@ -103,7 +102,7 @@ npm run serve
 群列表：
 ![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E5%88%97%E8%A1%A8.png)
 
-app:
+移动端APP:
 ![输入图片说明](%E6%88%AA%E5%9B%BE/app/1.jpg)  
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/app/2.jpg)
