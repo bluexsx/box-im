@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
     <property name="LOG_PATH" value="log"/>
-    <property name="LOG_NAME" value="im-server.log"/>
+    <property name="APP_NAME" value="im-server"/>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>info</level>
@@ -13,17 +13,22 @@
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${LOG_PATH}/${LOG_NAME}</File>
+        <File>${LOG_PATH}/${APP_NAME}.log</File>
         <encoder>
             <pattern>%date [%level] [%thread] [%file : %line] %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/info-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>60</maxHistory>
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>1MB</maxFileSize>
+            <maxHistory>2</maxHistory>
             <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
     <!-- 开发环境下的日志配置 -->
     <springProfile name="dev">
