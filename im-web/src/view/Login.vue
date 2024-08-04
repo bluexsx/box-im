@@ -3,33 +3,27 @@
 		<div class="login-content">
 			<div class="login-intro">
 				<div>
-					<h3>盒子IM 2.0版本已上线：</h3>
+					<h3>盒子IM 3.0版本已上线(2024-08-04)：</h3>
 					<ul>
-						<li>加入uniapp移动端,支持移动端和web端同时在线，多端消息同步</li>
-						<li>目前uniapp移动端支持安卓、ios、h5、微信小程序</li>
-						<li>聊天窗口支持粘贴截图、@群成员、已读未读显示</li>
-						<li>语雀文档:
+						<li>后台管理端上线,后台管理代码仓库地址:https://gitee.com/bluexsx/box-im-admin</li>
+						<li>框架和组件版本全面升级: jdk17、springboot3.3、node18等</li>
+						<li>部分界面，功能、性能优化</li>
+						<li>语雀详细文档:
 							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">盒子IM详细介绍文档</a>
 						</li>
 					</ul>
 				</div>
 				<div>
-					<h3>最近更新(2024-06-22)：</h3>
+					<h3>温馨提示：</h3>
 					<ul>
-						<li>群语音通话功能上线,且同时支持web端和uniapp端</li>
+						<li>在管理后台可以看到所有人的消息,请小伙伴们在测试时不要发送任何涉及自身隐私或机密信息,以避免信息泄露!</li>
 						<li>音视频通话部分源码未开源，可付费获取:
 							<a href="https://www.yuque.com/u1475064/mufu2a/vi7engzluty594s2" target="_blank">音视频源码购买说明</a>
 						</li>
 					</ul>
 				</div>
 				<div>
-					<h3>最近更新(2024-06-23)：</h3>
-					<ul>
-						<li>文件发送功能兼容安卓、ios，并支持多选</li>
-					</ul>
-				</div>
-				<div>
-					<h3>如果本项目对您有帮助,请在gitee上帮忙点个star</h3>
+					<h3>如果本项目对您有帮助,请在Gitee上帮忙点亮star</h3>
 				</div>
 				<div class="login-icons">
 					<a class="login-icon">
