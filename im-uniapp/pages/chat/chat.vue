@@ -1,24 +1,27 @@
 <template>
 	<view class="tab-page">
-
 		<view v-if="loading" class="chat-loading">
 			<loading :size="50" :mask="false">
 				<view>消息接收中...</view>
 			</loading>
+		</view>
+		<view class="nav-bar">
+			<view class="nav-search">
+				<uni-search-bar radius="100" v-model="searchText" cancelButton="none" placeholder="搜索"></uni-search-bar>
+			</view>
 		</view>
 		<view class="chat-tip" v-if="!loading && chatStore.chats.length==0">
 			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
 			<view v-for="(chatPos,i) in chatsPos" :key="i">
-				<chat-item v-if="!chatStore.chats[chatPos.idx].delete" :chat="chatStore.chats[chatPos.idx]"
-					:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"
-					@longpress.native="onShowMenu($event,chatPos.idx)"></chat-item>
+				<pop-menu v-if="isShowChat(chatStore.chats[chatPos.idx])" :items="menu.items"
+					@select="onSelectMenu($event,chatPos.idx)">
+					<chat-item  :chat="chatStore.chats[chatPos.idx]"
+						:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"></chat-item>
+				</pop-menu>
 			</view>
 		</scroll-view>
-
-		<pop-menu v-show="menu.show" :menu-style="menu.style" :items="menu.items" @close="onCloseMenu()"
-			@select="onSelectMenu"></pop-menu>
 	</view>
 </template>
 
@@ -26,14 +29,17 @@
 	export default {
 		data() {
 			return {
+				searchText: "",
 				menu: {
 					show: false,
 					style: "",
 					chatIdx: -1,
+					isTouchMove: false,
 					items: [{
 							key: 'DELETE',
 							name: '删除该聊天',
-							icon: 'trash'
+							icon: 'trash',
+							color: '#e64e4e'
 						},
 						{
 							key: 'TOP',
@@ -45,47 +51,17 @@
 			}
 		},
 		methods: {
-			onSelectMenu(item) {
+			onSelectMenu(item,chatIdx) {
 				switch (item.key) {
 					case 'DELETE':
-						this.removeChat(this.menu.chatIdx);
+						this.removeChat(chatIdx);
 						break;
 					case 'TOP':
-						this.moveToTop(this.menu.chatIdx);
+						this.moveToTop(chatIdx);
 						break;
 					default:
 						break;
 				}
-				this.menu.show = false;
-			},
-			onShowMenu(e, chatIdx) {
-				this.menu.chatIdx = chatIdx;
-				uni.getSystemInfo({
-					success: (res) => {
-						let touches = e.touches[0];
-						let style = "";
-						/* 因 非H5端不兼容 style 属性绑定 Object ，所以拼接字符 */
-						if (touches.clientY > (res.windowHeight / 2)) {
-							style = `bottom:${res.windowHeight-touches.clientY}px;`;
-						} else {
-							style = `top:${touches.clientY}px;`;
-						}
-						if (touches.clientX > (res.windowWidth / 2)) {
-							style += `right:${res.windowWidth-touches.clientX}px;`;
-						} else {
-							style += `left:${touches.clientX}px;`;
-						}
-						this.menu.style = style;
-						this.menu.chatIdx = chatIdx;
-						// 
-						this.$nextTick(() => {
-							this.menu.show = true;
-						});
-					}
-				})
-			},
-			onCloseMenu() {
-				this.menu.chatIdx = -1;
 				this.menu.show = false;
 			},
 			removeChat(chatIdx) {
@@ -93,6 +69,12 @@
 			},
 			moveToTop(chatIdx) {
 				this.$store.commit("moveTop", chatIdx);
+			},
+			isShowChat(chat){
+				if(chat.delete){
+					return false;
+				}
+				return !this.searchText || chat.showName.includes(this.searchText)
 			},
 			refreshUnreadBadge() {
 				if (this.unreadCount > 0) {
@@ -158,7 +140,23 @@
 		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
+		
 
+		.nav-bar {
+			padding: 2rpx 20rpx;
+			display: flex;
+			align-items: center;
+			background-color: white;
+			border-bottom: 1px solid #ddd;
+			height: 110rpx;
+			.nav-search {
+				flex: 1;
+				height: 110rpx;
+			}
+		
+			
+		}
+		
 		.chat-tip {
 			position: absolute;
 			top: 400rpx;
@@ -172,9 +170,11 @@
 		.chat-loading {
 			display: block;
 			width: 100%;
-			height: 100rpx;
+			height: 120rpx;
 			background: white;
-			position: relative;
+			position: fixed;
+			top:  0;
+			z-index: 999;
 			color: blue;
 
 			.loading-box {

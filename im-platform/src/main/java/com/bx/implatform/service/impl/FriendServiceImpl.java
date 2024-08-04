@@ -7,11 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.User;
-import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FriendMapper;
 import com.bx.implatform.mapper.UserMapper;
-import com.bx.implatform.service.IFriendService;
+import com.bx.implatform.service.FriendService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.vo.FriendVO;
@@ -25,12 +24,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_FRIEND)
-public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements IFriendService {
+public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> implements FriendService {
 
     private final UserMapper userMapper;
 
@@ -47,7 +47,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     public void addFriend(Long friendId) {
         long userId = SessionContext.getSession().getUserId();
         if (friendId.equals(userId)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "不允许添加自己为好友");
+            throw new GlobalException("不允许添加自己为好友");
         }
         // 互相绑定好友关系
         FriendServiceImpl proxy = (FriendServiceImpl) AopContext.currentProxy();
@@ -87,12 +87,10 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         queryWrapper.lambda()
                 .eq(Friend::getUserId, userId)
                 .eq(Friend::getFriendId, vo.getId());
-
         Friend f = this.getOne(queryWrapper);
-        if (f == null) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "对方不是您的好友");
+        if (Objects.isNull(f)) {
+            throw new GlobalException("对方不是您的好友");
         }
-
         f.setFriendHeadImage(vo.getHeadImage());
         f.setFriendNickName(vo.getNickName());
         this.updateById(f);
@@ -148,8 +146,8 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
                 .eq(Friend::getUserId, session.getUserId())
                 .eq(Friend::getFriendId, friendId);
         Friend friend = this.getOne(wrapper);
-        if (friend == null) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "对方不是您的好友");
+        if (Objects.isNull(friend)) {
+            throw new GlobalException("对方不是您的好友");
         }
         FriendVO vo = new FriendVO();
         vo.setId(friend.getFriendId());

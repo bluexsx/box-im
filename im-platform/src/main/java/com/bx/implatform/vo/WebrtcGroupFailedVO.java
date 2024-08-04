@@ -1,7 +1,6 @@
 package com.bx.implatform.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
@@ -12,12 +11,12 @@ import java.util.List;
  * @version: 1.0
  */
 @Data
-@ApiModel("用户加入群通话失败VO")
+@Schema(description = "用户加入群通话失败VO")
 public class WebrtcGroupFailedVO {
 
-    @ApiModelProperty(value = "失败用户列表")
+    @Schema(description = "失败用户列表")
     private List<Long> userIds;
 
-    @ApiModelProperty(value = "失败原因")
+    @Schema(description = "失败原因")
     private String reason;
 }

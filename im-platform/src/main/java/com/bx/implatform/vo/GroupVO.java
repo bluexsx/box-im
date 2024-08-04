@@ -1,50 +1,53 @@
 package com.bx.implatform.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotEmpty;
-
 @Data
-@ApiModel("群信息VO")
+@Schema(description = "群信息VO")
 public class GroupVO {
 
-    @ApiModelProperty(value = "群id")
+    @Schema(description = "群id")
     private Long id;
 
     @Length(max = 20, message = "群名称长度不能大于20")
     @NotEmpty(message = "群名称不可为空")
-    @ApiModelProperty(value = "群名称")
+    @Schema(description = "群名称")
     private String name;
 
-    @ApiModelProperty(value = "群主id")
+    @Schema(description = "群主id")
     private Long ownerId;
 
-    @ApiModelProperty(value = "头像")
+    @Schema(description = "头像")
     private String headImage;
 
-    @ApiModelProperty(value = "头像缩略图")
+    @Schema(description = "头像缩略图")
     private String headImageThumb;
 
     @Length(max = 1024, message = "群聊显示长度不能大于1024")
-    @ApiModelProperty(value = "群公告")
+    @Schema(description = "群公告")
     private String notice;
 
-    @Length(max = 20, message = "群聊显示长度不能大于20")
-    @ApiModelProperty(value = "用户在群显示昵称")
-    private String aliasName;
+    @Length(max = 20, message = "显示昵称长度不能大于20")
+    @Schema(description = "用户在群显示昵称")
+    private String remarkNickName;
 
-    @Length(max = 20, message = "群聊显示长度不能大于20")
-    @ApiModelProperty(value = "群聊显示备注")
-    private String remark;
+    @Schema(description = "群内显示名称")
+    private String showNickName;
 
-    @ApiModelProperty(value = "是否已删除")
+    @Schema(description = "群名显示名称")
+    private String showGroupName;
+
+    @Length(max = 20, message = "群备注长度不能大于20")
+    @Schema(description = "群名备注")
+    private String remarkGroupName;
+
+    @Schema(description = "是否已删除")
     private Boolean deleted;
 
-    @ApiModelProperty(value = "是否已退出")
+    @Schema(description = "是否已退出")
     private Boolean quit;
 
 

@@ -278,7 +278,7 @@ export default {
 				let chat = chats[i];
 				if (chat.type == 'GROUP' && chat.targetId == group.id) {
 					chat.headImage = group.headImageThumb;
-					chat.showName = group.remark;
+					chat.showName = group.showGroupName;
 					break;
 				}
 			}

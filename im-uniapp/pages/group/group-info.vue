@@ -4,10 +4,10 @@
 			<view class="member-items">
 				<view v-for="(member,idx) in  groupMembers" :key="idx">
 					<view class="member-item" v-if="idx<9">
-						<head-image :id="member.userId" :name="member.aliasName" :url="member.headImage" 
+						<head-image :id="member.userId" :name="member.showNickName" :url="member.headImage" 
 						:size="100" :online="member.online" ></head-image>
 						<view class="member-name">
-							<text>{{member.aliasName}}</text>
+							<text>{{member.showNickName}}</text>
 						</view>
 					</view>
 				</view>
@@ -29,14 +29,14 @@
 				</template>
 			</uni-section>
 
-			<uni-section title="群聊备注:" titleFontSize="14px">
+			<uni-section title="群名备注:" titleFontSize="14px">
 				<template v-slot:right>
-					<text class="detail-text"> {{group.remark}}</text>
+					<text class="detail-text"> {{group.showGroupName}}</text>
 				</template>
 			</uni-section>
 			<uni-section title="我在本群的昵称:" titleFontSize="14px">
 				<template v-slot:right>
-					<text class="detail-text"> {{group.aliasName}}</text>
+					<text class="detail-text"> {{group.showNickName}}</text>
 				</template>
 			</uni-section>
 			<uni-section title="群公告:" titleFontSize="14px">
@@ -82,7 +82,7 @@
 				let chat = {
 					type: 'GROUP',
 					targetId: this.group.id,
-					showName: this.group.remark,
+					showName: this.group.showGroupName,
 					headImage: this.group.headImage,
 				};
 				this.$store.commit("openChat", chat);
@@ -177,7 +177,7 @@
 		computed: {
 			ownerName() {
 				let member = this.groupMembers.find((m) => m.userId == this.group.ownerId);
-				return member && member.aliasName;
+				return member && member.showNickName;
 			},
 			isOwner() {
 				return this.group.ownerId == this.$store.state.userStore.userInfo.id;

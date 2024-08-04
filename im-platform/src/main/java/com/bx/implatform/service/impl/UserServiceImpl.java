@@ -2,7 +2,7 @@ package com.bx.implatform.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
@@ -18,9 +18,9 @@ import com.bx.implatform.entity.User;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.UserMapper;
-import com.bx.implatform.service.IFriendService;
-import com.bx.implatform.service.IGroupMemberService;
-import com.bx.implatform.service.IUserService;
+import com.bx.implatform.service.FriendService;
+import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -39,19 +39,23 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final PasswordEncoder passwordEncoder;
-    private final IGroupMemberService groupMemberService;
-    private final IFriendService friendService;
+    private final GroupMemberService groupMemberService;
+    private final FriendService friendService;
     private final JwtProperties jwtProperties;
     private final IMClient imClient;
 
     @Override
     public LoginVO login(LoginDTO dto) {
         User user = this.findUserByUserName(dto.getUserName());
-        if (null == user) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "用户不存在");
+        if (Objects.isNull(user)) {
+            throw new GlobalException("用户不存在");
+        }
+        if (user.getIsBanned()) {
+            String tip = String.format("您的账号因'%s'已被管理员封禁,请联系客服!",user.getReason());
+            throw new GlobalException(tip);
         }
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new GlobalException(ResultCode.PASSWOR_ERROR);
@@ -61,8 +65,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         session.setUserId(user.getId());
         session.setTerminal(dto.getTerminal());
         String strJson = JSON.toJSONString(session);
-        String accessToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
-        String refreshToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getRefreshTokenExpireIn(), jwtProperties.getRefreshTokenSecret());
+        String accessToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getAccessTokenExpireIn(),
+            jwtProperties.getAccessTokenSecret());
+        String refreshToken = JwtUtil.sign(user.getId(), strJson, jwtProperties.getRefreshTokenExpireIn(),
+            jwtProperties.getRefreshTokenSecret());
         LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
@@ -79,8 +85,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         String strJson = JwtUtil.getInfo(refreshToken);
         Long userId = JwtUtil.getUserId(refreshToken);
-        String accessToken = JwtUtil.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
-        String newRefreshToken = JwtUtil.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(), jwtProperties.getRefreshTokenSecret());
+        User user = this.getById(userId);
+        if (Objects.isNull(user)) {
+            throw new GlobalException("用户不存在");
+        }
+        if (user.getIsBanned()) {
+            String tip = String.format("您的账号因'%s'被管理员封禁,请联系客服!",user.getReason());
+            throw new GlobalException(tip);
+        }
+        String accessToken =
+            JwtUtil.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
+        String newRefreshToken = JwtUtil.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(),
+            jwtProperties.getRefreshTokenSecret());
         LoginVO vo = new LoginVO();
         vo.setAccessToken(accessToken);
         vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
@@ -92,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public void register(RegisterDTO dto) {
         User user = this.findUserByUserName(dto.getUserName());
-        if (null != user) {
+        if (!Objects.isNull(user)) {
             throw new GlobalException(ResultCode.USERNAME_ALREADY_REGISTER);
         }
         user = BeanUtils.copyProperties(dto, User.class);
@@ -125,30 +141,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
         if (!session.getUserId().equals(vo.getId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "不允许修改其他用户的信息!");
+            throw new GlobalException("不允许修改其他用户的信息!");
         }
         User user = this.getById(vo.getId());
         if (Objects.isNull(user)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "用户不存在");
+            throw new GlobalException("用户不存在");
         }
-        // 更新好友昵称和头像
+
         if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-            QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(Friend::getFriendId, session.getUserId());
-            List<Friend> friends = friendService.list(queryWrapper);
-            for (Friend friend : friends) {
-                friend.setFriendNickName(vo.getNickName());
-                friend.setFriendHeadImage(vo.getHeadImageThumb());
-            }
-            friendService.updateBatchById(friends);
-        }
-        // 更新群聊中的头像
-        if (!user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-            List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
-            for (GroupMember member : members) {
-                member.setHeadImage(vo.getHeadImageThumb());
-            }
-            groupMemberService.updateBatchById(members);
+            // 更新好友昵称和头像
+            LambdaUpdateWrapper<Friend> wrapper1 = Wrappers.lambdaUpdate();
+            wrapper1.eq(Friend::getFriendId, session.getUserId());
+            wrapper1.set(Friend::getFriendNickName,vo.getNickName());
+            wrapper1.set(Friend::getFriendHeadImage,vo.getHeadImageThumb());
+            friendService.update(wrapper1);
+            // 更新群聊中的昵称和头像
+            LambdaUpdateWrapper<GroupMember> wrapper2 = Wrappers.lambdaUpdate();
+            wrapper2.eq(GroupMember::getUserId, session.getUserId());
+            wrapper2.set(GroupMember::getHeadImage,vo.getHeadImageThumb());
+            wrapper2.set(GroupMember::getUserNickName,vo.getNickName());
+            groupMemberService.update(wrapper2);
         }
         // 更新用户信息
         user.setNickName(vo.getNickName());

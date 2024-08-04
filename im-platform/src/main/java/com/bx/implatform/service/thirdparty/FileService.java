@@ -9,6 +9,7 @@ import com.bx.implatform.util.FileUtil;
 import com.bx.implatform.util.ImageUtil;
 import com.bx.implatform.util.MinioUtil;
 import com.bx.implatform.vo.UploadImageVO;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Objects;
 

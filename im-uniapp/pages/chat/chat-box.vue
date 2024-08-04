@@ -22,7 +22,7 @@
 			<scroll-view v-if="atUserIds.length>0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
 				<view class="chat-at-items">
 					<view v-for="m in atUserItems" class="chat-at-item">
-						<head-image :name="m.aliasName" :url="m.headImage" :size="50"></head-image>
+						<head-image :name="m.showNickName" :url="m.headImage" :size="50"></head-image>
 					</view>
 				</view>
 			</scroll-view>
@@ -50,14 +50,14 @@
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
 						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-picture"></view>
+						<view class="tool-icon iconfont icon-picture" ></view>
 					</image-upload>
 					<view class="tool-name">相册</view>
 				</view>
 				<view class="chat-tools-item">
 					<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
 						:onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-camera"></view>
+						<view class="tool-icon iconfont icon-camera" ></view>
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
@@ -65,31 +65,32 @@
 				<view class="chat-tools-item">
 					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
-						<view class="tool-icon iconfont icon-folder"></view>
+						<view class="tool-icon iconfont icon-folder" ></view>
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
 		
 				<view class="chat-tools-item" @click="onRecorderInput()">
-					<view class="tool-icon iconfont icon-microphone"></view>
+					<view class="tool-icon iconfont icon-microphone" ></view>
 					<view class="tool-name">语音消息</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
-					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
+					<view class="tool-icon iconfont icon-receipt" 
+						:class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
 				<!-- #ifndef MP-WEIXIN -->
 				<!-- 音视频不支持小程序 -->
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
-					<view class="tool-icon iconfont icon-video"></view>
+					<view class="tool-icon iconfont icon-video" ></view>
 					<view class="tool-name">视频通话</view>
 				</view>
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
-					<view class="tool-icon iconfont icon-call"></view>
+					<view class="tool-icon iconfont icon-call" ></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
-					<view class="tool-icon iconfont icon-call"></view>
+					<view class="tool-icon iconfont icon-call" ></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<!-- #endif -->
@@ -157,14 +158,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
-					msgInfo.id = id;
-					msgInfo.sendTime = new Date().getTime();
-					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
-					msgInfo.selfSend = true;
-					msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
-					msgInfo.readedCount = 0;
-					this.$store.commit("insertMessage", msgInfo);
+				}).then((m) => {
+					m.selfSend = true;
+					this.$store.commit("insertMessage", m);
 					// 会话置顶
 					this.moveChatToTop();
 					// 滚动到底部
@@ -218,7 +214,7 @@
 					// 只取部分字段,压缩url长度
 					users.push({
 						id: m.userId,
-						nickName: m.aliasName,
+						nickName: m.showNickName,
 						headImage: m.headImage,
 						isCamera: false,
 						isMicroPhone: true
@@ -262,7 +258,7 @@
 			showName(msgInfo) {
 				if (this.chat.type == 'GROUP') {
 					let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
-					return member ? member.aliasName : "";
+					return member ? member.showNickName : "";
 				} else {
 					return msgInfo.selfSend ? this.mine.nickName : this.chat.showName
 				}
@@ -289,14 +285,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
-					msgInfo.id = id;
-					msgInfo.sendTime = new Date().getTime();
-					msgInfo.sendId = this.$store.state.userStore.userInfo.id;
-					msgInfo.selfSend = true;
-					msgInfo.readedCount = 0,
-						msgInfo.status = this.$enums.MESSAGE_STATUS.UNSEND;
-					this.$store.commit("insertMessage", msgInfo);
+				}).then((m) => {
+					m.selfSend = true;
+					this.$store.commit("insertMessage", m);
 					// 会话置顶
 					this.moveChatToTop();
 					this.sendText = "";
@@ -316,7 +307,7 @@
 					} else {
 						let member = this.groupMembers.find((m) => m.userId == id);
 						if (member) {
-							atText += ` @${member.aliasName}`;
+							atText += ` @${member.showNickName}`;
 						}
 					}
 				})
@@ -421,9 +412,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
+				}).then((m) => {
 					msgInfo.loadStatus = 'ok';
-					msgInfo.id = id;
+					msgInfo.id = m.id;
 					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})
@@ -476,9 +467,9 @@
 					url: this.messageAction,
 					method: 'POST',
 					data: msgInfo
-				}).then((id) => {
+				}).then((m) => {
 					msgInfo.loadStatus = 'ok';
-					msgInfo.id = id;
+					msgInfo.id = m.id;
 					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})
@@ -682,7 +673,7 @@
 					if (id == -1) {
 						atUsers.push({
 							id: -1,
-							aliasName: "全体成员"
+							showNickName: "全体成员"
 						})
 						return;
 					}
@@ -762,7 +753,7 @@
 			align-items: center;
 			height: 60rpx;
 			padding: 5px;
-			background-color: white;
+			background-color: #f8f8f8;
 			line-height: 50px;
 			font-size: 40rpx;
 			font-weight: 600;
@@ -791,7 +782,7 @@
 			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
-			background-color: #f8f8f8;
+			background-color: white;
 
 			.scroll-box {
 				height: 100%;
@@ -833,11 +824,11 @@
 			padding: 10rpx;
 			margin-bottom: 10rpx;
 			border: #dddddd solid 1px;
-			background-color: white;
+			background-color: #f7f8fd;
 
 			.iconfont {
-				font-size: 60rpx;
-				margin: 3rpx;
+				font-size: 68rpx;
+				margin: 6rpx;
 			}
 
 			.chat-record {
@@ -847,14 +838,12 @@
 
 			.send-text {
 				flex: 1;
-				background-color: #f8f8f8 !important;
 				overflow: auto;
 				padding: 20rpx;
 				background-color: #fff;
 				border-radius: 20rpx;
 				font-size: 30rpx;
 				box-sizing: border-box;
-
 				.send-text-area {
 					width: 100%;
 				}
@@ -869,7 +858,7 @@
 		.chat-tab-bar {
 			height: 500rpx;
 			padding: 20rpx;
-			background-color: whitesmoke;
+			background-color: #f8f8f8;
 
 			.chat-tools {
 				display: flex;
@@ -881,13 +870,13 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-
+						
 					.tool-icon {
 						padding: 28rpx;
 						font-size: 60rpx;
-						background-color: white;
 						border-radius: 20%;
-
+						background-color: white;
+						color: black;
 						&.active {
 							background-color: #ddd;
 						}
@@ -896,7 +885,7 @@
 					.tool-name {
 						height: 60rpx;
 						line-height: 60rpx;
-						font-size: 25rpx;
+						font-size: 28rpx;
 					}
 				}
 			}

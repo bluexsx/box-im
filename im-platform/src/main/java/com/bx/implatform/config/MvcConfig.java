@@ -19,13 +19,10 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(xssInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/error");
-        registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/logout", "/register", "/refreshToken",
-                        "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
+        registry.addInterceptor(xssInterceptor).addPathPatterns("/**").excludePathPatterns("/error");
+        registry.addInterceptor(authInterceptor).addPathPatterns("/**")
+            .excludePathPatterns("/login", "/logout", "/register", "/refreshToken", "/swagger/**", "/v3/api-docs/**",
+                "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**", "/doc.html");
     }
 
     @Bean

@@ -1,0 +1,43 @@
+@charset "UTF-8";
+
+html {
+  height: 100%;
+  overflow: hidden;
+       
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+
+}
+
+section {
+	  height: 100%;
+}
+
+.el-dialog__body{
+	padding: 10px 15px !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 1px;
+}
+
+::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 2px;
+  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  background: #535353;
+}
+
+::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  -webkit-box-shadow: inset 0 0 5px transparent;
+  border-radius: 2px;
+  background: #ededed;
+}
+
+/*# sourceMappingURL=v-im.cssss.map */

@@ -1,8 +1,7 @@
 package com.bx.implatform.vo;
 
 import com.bx.implatform.session.WebrtcUserInfo;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
@@ -13,16 +12,16 @@ import java.util.List;
  * @version: 1.0
  */
 @Data
-@ApiModel("群通话信息VO")
+@Schema(description = "群通话信息VO")
 public class WebrtcGroupInfoVO {
 
 
-    @ApiModelProperty(value = "是否在通话中")
+    @Schema(description = "是否在通话中")
     private Boolean isChating;
 
-    @ApiModelProperty(value = "通话发起人")
+    @Schema(description = "通话发起人")
     WebrtcUserInfo host;
 
-    @ApiModelProperty(value = "通话用户列表")
+    @Schema(description = "通话用户列表")
     private List<WebrtcUserInfo> userInfos;
 }
