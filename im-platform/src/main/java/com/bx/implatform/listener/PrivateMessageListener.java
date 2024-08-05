@@ -40,8 +40,8 @@ public class PrivateMessageListener implements MessageListener<PrivateMessageVO>
         if(CollUtil.isNotEmpty(messageIds)){
             UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().in(PrivateMessage::getId, messageIds)
-                    .eq(PrivateMessage::getStatus, MessageStatus.UNSEND.code())
-                    .set(PrivateMessage::getStatus, MessageStatus.SENDED.code());
+                .eq(PrivateMessage::getStatus, MessageStatus.UNSEND.code())
+                .set(PrivateMessage::getStatus, MessageStatus.SENDED.code());
             privateMessageService.update(updateWrapper);
         }
     }
