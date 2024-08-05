@@ -57,7 +57,7 @@
 - redis记录了每个用户的websocket连接的是哪个im-server,当用户发送消息时，im-platform将根据所连接的im-server的id,决定将消息推向哪个queue
 
 
-#### 本地快速部署
+#### 本地启动
 1.安装运行环境
 - 安装node:v18.19.0
 - 安装jdk:17
