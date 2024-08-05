@@ -16,12 +16,11 @@ import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
-import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.PrivateMessageMapper;
-import com.bx.implatform.service.IFriendService;
-import com.bx.implatform.service.IPrivateMessageService;
-import com.bx.implatform.service.INotifyPrivateService;
+import com.bx.implatform.service.FriendService;
+import com.bx.implatform.service.PrivateMessageService;
+import com.bx.implatform.service.NotifyPrivateService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -39,18 +38,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements IPrivateMessageService {
+public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements
+    PrivateMessageService {
 
-    private final IFriendService friendService;
+    private final FriendService friendService;
     private final IMClient imClient;
     private final SensitiveFilterUtil sensitiveFilterUtil;
     private final INotifyPrivateService notifyPrivateService;
     @Override
-    public Long sendMessage(PrivateMessageDTO dto) {
+    public PrivateMessageVO sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
         Boolean isFriends = friendService.isFriend(session.getUserId(), dto.getRecvId());
         if (Boolean.FALSE.equals(isFriends)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "您已不是对方好友，无法发送消息");
+            throw new GlobalException("您已不是对方好友，无法发送消息");
         }
         // 保存消息
         PrivateMessage msg = BeanUtils.copyProperties(dto, PrivateMessage.class);
@@ -58,9 +58,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msg.setStatus(MessageStatus.UNSEND.code());
         msg.setSendTime(new Date());
         this.save(msg);
-        // 过滤消息内容
-        String content = sensitiveFilterUtil.filter(dto.getContent());
-        msg.setContent(content);
+        // 过滤内容中的敏感词
+        if(MessageType.TEXT.code().equals(dto.getType())){
+            msg.setContent(sensitiveFilterUtil.filter(dto.getContent()));
+        }
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
@@ -71,7 +72,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         sendMessage.setSendResult(true);
         imClient.sendPrivateMessage(sendMessage);
         log.info("发送私聊消息，发送id:{},接收id:{}，内容:{}", session.getUserId(), dto.getRecvId(), dto.getContent());
-        return msg.getId();
+        return msgInfo;
     }
 
     @Override
@@ -79,13 +80,13 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         UserSession session = SessionContext.getSession();
         PrivateMessage msg = this.getById(id);
         if (Objects.isNull(msg)) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息不存在");
+            throw new GlobalException("消息不存在");
         }
         if (!msg.getSendId().equals(session.getUserId())) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "这条消息不是由您发送,无法撤回");
+            throw new GlobalException("这条消息不是由您发送,无法撤回");
         }
         if (System.currentTimeMillis() - msg.getSendTime().getTime() > IMConstant.ALLOW_RECALL_SECOND * 1000) {
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "消息已发送超过5分钟，无法撤回");
+            throw new GlobalException("消息已发送超过5分钟，无法撤回");
         }
         // 修改消息状态
         msg.setStatus(MessageStatus.RECALL.code());
@@ -139,7 +140,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
         if(!imClient.isOnline(session.getUserId())){
-            throw new GlobalException(ResultCode.PROGRAM_ERROR, "网络连接失败，无法拉取离线消息");
+            throw new GlobalException("网络连接失败，无法拉取离线消息");
         }
         // 查询用户好友列表
         List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
@@ -153,8 +154,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近1个月的1000条消息
-        Date minDate = DateUtils.addMonths(new Date(), -1);
+        // 只能拉取最近3个月的3000条消息
+        Date minDate = DateUtils.addMonths(new Date(), -3);
         queryWrapper.gt(PrivateMessage::getId, minId)
             .ge(PrivateMessage::getSendTime, minDate)
             .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
@@ -164,7 +165,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
                     .in(PrivateMessage::getSendId, friendIds)))
             .orderByDesc(PrivateMessage::getId)
-            .last("limit 1000");
+            .last("limit 3000");
         List<PrivateMessage> messages = this.list(queryWrapper);
         // 消息顺序从小到大
         CollectionUtil.reverse(messages);

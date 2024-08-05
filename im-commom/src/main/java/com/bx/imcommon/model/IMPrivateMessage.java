@@ -26,7 +26,7 @@ public class IMPrivateMessage<T> {
     private List<Integer> recvTerminals = IMTerminalType.codes();
 
     /**
-     * 是否发送给自己的其他终端,默认true
+     * 是否同步消息给自己的其他终端,默认true
      */
     private Boolean sendToSelf = true;
 

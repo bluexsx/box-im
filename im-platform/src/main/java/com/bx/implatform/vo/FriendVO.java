@@ -1,24 +1,22 @@
 package com.bx.implatform.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-
 @Data
-@ApiModel("好友信息VO")
+@Schema(description = "好友信息VO")
 public class FriendVO {
 
     @NotNull(message = "好友id不可为空")
-    @ApiModelProperty(value = "好友id")
+    @Schema(description = "好友id")
     private Long id;
 
     @NotNull(message = "好友昵称不可为空")
-    @ApiModelProperty(value = "好友昵称")
+    @Schema(description = "好友昵称")
     private String nickName;
 
 
-    @ApiModelProperty(value = "好友头像")
+    @Schema(description = "好友头像")
     private String headImage;
 }

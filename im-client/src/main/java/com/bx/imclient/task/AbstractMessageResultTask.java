@@ -1,44 +1,21 @@
 package com.bx.imclient.task;
 
-import com.bx.imcommon.util.ThreadPoolExecutorFactory;
-import lombok.SneakyThrows;
+import cn.hutool.core.util.StrUtil;
+import com.bx.imcommon.mq.RedisMQConsumer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
-
-import javax.annotation.PreDestroy;
-import java.util.concurrent.ExecutorService;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
-public abstract class AbstractMessageResultTask implements CommandLineRunner {
+public abstract class AbstractMessageResultTask<T> extends RedisMQConsumer<T> {
 
-    private static final ExecutorService EXECUTOR_SERVICE = ThreadPoolExecutorFactory.getThreadPoolExecutor();
+    @Value("${spring.application.name}")
+    private String appName;
 
     @Override
-    public void run(String... args) {
-        // 初始化定时器
-        EXECUTOR_SERVICE.execute(new Runnable() {
-            @SneakyThrows
-            @Override
-            public void run() {
-                try {
-                    pullMessage();
-                } catch (Exception e) {
-                    log.error("任务调度异常", e);
-                }
-                if (!EXECUTOR_SERVICE.isShutdown()) {
-                    Thread.sleep(100);
-                    EXECUTOR_SERVICE.execute(this);
-                }
-            }
-        });
+    public String generateKey() {
+        return StrUtil.join(":", super.generateKey(), appName);
     }
 
 
-    @PreDestroy
-    public void destroy() {
-        log.info("{}线程任务关闭", this.getClass().getSimpleName());
-        EXECUTOR_SERVICE.shutdown();
-    }
 
-    public abstract void pullMessage() throws InterruptedException;
 }

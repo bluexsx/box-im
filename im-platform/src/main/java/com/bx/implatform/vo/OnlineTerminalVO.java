@@ -1,6 +1,6 @@
 package com.bx.implatform.vo;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -15,10 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 public class OnlineTerminalVO {
 
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long userId;
 
-    @ApiModelProperty(value = "在线终端类型")
+    @Schema(description = "在线终端类型")
     private List<Integer> terminals;
 
 }

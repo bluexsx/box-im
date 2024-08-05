@@ -1,14 +1,12 @@
 package com.bx.implatform.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -24,67 +22,59 @@ import java.util.Date;
 @TableName("im_group_member")
 public class GroupMember extends Model<GroupMember> {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId
     private Long id;
 
     /**
      * 群id
      */
-    @TableField("group_id")
     private Long groupId;
 
     /**
      * 用户id
      */
-    @TableField("user_id")
     private Long userId;
 
     /**
-     * 群内显示名称
+     * 用户昵称
      */
-    @TableField("alias_name")
-    private String aliasName;
+    private String userNickName;
 
     /**
-     * 头像
+     * 显示昵称备注
      */
-    @TableField("head_image")
+    private String remarkNickName;
+
+    /**
+     * 用户头像
+     */
     private String headImage;
 
+    /**
+     * 显示群名备注
+     */
+    private String remarkGroupName;
 
     /**
-     * 备注
+     * 是否已退出
      */
-    @TableField("remark")
-    private String remark;
-
-    /**
-     * 是否已离开群聊
-     */
-    @TableField("quit")
     private Boolean quit;
-
-    /**
-     * 退群时间
-     */
-    @TableField("quit_time")
-    private Date quitTime;
 
     /**
      * 创建时间
      */
-    @TableField("created_time")
     private Date createdTime;
 
+    /**
+     * 退出时间
+     */
+    private Date quitTime;
 
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
+    public String getShowNickName() {
+        return StrUtil.isEmpty(remarkNickName) ? userNickName : remarkNickName;
     }
 
 }

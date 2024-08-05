@@ -10,7 +10,7 @@ import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMSendResult;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
-import com.bx.implatform.service.IPrivateMessageService;
+import com.bx.implatform.service.PrivateMessageService;
 import com.bx.implatform.service.INotifyPrivateService;
 import com.bx.implatform.vo.PrivateMessageVO;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +24,14 @@ import java.util.Set;
 @Slf4j
 @IMListener(type = IMListenerType.PRIVATE_MESSAGE)
 public class PrivateMessageListener implements MessageListener<PrivateMessageVO> {
-    @Lazy
-    @Autowired
-    private IPrivateMessageService privateMessageService;
 
     @Lazy
     @Autowired
-    private INotifyPrivateService uniPushService;
+    private PrivateMessageService privateMessageService;
+
+    @Lazy
+    @Autowired
+    private NotifyPrivateService uniPushService;
 
     @Override
     public void process(List<IMSendResult<PrivateMessageVO>> results) {

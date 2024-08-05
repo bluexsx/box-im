@@ -1,6 +1,6 @@
 <template>
 	<uni-popup ref="popup" type="center">
-		<uni-popup-dialog mode="base" message="成功消息" :duration="2000" title="是否加入通话?" confirmText="加入"
+		<uni-popup-dialog mode="base"  :duration="2000" title="是否加入通话?" confirmText="加入"
 			@confirm="onOk">
 			<div class="group-rtc-join">
 				<div class="host-info">

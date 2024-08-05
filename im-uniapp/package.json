@@ -4,6 +4,7 @@
 		"scripts": {}
 	},
 	"dependencies": {
-		"js-audio-recorder": "^1.0.7"
+		"js-audio-recorder": "^1.0.7",
+		"pinyin-pro": "^3.23.1"
 	}
 }

@@ -15,7 +15,13 @@ public enum IMListenerType {
     /**
      * 群聊消息
      */
-    GROUP_MESSAGE(2, "群聊消息");
+    GROUP_MESSAGE(2, "群聊消息"),
+    /**
+     * 系统消息
+     */
+    SYSTEM_MESSAGE(3, "群聊消息");
+
+
 
     private final Integer code;
 

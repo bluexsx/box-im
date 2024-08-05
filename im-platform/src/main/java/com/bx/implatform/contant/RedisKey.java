@@ -23,32 +23,39 @@ public final class RedisKey {
      * webrtc 群通话
      */
     public static final String IM_WEBRTC_GROUP_SESSION = "im:webrtc:group:session";
+
     /**
-     * 缓存前缀
+     * 用户被封禁消息队列
      */
-    public static final String IM_CACHE = "im:cache:";
+    public static final String IM_QUEUE_USER_BANNED = "im:queue:user:banned";
+
+    /**
+     * 群聊被封禁消息队列
+     */
+    public static final String IM_QUEUE_GROUP_BANNED = "im:queue:group:banned";
+
+    /**
+     * 群聊解封消息队列
+     */
+    public static final String IM_QUEUE_GROUP_UNBAN = "im:queue:group:unban";
+
+
     /**
      * 缓存是否好友：bool
      */
-    public static final String IM_CACHE_FRIEND = IM_CACHE + "friend";
+    public static final String IM_CACHE_FRIEND = "im:cache:friend";
     /**
      * 缓存群聊信息
      */
-    public static final String IM_CACHE_GROUP = IM_CACHE + "group";
+    public static final String IM_CACHE_GROUP =  "im:cache:group";
     /**
      * 缓存群聊成员id
      */
-    public static final String IM_CACHE_GROUP_MEMBER_ID = IM_CACHE + "group_member_ids";
-
+    public static final String IM_CACHE_GROUP_MEMBER_ID = "im:cache:group_member_ids";
     /**
      * 分布式锁前缀
      */
-    public static final String IM_LOCK = "im:lock:";
-
-    /**
-     * 分布式锁前缀
-     */
-    public static final String IM_LOCK_RTC_GROUP = IM_LOCK + "rtc:group";
+    public static final String IM_LOCK_RTC_GROUP =  "im:lock:rtc:group";
 
 
 }

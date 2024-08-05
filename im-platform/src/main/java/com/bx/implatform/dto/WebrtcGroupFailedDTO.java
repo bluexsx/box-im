@@ -1,10 +1,8 @@
 package com.bx.implatform.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * @author: Blue
@@ -12,14 +10,14 @@ import javax.validation.constraints.NotNull;
  * @version: 1.0
  */
 @Data
-@ApiModel("用户通话失败DTO")
+@Schema(description = "用户通话失败DTO")
 public class WebrtcGroupFailedDTO {
 
     @NotNull(message = "群聊id不可为空")
-    @ApiModelProperty(value = "群聊id")
+    @Schema(description = "群聊id")
     private Long groupId;
 
-    @ApiModelProperty(value = "失败原因")
+    @Schema(description = "失败原因")
     private String reason;
 
 }

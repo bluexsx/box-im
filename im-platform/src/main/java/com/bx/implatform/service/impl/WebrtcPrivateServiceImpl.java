@@ -9,8 +9,8 @@ import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.enums.WebrtcMode;
 import com.bx.implatform.exception.GlobalException;
-import com.bx.implatform.service.IPrivateMessageService;
-import com.bx.implatform.service.IWebrtcPrivateService;
+import com.bx.implatform.service.PrivateMessageService;
+import com.bx.implatform.service.WebrtcPrivateService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.session.WebrtcPrivateSession;
@@ -30,11 +30,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WebrtcPrivateServiceImpl implements IWebrtcPrivateService {
+public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
 
     private final IMClient imClient;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final IPrivateMessageService privateMessageService;
+    private final PrivateMessageService privateMessageService;
     private final UserStateUtils userStateUtils;
 
     @Override

@@ -1,10 +1,8 @@
 <template>
 	<view class="chat-record">
-		<view class="chat-record-bar" id="chat-record-bar" :style="recordBarStyle" 
-			@click.stop=""
-			@touchstart.prevent="onStartRecord"
-			@touchmove.prevent="onTouchMove" 
-			@touchend.prevent="onEndRecord">{{recording?'正在录音':'长按 说话'}}</view>
+		<view class="chat-record-bar" id="chat-record-bar" :style="recordBarStyle" @click.stop=""
+			@touchstart.prevent="onStartRecord" @touchmove.prevent="onTouchMove" @touchend.prevent="onEndRecord">
+			{{recording?'正在录音':'长按 说话'}}</view>
 		<view v-if="recording" class="chat-record-window" :style="recordWindowStyle">
 			<view class="rc-wave">
 				<text class="note" style="--d: 0"></text>
@@ -17,8 +15,7 @@
 			</view>
 			<view class="rc-tip">{{recordTip}}</view>
 			<view class="cancel-btn" @click="onCancel">
-				<uni-icons :class="moveToCancel?'red':'black'" type="clear" 
-				:size="moveToCancel?45:40"></uni-icons>
+				<uni-icons :class="moveToCancel?'red':'black'" type="clear" :size="moveToCancel?45:40"></uni-icons>
 			</view>
 			<view class="opt-tip" :class="moveToCancel?'red':'black'">{{moveToCancel? '松手取消':'松手发送,上划取消'}}</view>
 		</view>
@@ -41,10 +38,10 @@
 		methods: {
 			onTouchMove(e) {
 				const moveY = e.touches[0].clientY;
-				this.moveToCancel = moveY < this.recordBarTop-40;
+				this.moveToCancel = moveY < this.recordBarTop - 40;
 			},
-			onCancel(){
-				if(this.recording){
+			onCancel() {
+				if (this.recording) {
 					this.moveToCancel = true;
 					this.onEndRecord();
 				}
@@ -52,7 +49,7 @@
 			onStartRecord() {
 				/* 用户第一次使用语音会唤醒录音权限请求，此时会导致@touchend失效，
 					一直处于录音状态，这里允许用户再次点击发送语音并结束录音 */
-				if(this.recording){
+				if (this.recording) {
 					this.onEndRecord();
 					return;
 				}
@@ -65,7 +62,7 @@
 					// 开始计时
 					this.startTimer();
 				}).catch((e) => {
-					console.log("录音失败"+JSON.stringify(e))
+					console.log("录音失败" + JSON.stringify(e))
 					uni.showToast({
 						title: "录音失败",
 						icon: "none"
@@ -102,7 +99,6 @@
 					})
 				}).finally(() => {
 					this.$rc.close();
-					console.log("录音完成")
 				})
 			},
 			startTimer() {
@@ -111,7 +107,7 @@
 				this.rcTimer = setInterval(() => {
 					this.druation++;
 					// 大于60s,直接结束
-					if(this.druation >= 60 ){
+					if (this.druation >= 60) {
 						this.onEndRecord();
 					}
 				}, 1000)
@@ -135,11 +131,13 @@
 				return `bottom:${bottom}px;`
 			},
 			recordBarStyle() {
-				const bgColor = this.recording ? "royalblue" : "#f8f8f8";
-				return `background-color:${bgColor};`
+				const bgColor = this.recording ? "royalblue" : "white";
+				const textColor = this.recording ? "white" : "black";
+				return `background-color:${bgColor};
+						color:${textColor};`
 			},
-			recordTip(){
-				if(this.druation > 50){
+			recordTip() {
+				if (this.druation > 50) {
 					return `${60-this.druation}s后将停止录音`;
 				}
 				return `录音时长:${this.druation}s`;
@@ -201,7 +199,7 @@
 			left: 0;
 			height: 360rpx;
 			width: 100%;
-			background-color:  rgba(255, 255, 255, 0.95);
+			background-color: rgba(255, 255, 255, 0.95);
 			padding: 30rpx;
 
 			.icon-microphone {

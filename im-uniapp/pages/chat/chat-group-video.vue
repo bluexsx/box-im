@@ -1,9 +1,5 @@
 <template>
-	<view class="page chat-group-video">
-		<view>
-			<web-view id="chat-video-wv" @message="onMessage" :src="url"></web-view>
-		</view>
-	</view>
+	<web-view class="page chat-group-video" id="chat-video-wv" @message="onMessage" :src="url"></web-view>
 </template>
 
 <script>

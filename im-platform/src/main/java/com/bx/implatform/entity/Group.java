@@ -1,14 +1,9 @@
 package com.bx.implatform.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -18,64 +13,60 @@ import java.util.Date;
  * @since 2022-10-31
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @TableName("im_group")
-public class Group extends Model<Group> {
-
-    private static final long serialVersionUID = 1L;
+public class Group {
 
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId
     private Long id;
 
     /**
      * 群名字
      */
-    @TableField("name")
     private String name;
 
     /**
      * 群主id
      */
-    @TableField("owner_id")
     private Long ownerId;
 
     /**
-     * 头像
+     * 群头像
      */
-    @TableField("head_image")
     private String headImage;
 
     /**
-     * 头像缩略图
+     * 群头像缩略图
      */
-    @TableField("head_image_thumb")
     private String headImageThumb;
 
     /**
      * 群公告
      */
-    @TableField("notice")
     private String notice;
 
     /**
-     * 是否已删除
+     * 是否被封禁
      */
-    @TableField("deleted")
-    private Boolean deleted;
+    private Boolean isBanned;
+
+    /**
+     * 被封禁原因
+     */
+    private String reason;
 
     /**
      * 创建时间
      */
-    @TableField("created_time")
     private Date createdTime;
 
+    /**
+     * 是否已删除
+     */
+    private Boolean deleted;
 
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
-    }
+
 
 }

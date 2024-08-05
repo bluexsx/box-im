@@ -1,29 +1,34 @@
 package com.bx.implatform.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@ApiModel("群成员信息VO")
+@Schema(description = "群成员信息VO")
 public class GroupMemberVO {
 
-    @ApiModelProperty("用户id")
+    @Schema(description = "用户id")
     private Long userId;
 
-    @ApiModelProperty("群内显示名称")
-    private String aliasName;
+    @Schema(description = "群内显示名称")
+    private String showNickName;
 
-    @ApiModelProperty("头像")
+    @Schema(description = "群内昵称备注")
+    private String remarkNickName;
+
+    @Schema(description = "头像")
     private String headImage;
 
-    @ApiModelProperty("是否已退出")
+    @Schema(description = "是否已退出")
     private Boolean quit;
 
-    @ApiModelProperty(value = "是否在线")
+    @Schema(description = "是否在线")
     private Boolean online;
 
-    @ApiModelProperty("备注")
-    private String remark;
+    @Schema(description = "群名显示名称")
+    private String showGroupName;
+
+    @Schema(description = "群名备注")
+    private String remarkGroupName;
 
 }

@@ -7,6 +7,7 @@ import * as socketApi from './common/wssocket';
 import * as messageType from './common/messageType';
 import store from './store';
 import { createSSRApp } from 'vue'
+import uviewPlus from '@/uni_modules/uview-plus'
 // #ifdef H5
 import * as recorder from './common/recorder-h5';
 // #endif
@@ -18,6 +19,7 @@ import * as recorder from './common/recorder-app';
 export function createApp() {
   const app = createSSRApp(App)
   app.use(store);
+  app.use(uviewPlus);
   app.config.globalProperties.$http = request;
   app.config.globalProperties.$wsApi = socketApi;
   app.config.globalProperties.$msgType = messageType;
