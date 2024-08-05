@@ -2,6 +2,7 @@ package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bx.implatform.dto.LoginDTO;
+import com.bx.implatform.dto.LogoutDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.entity.User;
@@ -20,6 +21,14 @@ public interface UserService extends IService<User> {
      * @return 登录token
      */
     LoginVO login(LoginDTO dto);
+
+    /**
+     * 用户退出登陆
+     *
+     * @param dto 退出登陆dto
+     * @return
+     */
+    void logout(LogoutDTO dto);
 
     /**
      * 修改用户密码

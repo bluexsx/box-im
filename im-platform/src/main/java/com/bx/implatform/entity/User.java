@@ -70,6 +70,11 @@ public class User {
     private String reason;
 
     /**
+     * 客户端id,用于uni-push推送
+     */
+    @TableField("cid")
+    private String cid;
+    /**
      * 最后登录时间
      */
     private Date lastLoginTime;

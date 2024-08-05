@@ -10,6 +10,11 @@ public final class RedisKey {
      * 已读群聊消息位置(已读最大id)
      */
     public static final String IM_GROUP_READED_POSITION = "im:readed:group:position";
+
+    /**
+     * 私聊离线通知
+     */
+    public static final String IM_OFFLINE_NOTIFY_PRIVATE = "im:notify:private";
     /**
      * webrtc 单人通话
      */
@@ -51,5 +56,6 @@ public final class RedisKey {
      * 分布式锁前缀
      */
     public static final String IM_LOCK_RTC_GROUP =  "im:lock:rtc:group";
+
 
 }

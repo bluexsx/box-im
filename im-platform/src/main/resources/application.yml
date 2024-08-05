@@ -21,6 +21,16 @@ mybatis-plus:
     map-underscore-to-camel-case: true  #开启自动驼峰命名规则
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+notify:
+  enable: true
+  max:
+    private: -1 # 私聊单个会话最大通知数量，-1表示不显示
+    group: 10  # 群聊单个会话最大通知数量，-1表示不显示
+  uniPush:
+    appId: nyK71XQYUy9s7Vlzoutlp1
+    appKey: XtG6NkUSL98evtpLSE0jYA
+    masterSecret: MxApXxsx057jcPCeC0cXk6
+
 jwt:
   accessToken:
     expireIn: 1800 #半个小时
