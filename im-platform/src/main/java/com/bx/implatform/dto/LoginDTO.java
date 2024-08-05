@@ -25,7 +25,4 @@ public class LoginDTO {
     @Schema(description = "用户密码")
     private String password;
 
-    @ApiModelProperty(value = "用户客户端id")
-    private String cid;
-
 }

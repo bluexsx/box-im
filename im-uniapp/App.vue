@@ -21,7 +21,6 @@
 				store.dispatch("load").then(() => {
 					// 初始化websocket
 					this.initWebSocket();
-					this.initUniPush();
 				}).catch((e) => {
 					console.log(e);
 					this.exit();
@@ -331,21 +330,6 @@
 					url: '/user/self',
 					method: 'GET'
 				})
-			},
-			initUniPush(){
-				// #ifdef APP-PLUS  
-					plus.push.setAutoNotification(true);
-					const clientInfo = plus.push.getClientInfo();
-					console.log("clientInfo",clientInfo);
-					plus.push.addEventListener('click', (message)=>{
-						const messages = plus.push.getAllMessage();
-						console.log("messages",messages)
-						console.log("click",message)
-					});  
-					plus.push.addEventListener('receive', (message)=>{
-						console.log("receive",message)
-					});  
-				// #endif  
 			}
 		},
 		onLaunch() {
@@ -367,7 +351,6 @@
 				})
 				// #endif
 			}
-			
 		}
 	}
 </script>

@@ -20,7 +20,6 @@ import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.PrivateMessageMapper;
 import com.bx.implatform.service.FriendService;
 import com.bx.implatform.service.PrivateMessageService;
-import com.bx.implatform.service.NotifyPrivateService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
@@ -44,7 +43,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private final FriendService friendService;
     private final IMClient imClient;
     private final SensitiveFilterUtil sensitiveFilterUtil;
-    private final INotifyPrivateService notifyPrivateService;
+
     @Override
     public PrivateMessageVO sendMessage(PrivateMessageDTO dto) {
         UserSession session = SessionContext.getSession();
@@ -122,13 +121,13 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         long stIdx = (page - 1) * size;
         QueryWrapper<PrivateMessage> wrapper = new QueryWrapper<>();
         wrapper.lambda().and(wrap -> wrap.and(
-                wp -> wp.eq(PrivateMessage::getSendId, userId)
+                    wp -> wp.eq(PrivateMessage::getSendId, userId)
                         .eq(PrivateMessage::getRecvId, friendId))
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, userId)
-                        .eq(PrivateMessage::getSendId, friendId)))
-                .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
-                .orderByDesc(PrivateMessage::getId)
-                .last("limit " + stIdx + "," + size);
+                    .eq(PrivateMessage::getSendId, friendId)))
+            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
+            .orderByDesc(PrivateMessage::getId)
+            .last("limit " + stIdx + "," + size);
 
         List<PrivateMessage> messages = this.list(wrapper);
         List<PrivateMessageVO> messageInfos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
@@ -216,13 +215,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 修改消息状态为已读
         LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
         updateWrapper.eq(PrivateMessage::getSendId, friendId)
-                .eq(PrivateMessage::getRecvId, session.getUserId())
-                .eq(PrivateMessage::getStatus, MessageStatus.SENDED.code())
-                .set(PrivateMessage::getStatus, MessageStatus.READED.code());
+            .eq(PrivateMessage::getRecvId, session.getUserId())
+            .eq(PrivateMessage::getStatus, MessageStatus.SENDED.code())
+            .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
-        // 清除通知会话信息
-        notifyPrivateService.removeNotifySession(friendId,session.getUserId());
-
         log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);
     }
 
@@ -232,11 +228,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         UserSession session = SessionContext.getSession();
         LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(PrivateMessage::getSendId, session.getUserId())
-                .eq(PrivateMessage::getRecvId, friendId)
-                .eq(PrivateMessage::getStatus, MessageStatus.READED.code())
-                .orderByDesc(PrivateMessage::getId)
-                .select(PrivateMessage::getId)
-                .last("limit 1");
+            .eq(PrivateMessage::getRecvId, friendId)
+            .eq(PrivateMessage::getStatus, MessageStatus.READED.code())
+            .orderByDesc(PrivateMessage::getId)
+            .select(PrivateMessage::getId)
+            .last("limit 1");
         PrivateMessage message = this.getOne(wrapper);
         if(Objects.isNull(message)){
             return -1L;
