@@ -1,7 +1,9 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,6 +12,7 @@ import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.util.JwtUtil;
 import com.bx.implatform.config.JwtProperties;
 import com.bx.implatform.dto.LoginDTO;
+import com.bx.implatform.dto.LogoutDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
 import com.bx.implatform.entity.Friend;
@@ -20,6 +23,7 @@ import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.UserMapper;
 import com.bx.implatform.service.FriendService;
 import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.NotifyPrivateService;
 import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
@@ -29,6 +33,7 @@ import com.bx.implatform.vo.OnlineTerminalVO;
 import com.bx.implatform.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +51,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final FriendService friendService;
     private final JwtProperties jwtProperties;
     private final IMClient imClient;
+    private final INotifyPrivateService notifyPrivateService;
 
     @Override
     public LoginVO login(LoginDTO dto) {
@@ -60,6 +66,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new GlobalException(ResultCode.PASSWOR_ERROR);
         }
+        // 更新用户登陆时间和cid
+        user.setLastLoginTime(new Date());
+        // 用户更换了设备，记录新的cid
+        if(StrUtil.isNotEmpty(dto.getCid()) && dto.getCid().equals(user.getCid())){
+            user.setCid(dto.getCid());
+            notifyPrivateService.removeNotifySession(user.getId());
+        }
+        this.updateById(user);
         // 生成token
         UserSession session = BeanUtils.copyProperties(user, UserSession.class);
         session.setUserId(user.getId());
@@ -75,6 +89,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         vo.setRefreshToken(refreshToken);
         vo.setRefreshTokenExpiresIn(jwtProperties.getRefreshTokenExpireIn());
         return vo;
+    }
+
+    @Override
+    public void logout(LogoutDTO dto) {
+        UserSession session = SessionContext.getSession();
+        if(StrUtil.isNotEmpty(dto.getCid())){
+            // 清除cid,不再推送离线通知
+            notifyPrivateService.removeNotifySession(session.getUserId());
+            LambdaUpdateWrapper<User> wrapper =  Wrappers.lambdaUpdate();
+            wrapper.eq(User::getId,session.getUserId());
+            wrapper.eq(User::getCid,dto.getCid());
+            wrapper.set(User::getCid, Strings.EMPTY);
+            this.update(wrapper);
+        }
     }
 
     @Override
