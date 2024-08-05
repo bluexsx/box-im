@@ -1,9 +1,12 @@
 package com.bx.implatform.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @author: Blue
@@ -11,19 +14,19 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-@Schema(description = "发起群视频通话DTO")
+@ApiModel("发起群视频通话DTO")
 public class WebrtcGroupCandidateDTO {
 
     @NotNull(message = "群聊id不可为空")
-    @Schema(description = "群聊id")
+    @ApiModelProperty(value = "群聊id")
     private Long groupId;
 
     @NotNull(message = "用户id不可为空")
-    @Schema(description = "用户id")
+    @ApiModelProperty(value = "用户id")
     private Long userId;
 
     @NotEmpty(message = "candidate信息不可为空")
-    @Schema(description = "candidate信息")
+    @ApiModelProperty(value = "candidate信息")
     private String candidate;
 
 }

@@ -2,6 +2,7 @@ package com.bx.imcommon.contant;
 
 public final class IMRedisKey {
 
+    private IMRedisKey() {}
 
     /**
      * im-server最大id,从0开始递增
@@ -12,22 +13,13 @@ public final class IMRedisKey {
      */
     public static final String  IM_USER_SERVER_ID = "im:user:server_id";
     /**
-     * 系统消息队列
-     */
-    public static final String IM_MESSAGE_SYSTEM_QUEUE = "im:message:system";
-    /**
-     * 私聊消息队列
+     * 未读私聊消息队列
      */
     public static final String IM_MESSAGE_PRIVATE_QUEUE = "im:message:private";
     /**
-     * 群聊消息队列
+     * 未读群聊消息队列
      */
     public static final String IM_MESSAGE_GROUP_QUEUE = "im:message:group";
-
-    /**
-     * 系统消息发送结果队列
-     */
-    public static final String IM_RESULT_SYSTEM_QUEUE = "im:result:system";
     /**
      * 私聊消息发送结果队列
      */

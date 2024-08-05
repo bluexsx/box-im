@@ -1,13 +1,13 @@
 package com.bx.imserver.netty;
 
 import com.bx.imcommon.contant.IMRedisKey;
-import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.List;
 
 @Slf4j
@@ -17,7 +17,7 @@ public class IMServerGroup implements CommandLineRunner {
 
     public static volatile long serverId = 0;
 
-    private final  RedisTemplate<String, Object> redisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
     private final List<IMServer> imServers;
 
@@ -36,7 +36,7 @@ public class IMServerGroup implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws Exception {
         // 初始化SERVER_ID
         String key = IMRedisKey.IM_MAX_SERVER_ID;
         serverId = redisTemplate.opsForValue().increment(key, 1);

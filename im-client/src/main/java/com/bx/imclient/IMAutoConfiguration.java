@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-@ComponentScan(basePackages = "com.bx.imclient,com.bx.imcommon")
+@ComponentScan("com.bx.imclient")
 public class IMAutoConfiguration {
 
 }

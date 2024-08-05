@@ -1,11 +1,11 @@
 <template>
 	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-invite">
 		<view class="search-bar">
-			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
+			<uni-search-bar v-model="searchText" cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
 		</view>
 		<view class="friend-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.includes(searchText)"
+				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.startsWith(searchText)"
 					:key="friend.id">
 					<view class="friend-item" @click="onSwitchChecked(friend)">
 						<head-image :name="friend.nickName" 

@@ -1,7 +1,8 @@
 package com.bx.implatform.vo;
 
 import com.bx.implatform.config.WebrtcConfig;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,11 +12,11 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-@Schema(description = "系统配置VO")
+@ApiModel("系统配置VO")
 @AllArgsConstructor
 public class SystemConfigVO {
 
-    @Schema(description = "webrtc配置")
+    @ApiModelProperty(value = "webrtc配置")
     private WebrtcConfig webrtc;
 
 }

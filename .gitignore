@@ -9,10 +9,10 @@
 /im-server/src/main/resources/logback-prod.xml
 /im-commom/im-commom.iml
 /im-uniapp/node_modules/
-/im-web/package-lock.json
+/im-ui/package-lock.json
 /im-uniapp/unpackage/
 /im-uniapp/hybrid/
 /im-uniapp/package-lock.json
-/im-web/src/components/rtc/LocalVideo.vue
-/im-web/src/components/rtc/RemoteVideo.vue
-/im-web/src/components/rtc/RtcGroupAcceptor.vue
+/im-ui/src/components/rtc/LocalVideo.vue
+/im-ui/src/components/rtc/RemoteVideo.vue
+/im-ui/src/components/rtc/RtcGroupAcceptor.vue

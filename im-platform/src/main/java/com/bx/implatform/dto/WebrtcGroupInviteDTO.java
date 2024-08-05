@@ -1,11 +1,12 @@
 package com.bx.implatform.dto;
 
 import com.bx.implatform.session.WebrtcUserInfo;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -14,15 +15,15 @@ import java.util.List;
  * @version: 1.0
  */
 @Data
-@Schema(description = "邀请用户进入群视频通话DTO")
+@ApiModel("邀请用户进入群视频通话DTO")
 public class WebrtcGroupInviteDTO {
 
     @NotNull(message = "群聊id不可为空")
-    @Schema(description = "群聊id")
+    @ApiModelProperty(value = "群聊id")
     private Long groupId;
 
     @NotEmpty(message = "参与用户信息不可为空")
-    @Schema(description = "参与用户信息")
+    @ApiModelProperty(value = "参与用户信息")
     private List<WebrtcUserInfo> userInfos;
 
 }

@@ -24,11 +24,7 @@ public enum IMCmdType {
     /**
      * 群发消息
      */
-    GROUP_MESSAGE(4, "群发消息"),
-    /**
-     * 系统消息
-     */
-    SYSTEM_MESSAGE(5,"系统消息");
+    GROUP_MESSAGE(4, "群发消息");
 
 
     private final Integer code;

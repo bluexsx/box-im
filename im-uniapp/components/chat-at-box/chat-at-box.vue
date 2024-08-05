@@ -10,21 +10,21 @@
 			<scroll-view v-show="atUserIds.length>0" scroll-x="true" scroll-left="120">
 				<view class="at-user-items">
 					<view v-for="m in showMembers" v-show="m.checked" class="at-user-item">
-						<head-image :name="m.showNickName" :url="m.headImage" :size="60"></head-image>
+						<head-image :name="m.aliasName" :url="m.headImage" :size="60"></head-image>
 					</view>
 				</view>
 			</scroll-view>
 			<view class="search-bar">
-				<uni-search-bar v-model="searchText" cancelButton="none" radius="100" placeholder="搜索"></uni-search-bar>
+				<uni-search-bar v-model="searchText" cancelButton="none" placeholder="搜索"></uni-search-bar>
 			</view>
 			<view class="member-items">
 				<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-					<view v-for="m in showMembers" v-show="m.showNickName.includes(searchText)"
+					<view v-for="m in showMembers" v-show="m.aliasName.startsWith(searchText)"
 						:key="m.userId">
 						<view class="member-item" @click="onSwitchChecked(m)">
-							<head-image :name="m.showNickName" :online="m.online" :url="m.headImage"
+							<head-image :name="m.aliasName" :online="m.online" :url="m.headImage"
 								:size="90"></head-image>
-							<view class="member-name">{{ m.showNickName}}</view>
+							<view class="member-name">{{ m.aliasName}}</view>
 							<view class="member-checked">
 								<radio :checked="m.checked" @click.stop="onSwitchChecked(m)" />
 							</view>
@@ -60,7 +60,7 @@
 				if(this.ownerId == userId){
 					this.showMembers.push({
 						userId:-1,
-						showNickName: "全体成员"
+						aliasName: "全体成员"
 					})
 				}
 				this.members.forEach((m) => {

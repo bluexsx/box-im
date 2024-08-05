@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.mapper.GroupMemberMapper;
-import com.bx.implatform.service.GroupMemberService;
+import com.bx.implatform.service.IGroupMemberService;
 import com.bx.implatform.util.DateTimeUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @CacheConfig(cacheNames = RedisKey.IM_CACHE_GROUP_MEMBER_ID)
-public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements GroupMemberService {
+public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements IGroupMemberService {
     @CacheEvict(key = "#member.getGroupId()")
     @Override
     public boolean save(GroupMember member) {

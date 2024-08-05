@@ -11,6 +11,6 @@ if(ENV=="DEV"){
 }
 if(ENV=="PROD"){
 	UNI_APP.BASE_URL = "https://www.boxim.online/api";
-	UNI_APP.WS_URL = "wss://www.boxim.online/im";
+	UNI_APP.WS_URL = "wss://www.boxim.online:81/im";
 }
 export default UNI_APP

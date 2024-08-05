@@ -1,7 +1,7 @@
 <template>
 	<view class="page friend-add">
 		<view class="search-bar">
-			<uni-search-bar v-model="searchText" radius="100" :focus="true" @confirm="onSearch()" @cancel="onCancel()"
+			<uni-search-bar v-model="searchText" :focus="true" @confirm="onSearch()" @cancel="onCancel()"
 				placeholder="用户名/昵称"></uni-search-bar>
 		</view>
 		<view class="user-items">

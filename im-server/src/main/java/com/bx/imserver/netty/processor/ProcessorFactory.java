@@ -20,9 +20,6 @@ public class ProcessorFactory {
             case GROUP_MESSAGE:
                 processor = SpringContextHolder.getApplicationContext().getBean(GroupMessageProcessor.class);
                 break;
-            case SYSTEM_MESSAGE:
-                processor = SpringContextHolder.getApplicationContext().getBean(SystemMessageProcessor.class);
-                break;
             default:
                 break;
         }

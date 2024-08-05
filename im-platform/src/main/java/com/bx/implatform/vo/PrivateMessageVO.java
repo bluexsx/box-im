@@ -2,34 +2,35 @@ package com.bx.implatform.vo;
 
 import com.bx.imcommon.serializer.DateToLongSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-@Schema(description = "私聊消息VO")
+@ApiModel("私聊消息VO")
 public class PrivateMessageVO {
 
-    @Schema(description = " 消息id")
+    @ApiModelProperty(value = " 消息id")
     private Long id;
 
-    @Schema(description = " 发送者id")
+    @ApiModelProperty(value = " 发送者id")
     private Long sendId;
 
-    @Schema(description = " 接收者id")
+    @ApiModelProperty(value = " 接收者id")
     private Long recvId;
 
-    @Schema(description = " 发送内容")
+    @ApiModelProperty(value = " 发送内容")
     private String content;
 
-    @Schema(description = "消息内容类型 IMCmdType")
+    @ApiModelProperty(value = "消息内容类型 IMCmdType")
     private Integer type;
 
-    @Schema(description = " 状态")
+    @ApiModelProperty(value = " 状态")
     private Integer status;
 
-    @Schema(description = " 发送时间")
+    @ApiModelProperty(value = " 发送时间")
     @JsonSerialize(using = DateToLongSerializer.class)
     private Date sendTime;
 }

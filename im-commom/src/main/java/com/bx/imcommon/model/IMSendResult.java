@@ -16,7 +16,7 @@ public class IMSendResult<T> {
     private IMUserInfo receiver;
 
     /**
-     * 发送状态编码 IMSendCode
+     * 发送状态 IMCmdType
      */
     private Integer code;
 

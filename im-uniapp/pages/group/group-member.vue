@@ -1,21 +1,21 @@
 <template>
 	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-member">
 		<view class="search-bar">
-			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入成员昵称搜索"></uni-search-bar>
+			<uni-search-bar v-model="searchText" cancelButton="none" placeholder="输入成员昵称搜索"></uni-search-bar>
 		</view>
 		<view class="member-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(member,idx) in groupMembers"
-					v-show="!searchText || member.showNickName.includes(searchText)" :key="idx">
+					v-show="!searchText || member.aliasName.startsWith(searchText)" :key="idx">
 					<view class="member-item" @click="onShowUserInfo(member.userId)">
-						<head-image :name="member.showNickName" 
+						<head-image :name="member.aliasName" 
 							:online="member.online" :url="member.headImage"
 							:size="100"></head-image>
 						
-						<view class="member-name">{{ member.showNickName}}</view>
+						<view class="member-name">{{ member.aliasName}}</view>
 						
 						<view class="member-kick">
-							<button type="warn" plain v-show="isOwner && !isSelf(member.userId)" size="mini"
+							<button type="warn" v-show="isOwner && !isSelf(member.userId)" size="mini"
 								@click.stop="onKickOut(member,idx)">移出群聊</button>
 						</view>
 					</view>
@@ -44,7 +44,7 @@
 			onKickOut(member, idx) {
 				uni.showModal({
 					title: '确认移出?',
-					content: `确定将成员'${member.showNickName}'移出群聊吗？`,
+					content: `确定将成员'${member.aliasName}'移出群聊吗？`,
 					success: (res) => {
 						if (res.cancel)
 							return;
@@ -53,7 +53,7 @@
 							method: 'DELETE'
 						}).then(() => {
 							uni.showToast({
-								title: `已将${member.showNickName}移出群聊`,
+								title: `已将${member.aliasName}移出群聊`,
 								icon: 'none'
 							})
 							this.groupMembers.splice(idx, 1);

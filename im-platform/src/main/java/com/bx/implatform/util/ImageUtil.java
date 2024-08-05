@@ -9,6 +9,9 @@ import java.io.ByteArrayOutputStream;
 @Slf4j
 public final class ImageUtil {
 
+    private ImageUtil() {
+    }
+
     //以下是常量,按照阿里代码开发规范,不允许代码中出现魔法值
     private static final Integer ZERO = 0;
     private static final Integer ONE_ZERO_TWO_FOUR = 1024;

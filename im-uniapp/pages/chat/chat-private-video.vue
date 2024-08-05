@@ -1,5 +1,7 @@
 <template>
-	<web-view class="page chat-private-video" id="chat-video-wv" @message="onMessage" :src="url"></web-view>
+	<view class="page chat-private-video">
+		<web-view id="chat-video-wv" @message="onMessage" :src="url"></web-view>
+	</view>
 </template>
 
 <script>
@@ -96,8 +98,4 @@
 </script>
 
 <style lang="scss" scoped>
-	
-	.chat-web-view{
-		
-	}
 </style>

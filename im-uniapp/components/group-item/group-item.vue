@@ -1,9 +1,9 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
-		<head-image :name="group.showGroupName"
+		<head-image :name="group.remark"
 			:url="group.headImage" :size="90"></head-image>
 		<view class="group-name">
-			<view>{{ group.showGroupName}}</view>
+			<view>{{ group.remark}}</view>
 		</view>
 	</view>
 </template>
@@ -41,7 +41,7 @@
 		background-color: white;
 		white-space: nowrap;
 		&:hover {
-			background-color: #f5f6ff;
+			background-color: #eeeeee;
 		}
 
 		.group-name {

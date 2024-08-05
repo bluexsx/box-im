@@ -6,17 +6,17 @@
 				<image-upload v-show="isOwner" :onSuccess="onUnloadImageSuccess">
 					<image :src="group.headImage" class="group-image"></image>
 				</image-upload>
-				<head-image  v-show="!isOwner" :name="group.showGroupName" 
+				<head-image  v-show="!isOwner" :name="group.remark" 
 					:url="group.headImage" :size="200"></head-image>
 			</uni-forms-item>
 			<uni-forms-item label="群聊名称:" name="name" :required="true">
 				<uni-easyinput type="text" v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称" />
 			</uni-forms-item>
-			<uni-forms-item label="群聊备注:" name="remarkGroupName">
-				<uni-easyinput v-model="group.remarkGroupName" type="text" :placeholder="group.name" />
+			<uni-forms-item label="群聊备注:" name="remark">
+				<uni-easyinput v-model="group.remark" type="text" placeholder="请输入群聊备注" />
 			</uni-forms-item>
-			<uni-forms-item label="我在本群的昵称:" name="remarkNickName">
-				<uni-easyinput v-model="group.remarkNickName" type="text" :placeholder="$store.state.userStore.userInfo.nickName" />
+			<uni-forms-item label="我在本群的昵称:" name="email">
+				<uni-easyinput v-model="group.aliasName" type="text" placeholder="请输入群聊昵称" />
 			</uni-forms-item>
 			<uni-forms-item label="群公告:" name="notice">
 				<uni-easyinput type="textarea" v-model="group.notice" :disabled="!isOwner" placeholder="请输入群公告" />
@@ -114,6 +114,7 @@
 					name: `${userInfo.userName}创建的群聊`,
 					headImage: userInfo.headImage,
 					headImageThumb: userInfo.headImageThumb,
+					aliasName: userInfo.nickName,
 					ownerId: this.$store.state.userStore.userInfo.id
 				}
 			}

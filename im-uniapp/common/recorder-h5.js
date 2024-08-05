@@ -33,17 +33,11 @@ let upload = () => {
 			file: file,
 			name: 'file',
 			success: (res) => {
-				let r = JSON.parse(res.data);
-				if(r.code != 200){
-					console.log(res)
-					reject(r.message);
-				}else {
-					const data = {
-						duration: parseInt(rc.duration),
-						url: r.data
-					}
-					resolve(data);
+				const data = {
+					duration: parseInt(rc.duration),
+					url: JSON.parse(res.data).data
 				}
+				resolve(data);
 			},
 			fail: (e) => {
 				reject(e);

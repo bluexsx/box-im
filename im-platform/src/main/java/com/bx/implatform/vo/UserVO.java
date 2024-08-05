@@ -1,46 +1,48 @@
 package com.bx.implatform.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
-@Schema(description = "用户信息VO")
+@ApiModel("用户信息VO")
 public class UserVO {
 
     @NotNull(message = "用户id不能为空")
-    @Schema(description = "id")
+    @ApiModelProperty(value = "id")
     private Long id;
 
     @NotEmpty(message = "用户名不能为空")
     @Length(max = 64, message = "用户名不能大于64字符")
-    @Schema(description = "用户名")
+    @ApiModelProperty(value = "用户名")
     private String userName;
 
     @NotEmpty(message = "用户昵称不能为空")
     @Length(max = 64, message = "昵称不能大于64字符")
-    @Schema(description = "用户昵称")
+    @ApiModelProperty(value = "用户昵称")
     private String nickName;
 
-    @Schema(description = "性别")
+    @ApiModelProperty(value = "性别")
     private Integer sex;
 
-    @Schema(description = "用户类型 1:普通用户 2:审核账户")
+    @ApiModelProperty(value = "用户类型 1:普通用户 2:审核账户")
     private Integer type;
 
     @Length(max = 1024, message = "个性签名不能大于1024个字符")
-    @Schema(description = "个性签名")
+    @ApiModelProperty(value = "个性签名")
     private String signature;
 
-    @Schema(description = "头像")
+    @ApiModelProperty(value = "头像")
     private String headImage;
 
-    @Schema(description = "头像缩略图")
+    @ApiModelProperty(value = "头像缩略图")
     private String headImageThumb;
 
-    @Schema(description = "是否在线")
+    @ApiModelProperty(value = "是否在线")
     private Boolean online;
 
 }

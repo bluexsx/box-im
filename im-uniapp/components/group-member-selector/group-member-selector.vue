@@ -10,7 +10,7 @@
 			<scroll-view v-show="checkedIds.length>0" scroll-x="true" scroll-left="120">
 				<view class="checked-users">
 					<view v-for="m in members" v-show="m.checked" class="user-item">
-						<head-image :name="m.showNickName" :url="m.headImage" :size="60"></head-image>
+						<head-image :name="m.aliasName" :url="m.headImage" :size="60"></head-image>
 					</view>
 				</view>
 			</scroll-view>
@@ -19,11 +19,11 @@
 			</view>
 			<view class="member-items">
 				<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-					<view v-for="m in members" v-show="!m.quit && m.showNickName.includes(searchText)" :key="m.userId">
+					<view v-for="m in members" v-show="!m.quit && m.aliasName.startsWith(searchText)" :key="m.userId">
 						<view class="member-item" @click="onSwitchChecked(m)">
-							<head-image :name="m.showNickName" :online="m.online" :url="m.headImage"
+							<head-image :name="m.aliasName" :online="m.online" :url="m.headImage"
 								:size="90"></head-image>
-							<view class="member-name">{{ m.showNickName}}</view>
+							<view class="member-name">{{ m.aliasName}}</view>
 							<view class="member-checked">
 								<radio :checked="m.checked" :disabled="m.locked" @click.stop="onSwitchChecked(m)" />
 							</view>

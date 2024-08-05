@@ -2,6 +2,8 @@ package com.bx.implatform.util;
 
 public final class FileUtil {
 
+    private FileUtil() {
+    }
 
     /**
      * 获取文件后缀

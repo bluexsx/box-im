@@ -9,11 +9,6 @@ export default {
 	},
 	mutations: {
 		setFriends(state, friends) {
-			friends.forEach((f)=>{
-				f.online = false;
-				f.onlineWeb = false;
-				f.onlineApp = false;
-			})
 			state.friends = friends;
 		},
 		updateFriend(state, friend) {
@@ -41,18 +36,10 @@ export default {
 				state.friends.push(friend);
 			}
 		},
-		setOnlineStatus(state, onlineTerminals) {
-			state.friends.forEach((f)=>{
-				let userTerminal = onlineTerminals.find((o)=> f.id==o.userId);
-				if(userTerminal){
-					f.online = true;
-					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB)>=0
-					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP)>=0
-				}else{
-					f.online = false;
-					f.onlineWeb = false;
-					f.onlineApp = false;
-				}
+		setOnlineStatus(state, onlineUsers) {
+			state.friends.forEach((f) => {
+				let onlineUser = onlineUsers.find((o) => f.id == o.userId);
+				f.online = !!onlineUser
 			});
 		},
 		refreshOnlineStatus(state) {
@@ -64,9 +51,8 @@ export default {
 				http({
 					url: '/user/terminal/online?userIds=' + userIds.join(','),
 					method: 'GET'
-				}).then((onlineTerminals) => {
-					this.commit("setOnlineStatus", onlineTerminals);
-					
+				}).then((onlineUsers) => {
+					this.commit("setOnlineStatus", onlineUsers);
 				})
 			}
 			// 30s后重新拉取

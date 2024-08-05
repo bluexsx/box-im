@@ -48,7 +48,7 @@
 		white-space: nowrap;
 
 		&:hover {
-			background-color: #f5f6ff;
+			background-color: #eeeeee;
 		}
 
 		.friend-info {

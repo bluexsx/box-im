@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,10 +26,10 @@ public class PrivateMessageProcessor extends AbstractMessageProcessor<IMRecvInfo
     public void process(IMRecvInfo recvInfo) {
         IMUserInfo sender = recvInfo.getSender();
         IMUserInfo receiver = recvInfo.getReceivers().get(0);
-        log.info("接收到私聊消息，发送者:{},接收者:{}，内容:{}", sender.getId(), receiver.getId(), recvInfo.getData());
+        log.info("接收到消息，发送者:{},接收者:{}，内容:{}", sender.getId(), receiver.getId(), recvInfo.getData());
         try {
             ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiver.getId(), receiver.getTerminal());
-            if (!Objects.isNull(channelCtx)) {
+            if (channelCtx != null) {
                 // 推送消息到用户
                 IMSendInfo<Object> sendInfo = new IMSendInfo<>();
                 sendInfo.setCmd(IMCmdType.PRIVATE_MESSAGE.code());

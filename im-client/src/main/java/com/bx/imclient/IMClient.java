@@ -4,7 +4,6 @@ import com.bx.imclient.sender.IMSender;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMPrivateMessage;
-import com.bx.imcommon.model.IMSystemMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
@@ -48,16 +47,6 @@ public class IMClient {
     }
 
     /**
-     * 发送系统消息（发送结果通过MessageListener接收）
-     *
-     * @param message 私有消息
-     */
-    public<T> void sendSystemMessage(IMSystemMessage<T> message){
-        imSender.sendSystemMessage(message);
-    }
-
-
-    /**
      * 发送私聊消息（发送结果通过MessageListener接收）
      *
      * @param message 私有消息
@@ -74,8 +63,6 @@ public class IMClient {
     public<T> void sendGroupMessage(IMGroupMessage<T> message){
         imSender.sendGroupMessage(message);
     }
-
-
 
 
 }

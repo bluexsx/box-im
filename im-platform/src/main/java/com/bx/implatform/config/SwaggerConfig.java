@@ -1,38 +1,41 @@
 package com.bx.implatform.config;
 
-
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import org.springdoc.core.models.GroupedOpenApi;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
+@EnableSwagger2
 public class SwaggerConfig {
 
     @Bean
-    public GroupedOpenApi userApi() {
-        String[] paths = {"/**"};
-        String[] packagedToMatch = {"com.bx"};
-        return GroupedOpenApi.builder().group("IM-Platform")
-            .pathsToMatch(paths)
-            .packagesToScan(packagedToMatch).build();
+    public Docket createRestApi() {
+
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                //这里采用包含注解的方式来确定要显示的接口
+                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+                //这里采用包扫描的方式来确定要显示的接口
+                .paths(PathSelectors.any())
+                .build();
+
     }
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        Contact contact = new Contact();
-        contact.setName("Blue");
-        return new OpenAPI().info(new Info()
-            .title("盒子IM接口文档")
-            .description("盒子IM业务平台服务")
-            .contact(contact)
-            .version("3.0")
-            .termsOfService("https://www.boxim.online")
-            .license(new License().name("MIT")
-                .url("https://www.boxim.online")));
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("IM Platform doc")
+                .description("盒子IM API文档")
+                .termsOfServiceUrl("http://8.134.92.70/")
+                .version("1.0")
+                .build();
     }
 
 }

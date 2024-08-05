@@ -1,25 +1,47 @@
 server:
   port: 8888
 spring:
-  profiles:
-    active: dev # 环境 dev|test|prod
   application:
     name: im-platform
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/box-im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
 
 mybatis-plus:
-  global-config:
-    db-config:
-      id-type: AUTO # ID自增
   configuration:
-    map-underscore-to-camel-case: true  #开启自动驼峰命名规则
+    # 是否开启自动驼峰命名规则
+    map-underscore-to-camel-case: false
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations:
+    - classpath*:mapper/*.xml
+minio:
+  endpoint: http://127.0.0.1:9001 #内网地址
+  public: http://127.0.0.1:9001  #外网访问地址
+  accessKey: admin
+  secretKey: 12345678
+  bucketName: box-im
+  imagePath: image
+  filePath: file
+  videoPath: video
+
+webrtc:
+  max-channel: 9 # 多人通话最大通道数量，最大不能超过16,建议值:4,9,16
+  iceServers:
+    - urls: stun:stun.l.google.com:19302
 
 notify:
   enable: true
@@ -38,6 +60,4 @@ jwt:
   refreshToken:
     expireIn: 604800 #7天
     secret: IKDiqVmn0VFU
-
-
 

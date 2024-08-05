@@ -7,12 +7,7 @@
     <artifactId>box-im</artifactId>
     <groupId>com.bx</groupId>
     <packaging>pom</packaging>
-    <version>3.0.0</version>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.1</version>
-    </parent>
+    <version>2.0.0</version>
 
     <modules>
         <module>im-platform</module>
@@ -22,24 +17,34 @@
     </modules>
 
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>17</java.version>
-        <mybatisplus.version>3.5.7</mybatisplus.version>
-        <fastjson.version>1.2.83</fastjson.version>
-        <knife4j.version>4.5.0</knife4j.version>
-        <hutool.version>5.8.28</hutool.version>
+        <java.version>1.8</java.version>
+        <mybatisplus.version>3.4.0</mybatisplus.version>
+        <fastjson.version>1.2.40</fastjson.version>
+        <velocity.version>1.7</velocity.version>
+        <swagger.version>2.7.0</swagger.version>
+        <hutool.version>5.8.16</hutool.version>
         <druid.version>1.1.22</druid.version>
-        <minio.version>8.5.1</minio.version>
-        <redisson.version>3.21.3</redisson.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
-        <lombok.version>1.18.32</lombok.version>
-        <mybatis.spring.version>3.0.3</mybatis.spring.version>
+        <lombok.version>1.18.16</lombok.version>
+        <mysql.version>5.1.46</mysql.version>
     </properties>
 
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <!-- Import dependency management from Spring Boot -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.7.17</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -66,10 +71,61 @@
                 <version>${druid.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>4.1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.interceptor</groupId>
+                <artifactId>javax.interceptor-api</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-jwt</artifactId>
+                <version>1.0.10.RELEASE</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -85,6 +141,4 @@
             </snapshots>
         </repository>
     </repositories>
-
-
 </project>
