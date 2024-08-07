@@ -52,6 +52,7 @@ export default {
       history: [defaultContentHtml],
       atIng: false,
       isEmpty: true,
+      changeStored: true,
       blurRange: null
     }
   }, methods: {
@@ -134,7 +135,7 @@ export default {
         selection.addRange(t1);
         // 需要时自动聚焦
         if (element.focus) {
-        element.focus();
+          element.focus();
         }
       })
     },
@@ -169,7 +170,9 @@ export default {
           if (this.history.length <= 1) {
             return;
           }
+          if (this.changeStored) {
           this.history.pop();
+          }
           let last = this.history.pop();
           // console.log('回滚为：', last);
           this.contentHtml = last;
@@ -177,19 +180,13 @@ export default {
             // 保底
             this.history.push(this.defaultContentHtml);
           }
-
+          // 等待刷新dom
           setTimeout(() => {
             let t = this.$refs.content.lastElementChild.lastChild;
-            // t.focus();
-            let r = document.createRange();
-            r.setStart(t, t.textContent.length);
-            r.setEnd(t, t.textContent.length);
-            r.collapse();
-            // r.selectNodeContents(t.lastChild);
-
-            let selection = document.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(r);
+            if (!t || !t.textContent) {
+              return;
+            }
+            this.selectElement(t, t.textContent.length);
           })
         }
       }
@@ -212,8 +209,8 @@ export default {
       // at框打开时，上下键移动特殊处理
       if (this.atIng) {
         if (e.keyCode === 38) {
-        e.preventDefault();
-        e.stopPropagation();
+          e.preventDefault();
+          e.stopPropagation();
           this.$refs.atBox.moveUp();
         }
         if (e.keyCode === 40) {
@@ -250,11 +247,12 @@ export default {
 
       blurRange.collapse()
       this.atSearchText = "";
-      this.selectElement(textNode);
+      this.selectElement(textNode, 1);
     },
     onEditorInput(e) {
       // 加timeout是为了先响应compositionend事件
       this.isEmpty = false;
+      this.changeStored = false;
       setTimeout(() => {
         if (this.$props.groupMembers && !this.compositionFlag) {
           let selection = window.getSelection()
@@ -282,8 +280,8 @@ export default {
             if (textContent[i] === ' ') {
               endIndex = i;
               break;
-        }
-      }
+            }
+          }
           this.atSearchText = textContent.substring(startIndex + 1, endIndex).trim();
         }
       })
@@ -539,11 +537,12 @@ export default {
       if (this.compositionFlag) {
         return;
       }
-      let last = this.history[this.history.length];
+      let last = this.history[this.history.length - 1];
       let newContent = this.$refs.content.innerHTML;
       if (last !== newContent) {
         this.history.push(newContent);
       }
+      this.changeStored = true;
     }, 1000);
   }
 }
@@ -573,7 +572,7 @@ export default {
     > div {
       padding-left: 10px;
       //width: 1px;
-      height: 30px;
+      min-height: 30px;
     }
 
     // 单独一行时，无法在前面输入的bug
