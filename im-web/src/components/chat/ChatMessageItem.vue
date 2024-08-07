@@ -280,6 +280,7 @@
 							position: absolute;
 							left: -10px;
 							top: 13px;
+            z-index: -1;
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
@@ -407,6 +408,14 @@
 							color: #329432;
 						}
 					}
+
+        .chat-at-user {
+          background-color: #4cd964;
+          padding: 2px 5px;
+          color: white;
+          //border: 1px solid #c3c3c3;
+          border-radius: 3px;
+        }
 				}
 			}
 
@@ -442,7 +451,7 @@
 							background-color: rgb(88, 127, 240);
 							color: #fff;
 							vertical-align: top;
-							
+
 							&:after {
 								left: auto;
 								right: -10px;
