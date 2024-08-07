@@ -16,6 +16,6 @@ public final class ChannelAttrKey {
     /**
      * 心跳次数
      */
-    public static final String HEARTBEAT_TIMES = "HEARTBEAt_TIMES";
+    public static final String HEARTBEAT_TIMES = "HEARTBEAT_TIMES";
 
 }
