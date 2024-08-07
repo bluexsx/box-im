@@ -1,22 +1,22 @@
 <template>
   <div class="chat-input-area">
-    <div class="edit-chat-container" contenteditable="true"
+    <div :class="['edit-chat-container',isEmpty?'':'not-empty']" contenteditable="true"
          @paste.prevent="onPaste"
          @keydown="onKeydown"
          @compositionstart="compositionFlag=true"
-         @compositionend="compositionFlag=false"
+         @compositionend="compositionFlag=false;updateRange()"
          @input="onEditorInput"
          @mousedown="onMousedown"
          v-html="contentHtml"
          ref="content"
          @blur="onBlur"
-
-         :placeholder="'请输入消息'">
+    >
     </div>
     <chat-at-box @select="onAtSelect"
                  :search-text="atSearchText"
                  ref="atBox"
-                 :ownerId="ownerId" :members="groupMembers"
+                 :ownerId="ownerId"
+                 :members="groupMembers"
 
     ></chat-at-box>
   </div>
@@ -50,21 +50,23 @@ export default {
       atSearchText: null,
       compositionFlag: false,
       history: [defaultContentHtml],
-      focusOffset: 0,
       atIng: false,
+      isEmpty: true,
       blurRange: null
     }
   }, methods: {
     onPaste(e) {
       let txt = e.clipboardData.getData('Text')
       let range = window.getSelection().getRangeAt(0)
+
       if (range.startContainer !== range.endContainer || range.startOffset !== range.endOffset) {
-        document.execCommand('delete', false, null);
+        range.deleteContents();
       }
-      if (typeof (txt) == 'string') {
+      // 粘贴图片和文件时，这里没有数据
+      if (txt && typeof (txt) == 'string') {
         let textNode = document.createTextNode(txt);
         range.insertNode(textNode)
-        // return;
+        return;
       }
       let items = (e.clipboardData || window.clipboardData).items
       if (items.length) {
@@ -78,14 +80,20 @@ export default {
             };
             this.imageList[imagePush.fileId] = (imagePush);
 
+            let divElement = this.newLine();
+            let text = document.createTextNode('\u00A0');
+            divElement.appendChild(text);
 
             let imageElement = document.createElement('img');
             imageElement.className = 'chat-image no-text';
             imageElement.src = imagePush.url;
-            imageElement.setAttribute("data-img-id", imagePush.fileId);
-            // imageElement.width = 200;
-            // imageElement.height = 100;
-            range.insertNode(imageElement);
+            imageElement.dataset.imgId = imagePush.fileId;
+
+            divElement.appendChild(imageElement);
+            let after = document.createTextNode('\u00A0');
+            divElement.appendChild(after);
+            this.selectElement(after, 1);
+            // range.insertNode(divElement);
           } else {
             let asFile = items[i].getAsFile();
             if (!asFile) {
@@ -93,26 +101,30 @@ export default {
             }
             let filePush = {fileId: this.generateId(), file: asFile};
             this.fileList[filePush.fileId] = (filePush)
-            let fileElement = this.createFile(filePush);
-            range.insertNode(fileElement);
+            let line = this.newLine();
+            let text = document.createTextNode('\u00A0');
+            line.appendChild(text);
 
-            // var text = document.createTextNode("\u00A0");
-            fileElement.insertAdjacentHTML('afterend','\u00A0');
-            // range.selectNodeContents(text);
-            // range.collapse();
+            let fileElement = this.createFile(filePush);
+            line.appendChild(fileElement);
+
+            let after = document.createTextNode('\u00A0');
+            line.appendChild(after);
+            this.selectElement(after, 1);
+            // fileElement.insertAdjacentHTML('afterend', '\u00A0');
           }
         }
       }
       range.collapse();
 
     },
-    selectElement(element) {
+    selectElement(element, endOffset) {
       let selection = window.getSelection();
-
+      // 插入元素可能不是立即执行的，vue可能会在插入元素后再更新dom
       setTimeout(() => {
         let t1 = document.createRange();
         t1.setStart(element, 0);
-        t1.setEnd(element, 0);
+        t1.setEnd(element, endOffset || 0);
         if (element.firstChild) {
           t1.selectNodeContents(element.firstChild);
         }
@@ -120,7 +132,10 @@ export default {
 
         selection.removeAllRanges();
         selection.addRange(t1);
+        // 需要时自动聚焦
+        if (element.focus) {
         element.focus();
+        }
       })
     },
     onKeydown(e) {
@@ -133,34 +148,12 @@ export default {
           return;
         }
         if (e.shiftKey) {
-          let selection = window.getSelection();
-          let range = selection.getRangeAt(0);
+          let divElement = this.newLine();
 
-          let divElement = document.createElement('div');
-
-          let endContainer = range.endContainer;
-          let parentElement = endContainer.parentElement;
-
-          let newText = endContainer.textContent.substring(range.endOffset).trim();
-          endContainer.textContent = endContainer.textContent.substring(0, range.endOffset);
-          divElement.innerHTML = newText || '';
-
-          if (parentElement === this.$refs.content) {
-            // range.insertNode(divElement)
-            this.$refs.content.append(divElement);
-          } else {
-            parentElement.insertAdjacentElement('afterend', divElement);
-          }
-
-          // if (range.startContainer !== endContainer || range.startOffset !== range.endOffset) {
-          //   console.log('delete range.', range.startContainer, range.startOffset, range.endContainer, range.endOffset)
-          //   document.execCommand('delete', false, null);
-          // }
           this.selectElement(divElement);
-          // return false;
         } else {
+          // 中文输入标记
           if (this.compositionFlag) {
-            console.log('中文输入中')
             return;
           }
           this.submit();
@@ -168,7 +161,9 @@ export default {
         return;
       }
       if (e.keyCode === 90) {
+        // Ctrl+Z，这里兼容mac的command+z
         if (e.ctrlKey || e.metaKey) {
+          // 阻止默认的ctrl+z，浏览器的ctrl+z很low
           e.preventDefault();
           e.stopPropagation();
           if (this.history.length <= 1) {
@@ -198,83 +193,103 @@ export default {
           })
         }
       }
+      // 删除键
       if (e.keyCode === 8) {
+        // 等待dom更新
         setTimeout(() => {
-          // console.log(this.$refs.content.innerHTML.trim())
           let s = this.$refs.content.innerHTML.trim();
-          if (s === '' || s === '<br>') {
+          // 空dom时，需要刷新dom
+          if (s === '' || s === '<br>' || s === '<div><br></div>' || s === '<div><br/></div>') {
             // 拼接随机长度的空格，以刷新dom
             this.empty();
+            this.isEmpty = true;
             this.selectElement(this.$refs.content);
+          } else {
+            this.isEmpty = false;
           }
-          // this.
         })
       }
-      // console.log(e.keyCode)
+      // at框打开时，上下键移动特殊处理
       if (this.atIng) {
-        console.log('atIng', e.keyCode)
+        if (e.keyCode === 38) {
         e.preventDefault();
         e.stopPropagation();
-        if (e.keyCode === 38) {
           this.$refs.atBox.moveUp();
         }
         if (e.keyCode === 40) {
+          e.preventDefault();
+          e.stopPropagation();
           this.$refs.atBox.moveDown();
         }
       }
     },
     onAtSelect(member) {
       this.atIng = false;
-      let range = window.getSelection().getRangeAt(0)
+
       // 选中输入的 @xx 符
-      range.setStart(this.blurRange.startContainer, this.focusOffset - 1 - this.atSearchText.length)
-      range.setEnd(this.blurRange.endContainer, this.focusOffset)
-      range.deleteContents()
+      let blurRange = this.blurRange;
+      let startOffset = blurRange.endOffset - this.atSearchText.length - 1;
+      blurRange.setStart(blurRange.endContainer, startOffset);
+      blurRange.deleteContents()
+      blurRange.collapse();
+
+      this.focus();
       // 创建元素节点
       let element = document.createElement('SPAN')
       element.className = "chat-at-user";
       element.dataset.id = member.userId;
       element.contentEditable = 'false'
       element.innerText = `@${member.aliasName}`
-      element.setAttribute("data-at-user-id", member.userId)
-      range.insertNode(element)
+      blurRange.insertNode(element)
       // 光标移动到末尾
-      range.collapse()
+      blurRange.collapse()
+
       // 插入空格
       let textNode = document.createTextNode('\u00A0');
-      range.insertNode(textNode)
-      range.selectNodeContents(textNode);
+      blurRange.insertNode(textNode);
 
-      range.collapse()
+      blurRange.collapse()
       this.atSearchText = "";
-      this.focus();
-      // this.selectElement(textNode);
-      // this.$refs.editBox.focus()
+      this.selectElement(textNode);
     },
     onEditorInput(e) {
-      // 如果触发 @
-      if (this.$props.groupMembers && !this.zhLock) {
-        if (e.data === '@') {
-          // 打开选择弹窗
-          this.showAtBox(e);
-        } else {
+      // 加timeout是为了先响应compositionend事件
+      this.isEmpty = false;
+      setTimeout(() => {
+        if (this.$props.groupMembers && !this.compositionFlag) {
           let selection = window.getSelection()
-          // let range = selection.getRangeAt(0)
-          let focusNode = selection.focusNode;
-          // 截取@后面的名称作为过滤条件
-          let stIdx = focusNode.textContent.lastIndexOf('@');
-          this.atSearchText = focusNode.textContent.substring(stIdx + 1);
+          let range = selection.getRangeAt(0);
+          // 截取@后面的名称作为过滤条件，并以空格结束
+          let endContainer = range.endContainer;
+          let endOffset = range.endOffset;
+          let textContent = endContainer.textContent;
+          let startIndex = -1;
+          for (let i = endOffset; i >= 0; i--) {
+            if (textContent[i] === '@') {
+              startIndex = i;
+              break;
+            }
+          }
+          // 没有at符号，则关闭弹窗
+          if (startIndex === -1) {
+            this.$refs.atBox.close();
+            return;
+          }
+          // 打开选择弹窗
+          this.showAtBox(e)
+          let endIndex = endOffset;
+          for (let i = endOffset; i < textContent.length; i++) {
+            if (textContent[i] === ' ') {
+              endIndex = i;
+              break;
         }
       }
-
+          this.atSearchText = textContent.substring(startIndex + 1, endIndex).trim();
+        }
+      })
     },
     onBlur(e) {
-      // setTimeout(() => {
-      //   console.log(e)
-      //   this.$refs.atBox.close();
-      //   this.atIng = false;
-      // },100)
-      this.blurRange = window.getSelection().getRangeAt(0);
+      this.updateRange();
     },
     onMousedown() {
       if (this.atIng) {
@@ -283,20 +298,30 @@ export default {
       }
     },
     insertEmoji(emojiText) {
-      // let selection = window.getSelection();
-      // let range = selection.getRangeAt(0);
       let emojiElement = document.createElement('img');
       emojiElement.className = 'chat-emoji no-text';
-      emojiElement.setAttribute("data-emoji-code", emojiText);
+      emojiElement.dataset.emojiCode = emojiText;
       emojiElement.src = this.$emo.textToUrl(emojiText);
 
       let blurRange = this.blurRange;
+      if (!blurRange) {
+        this.focus();
+        this.updateRange();
+        blurRange = this.blurRange;
+      }
       if (blurRange.startContainer !== blurRange.endContainer || blurRange.startOffset !== blurRange.endOffset) {
         blurRange.deleteContents();
       }
       blurRange.insertNode(emojiElement);
+      blurRange.collapse()
 
-      this.focus();
+      let textNode = document.createTextNode('\u00A0');
+      blurRange.insertNode(textNode)
+      blurRange.collapse()
+
+      this.selectElement(textNode);
+      this.updateRange();
+      this.isEmpty = false;
     },
     generateId() {
       return this.currentId++;
@@ -307,7 +332,7 @@ export default {
       let container = document.createElement('div');
       container.className = 'chat-file-container no-text';
       container.contentEditable = 'false';
-      container.setAttribute("data-file-id", fileId);
+      container.dataset.fileId = fileId;
 
       let left = document.createElement('div');
       left.className = 'file-position-left';
@@ -346,6 +371,33 @@ export default {
         return (len / 1024 / 1024 / 1024).toFixed(2) + 'GB';
       }
     },
+    updateRange() {
+      let selection = window.getSelection();
+      this.blurRange = selection.getRangeAt(0);
+    },
+    newLine() {
+      let selection = window.getSelection();
+      let range = selection.getRangeAt(0);
+
+      let divElement = document.createElement('div');
+
+      let endContainer = range.endContainer;
+      let parentElement = endContainer.parentElement;
+
+      let newText = endContainer.textContent.substring(range.endOffset).trim();
+      endContainer.textContent = endContainer.textContent.substring(0, range.endOffset);
+      divElement.innerHTML = newText || '';
+
+      // 有时候at完或者插入图片、文件后，可能parent可能直接是编辑器本身了，这里直接追加就可以了，可能有bug，但在所难免
+      if (parentElement === this.$refs.content) {
+        this.$refs.content.append(divElement);
+      } else {
+        // 插入到当前div（当前行）后面
+        parentElement.insertAdjacentElement('afterend', divElement);
+      }
+      this.isEmpty = false;
+      return divElement;
+    },
     clear() {
       this.empty();
       this.imageList = [];
@@ -361,18 +413,18 @@ export default {
     },
     showAtBox(e) {
       this.atIng = true;
-      this.atSearchText = "";
+      // show之后会自动更新当前搜索的text
+      // this.atSearchText = "";
       let selection = window.getSelection()
       let range = selection.getRangeAt(0)
-      // 记录光标所在位置
-      // this.focusNode = selection.focusNode;
-      this.focusOffset = selection.focusOffset;
       // 光标所在坐标
       let pos = range.getBoundingClientRect();
       this.$refs.atBox.open({
         x: pos.x,
         y: pos.y
       })
+      // 记录光标所在位置
+      this.updateRange();
     },
     submit() {
       // console.log(this.content)
@@ -401,7 +453,7 @@ export default {
           }
           let text = tempText.trim();
           if (nodeName === 'img') {
-            let imgId = node.getAttribute('data-img-id');
+            let imgId = node.dataset.imgId;
             if (imgId) {
               if (text) {
                 fullList.push({
@@ -417,11 +469,11 @@ export default {
               textList.push(text);
               tempText = '';
             } else {
-              let emojiCode = node.getAttribute('data-emoji-code');
+              let emojiCode = node.dataset.emojiCode;
               tempText += emojiCode;
             }
           } else if (nodeName === 'div') {
-            let fileId = node.getAttribute('data-file-id');
+            let fileId = node.dataset.fileId
             // 文件
             if (fileId) {
               if (text) {
@@ -442,7 +494,7 @@ export default {
               each(node.childNodes);
             }
           } else if (nodeName === 'span') {
-            let userId = node.getAttribute("data-at-user-id");
+            let userId = node.dataset.id;
             if (userId !== null && userId !== undefined) {
               tempText += node.outerHTML;
             }
@@ -476,7 +528,7 @@ export default {
 
   },
   mounted() {
-    console.log(this.$props.groupMembers)
+    // console.log(this.$props.groupMembers)
     // this.$refs.content.firstElementChild.focus();
     this.selectElement(this.$refs.content.firstElementChild);
     setInterval(() => {
@@ -520,11 +572,17 @@ export default {
 
     > div {
       padding-left: 10px;
+      //width: 1px;
+      height: 30px;
     }
 
+    // 单独一行时，无法在前面输入的bug
     > div:before {
       content: "\00a0";
       font-size: 14px;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     .chat-image {
@@ -591,12 +649,16 @@ export default {
     }
   }
 
-  .edit-chat-container:empty:before {
+  .edit-chat-container > div:nth-of-type(1):empty:after {
     content: '请输入消息（按Shift+Enter键换行）';
     color: gray;
   }
 
-  .edit-chat-container:focus:before {
+  .edit-chat-container > div:nth-of-type(1):focus:after {
+    content: none;
+  }
+
+  .edit-chat-container.not-empty > div:nth-of-type(1):after {
     content: none;
   }
 
