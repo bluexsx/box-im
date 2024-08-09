@@ -102,6 +102,9 @@ public class RedisMQPullTask implements CommandLineRunner {
                 objects.add(obj);
                 obj = redisMQTemplate.opsForList().leftPop(key);
             }
+            if (!Objects.isNull(obj)){
+                objects.add(obj);
+            }
         }
         return objects;
     }
