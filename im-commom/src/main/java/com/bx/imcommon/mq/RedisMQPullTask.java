@@ -79,7 +79,7 @@ public class RedisMQPullTask implements CommandLineRunner {
                     if (!EXECUTOR.isShutdown()) {
                         if (datas.size() < batchSize) {
                             // 数据已经消费完，等待下一个周期继续拉取
-                            EXECUTOR.schedule(this, period, TimeUnit.MICROSECONDS);
+                            EXECUTOR.schedule(this, period, TimeUnit.MILLISECONDS);
                         } else {
                             // 数据没有消费完，直接开启下一个消费周期
                             EXECUTOR.execute(this);
@@ -101,6 +101,9 @@ public class RedisMQPullTask implements CommandLineRunner {
             while (!Objects.isNull(obj) && objects.size() < batchSize) {
                 objects.add(obj);
                 obj = redisMQTemplate.opsForList().leftPop(key);
+            }
+            if (!Objects.isNull(obj)){
+                objects.add(obj);
             }
         }
         return objects;
