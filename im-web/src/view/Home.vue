@@ -126,16 +126,22 @@
 				})
 			},
 			pullPrivateOfflineMessage(minId) {
+				this.$store.commit("loadingPrivateMsg", true)
 				this.$http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(() => {
+					this.$store.commit("loadingPrivateMsg", false)
+				})
 			},
 			pullGroupOfflineMessage(minId) {
+				this.$store.commit("loadingGroupMsg", true)
 				this.$http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
-					method: 'get'
-				});
+					method: 'GET'
+				}).catch(() => {
+					this.$store.commit("loadingGroupMsg", false)
+				})
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志

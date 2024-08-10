@@ -132,9 +132,10 @@
 				showRecord: false,
 				keyboardHeight: 322,
 				atUserIds: [],
-				recordText: "",
 				needScrollToBottom: false, // 需要滚动到底部 
-				showMinIdx: 0 // 下标小于showMinIdx的消息不显示，否则可能很卡
+				showMinIdx: 0, 	// 下标小于showMinIdx的消息不显示，否则可能很卡
+				reqQueue: [], 	// 请求队列
+				isSending: false // 是否正在发送请求
 			}
 		},
 		methods: {
@@ -154,11 +155,7 @@
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
-				this.$http({
-					url: this.messageAction,
-					method: 'POST',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
 					this.$store.commit("insertMessage", m);
 					// 会话置顶
@@ -278,19 +275,14 @@
 					receipt: this.isReceipt,
 					type: 0
 				}
+				this.sendText = "";
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
-				this.sendText = "";
-				this.$http({
-					url: this.messageAction,
-					method: 'POST',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
 					this.$store.commit("insertMessage", m);
 					// 会话置顶
 					this.moveChatToTop();
-					this.sendText = "";
 				}).finally(() => {
 					// 滚动到底部
 					this.scrollToBottom();
@@ -408,11 +400,7 @@
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(res.data);
 				msgInfo.receipt = this.isReceipt
-				this.$http({
-					url: this.messageAction,
-					method: 'POST',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
@@ -463,11 +451,7 @@
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				msgInfo.receipt = this.isReceipt
-				this.$http({
-					url: this.messageAction,
-					method: 'POST',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
@@ -631,6 +615,32 @@
 				let info = uni.getSystemInfoSync()
 				let px = info.windowWidth * rpx / 750;
 				return Math.floor(rpx);
+			},
+			sendMessageRequest(msgInfo){
+				return  new Promise((resolve,reject)=>{
+					// 请求入队列，防止请求"后发先至"，导致消息错序
+					this.reqQueue.push({msgInfo,resolve,reject});
+					this.processReqQueue();
+				})
+			},
+			processReqQueue(){
+				if (this.reqQueue.length && !this.isSending) {
+					this.isSending = true;
+					const reqData = this.reqQueue.shift();
+					this.$http({
+						url: this.messageAction,
+						method: 'post',
+						data: reqData.msgInfo
+					}).then((res)=>{
+						reqData.resolve(res)
+					}).catch((e)=>{
+						reqData.reject(e)
+					}).finally(()=>{
+						this.isSending = false;
+						// 发送下一条请求
+						this.processReqQueue();
+					})
+				}
 			},
 			generateId(){
 				// 生成临时id
