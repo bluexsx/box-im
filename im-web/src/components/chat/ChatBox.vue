@@ -36,7 +36,7 @@
 									</file-upload>
 								</div>
 								<div title="发送文件">
-									<file-upload :action="'/file/upload'" :maxSize="10 * 1024 * 1024"
+									<file-upload ref="fileUpload" :action="'/file/upload'" :maxSize="10 * 1024 * 1024"
 										@before="onFileBefore" @success="onFileSuccess" @fail="onFileFail">
 										<i class="el-icon-wallet"></i>
 									</file-upload>
@@ -58,23 +58,10 @@
 								<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
 							</div>
 							<div class="send-content-area">
-								<div contenteditable="true" v-show="!sendImageUrl" ref="editBox" class="send-text-area"
-									:disabled="lockMessage" @paste.prevent="onEditorPaste"
-									@compositionstart="onEditorCompositionStart"
-									@compositionend="onEditorCompositionEnd" @input="onEditorInput"
-									:placeholder="placeholder" @blur="onEditBoxBlur()" @keyup.down="onKeyDown"
-									@keyup.up.prevent="onKeyUp" @keydown.enter.prevent="onKeyEnter">x
-								</div>
-
-								<div v-show="sendImageUrl" class="send-image-area">
-									<div class="send-image-box">
-										<img class="send-image" :src="sendImageUrl" />
-										<span class="send-image-close el-icon-close" title="删除"
-											@click="removeSendImage()"></span>
-									</div>
-								</div>
+								<ChatInput :ownerId="group.ownerId" ref="chatInputEditor" :group-members="groupMembers"
+									@submit="sendMessage" />
 								<div class="send-btn-area">
-									<el-button type="primary" size="small" @click="sendMessage()">发送</el-button>
+									<el-button type="primary" size="small" @click="notifySend()">发送</el-button>
 								</div>
 							</div>
 						</el-footer>
@@ -86,8 +73,6 @@
 				</el-container>
 			</el-main>
 			<emotion ref="emoBox" @emotion="onEmotion"></Emotion>
-			<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers" :search-text="atSearchText"
-				@select="onAtSelect"></chat-at-box>
 			<chat-record :visible="showRecord" @close="closeRecordBox" @send="onSendRecord"></chat-record>
 			<group-member-selector ref="rtcSel" :groupId="group.id" @complete="onInviteOk"></group-member-selector>
 			<rtc-group-join ref="rtcJoin" :groupId="group.id"></rtc-group-join>
@@ -107,11 +92,13 @@
 	import ChatAtBox from "./ChatAtBox.vue"
 	import GroupMemberSelector from "../group/GroupMemberSelector.vue"
 	import RtcGroupJoin from "../rtc/RtcGroupJoin.vue"
+	import ChatInput from "./ChatInput";
 
 
 	export default {
 		name: "chatPrivate",
 		components: {
+			ChatInput,
 			ChatMessageItem,
 			FileUpload,
 			ChatGroupSide,
@@ -140,11 +127,9 @@
 				showSide: false, // 是否显示群聊信息栏
 				showHistory: false, // 是否显示历史聊天记录
 				lockMessage: false, // 是否锁定发送，
-				showMinIdx: 0, // 下标低于showMinIdx的消息不显示，否则页面会很卡
-				atSearchText: "",
-				focusNode: null, // 缓存光标所在节点
-				focusOffset: null, // 缓存光标所在节点位置
-				zhLock: false // 解决中文输入法触发英文的情况
+				showMinIdx: 0, // 下标低于showMinIdx的消息不显示，否则页面会很卡置
+				reqQueue: [],
+				isSending : false
 			}
 		},
 		methods: {
@@ -154,7 +139,7 @@
 			},
 			closeRefBox() {
 				this.$refs.emoBox.close();
-				this.$refs.atBox.close();
+				// this.$refs.atBox.close();
 			},
 			onCall(type) {
 				if (type == this.$enums.MESSAGE_TYPE.ACT_RT_VOICE) {
@@ -163,169 +148,18 @@
 					this.showPrivateVideo('video');
 				}
 			},
-			onKeyDown() {
-				console.log("onKeyDown")
-				if (this.$refs.atBox.show) {
-					this.$refs.atBox.moveDown()
-				}
-			},
-			onKeyUp() {
-				if (this.$refs.atBox.show) {
-					this.$refs.atBox.moveUp()
-				}
-			},
-			onKeyEnter() {
-				if (this.$refs.atBox.show) {
-					// 键盘操作不会自动修正焦点，需要手动修正,原因不详
-					this.focusOffset += this.atSearchText.length;
-					this.$refs.atBox.select();
-				} else {
-					this.sendMessage();
-				}
-			},
-			onEditBoxBlur() {
-				let selection = window.getSelection()
-				// 记录光标位置(点击emoji时)
-				this.focusNode = selection.focusNode;
-				this.focusOffset = selection.focusOffset;
-			},
-			onEditorInput(e, e2, e3) {
-				// 如果触发 @
-				if (this.chat.type == "GROUP" && !this.zhLock) {
-					console.log("onEditorInput")
-					if (e.inputType === "deleteContentBackward" && !this.atSearchText) {
-						this.$refs.atBox.close();
-					}
-					if (e.data == '@') {
-						// 打开选择弹窗
-						this.showAtBox(e);
-					} else if(this.$refs.atBox.show){
-						let selection = window.getSelection()
-						let range = selection.getRangeAt(0)
-						this.focusNode = selection.focusNode;
-						// 截取@后面的名称作为过滤条件
-						let stIdx = this.focusNode.textContent.lastIndexOf('@');
-						this.atSearchText = this.focusNode.textContent.substring(stIdx + 1);
-					}
-				}
-				this.refreshPlaceHolder();
-
-			},
-			onEditorCompositionStart() {
-				this.zhLock = true;
-			},
-			onEditorCompositionEnd(e) {
-				this.zhLock = false;
-				this.onEditorInput(e);
-			},
-			showAtBox(e) {
-				this.atSearchText = "";
-				let selection = window.getSelection()
-				let range = selection.getRangeAt(0)
-				// 记录光标所在位置
-				this.focusNode = selection.focusNode;
-				this.focusOffset = selection.focusOffset;
-				// 光标所在坐标
-				let pos = range.getBoundingClientRect();
-				this.$refs.atBox.open({
-					x: pos.x,
-					y: pos.y
-				})
-			},
-			onAtSelect(member) {
-				let range = window.getSelection().getRangeAt(0)
-				// 选中输入的 @xx 符
-				range.setStart(this.focusNode, this.focusOffset - 1 - this.atSearchText.length)
-				range.setEnd(this.focusNode, this.focusOffset)
-				range.deleteContents()
-				// 创建元素节点
-				let element = document.createElement('SPAN')
-				element.className = "at"
-				element.dataset.id = member.userId;
-				element.contentEditable = 'false'
-				element.innerText = `@${member.showNickName}`
-				range.insertNode(element)
-				// 光标移动到末尾
-				range.collapse()
-				// 插入空格
-				let textNode = document.createTextNode('\u00A0');
-				range.insertNode(textNode)
-				range.collapse()
-				this.atSearchText = "";
-				this.$refs.editBox.focus()
-			},
 			onSwitchReceipt() {
 				this.isReceipt = !this.isReceipt;
 				this.refreshPlaceHolder();
-			},
-			createSendText() {
-				let sendText = this.isReceipt ? "【回执消息】" : "";
-				this.$refs.editBox.childNodes.forEach((node) => {
-					if (node.nodeName == "#text") {
-						sendText += this.html2Escape(node.textContent);
-					} else if (node.nodeName == "SPAN") {
-						sendText += node.innerHTML;
-					} else if (node.nodeName == "IMG") {
-						sendText += node.dataset.code;
-					}
-				})
-				return sendText;
-			},
-			html2Escape(strHtml) {
-				return strHtml.replace(/[<>&"]/g, function(c) {
-					return {
-						'<': '&lt;',
-						'>': '&gt;',
-						'&': '&amp;',
-						'"': '&quot;'
-					} [c];
-				});
-			},
-			createAtUserIds() {
-				let ids = [];
-				this.$refs.editBox.childNodes.forEach((node) => {
-					if (node.nodeName == "SPAN") {
-						ids.push(node.dataset.id);
-					}
-				})
-				return ids;
-			},
-			onEditorPaste(e) {
-				let txt = e.clipboardData.getData('Text')
-				if (typeof(txt) == 'string') {
-					let range = window.getSelection().getRangeAt(0)
-					let textNode = document.createTextNode(txt);
-					range.insertNode(textNode)
-					range.collapse();
-				}
-				let items = (e.clipboardData || window.clipboardData).items
-				if (items.length) {
-					for (let i = 0; i < items.length; i++) {
-						if (items[i].type.indexOf('image') !== -1) {
-							let file = items[i].getAsFile();
-							this.sendImageFile = file;
-							this.sendImageUrl = URL.createObjectURL(file);
-						}
-					}
-				}
-			},
-			removeSendImage() {
-				this.sendImageUrl = "";
-				this.sendImageFile = null;
 			},
 			onImageSuccess(data, file) {
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				msgInfo.receipt = this.isReceipt;
-				this.$http({
-					url: this.messageAction,
-					method: 'post',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((id) => {
 					msgInfo.loadStatus = 'ok';
-					msgInfo.id = m.id;
+					msgInfo.id = id;
 					this.isReceipt = false;
-					this.refreshPlaceHolder();
 					this.$store.commit("insertMessage", msgInfo);
 				})
 			},
@@ -373,11 +207,7 @@
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				msgInfo.receipt = this.isReceipt
-				this.$http({
-					url: this.messageAction,
-					method: 'post',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
@@ -445,21 +275,7 @@
 				})
 			},
 			onEmotion(emoText) {
-				// 保持输入框焦点
-				this.$refs.editBox.focus();
-				let range = window.getSelection().getRangeAt(0);
-				// 插入光标所在位置
-				range.setStart(this.focusNode, this.focusOffset)
-				let element = document.createElement('IMG')
-				element.className = "emo"
-				element.dataset.code = emoText;
-				element.contentEditable = 'true'
-				element.setAttribute("src", this.$emo.textToUrl(emoText));
-				// 选中元素节点
-				range.insertNode(element)
-				// 光标移动到末尾
-				range.collapse()
-
+				this.$refs.chatInputEditor.insertEmoji(emoText);
 			},
 			showRecordBox() {
 				this.showRecord = true;
@@ -489,7 +305,6 @@
 						let ids = [this.mine.id];
 						let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
 						this.$refs.rtcSel.open(maxChannel, ids, ids);
-
 					}
 				})
 
@@ -531,24 +346,19 @@
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
-				this.$http({
-					url: this.messageAction,
-					method: 'post',
-					data: msgInfo
-				}).then((m) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
 					this.$store.commit("insertMessage", m);
 					// 会话置顶
 					this.moveChatToTop();
 					// 保持输入框焦点
-					this.$refs.editBox.focus();
+					this.$refs.chatInputEditor.focus();
 					// 滚动到底部
 					this.scrollToBottom();
 					// 关闭录音窗口
 					this.showRecord = false;
 					this.isReceipt = false;
 					this.refreshPlaceHolder();
-
 				})
 			},
 			fillTargetId(msgInfo, targetId) {
@@ -558,70 +368,87 @@
 					msgInfo.recvId = targetId;
 				}
 			},
-			sendMessage() {
-				if (this.sendImageFile) {
-					this.sendImageMessage();
-				} else {
-					this.sendTextMessage();
-				}
-				// 消息已读
-				this.readedMessage()
+			notifySend() {
+				this.$refs.chatInputEditor.submit();
 			},
-			sendImageMessage() {
-				let file = this.sendImageFile;
-				this.onImageBefore(this.sendImageFile);
-				let formData = new FormData()
-				formData.append('file', file)
-				this.$http.post("/image/upload", formData, {
-					headers: {
-						'Content-Type': 'multipart/form-data'
+			async sendMessage(fullList) {
+				this.resetEditor();
+				this.readedMessage();
+				let sendText = this.isReceipt ? "【回执消息】" : "";
+				let promiseList = [];
+				for (let i = 0; i < fullList.length; i++) {
+					let msg = fullList[i];
+					switch (msg.type) {
+						case "text":
+							await this.sendTextMessage(sendText + msg.content,msg.atUserIds);
+							break;
+						case "image":
+							await this.sendImageMessage(msg.content.file);
+							break;
+						case "file":
+							await this.sendFileMessage(msg.content.file);
+							break;
 					}
-				}).then((data) => {
-					this.onImageSuccess(data, file);
-				}).catch((res) => {
-					this.onImageSuccess(res, file);
-				})
-				this.sendImageFile = null;
-				this.sendImageUrl = "";
-				this.$nextTick(() => this.$refs.editBox.focus());
-				this.scrollToBottom();
+				
+				}
 			},
-			sendTextMessage() {
-				let sendText = this.createSendText();
-				if (!sendText.trim()) {
-					return
-				}
-				this.$refs.editBox.cle
-				let msgInfo = {
-					content: sendText,
-					type: 0
-				}
-				// 填充对方id
-				this.fillTargetId(msgInfo, this.chat.targetId);
-				// 被@人员列表
-				if (this.chat.type == "GROUP") {
-					msgInfo.atUserIds = this.createAtUserIds();
-					msgInfo.receipt = this.isReceipt;
-				}
-				this.lockMessage = true;
-				this.$http({
-					url: this.messageAction,
-					method: 'post',
-					data: msgInfo
-				}).then((m) => {
-					m.selfSend = true;
-					this.$store.commit("insertMessage", m);
-					// 会话置顶
-					this.moveChatToTop();
-				}).finally(() => {
-					// 解除锁定
-					this.lockMessage = false;
+			sendImageMessage(file) {
+				return new Promise((resolve,reject)=>{
+					this.onImageBefore(file);
+					let formData = new FormData()
+					formData.append('file', file)
+					this.$http.post("/image/upload", formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						}
+					}).then((data) => {
+						this.onImageSuccess(data, file);
+						resolve();
+					}).catch((res) => {
+						this.onImageFail(res, file);
+						reject();
+					})
+					this.$nextTick(() => this.$refs.chatInputEditor.focus());
 					this.scrollToBottom();
-					this.resetEditor();
-					this.isReceipt = false;
-					this.refreshPlaceHolder();
+					});
+			},
+			 sendTextMessage(sendText,atUserIds) {
+				return new Promise((resolve,reject)=>{
+					if (!sendText.trim()) {
+						reject();
+					}
+					let msgInfo = {
+						content: sendText,
+						type: 0
+					}
+					// 填充对方id
+					this.fillTargetId(msgInfo, this.chat.targetId);
+					// 被@人员列表
+					if (this.chat.type == "GROUP") {
+						msgInfo.atUserIds = atUserIds;
+						msgInfo.receipt = this.isReceipt;
+					}
+					this.lockMessage = true;
+					this.sendMessageRequest(msgInfo).then((m) => {
+						m.selfSend = true;
+						this.$store.commit("insertMessage", m);
+						// 会话置顶
+						this.moveChatToTop();
+					}).finally(() => {
+						// 解除锁定
+						this.scrollToBottom();
+						this.isReceipt = false;
+						resolve();
+					});
 				});
-
+			},
+			sendFileMessage(file) {
+				return new Promise((resolve,reject)=>{
+					let check = this.$refs.fileUpload.beforeUpload(file);
+					if (check) {
+						this.$refs.fileUpload.onFileUpload({ file });
+					}
+				})
 			},
 			deleteMessage(msgInfo) {
 				this.$confirm('确认删除消息?', '删除消息', {
@@ -686,7 +513,6 @@
 					this.group = group;
 					this.$store.commit("updateChatFromGroup", group);
 					this.$store.commit("updateGroup", group);
-
 				});
 
 				this.$http({
@@ -725,11 +551,10 @@
 				}
 			},
 			resetEditor() {
-				this.sendImageUrl = "";
-				this.sendImageFile = null;
+				
 				this.$nextTick(() => {
-					this.$refs.editBox.innerHTML = "";
-					this.$refs.editBox.focus();
+					this.$refs.chatInputEditor.clear();
+					this.$refs.chatInputEditor.focus();
 				});
 			},
 			scrollToBottom() {
@@ -745,6 +570,32 @@
 					this.placeholder = ""
 				} else {
 					this.placeholder = "聊点什么吧~";
+				}
+			},
+			sendMessageRequest(msgInfo){
+				return  new Promise((resolve,reject)=>{
+					// 请求入队列，防止请求"后发先至"，导致消息错序
+					this.reqQueue.push({msgInfo,resolve,reject});
+					this.processReqQueue();
+				})
+			},
+			processReqQueue(){
+				if (this.reqQueue.length && !this.isSending) {
+					this.isSending = true;
+					const reqData = this.reqQueue.shift();
+					this.$http({
+						url: this.messageAction,
+						method: 'post',
+						data: reqData.msgInfo
+					}).then((res)=>{
+						reqData.resolve(res)
+					}).catch((e)=>{
+						reqData.reject(e)
+					}).finally(()=>{
+						this.isSending = false;
+						// 发送下一条请求
+						this.processReqQueue();
+					})
 				}
 			},
 			generateId() {
@@ -776,7 +627,6 @@
 				}
 				return this.chat.messages.length;
 			}
-
 		},
 		watch: {
 			chat: {
@@ -829,6 +679,7 @@
 		position: relative;
 		width: 100%;
 		background: #f8f8f8;
+		border: #dddddd solid 1px;
 
 		.el-header {
 			padding: 3px;
@@ -844,13 +695,12 @@
 				line-height: 50px;
 				font-size: 25px;
 				cursor: pointer;
-
 			}
 		}
 
 		.im-chat-main {
 			padding: 0;
-			background-color: white;
+			background-color: #f8f8f8;
 
 			.im-chat-box {
 				>ul {
@@ -877,25 +727,32 @@
 				box-sizing: border-box;
 				border-top: #ccc solid 1px;
 				padding: 2px;
-				background-color: #E8F2FF;
+				background-color: #e8f2ff;
 
 				>div {
 					font-size: 22px;
 					cursor: pointer;
 					color: black;
-					line-height: 34px;
-					width: 34px;
-					height: 34px;
+					line-height: 30px;
+					width: 30px;
+					height: 30px;
 					text-align: center;
 					border-radius: 3px;
+					margin: 3px;
 
 					&:hover {
 						color: black;
 					}
 
 					&.chat-tool-active {
-						background: #ddd;
+						font-weight: 600;
+						color: #195ee2;
+						background-color: #ddd;
 					}
+				}
+
+				>div:hover {
+					color: #949494;
 				}
 			}
 
@@ -914,10 +771,10 @@
 					resize: none;
 					font-size: 16px;
 					color: black;
-					outline-color: rgba(83, 160, 231, 0.61);
+					outline: none;
 
 					text-align: left;
-					line-height: 30 px;
+					line-height: 30px;
 
 					&:before {
 						content: attr(placeholder);
@@ -971,7 +828,6 @@
 							border: 1px solid #ccc;
 						}
 					}
-
 				}
 
 				.send-btn-area {
@@ -981,7 +837,6 @@
 					right: 0;
 				}
 			}
-
 		}
 
 		.chat-group-side-box {

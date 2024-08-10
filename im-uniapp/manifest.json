@@ -20,8 +20,7 @@
         "modules" : {
             "Camera" : {},
             "Record" : {},
-            "Bluetooth" : {},
-            "Push" : {}
+            "Bluetooth" : {}
         },
         /* 应用发布信息 */
         "distribute" : {
@@ -60,16 +59,7 @@
             /* SDK配置 */
             "sdkConfigs" : {
                 "ad" : {},
-                "speech" : {},
-                "push" : {
-                    "unipush" : {
-                        "icons" : {
-                            "small" : {
-                                "ldpi" : "C:/Users/82565/Desktop/盒子/logo.png"
-                            }
-                        }
-                    }
-                }
+                "speech" : {}
             },
             "icons" : {
                 "android" : {
