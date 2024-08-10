@@ -53,6 +53,8 @@ public class RedisMQPullTask implements CommandLineRunner {
                     List<Object> datas = new LinkedList<>();
                     try {
                         if(redisMQTemplate.isClose()){
+                            // 如果redis未初始化或已断开，3s后再重新尝试消费
+                            EXECUTOR.schedule(this, 3, TimeUnit.SECONDS);
                             return;
                         }
                         if (consumer.isReady()) {

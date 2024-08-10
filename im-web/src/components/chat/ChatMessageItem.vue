@@ -67,10 +67,8 @@
 						<span v-if="msgInfo.receiptOk" class="icon iconfont icon-ok" title="全体已读"></span>
 						<span v-else>{{msgInfo.readedCount}}人已读</span>
 					</div>
-
 				</div>
 			</div>
-
 		</div>
 		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems"
 			@close="rightMenu.show = false" @select="onSelectMenu"></right-menu>
@@ -129,7 +127,6 @@
 					}
 				}
 			}
-
 		},
 		methods: {
 			onSendFail() {
@@ -200,7 +197,7 @@
 				}
 				return items;
 			},
-			isAction(){
+			isAction() {
 				return this.$msgType.isAction(this.msgInfo.type);
 			},
 			isNormal() {
@@ -280,7 +277,7 @@
 							position: absolute;
 							left: -10px;
 							top: 13px;
-            z-index: -1;
+							z-index: -1;
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
@@ -409,13 +406,12 @@
 						}
 					}
 
-        .chat-at-user {
-          background-color: #4cd964;
-          padding: 2px 5px;
-          color: white;
-          //border: 1px solid #c3c3c3;
-          border-radius: 3px;
-        }
+					.chat-at-user {
+						padding: 2px 5px;
+						border-radius: 3px;
+						font-weight: 600;
+						cursor: pointer;
+					}
 				}
 			}
 
