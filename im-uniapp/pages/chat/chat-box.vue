@@ -565,13 +565,13 @@
 					})
 				}
 			},
-			loadReaded(fId) {
+			loadReaded(fid) {
 				this.$http({
-					url: `/message/private/maxReadedId?friendId=${fId}`,
+					url: `/message/private/maxReadedId?friendId=${fid}`,
 					method: 'get'
 				}).then((id) => {
 					this.chatStore.readedMessage({
-						friendId: fId,
+						friendId: fid,
 						maxId: id
 					});
 				});

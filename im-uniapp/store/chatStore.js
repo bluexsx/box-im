@@ -19,7 +19,8 @@ export default defineStore('chatStore', {
 			this.chats = [];
 			for (let chat of chatsData.chats) {
 				// 暂存至缓冲区
-				cacheChats.push(JSON.parse(JSON.stringify(chat)));
+				chat.stored = false;
+				cacheChats.push(chat);
 				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
 				if (this.chats.length < 15) {
 					chat.messages = [];
@@ -44,7 +45,6 @@ export default defineStore('chatStore', {
 				if (chats[idx].type == chatInfo.type &&
 					chats[idx].targetId === chatInfo.targetId) {
 					chat = chats[idx];
-					chat.delete = false;
 					// 放置头部
 					this.moveTop(idx)
 					break;
@@ -63,7 +63,7 @@ export default defineStore('chatStore', {
 					messages: [],
 					atMe: false,
 					atAll: false,
-					delete: false
+					stored: false
 				};
 				chats.unshift(chat);
 				this.saveToStorage();
@@ -76,7 +76,6 @@ export default defineStore('chatStore', {
 			}
 		},
 		resetUnreadCount(chatInfo) {
-			console.log("resetUnreadCount")
 			let chats = this.curChats;
 			for (let idx in chats) {
 				if (chats[idx].type == chatInfo.type &&
@@ -84,30 +83,31 @@ export default defineStore('chatStore', {
 					chats[idx].unreadCount = 0;
 					chats[idx].atMe = false;
 					chats[idx].atAll = false;
+					chats[idx].stored = false;
+					this.saveToStorage();
 				}
 			}
-			this.saveToStorage();
+			
 		},
 		readedMessage(pos) {
-			let chats = this.curChats;
-			for (let idx in chats) {
-				if (chats[idx].type == 'PRIVATE' &&
-					chats[idx].targetId == pos.friendId) {
-					chats[idx].messages.forEach((m) => {
-						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
-							// pos.maxId为空表示整个会话已读
-							if (!pos.maxId || m.id <= pos.maxId) {
-								m.status = MESSAGE_STATUS.READED
-							}
-						}
-					})
+			let chat = this.findChatByFriend(pos.friendId);
+			chat.messages.forEach((m) => {
+				if (m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
+					// pos.maxId为空表示整个会话已读
+					if (!pos.maxId || m.id <= pos.maxId) {
+						m.status = MESSAGE_STATUS.READED
+						chats.stored = false;
+					}
 				}
+			})
+			if(!chat.stored){
+				this.saveToStorage();
 			}
-			this.saveToStorage();
 		},
 		removeChat(idx) {
 			let chats = this.curChats;
-			chats.splice(idx, 1);
+			chats[idx].delete = true;
+			chats[idx].stored = false;
 			this.saveToStorage();
 		},
 		removePrivateChat(userId) {
@@ -129,7 +129,6 @@ export default defineStore('chatStore', {
 			}
 		},
 		moveTop(idx) {
-			console.log("moveTop")
 			if (this.isLoading()) {
 				return;
 			}
@@ -161,6 +160,7 @@ export default defineStore('chatStore', {
 				if (msgInfo.type == MESSAGE_TYPE.RECALL) {
 					chat.lastContent = msgInfo.content;
 				}
+				chat.stored = false;
 				this.saveToStorage();
 				return;
 			}
@@ -223,6 +223,7 @@ export default defineStore('chatStore', {
 			} else {
 				chat.messages.splice(insertPos, 0, msgInfo);
 			}
+			chat.stored = false;
 			this.saveToStorage();
 		},
 		updateMessage(msgInfo) {
@@ -232,6 +233,7 @@ export default defineStore('chatStore', {
 			if (message) {
 				// 属性拷贝
 				Object.assign(message, msgInfo);
+				chat.stored = false;
 				this.saveToStorage();
 			}
 		},
@@ -251,6 +253,7 @@ export default defineStore('chatStore', {
 					break;
 				}
 			}
+			chat.stored = false;
 			this.saveToStorage();
 		},
 		updateChatFromFriend(friend) {
@@ -260,6 +263,7 @@ export default defineStore('chatStore', {
 				// 更新会话中的群名和头像
 				chat.headImage = friend.headImageThumb;
 				chat.showName = friend.nickName;
+				chat.stored = false;
 				this.saveToStorage();
 			}
 		},
@@ -270,6 +274,7 @@ export default defineStore('chatStore', {
 				// 更新会话中的群名称和头像
 				chat.headImage = group.headImageThumb;
 				chat.showName = group.showGroupName;
+				chat.stored = false;
 				this.saveToStorage();
 			}
 		},
@@ -286,7 +291,6 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats(state) {
-			console.log("refreshChats")
 			// 排序
 			cacheChats.sort((chat1, chat2) => {
 				return chat2.lastSendTime - chat1.lastSendTime;
@@ -298,22 +302,35 @@ export default defineStore('chatStore', {
 			this.saveToStorage();
 		},
 		saveToStorage(state) {
-			console.log("saveToStorage")
 			// 加载中不保存，防止卡顿
 			if (this.isLoading()) {
 				return;
 			}
-			const timeStamp = new Date().getTime();
 			const userStore = useUserStore();
 			let userId = userStore.userInfo.id;
 			let key = "chats-app-" + userId;
+			let chatKeys = [];
+			// 按会话为单位存储，只存储有改动的会话
+			this.chats.forEach((chat)=>{
+				let chatKey = `${key}-${chat.type}-${chat.targetId}`
+				if(chat.delete){
+					uni.removeStorageSync(chatKey);
+					return;
+				}
+				if(!chat.stored){
+					uni.setStorageSync(chatKey,chat);
+				}
+				chat.stored = true;
+				chatKeys.push(chatKey);	
+			})
+			// 会话核心信息
 			let chatsData = {
 				privateMsgMaxId: this.privateMsgMaxId,
 				groupMsgMaxId: this.groupMsgMaxId,
-				chats: this.chats
+				chatKeys: chatKeys
+				//chats: this.chats
 			}
 			uni.setStorageSync(key, chatsData)
-			console.log("耗时:", new Date().getTime() - timeStamp);
 		},
 		clear(state) {
 			cacheChats = [];
@@ -325,18 +342,23 @@ export default defineStore('chatStore', {
 		},
 		loadChat(context) {
 			return new Promise((resolve, reject) => {
-				const userStore = useUserStore();
+				let userStore = useUserStore();
 				let userId = userStore.userInfo.id;
-				uni.getStorage({
-					key: "chats-app-" + userId,
-					success: (res) => {
-						this.initChats(res.data);
-						resolve()
-					},
-					fail: (e) => {
-						resolve()
+				let chatsData = uni.getStorageSync("chats-app-" + userId)
+				if(chatsData){
+					if(chatsData.chatKeys){
+						let time = new Date().getTime();
+						chatsData.chats = [];
+						chatsData.chatKeys.forEach(key=>{
+							let chat = uni.getStorageSync(key);
+							if(chat){
+								chatsData.chats.push(chat);
+							}	
+						})
 					}
-				});
+					this.initChats(chatsData);
+				}
+				resolve()
 			})
 		}
 	},

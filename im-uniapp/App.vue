@@ -110,7 +110,6 @@
 				})
 			},
 			handlePrivateMessage(msg) {
-				console.log("handlePrivateMessage")
 				// 消息加载标志
 				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 					this.chatStore.setLoadingPrivateMsg(JSON.parse(msg.content))
