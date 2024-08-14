@@ -72,7 +72,7 @@
 			isFriend(userId) {
 				let friends = this.friendStore.friends;
 				let friend = friends.find((f) => f.id == userId);
-				return friend&&!friend.delete;
+				return !!friend;
 			}
 		}
 	}

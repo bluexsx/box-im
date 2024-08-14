@@ -9,7 +9,7 @@
 			<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-if="chat" v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx>=showMinIdx&&!msgInfo.delete" :headImage="headImage(msgInfo)"
+					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
 						@call="onRtCall(msgInfo)" :showName="showName(msgInfo)" @recall="onRecallMessage"
 						@delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
 						:id="'chat-item-'+idx" :msgInfo="msgInfo" :groupMembers="groupMembers">
@@ -748,9 +748,6 @@
 			this.chatStore.activeChat(options.chatIdx);
 			// 复位回执消息
 			this.isReceipt = false;
-		},
-		onUnload() {
-			this.chatStore.activeChat(-1);
 		},
 		onShow(){
 			if(this.needScrollToBottom){

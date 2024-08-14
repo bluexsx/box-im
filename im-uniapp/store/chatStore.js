@@ -18,10 +18,6 @@ export default defineStore('chatStore', {
 			cacheChats = [];
 			this.chats = [];
 			for (let chat of chatsData.chats) {
-				// 已删除的会话直接丢弃
-				if (chat.delete) {
-					continue;
-				}
 				// 暂存至缓冲区
 				cacheChats.push(JSON.parse(JSON.stringify(chat)));
 				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
@@ -69,8 +65,8 @@ export default defineStore('chatStore', {
 					atAll: false,
 					delete: false
 				};
-				chats.push(chat);
-				this.moveTop(chats.length - 1)
+				chats.unshift(chat);
+				this.saveToStorage();
 			}
 		},
 		activeChat(idx) {
@@ -111,7 +107,7 @@ export default defineStore('chatStore', {
 		},
 		removeChat(idx) {
 			let chats = this.curChats;
-			chats[idx].delete = true;
+			chats.splice(idx, 1);
 			this.saveToStorage();
 		},
 		removePrivateChat(userId) {
@@ -134,11 +130,17 @@ export default defineStore('chatStore', {
 		},
 		moveTop(idx) {
 			console.log("moveTop")
+			if (this.isLoading()) {
+				return;
+			}
 			let chats = this.curChats;
-			let chat = chats[idx];
-			// 最新的时间会显示在顶部
-			chat.lastSendTime = new Date().getTime();
-			this.saveToStorage();
+			if (idx > 0) {
+				let chat = chats[idx];
+				chats.splice(idx, 1);
+				chats.unshift(chat);
+				this.saveToStorage();
+			}
+			
 		},
 		insertMessage(msgInfo) {
 			// 获取对方id或群id
@@ -239,13 +241,13 @@ export default defineStore('chatStore', {
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
-					chat.messages[idx].delete = true;
+					chat.messages.splice(idx, 1);
 					break;
 				}
 				// 正在发送中的消息可能没有id，根据发送时间删除
 				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
 					chat.messages[idx].sendTime == msgInfo.sendTime) {
-					chat.messages[idx].delete = true;
+					chat.messages.splice(idx, 1);
 					break;
 				}
 			}

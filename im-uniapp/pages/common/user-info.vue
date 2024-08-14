@@ -134,7 +134,7 @@
 		},
 		computed: {
 			isFriend() {
-				return this.friendInfo&&!this.friendInfo.delete;
+				return !!this.friendInfo;
 			},
 			friendInfo(){
 				let friends = this.friendStore.friends;

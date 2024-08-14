@@ -83,9 +83,6 @@
 				this.friendItems = [];
 				let friends = this.friendStore.friends;
 				friends.forEach((f => {
-					if(f.delete){
-						return
-					}
 					let item = {
 						id: f.id,
 						headImage: f.headImage,

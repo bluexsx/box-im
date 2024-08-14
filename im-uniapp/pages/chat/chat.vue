@@ -14,11 +14,11 @@
 			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
-			<view v-for="(chatPos,i) in chatsPos" :key="i">
-				<pop-menu v-if="isShowChat(chatStore.chats[chatPos.idx])" :items="menu.items"
-					@select="onSelectMenu($event,chatPos.idx)">
-					<chat-item  :chat="chatStore.chats[chatPos.idx]"
-						:active="menu.chatIdx==chatPos.idx" :index="chatPos.idx"></chat-item>
+			<view v-for="(chat,index) in chatStore.chats" :key="index">
+				<pop-menu v-if="isShowChat(chat)" :items="menu.items"
+					@select="onSelectMenu($event,index)">
+					<chat-item :chat="chat" :index="index" 
+						:active="menu.chatIdx==index"></chat-item>
 				</pop-menu>
 			</view>
 		</scroll-view>
@@ -90,26 +90,10 @@
 						index: 0,
 						complete: () => {}
 					})
-
 				}
 			}
 		},
 		computed: {
-			chatsPos() {
-				// 计算会话的顺序
-				let chatsPos = [];
-				let chats = this.chatStore.chats;
-				chats.forEach((chat, idx) => {
-					chatsPos.push({
-						idx: idx,
-						sendTime: chat.lastSendTime
-					})
-				})
-				chatsPos.sort((chatPos1, chatPos2) => {
-					return chatPos2.sendTime - chatPos1.sendTime;
-				});
-				return chatsPos;
-			},
 			unreadCount() {
 				let count = 0;
 				this.chatStore.chats.forEach(chat => {

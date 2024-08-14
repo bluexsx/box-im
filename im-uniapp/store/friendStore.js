@@ -20,7 +20,7 @@ export default defineStore('friendStore', {
 		},
 		updateFriend(friend) {
 			this.friends.forEach((f, index) => {
-				if (!f.delete && f.id == friend.id) {
+				if (f.id == friend.id) {
 					// 拷贝属性
 					let online = this.friends[index].online;
 					Object.assign(this.friends[index], friend);
@@ -29,19 +29,14 @@ export default defineStore('friendStore', {
 			})
 		},
 		removeFriend(id) {
-			let friend = this.findFriend(id);
-			if (friend) {
-				friend.delete = true;
-			}
+			this.friends.forEach((f, idx) => {
+				if (f.id == id) {
+					this.friends.splice(idx, 1)
+				}
+			})
 		},
 		addFriend(friend) {
-			let f = this.findFriend(friend.id);
-			if (f) {
-				Object.assign(f, friend);
-				f.delete = false;
-			} else {
-				this.friends.push(friend);
-			}
+			this.friends.push(friend);
 		},
 		setOnlineStatus(onlineTerminals) {
 			this.friends.forEach((f) => {
