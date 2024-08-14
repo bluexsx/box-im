@@ -26,6 +26,7 @@
 	export default {
 		data() {
 			return {
+				userStore: this.useUserStore(),
 				rtcInfo: {}
 			}
 		},
@@ -41,7 +42,7 @@
 			},
 			onOk() {
 				let users = this.rtcInfo.userInfos;
-				let mine = this.$store.state.userStore.userInfo;
+				let mine = this.userStore.userInfo;
 				// 加入自己的信息
 				if(!users.find((user)=>user.id==mine.id)){
 					users.push({

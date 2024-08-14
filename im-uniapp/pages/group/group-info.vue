@@ -1,5 +1,5 @@
 <template>
-	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-info">
+	<view v-if="userStore.userInfo.type == 1" class="page group-info">
 		<view v-if="!group.quit"  class="group-members">
 			<view class="member-items">
 				<view v-for="(member,idx) in  groupMembers" :key="idx">
@@ -56,6 +56,9 @@
 	export default {
 		data() {
 			return {
+				chatStore: this.useChatStore(),
+				groupStore: this.useGroupStore(),
+				userStore: this.useUserStore(),
 				groupId: null,
 				group:{},
 				groupMembers: []
@@ -85,8 +88,8 @@
 					showName: this.group.showGroupName,
 					headImage: this.group.headImage,
 				};
-				this.$store.commit("openChat", chat);
-				let chatIdx = this.$store.getters.findChatIdx(chat);
+				this.chatStore.openChat(chat);
+				let chatIdx = this.chatStore.findChatIdx(chat);
 				uni.navigateTo({
 					url: "/pages/chat/chat-box?chatIdx=" + chatIdx
 				})
@@ -111,8 +114,8 @@
 										uni.switchTab({
 											url:"/pages/group/group"
 										});
-										this.$store.commit("removeGroup", this.groupId);
-										this.$store.commit("removeGroupChat",this.groupId);
+										this.groupStore.removeGroup(this.groupId);
+										this.chatStore.removeGroupChat(this.groupId);
 									},100)
 								}
 							})
@@ -121,7 +124,6 @@
 				});
 			},
 			onDissolveGroup() {
-				console.log(this.group.name)
 				uni.showModal({
 					title: '确认解散?',
 					content: `确认要解散群聊'${this.group.name}'吗?`,
@@ -141,8 +143,8 @@
 										uni.switchTab({
 											url:"/pages/group/group"
 										});
-										this.$store.commit("removeGroup", this.groupId);
-										this.$store.commit("removeGroupChat",this.groupId);
+										this.groupStore.removeGroup(this.groupId);
+										this.chatStore.removeGroupChat(this.groupId);
 									},100)	
 								}
 							})
@@ -158,9 +160,9 @@
 				}).then((group) => {
 					this.group = group;
 					// 更新聊天页面的群聊信息
-					this.$store.commit("updateChatFromGroup", group);
+					this.chatStore.updateChatFromGroup(group);
 					// 更新聊天列表的群聊信息
-					this.$store.commit("updateGroup", group);
+					this.groupStore.updateGroup(group);
 
 				});
 			},
@@ -180,7 +182,7 @@
 				return member && member.showNickName;
 			},
 			isOwner() {
-				return this.group.ownerId == this.$store.state.userStore.userInfo.id;
+				return this.group.ownerId == this.userStore.userInfo.id;
 			}
 		},
 		onLoad(options) {

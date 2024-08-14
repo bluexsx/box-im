@@ -49,6 +49,7 @@
 		},
 		data() {
 			return {
+				userStore: this.useUserStore(),
 				searchText: "",
 				showMembers:[]
 			};
@@ -56,7 +57,7 @@
 		methods: {
 			init(atUserIds) {
 				this.showMembers = [];
-				let userId = this.$store.state.userStore.userInfo.id;
+				let userId = this.userStore.userInfo.id;
 				if(this.ownerId == userId){
 					this.showMembers.push({
 						userId:-1,

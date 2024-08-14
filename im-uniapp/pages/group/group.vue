@@ -9,12 +9,12 @@
 				<uni-icons type="personadd" size="35"></uni-icons>
 			</view>
 		</view>
-		<view class="group-tip" v-if="$store.state.groupStore.groups.length==0">
+		<view class="group-tip" v-if="groupStore.groups.length==0">
 			温馨提示：您现在还没有加入任何群聊，点击右上方'+'按钮可以创建群聊哦~
 		</view>
 		<view class="group-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="group in $store.state.groupStore.groups" :key="group.id">
+				<view v-for="group in groupStore.groups" :key="group.id">
 					<group-item v-if="!group.quit&&group.showGroupName.includes(searchText)"
 						:group="group"></group-item>
 				</view>
@@ -27,6 +27,7 @@
 	export default {
 		data() {
 			return {
+				groupStore: this.useGroupStore(),
 				searchText: ""
 			}
 		},

@@ -34,6 +34,7 @@
 	export default {
 		data() {
 			return {
+				friendStore: this.useFriendStore(),
 				searchText: ''
 			}
 		},
@@ -58,7 +59,7 @@
 		},
 		computed: {
 			friends() {
-				return this.$store.state.friendStore.friends;
+				return this.friendStore.friends;
 			},
 			friendGroupMap(){
 				// 按首字母分组

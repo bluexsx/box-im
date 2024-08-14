@@ -34,7 +34,9 @@
 <script>
 	export default {
 		data() {
-			return {}
+			return {
+				userStore: this.useUserStore()
+			}
 		},
 		methods: {
 			onModifyInfo() {
@@ -60,7 +62,7 @@
 		},
 		computed: {
 			userInfo() {
-				return this.$store.state.userStore.userInfo;
+				return this.userStore.userInfo;
 			}
 		}
 

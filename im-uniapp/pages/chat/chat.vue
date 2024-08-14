@@ -26,9 +26,12 @@
 </template>
 
 <script>
+	import useChatStore from '@/store/chatStore.js'
+	
 	export default {
 		data() {
 			return {
+				chatStore: useChatStore(),
 				searchText: "",
 				menu: {
 					show: false,
@@ -65,10 +68,10 @@
 				this.menu.show = false;
 			},
 			removeChat(chatIdx) {
-				this.$store.commit("removeChat", chatIdx);
+				this.chatStore.removeChat(chatIdx);
 			},
 			moveToTop(chatIdx) {
-				this.$store.commit("moveTop", chatIdx);
+				this.chatStore.moveTop(chatIdx);
 			},
 			isShowChat(chat){
 				if(chat.delete){
@@ -106,9 +109,6 @@
 					return chatPos2.sendTime - chatPos1.sendTime;
 				});
 				return chatsPos;
-			},
-			chatStore() {
-				return this.$store.state.chatStore;
 			},
 			unreadCount() {
 				let count = 0;

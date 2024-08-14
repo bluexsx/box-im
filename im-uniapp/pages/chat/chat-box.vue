@@ -108,18 +108,27 @@
 		<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers"
 			@complete="onAtComplete"></chat-at-box>
 		<!-- 群语音通话时选择成员 -->
+		<!-- #ifndef MP-WEIXIN -->
 		<group-member-selector ref="selBox" :members="groupMembers"
-			:maxSize="$store.state.configStore.webrtc.maxChannel"
+			:maxSize="configStore.webrtc.maxChannel"
 			@complete="onInviteOk"></group-member-selector>
 		<group-rtc-join ref="rtcJoin" :groupId="group.id"></group-rtc-join>
+		<!-- #endif -->
 	</view>
 </template>
 
 <script>
 	import UNI_APP from '@/.env.js';
+	import useChatStore  from '@/store/chatStore.js'
+	
 	export default {
 		data() {
 			return {
+				chatStore: useChatStore(),
+				friendStore: this.useFriendStore(),
+				groupStore: this.useGroupStore(),
+				configStore: this.useConfigStore(),
+				userStore: this.useUserStore(),
 				chat: {},
 				friend: {},
 				group: {},
@@ -157,7 +166,7 @@
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
-					this.$store.commit("insertMessage", m);
+					this.chatStore.insertMessage(m);
 					// 会话置顶
 					this.moveChatToTop();
 					// 滚动到底部
@@ -226,8 +235,8 @@
 				})
 			},
 			moveChatToTop() {
-				let chatIdx = this.$store.getters.findChatIdx(this.chat);
-				this.$store.commit("moveTop", chatIdx);
+				let chatIdx = this.chatStore.findChatIdx(this.chat);
+				this.chatStore.moveTop(chatIdx);
 			},
 			switchReceipt() {
 				this.isReceipt = !this.isReceipt;
@@ -261,6 +270,7 @@
 				}
 			},
 			sendTextMessage() {
+				const timeStamp  = new Date().getTime();
 				if (!this.sendText.trim() && this.atUserIds.length == 0) {
 					return uni.showToast({
 						title: "不能发送空白信息",
@@ -279,8 +289,10 @@
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				this.sendMessageRequest(msgInfo).then((m) => {
+					console.log("请求耗时：",new Date().getTime()-timeStamp)
 					m.selfSend = true;
-					this.$store.commit("insertMessage", m);
+					this.chatStore.insertMessage(m);
+					console.log("insertMessage耗时：",new Date().getTime()-timeStamp)
 					// 会话置顶
 					this.moveChatToTop();
 				}).finally(() => {
@@ -387,7 +399,7 @@
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
-				this.$store.commit("insertMessage", msgInfo);
+				this.chatStore.insertMessage(msgInfo);
 				// 会话置顶
 				this.moveChatToTop();
 				// 借助file对象保存
@@ -404,13 +416,13 @@
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
-					this.$store.commit("insertMessage", msgInfo);
+					this.chatStore.insertMessage(msgInfo);
 				})
 			},
 			onUploadImageFail(file, err) {
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.loadStatus = 'fail';
-				this.$store.commit("insertMessage", msgInfo);
+				this.chatStore.insertMessage(msgInfo);
 			},
 			onUploadFileBefore(file) {
 				let data = {
@@ -433,7 +445,7 @@
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				// 插入消息
-				this.$store.commit("insertMessage", msgInfo);
+				this.chatStore.insertMessage(msgInfo);
 				// 会话置顶
 				this.moveChatToTop();
 				// 借助file对象保存
@@ -455,13 +467,13 @@
 					msgInfo.loadStatus = 'ok';
 					msgInfo.id = m.id;
 					this.isReceipt = false;
-					this.$store.commit("insertMessage", msgInfo);
+					this.chatStore.insertMessage(msgInfo);
 				})
 			},
 			onUploadFileFail(file, res) {
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.loadStatus = 'fail';
-				this.$store.commit("insertMessage", msgInfo);
+				this.chatStore.insertMessage(msgInfo);
 			},
 			onDeleteMessage(msgInfo) {
 				uni.showModal({
@@ -469,7 +481,7 @@
 					content: '确认删除消息?',
 					success: (res) => {
 						if (!res.cancel) {
-							this.$store.commit("deleteMessage", msgInfo);
+							this.chatStore.deleteMessage(msgInfo);
 							uni.showToast({
 								title: "删除成功",
 								icon: "none"
@@ -493,7 +505,7 @@
 								msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
 								msgInfo.content = '你撤回了一条消息';
 								msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-								this.$store.commit("insertMessage", msgInfo);
+								this.chatStore.insertMessage(msgInfo);
 							})
 						}
 					}
@@ -558,7 +570,7 @@
 					url: `/message/private/maxReadedId?friendId=${fId}`,
 					method: 'get'
 				}).then((id) => {
-					this.$store.commit("readedMessage", {
+					this.chatStore.readedMessage({
 						friendId: fId,
 						maxId: id
 					});
@@ -578,7 +590,7 @@
 					url: url,
 					method: 'PUT'
 				}).then(() => {
-					this.$store.commit("resetUnreadCount", this.chat)
+					this.chatStore.resetUnreadCount(this.chat)
 					this.scrollToBottom();
 				})
 			},
@@ -588,8 +600,8 @@
 					method: 'GET'
 				}).then((group) => {
 					this.group = group;
-					this.$store.commit("updateChatFromGroup", group);
-					this.$store.commit("updateGroup", group);
+					this.chatStore.updateChatFromGroup(group);
+					this.groupStore.updateGroup(group);
 				});
 
 				this.$http({
@@ -606,8 +618,8 @@
 					method: 'GET'
 				}).then((friend) => {
 					this.friend = friend;
-					this.$store.commit("updateChatFromFriend", friend);
-					this.$store.commit("updateFriend", friend);
+					this.chatStore.updateChatFromFriend(friend);
+					this.friendStore.updateFriend(friend);
 				})
 			},
 			rpxTopx(rpx) {
@@ -649,7 +661,7 @@
 		},
 		computed: {
 			mine() {
-				return this.$store.state.userStore.userInfo;
+				return this.userStore.userInfo;
 			},
 			title() {
 				if (!this.chat) {
@@ -719,7 +731,7 @@
 		},
 		onLoad(options) {
 			// 聊天数据
-			this.chat = this.$store.state.chatStore.chats[options.chatIdx];
+			this.chat = this.chatStore.chats[options.chatIdx];
 			// 初始状态只显示20条消息
 			let size = this.messageSize;
 			this.showMinIdx = size > 20 ? size - 20 : 0;
@@ -733,12 +745,12 @@
 				this.loadReaded(this.chat.targetId)
 			}
 			// 激活当前会话
-			this.$store.commit("activeChat", options.chatIdx);
+			this.chatStore.activeChat(options.chatIdx);
 			// 复位回执消息
 			this.isReceipt = false;
 		},
 		onUnload() {
-			this.$store.commit("activeChat", -1);
+			this.chatStore.activeChat(-1);
 		},
 		onShow(){
 			if(this.needScrollToBottom){

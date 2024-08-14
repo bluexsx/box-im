@@ -6,7 +6,7 @@
 		</view>
 		<view class="user-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
+				<view v-for="(user) in users" :key="user.id" v-show="user.id != userStore.userInfo.id">
 					<view class="user-item">
 						<head-image :id="user.id" :name="user.nickName" 
 							:online="user.online" :url="user.headImage"
@@ -28,6 +28,8 @@
 	export default {
 		data() {
 			return {
+				friendStore: this.useFriendStore(),
+				userStore: this.useUserStore(),
 				searchText: "",
 				users: []
 			}
@@ -55,7 +57,7 @@
 						headImage: user.headImage,
 						online: user.online
 					}
-					this.$store.commit("addFriend", friend);
+					this.friendStore.addFriend(friend);
 					uni.showToast({
 						title: "添加成功，对方已成为您的好友",
 						icon: "none"
@@ -68,7 +70,7 @@
 				})
 			},
 			isFriend(userId) {
-				let friends = this.$store.state.friendStore.friends;
+				let friends = this.friendStore.friends;
 				let friend = friends.find((f) => f.id == userId);
 				return friend&&!friend.delete;
 			}
