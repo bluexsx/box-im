@@ -1,7 +1,7 @@
 <template>
 	<view class="page user-info">
 		<view class="content">
-			<head-image  :name="userInfo.nickName" :url="userInfo.headImage"
+			<head-image  :name="userInfo.nickName" :url="userInfo.headImageThumb"
 			:size="160" @click="onShowFullImage()"></head-image>
 			
 			<view class="info-item">

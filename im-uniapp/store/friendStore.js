@@ -19,14 +19,12 @@ export default defineStore('friendStore', {
 			this.friends = friends;
 		},
 		updateFriend(friend) {
-			this.friends.forEach((f, index) => {
-				if (f.id == friend.id) {
-					// 拷贝属性
-					let online = this.friends[index].online;
-					Object.assign(this.friends[index], friend);
-					this.friends[index].online = online;
-				}
-			})
+			let f = this.findFriend(friend.id);
+			let copy = JSON.parse(JSON.stringify(f));
+			Object.assign(f, friend);
+			f.online = copy.online;
+			f.onlineWeb = copy.onlineWeb;
+			f.onlineApp = copy.onlineApp;
 		},
 		removeFriend(id) {
 			this.friends.forEach((f, idx) => {

@@ -3,11 +3,11 @@
 		<uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
 			label-width="100%">
 			<uni-forms-item label="群聊头像:" name="headImage">
-				<image-upload v-show="isOwner" :onSuccess="onUnloadImageSuccess">
-					<image :src="group.headImage" class="group-image"></image>
+				<image-upload v-if="isOwner" :onSuccess="onUnloadImageSuccess">
+					<image :src="group.headImageThumb" class="group-image"></image>
 				</image-upload>
-				<head-image  v-show="!isOwner" :name="group.showGroupName" 
-					:url="group.headImage" :size="200"></head-image>
+				<head-image  v-if="!isOwner" :name="group.showGroupName" 
+					:url="group.headImageThumb" :size="200"></head-image>
 			</uni-forms-item>
 			<uni-forms-item label="群聊名称:" name="name" :required="true">
 				<uni-easyinput type="text" v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称" />

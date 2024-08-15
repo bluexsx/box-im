@@ -5,7 +5,7 @@
 	import * as enums from './common/enums';
 	import * as wsApi from './common/wssocket';
 	import UNI_APP from '@/.env.js'
-	import { getCurrentInstance } from 'vue'
+
 	export default {
 		data() {
 			return {
@@ -66,10 +66,10 @@
 					console.log("ws断开", res);
 					// 重新连接
 					this.reconnectWs();
-					
+
 				})
 			},
-			loadStore(){
+			loadStore() {
 				return this.userStore.loadUser().then(() => {
 					const promises = [];
 					promises.push(this.friendStore.loadFriend());
@@ -112,7 +112,7 @@
 				}
 				// 消息已读处理，清空已读数量
 				if (msg.type == enums.MESSAGE_TYPE.READED) {
-					this.chatStore.resetUnreadCount( {
+					this.chatStore.resetUnreadCount({
 						type: 'PRIVATE',
 						targetId: msg.recvId
 					})
@@ -120,7 +120,7 @@
 				}
 				// 消息回执处理,改消息状态为已读
 				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
-					this.chatStore.readedMessage( {
+					this.chatStore.readedMessage({
 						friendId: msg.sendId
 					})
 					return;
@@ -129,10 +129,9 @@
 				msg.selfSend = msg.sendId == this.userStore.userInfo.id;
 				// 好友id
 				let friendId = msg.selfSend ? msg.recvId : msg.sendId;
-				this.loadFriendInfo(friendId).then((friend) => {
+				this.loadFriendInfo(friendId, (friend) => {
 					this.insertPrivateMessage(friend, msg);
 				})
-
 			},
 			insertPrivateMessage(friend, msg) {
 				// 单人视频信令
@@ -205,7 +204,7 @@
 				}
 				// 标记这条消息是不是自己发的
 				msg.selfSend = msg.sendId == this.userStore.userInfo.id;
-				this.loadGroupInfo(msg.groupId).then((group) => {
+				this.loadGroupInfo(msg.groupId, (group) => {
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
 				})
@@ -260,41 +259,37 @@
 				// 打开会话
 				this.chatStore.openChat(chatInfo);
 				// 插入消息
-				this.chatStore.insertMessage( msg);
+				this.chatStore.insertMessage(msg);
 				// 播放提示音
 				this.playAudioTip();
 			},
-			loadFriendInfo(id) {
-				return new Promise((resolve, reject) => {
-					let friend = this.friendStore.findFriend(id);
-					if (friend) {
-						resolve(friend);
-					} else {
-						http({
-							url: `/friend/find/${id}`,
-							method: 'GET'
-						}).then((friend) => {
-							this.friendStore.addFriend(friend);
-							resolve(friend)
-						})
-					}
-				});
+			loadFriendInfo(id, callback) {
+				let friend = this.friendStore.findFriend(id);
+				if (friend) {
+					callback(friend);
+				} else {
+					http({
+						url: `/friend/find/${id}`,
+						method: 'GET'
+					}).then((friend) => {
+						this.friendStore.addFriend(friend);
+						callback(friend)
+					})
+				}
 			},
-			loadGroupInfo(id) {
-				return new Promise((resolve, reject) => {
-					let group = this.groupStore.groups.find((g) => g.id == id);
-					if (group) {
-						resolve(group);
-					} else {
-						http({
-							url: `/group/find/${id}`,
-							method: 'GET'
-						}).then((group) => {
-							this.groupStore.addGroup(group);
-							resolve(group)
-						})
-					}
-				});
+			loadGroupInfo(id, callback) {
+				let group = this.groupStore.findGroup(id);
+				if (group) {
+					callback(group);
+				} else {
+					http({
+						url: `/group/find/${id}`,
+						method: 'GET'
+					}).then((group) => {
+						this.groupStore.addGroup(group);
+						callback(group)
+					})
+				}
 			},
 			exit() {
 				console.log("exit");
@@ -384,7 +379,7 @@
 
 	.tab-page {
 		// #ifdef H5
-		height: calc(100vh  - 50px); // h5平台100vh是包含了底部高度，需要减去
+		height: calc(100vh - 50px); // h5平台100vh是包含了底部高度，需要减去
 		// #endif
 		// #ifndef H5
 		height: calc(100vh);

@@ -838,7 +838,7 @@
 			margin-bottom: 10rpx;
 			border: #dddddd solid 1px;
 			background-color: #f7f8fd;
-
+			height: 80rpx;
 			.iconfont {
 				font-size: 68rpx;
 				margin: 6rpx;

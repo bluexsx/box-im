@@ -21,7 +21,7 @@ const request = (options) => {
 				if (res.data.code == 200) {
 					return resolve(res.data.data)
 				} else if (res.data.code == 400) {
-					getApp().exit();
+					getApp().$vm.exit();
 				} else if (res.data.code == 401) {
 					console.log("token失效，尝试重新获取")
 					if (isRefreshToken) {
@@ -38,7 +38,7 @@ const request = (options) => {
 						requestList = [];
 						isRefreshToken = false;
 						console.log("刷新token失败")
-						getApp().exit();
+						getApp().$vm.exit();
 						return;
 					}
 					let newInfo = res.data.data;

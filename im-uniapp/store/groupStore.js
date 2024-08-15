@@ -29,12 +29,8 @@ export default defineStore('groupStore', {
 			})
 		},
 		updateGroup(group) {
-			this.groups.forEach((g, idx) => {
-				if (g.id == group.id) {
-					// 拷贝属性
-					Object.assign(this.groups[idx], group);
-				}
-			})
+			let g = this.findGroup(group.id);
+			Object.assign(g, group);
 		},
 		clear() {
 			this.groups = [];
@@ -52,6 +48,11 @@ export default defineStore('groupStore', {
 					reject(res);
 				})
 			});
+		}
+	},
+	getters: {
+		findGroup: (state) => (id) => {
+			return state.groups.find((g) => g.id == id);
 		}
 	}
 })

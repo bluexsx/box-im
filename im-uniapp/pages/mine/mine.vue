@@ -52,7 +52,8 @@
 					title: '确认退出?',
 					success: (res) => {
 						if (res.confirm) {
-							getApp().exit()
+							console.log(getApp())
+							getApp().$vm.exit()
 						}
 					}
 				});
