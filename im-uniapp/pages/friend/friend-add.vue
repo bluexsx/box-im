@@ -28,8 +28,6 @@
 	export default {
 		data() {
 			return {
-				friendStore: this.useFriendStore(),
-				userStore: this.useUserStore(),
 				searchText: "",
 				users: []
 			}

@@ -35,9 +35,6 @@
 	export default {
 		data() {
 			return {
-				userStore: this.useUserStore(),
-				chatStore: this.useChatStore(),
-				friendStore: this.useFriendStore(),
 				userInfo: {}
 			}
 		},

@@ -31,7 +31,7 @@
 
 			<uni-section title="群名备注:" titleFontSize="14px">
 				<template v-slot:right>
-					<text class="detail-text"> {{group.showGroupName}}</text>
+					<text class="detail-text"> {{group.remarkGroupName}}</text>
 				</template>
 			</uni-section>
 			<uni-section title="我在本群的昵称:" titleFontSize="14px">
@@ -56,9 +56,6 @@
 	export default {
 		data() {
 			return {
-				chatStore: this.useChatStore(),
-				groupStore: this.useGroupStore(),
-				userStore: this.useUserStore(),
 				groupId: null,
 				group:{},
 				groupMembers: []

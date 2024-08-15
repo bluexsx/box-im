@@ -31,7 +31,6 @@
 	export default {
 		data() {
 			return {
-				userStore: this.useUserStore(),
 				userInfo: {}
 			}
 		},

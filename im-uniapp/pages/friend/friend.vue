@@ -34,7 +34,6 @@
 	export default {
 		data() {
 			return {
-				friendStore: this.useFriendStore(),
 				searchText: ''
 			}
 		},

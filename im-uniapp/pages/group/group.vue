@@ -27,7 +27,6 @@
 	export default {
 		data() {
 			return {
-				groupStore: this.useGroupStore(),
 				searchText: ""
 			}
 		},

@@ -34,9 +34,7 @@
 <script>
 	export default {
 		data() {
-			return {
-				userStore: this.useUserStore()
-			}
+			return {}
 		},
 		methods: {
 			onModifyInfo() {

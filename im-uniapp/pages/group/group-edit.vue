@@ -30,9 +30,6 @@
 	export default {
 		data() {
 			return {
-				chatStore: this.useChatStore(),
-				groupStore: this.useGroupStore(),
-				userStore: this.useUserStore(),
 				group: {},
 				rules: {
 					name: {

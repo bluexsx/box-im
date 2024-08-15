@@ -37,7 +37,6 @@
 		name: "chat-group-readed",
 		data() {
 			return {
-				chatStore: this.useChatStore(),
 				items: ['已读', '未读'],
 				current: 0,
 				readedMembers: [],

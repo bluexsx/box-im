@@ -26,7 +26,6 @@
 	export default {
 		data() {
 			return {
-				userStore: this.useUserStore(),
 				rtcInfo: {}
 			}
 		},

@@ -119,16 +119,10 @@
 
 <script>
 	import UNI_APP from '@/.env.js';
-	import useChatStore  from '@/store/chatStore.js'
-	
+
 	export default {
 		data() {
 			return {
-				chatStore: useChatStore(),
-				friendStore: this.useFriendStore(),
-				groupStore: this.useGroupStore(),
-				configStore: this.useConfigStore(),
-				userStore: this.useUserStore(),
 				chat: {},
 				friend: {},
 				group: {},

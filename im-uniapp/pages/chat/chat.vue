@@ -31,7 +31,6 @@
 	export default {
 		data() {
 			return {
-				chatStore: useChatStore(),
 				searchText: "",
 				menu: {
 					show: false,

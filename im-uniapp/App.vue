@@ -5,15 +5,10 @@
 	import * as enums from './common/enums';
 	import * as wsApi from './common/wssocket';
 	import UNI_APP from '@/.env.js'
-	
+	import { getCurrentInstance } from 'vue'
 	export default {
 		data() {
 			return {
-				chatStore: this.useChatStore(),
-				friendStore: this.useFriendStore(),
-				groupStore: this.useGroupStore(),
-				configStore: this.useConfigStore(),
-				userStore: this.useUserStore(),
 				isExit: false, // 是否已退出
 				audioTip: null,
 				reconnecting: false // 正在重连标志
@@ -355,10 +350,10 @@
 			}
 		},
 		onLaunch() {
+			this.$mountStore();
 			// 登录状态校验
 			let loginInfo = uni.getStorageSync("loginInfo")
 			if (!this.isExpired(loginInfo)) {
-				console.log("初始化")
 				// 初始化
 				this.init();
 				// 跳转到聊天页面

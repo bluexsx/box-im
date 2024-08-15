@@ -22,6 +22,7 @@ import * as recorder from './common/recorder-app';
 // #endif
 
 
+
 export function createApp() {
   const app = createSSRApp(App)
   app.use(uviewPlus);
@@ -33,12 +34,14 @@ export function createApp() {
   app.config.globalProperties.$enums = enums;
   app.config.globalProperties.$date = date;
   app.config.globalProperties.$rc = recorder;
-  app.config.globalProperties.useChatStore = useChatStore;
-  app.config.globalProperties.useFriendStore = useFriendStore;
-  app.config.globalProperties.useGroupStore = useGroupStore;
-  app.config.globalProperties.useConfigStore = useConfigStore;
-  app.config.globalProperties.useUserStore = useUserStore;
-  
+  // 初始化时再挂载store对象
+  app.config.globalProperties.$mountStore = ()=>{
+	  app.config.globalProperties.chatStore = useChatStore();
+	  app.config.globalProperties.friendStore = useFriendStore();
+	  app.config.globalProperties.groupStore = useGroupStore();
+	  app.config.globalProperties.configStore = useConfigStore();
+	  app.config.globalProperties.userStore = useUserStore();
+  }
   return {
     app,
 	pinia

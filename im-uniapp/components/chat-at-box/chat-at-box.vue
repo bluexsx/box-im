@@ -49,7 +49,6 @@
 		},
 		data() {
 			return {
-				userStore: this.useUserStore(),
 				searchText: "",
 				showMembers:[]
 			};

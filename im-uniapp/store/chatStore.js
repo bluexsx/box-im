@@ -258,8 +258,8 @@ export default defineStore('chatStore', {
 		},
 		updateChatFromFriend(friend) {
 			let chat = this.findChatByFriend(friend.id)
-			if (chat.headImage != friend.headImageThumb ||
-				chat.showName != friend.nickName) {
+			if (chat && (chat.headImage != friend.headImageThumb ||
+				chat.showName != friend.nickName)) {
 				// 更新会话中的群名和头像
 				chat.headImage = friend.headImageThumb;
 				chat.showName = friend.nickName;
@@ -269,8 +269,8 @@ export default defineStore('chatStore', {
 		},
 		updateChatFromGroup(group) {
 			let chat = this.findChatByGroup(group.id);
-			if (chat.headImage != group.headImageThumb ||
-				chat.showName != group.showGroupName) {
+			if (chat && (chat.headImage != group.headImageThumb ||
+				chat.showName != group.showGroupName)) {
 				// 更新会话中的群名称和头像
 				chat.headImage = group.headImageThumb;
 				chat.showName = group.showGroupName;

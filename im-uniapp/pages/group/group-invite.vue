@@ -30,7 +30,6 @@
 	export default {
 		data() {
 			return {
-				friendStore: this.useFriendStore(),
 				groupId: null,
 				searchText: "",
 				groupMembers: [],

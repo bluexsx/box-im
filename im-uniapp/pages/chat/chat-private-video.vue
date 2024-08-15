@@ -7,8 +7,6 @@
 	export default {
 		data() {
 			return {
-				configStore: this.useConfigStore(),
-				userStore: this.useUserStore(),
 				url: "",
 				wv: '',
 				mode: "video",
