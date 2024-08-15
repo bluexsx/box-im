@@ -72,9 +72,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         msg.setSendId(session.getUserId());
         msg.setSendTime(new Date());
         msg.setSendNickName(member.getShowNickName());
-        if (CollectionUtil.isNotEmpty(dto.getAtUserIds())) {
-            msg.setAtUserIds(StrUtil.join(",", dto.getAtUserIds()));
-        }
+        msg.setAtUserIds(CommaTextUtils.asText(dto.getAtUserIds()));
         this.save(msg);
         // 过滤内容中的敏感词
         if(MessageType.TEXT.code().equals(dto.getType())){
@@ -167,7 +165,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             .gt(GroupMessage::getSendTime, minDate)
             .in(GroupMessage::getGroupId, groupIds)
             .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
-            .orderByDesc(GroupMessage::getId);
+            .orderByAsc(GroupMessage::getId);
         List<GroupMessage> messages = this.list(wrapper);
         // 通过群聊对消息进行分组
         Map<Long, List<GroupMessage>> messageGroupMap = messages.stream().collect(Collectors.groupingBy(GroupMessage::getGroupId));
@@ -179,8 +177,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 .between(GroupMessage::getSendTime, minDate,quitMember.getQuitTime())
                 .eq(GroupMessage::getGroupId, quitMember.getGroupId())
                 .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
-                .orderByDesc(GroupMessage::getId)
-                .last("limit 100");
+                .orderByAsc(GroupMessage::getId);
             List<GroupMessage> groupMessages = this.list(wrapper);
             messageGroupMap.put(quitMember.getGroupId(),groupMessages);
             groupMemberMap.put(quitMember.getGroupId(),quitMember);
@@ -188,8 +185,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         // 推送消息
         AtomicInteger sendCount = new AtomicInteger();
         messageGroupMap.forEach((groupId, groupMessages) -> {
-            // id从小到大排序
-            CollectionUtil.reverse(groupMessages);
             // 填充消息状态
             String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
             Object o = redisTemplate.opsForHash().get(key, session.getUserId().toString());
@@ -209,10 +204,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 // 组装vo
                 GroupMessageVO vo = BeanUtils.copyProperties(m, GroupMessageVO.class);
                 // 被@用户列表
-                if (StringUtils.isNotBlank(m.getAtUserIds()) && Objects.nonNull(vo)) {
-                    List<String> atIds = Splitter.on(",").trimResults().splitToList(m.getAtUserIds());
-                    vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
-                }
+                List<String> atIds = CommaTextUtils.asList(m.getAtUserIds());
+                vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
                 // 填充状态
                 vo.setStatus(readedMaxId >= m.getId() ? MessageStatus.READED.code() : MessageStatus.UNSEND.code());
                 // 针对回执消息填充已读人数

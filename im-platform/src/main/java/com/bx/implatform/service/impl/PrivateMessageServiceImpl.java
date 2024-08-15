@@ -158,10 +158,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code()).and(wrap -> wrap.and(
                     wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).in(PrivateMessage::getRecvId, friendIds))
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId()).in(PrivateMessage::getSendId, friendIds)))
-            .orderByDesc(PrivateMessage::getId);
+            .orderByAsc(PrivateMessage::getId);
         List<PrivateMessage> messages = this.list(queryWrapper);
-        // 消息顺序从小到大
-        CollectionUtil.reverse(messages);
         // 推送消息
         for (PrivateMessage m : messages) {
             PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
