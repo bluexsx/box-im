@@ -172,7 +172,7 @@
 				});
 			},
 			onDissolve() {
-				this.$confirm('确认要解散群聊吗?', '确认解散?', {
+				this.$confirm(`确认要解散'${this.activeGroup.name}'吗?`, '确认解散?', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
@@ -183,6 +183,7 @@
 					}).then(() => {
 						this.$message.success(`群聊'${this.activeGroup.name}'已解散`);
 						this.$store.commit("removeGroup", this.activeGroup.id);
+						this.$store.commit("removeGroupChat", this.activeGroup.id);
 						this.reset();
 					});
 				})
@@ -208,7 +209,7 @@
 
 			},
 			onQuit() {
-				this.$confirm('退出群聊后将不再接受群里的消息，确认退出吗？', '确认退出?', {
+				this.$confirm(`确认退出'${this.activeGroup.showGroupName}',并清空聊天记录吗？`, '确认退出?', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
@@ -217,6 +218,7 @@
 						url: `/group/quit/${this.activeGroup.id}`,
 						method: 'delete'
 					}).then(() => {
+						this.$message.success(`您已退出'${this.activeGroup.name}'`);
 						this.$store.commit("removeGroup", this.activeGroup.id);
 						this.$store.commit("removeGroupChat", this.activeGroup.id);
 						this.reset();

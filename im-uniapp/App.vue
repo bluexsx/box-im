@@ -356,6 +356,10 @@
 					url: "/pages/chat/chat"
 				})
 			} else {
+				uni.showToast({
+					title: '您的登陆信息已失效，请重新登陆',
+					icon: 'none'
+				})
 				// 跳转到登录页
 				// #ifdef H5
 				uni.navigateTo({

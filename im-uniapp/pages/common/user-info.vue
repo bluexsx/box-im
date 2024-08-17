@@ -81,7 +81,7 @@
 			onDelFriend(){
 				uni.showModal({
 					title: "确认删除",
-					content: `确认要删除与 '${this.userInfo.nickName}'的好友关系吗?`,
+					content: `确认删除 '${this.userInfo.nickName}',并删除聊天记录吗?`,
 					success: (res)=> {
 						if(res.cancel)
 							return;

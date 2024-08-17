@@ -92,11 +92,11 @@ export default defineStore('chatStore', {
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
 			chat.messages.forEach((m) => {
-				if (m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
+				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读
 					if (!pos.maxId || m.id <= pos.maxId) {
 						m.status = MESSAGE_STATUS.READED
-						chats.stored = false;
+						chat.stored = false;
 					}
 				}
 			})
@@ -137,9 +137,10 @@ export default defineStore('chatStore', {
 				let chat = chats[idx];
 				chats.splice(idx, 1);
 				chats.unshift(chat);
+				chat.lastSendTime = new Date().getTime();
+				chat.stored = false;
 				this.saveToStorage();
 			}
-			
 		},
 		insertMessage(msgInfo) {
 			// 获取对方id或群id
@@ -171,12 +172,14 @@ export default defineStore('chatStore', {
 				chat.lastContent = "[文件]";
 			} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
 				chat.lastContent = "[语音]";
-			} else if (msgInfo.type == MESSAGE_TYPE.TEXT || msgInfo.type == MESSAGE_TYPE.RECALL) {
-				chat.lastContent = msgInfo.content;
 			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VOICE) {
 				chat.lastContent = "[语音通话]";
 			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VIDEO) {
 				chat.lastContent = "[视频通话]";
+			} else if (msgInfo.type == MESSAGE_TYPE.TEXT ||
+				msgInfo.type == MESSAGE_TYPE.RECALL ||
+				msgInfo.type == MESSAGE_TYPE.TIP_TEXT) {
+				chat.lastContent = msgInfo.content;
 			}
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
@@ -313,22 +316,23 @@ export default defineStore('chatStore', {
 			// 按会话为单位存储，只存储有改动的会话
 			this.chats.forEach((chat)=>{
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
-				if(chat.delete){
-					uni.removeStorageSync(chatKey);
-					return;
-				}
 				if(!chat.stored){
-					uni.setStorageSync(chatKey,chat);
+					if(chat.delete){
+						uni.removeStorageSync(chatKey);
+					}else{
+						uni.setStorageSync(chatKey,chat);
+					}
+					chat.stored = true;
 				}
-				chat.stored = true;
-				chatKeys.push(chatKey);	
+				if(!chat.delete){
+					chatKeys.push(chatKey);	
+				}
 			})
 			// 会话核心信息
 			let chatsData = {
 				privateMsgMaxId: this.privateMsgMaxId,
 				groupMsgMaxId: this.groupMsgMaxId,
 				chatKeys: chatKeys
-				//chats: this.chats
 			}
 			uni.setStorageSync(key, chatsData)
 		},
