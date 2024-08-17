@@ -83,7 +83,7 @@ export default {
 		readedMessage(state, pos) {
 			let chat = this.getters.findChatByFriend(pos.friendId);
 			chat.messages.forEach((m) => {
-				if (m.id && m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
+				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读
 					if (!pos.maxId || m.id <= pos.maxId) {
 						m.status = MESSAGE_STATUS.READED
@@ -303,6 +303,7 @@ export default {
 				// 只存储有改动的会话
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
+					console.log(chatKey)
 					if (chat.delete) {
 						localForage.removeItem(chatKey);
 					} else {
