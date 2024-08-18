@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements
-    PrivateMessageService {
+public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage>
+    implements PrivateMessageService {
 
     private final FriendService friendService;
     private final IMClient imClient;
@@ -58,7 +58,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msg.setSendTime(new Date());
         this.save(msg);
         // 过滤内容中的敏感词
-        if(MessageType.TEXT.code().equals(dto.getType())){
+        if (MessageType.TEXT.code().equals(dto.getType())) {
             msg.setContent(sensitiveFilterUtil.filter(dto.getContent()));
         }
         // 推送消息
@@ -112,7 +112,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}", msg.getSendId(), msg.getRecvId(), msg.getContent());
     }
 
-
     @Override
     public List<PrivateMessageVO> findHistoryMessage(Long friendId, Long page, Long size) {
         page = page > 0 ? page : 1;
@@ -120,17 +119,16 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         Long userId = SessionContext.getSession().getUserId();
         long stIdx = (page - 1) * size;
         QueryWrapper<PrivateMessage> wrapper = new QueryWrapper<>();
-        wrapper.lambda().and(wrap -> wrap.and(
-                    wp -> wp.eq(PrivateMessage::getSendId, userId)
-                        .eq(PrivateMessage::getRecvId, friendId))
-                .or(wp -> wp.eq(PrivateMessage::getRecvId, userId)
-                    .eq(PrivateMessage::getSendId, friendId)))
-            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
-            .orderByDesc(PrivateMessage::getId)
+        wrapper.lambda().and(
+                wrap -> wrap.and(wp -> wp.eq(PrivateMessage::getSendId, userId).eq(PrivateMessage::getRecvId, friendId))
+                    .or(wp -> wp.eq(PrivateMessage::getRecvId, userId).eq(PrivateMessage::getSendId, friendId)))
+            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code()).orderByDesc(PrivateMessage::getId)
             .last("limit " + stIdx + "," + size);
 
         List<PrivateMessage> messages = this.list(wrapper);
-        List<PrivateMessageVO> messageInfos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class)).collect(Collectors.toList());
+        List<PrivateMessageVO> messageInfos =
+            messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class))
+                .collect(Collectors.toList());
         log.info("拉取聊天记录，用户id:{},好友id:{}，数量:{}", userId, friendId, messageInfos.size());
         return messageInfos;
     }
@@ -138,7 +136,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     @Override
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
-        if(!imClient.isOnline(session.getUserId())){
+        if (!imClient.isOnline(session.getUserId())) {
             throw new GlobalException("网络连接失败，无法拉取离线消息");
         }
         // 查询用户好友列表
@@ -153,28 +151,22 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近3个月的3000条消息
-        Date minDate = DateUtils.addMonths(new Date(), -3);
-        queryWrapper.gt(PrivateMessage::getId, minId)
-            .ge(PrivateMessage::getSendTime, minDate)
-            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code())
-            .and(wrap -> wrap.and(
-                    wp -> wp.eq(PrivateMessage::getSendId, session.getUserId())
-                        .in(PrivateMessage::getRecvId, friendIds))
-                .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId())
-                    .in(PrivateMessage::getSendId, friendIds)))
-            .orderByDesc(PrivateMessage::getId)
-            .last("limit 3000");
+        // 只能拉取最近3个月的消息,移动端只拉取一个月消息
+        int months = session.getTerminal().equals(IMTerminalType.APP.code()) ? 1 : 3;
+        Date minDate = DateUtils.addMonths(new Date(), -months);
+        queryWrapper.gt(PrivateMessage::getId, minId).ge(PrivateMessage::getSendTime, minDate)
+            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code()).and(wrap -> wrap.and(
+                    wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).in(PrivateMessage::getRecvId, friendIds))
+                .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId()).in(PrivateMessage::getSendId, friendIds)))
+            .orderByAsc(PrivateMessage::getId);
         List<PrivateMessage> messages = this.list(queryWrapper);
-        // 消息顺序从小到大
-        CollectionUtil.reverse(messages);
         // 推送消息
-        for(PrivateMessage m:messages ){
+        for (PrivateMessage m : messages) {
             PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
             IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
             sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
             sendMessage.setRecvId(session.getUserId());
-            sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
+            sendMessage.setRecvTerminals(List.of(session.getTerminal()));
             sendMessage.setSendToSelf(false);
             sendMessage.setData(vo);
             sendMessage.setSendResult(true);
@@ -214,42 +206,36 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         imClient.sendPrivateMessage(sendMessage);
         // 修改消息状态为已读
         LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
-        updateWrapper.eq(PrivateMessage::getSendId, friendId)
-            .eq(PrivateMessage::getRecvId, session.getUserId())
+        updateWrapper.eq(PrivateMessage::getSendId, friendId).eq(PrivateMessage::getRecvId, session.getUserId())
             .eq(PrivateMessage::getStatus, MessageStatus.SENDED.code())
             .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
         log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);
     }
 
-
     @Override
     public Long getMaxReadedId(Long friendId) {
         UserSession session = SessionContext.getSession();
         LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(PrivateMessage::getSendId, session.getUserId())
-            .eq(PrivateMessage::getRecvId, friendId)
-            .eq(PrivateMessage::getStatus, MessageStatus.READED.code())
-            .orderByDesc(PrivateMessage::getId)
-            .select(PrivateMessage::getId)
-            .last("limit 1");
+        wrapper.eq(PrivateMessage::getSendId, session.getUserId()).eq(PrivateMessage::getRecvId, friendId)
+            .eq(PrivateMessage::getStatus, MessageStatus.READED.code()).orderByDesc(PrivateMessage::getId)
+            .select(PrivateMessage::getId).last("limit 1");
         PrivateMessage message = this.getOne(wrapper);
-        if(Objects.isNull(message)){
+        if (Objects.isNull(message)) {
             return -1L;
         }
         return message.getId();
     }
 
-
-    private void sendLoadingMessage(Boolean isLoadding){
+    private void sendLoadingMessage(Boolean isLoadding) {
         UserSession session = SessionContext.getSession();
         PrivateMessageVO msgInfo = new PrivateMessageVO();
         msgInfo.setType(MessageType.LOADING.code());
         msgInfo.setContent(isLoadding.toString());
-        IMPrivateMessage sendMessage = new IMPrivateMessage<>();
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(session.getUserId());
-        sendMessage.setRecvTerminals(Arrays.asList(session.getTerminal()));
+        sendMessage.setRecvTerminals(List.of(session.getTerminal()));
         sendMessage.setData(msgInfo);
         sendMessage.setSendToSelf(false);
         sendMessage.setSendResult(false);

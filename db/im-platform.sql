@@ -35,7 +35,8 @@ create table `im_private_message`(
     `type`  tinyint(1) NOT NULL  comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 21:提示',
     `status` tinyint(1) NOT NULL   comment '状态 0:未读 1:已读 2:撤回 3:已读',
     `send_time` datetime DEFAULT CURRENT_TIMESTAMP comment '发送时间',
-    key `idx_send_recv_id` (`send_id`,`recv_id`)
+    key `idx_send_id` (`send_id`),
+    key `idx_recv_id` (`recv_id`)
 )ENGINE=InnoDB CHARSET=utf8mb4 comment '私聊消息';
 
 

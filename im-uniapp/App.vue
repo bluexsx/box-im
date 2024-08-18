@@ -1,5 +1,5 @@
 <script>
-	import store from './store';
+	import App from './App'
 	import http from './common/request';
 	import * as msgType from './common/messageType';
 	import * as enums from './common/enums';
@@ -18,7 +18,7 @@
 			init() {
 				this.isExit = false;
 				// 加载数据
-				store.dispatch("load").then(() => {
+				this.loadStore().then(() => {
 					// 初始化websocket
 					this.initWebSocket();
 				}).catch((e) => {
@@ -40,8 +40,8 @@
 						})
 					}
 					// 加载离线消息
-					this.pullPrivateOfflineMessage(store.state.chatStore.privateMsgMaxId);
-					this.pullGroupOfflineMessage(store.state.chatStore.groupMsgMaxId);
+					this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+					this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
 				});
 				wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
@@ -66,36 +66,53 @@
 					console.log("ws断开", res);
 					// 重新连接
 					this.reconnectWs();
-					
+
 				})
 			},
+			loadStore() {
+				return this.userStore.loadUser().then(() => {
+					const promises = [];
+					promises.push(this.friendStore.loadFriend());
+					promises.push(this.groupStore.loadGroup());
+					promises.push(this.chatStore.loadChat());
+					promises.push(this.configStore.loadConfig());
+					return Promise.all(promises);
+				})
+			},
+			unloadStore(){
+				this.friendStore.clear();
+				this.groupStore.clear();
+				this.chatStore.clear();
+				this.configStore.clear();
+				this.userStore.clear();
+			},
 			pullPrivateOfflineMessage(minId) {
-				store.commit("loadingPrivateMsg", true)
+				this.chatStore.setLoadingPrivateMsg(true)
 				http({
 					url: "/message/private/pullOfflineMessage?minId=" + minId,
 					method: 'GET'
 				}).catch(() => {
-					store.commit("loadingPrivateMsg", false)
+					this.chatStore.setLoadingPrivateMsg(false)
 				})
 			},
 			pullGroupOfflineMessage(minId) {
-				store.commit("loadingGroupMsg", true)
+				this.chatStore.setLoadingGroupMsg(true)
 				http({
 					url: "/message/group/pullOfflineMessage?minId=" + minId,
 					method: 'GET'
 				}).catch(() => {
-					store.commit("loadingGroupMsg", false)
+					this.chatStore.setLoadingGroupMsg(false)
 				})
 			},
 			handlePrivateMessage(msg) {
 				// 消息加载标志
 				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
-					store.commit("loadingPrivateMsg", JSON.parse(msg.content))
+					this.chatStore.setLoadingPrivateMsg(JSON.parse(msg.content))
 					return;
 				}
 				// 消息已读处理，清空已读数量
 				if (msg.type == enums.MESSAGE_TYPE.READED) {
-					store.commit("resetUnreadCount", {
+					this.chatStore.resetUnreadCount({
 						type: 'PRIVATE',
 						targetId: msg.recvId
 					})
@@ -103,19 +120,18 @@
 				}
 				// 消息回执处理,改消息状态为已读
 				if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
-					store.commit("readedMessage", {
+					this.chatStore.readedMessage({
 						friendId: msg.sendId
 					})
 					return;
 				}
 				// 标记这条消息是不是自己发的
-				msg.selfSend = msg.sendId == store.state.userStore.userInfo.id;
+				msg.selfSend = msg.sendId == this.userStore.userInfo.id;
 				// 好友id
 				let friendId = msg.selfSend ? msg.recvId : msg.sendId;
-				this.loadFriendInfo(friendId).then((friend) => {
+				this.loadFriendInfo(friendId, (friend) => {
 					this.insertPrivateMessage(friend, msg);
 				})
-
 			},
 			insertPrivateMessage(friend, msg) {
 				// 单人视频信令
@@ -151,9 +167,9 @@
 					headImage: friend.headImage
 				};
 				// 打开会话
-				store.commit("openChat", chatInfo);
+				this.chatStore.openChat(chatInfo);
 				// 插入消息
-				store.commit("insertMessage", msg);
+				this.chatStore.insertMessage(msg);
 				// 播放提示音
 				this.playAudioTip();
 
@@ -161,7 +177,7 @@
 			handleGroupMessage(msg) {
 				// 消息加载标志
 				if (msg.type == enums.MESSAGE_TYPE.LOADING) {
-					store.commit("loadingGroupMsg", JSON.parse(msg.content))
+					this.chatStore.setLoadingGroupMsg(JSON.parse(msg.content))
 					return;
 				}
 				// 消息已读处理
@@ -171,7 +187,7 @@
 						type: 'GROUP',
 						targetId: msg.groupId
 					}
-					store.commit("resetUnreadCount", chatInfo)
+					this.chatStore.resetUnreadCount(chatInfo)
 					return;
 				}
 				// 消息回执处理
@@ -183,12 +199,12 @@
 						readedCount: msg.readedCount,
 						receiptOk: msg.receiptOk
 					};
-					store.commit("updateMessage", msgInfo)
+					this.chatStore.updateMessage(msgInfo)
 					return;
 				}
 				// 标记这条消息是不是自己发的
-				msg.selfSend = msg.sendId == store.state.userStore.userInfo.id;
-				this.loadGroupInfo(msg.groupId).then((group) => {
+				msg.selfSend = msg.sendId == this.userStore.userInfo.id;
+				this.loadGroupInfo(msg.groupId, (group) => {
 					// 插入群聊消息
 					this.insertGroupMessage(group, msg);
 				})
@@ -241,43 +257,39 @@
 					headImage: group.headImageThumb
 				};
 				// 打开会话
-				store.commit("openChat", chatInfo);
+				this.chatStore.openChat(chatInfo);
 				// 插入消息
-				store.commit("insertMessage", msg);
+				this.chatStore.insertMessage(msg);
 				// 播放提示音
 				this.playAudioTip();
 			},
-			loadFriendInfo(id) {
-				return new Promise((resolve, reject) => {
-					let friend = store.getters.findFriend(id);
-					if (friend) {
-						resolve(friend);
-					} else {
-						http({
-							url: `/friend/find/${id}`,
-							method: 'GET'
-						}).then((friend) => {
-							store.commit("addFriend", friend);
-							resolve(friend)
-						})
-					}
-				});
+			loadFriendInfo(id, callback) {
+				let friend = this.friendStore.findFriend(id);
+				if (friend) {
+					callback(friend);
+				} else {
+					http({
+						url: `/friend/find/${id}`,
+						method: 'GET'
+					}).then((friend) => {
+						this.friendStore.addFriend(friend);
+						callback(friend)
+					})
+				}
 			},
-			loadGroupInfo(id) {
-				return new Promise((resolve, reject) => {
-					let group = store.state.groupStore.groups.find((g) => g.id == id);
-					if (group) {
-						resolve(group);
-					} else {
-						http({
-							url: `/group/find/${id}`,
-							method: 'GET'
-						}).then((group) => {
-							resolve(group)
-							store.commit("addGroup", group);
-						})
-					}
-				});
+			loadGroupInfo(id, callback) {
+				let group = this.groupStore.findGroup(id);
+				if (group) {
+					callback(group);
+				} else {
+					http({
+						url: `/group/find/${id}`,
+						method: 'GET'
+					}).then((group) => {
+						this.groupStore.addGroup(group);
+						callback(group)
+					})
+				}
 			},
 			exit() {
 				console.log("exit");
@@ -287,7 +299,7 @@
 				uni.reLaunch({
 					url: "/pages/login/login"
 				})
-				store.dispatch("unload");
+				this.unloadStore();
 			},
 			playAudioTip() {
 				// 音频播放无法成功
@@ -314,7 +326,7 @@
 						title: '连接已断开，尝试重新连接...',
 						icon: 'none',
 					})
-					store.commit("setUserInfo", userInfo);
+					this.userStore.setUserInfo(userInfo);
 					// 重新连接
 					let loginInfo = uni.getStorageSync("loginInfo")
 					wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
@@ -333,10 +345,10 @@
 			}
 		},
 		onLaunch() {
+			this.$mountStore();
 			// 登录状态校验
 			let loginInfo = uni.getStorageSync("loginInfo")
 			if (!this.isExpired(loginInfo)) {
-				console.log("初始化")
 				// 初始化
 				this.init();
 				// 跳转到聊天页面
@@ -367,7 +379,7 @@
 
 	.tab-page {
 		// #ifdef H5
-		height: calc(100vh  - 50px); // h5平台100vh是包含了底部高度，需要减去
+		height: calc(100vh - 50px); // h5平台100vh是包含了底部高度，需要减去
 		// #endif
 		// #ifndef H5
 		height: calc(100vh);

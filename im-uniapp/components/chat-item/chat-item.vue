@@ -17,7 +17,7 @@
 			</view>
 			<view class="chat-content">
 				<view class="chat-at-text">{{atText}}</view>
-				<view class="chat-send-name" v-show="chat.sendNickName">{{chat.sendNickName+':&nbsp;'}}</view>
+				<view class="chat-send-name" v-if="isShowSendName">{{chat.sendNickName+':&nbsp;'}}</view>
 				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
 				<uni-badge v-if="chat.unreadCount>0" size="small" :max-num="99" :text="chat.unreadCount" />
 			</view>
@@ -44,6 +44,7 @@
 			}
 		},
 		methods: {
+			
 			showChatBox() {
 				uni.navigateTo({
 					url: "/pages/chat/chat-box?chatIdx=" + this.index
@@ -51,6 +52,18 @@
 			}
 		},
 		computed: {
+			isShowSendName() {
+				if (!this.chat.sendNickName) {
+					return false;
+				}
+				let size = this.chat.messages.length;
+				if (size == 0) {
+					return false;
+				}
+				// 只有群聊的普通消息需要显示名称
+				let lastMsg = this.chat.messages[size - 1];
+				return this.$msgType.isNormal(lastMsg.type)
+			},
 			atText() {
 				if (this.chat.atMe) {
 					return "[有人@我]"

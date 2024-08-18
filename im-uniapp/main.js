@@ -5,9 +5,15 @@ import * as  enums from './common/enums.js';
 import * as date from './common/date';
 import * as socketApi from './common/wssocket';
 import * as messageType from './common/messageType';
-import store from './store';
 import { createSSRApp } from 'vue'
 import uviewPlus from '@/uni_modules/uview-plus'
+import * as pinia from 'pinia';
+import useChatStore from '@/store/chatStore.js'
+import useFriendStore from '@/store/friendStore.js'
+import useGroupStore from '@/store/groupStore.js'
+import useConfigStore from '@/store/configStore.js'
+import useUserStore from '@/store/userStore.js'
+	
 // #ifdef H5
 import * as recorder from './common/recorder-h5';
 // #endif
@@ -16,10 +22,11 @@ import * as recorder from './common/recorder-app';
 // #endif
 
 
+
 export function createApp() {
   const app = createSSRApp(App)
-  app.use(store);
   app.use(uviewPlus);
+  app.use(pinia.createPinia());
   app.config.globalProperties.$http = request;
   app.config.globalProperties.$wsApi = socketApi;
   app.config.globalProperties.$msgType = messageType;
@@ -27,7 +34,16 @@ export function createApp() {
   app.config.globalProperties.$enums = enums;
   app.config.globalProperties.$date = date;
   app.config.globalProperties.$rc = recorder;
+  // 初始化时再挂载store对象
+  app.config.globalProperties.$mountStore = ()=>{
+	  app.config.globalProperties.chatStore = useChatStore();
+	  app.config.globalProperties.friendStore = useFriendStore();
+	  app.config.globalProperties.groupStore = useGroupStore();
+	  app.config.globalProperties.configStore = useConfigStore();
+	  app.config.globalProperties.userStore = useUserStore();
+  }
   return {
-    app
+    app,
+	pinia
   }
 }

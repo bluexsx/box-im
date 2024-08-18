@@ -21,7 +21,7 @@ export default {
 			state.chats = [];
 			state.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			state.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
-			cacheChats = chatsData.chats||[];
+			cacheChats = chatsData.chats || [];
 			// 防止图片一直处在加载中状态
 			cacheChats.forEach((chat) => {
 				chat.messages.forEach((msg) => {
@@ -55,7 +55,9 @@ export default {
 					unreadCount: 0,
 					messages: [],
 					atMe: false,
-					atAll: false
+					atAll: false,
+					stored: false,
+					delete: false
 				};
 				chats.unshift(chat);
 			}
@@ -72,26 +74,23 @@ export default {
 					chats[idx].unreadCount = 0;
 					chats[idx].atMe = false;
 					chats[idx].atAll = false;
+					chats[idx].stored = false;
+					this.commit("saveToStorage");
+					break;
 				}
 			}
-			this.commit("saveToStorage");
 		},
 		readedMessage(state, pos) {
-			let chats = this.getters.findChats();
-			for (let idx in chats) {
-				if (chats[idx].type == 'PRIVATE' &&
-					chats[idx].targetId == pos.friendId) {
-					chats[idx].messages.forEach((m) => {
-						if (m.selfSend && m.status != MESSAGE_STATUS.RECALL) {
-							// pos.maxId为空表示整个会话已读
-							if (!pos.maxId || m.id <= pos.maxId) {
-								m.status = MESSAGE_STATUS.READED
-							}
-
-						}
-					})
+			let chat = this.getters.findChatByFriend(pos.friendId);
+			chat.messages.forEach((m) => {
+				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
+					// pos.maxId为空表示整个会话已读
+					if (!pos.maxId || m.id <= pos.maxId) {
+						m.status = MESSAGE_STATUS.READED
+						chat.stored = false;
+					}
 				}
-			}
+			})
 			this.commit("saveToStorage");
 		},
 		removeChat(state, idx) {
@@ -99,8 +98,29 @@ export default {
 			if (chats[idx] == state.activeChat) {
 				state.activeChat = null;
 			}
-			chats.splice(idx, 1);
+			chats[idx].delete = true;
+			chats[idx].stored = false;
 			this.commit("saveToStorage");
+		},
+		removePrivateChat(state,friendId){
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == 'PRIVATE' &&
+					chats[idx].targetId === friendId) {
+					this.commit("removeChat",idx)
+					break;
+				}
+			}
+		},
+		removeGroupChat(state,groupId){
+			let chats = this.getters.findChats();
+			for (let idx in chats) {
+				if (chats[idx].type == 'GROUP' &&
+					chats[idx].targetId === groupId) {
+					this.commit("removeChat",idx)
+					break;
+				}
+			}
 		},
 		moveTop(state, idx) {
 			// 加载中不移动，很耗性能
@@ -112,16 +132,9 @@ export default {
 				let chat = chats[idx];
 				chats.splice(idx, 1);
 				chats.unshift(chat);
+				chat.lastSendTime = new Date().getTime();
+				chat.stored = false;
 				this.commit("saveToStorage");
-			}
-		},
-		removePrivateChat(state, friendId) {
-			let chats = this.getters.findChats();
-			for (let idx in chats) {
-				if (chats[idx].type == 'PRIVATE' &&
-					chats[idx].targetId == friendId) {
-					this.commit("removeChat", idx);
-				}
 			}
 		},
 		insertMessage(state, msgInfo) {
@@ -142,6 +155,7 @@ export default {
 				if (msgInfo.type == MESSAGE_TYPE.RECALL) {
 					chat.lastContent = msgInfo.content;
 				}
+				chat.stored = false;
 				this.commit("saveToStorage");
 				return;
 			}
@@ -152,14 +166,14 @@ export default {
 				chat.lastContent = "[文件]";
 			} else if (msgInfo.type == MESSAGE_TYPE.AUDIO) {
 				chat.lastContent = "[语音]";
-			} else if (msgInfo.type == MESSAGE_TYPE.TEXT ||
-				msgInfo.type == MESSAGE_TYPE.RECALL ||
-				msgInfo.type == MESSAGE_TYPE.TIP_TEXT) {
-				chat.lastContent = msgInfo.content;
 			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VOICE) {
 				chat.lastContent = "[语音通话]";
 			} else if (msgInfo.type == MESSAGE_TYPE.ACT_RT_VIDEO) {
 				chat.lastContent = "[视频通话]";
+			} else if (msgInfo.type == MESSAGE_TYPE.TEXT ||
+				msgInfo.type == MESSAGE_TYPE.RECALL ||
+				msgInfo.type == MESSAGE_TYPE.TIP_TEXT) {
+				chat.lastContent = msgInfo.content;
 			}
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
@@ -199,6 +213,7 @@ export default {
 				}
 			}
 			chat.messages.splice(insertPos, 0, msgInfo);
+			chat.stored = false;
 			this.commit("saveToStorage");
 		},
 		updateMessage(state, msgInfo) {
@@ -208,6 +223,7 @@ export default {
 			if (message) {
 				// 属性拷贝
 				Object.assign(message, msgInfo);
+				chat.stored = false;
 				this.commit("saveToStorage");
 			}
 		},
@@ -226,31 +242,30 @@ export default {
 					break;
 				}
 			}
+			chat.stored = false;
 			this.commit("saveToStorage");
 		},
 		updateChatFromFriend(state, friend) {
-			let chats = this.getters.findChats();
-			for (let i in chats) {
-				let chat = chats[i];
-				if (chat.type == 'PRIVATE' && chat.targetId == friend.id) {
-					chat.headImage = friend.headImageThumb;
-					chat.showName = friend.nickName;
-					break;
-				}
+			let chat = this.getters.findChatByFriend(friend.id);
+			// 更新会话中的群名和头像
+			if (chat && (chat.headImage != friend.headImageThumb ||
+					chat.showName != friend.nickName)) {
+				chat.headImage = friend.headImageThumb;
+				chat.showName = friend.nickName;
+				chat.stored = false;
+				this.commit("saveToStorage")
 			}
-			this.commit("saveToStorage");
 		},
 		updateChatFromGroup(state, group) {
-			let chats = this.getters.findChats();
-			for (let i in chats) {
-				let chat = chats[i];
-				if (chat.type == 'GROUP' && chat.targetId == group.id) {
-					chat.headImage = group.headImageThumb;
-					chat.showName = group.showGroupName;
-					break;
-				}
+			let chat = this.getters.findChatByGroup(group.id);
+			if (chat && (chat.headImage != group.headImageThumb ||
+					chat.showName != group.showGroupName)) {
+				// 更新会话中的群名称和头像
+				chat.headImage = group.headImageThumb;
+				chat.showName = group.showGroupName;
+				chat.stored = false;
+				this.commit("saveToStorage")
 			}
-			this.commit("saveToStorage");
 		},
 		loadingPrivateMsg(state, loading) {
 			state.loadingPrivateMsg = loading;
@@ -282,10 +297,29 @@ export default {
 			}
 			let userId = userStore.state.userInfo.id;
 			let key = "chats-" + userId;
+			let chatKeys = [];
+			// 按会话为单位存储，
+			state.chats.forEach((chat) => {
+				// 只存储有改动的会话
+				let chatKey = `${key}-${chat.type}-${chat.targetId}`
+				if (!chat.stored) {
+					console.log(chatKey)
+					if (chat.delete) {
+						localForage.removeItem(chatKey);
+					} else {
+						localForage.setItem(chatKey, chat);
+					}
+					chat.stored = true;
+				}
+				if (!chat.delete) {
+					chatKeys.push(chatKey);
+				}
+			})
+			// 会话核心信息
 			let chatsData = {
 				privateMsgMaxId: state.privateMsgMaxId,
 				groupMsgMaxId: state.groupMsgMaxId,
-				chats: state.chats
+				chatKeys: chatKeys
 			}
 			localForage.setItem(key, chatsData)
 		},
@@ -293,7 +327,6 @@ export default {
 			cacheChats = []
 			state.chats = [];
 			state.activeChat = null;
-			
 		}
 	},
 	actions: {
@@ -301,17 +334,27 @@ export default {
 			return new Promise((resolve, reject) => {
 				let userId = userStore.state.userInfo.id;
 				let key = "chats-" + userId;
-				localForage.getItem(key).then((item)=>{
-					let chatsData = item;
-					// 兼容历史数据,以后要删除
-					if(!chatsData){
-						chatsData = JSON.parse(localStorage.getItem(key));
+				localForage.getItem(key).then((chatsData) => {
+					if (!chatsData) {
+						resolve();
 					}
-					if (chatsData) {
+					else if(chatsData.chats){
+						// 兼容旧版本
 						context.commit("initChats", chatsData);
+						resolve();
+					}else if (chatsData.chatKeys) {
+						const promises = [];
+						chatsData.chatKeys.forEach(key => {
+							promises.push(localForage.getItem(key))
+						})
+						Promise.all(promises).then(chats => {
+							chatsData.chats = chats.filter(o => o);
+							context.commit("initChats", chatsData);
+							resolve();
+						})
 					}
-					resolve();
-				}).catch(()=>{
+				}).catch((e) => {
+					console.log("加载消息失败")
 					reject();
 				})
 			})
@@ -348,6 +391,16 @@ export default {
 				}
 			}
 			return chat;
+		},
+		findChatByFriend: (state, getters) => (fid) => {
+			let chats = getters.findChats();
+			return chats.find(chat => chat.type == 'PRIVATE' &&
+				chat.targetId == fid)
+		},
+		findChatByGroup: (state, getters) => (gid) => {
+			let chats = getters.findChats();
+			return chats.find(chat => chat.type == 'GROUP' &&
+				chat.targetId == gid)
 		},
 		findMessage: (state) => (chat, msgInfo) => {
 			if (!chat) {

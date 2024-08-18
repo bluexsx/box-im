@@ -1,5 +1,5 @@
 <template>
-	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-invite">
+	<view class="page group-invite">
 		<view class="search-bar">
 			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
 		</view>
@@ -17,7 +17,6 @@
 							<radio :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>
 						</view>
 					</view>
-		
 				</view>
 			</scroll-view>
 		</view>
@@ -78,15 +77,11 @@
 				if (!friend.disabled) {
 					friend.checked = !friend.checked;
 				}
-				console.log(this.inviteSize)
 			},
 			initFriendItems() {
 				this.friendItems = [];
-				let friends = this.$store.state.friendStore.friends;
+				let friends = this.friendStore.friends;
 				friends.forEach((f => {
-					if(f.delete){
-						return
-					}
 					let item = {
 						id: f.id,
 						headImage: f.headImage,

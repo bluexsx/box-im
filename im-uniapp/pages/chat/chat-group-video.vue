@@ -67,12 +67,12 @@
 				this.url = "/hybrid/html/rtc-group/index.html?";
 				this.url += "baseUrl=" + UNI_APP.BASE_URL;
 				this.url += "&groupId=" + this.groupId;
-				this.url += "&userId=" + this.$store.state.userStore.userInfo.id;
+				this.url += "&userId=" + this.userStore.userInfo.id;
 				this.url += "&inviterId=" + this.inviterId;
 				this.url += "&isHost=" + this.isHost;
 				this.url += "&loginInfo=" + JSON.stringify(uni.getStorageSync("loginInfo"));
 				this.url += "&userInfos=" + JSON.stringify(this.userInfos);
-				this.url += "&config=" + JSON.stringify(this.$store.state.configStore.webrtc);
+				this.url += "&config=" + JSON.stringify(this.configStore.webrtc);
 			},
 		},
 		onBackPress() {

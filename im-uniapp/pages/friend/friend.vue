@@ -58,15 +58,12 @@
 		},
 		computed: {
 			friends() {
-				return this.$store.state.friendStore.friends;
+				return this.friendStore.friends;
 			},
 			friendGroupMap(){
 				// 按首字母分组
 				let groupMap = new Map();
 				this.friends.forEach((f) => {
-					if (f.delete) {
-						return;
-					}
 					if(this.searchText && !f.nickName.includes(this.searchText)){
 						return;
 					}

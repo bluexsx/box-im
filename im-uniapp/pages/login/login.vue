@@ -54,7 +54,7 @@
 					loginInfo.expireTime = new Date().getTime() + loginInfo.refreshTokenExpiresIn * 1000;
 					uni.setStorageSync("loginInfo", loginInfo);
 					// 调用App.vue的初始化方法
-					getApp().init()
+					getApp().$vm.init()
 					// 跳转到聊天页面   
 					uni.switchTab({
 						url: "/pages/chat/chat"
@@ -72,8 +72,6 @@
 
 <style lang="scss" scoped>
 	.login {
-
-
 		.title {
 			padding-top: 150rpx;
 			padding-bottom: 50rpx;

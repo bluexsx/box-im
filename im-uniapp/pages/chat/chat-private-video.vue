@@ -62,9 +62,9 @@
 				this.url += "&isHost="+this.isHost;
 				this.url += "&baseUrl="+UNI_APP.BASE_URL;
 				this.url += "&loginInfo="+JSON.stringify(uni.getStorageSync("loginInfo"));
-				this.url += "&userInfo="+JSON.stringify(this.$store.state.userStore.userInfo);
+				this.url += "&userInfo="+JSON.stringify(this.userStore.userInfo);
 				this.url += "&friend="+JSON.stringify(this.friend);
-				this.url += "&config=" + JSON.stringify(this.$store.state.configStore.webrtc);
+				this.url += "&config=" + JSON.stringify(this.configStore.webrtc);
 			},
 		},
 		onBackPress() {

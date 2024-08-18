@@ -48,7 +48,7 @@
 					method: "PUT",
 					data: this.userInfo
 				}).then(()=>{
-					this.$store.commit("setUserInfo",this.userInfo);
+					this.userStore.setUserInfo(this.userInfo);
 					uni.showToast({
 						title:"修改成功",
 						icon: 'none'
@@ -61,7 +61,7 @@
 		},
 		onLoad() {
 			// 深拷贝一份数据
-			let mine = this.$store.state.userStore.userInfo;
+			let mine = this.userStore.userInfo;
 			this.userInfo = JSON.parse(JSON.stringify(mine));
 		}
 	}
