@@ -20,6 +20,9 @@ public class UserChannelCtxMap {
         if (userId != null && terminal != null && channelMap.containsKey(userId)) {
             Map<Integer, ChannelHandlerContext> userChannelMap = channelMap.get(userId);
             userChannelMap.remove(terminal);
+            if (userChannelMap.isEmpty()) {
+                channelMap.remove(userId);
+            }
         }
     }
 
