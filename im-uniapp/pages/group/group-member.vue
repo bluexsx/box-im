@@ -1,5 +1,5 @@
 <template>
-	<view v-if="$store.state.userStore.userInfo.type == 1" class="page group-member">
+	<view  class="page group-member">
 		<view class="search-bar">
 			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入成员昵称搜索"></uni-search-bar>
 		</view>
@@ -79,12 +79,12 @@
 				})
 			},
 			isSelf(userId) {
-				return this.$store.state.userStore.userInfo.id == userId
+				return this.userStore.userInfo.id == userId
 			}
 		},
 		computed: {
 			isOwner() {
-				return this.$store.state.userStore.userInfo.id == this.group.ownerId;
+				return this.userStore.userInfo.id == this.group.ownerId;
 			}
 		},
 		onLoad(options) {

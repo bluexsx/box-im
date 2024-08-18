@@ -56,7 +56,7 @@
 		methods: {
 			init(atUserIds) {
 				this.showMembers = [];
-				let userId = this.$store.state.userStore.userInfo.id;
+				let userId = this.userStore.userInfo.id;
 				if(this.ownerId == userId){
 					this.showMembers.push({
 						userId:-1,
@@ -64,7 +64,7 @@
 					})
 				}
 				this.members.forEach((m) => {
-					if(m.userId != userId){
+					if(!m.quit && m.userId != userId){
 						m.checked = atUserIds.indexOf(m.userId) >= 0;
 						this.showMembers.push(m);
 					}

@@ -89,7 +89,7 @@
 				this.loadUserInfo(friend, idx);
 			},
 			onDelItem(friend, idx) {
-				this.$confirm(`确认要解除与 '${friend.nickName}'的好友关系吗?`, '确认解除?', {
+				this.$confirm(`确认删除'${friend.nickName}',并清空聊天记录吗?`, '确认解除?', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'

@@ -74,7 +74,7 @@ public class GroupMember extends Model<GroupMember> {
     private Date quitTime;
 
     public String getShowNickName() {
-        return StrUtil.isEmpty(remarkNickName) ? userNickName : remarkNickName;
+        return StrUtil.blankToDefault(remarkNickName, userNickName);
     }
 
 }

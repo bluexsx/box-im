@@ -79,7 +79,7 @@
 					this.items[0] = `已读(${this.readedMembers.length})`;
 					this.items[1] = `未读(${this.unreadMembers.length})`;
 					// 更新已读人数
-					this.$store.commit("updateMessage", {
+					this.chatStore.updateMessage({
 						id: this.msgInfo.id,
 						groupId: this.msgInfo.groupId,
 						readedCount: this.readedMembers.length

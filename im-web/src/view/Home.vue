@@ -336,7 +336,9 @@
 				let unreadCount = 0;
 				let chats = this.$store.state.chatStore.chats;
 				chats.forEach((chat) => {
-					unreadCount += chat.unreadCount
+					if(!chat.delete){
+						unreadCount += chat.unreadCount
+					}
 				});
 				return unreadCount;
 			}

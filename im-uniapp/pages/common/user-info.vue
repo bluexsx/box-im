@@ -1,7 +1,7 @@
 <template>
 	<view class="page user-info">
 		<view class="content">
-			<head-image  :name="userInfo.nickName" :url="userInfo.headImage"
+			<head-image  :name="userInfo.nickName" :url="userInfo.headImageThumb"
 			:size="160" @click="onShowFullImage()"></head-image>
 			
 			<view class="info-item">
@@ -54,8 +54,8 @@
 					showName: this.userInfo.nickName,
 					headImage: this.userInfo.headImage,
 				};
-				this.$store.commit("openChat", chat);
-				let chatIdx = this.$store.getters.findChatIdx(chat);
+				this.chatStore.openChat(chat);
+				let chatIdx = this.chatStore.findChatIdx(chat);
 				uni.navigateTo({
 					url:"/pages/chat/chat-box?chatIdx=" + chatIdx
 				})
@@ -71,7 +71,7 @@
 						headImage: this.userInfo.headImageThumb,
 						online: this.userInfo.online
 					}
-					this.$store.commit("addFriend", friend);
+					this.friendStore.addFriend(friend);
 					uni.showToast({
 						title: '对方已成为您的好友',
 						icon: 'none'
@@ -81,7 +81,7 @@
 			onDelFriend(){
 				uni.showModal({
 					title: "确认删除",
-					content: `确认要删除与 '${this.userInfo.nickName}'的好友关系吗?`,
+					content: `确认删除 '${this.userInfo.nickName}',并删除聊天记录吗?`,
 					success: (res)=> {
 						if(res.cancel)
 							return;
@@ -89,8 +89,8 @@
 							url: `/friend/delete/${this.userInfo.id}`,
 							method: 'delete'
 						}).then((data) => {
-							this.$store.commit("removeFriend", this.userInfo.id);
-							this.$store.commit("removePrivateChat", this.userInfo.id);
+							this.friendStore.removeFriend(this.userInfo.id);
+							this.chatStore.removePrivateChat(this.userInfo.id);
 							uni.showToast({
 								title: 	`与 '${this.userInfo.nickName}'的好友关系已解除`,
 								icon: 'none'
@@ -110,9 +110,9 @@
 					data: friend
 				}).then(() => {
 					// 更新好友列表中的昵称和头像
-					this.$store.commit("updateFriend", friend);
+					this.friendStore.updateFriend(friend);
 					// 更新会话中的头像和昵称
-					this.$store.commit("updateChatFromFriend", this.userInfo);
+					this.chatStore.updateChatFromFriend(this.userInfo);
 				})
 			},
 			loadUserInfo(id){
@@ -131,10 +131,10 @@
 		},
 		computed: {
 			isFriend() {
-				return this.friendInfo&&!this.friendInfo.delete;
+				return !!this.friendInfo;
 			},
 			friendInfo(){
-				let friends = this.$store.state.friendStore.friends;
+				let friends = this.friendStore.friends;
 				let friend = friends.find((f) => f.id == this.userInfo.id);
 				return friend;
 			}

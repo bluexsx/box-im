@@ -1,95 +1,85 @@
+import { defineStore } from 'pinia';
 import http from '../common/request'
-import {TERMINAL_TYPE} from '../common/enums.js'
+import { TERMINAL_TYPE } from '../common/enums.js'
 
-export default {
-
-	state: {
-		friends: [],
-		timer: null
+export default defineStore('friendStore', {
+	state: () => {
+		return {
+			friends: [],
+			timer: null
+		}
 	},
-	mutations: {
-		setFriends(state, friends) {
-			friends.forEach((f)=>{
+	actions: {
+		setFriends(friends) {
+			friends.forEach((f) => {
 				f.online = false;
 				f.onlineWeb = false;
 				f.onlineApp = false;
 			})
-			state.friends = friends;
+			this.friends = friends;
 		},
-		updateFriend(state, friend) {
-			state.friends.forEach((f, index) => {
-				if (!f.delete && f.id == friend.id) {
-					// 拷贝属性
-					let online = state.friends[index].online;
-					Object.assign(state.friends[index], friend);
-					state.friends[index].online = online;
+		updateFriend(friend) {
+			let f = this.findFriend(friend.id);
+			let copy = JSON.parse(JSON.stringify(f));
+			Object.assign(f, friend);
+			f.online = copy.online;
+			f.onlineWeb = copy.onlineWeb;
+			f.onlineApp = copy.onlineApp;
+		},
+		removeFriend(id) {
+			this.friends.forEach((f, idx) => {
+				if (f.id == id) {
+					this.friends.splice(idx, 1)
 				}
 			})
 		},
-		removeFriend(state, id) {
-			let friend = this.getters.findFriend(id);
-			if(friend){
-				friend.delete = true;
-			}
+		addFriend(friend) {
+			this.friends.push(friend);
 		},
-		addFriend(state, friend) {
-			let f = this.getters.findFriend(friend.id);
-			if(f){
-				Object.assign(f, friend);
-				f.delete = false;
-			}else{
-				state.friends.push(friend);
-			}
-		},
-		setOnlineStatus(state, onlineTerminals) {
-			state.friends.forEach((f)=>{
-				let userTerminal = onlineTerminals.find((o)=> f.id==o.userId);
-				if(userTerminal){
+		setOnlineStatus(onlineTerminals) {
+			this.friends.forEach((f) => {
+				let userTerminal = onlineTerminals.find((o) => f.id == o.userId);
+				if (userTerminal) {
 					f.online = true;
-					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB)>=0
-					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP)>=0
-				}else{
+					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB) >= 0
+					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP) >= 0
+				} else {
 					f.online = false;
 					f.onlineWeb = false;
 					f.onlineApp = false;
 				}
 			});
 		},
-		refreshOnlineStatus(state) {
-			if (state.friends.length > 0) {
+		refreshOnlineStatus() {
+			if (this.friends.length > 0) {
 				let userIds = [];
-				state.friends.forEach((f) => {
-					userIds.push(f.id)
-				});
+				this.friends.forEach(f => userIds.push(f.id));
 				http({
 					url: '/user/terminal/online?userIds=' + userIds.join(','),
 					method: 'GET'
 				}).then((onlineTerminals) => {
-					this.commit("setOnlineStatus", onlineTerminals);
-					
+					this.setOnlineStatus(onlineTerminals);
 				})
 			}
 			// 30s后重新拉取
-			clearTimeout(state.timer);
-			state.timer = setTimeout(() => {
-				this.commit("refreshOnlineStatus");
+			clearTimeout(this.timer);
+			this.timer = setTimeout(() => {
+				this.refreshOnlineStatus();
 			}, 30000)
 		},
-		clear(state) {
-			clearTimeout(state.timer);
-			state.friends = [];
-			state.timer = null;
-		}
-	},
-	actions: {
-		loadFriend(context) {
+		clear() {
+			clearTimeout(this.timer);
+			this.friends = [];
+			this.timer = null;
+		},
+		loadFriend() {
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/friend/list',
 					method: 'GET'
 				}).then((friends) => {
-					context.commit("setFriends", friends);
-					context.commit("refreshOnlineStatus");
+					this.setFriends(friends);
+					this.refreshOnlineStatus();
 					resolve()
 				}).catch((res) => {
 					reject();
@@ -97,9 +87,9 @@ export default {
 			});
 		}
 	},
-	getters:{
+	getters: {
 		findFriend: (state) => (id) => {
-			return state.friends.find((f)=>f.id==id);
+			return state.friends.find((f) => f.id == id);
 		}
 	}
-}
+})

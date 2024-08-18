@@ -1,32 +1,32 @@
+import { defineStore } from 'pinia';
 import http from '../common/request'
 
-export default {
-	state: {
-		webrtc: {}
-	},
-	mutations: {
-		setConfig(state, config) {
-			state.webrtc = config.webrtc; 
-		},
-		clear(state){
-			state.webrtc = {};
+export default defineStore('configStore', {
+	state: () => {
+		return {
+			webrtc: {}
 		}
 	},
-	actions:{
-		loadConfig(context){
+	actions: {
+		setConfig(config) {
+			this.webrtc = config.webrtc;
+		},
+		clear() {
+			this.webrtc = {};
+		},
+		loadConfig() {
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/system/config',
 					method: 'GET'
 				}).then((config) => {
-					console.log("系统配置",config)
-					context.commit("setConfig",config);
+					console.log("系统配置", config)
+					this.setConfig(config);
 					resolve();
-				}).catch((res)=>{
+				}).catch((res) => {
 					reject(res);
 				});
 			})
 		}
 	}
-	
-}
+})
