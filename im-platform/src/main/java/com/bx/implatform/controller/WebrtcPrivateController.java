@@ -17,7 +17,7 @@ public class WebrtcPrivateController {
 
     private final WebrtcPrivateService webrtcPrivateService;
 
-    @OnlineCheck
+
     @Operation(summary = "呼叫视频通话")
     @PostMapping("/call")
     public Result call(@RequestParam Long uid, @RequestParam(defaultValue = "video") String mode,
