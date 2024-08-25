@@ -68,7 +68,7 @@ public class WebrtcPrivateController {
         return ResultUtils.success();
     }
 
-    @Operation(summary = "获取通话信息")
+    @Operation(summary = "心跳")
     @PostMapping("/heartbeat")
     public Result heartbeat(@RequestParam Long uid) {
         webrtcPrivateService.heartbeat(uid);

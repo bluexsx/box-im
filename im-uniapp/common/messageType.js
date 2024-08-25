@@ -21,12 +21,12 @@ let isAction = function(type){
 
 // 单人通话信令
 let isRtcPrivate = function(type){
-	return type>=100 && type < 300;
+	return type>=100 && type < 200;
 }
 
 // 多人通话信令
 let isRtcGroup = function(type){
-	return type>=200 && type < 400;
+	return type>=200 && type < 300;
 }
 
 
