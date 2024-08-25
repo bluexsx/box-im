@@ -61,6 +61,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void setup(WebrtcGroupSetupDTO dto) {
         UserSession userSession = SessionContext.getSession();
+        log.info("发起群通话,sid:{},群id:{}", userSession.getUserId(), dto.getGroupId());
         groupService.getAndCheckById(dto.getGroupId());
         if (dto.getUserInfos().size() > webrtcConfig.getMaxChannel()) {
             throw new GlobalException("最多支持" + webrtcConfig.getMaxChannel() + "人进行通话");
@@ -126,6 +127,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void accept(Long groupId) {
         UserSession userSession = SessionContext.getSession();
+        log.info("接受群通话,sid:{},群id:{}", userSession.getUserId(), groupId);
         WebrtcGroupSession webrtcSession = getWebrtcSession(groupId);
         // 校验
         if (!isExist(webrtcSession, userSession.getUserId())) {
@@ -148,6 +150,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void reject(Long groupId) {
         UserSession userSession = SessionContext.getSession();
+        log.info("拒绝群通话,sid:{},群id:{}", userSession.getUserId(), groupId);
         WebrtcGroupSession webrtcSession = getWebrtcSession(groupId);
         // 校验
         if (!isExist(webrtcSession, userSession.getUserId())) {
@@ -175,6 +178,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void failed(WebrtcGroupFailedDTO dto) {
         UserSession userSession = SessionContext.getSession();
+        log.info("未能进入群通话,sid:{},群id:{},reason:{}", userSession.getUserId(), dto.getGroupId(), dto.getReason());
         WebrtcGroupSession webrtcSession = getWebrtcSession(dto.getGroupId());
         // 校验
         if (!isExist(webrtcSession, userSession.getUserId())) {
@@ -205,6 +209,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void join(Long groupId) {
         UserSession userSession = SessionContext.getSession();
+        log.info("加入群通话,sid:{},群id:{},reason:{}", userSession.getUserId(), groupId);
         WebrtcGroupSession webrtcSession = getWebrtcSession(groupId);
         if (webrtcSession.getUserInfos().size() >= webrtcConfig.getMaxChannel()) {
             throw new GlobalException("人员已满，无法进入通话");
@@ -245,6 +250,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void invite(WebrtcGroupInviteDTO dto) {
         UserSession userSession = SessionContext.getSession();
+        log.info("邀请成员加入群通话,sid:{},群id:{}", userSession.getUserId(), dto.getGroupId());
         WebrtcGroupSession webrtcSession = getWebrtcSession(dto.getGroupId());
         if (webrtcSession.getUserInfos().size() + dto.getUserInfos().size() > webrtcConfig.getMaxChannel()) {
             throw new GlobalException("最多支持" + webrtcConfig.getMaxChannel() + "人进行通话");
@@ -309,6 +315,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void cancel(Long groupId) {
         UserSession userSession = SessionContext.getSession();
+        log.info("取消群通话,sid:{},群id:{}", userSession.getUserId(), groupId);
         WebrtcGroupSession webrtcSession = getWebrtcSession(groupId);
         if (!userSession.getUserId().equals(webrtcSession.getHost().getId())) {
             throw new GlobalException("只有发起人可以取消通话");
@@ -330,6 +337,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
     @Override
     public void quit(Long groupId) {
         UserSession userSession = SessionContext.getSession();
+        log.info("退出群通话,sid:{},群id:{}", userSession.getUserId(), groupId);
         WebrtcGroupSession webrtcSession = getWebrtcSession(groupId);
         // 将用户从列表中移除
         List<IMUserInfo> inChatUsers =

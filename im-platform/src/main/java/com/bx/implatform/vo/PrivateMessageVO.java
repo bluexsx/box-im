@@ -23,7 +23,7 @@ public class PrivateMessageVO {
     @Schema(description = " 发送内容")
     private String content;
 
-    @Schema(description = "消息内容类型 IMCmdType")
+    @Schema(description = "消息内容类型 MessageType")
     private Integer type;
 
     @Schema(description = " 状态")

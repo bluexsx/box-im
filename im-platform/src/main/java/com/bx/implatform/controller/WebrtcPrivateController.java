@@ -17,7 +17,7 @@ public class WebrtcPrivateController {
 
     private final WebrtcPrivateService webrtcPrivateService;
 
-    @OnlineCheck
+
     @Operation(summary = "呼叫视频通话")
     @PostMapping("/call")
     public Result call(@RequestParam Long uid, @RequestParam(defaultValue = "video") String mode,
@@ -68,7 +68,7 @@ public class WebrtcPrivateController {
         return ResultUtils.success();
     }
 
-    @Operation(summary = "获取通话信息")
+    @Operation(summary = "心跳")
     @PostMapping("/heartbeat")
     public Result heartbeat(@RequestParam Long uid) {
         webrtcPrivateService.heartbeat(uid);
