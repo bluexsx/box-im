@@ -102,22 +102,22 @@ export default {
 			chats[idx].stored = false;
 			this.commit("saveToStorage");
 		},
-		removePrivateChat(state,friendId){
+		removePrivateChat(state, friendId) {
 			let chats = this.getters.findChats();
 			for (let idx in chats) {
 				if (chats[idx].type == 'PRIVATE' &&
 					chats[idx].targetId === friendId) {
-					this.commit("removeChat",idx)
+					this.commit("removeChat", idx)
 					break;
 				}
 			}
 		},
-		removeGroupChat(state,groupId){
+		removeGroupChat(state, groupId) {
 			let chats = this.getters.findChats();
 			for (let idx in chats) {
 				if (chats[idx].type == 'GROUP' &&
 					chats[idx].targetId === groupId) {
-					this.commit("removeChat",idx)
+					this.commit("removeChat", idx)
 					break;
 				}
 			}
@@ -322,6 +322,8 @@ export default {
 				chatKeys: chatKeys
 			}
 			localForage.setItem(key, chatsData)
+			// 清理已删除的会话
+			state.chats = state.chats.filter(chat => !chat.delete)
 		},
 		clear(state) {
 			cacheChats = []
@@ -337,12 +339,11 @@ export default {
 				localForage.getItem(key).then((chatsData) => {
 					if (!chatsData) {
 						resolve();
-					}
-					else if(chatsData.chats){
+					} else if (chatsData.chats) {
 						// 兼容旧版本
 						context.commit("initChats", chatsData);
 						resolve();
-					}else if (chatsData.chatKeys) {
+					} else if (chatsData.chatKeys) {
 						const promises = [];
 						chatsData.chatKeys.forEach(key => {
 							promises.push(localForage.getItem(key))

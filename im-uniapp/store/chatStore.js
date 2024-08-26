@@ -335,6 +335,8 @@ export default defineStore('chatStore', {
 				chatKeys: chatKeys
 			}
 			uni.setStorageSync(key, chatsData)
+			// 清理已删除的会话
+			this.chats = this.chats.filter(chat => !chat.delete)
 		},
 		clear(state) {
 			cacheChats = [];
