@@ -3,6 +3,7 @@ package com.bx.implatform.service.impl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.implatform.annotation.OnlineCheck;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
@@ -37,9 +38,11 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
     private final PrivateMessageService privateMessageService;
     private final UserStateUtils userStateUtils;
 
+    @OnlineCheck
     @Override
     public void call(Long uid, String mode, String offer) {
         UserSession session = SessionContext.getSession();
+        log.info("发起呼叫,sid:{},uid:{}", session.getUserId(), uid);
         // 创建webrtc会话
         WebrtcPrivateSession webrtcSession = new WebrtcPrivateSession();
         webrtcSession.setCallerId(session.getUserId());
@@ -48,11 +51,13 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         webrtcSession.setMode(mode);
         // 校验
         if (!imClient.isOnline(uid)) {
-            this.sendActMessage(webrtcSession,MessageStatus.UNSEND,"未接通");
+            this.sendActMessage(webrtcSession, MessageStatus.UNSEND, "未接通");
+            log.info("对方不在线,uid:{}", uid);
             throw new GlobalException("对方目前不在线");
         }
         if (userStateUtils.isBusy(uid)) {
-            this.sendActMessage(webrtcSession,MessageStatus.UNSEND,"未接通");
+            this.sendActMessage(webrtcSession, MessageStatus.UNSEND, "未接通");
+            log.info("对方正忙,uid:{}", uid);
             throw new GlobalException("对方正忙");
         }
         // 保存rtc session
@@ -83,6 +88,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
     @Override
     public void accept(Long uid, @RequestBody String answer) {
         UserSession session = SessionContext.getSession();
+        log.info("接受通话,sid:{},uid:{}", session.getUserId(), uid);
         // 查询webrtc会话
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 更新接受者信息
@@ -112,6 +118,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
     @Override
     public void reject(Long uid) {
         UserSession session = SessionContext.getSession();
+        log.info("拒绝通话,sid:{},uid:{}", session.getUserId(), uid);
         // 查询webrtc会话
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
@@ -135,12 +142,13 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
         // 生成通话消息
-        sendActMessage(webrtcSession, MessageStatus.READED,"已拒绝");
+        sendActMessage(webrtcSession, MessageStatus.READED, "已拒绝");
     }
 
     @Override
     public void cancel(Long uid) {
         UserSession session = SessionContext.getSession();
+        log.info("取消通话,sid:{},uid:{}", session.getUserId(), uid);
         // 查询webrtc会话
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
@@ -163,12 +171,13 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
         // 生成通话消息
-        sendActMessage(webrtcSession, MessageStatus.UNSEND,"已取消");
+        sendActMessage(webrtcSession, MessageStatus.UNSEND, "已取消");
     }
 
     @Override
     public void failed(Long uid, String reason) {
         UserSession session = SessionContext.getSession();
+        log.info("通话失败,sid:{},uid:{},reason:{}", session.getUserId(), uid, reason);
         // 查询webrtc会话
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
@@ -193,12 +202,13 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
         // 生成消息
-        sendActMessage(webrtcSession, MessageStatus.READED,"未接通");
+        sendActMessage(webrtcSession, MessageStatus.READED, "未接通");
     }
 
     @Override
     public void handup(Long uid) {
         UserSession session = SessionContext.getSession();
+        log.info("挂断通话,sid:{},uid:{}", session.getUserId(), uid);
         // 查询webrtc会话
         WebrtcPrivateSession webrtcSession = getWebrtcSession(session.getUserId(), uid);
         // 删除会话信息
@@ -223,7 +233,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
         // 生成通话消息
-        sendActMessage(webrtcSession, MessageStatus.READED,"通话时长 " + chatTimeText(webrtcSession));
+        sendActMessage(webrtcSession, MessageStatus.READED, "通话时长 " + chatTimeText(webrtcSession));
     }
 
     @Override
@@ -286,7 +296,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         return webrtcSession.getAcceptorTerminal();
     }
 
-    private void sendActMessage(WebrtcPrivateSession rtcSession, MessageStatus status,String content) {
+    private void sendActMessage(WebrtcPrivateSession rtcSession, MessageStatus status, String content) {
         // 保存消息
         PrivateMessage msg = new PrivateMessage();
         msg.setSendId(rtcSession.getCallerId());
@@ -313,7 +323,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
     }
 
     private String chatTimeText(WebrtcPrivateSession rtcSession) {
-        long chatTime = (System.currentTimeMillis() - rtcSession.getChatTimeStamp())/1000;
+        long chatTime = (System.currentTimeMillis() - rtcSession.getChatTimeStamp()) / 1000;
         int min = Math.abs((int)chatTime / 60);
         int sec = Math.abs((int)chatTime % 60);
         String strTime = min < 10 ? "0" : "";

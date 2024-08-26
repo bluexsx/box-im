@@ -114,7 +114,7 @@ public class WebrtcGroupController {
         return ResultUtils.success(webrtcGroupService.info(groupId));
     }
 
-    @Operation(summary = "获取通话信息")
+    @Operation(summary = "心跳")
     @PostMapping("/heartbeat")
     public Result heartbeat(@RequestParam("groupId") Long groupId) {
         webrtcGroupService.heartbeat(groupId);

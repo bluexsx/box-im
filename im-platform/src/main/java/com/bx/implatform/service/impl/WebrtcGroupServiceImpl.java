@@ -323,7 +323,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
         sendRtcMessage1(MessageType.RTC_GROUP_CANCEL, groupId, recvIds, "", false);
         // 发送文字提示信息
         sendTipMessage(groupId, "通话结束");
-        log.info("发起人取消群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
+        log.info("取消群通话,userId:{},groupId:{}", userSession.getUserId(), groupId);
     }
 
     @RedisLock(prefixKey = RedisKey.IM_LOCK_RTC_GROUP, key = "#groupId")
@@ -372,7 +372,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
         WebrtcGroupSession webrtcSession = getWebrtcSession(dto.getGroupId());
         IMUserInfo userInfo = findInChatUser(webrtcSession, dto.getUserId());
         if (Objects.isNull(userInfo)) {
-            log.info("对方未加入群通话,userId:{},对方id:{},groupId:{}", userSession.getUserId(), dto.getUserId(),
+            log.warn("对方未加入群通话,userId:{},对方id:{},groupId:{}", userSession.getUserId(), dto.getUserId(),
                 dto.getGroupId());
             return;
         }
@@ -389,7 +389,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
         IMUserInfo userInfo = findInChatUser(webrtcSession, dto.getUserId());
         if (Objects.isNull(userInfo)) {
             // 对方未加入群通话
-            log.info("对方未加入群通话,userId:{},对方id:{},groupId:{}", userSession.getUserId(), dto.getUserId(),
+            log.warn("对方未加入群通话,userId:{},对方id:{},groupId:{}", userSession.getUserId(), dto.getUserId(),
                 dto.getGroupId());
             return;
         }
@@ -406,7 +406,7 @@ public class WebrtcGroupServiceImpl implements WebrtcGroupService {
         IMUserInfo userInfo = findInChatUser(webrtcSession, dto.getUserId());
         if (Objects.isNull(userInfo)) {
             // 对方未加入群通话
-            log.info("对方未加入群通话,无法同步candidate,userId:{},remoteUserId:{},groupId:{}", userSession.getUserId(),
+            log.warn("对方未加入群通话,无法同步candidate,userId:{},remoteUserId:{},groupId:{}", userSession.getUserId(),
                 dto.getUserId(), dto.getGroupId());
             return;
         }
