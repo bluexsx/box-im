@@ -52,11 +52,6 @@ public class RedisMQPullTask implements CommandLineRunner {
                 public void run() {
                     List<Object> datas = new LinkedList<>();
                     try {
-                        if(redisMQTemplate.isClose()){
-                            // 如果redis未初始化或已断开，3s后再重新尝试消费
-                            EXECUTOR.schedule(this, 3, TimeUnit.SECONDS);
-                            return;
-                        }
                         if (consumer.isReady()) {
                             String key = consumer.generateKey();
                             // 拉取一个批次的数据
@@ -75,6 +70,8 @@ public class RedisMQPullTask implements CommandLineRunner {
                         }
                     } catch (Exception e) {
                         log.error("数据消费异常,队列:{}", queue, e);
+                        // 出现异常，10s后再重新尝试消费
+                        EXECUTOR.schedule(this, 10, TimeUnit.SECONDS);
                         return;
                     }
                     // 继续消费数据

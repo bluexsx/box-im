@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 敏感词过滤器——SensitiveFilter
@@ -35,7 +34,7 @@ public final class SensitiveFilterUtil {
     /**
      * 根节点
      */
-    private static final TrieNode ROOT_NODE = new TrieNode();
+    private static  TrieNode ROOT_NODE = new TrieNode();
 
     /**
      * 线程池
@@ -86,41 +85,41 @@ public final class SensitiveFilterUtil {
      * @date 2023/12/4 11:18
      */
     @PostConstruct
-    public void init() {
-        // 每120s装载一次敏感词
-        EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
-            List<String> keywords = sensitiveWordService.findAllEnabledWords();
-            keywords.forEach(keyword->{
-                if(StrUtil.isNotEmpty(keyword)){
-                    // 添加到前缀树
-                    addKeyword(keyword);
-                }
-            });
-        },0,120, TimeUnit.SECONDS);
+    public void reload() {
+        // 使用copy on write的方式，防止出现并发问题
+        TrieNode newNode = new TrieNode();
+        List<String> keywords = sensitiveWordService.findAllEnabledWords();
+        keywords.forEach(keyword -> {
+            if (StrUtil.isNotEmpty(keyword)) {
+                // 添加到前缀树
+                addKeyword(newNode,keyword);
+            }
+        });
+        ROOT_NODE = newNode;
     }
 
     /**
      * 3、将一个敏感词添加到前缀树中
      *
+     * @param node
      * @param keyword
      * @author NXY
      * @date 2023/12/4 11:15
      */
-    private void addKeyword(String keyword) {
-        TrieNode tempNode = ROOT_NODE;
+    private void addKeyword(TrieNode node, String keyword) {
         for (int i = 0; i < keyword.length(); i++) {
             char c = keyword.charAt(i);
-            TrieNode subNode = tempNode.getSubNode(c);
+            TrieNode subNode = node.getSubNode(c);
             if (subNode == null) {
                 // 初始化子节点
                 subNode = new TrieNode();
-                tempNode.addSubNode(c, subNode);
+                node.addSubNode(c, subNode);
             }
             // 指向子节点,进入下一轮循环
-            tempNode = subNode;
+            node = subNode;
             // 设置结束标识
             if (i == keyword.length() - 1) {
-                tempNode.setKeywordEnd(true);
+                node.setKeywordEnd(true);
             }
         }
     }
@@ -195,9 +194,9 @@ public final class SensitiveFilterUtil {
     /**
      * 判断是否为符号 ——特殊符号
      *
+     * @return boolean
      * @author NXY
      * @date 2023/12/4 11:17
-     * @return boolean
      */
     private boolean isSymbol(Character c) {
         // 0x2E80~0x9FFF 是东亚文字范围

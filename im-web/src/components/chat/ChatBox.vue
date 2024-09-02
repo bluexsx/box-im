@@ -156,9 +156,9 @@
 				let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 				msgInfo.content = JSON.stringify(data);
 				msgInfo.receipt = this.isReceipt;
-				this.sendMessageRequest(msgInfo).then((id) => {
+				this.sendMessageRequest(msgInfo).then((m) => {
 					msgInfo.loadStatus = 'ok';
-					msgInfo.id = id;
+					msgInfo.id = m.id;
 					this.isReceipt = false;
 					this.$store.commit("insertMessage", msgInfo);
 				})

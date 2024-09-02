@@ -2,10 +2,9 @@ package com.bx.imcommon.mq;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -19,9 +18,10 @@ public class RedisMQTemplate extends RedisTemplate<String, Object> {
 
     public String getVersion() {
         if (version.isEmpty()) {
-            RedisConnection redisConnection = this.getConnectionFactory().getConnection();
-            Properties properties = redisConnection.info();
+            RedisConnection connection = RedisConnectionUtils.getConnection(getConnectionFactory());
+            Properties properties = connection.info();
             version = properties.getProperty("redis_version");
+            RedisConnectionUtils.releaseConnection(connection,getConnectionFactory());
         }
         return version;
     }
@@ -41,12 +41,4 @@ public class RedisMQTemplate extends RedisTemplate<String, Object> {
         return firVersion > 6 || (firVersion == 6 && secVersion >= 2);
     }
 
-
-    Boolean isClose(){
-        try {
-            return  getConnectionFactory().getConnection().isClosed();
-        }catch (Exception e){
-            return true;
-        }
-    }
 }
