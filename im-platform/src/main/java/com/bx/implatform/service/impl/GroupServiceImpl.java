@@ -114,7 +114,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 群聊用户id
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(groupId);
         // 逻辑删除群数据
-        group.setDeleted(true);
+        group.setDissolve(true);
         this.updateById(group);
         // 删除成员数据
         groupMemberService.removeByGroupId(groupId);
@@ -190,7 +190,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if (Objects.isNull(group)) {
             throw new GlobalException("群组不存在");
         }
-        if (group.getDeleted()) {
+        if (group.getDissolve()) {
             throw new GlobalException("群组'" + group.getName() + "'已解散");
         }
         if (group.getIsBanned()) {

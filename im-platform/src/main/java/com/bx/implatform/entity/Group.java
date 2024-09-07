@@ -65,7 +65,7 @@ public class Group {
     /**
      * 是否已删除
      */
-    private Boolean deleted;
+    private Boolean dissolve;
 
 
 
