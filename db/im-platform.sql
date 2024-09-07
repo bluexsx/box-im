@@ -49,7 +49,7 @@ create table `im_group`(
     `notice` varchar(1024)  default '' comment '群公告',
     `is_banned` tinyint(1) default 0 comment '是否被封禁 0:否 1:是',
     `reason` varchar(255) default '' comment '被封禁原因',
-    `deleted` tinyint(1) default 0   comment '是否已删除',
+    `dissolve` tinyint(1) default 0   comment '是否已解散',
     `created_time` datetime default CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB CHARSET=utf8mb4 comment '群';
 

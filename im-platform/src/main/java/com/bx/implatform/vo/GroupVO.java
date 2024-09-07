@@ -44,8 +44,8 @@ public class GroupVO {
     @Schema(description = "群名备注")
     private String remarkGroupName;
 
-    @Schema(description = "是否已删除")
-    private Boolean deleted;
+    @Schema(description = "是否已解散")
+    private Boolean dissolve;
 
     @Schema(description = "是否已退出")
     private Boolean quit;
