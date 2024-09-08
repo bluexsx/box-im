@@ -26,27 +26,29 @@ public class SystemMessageProcessor extends AbstractMessageProcessor<IMRecvInfo>
 
     @Override
     public void process(IMRecvInfo recvInfo) {
-        IMUserInfo receiver = recvInfo.getReceivers().get(0);
-        log.info("接收到系统消息,接收者:{}，内容:{}",  receiver.getId(), recvInfo.getData());
-        try {
-            ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiver.getId(), receiver.getTerminal());
-            if (!Objects.isNull(channelCtx)) {
-                // 推送消息到用户
-                IMSendInfo<Object> sendInfo = new IMSendInfo<>();
-                sendInfo.setCmd(IMCmdType.SYSTEM_MESSAGE.code());
-                sendInfo.setData(recvInfo.getData());
-                channelCtx.channel().writeAndFlush(sendInfo);
-                // 消息发送成功确认
-                sendResult(recvInfo, IMSendCode.SUCCESS);
-            } else {
+        log.info("接收到系统消息,接收用户数量:{}，内容:{}",  recvInfo.getReceivers().size(), recvInfo.getData());
+        for (IMUserInfo receiver : recvInfo.getReceivers()) {
+            try {
+                ChannelHandlerContext channelCtx =
+                    UserChannelCtxMap.getChannelCtx(receiver.getId(), receiver.getTerminal());
+                if (!Objects.isNull(channelCtx)) {
+                    // 推送消息到用户
+                    IMSendInfo<Object> sendInfo = new IMSendInfo<>();
+                    sendInfo.setCmd(IMCmdType.SYSTEM_MESSAGE.code());
+                    sendInfo.setData(recvInfo.getData());
+                    channelCtx.channel().writeAndFlush(sendInfo);
+                    // 消息发送成功确认
+                    sendResult(recvInfo, IMSendCode.SUCCESS);
+                } else {
+                    // 消息推送失败确认
+                    sendResult(recvInfo, IMSendCode.NOT_FIND_CHANNEL);
+                    log.error("未找到channel，接收者:{}，内容:{}", receiver.getId(), recvInfo.getData());
+                }
+            } catch (Exception e) {
                 // 消息推送失败确认
-                sendResult(recvInfo, IMSendCode.NOT_FIND_CHANNEL);
-                log.error("未找到channel，接收者:{}，内容:{}",receiver.getId(), recvInfo.getData());
+                sendResult(recvInfo, IMSendCode.UNKONW_ERROR);
+                log.error("发送异常，,接收者:{}，内容:{}", receiver.getId(), recvInfo.getData(), e);
             }
-        } catch (Exception e) {
-            // 消息推送失败确认
-            sendResult(recvInfo, IMSendCode.UNKONW_ERROR);
-            log.error("发送异常，,接收者:{}，内容:{}", receiver.getId(), recvInfo.getData(), e);
         }
 
     }
