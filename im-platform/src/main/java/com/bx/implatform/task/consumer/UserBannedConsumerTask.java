@@ -1,4 +1,4 @@
-package com.bx.implatform.task;
+package com.bx.implatform.task.consumer;
 
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMSystemMessage;

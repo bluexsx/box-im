@@ -17,7 +17,7 @@
     <modules>
         <module>im-platform</module>
         <module>im-server</module>
-        <module>im-commom</module>
+        <module>im-common</module>
         <module>im-client</module>
     </modules>
 

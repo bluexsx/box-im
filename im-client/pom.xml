@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.bx</groupId>
-            <artifactId>im-commom</artifactId>
+            <artifactId>im-common</artifactId>
             <version>3.0.0</version>
         </dependency>
     </dependencies>

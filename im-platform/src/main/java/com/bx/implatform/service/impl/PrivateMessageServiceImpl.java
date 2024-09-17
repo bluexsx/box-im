@@ -56,11 +56,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         msg.setSendId(session.getUserId());
         msg.setStatus(MessageStatus.UNSEND.code());
         msg.setSendTime(new Date());
-        this.save(msg);
         // 过滤内容中的敏感词
         if (MessageType.TEXT.code().equals(dto.getType())) {
             msg.setContent(sensitiveFilterUtil.filter(dto.getContent()));
         }
+        this.save(msg);
         // 推送消息
         PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();

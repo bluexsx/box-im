@@ -1,4 +1,4 @@
-package com.bx.implatform.task;
+package com.bx.implatform.task.consumer;
 
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.enums.IMTerminalType;
@@ -8,7 +8,7 @@ import com.bx.imcommon.mq.RedisMQConsumer;
 import com.bx.imcommon.mq.RedisMQListener;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
-import com.bx.implatform.dto.GroupBanDTO;
+import com.bx.implatform.dto.GroupUnbanDTO;
 import com.bx.implatform.entity.GroupMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
@@ -31,8 +31,8 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@RedisMQListener(queue = RedisKey.IM_QUEUE_GROUP_BANNED)
-public class GroupBannedConsumerTask extends RedisMQConsumer<GroupBanDTO> {
+@RedisMQListener(queue = RedisKey.IM_QUEUE_GROUP_UNBAN)
+public class GroupUnbanConsumerTask extends RedisMQConsumer<GroupUnbanDTO> {
 
     private final IMClient imClient;
 
@@ -41,15 +41,14 @@ public class GroupBannedConsumerTask extends RedisMQConsumer<GroupBanDTO> {
     private final GroupMemberService groupMemberService;
 
     @Override
-    public void onMessage(GroupBanDTO dto) {
-        log.info("群聊被封禁处理,群id:{},原因:{}", dto.getId(), dto.getReason());
+    public void onMessage(GroupUnbanDTO dto) {
+        log.info("群聊解除封禁处理,群id:{}",dto.getId());
         // 群聊成员列表
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(dto.getId());
         // 保存消息
         GroupMessage msg = new GroupMessage();
         msg.setGroupId(dto.getId());
-        String tip = "本群聊已被管理员封禁,原因:" + dto.getReason();
-        msg.setContent(tip);
+        msg.setContent("已解除封禁");
         msg.setSendId(Constant.SYS_USER_ID);
         msg.setSendTime(new Date());
         msg.setStatus(MessageStatus.UNSEND.code());
