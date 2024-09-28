@@ -17,14 +17,14 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 /**
- * TCP服务器,用于连接非网页的客户端,协议格式： 4字节内容的长度+IMSendInfo的JSON序列化
+ * TCP服务器,用于连接非网页的客户端,协议格式： 8字节内容的长度+IMSendInfo的JSON序列化
  *
  * @author Blue
  * @date 2022-11-20
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "tcpsocket", value = "enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "tcpsocket", value = "enable", havingValue = "true", matchIfMissing = false)
 public class TcpSocketServer implements IMServer {
 
     private volatile boolean ready = false;

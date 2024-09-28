@@ -73,11 +73,12 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         msg.setSendTime(new Date());
         msg.setSendNickName(member.getShowNickName());
         msg.setAtUserIds(CommaTextUtils.asText(dto.getAtUserIds()));
-        this.save(msg);
         // 过滤内容中的敏感词
         if(MessageType.TEXT.code().equals(dto.getType())){
             msg.setContent(sensitiveFilterUtil.filter(dto.getContent()));
         }
+        this.save(msg);
+
         // 群发
         GroupMessageVO msgInfo = BeanUtils.copyProperties(msg, GroupMessageVO.class);
         msgInfo.setAtUserIds(dto.getAtUserIds());
