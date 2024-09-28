@@ -11,6 +11,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @Slf4j
 @EnableAspectJAutoProxy(exposeProxy = true)
+@ComponentScan(basePackages = {"com.bx"})
 @MapperScan(basePackages = {"com.bx.implatform.mapper"})
 @SpringBootApplication
 public class IMPlatformApp {

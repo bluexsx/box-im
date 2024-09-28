@@ -8,11 +8,11 @@ import com.bx.imcommon.model.IMRecvInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.IMSendResult;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.imcommon.mq.RedisMQTemplate;
 import com.bx.imserver.netty.UserChannelCtxMap;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisMQTemplate redisMQTemplate;
 
     @Override
     public void process(IMRecvInfo recvInfo) {
@@ -35,7 +35,7 @@ public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> 
                 ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiver.getId(), receiver.getTerminal());
                 if (!Objects.isNull(channelCtx)) {
                     // 推送消息到用户
-                    IMSendInfo sendInfo = new IMSendInfo();
+                    IMSendInfo<Object> sendInfo = new IMSendInfo<>();
                     sendInfo.setCmd(IMCmdType.GROUP_MESSAGE.code());
                     sendInfo.setData(recvInfo.getData());
                     channelCtx.channel().writeAndFlush(sendInfo);
@@ -58,14 +58,14 @@ public class GroupMessageProcessor extends AbstractMessageProcessor<IMRecvInfo> 
 
     private void sendResult(IMRecvInfo recvInfo, IMUserInfo receiver, IMSendCode sendCode) {
         if (recvInfo.getSendResult()) {
-            IMSendResult result = new IMSendResult();
+            IMSendResult<Object> result = new IMSendResult<>();
             result.setSender(recvInfo.getSender());
             result.setReceiver(receiver);
             result.setCode(sendCode.code());
             result.setData(recvInfo.getData());
             // 推送到结果队列
             String key = StrUtil.join(":",IMRedisKey.IM_RESULT_GROUP_QUEUE,recvInfo.getServiceName());
-            redisTemplate.opsForList().rightPush(key, result);
+            redisMQTemplate.opsForList().rightPush(key, result);
         }
     }
 }

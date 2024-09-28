@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "websocket", value = "enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "websocket", value = "enable", havingValue = "true", matchIfMissing = false)
 public class WebSocketServer implements IMServer {
 
     @Value("${websocket.port}")
