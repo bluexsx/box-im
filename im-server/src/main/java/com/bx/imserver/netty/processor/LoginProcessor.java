@@ -8,6 +8,7 @@ import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMLoginInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.IMSessionInfo;
+import com.bx.imcommon.mq.RedisMQTemplate;
 import com.bx.imcommon.util.JwtUtil;
 import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.IMServerGroup;
@@ -17,7 +18,6 @@ import io.netty.util.AttributeKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisMQTemplate redisMQTemplate;
 
     @Value("${jwt.accessToken.secret}")
     private String accessTokenSecret;
@@ -66,7 +66,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         ctx.channel().attr(heartBeatAttr).set(0L);
         // 在redis上记录每个user的channelId，15秒没有心跳，则自动过期
         String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
-        redisTemplate.opsForValue().set(key, IMServerGroup.serverId, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
+        redisMQTemplate.opsForValue().set(key, IMServerGroup.serverId, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         IMSendInfo<Object> sendInfo = new IMSendInfo<>();
         sendInfo.setCmd(IMCmdType.LOGIN.code());
