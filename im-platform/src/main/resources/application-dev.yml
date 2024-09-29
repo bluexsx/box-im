@@ -12,7 +12,7 @@ spring:
 
 minio:
   endpoint: http://127.0.0.1:9000 #内网地址
-  public: http://127.0.0.1:9000  #外网访问地址
+  domain: http://127.0.0.1:9000  #外网访问地址
   accessKey: minioadmin
   secretKey: minioadmin
   bucketName: box-im
