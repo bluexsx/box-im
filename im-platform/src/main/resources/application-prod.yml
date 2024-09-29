@@ -12,7 +12,7 @@ spring:
 
 minio:
   endpoint: http://127.0.0.1:9001 #内网地址
-  public: https://www.boxim.online/file  #外网访问地址
+  domain: https://www.boxim.online/file  #外网访问地址
   accessKey: admin
   secretKey: 3fBSt6AkgFuD77D6
   bucketName: box-im

@@ -3,7 +3,7 @@ package com.bx.implatform.interceptor;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.bx.imcommon.util.JwtUtil;
-import com.bx.implatform.config.JwtProperties;
+import com.bx.implatform.config.props.JwtProperties;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.session.UserSession;

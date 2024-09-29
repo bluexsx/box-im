@@ -3,25 +3,17 @@
 		<div class="login-content">
 			<div class="login-intro">
 				<div>
-					<h3>盒子IM 3.0版本已上线(2024-08-04)：</h3>
+					<h3>盒子IM商业版已上线(2024-10-01):</h3>
 					<ul>
-						<li>后台管理端上线,后台管理代码仓库地址:https://gitee.com/bluexsx/box-im-admin</li>
-						<li>框架和组件版本全面升级: jdk17、springboot3.3、node18等</li>
-						<li>部分界面，功能、性能优化</li>
-						<li>语雀详细文档:
-							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">盒子IM详细介绍文档</a>
+						<li>
+							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">详细介绍文档</a>
+						</li>
+						<li>
+							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">商业版付费说明</a>
 						</li>
 					</ul>
 				</div>
-				<div>
-					<h3>温馨提示：</h3>
-					<ul>
-						<li>在管理后台可以看到所有人的消息,请小伙伴们在测试时不要发送任何涉及自身隐私或机密信息,以避免信息泄露!</li>
-						<li>音视频通话部分源码未开源，可付费获取:
-							<a href="https://www.yuque.com/u1475064/mufu2a/vi7engzluty594s2" target="_blank">音视频源码购买说明</a>
-						</li>
-					</ul>
-				</div>
+				<br/>
 				<div>
 					<h3>如果本项目对您有帮助,请在Gitee上帮忙点亮star</h3>
 				</div>
@@ -181,27 +173,6 @@
 			justify-content: space-around;
 			align-items: center;
 			padding: 10%;
-
-			.login-intro {
-				flex: 1;
-				padding: 40px;
-				max-width: 600px;
-
-				.login-title {
-					text-align: center;
-					font-weight: 600;
-					font-size: 30px;
-				}
-
-				.login-icons {
-					display: flex;
-					align-items: center;
-
-					.login-icon {
-						padding-left: 5px;
-					}
-				}
-			}
 
 			.login-form {
 				height: 340px;

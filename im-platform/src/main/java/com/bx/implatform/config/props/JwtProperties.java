@@ -1,4 +1,4 @@
-package com.bx.implatform.config;
+package com.bx.implatform.config.props;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,7 +1,7 @@
 <template>
 	<div class="icp">
 		<img class="icp-icon" src="../../assets/image/icp_logo.png">
-		<a target="_blank"  href="https://beian.miit.gov.cn/">粤ICP备2022140558号-1</a>
+		<a target="_blank"  href="https://beian.miit.gov.cn/">粤ICP备xxxx号-1</a>
 	</div>
 </template>
 

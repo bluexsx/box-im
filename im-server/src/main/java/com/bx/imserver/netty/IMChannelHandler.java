@@ -3,6 +3,7 @@ package com.bx.imserver.netty;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
+import com.bx.imcommon.mq.RedisMQTemplate;
 import com.bx.imserver.constant.ChannelAttrKey;
 import com.bx.imserver.netty.processor.AbstractMessageProcessor;
 import com.bx.imserver.netty.processor.ProcessorFactory;
@@ -13,7 +14,6 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * WebSocket 长连接下 文本帧的处理器
@@ -71,7 +71,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
             // 移除channel
             UserChannelCtxMap.removeChannelCtx(userId, terminal);
             // 用户下线
-            RedisTemplate<String, Object> redisTemplate = SpringContextHolder.getBean(RedisTemplate.class);
+            RedisMQTemplate redisTemplate = SpringContextHolder.getBean(RedisMQTemplate.class);
             String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
             redisTemplate.delete(key);
             log.info("断开连接,userId:{},终端类型:{},{}", userId, terminal, ctx.channel().id().asLongText());

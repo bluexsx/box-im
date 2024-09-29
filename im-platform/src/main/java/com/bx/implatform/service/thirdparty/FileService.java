@@ -1,5 +1,6 @@
 package com.bx.implatform.service.thirdparty;
 
+import com.bx.implatform.config.props.MinioProperties;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.enums.FileType;
 import com.bx.implatform.enums.ResultCode;
@@ -13,7 +14,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * 通过校验文件MD5实现重复文件秒传
+ * todo 通过校验文件MD5实现重复文件秒传
  * 文件上传服务
  *
  * @author Blue
@@ -32,25 +32,17 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FileService {
     private final MinioUtil minioUtil;
-    @Value("${minio.public}")
-    private String minIoServer;
-    @Value("${minio.bucketName}")
-    private String bucketName;
-    @Value("${minio.imagePath}")
-    private String imagePath;
-    @Value("${minio.filePath}")
-    private String filePath;
-    @Value("${minio.videoPath}")
-    private String videoPath;
+
+    private  final MinioProperties minioProps;
 
 
     @PostConstruct
     public void init() {
-        if (!minioUtil.bucketExists(bucketName)) {
+        if (!minioUtil.bucketExists(minioProps.getBucketName())) {
             // 创建bucket
-            minioUtil.makeBucket(bucketName);
+            minioUtil.makeBucket(minioProps.getBucketName());
             // 公开bucket
-            minioUtil.setBucketPublic(bucketName);
+            minioUtil.setBucketPublic(minioProps.getBucketName());
         }
     }
 
@@ -62,7 +54,7 @@ public class FileService {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件大小不能超过20M");
         }
         // 上传
-        String fileName = minioUtil.upload(bucketName, filePath, file);
+        String fileName = minioUtil.upload(minioProps.getBucketName(), minioProps.getFilePath(), file);
         if (StringUtils.isEmpty(fileName)) {
             throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件上传失败");
         }
@@ -84,7 +76,7 @@ public class FileService {
             }
             // 上传原图
             UploadImageVO vo = new UploadImageVO();
-            String fileName = minioUtil.upload(bucketName, imagePath, file);
+            String fileName = minioUtil.upload(minioProps.getBucketName(), minioProps.getImagePath(), file);
             if (StringUtils.isEmpty(fileName)) {
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
             }
@@ -92,7 +84,7 @@ public class FileService {
             // 大于30K的文件需上传缩略图
             if (file.getSize() > 30 * 1024) {
                 byte[] imageByte = ImageUtil.compressForScale(file.getBytes(), 30);
-                fileName = minioUtil.upload(bucketName, imagePath, Objects.requireNonNull(file.getOriginalFilename()), imageByte, file.getContentType());
+                fileName = minioUtil.upload(minioProps.getBucketName(), minioProps.getImagePath(), Objects.requireNonNull(file.getOriginalFilename()), imageByte, file.getContentType());
                 if (StringUtils.isEmpty(fileName)) {
                     throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
                 }
@@ -108,16 +100,16 @@ public class FileService {
 
 
     public String generUrl(FileType fileTypeEnum, String fileName) {
-        String url = minIoServer + "/" + bucketName;
+        String url = minioProps.getDomain() + "/" + minioProps.getBucketName();
         switch (fileTypeEnum) {
             case FILE:
-                url += "/" + filePath + "/";
+                url += "/" + minioProps.getFilePath() + "/";
                 break;
             case IMAGE:
-                url += "/" + imagePath + "/";
+                url += "/" + minioProps.getImagePath() + "/";
                 break;
             case VIDEO:
-                url += "/" + videoPath + "/";
+                url += "/" + minioProps.getVideoPath() + "/";
                 break;
             default:
                 break;

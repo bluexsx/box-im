@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.util.JwtUtil;
-import com.bx.implatform.config.JwtProperties;
+import com.bx.implatform.config.props.JwtProperties;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
