@@ -40,8 +40,14 @@
 
 说明:  
 1.由于微信小程序每次发布审核过于严苛和繁琐，暂时不再提供体验环境，但uniapp端依然会继续兼容小程序  
-2.体验环境部署的是商业版本,与开源版本功能存在一定差异，具体请参考:
-https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29
+2.体验环境部署的是商业版本,与开源版本功能存在一定差异，具体请参考:  
+https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29#SbvXq
+
+#### 付费服务
+商业版源码: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29  
+远程协助: https://www.yuque.com/u1475064/imk5n2/fettd57rvzc29s5r  
+环境搭建: https://www.yuque.com/u1475064/imk5n2/qgq5cvgmavallqnl
+
 
 #### 项目结构
 | 模块          | 功能                               |
@@ -122,8 +128,10 @@ https://www.yuque.com/u1475064/mufu2a/vn5u10ephxh9sau8
 
 欢迎进群与小伙们一起交流， **申请加群前请务必先star哦** 
 
+
 #### 点下star吧
 如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
+
 
 #### 说明几点
 
