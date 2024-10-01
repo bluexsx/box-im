@@ -23,7 +23,6 @@ export default defineStore('chatStore', {
 				cacheChats.push(JSON.parse(JSON.stringify(chat)));
 				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
 				if (this.chats.length < 15) {
-					chat.messages = [];
 					this.chats.push(chat);
 				}
 			}
