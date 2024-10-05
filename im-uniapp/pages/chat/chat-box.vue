@@ -9,8 +9,8 @@
 			<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
 				<view v-if="chat" v-for="(msgInfo,idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)"
-						@call="onRtCall(msgInfo)" :showName="showName(msgInfo)" @recall="onRecallMessage"
+					<chat-message-item v-if="idx>=showMinIdx" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
+						:showName="showName(msgInfo)" @recall="onRecallMessage" @copy="onCopyMessage"
 						@delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
 						:id="'chat-item-'+idx" :msgInfo="msgInfo" :groupMembers="groupMembers">
 					</chat-message-item>
@@ -50,47 +50,46 @@
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
 						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-picture" ></view>
+						<view class="tool-icon iconfont icon-picture"></view>
 					</image-upload>
 					<view class="tool-name">相册</view>
 				</view>
 				<view class="chat-tools-item">
 					<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
 						:onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-camera" ></view>
+						<view class="tool-icon iconfont icon-camera"></view>
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
-				
+
 				<view class="chat-tools-item">
 					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
-						<view class="tool-icon iconfont icon-folder" ></view>
+						<view class="tool-icon iconfont icon-folder"></view>
 					</file-upload>
 					<view class="tool-name">文件</view>
 				</view>
-		
+
 				<view class="chat-tools-item" @click="onRecorderInput()">
-					<view class="tool-icon iconfont icon-microphone" ></view>
+					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音消息</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
-					<view class="tool-icon iconfont icon-receipt" 
-						:class="isReceipt?'active':''"></view>
+					<view class="tool-icon iconfont icon-receipt" :class="isReceipt?'active':''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
 				<!-- #ifndef MP-WEIXIN -->
 				<!-- 音视频不支持小程序 -->
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
-					<view class="tool-icon iconfont icon-video" ></view>
+					<view class="tool-icon iconfont icon-video"></view>
 					<view class="tool-name">视频通话</view>
 				</view>
 				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
-					<view class="tool-icon iconfont icon-call" ></view>
+					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
-					<view class="tool-icon iconfont icon-call" ></view>
+					<view class="tool-icon iconfont icon-call"></view>
 					<view class="tool-name">语音通话</view>
 				</view>
 				<!-- #endif -->
@@ -109,8 +108,7 @@
 			@complete="onAtComplete"></chat-at-box>
 		<!-- 群语音通话时选择成员 -->
 		<!-- #ifndef MP-WEIXIN -->
-		<group-member-selector ref="selBox" :members="groupMembers"
-			:maxSize="configStore.webrtc.maxChannel"
+		<group-member-selector ref="selBox" :members="groupMembers" :maxSize="configStore.webrtc.maxChannel"
 			@complete="onInviteOk"></group-member-selector>
 		<group-rtc-join ref="rtcJoin" :groupId="group.id"></group-rtc-join>
 		<!-- #endif -->
@@ -136,8 +134,8 @@
 				keyboardHeight: 322,
 				atUserIds: [],
 				needScrollToBottom: false, // 需要滚动到底部 
-				showMinIdx: 0, 	// 下标小于showMinIdx的消息不显示，否则可能很卡
-				reqQueue: [], 	// 请求队列
+				showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
+				reqQueue: [], // 请求队列
 				isSending: false // 是否正在发送请求
 			}
 		},
@@ -189,23 +187,13 @@
 				})
 			},
 			onGroupVideo() {
-				this.$http({
-					url: "/webrtc/group/info?groupId="+this.group.id,
-					method: 'GET'
-				}).then((rtcInfo)=>{
-					if(rtcInfo.isChating){
-						// 已在通话中，可以直接加入通话
-						this.$refs.rtcJoin.open(rtcInfo);
-					}else {
-						// 邀请成员发起通话
-						let ids = [this.mine.id];
-						this.$refs.selBox.init(ids, ids);
-						this.$refs.selBox.open();
-					}
-				})
+				// 邀请成员发起通话
+				let ids = [this.mine.id];
+				this.$refs.selBox.init(ids, ids);
+				this.$refs.selBox.open();
 			},
 			onInviteOk(ids) {
-				if(ids.length < 2){
+				if (ids.length < 2) {
 					return;
 				}
 				let users = [];
@@ -264,7 +252,6 @@
 				}
 			},
 			sendTextMessage() {
-				const timeStamp  = new Date().getTime();
 				if (!this.sendText.trim() && this.atUserIds.length == 0) {
 					return uni.showToast({
 						title: "不能发送空白信息",
@@ -283,10 +270,8 @@
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
 				this.sendMessageRequest(msgInfo).then((m) => {
-					console.log("请求耗时：",new Date().getTime()-timeStamp)
 					m.selfSend = true;
 					this.chatStore.insertMessage(m);
-					console.log("insertMessage耗时：",new Date().getTime()-timeStamp)
 					// 会话置顶
 					this.moveChatToTop();
 				}).finally(() => {
@@ -368,6 +353,7 @@
 					this.showKeyBoard = true;
 					this.switchChatTabBox('none', false)
 					this.keyboardHeight = this.rpxTopx(e.detail.height);
+					this.scrollToBottom();
 				} else {
 					this.showKeyBoard = false;
 				}
@@ -505,6 +491,17 @@
 					}
 				})
 			},
+			onCopyMessage(msgInfo) {
+				uni.setClipboardData({
+					data: msgInfo.content,
+					success: () => {
+						uni.showToast({ title: '已复制', icon: 'none' });
+					},
+					fail: () => {
+						uni.showToast({ title: '复制失败', icon: 'none' });
+					}
+				});
+			},
 			onDownloadFile(msgInfo) {
 				let url = JSON.parse(msgInfo.content).url;
 				uni.downloadFile({
@@ -622,14 +619,14 @@
 				let px = info.windowWidth * rpx / 750;
 				return Math.floor(rpx);
 			},
-			sendMessageRequest(msgInfo){
-				return  new Promise((resolve,reject)=>{
+			sendMessageRequest(msgInfo) {
+				return new Promise((resolve, reject) => {
 					// 请求入队列，防止请求"后发先至"，导致消息错序
-					this.reqQueue.push({msgInfo,resolve,reject});
+					this.reqQueue.push({ msgInfo, resolve, reject });
 					this.processReqQueue();
 				})
 			},
-			processReqQueue(){
+			processReqQueue() {
 				if (this.reqQueue.length && !this.isSending) {
 					this.isSending = true;
 					const reqData = this.reqQueue.shift();
@@ -637,18 +634,18 @@
 						url: this.messageAction,
 						method: 'post',
 						data: reqData.msgInfo
-					}).then((res)=>{
+					}).then((res) => {
 						reqData.resolve(res)
-					}).catch((e)=>{
+					}).catch((e) => {
 						reqData.reject(e)
-					}).finally(()=>{
+					}).finally(() => {
 						this.isSending = false;
 						// 发送下一条请求
 						this.processReqQueue();
 					})
 				}
 			},
-			generateId(){
+			generateId() {
 				// 生成临时id
 				return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
 			}
@@ -706,10 +703,10 @@
 				// 接收到消息时滚动到底部
 				if (newSize > oldSize) {
 					let pages = getCurrentPages();
-					let curPage = pages[pages.length-1].route;
-					if(curPage == "pages/chat/chat-box"){
+					let curPage = pages[pages.length - 1].route;
+					if (curPage == "pages/chat/chat-box") {
 						this.scrollToBottom();
-					}else {
+					} else {
 						this.needScrollToBottom = true;
 					}
 				}
@@ -743,8 +740,8 @@
 			// 复位回执消息
 			this.isReceipt = false;
 		},
-		onShow(){
-			if(this.needScrollToBottom){
+		onShow() {
+			if (this.needScrollToBottom) {
 				// 页面滚到底部
 				this.scrollToBottom();
 				this.needScrollToBottom = false;
@@ -839,6 +836,7 @@
 			border: #dddddd solid 1px;
 			background-color: #f7f8fd;
 			height: 80rpx;
+
 			.iconfont {
 				font-size: 68rpx;
 				margin: 6rpx;
@@ -857,6 +855,7 @@
 				border-radius: 20rpx;
 				font-size: 30rpx;
 				box-sizing: border-box;
+
 				.send-text-area {
 					width: 100%;
 				}
@@ -883,13 +882,14 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-						
+
 					.tool-icon {
 						padding: 28rpx;
 						font-size: 60rpx;
 						border-radius: 20%;
 						background-color: white;
 						color: black;
+
 						&.active {
 							background-color: #ddd;
 						}

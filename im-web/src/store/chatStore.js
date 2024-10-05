@@ -280,14 +280,17 @@ export default {
 			}
 		},
 		refreshChats(state) {
+			if(!cacheChats){
+				return;
+			}
 			// 排序
 			cacheChats.sort((chat1, chat2) => {
 				return chat2.lastSendTime - chat1.lastSendTime;
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
-			// 断线重连后不能使用缓存模式，否则会导致聊天窗口的消息不刷新
-			cacheChats = state.chats;
+			// 清空缓存
+			cacheChats = null;
 			this.commit("saveToStorage");
 		},
 		saveToStorage(state) {

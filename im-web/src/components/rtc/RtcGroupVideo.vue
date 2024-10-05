@@ -3,7 +3,7 @@
 			   :visible.sync="isShow" width="50%">
 		<div class='rtc-group-video'>
 			<div style="padding-top:30px;font-weight: 600; text-align: center;font-size: 16px;">
-				多人音视频通话需升级至商业版，如有需要请联系作者购买...
+				多人音视频通话属于付费功能，如有需要请联系作者购买商业版源码...
 			</div>
 			<div style="padding-top:50px; text-align: center;font-size: 16px;">
 				点击下方文档了解详细信息:
