@@ -1,5 +1,5 @@
 <script>
-	import App from './App'
+	import App from './App' 
 	import http from './common/request';
 	import * as msgType from './common/messageType';
 	import * as enums from './common/enums';

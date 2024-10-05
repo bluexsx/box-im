@@ -7,7 +7,7 @@
 		<view v-if="isShowMenu" class="pop-menu" @tap="onClose()" @contextmenu.prevent=""></view>
 		<view v-if="isShowMenu" class="menu" :style="menuStyle">
 			<view class="menu-item"  v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
-				<uni-icons :type="item.icon" :style="itemStyle(item)" size="22"></uni-icons>
+				<uni-icons class="menu-icon" :type="item.icon" :style="itemStyle(item)" size="22"></uni-icons>
 				<text :style="itemStyle(item)"> {{item.name}}</text>
 			</view>
 		</view>
@@ -110,6 +110,10 @@
 			padding: 10px;
 			justify-content: center;
 			border-bottom: 1px solid #d0d0d8;
+			
+			.menu-icon {
+				margin-right: 10rpx;
+			}
 		}
 	}
 

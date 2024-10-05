@@ -9,7 +9,7 @@
 							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">详细介绍文档</a>
 						</li>
 						<li>
-							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">商业版付费说明</a>
+							<a href="https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29" target="_blank">商业版付费说明</a>
 						</li>
 					</ul>
 				</div>
@@ -27,7 +27,6 @@
 					<a class="login-icon" href="https://github.com/bluexsx/box-im" target="_blank">
 						<img src="https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub" />
 					</a>
-
 				</div>
 			</div>
 			<el-form class="login-form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"

@@ -293,21 +293,10 @@
 				this.$eventBus.$emit("openPrivateVideo", rtcInfo);
 			},
 			onGroupVideo() {
-				this.$http({
-					url: "/webrtc/group/info?groupId=" + this.group.id,
-					method: 'GET'
-				}).then((rtcInfo) => {
-					if (rtcInfo.isChating) {
-						// 已在通话中，可以直接加入通话
-						this.$refs.rtcJoin.open(rtcInfo);
-					} else {
-						// 邀请成员发起通话
-						let ids = [this.mine.id];
-						let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
-						this.$refs.rtcSel.open(maxChannel, ids, ids);
-					}
-				})
-
+				// 邀请成员发起通话
+				let ids = [this.mine.id];
+				let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
+				this.$refs.rtcSel.open(maxChannel, ids, ids);
 			},
 			onInviteOk(members) {
 				if (members.length < 2) {

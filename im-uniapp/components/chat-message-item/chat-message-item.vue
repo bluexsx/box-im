@@ -56,7 +56,7 @@
 						</view>
 					</pop-menu>
 					<pop-menu v-if="isAction" :items="menuItems" @select="onSelectMenu">
-						<view class="chat-realtime chat-msg-text"  @click="$emit('call')">
+						<view class="chat-realtime chat-msg-text" @click="$emit('call')">
 							<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VOICE"
 								class="iconfont icon-chat-voice"></text>
 							<text v-if="msgInfo.type==$enums.MESSAGE_TYPE.ACT_RT_VIDEO"
@@ -182,12 +182,13 @@
 			},
 			menuItems() {
 				let items = [];
-				items.push({
-					key: 'DELETE',
-					name: '删除',
-					icon: 'trash',
-					color: '#e64e4e'
-				});
+				if (this.msgInfo.type == this.$enums.MESSAGE_TYPE.TEXT) {
+					items.push({
+						key: 'COPY',
+						name: '复制',
+						icon: 'bars'
+					});
+				}
 				if (this.msgInfo.selfSend && this.msgInfo.id > 0) {
 					items.push({
 						key: 'RECALL',
@@ -195,6 +196,12 @@
 						icon: 'refreshempty'
 					});
 				}
+				items.push({
+					key: 'DELETE',
+					name: '删除',
+					icon: 'trash',
+					color: '#e64e4e'
+				});
 				if (this.msgInfo.type == this.$enums.MESSAGE_TYPE.FILE) {
 					items.push({
 						key: 'DOWNLOAD',
