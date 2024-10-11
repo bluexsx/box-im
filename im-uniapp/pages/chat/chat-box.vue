@@ -653,7 +653,7 @@
 				window.addEventListener('resize', () => {
 					let keyboardHeight = initHeight - window.innerHeight;
 					if (keyboardHeight > 0) {
-						this.keyboardHeight = this.rpxTopx(keyboardHeight);
+						this.keyboardHeight = keyboardHeight - 20;
 						this.showKeyBoard = true;
 						this.switchChatTabBox('none', false)
 						this.scrollToBottom();
