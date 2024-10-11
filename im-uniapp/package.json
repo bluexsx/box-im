@@ -5,6 +5,7 @@
 	},
 	"dependencies": {
 		"js-audio-recorder": "^1.0.7",
-		"pinyin-pro": "^3.23.1"
+		"pinyin-pro": "^3.23.1",
+		"vconsole": "^3.15.1"
 	}
 }
