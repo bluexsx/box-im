@@ -307,11 +307,24 @@
 				// this.audioTip.src =  "/static/audio/tip.wav";
 				// this.audioTip.play();
 			},
-			isExpired(loginInfo) {
-				if (!loginInfo || !loginInfo.expireTime) {
-					return true;
-				}
-				return loginInfo.expireTime < new Date().getTime();
+			refreshToken(loginInfo) {
+				return new Promise((resolve, reject) => {
+					if (!loginInfo || !loginInfo.refreshToken) {
+						reject();
+					}
+					http({
+						url: '/refreshToken',
+						method: 'PUT',
+						header: {
+							refreshToken: loginInfo.refreshToken
+						}
+					}).then((newLoginInfo) => {
+						uni.setStorageSync("loginInfo", newLoginInfo)
+						resolve()
+					}).catch((e) => {
+						reject(e)
+					})
+				})
 			},
 			reconnectWs() {
 				// 已退出则不再重连
@@ -348,21 +361,21 @@
 			this.$mountStore();
 			// 登录状态校验
 			let loginInfo = uni.getStorageSync("loginInfo")
-			if (!this.isExpired(loginInfo)) {
+			this.refreshToken(loginInfo).then(() => {
 				// 初始化
 				this.init();
 				// 跳转到聊天页面
 				uni.switchTab({
 					url: "/pages/chat/chat"
 				})
-			} else {
+			}).catch(() => {
 				// 跳转到登录页
 				// #ifdef H5
 				uni.navigateTo({
 					url: "/pages/login/login"
 				})
 				// #endif
-			}
+			})
 		}
 	}
 </script>

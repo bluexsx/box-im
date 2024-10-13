@@ -13,7 +13,10 @@ import useFriendStore from '@/store/friendStore.js'
 import useGroupStore from '@/store/groupStore.js'
 import useConfigStore from '@/store/configStore.js'
 import useUserStore from '@/store/userStore.js'
-	
+
+//import VConsole from 'vconsole'
+//new VConsole();
+
 // #ifdef H5
 import * as recorder from './common/recorder-h5';
 // #endif

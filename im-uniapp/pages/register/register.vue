@@ -96,7 +96,6 @@
 					console.log("登录成功,自动跳转到聊天页面...")
 					uni.setStorageSync("userName", loginForm.userName);
 					uni.setStorageSync("password", loginForm.password);
-					loginInfo.expireTime = new Date().getTime() + loginInfo.refreshTokenExpiresIn * 1000;
 					uni.setStorageSync("loginInfo", loginInfo);
 					// 调用App.vue的初始化方法
 					getApp().init()

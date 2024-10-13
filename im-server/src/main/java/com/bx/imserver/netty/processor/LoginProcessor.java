@@ -34,7 +34,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
     private String accessTokenSecret;
 
     @Override
-    public synchronized void process(ChannelHandlerContext ctx, IMLoginInfo loginInfo) {
+    public  void process(ChannelHandlerContext ctx, IMLoginInfo loginInfo) {
         if (!JwtUtil.checkSign(loginInfo.getAccessToken(), accessTokenSecret)) {
             ctx.channel().close();
             log.warn("用户token校验不通过，强制下线,token:{}", loginInfo.getAccessToken());

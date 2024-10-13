@@ -45,7 +45,7 @@
 				@touchend.prevent="sendTextMessage()" size="mini">发送</button>
 		</view>
 
-		<view class="chat-tab-bar" v-show="chatTabBox!='none' ||showKeyBoard " :style="{height:`${keyboardHeight}px`}">
+		<view class="chat-tab-bar" v-show="chatTabBox!='none' || (showKeyBoard && !isH5) " :style="{height:`${keyboardHeight}px`}">
 			<view v-if="chatTabBox == 'tools'" class="chat-tools">
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
@@ -136,7 +136,8 @@
 				needScrollToBottom: false, // 需要滚动到底部 
 				showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
 				reqQueue: [], // 请求队列
-				isSending: false // 是否正在发送请求
+				isSending: false, // 是否正在发送请求
+				isH5: false  // h5键盘会强制推起页面，有些地方要区别对待
 			}
 		},
 		methods: {
@@ -645,6 +646,22 @@
 					})
 				}
 			},
+			listenKeyBoardForH5() {
+				// 由于H5无法触发TextArea的@keyboardheightchange事件，所以通过
+				// 监听屏幕高度变化来实现键盘监听
+				let initHeight = window.innerHeight;
+				window.addEventListener('resize', () => {
+					let keyboardHeight = initHeight - window.innerHeight;
+					if (keyboardHeight > 0) {
+						this.keyboardHeight = keyboardHeight - 20;
+						this.showKeyBoard = true;
+						this.switchChatTabBox('none', false)
+						this.scrollToBottom();
+					} else {
+						this.showKeyBoard = false;
+					}
+				});
+			},
 			generateId() {
 				// 生成临时id
 				return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
@@ -721,6 +738,10 @@
 			}
 		},
 		onLoad(options) {
+			// #ifdef H5
+				this.isH5 = true;
+				this.listenKeyBoardForH5();
+			// #endif
 			// 聊天数据
 			this.chat = this.chatStore.chats[options.chatIdx];
 			// 初始状态只显示20条消息

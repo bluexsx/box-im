@@ -13,13 +13,7 @@ export default defineConfig({
 				logLevel: 'debug',
 				target: 'http://127.0.0.1:8888',
 				changeOrigin: true
-			},
-			
-		},
-		// 音视频功能需要ssl证书，如需调试请打开注释
-		// https: {
-		// 	cert: fs.readFileSync(path.join(__dirname, 'ssl/cert.crt')),
-		// 	key: fs.readFileSync(path.join(__dirname, 'ssl/cert.key'))
-		// }
+			}
+		}
 	}
 })

@@ -42,7 +42,6 @@ const request = (options) => {
 						return;
 					}
 					let newInfo = res.data.data;
-					newInfo.expireTime = new Date().getTime() + newInfo.refreshTokenExpiresIn*1000;
 					uni.setStorageSync("loginInfo", newInfo);
 					requestList.forEach(cb => cb());
 					requestList = [];
