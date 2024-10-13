@@ -123,7 +123,6 @@
 			resetForm(formName) {
 				this.$refs[formName].resetFields();
 			},
-			// 获取cookie、
 			getCookie(name) {
 				let reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
 				let arr = document.cookie.match(reg)
@@ -132,22 +131,10 @@
 				}
 				return '';
 			},
-			// 设置cookie,增加到vue实例方便全局调用
-			setCookie(name, value, expiredays) {
-				var exdate = new Date();
-				exdate.setDate(exdate.getDate() + expiredays);
-				document.cookie = name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exdate
-					.toGMTString());
-			},
-			// 删除cookie
-			delCookie(name) {
-				var exp = new Date();
-				exp.setTime(exp.getTime() - 1);
-				var cval = this.getCookie(name);
-				if (cval != null) {
-					document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
-				}
+			setCookie(name, value) {
+				document.cookie = name + "=" + escape(value);
 			}
+
 		},
 		mounted() {
 			this.loginForm.userName = this.getCookie("username");
