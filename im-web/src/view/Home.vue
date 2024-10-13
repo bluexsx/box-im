@@ -178,7 +178,6 @@
 				})
 			},
 			insertPrivateMessage(friend, msg) {
-
 				let chatInfo = {
 					type: 'PRIVATE',
 					targetId: friend.id,
@@ -238,7 +237,6 @@
 				})
 			},
 			insertGroupMessage(group, msg) {
-
 				let chatInfo = {
 					type: 'GROUP',
 					targetId: group.id,
@@ -257,7 +255,6 @@
 			},
 			handleSystemMessage(msg){
 				// 用户被封禁
-				
 				if (msg.type == this.$enums.MESSAGE_TYPE.USER_BANNED) {
 					this.$wsApi.close(3000);
 					this.$alert("您的账号已被管理员封禁,原因:"+ msg.content, "账号被封禁", {
@@ -287,7 +284,6 @@
 					audio.src = url;
 					audio.play();
 				}
-
 			},
 			showSetting() {
 				this.showSettingDialog = true;
