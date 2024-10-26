@@ -289,7 +289,7 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
-			// 清空缓存
+			// 清空缓存,不再使用
 			cacheChats = null;
 			this.commit("saveToStorage");
 		},
@@ -369,7 +369,10 @@ export default {
 			return state.loadingPrivateMsg || state.loadingGroupMsg
 		},
 		findChats: (state, getters) => () => {
-			return getters.isLoading() ? cacheChats : state.chats;
+			if(cacheChats && getters.isLoading()){
+				return cacheChats;
+			}
+			return state.chats;
 		},
 		findChatIdx: (state, getters) => (chat) => {
 			let chats = getters.findChats();

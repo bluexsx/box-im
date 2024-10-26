@@ -1,7 +1,6 @@
 <template>
 	<view class="page chat-box">
 		<view class="header">
-			<uni-icons class="btn-side left" type="back" size="30" @click="onNavBack()"></uni-icons>
 			<text class="title">{{title}}</text>
 			<uni-icons class="btn-side right" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
 		</view>
@@ -343,11 +342,6 @@
 			},
 			selectEmoji(emoText) {
 				this.sendText += `#${emoText};`;
-			},
-			onNavBack() {
-				uni.switchTab({
-					url: "/pages/chat/chat"
-				})
 			},
 			onKeyboardheightchange(e) {
 				if (e.detail.height > 0) {
@@ -796,10 +790,6 @@
 				line-height: 60rpx;
 				font-size: 28rpx;
 				cursor: pointer;
-
-				&.left {
-					left: 30rpx;
-				}
 
 				&.right {
 					right: 30rpx;

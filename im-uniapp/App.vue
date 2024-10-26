@@ -311,6 +311,7 @@
 				return new Promise((resolve, reject) => {
 					if (!loginInfo || !loginInfo.refreshToken) {
 						reject();
+						return;
 					}
 					http({
 						url: '/refreshToken',
