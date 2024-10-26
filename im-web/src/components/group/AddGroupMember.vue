@@ -2,8 +2,7 @@
 	<el-dialog title="邀请好友" :visible.sync="visible" width="50%" :before-close="onClose">
 		<div class="agm-container">
 			<div class="agm-l-box">
-				<el-input placeholder="搜索好友" v-model="searchText"
-					@keyup.enter.native="onSearch()">
+				<el-input placeholder="搜索好友" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="suffix"> </i>
 				</el-input>
 				<el-scrollbar style="height:400px;">

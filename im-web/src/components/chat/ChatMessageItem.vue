@@ -36,7 +36,7 @@
 							<div class="chat-file-box" v-loading="loading">
 								<div class="chat-file-info">
 									<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
-										:href="data.url">{{ data.name }}</el-link>
+										:href="data.url" :download="data.name">{{ data.name }}</el-link>
 									<div class="chat-file-size">{{ fileSize }}</div>
 								</div>
 								<div class="chat-file-icon">

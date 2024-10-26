@@ -302,7 +302,7 @@ export default defineStore('chatStore', {
 			});
 			// 将消息一次性装载回来
 			this.chats = cacheChats;
-			// 清空缓存
+			// 清空缓存，不再使用
 			cacheChats = null;
 			this.saveToStorage();
 		},
@@ -375,7 +375,10 @@ export default defineStore('chatStore', {
 			return state.loadingPrivateMsg || state.loadingGroupMsg
 		},
 		curChats: (state) => {
-			return state.isLoading() ? cacheChats : state.chats;
+			if(cacheChats && state.isLoading()){
+				return cacheChats;
+			}
+			return state.chats;
 		},
 		findChatIdx: (state) => (chat) => {
 			let chats = state.curChats;
