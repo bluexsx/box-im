@@ -246,7 +246,8 @@
 					this.candidates.forEach((candidate) => {
 						this.API.sendCandidate(this.friend.id, candidate);
 					})
-					
+					// 开始计时
+					this.startChatTime();
 				}
 			},
 			onRTCReject(msg) {
