@@ -1,34 +1,6 @@
 <template>
 	<div class="login-view">
 		<div class="login-content">
-			<div class="login-intro">
-				<div>
-					<h3>盒子IM商业版已上线(2024-10-01):</h3>
-					<ul>
-						<li>
-							<a href="https://www.yuque.com/u1475064/mufu2a" target="_blank">详细介绍文档</a>
-						</li>
-						<li>
-							<a href="https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29" target="_blank">商业版付费说明</a>
-						</li>
-					</ul>
-				</div>
-				<br/>
-				<div>
-					<h3>如果本项目对您有帮助,请在Gitee上帮忙点亮star</h3>
-				</div>
-				<div class="login-icons">
-					<a class="login-icon">
-						<img src="https://img.shields.io/badge/license-MIT-red" />
-					</a>
-					<a class="login-icon" href="https://gitee.com/bluexsx/box-im" target="_blank">
-						<img src="https://gitee.com/bluexsx/box-im/badge/star.svg" />
-					</a>
-					<a class="login-icon" href="https://github.com/bluexsx/box-im" target="_blank">
-						<img src="https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub" />
-					</a>
-				</div>
-			</div>
 			<el-form class="login-form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
 				@keyup.enter.native="submitForm('loginForm')">
 				<div class="login-brand">登陆盒子IM</div>
