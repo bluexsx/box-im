@@ -15,9 +15,8 @@
 		name: "head-image",
 		data() {
 			return {
-				colors: ["#7dd24b", "#c7515a", "#db68ef", "#15d29b", "#85029b",
-					"#c9b455", "#fb2609", "#bda818", "#af0831", "#326eb6"
-				]
+				colors: ["#5daa31", "#c7515a", "#e03697",  "#85029b",
+				"#c9b455",  "#326eb6"]
 			}
 		},
 		props: {
@@ -50,15 +49,17 @@
 			}
 		},
 		computed: {
-			avatarImageStyle() {
-				return `width:${this.size}rpx; height:${this.size}rpx;`
-			},
-			avatarTextStyle() {
-				return `width: ${this.size}rpx;height:${this.size}rpx;
-				color:${this.textColor};font-size:${this.size*0.5}rpx;
-				border: 2px solid ${this.textColor};
-				box-shadow: 0px 0px 5rpx ${this.textColor}`
-			},
+				avatarImageStyle() {
+					return `width:${this.size}rpx;
+					height:${this.size}rpx;`
+				},
+				avatarTextStyle() {
+					return `width: ${this.size}rpx;
+					height:${this.size}rpx;
+					background-color:${this.textColor};
+					font-size:${this.size*0.5}rpx;
+					`
+				},
 			textColor() {
 				let hash = 0;
 				for (var i = 0; i < this.name.length; i++) {
@@ -79,13 +80,11 @@
 			position: relative;
 			overflow: hidden;
 			border-radius: 50%;
-			border: 2px solid #6664eb;
 			vertical-align: bottom;	
-			box-shadow: 0px 0px 10rpx #6664eb;
 		}
 
 		.avatar-text {
-			background-color: #f2f2f2;
+			color: white;
 			border-radius: 50%;
 			display: flex;
 			align-items: center;

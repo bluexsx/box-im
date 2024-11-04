@@ -3,7 +3,7 @@
 		<img class="avatar-image" v-show="url" :src="url" 
 			:style="avatarImageStyle" loading="lazy" />
 		<div class="avatar-text" v-show="!url" :style="avatarTextStyle">
-			{{name.substring(0,1).toUpperCase()}}</div>
+			{{name.substring(0,2).toUpperCase()}}</div>
 		<div v-show="online" class="online" title="用户当前在线"></div>
 		<slot></slot>
 	</div>
@@ -15,8 +15,8 @@
 		name: "headImage",
 		data() {
 			return {
-				colors:["#7dd24b","#c7515a","#db68ef","#15d29b","#85029b",
-				"#c9b455","#fb2609","#bda818","#af0831","#326eb6"]
+				colors: ["#5daa31", "#c7515a", "#e03697",  "#85029b",
+					"#c9b455",  "#326eb6"]
 
 			}
 		},
@@ -36,7 +36,7 @@
 			},
 			radius:{
 				type: String,
-				default: "10%"
+				default: "50%"
 			},
 			url: {
 				type: String
@@ -74,7 +74,8 @@
 				let w = this.width ? this.width : this.size;
 				let h = this.height ? this.height : this.size;
 				return `width: ${w}px;height:${h}px;
-					color:${this.textColor};font-size:${w*0.6}px;
+					background-color:${this.textColor};
+					font-size:${w*0.35}px;
 					border-radius: ${this.radius};`
 			},
 			textColor(){
@@ -99,8 +100,7 @@
 		}
 		
 		.avatar-text{
-			background-color: #f2f2f2; /* 默认背景色 */
-			border-radius: 15%; /* 圆角效果 */
+			color: white;
 			display: flex;
 			align-items: center;
 			justify-content: center;

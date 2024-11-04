@@ -7,12 +7,10 @@
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
-				<view class="chat-tag" v-if="chat.type=='GROUP'">
-					<uni-tag disabled text="群" size="mini" type="primary"></uni-tag>
-				</view>
-				<view class="chat-name-text">
-					{{chat.showName}}
-				</view>
+					<view class="chat-name-text">
+						<view>{{chat.showName}}</view>
+						<uni-tag v-if="chat.type=='GROUP'" circle text="群" size="small"></uni-tag>
+					</view>
 				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime,true)}}</view>
 			</view>
 			<view class="chat-content">
@@ -127,18 +125,23 @@
 				line-height: 44rpx;
 				height: 44rpx;
 
-				.chat-tag {
-					display: flex;
-					align-items: center;
-					margin-right: 5rpx;
-				}
-
 				.chat-name-text {
 					flex: 1;
 					font-size: 30rpx;
 					font-weight: 600;
 					white-space: nowrap;
 					overflow: hidden;
+					display: flex;
+					align-items: center;
+					
+					.uni-tag {
+						margin-left: 5rpx;
+						background-color: #5a60d2;
+						border: 0;
+						height: 30rpx;
+						line-height: 30rpx;
+						font-size: 20rpx;
+					}
 				}
 
 				.chat-time {
