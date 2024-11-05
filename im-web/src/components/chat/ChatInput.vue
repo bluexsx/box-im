@@ -480,7 +480,6 @@
 			left: 0;
 			right: 0;
 			bottom: 0;
-			border: 1px solid #c3c3c3;
 			outline: none;
 			padding: 5px;
 			line-height: 30px;

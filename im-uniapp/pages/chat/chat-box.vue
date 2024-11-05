@@ -780,8 +780,7 @@
 			padding: 5px;
 			background-color: #f8f8f8;
 			line-height: 50px;
-			font-size: 40rpx;
-			font-weight: 600;
+			font-size: 36rpx;
 			border: #dddddd solid 1px;
 
 

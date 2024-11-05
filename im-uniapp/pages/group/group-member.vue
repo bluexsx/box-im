@@ -1,7 +1,7 @@
 <template>
 	<view  class="page group-member">
 		<view class="search-bar">
-			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入成员昵称搜索"></uni-search-bar>
+			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入昵称搜索"></uni-search-bar>
 		</view>
 		<view class="member-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
@@ -11,8 +11,15 @@
 						<head-image :name="member.showNickName" 
 							:online="member.online" :url="member.headImage"
 							:size="100"></head-image>
-						
-						<view class="member-name">{{ member.showNickName}}</view>
+						<view class="member-name">{{ member.showNickName}}
+						<uni-tag v-if="member.userId==group.ownerId" 
+							text="群主" size="small" circle
+							custom-style="background-color: #e30a0a;">
+						</uni-tag>
+						<uni-tag v-if="member.userId==userStore.userInfo.id"
+							 text="我" size="small" circle></uni-tag>
+							 
+						</view>
 						
 						<view class="member-kick">
 							<button type="warn" plain v-show="isOwner && !isSelf(member.userId)" size="mini"
@@ -125,6 +132,8 @@
 				white-space: nowrap;
 			
 				.member-name {
+					display: flex;
+					align-items: center;
 					flex:1;	
 					padding-left: 20rpx;
 					font-size: 30rpx;
@@ -132,6 +141,16 @@
 					line-height: 60rpx;
 					white-space: nowrap;
 					overflow: hidden;
+					
+					.uni-tag {
+						margin-left: 5rpx;
+						width: 40rpx;
+						border: 0;
+						height: 30rpx;
+						line-height: 30rpx;
+						font-size: 20rpx;
+						text-align: center;
+					}
 				}
 			}
 

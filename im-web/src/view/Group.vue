@@ -30,7 +30,7 @@
 								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 							</file-upload>
 							<head-image v-show="!isOwner" class="avatar" :size="200" :url="activeGroup.headImage"
-								:name="activeGroup.showGroupName">
+								radius="10%" :name="activeGroup.showGroupName">
 							</head-image>
 							<el-button class="send-btn" icon="el-icon-position" type="primary"
 								@click="onSendMessage()">发消息</el-button>

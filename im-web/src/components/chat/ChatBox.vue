@@ -689,7 +689,7 @@
 
 		.im-chat-main {
 			padding: 0;
-			background-color: #f8f8f8;
+			background-color: white;
 
 			.im-chat-box {
 				>ul {
@@ -716,7 +716,7 @@
 				box-sizing: border-box;
 				border-top: #ccc solid 1px;
 				padding: 2px;
-				background-color: #e8f2ff;
+				background-color: #f8faff;
 
 				>div {
 					font-size: 22px;
@@ -727,22 +727,20 @@
 					height: 30px;
 					text-align: center;
 					border-radius: 3px;
-					margin: 3px;
-
+					margin: 3px 5px;
+					color: #0f46ae;
 					&:hover {
-						color: black;
+						font-weight: 600;
+						color: #042259;
 					}
 
 					&.chat-tool-active {
-						font-weight: 600;
-						color: #195ee2;
-						background-color: #ddd;
+						color: white;
+						background-color: #195ee2;
 					}
 				}
 
-				>div:hover {
-					color: #949494;
-				}
+				
 			}
 
 			.send-content-area {

@@ -15,7 +15,7 @@
 					<uni-icons type="plusempty" size="28" color="#888888"></uni-icons>
 				</view>
 			</view>
-			<view class="member-more" @click="onShowMoreMmeber()">查看更多群成员 ></view>
+			<view class="member-more" @click="onShowMoreMmeber()">{{`查看全部群成员${groupMembers.length}人`}}></view>
 		</view>
 		<view class="group-detail">
 			<uni-section title="群聊名称:" titleFontSize="14px">
@@ -39,7 +39,7 @@
 					<text class="detail-text"> {{group.showNickName}}</text>
 				</template>
 			</uni-section>
-			<uni-section title="群公告:" titleFontSize="14px">
+			<uni-section v-if="group.notice" title="群公告:"  titleFontSize="14px">
 				<uni-notice-bar :text="group.notice" />
 			</uni-section>
 			<view v-if="!group.quit"  class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
@@ -198,7 +198,7 @@
 		.group-members {
 			padding: 30rpx;
 			background: white;
-
+			
 			.member-items {
 				display: flex;
 				flex-wrap: wrap;
@@ -237,9 +237,10 @@
 			}
 
 			.member-more {
-				padding: 20rpx;
+				padding-top: 30rpx;
 				text-align: center;
-				font-size: 16px;
+				font-size: 32rpx;
+				color: #333;
 			}
 		}
 
@@ -248,15 +249,17 @@
 			margin-top: 30rpx;
 			padding: 30rpx;
 			background: white;
-
+			
 			.detail-text{
 				font-size: 28rpx;
 				font-weight: 600;
 			}
+			
 			.group-edit {
-				padding: 20rpx;
+				padding-top: 30rpx;
 				text-align: center;
-				font-size: 30rpx;	
+				font-size: 32rpx;	
+				color: #333;
 			}
 		}
 

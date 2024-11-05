@@ -25,7 +25,7 @@
 			<div v-show="userInfo.id">
 				<div class="friend-detail">
 					<head-image :size="200" :name="userInfo.nickName" :url="userInfo.headImage"
-						@click.native="showFullImage()"></head-image>
+						@click.native="showFullImage()" radius="10%"></head-image>
 					<div>
 						<div class="info-item">
 							<el-descriptions title="好友信息" class="description" :column="1">

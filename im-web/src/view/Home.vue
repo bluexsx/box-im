@@ -385,7 +385,7 @@
 
 				.icon {
 					font-size: 26px;
-					color: #888;
+					color: #666;
 				}
 
 				.unread-text {

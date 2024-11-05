@@ -7,11 +7,9 @@
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
-				<view class="chat-tag" v-if="chat.type=='GROUP'">
-					<uni-tag disabled text="群" size="mini" type="primary"></uni-tag>
-				</view>
 				<view class="chat-name-text">
-					{{chat.showName}}
+					<view>{{chat.showName}}</view>
+					<uni-tag v-if="chat.type=='GROUP'" circle text="群" size="small"></uni-tag>
 				</view>
 				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime,true)}}</view>
 			</view>
@@ -44,7 +42,7 @@
 			}
 		},
 		methods: {
-			
+
 			showChatBox() {
 				uni.navigateTo({
 					url: "/pages/chat/chat-box?chatIdx=" + this.index
@@ -127,18 +125,26 @@
 				line-height: 44rpx;
 				height: 44rpx;
 
-				.chat-tag {
-					display: flex;
-					align-items: center;
-					margin-right: 5rpx;
-				}
-
 				.chat-name-text {
 					flex: 1;
 					font-size: 30rpx;
 					font-weight: 600;
 					white-space: nowrap;
 					overflow: hidden;
+					display: flex;
+					align-items: center;
+
+					.uni-tag {
+						text-align: center;
+						margin-left: 5rpx;
+						border: 0;
+						height: 30rpx;
+						line-height: 30rpx;
+						font-size: 20rpx;
+						padding: 1px 5px;
+						background-color: #de1c1c;
+						opacity: 0.8;
+					}
 				}
 
 				.chat-time {

@@ -1,10 +1,9 @@
 <template>
 	<view>
-		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
+		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove">
 			<slot></slot>
 		</view>
-		
-		<view v-if="isShowMenu" class="pop-menu" @tap="onClose()" @contextmenu.prevent=""></view>
+		<view v-if="isShowMenu" class="pop-menu" @touchstart="onClose()" @contextmenu.prevent=""></view>
 		<view v-if="isShowMenu" class="menu" :style="menuStyle">
 			<view class="menu-item"  v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
 				<uni-icons class="menu-icon" :type="item.icon" :style="itemStyle(item)" size="22"></uni-icons>
@@ -30,9 +29,6 @@
 		},
 		methods: {
 			onLongPress(e){
-				if(this.isTouchMove){
-					return;
-				}
 				uni.getSystemInfo({
 					success: (res) => {
 						let touches = e.touches[0];
@@ -57,10 +53,7 @@
 				})
 			},
 			onTouchMove(){
-				this.isTouchMove = true;
-			},
-			onTouchEnd(){
-				this.isTouchMove = false;
+				this.onClose()
 			},
 			onSelectMenu(item) {
 				this.$emit("select", item);
@@ -89,9 +82,8 @@
 		width: 100%;
 		height: 100%;
 		background-color: #333;
-		z-index: 99;
+		z-index: 999;
 		opacity: 0.5;
-
 	}
 	
 	.menu {
@@ -100,7 +92,7 @@
 		border-radius: 7px;
 		overflow: hidden;
 		background-color: #f5f6ff;
-		z-index: 100;
+		z-index: 1000;
 		.menu-item {
 			height: 25px;
 			min-width: 150rpx;

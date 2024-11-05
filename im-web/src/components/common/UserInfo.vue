@@ -3,7 +3,8 @@
 		<div class="user-info" :style="{left: pos.x+'px',top: pos.y+'px'}" @click.stop>
 			<div class="user-info-box">
 				<div class="avatar">
-					<head-image :name="user.nickName" :url="user.headImageThumb" :size="60" :online="user.online"
+					<head-image :name="user.nickName" :url="user.headImageThumb" :size="70" 
+						:online="user.online" radius="10%"
 						@click.native="showFullImage()"> </head-image>
 				</div>
 				<div>
@@ -114,7 +115,8 @@
 
 		.user-info-box {
 			display: flex;
-
+			align-items: center;
+			
 			.user-info-items {
 				margin-left: 10px;
 				white-space: nowrap;
@@ -125,7 +127,7 @@
 				}
 
 				.el-descriptions__title {
-					font-size: 20px;
+					font-size: 18px;
 				}
 
 				.el-descriptions-item__cell {
