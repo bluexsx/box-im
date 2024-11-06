@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove">
+		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
 			<slot></slot>
 		</view>
 		<view v-if="isShowMenu" class="pop-menu" @touchstart="onClose()" @contextmenu.prevent=""></view>
@@ -19,6 +19,7 @@
 		data() {
 			return {
 				isShowMenu : false,
+				isTouchMove: false,
 				style : ""
 			}
 		},
@@ -29,6 +30,10 @@
 		},
 		methods: {
 			onLongPress(e){
+				if(this.isTouchMove){
+					// 屏幕移动时不弹出
+					return;
+				}
 				uni.getSystemInfo({
 					success: (res) => {
 						let touches = e.touches[0];
@@ -53,7 +58,11 @@
 				})
 			},
 			onTouchMove(){
-				this.onClose()
+				this.onClose();
+				this.isTouchMove = true;
+			},
+			onTouchEnd(){
+				this.isTouchMove = false;
 			},
 			onSelectMenu(item) {
 				this.$emit("select", item);
@@ -84,6 +93,7 @@
 		background-color: #333;
 		z-index: 999;
 		opacity: 0.5;
+
 	}
 	
 	.menu {
@@ -108,6 +118,4 @@
 			}
 		}
 	}
-
-	
 </style>
