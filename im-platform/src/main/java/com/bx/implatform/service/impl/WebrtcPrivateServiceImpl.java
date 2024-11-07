@@ -314,7 +314,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         sendMessage.setSender(new IMUserInfo(rtcSession.getCallerId(), rtcSession.getCallerTerminal()));
         sendMessage.setRecvId(rtcSession.getCallerId());
         sendMessage.setSendToSelf(false);
-        sendMessage.setSendResult(false);
+        sendMessage.setSendResult(true);
         sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
         // 推给接听方
