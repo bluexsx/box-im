@@ -768,7 +768,6 @@
 <style lang="scss" scoped>
 	.chat-box {
 		position: relative;
-		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
 
@@ -778,11 +777,9 @@
 			align-items: center;
 			height: 60rpx;
 			padding: 5px;
-			background-color: #f8f8f8;
+			background-color: #f9f9f9;
 			line-height: 50px;
 			font-size: 36rpx;
-			border: #dddddd solid 1px;
-
 
 			.btn-side {
 				position: absolute;
@@ -799,7 +796,6 @@
 		.chat-msg {
 			flex: 1;
 			padding: 0;
-			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
 			background-color: white;
@@ -813,7 +809,6 @@
 			display: flex;
 			align-items: center;
 			padding: 0 10rpx;
-			border: #dddddd solid 1px;
 
 			.icon-at {
 				font-size: 35rpx;
@@ -843,7 +838,7 @@
 			align-items: center;
 			padding: 10rpx;
 			margin-bottom: 10rpx;
-			border: #dddddd solid 1px;
+			border-top: #eee solid 1px;
 			background-color: #f7f8fd;
 			height: 80rpx;
 

@@ -47,7 +47,6 @@
 <style lang="scss" scoped>
 	.group {
 		position: relative;
-		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
 
@@ -79,7 +78,6 @@
 		.group-items {
 			flex: 1;
 			padding: 0;
-			border: #dddddd solid 1px;
 			overflow: hidden;
 			position: relative;
 

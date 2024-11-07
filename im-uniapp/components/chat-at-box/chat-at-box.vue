@@ -108,7 +108,6 @@
 <style lang="scss" scoped>
 	.chat-at-box {
 		position: relative;
-		border: #dddddd solid 1rpx;
 		display: flex;
 		flex-direction: column;
 		background-color: white;

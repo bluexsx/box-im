@@ -119,7 +119,6 @@
 			line-height: 50px;
 			font-size: 40rpx;
 			font-weight: 600;
-			border: #dddddd solid 1px;
 
 			.btn-side {
 				position: absolute;

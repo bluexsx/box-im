@@ -112,7 +112,6 @@
 <style scoped lang="scss">
 	.group-member {
 		position: relative;
-		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
 

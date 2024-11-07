@@ -122,7 +122,6 @@
 <style lang="scss" scoped>
 	.group-invite {
 		position: relative;
-		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
 

@@ -335,7 +335,7 @@
 							flex-wrap: nowrap;
 							align-items: center;
 							min-height: 80px;
-							border: #dddddd solid 1px;
+							border: #eee solid 1px;
 							border-radius: 10rpx;
 							background-color: #eeeeee;
 							padding: 10px 15px;
