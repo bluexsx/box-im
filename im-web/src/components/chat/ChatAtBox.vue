@@ -123,9 +123,9 @@
 		position: fixed;
 		width: 200px;
 		height: 300px;
-		border: 1px solid #53a0e79c;
-		border-radius: 5px;
-		background-color: #f5f5f5;
-		box-shadow: 0px 0px 10px #ccc;
+		//border: 1px solid #53a0e79c;
+		//border-radius: 5px;
+		background-color: #fff;
+		box-shadow: var(--im-box-shadow);
 	}
 </style>

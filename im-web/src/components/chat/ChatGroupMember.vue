@@ -42,21 +42,11 @@ export default {
 <style lang="scss">
 .chat-group-member {
     display: flex;
-    margin-bottom: 1px;
     position: relative;
     padding: 0 5px;
     align-items: center;
-    background-color: #fafafa;
     white-space: nowrap;
     box-sizing: border-box;
-
-    &:hover {
-        background-color: #F8FAFF;
-    }
-
-    &.active {
-        background-color: #E8F2FF;
-    }
 
     .member-name {
         padding-left: 10px;
@@ -64,8 +54,7 @@ export default {
         text-align: left;
         white-space: nowrap;
         overflow: hidden;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: var(--im-font-size);
     }
 }
 </style>

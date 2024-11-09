@@ -1,7 +1,7 @@
 <template>
 	<div class="chat-box" @click="closeRefBox()" @mousemove="readedMessage()">
 		<el-container>
-			<el-header height="56px">
+			<el-header height="50px">
 				<span>{{ title }}</span>
 				<span title="群聊信息" v-show="this.chat.type == 'GROUP'" class="btn-side el-icon-more"
 					@click="showSide = !showSide"></span>
@@ -23,7 +23,7 @@
 								</ul>
 							</div>
 						</el-main>
-						<el-footer height="240px" class="im-chat-footer">
+						<el-footer height="220px" class="im-chat-footer">
 							<div class="chat-tool-bar">
 								<div title="表情" class="icon iconfont icon-emoji" ref="emotion"
 									@click.stop="showEmotionBox()">
@@ -61,12 +61,12 @@
 								<ChatInput :ownerId="group.ownerId" ref="chatInputEditor" :group-members="groupMembers"
 									@submit="sendMessage" />
 								<div class="send-btn-area">
-									<el-button type="primary" size="small" @click="notifySend()">发送</el-button>
+									<el-button type="primary" icon="el-icon-s-promotion" @click="notifySend()">发送</el-button>
 								</div>
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="300px" v-if="showSide">
+					<el-aside class="chat-group-side-box" width="260px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>
@@ -378,7 +378,7 @@
 							await this.sendFileMessage(msg.content.file);
 							break;
 					}
-				
+
 				}
 			},
 			sendImageMessage(file) {
@@ -540,7 +540,7 @@
 				}
 			},
 			resetEditor() {
-				
+
 				this.$nextTick(() => {
 					this.$refs.chatInputEditor.clear();
 					this.$refs.chatInputEditor.focus();
@@ -667,29 +667,30 @@
 	.chat-box {
 		position: relative;
 		width: 100%;
-		background: #f8f8f8;
-		border: #dddddd solid 1px;
+		background: #fff;
 
 		.el-header {
-			padding: 3px;
-			background-color: white;
+      display: flex;
+      justify-content: space-between;
+			padding: 0 12px;
 			line-height: 50px;
-			font-size: 20px;
-			font-weight: 600;
-			border-bottom: 1px #ddd solid;
+			font-size: var(--im-font-size-larger);
+			border-bottom: var(--im-border);
+
 
 			.btn-side {
 				position: absolute;
 				right: 20px;
 				line-height: 50px;
-				font-size: 25px;
+				font-size: 20px;
 				cursor: pointer;
+        color: var(--im-text-color-light);
 			}
 		}
 
 		.im-chat-main {
 			padding: 0;
-			background-color: white;
+			background-color: #fff;
 
 			.im-chat-box {
 				>ul {
@@ -711,36 +712,34 @@
 				display: flex;
 				position: relative;
 				width: 100%;
-				height: 40px;
+				height: 36px;
 				text-align: left;
 				box-sizing: border-box;
-				border-top: #ccc solid 1px;
-				padding: 2px;
-				background-color: #f8faff;
+				border-top: var(--im-border);
+				padding: 4px 2px 2px 8px;
 
-				>div {
+				> div {
 					font-size: 22px;
 					cursor: pointer;
-					color: black;
 					line-height: 30px;
 					width: 30px;
 					height: 30px;
 					text-align: center;
-					border-radius: 3px;
-					margin: 3px 5px;
-					color: #0f46ae;
-					&:hover {
-						font-weight: 600;
-						color: #042259;
-					}
+					border-radius: 2px;
+					margin-right: 8px;
+          color: #999;
+          transition: 0.3s;
 
 					&.chat-tool-active {
-						color: white;
-						background-color: #195ee2;
+						font-weight: 600;
+						color: var(--im-color-primary);
+						background-color: #ddd;
 					}
 				}
 
-				
+				> div:hover {
+					color: #333;
+				}
 			}
 
 			.send-content-area {
@@ -757,7 +756,6 @@
 					flex: 1;
 					resize: none;
 					font-size: 16px;
-					color: black;
 					outline: none;
 
 					text-align: left;
@@ -820,15 +818,17 @@
 				.send-btn-area {
 					padding: 10px;
 					position: absolute;
-					bottom: 0;
-					right: 0;
+					bottom: 4px;
+					right: 6px;
 				}
 			}
 		}
 
 		.chat-group-side-box {
-			border: #dddddd solid 1px;
-			animation: rtl-drawer-in .3s 1ms;
+			border-left: var(--im-border);
+			//animation: rtl-drawer-in .3s 1ms;
 		}
+
 	}
 </style>
+

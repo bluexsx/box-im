@@ -100,17 +100,19 @@
 <style lang="scss">
 	.user-info-mask {
 		background-color: rgba($color: #000000, $alpha: 0);
-		position: absolute;
-		width: 100%;
-		height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 	}
 
 	.user-info {
 		position: absolute;
 		width: 300px;
 		background-color: white;
-		border: #dddddd solid 1px;
-		border-radius: 5px;
+    box-shadow: var(--im-box-shadow);
+		border-radius: 4px;
 		padding: 15px;
 
 		.user-info-box {
@@ -135,6 +137,10 @@
 				}
 			}
 		}
+
+    .el-divider--horizontal {
+      margin: 18px 0;
+    }
 
 		.user-btn-group {
 			text-align: center;

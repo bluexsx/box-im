@@ -70,7 +70,7 @@
 							line.appendChild(imageElement);
 							let after = document.createTextNode('\u00A0');
 							line.appendChild(after);
-							this.selectElement(after, 1);		
+							this.selectElement(after, 1);
 						} else {
 							let asFile = items[i].getAsFile();
 							if (!asFile) {
@@ -239,7 +239,7 @@
 			},
 			onBlur(e) {
 				this.updateRange();
-				
+
 			},
 			onMousedown() {
 				if (this.atIng) {
@@ -331,7 +331,7 @@
 				let endContainer = range.endContainer;
 				let parentElement = endContainer.parentElement;
 				if (parentElement.parentElement === this.$refs.content) {
-					divElement.innerHTML  = endContainer.textContent.substring(range.endOffset).trim(); 
+					divElement.innerHTML  = endContainer.textContent.substring(range.endOffset).trim();
 					endContainer.textContent = endContainer.textContent.substring(0, range.endOffset);
 					// 插入到当前div（当前行）后面
 					parentElement.insertAdjacentElement('afterend', divElement);
@@ -482,10 +482,10 @@
 			bottom: 0;
 			outline: none;
 			padding: 5px;
-			line-height: 30px;
-			font-size: 16px;
+			line-height: 1.5;
+			font-size: var(--im-font-size);
 			text-align: left;
-			overflow-y: scroll;
+			overflow-y: auto;
 
 			// 单独一行时，无法在前面输入的bug
 			>div:before {
@@ -544,15 +544,12 @@
 					.file-size {
 						font-size: 14px;
 						font-weight: 600;
-						color: black;
 					}
 				}
 			}
 
 			.chat-at-user {
 				color: #00f;
-				font-weight: 600;
-
 				border-radius: 3px;
 			}
 		}

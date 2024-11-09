@@ -1,6 +1,6 @@
 <template>
-	<div  class="rtc-private-acceptor">
-		<head-image :id="friend.id" :name="friend.nickName" :url="friend.headImage" :size="100"></head-image>
+	<div class="rtc-private-acceptor">
+		<head-image :id="friend.id" :name="friend.nickName" :url="friend.headImage" :size="100" :isShowUserInfo="false"></head-image>
 		<div class="acceptor-text">
 			{{tip}}
 		</div>
@@ -50,9 +50,9 @@
 		width: 250px;
 		height: 250px;
 		padding: 20px;
-		background-color: #eeeeee;
-		border: #dddddd solid 5px;
-		border-radius: 3%;
+		background-color: #fff;
+    box-shadow: var(--im-box-shadow-dark);
+		border-radius: 4px;
 
 		.acceptor-text {
 			padding: 10px;

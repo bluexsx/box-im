@@ -19,7 +19,7 @@ let textToImg = (emoText) => {
 		return emoText;
 	}
 	let url = require(`@/assets/emoji/${idx}.gif`);
-	return `<img src="${url}" style="width:35px;height:35px;vertical-align:bottom;"/>`
+	return `<img src="${url}" style="width:32px;height:32px;vertical-align:bottom;"/>`
 }
 
 let textToUrl = (emoText) => {
