@@ -70,16 +70,18 @@
 		},
 		methods: {
 			submit() {
-				this.$http({
-					url: '/register',
-					data: this.dataForm,
-					method: 'POST'
-				}).then(() => {
-					uni.showToast({
-						title: "注册成功,您已成为盒子IM的用户",
-						icon: 'none'
+				this.$refs.form.validate().then(() => {
+					this.$http({
+						url: '/register',
+						data: this.dataForm,
+						method: 'POST'
+					}).then(() => {
+						uni.showToast({
+							title: "注册成功,您已成为盒子IM的用户",
+							icon: 'none'
+						})
+						this.login();
 					})
-					this.login();
 				})
 			},
 			login() {
