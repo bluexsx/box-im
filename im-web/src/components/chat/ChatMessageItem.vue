@@ -257,7 +257,8 @@
 				.chat-msg-bottom {
 					display: inline-block;
 					padding-right: 300px;
-
+					padding-left: 5px;
+					
 					.chat-msg-text {
 						display: block;
 						position: relative;
@@ -276,7 +277,6 @@
 							position: absolute;
 							left: -10px;
 							top: 13px;
-							z-index: -1;
 							width: 0;
 							height: 0;
 							border-style: solid dashed dashed;
@@ -437,7 +437,7 @@
 
 					.chat-msg-bottom {
 						padding-left: 180px;
-						padding-right: 0;
+						padding-right: 5px;
 
 						.chat-msg-text {
 							margin-left: 10px;
@@ -447,7 +447,7 @@
 							&:after {
 								left: auto;
 								right: -10px;
-								border-top-color: rgb(88, 127, 240);
+								border-top-color: var(--im-color-primary-light-2);
 							}
 						}
 
