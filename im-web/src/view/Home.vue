@@ -385,7 +385,7 @@ export default {
   align-items: center;
   border-radius: 4px;
   overflow: hidden;
-  background: #e8f2ff;
+  background: var(--im-color-primary-light-9);
   //background-image: url('../assets/image/background.jpg');
 
   .app-container {
@@ -430,7 +430,6 @@ export default {
       justify-content: center;
     }
 
-    --menu-color: #9DC4FF;
     .menu {
       height: 200px;
       //margin-top: 10px;
@@ -449,12 +448,12 @@ export default {
       }
 
       .link:not(.router-link-active) .menu-item:hover {
-        color: #fff;
+        color: var(--im-color-primary-light-7);
       }
 
       .menu-item {
         position: relative;
-        color: var(--menu-color);
+        color: var(--im-color-primary-light-4);
         width: var(--width);
         height: 46px;
         display: flex;
@@ -474,7 +473,7 @@ export default {
           color: white;
           border-radius: 30px;
           padding: 0 5px;
-          font-size: 12px;
+          font-size: var(--im-font-size-smaller);
           text-align: center;
           white-space: nowrap;
           border: 1px solid #f1e5e5;
@@ -489,7 +488,7 @@ export default {
       height: 50px;
       width: 100%;
       cursor: pointer;
-      color: var(--menu-color);
+      color: var(--im-color-primary-light-4);
       font-size: var(--icon-font-size);
 
       .icon {
@@ -498,7 +497,7 @@ export default {
 
       &:hover {
         font-weight: 600;
-        color: #fff;
+        color: var(--im-color-primary-light-7);
       }
     }
   }
