@@ -130,17 +130,13 @@ export default {
 
 .chat-group-readed {
     position: fixed;
-    box-shadow: 0px 0px 10px #ccc;
     width: 300px;
-    background-color: #fafafa;
-    border-radius: 8px;
 
     .scroll-box {
         height: 400px;
     }
 
     .arrow-left {
-
         position: absolute;
         left: -15px;
         width: 0;

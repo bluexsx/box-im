@@ -1,7 +1,7 @@
 <template>
     <div class="group-member-item" :style="{'height':height+'px'}">
         <div class="member-avatar">
-            <head-image :size="headImageSize" :name="member.showNickName" 
+            <head-image :size="headImageSize" :name="member.showNickName"
 				:url="member.headImage" :online="member.online"> </head-image>
         </div>
         <div class="member-name" :style="{'line-height':height+'px'}">
@@ -40,16 +40,14 @@ export default {
 <style lang="scss">
 .group-member-item {
     display: flex;
-    margin-bottom: 1px;
     position: relative;
     padding: 0 15px;
     align-items: center;
-    background-color: #fafafa;
     white-space: nowrap;
     box-sizing: border-box;
 
     &:hover {
-        background-color: #eeeeee;
+        background-color: var(--im-background-active);
     }
 
     &.active {
@@ -63,8 +61,7 @@ export default {
         text-align: left;
         white-space: nowrap;
         overflow: hidden;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: var(--im-font-size);
     }
 }
 </style>

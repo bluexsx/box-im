@@ -9,7 +9,7 @@
 		</div>
 		<div class="chat-msg-normal" v-if="isNormal" :class="{ 'chat-msg-mine': mine }">
 			<div class="head-image">
-				<head-image :name="showName" :size="40" :url="headImage" :id="msgInfo.sendId"></head-image>
+				<head-image :name="showName" :size="38" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
 			<div class="chat-msg-content">
 				<div v-show="mode == 1 && msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
@@ -213,13 +213,14 @@
 
 		.chat-msg-tip {
 			line-height: 50px;
-			font-size: 14px;
+			font-size: var(--im-font-size-small);
+      color: var(--im-text-color-light);
 		}
 
 		.chat-msg-normal {
 			position: relative;
 			font-size: 0;
-			padding-left: 60px;
+			padding-left: 48px;
 			min-height: 50px;
 			margin-top: 10px;
 
@@ -244,8 +245,8 @@
 				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
-					color: #333;
-					font-size: 14px;
+					color: var(--im-text-color-light);
+					font-size: var(--im-font-size);
 					line-height: 20px;
 
 					span {
@@ -261,13 +262,11 @@
 						display: block;
 						position: relative;
 						line-height: 26px;
-						margin-top: 3px;
-						padding: 7px;
-						background-color: #eee;
+						//margin-top: 3px;
+						padding: 6px 10px;
+						background-color: var(--im-background);
 						border-radius: 10px;
-						color: black;
-						display: block;
-						font-size: 14px;
+						font-size: var(--im-font-size);
 						text-align: left;
 						white-space: pre-wrap;
 						word-break: break-all;
@@ -298,9 +297,7 @@
 							min-height: 150px;
 							max-width: 400px;
 							max-height: 300px;
-							border: #dddddd solid 1px;
-							border: 5px solid #ccc;
-							border-radius: 6px;
+							border-radius: 8px;
 							cursor: pointer;
 						}
 
@@ -312,17 +309,15 @@
 						flex-direction: row;
 						align-items: center;
 						cursor: pointer;
-						padding-bottom: 5px;
+						margin-bottom: 2px;
 
 						.chat-file-box {
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							min-height: 80px;
-							box-shadow: 5px 5px 2px #c0c0c0;
-							border: #dddddd solid 1px;
-							border-radius: 6px;
-							background-color: #eeeeee;
+							min-height: 60px;
+							box-shadow: var(--im-box-shadow-light);
+							border-radius: 4px;
 							padding: 10px 15px;
 
 							.chat-file-info {
@@ -330,21 +325,26 @@
 								height: 100%;
 								text-align: left;
 								font-size: 14px;
+                margin-right: 10px;
 
 								.chat-file-name {
 									display: inline-block;
-									min-width: 150px;
-									max-width: 300px;
-									font-size: 16px;
-									font-weight: 600;
-									margin-bottom: 15px;
+									min-width: 160px;
+									max-width: 220px;
+									font-size: 14px;
+									margin-bottom: 4px;
 									white-space: pre-wrap;
 									word-break: break-all;
 								}
+
+                .chat-file-size {
+                  font-size: var(--im-font-size-smaller);
+                  color: var(--im-text-color-light);
+                }
 							}
 
 							.chat-file-icon {
-								font-size: 50px;
+								font-size: 44px;
 								color: #d42e07;
 							}
 						}
@@ -384,32 +384,29 @@
 
 						.chat-readed {
 							font-size: 12px;
-							color: #888;
-							font-weight: 600;
+							color: var(--im-text-color-light);
 						}
 
 						.chat-unread {
-							font-size: 12px;
-							color: #f23c0f;
-							font-weight: 600;
+							font-size: var(--im-font-size-smaller);
+							color: var(--im-color-danger);
 						}
 					}
 
 					.chat-receipt {
-						font-size: 13px;
-						color: blue;
+						font-size: var(--im-font-size-smaller);
 						cursor: pointer;
+            color: var(--im-text-color-light);
 
 						.icon-ok {
 							font-size: 20px;
-							color: #329432;
+							color: var(--im-color-sucess);
 						}
 					}
 
 					.chat-at-user {
 						padding: 2px 5px;
 						border-radius: 3px;
-						font-weight: 600;
 						cursor: pointer;
 					}
 				}
@@ -419,7 +416,7 @@
 			&.chat-msg-mine {
 				text-align: right;
 				padding-left: 0;
-				padding-right: 60px;
+				padding-right: 48px;
 
 				.head-image {
 					left: auto;
@@ -444,9 +441,8 @@
 
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: rgb(88, 127, 240);
+							background-color: var(--im-color-primary-light-2);
 							color: #fff;
-							vertical-align: top;
 
 							&:after {
 								left: auto;

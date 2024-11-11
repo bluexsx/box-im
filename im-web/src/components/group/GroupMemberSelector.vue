@@ -1,5 +1,5 @@
 <template>
-	<el-dialog title="选择成员" :visible.sync="isShow" width="50%">
+	<el-dialog title="选择成员" :visible.sync="isShow" width="700px">
 		<div class="group-member-selector">
 			<div class="left-box">
 				<el-input placeholder="搜索" v-model="searchText">
@@ -53,7 +53,7 @@
 		props: {
 			groupId: {
 				type: Number
-			}	
+			}
 		},
 		methods: {
 			open(maxSize, checkedIds, lockedIds) {
@@ -118,9 +118,13 @@
 
 		.left-box {
 			width: 48%;
-			border: #587FF0 solid 1px;
-			border-radius: 5px;
 			overflow: hidden;
+      border: var(--im-border);
+
+      .el-input__inner {
+        border: none;
+        border-bottom: var(--im-border);
+      }
 		}
 
 
@@ -130,20 +134,19 @@
 			font-size: 20px;
 			padding: 10px;
 			font-weight: 600;
-			color: #687Ff0;
+			color: var(--im-color-primary);
 		}
 
 		.right-box {
-
 			width: 48%;
-			border: #587FF0 solid 1px;
-			border-radius: 5px;
+      border: var(--im-border);
 
 			.select-tip {
 				text-align: left;
 				height: 40px;
 				line-height: 40px;
 				text-indent: 5px;
+        color: var(--im-text-color-light)
 			}
 
 			.checked-member-list {

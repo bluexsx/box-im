@@ -1,6 +1,6 @@
 <template>
-	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="30%" :before-close="onClose">
-		<el-input  placeholder="输入用户名或昵称进行,最多展示20条" class="input-with-select" v-model="searchText" @keyup.enter.native="onSearch()">
+	<el-dialog title="添加好友" :visible.sync="dialogVisible" width="400px" :before-close="onClose" custom-class="add-friend-dialog">
+		<el-input  placeholder="输入用户名或昵称按下enter搜索，最多展示20条" class="input-with-select" v-model="searchText" size="small" @keyup.enter.native="onSearch()">
 			 <i class="el-icon-search el-input__icon" slot="suffix"
 				@click="onSearch()"> </i>
 		</el-input>
@@ -8,7 +8,7 @@
 			<div v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
 				<div class="item">
 					<div class="avatar">
-						<head-image :name="user.nickName" 
+						<head-image :name="user.nickName"
 						:url="user.headImage"
 						:online="user.online"
 						></head-image>
@@ -32,8 +32,8 @@
 
 <script>
 	import HeadImage from '../common/HeadImage.vue'
-	
-	
+
+
 	export default {
 		name: "addFriend",
 		components:{HeadImage},
@@ -53,6 +53,10 @@
 				this.$emit("close");
 			},
 			onSearch() {
+        if(!this.searchText){
+          this.users = [];
+          return;
+        }
 				this.$http({
 					url: "/user/findByName",
 					method: "get",
@@ -83,7 +87,7 @@
 			},
 			isFriend(userId){
 				let friends = this.$store.state.friendStore.friends;
-				let friend = friends.find((f)=> f.id==userId);			
+				let friend = friends.find((f)=> f.id==userId);
 				return friend != undefined;
 			}
 		}
@@ -91,48 +95,47 @@
 </script>
 
 <style  lang="scss">
-	.el-dialog {
-		min-width: 400px;
-	}
-	.item {
-		height: 65px;
-		display: flex;
-		position: relative;
-		padding-left: 15px;
-		align-items: center;
-		padding-right: 25px;
-		
-		.add-friend-text {
-			margin-left: 15px;
-			flex: 3;
-			display: flex;
-			flex-direction: column;
-			flex-shrink: 0;
-			overflow: hidden;
-		
-			.text-user-name{
-				display: flex;
-				flex-direction: row;
-				font-weight: 600;
-				font-size: 16px;
-				line-height: 25px;
-		
-				.online-status{
-					font-size: 12px;
-					font-weight: 600;
-					&.online{
-						color: #5fb878;
-					}
-				}
-			}
-			
-			.text-nick-name{
-				display: flex;
-				flex-direction: row;
-				font-size: 12px;
-				line-height: 20px;
-			}
-			
-		}
-	}
+.add-friend-dialog {
+  .item {
+    height: 65px;
+    display: flex;
+    position: relative;
+    padding-left: 15px;
+    align-items: center;
+    padding-right: 25px;
+
+    .add-friend-text {
+      margin-left: 15px;
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+
+      .text-user-name{
+        display: flex;
+        flex-direction: row;
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 25px;
+
+        .online-status{
+          font-size: 12px;
+          font-weight: 600;
+          &.online{
+            color: #5fb878;
+          }
+        }
+      }
+
+      .text-nick-name{
+        display: flex;
+        flex-direction: row;
+        font-size: 12px;
+        line-height: 20px;
+      }
+
+    }
+  }
+}
 </style>

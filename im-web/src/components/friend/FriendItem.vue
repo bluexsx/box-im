@@ -1,16 +1,18 @@
 <template>
 	<div class="friend-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
 		<div class="friend-avatar">
-			<head-image :size="45" :name="friend.nickName" :url="friend.headImage" :online="friend.online">
+			<head-image :size="42" :name="friend.nickName" :url="friend.headImage" :online="friend.online">
 			</head-image>
 		</div>
 		<div class="friend-info">
 			<div class="friend-name">{{ friend.nickName}}</div>
 			<div class="friend-online">
-				<el-image v-show="friend.onlineWeb" class="online" :src="require('@/assets/image/online_web.png')"
-					title="电脑设备在线" />
-				<el-image v-show="friend.onlineApp" class="online" :src="require('@/assets/image/online_app.png')"
-					title="移动设备在线" />
+        <i class="el-icon-monitor online" v-show="friend.onlineWeb" title="电脑设备在线">
+          <span class="online-icon"></span>
+        </i>
+        <i class="el-icon-mobile-phone online" v-show="friend.onlineApp" title="移动设备在线">
+          <span class="online-icon"></span>
+        </i>
 			</div>
 		</div>
 		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
@@ -59,7 +61,7 @@
 			},
 			onSelectMenu(item) {
 				this.$emit(item.key.toLowerCase(), this.msgInfo);
-			} 
+			}
 		},
 		computed:{
 			friend(){
@@ -78,7 +80,7 @@
 				default: true
 			}
 		}
-	
+
 	}
 </script>
 
@@ -86,28 +88,24 @@
 	.friend-item {
 		height: 50px;
 		display: flex;
-		margin-bottom: 1px;
 		position: relative;
 		padding: 5px 10px;
 		align-items: center;
-		background-color: #fafafa;
 		white-space: nowrap;
 		cursor: pointer;
 
-		&:hover {
-			background-color: #F8FAFF;
-		}
-			
-		&.active {
-			background-color: #F4F9FF;
-		}
-			
+    &:hover {
+      background-color: var(--im-background-active);
+    }
+
+    &.active {
+      background-color: var(--im-background-active-dark);
+    }
+
 		.friend-avatar {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 45px;
-			height: 45px;
 		}
 
 		.friend-info {
@@ -118,20 +116,29 @@
 			text-align: left;
 
 			.friend-name {
-				font-size: 15px;
-				font-weight: 600;
-				line-height: 30px;
+				font-size: var(--im-font-size);
 				white-space: nowrap;
 				overflow: hidden;
 			}
 
 			.friend-online {
 				.online {
+          font-weight: bold;
 					padding-right: 2px;
-					width: 15px;
-					height: 15px;
-				
+          font-size: 16px;
+          position: relative;
 				}
+
+        .online-icon{
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          width: 6px;
+          height: 6px;
+          background: limegreen;
+          border-radius: 50%;
+          border: 1px solid white;
+        }
 			}
 		}
 	}

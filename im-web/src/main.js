@@ -2,8 +2,9 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import './assets/style/im.scss';
 import './assets/iconfont/iconfont.css';
+
 import httpRequest from './api/httpRequest';
 import * as socketApi from './api/wssocket';
 import * as messageType from './api/messageType';
@@ -33,3 +34,4 @@ new Vue({
   store,
   render: h=>h(App)
 })
+

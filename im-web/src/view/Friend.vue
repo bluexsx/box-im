@@ -1,8 +1,8 @@
 <template>
 	<el-container class="friend-page">
-		<el-aside width="280px" class="friend-list-box">
+		<el-aside width="260px" class="friend-list-box">
 			<div class="friend-list-header">
-				<el-input class="search-text" placeholder="搜索" v-model="searchText">
+				<el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
 				</el-input>
 				<el-button plain class="add-btn" icon="el-icon-plus" title="添加好友"
@@ -24,8 +24,8 @@
 			</div>
 			<div v-show="userInfo.id">
 				<div class="friend-detail">
-					<head-image :size="200" :name="userInfo.nickName" :url="userInfo.headImage"
-						@click.native="showFullImage()" radius="10%"></head-image>
+					<head-image :size="120" :name="userInfo.nickName" :url="userInfo.headImage"
+						@click.native="showFullImage()"></head-image>
 					<div>
 						<div class="info-item">
 							<el-descriptions title="好友信息" class="description" :column="1">
@@ -36,7 +36,6 @@
 								<el-descriptions-item label="性别">{{ userInfo.sex==0?"男":"女" }}</el-descriptions-item>
 								<el-descriptions-item label="签名">{{ userInfo.signature }}</el-descriptions-item>
 							</el-descriptions>
-
 						</div>
 						<div class="frient-btn-group">
 							<el-button v-show="isFriend" icon="el-icon-position" type="primary"
@@ -48,7 +47,7 @@
 						</div>
 					</div>
 				</div>
-				<el-divider content-position="center"></el-divider>
+<!--				<el-divider content-position="center"></el-divider>-->
 
 			</div>
 		</el-container>
@@ -182,69 +181,56 @@
 		.friend-list-box {
 			display: flex;
 			flex-direction: column;
-			border-right: #53a0e79c solid 1px;
-			background: white;
+      background: var(--im-background);
 
 			.friend-list-header {
-				height: 50px;
-				display: flex;
-				align-items: center;
-				padding: 3px 8px;
-				border-bottom: 1px #ddd solid;
-				
-				.el-input__inner {
-					border-radius: 10px !important;
-					background-color: #F8F8F8;
-				}
-				
+        height: 50px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+
 				.add-btn {
 					padding: 5px !important;
 					margin: 5px;
-					font-size: 20px;
-					color: #587FF0;
-					border: #587FF0 1px solid;
-					background-color: #F0F8FF;
+					font-size: 16px;
 					border-radius: 50%;
 				}
 			}
 
 			.friend-list-items {
 				flex: 1;
-				margin: 0 3px;
-				background: #F8F8F8;
 			}
 		}
 
 		.friend-box {
 			display: flex;
-			flex-direction: column;	
+			flex-direction: column;
 
 			.friend-header {
-				padding: 3px;	
-				height: 50px;
-				line-height: 50px;
-				font-size: 20px;
-				font-weight: 600;
-				text-align: center;
-				background-color: white;
-				border-bottom: 1px #ddd solid;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 12px;
+        font-size: var(--im-font-size-larger);
+        border-bottom: var(--im-border);
+        box-sizing: border-box;
 			}
 
 			.friend-detail {
 				display: flex;
 				padding: 50px 80px 20px 80px;
 				text-align: center;
-				
-				
+
+
 				.info-item {
 					margin-left: 20px;
 					background-color: #ffffff;
-					border-radius: 10px ;
 					border: 1px #ddd solid;
 				}
 
 				.description {
-					padding: 20px 20px 0px 20px;
+					padding: 20px 20px 0 20px;
 				}
 			}
 

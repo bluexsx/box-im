@@ -4,9 +4,8 @@
 			<el-menu text-color="#333333">
 				<el-menu-item v-for="(item) in items" :key="item.key" :title="item.name"
 					@click.native.stop="onSelectMenu(item)">
-					<span :class="item.icon"></span>
+<!--					<span :class="item.icon"></span>-->
 					<span>{{item.name}}</span>
-					
 				</el-menu-item>
 			</el-menu>
 		</div>
@@ -53,21 +52,24 @@
 
 	.right-menu {
 		position: fixed;
-		box-shadow: 0px 0px 10px #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+		box-shadow: var(--im-box-shadow-light);
 
 		.el-menu {
-			border: 1px solid #b4b4b4;
-			border-radius: 7px;
+			border-radius: 4px;
 			overflow: hidden;
-		
-			.el-menu-item {
-				height: 40px;
-				line-height: 40px;
-				border-bottom: 1px solid #d0d0d0;
 
-				span {
-					font-weight: 600;
-				}
+			.el-menu-item {
+				height: 36px;
+				line-height: 36px;
+        min-width: 100px;
+        text-align: left;
+        padding: 0 0 0 20px;
+
+        &:hover {
+          background-color: var(--im-background-active);
+        }
 			}
 		}
 	}
