@@ -24,7 +24,7 @@
 			</div>
 			<div v-show="userInfo.id">
 				<div class="friend-detail">
-					<head-image :size="120" :name="userInfo.nickName" :url="userInfo.headImage"
+					<head-image :size="160" :name="userInfo.nickName" :url="userInfo.headImage" radius="10%"
 						@click.native="showFullImage()"></head-image>
 					<div>
 						<div class="info-item">
@@ -47,7 +47,7 @@
 						</div>
 					</div>
 				</div>
-<!--				<el-divider content-position="center"></el-divider>-->
+				<!--				<el-divider content-position="center"></el-divider>-->
 
 			</div>
 		</el-container>
@@ -181,13 +181,13 @@
 		.friend-list-box {
 			display: flex;
 			flex-direction: column;
-      background: var(--im-background);
+			background: var(--im-background);
 
 			.friend-list-header {
-        height: 50px;
-        display: flex;
-        align-items: center;
-        padding: 0 8px;
+				height: 50px;
+				display: flex;
+				align-items: center;
+				padding: 0 8px;
 
 				.add-btn {
 					padding: 5px !important;
@@ -207,22 +207,21 @@
 			flex-direction: column;
 
 			.friend-header {
-        height: 50px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 12px;
-        font-size: var(--im-font-size-larger);
-        border-bottom: var(--im-border);
-        box-sizing: border-box;
+				height: 50px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 0 12px;
+				font-size: var(--im-font-size-larger);
+				border-bottom: var(--im-border);
+				box-sizing: border-box;
 			}
 
 			.friend-detail {
 				display: flex;
 				padding: 50px 80px 20px 80px;
 				text-align: center;
-
-
+				
 				.info-item {
 					margin-left: 20px;
 					background-color: #ffffff;

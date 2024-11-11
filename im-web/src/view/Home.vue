@@ -82,7 +82,7 @@ export default {
     return {
       showSettingDialog: false,
       lastPlayAudioTime: new Date().getTime() - 1000,
-      isFullscreen: false
+      isFullscreen: true
     }
   },
   methods: {
@@ -409,9 +409,9 @@ export default {
 
   .navi-bar {
     --icon-font-size: 22px;
-    --width: 56px;
+    --width: 60px;
     width: var(--width);
-    background: var(--im-color-primary);
+    background: var(--im-color-primary-light-1);
     padding-top: 20px;
 
     .navi-bar-box {

@@ -29,8 +29,8 @@
                 <img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </file-upload>
-              <head-image v-show="!isOwner" class="avatar" :size="120" :url="activeGroup.headImage"
-                          :name="activeGroup.showGroupName">
+              <head-image v-show="!isOwner" class="avatar" :size="160" :url="activeGroup.headImage"
+                          :name="activeGroup.showGroupName" radius="10%">
               </head-image>
               <el-button class="send-btn" icon="el-icon-position" type="primary"
                          @click="onSendMessage()">发消息
@@ -328,7 +328,7 @@ export default {
         }
 
         .avatar-uploader {
-          --width: 120px;
+          --width: 160px;
           text-align: left;
 
           .el-upload {

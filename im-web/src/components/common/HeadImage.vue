@@ -1,9 +1,9 @@
 <template>
 	<div class="head-image" @click="showUserInfo($event)" :style="{cursor : isShowUserInfo ? 'pointer': null}">
-		<img class="avatar-image" v-show="url" :src="url"
-			:style="avatarImageStyle" loading="lazy" />
+		<img class="avatar-image" v-show="url" :src="url" :style="avatarImageStyle" loading="lazy" />
 		<div class="avatar-text" v-show="!url" :style="avatarTextStyle">
-			{{name?.substring(0,2).toUpperCase()}}</div>
+			{{name?.substring(0,2).toUpperCase()}}
+		</div>
 		<div v-show="online" class="online" title="用户当前在线"></div>
 		<slot></slot>
 	</div>
@@ -14,13 +14,14 @@
 		name: "headImage",
 		data() {
 			return {
-				colors: ["#5daa31", "#c7515a", "#e03697",  "#85029b",
-					"#c9b455",  "#326eb6"]
+				colors: ["#5daa31", "#c7515a", "#e03697", "#85029b",
+					"#c9b455", "#326eb6"
+				]
 
 			}
 		},
 		props: {
-			id:{
+			id: {
 				type: Number
 			},
 			size: {
@@ -33,41 +34,41 @@
 			height: {
 				type: Number
 			},
-			radius:{
+			radius: {
 				type: String,
 				default: "50%"
 			},
 			url: {
 				type: String
 			},
-			name:{
+			name: {
 				type: String,
 				default: null
 			},
-			online:{
+			online: {
 				type: Boolean,
-				default:false
+				default: false
 			},
-      isShowUserInfo: {
-        type: Boolean,
-        default: true
-      }
+			isShowUserInfo: {
+				type: Boolean,
+				default: true
+			}
 		},
-		methods:{
-			showUserInfo(e){
-        if(!this.isShowUserInfo) return;
-				if(this.id && this.id>0){
+		methods: {
+			showUserInfo(e) {
+				if (!this.isShowUserInfo) return;
+				if (this.id && this.id > 0) {
 					this.$http({
 						url: `/user/find/${this.id}`,
 						method: 'get'
 					}).then((user) => {
-						this.$store.commit("setUserInfoBoxPos",e);
-						this.$store.commit("showUserInfoBox",user);
+						this.$store.commit("setUserInfoBoxPos", e);
+						this.$store.commit("showUserInfoBox", user);
 					})
 				}
 			}
 		},
-		computed:{
+		computed: {
 			avatarImageStyle() {
 				let w = this.width ? this.width : this.size;
 				let h = this.height ? this.height : this.size;
@@ -84,12 +85,12 @@
 					border-radius: ${this.radius};
 					`
 			},
-			textColor(){
+			textColor() {
 				let hash = 0;
-				for (var i = 0; i< this.name.length; i++) {
+				for (var i = 0; i < this.name.length; i++) {
 					hash += this.name.charCodeAt(i);
 				}
-				return this.colors[hash%this.colors.length];
+				return this.colors[hash % this.colors.length];
 			}
 		}
 	}
@@ -106,16 +107,16 @@
 			display: block;
 		}
 
-		.avatar-text{
+		.avatar-text {
 			color: white;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			//border: 1px solid #ccc;
-      //box-shadow: var(--im-box-shadow);
+			//box-shadow: var(--im-box-shadow);
 		}
 
-		.online{
+		.online {
 			position: absolute;
 			right: -5px;
 			bottom: 0;

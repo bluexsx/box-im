@@ -2,7 +2,7 @@
 	<div class="full-image" v-show="visible" :before-close="onClose" :modal="true">
 		<div class="mask"></div>
 		<div class="image-box">
-			<img :src="url"/>
+			<img :src="url" />
 		</div>
 		<div class="close" @click="onClose"><i class="el-icon-close"></i></div>
 	</div>
@@ -33,16 +33,16 @@
 </script>
 
 <style lang="scss">
-	.full-image{
+	.full-image {
 		position: fixed;
 		width: 100%;
 		height: 100%;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		right: 0;
 
-		.mask{
+		.mask {
 			position: fixed;
 			width: 100%;
 			height: 100%;
@@ -56,17 +56,17 @@
 			width: 100%;
 			height: 100%;
 
-			img{
+			img {
 				position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          max-height: 100%;
-          max-width: 100%;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				max-height: 100%;
+				max-width: 100%;
 			}
 		}
 
-		.close{
+		.close {
 			position: fixed;
 			top: 10px;
 			right: 10px;
@@ -75,6 +75,4 @@
 			cursor: pointer;
 		}
 	}
-
-
 </style>

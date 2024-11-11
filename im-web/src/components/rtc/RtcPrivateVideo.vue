@@ -15,7 +15,7 @@
           <div class="rtc-video-friend" v-loading="!isChating" element-loading-text="等待对方接听..."
                element-loading-background="rgba(0, 0, 0, 0.1)">
             <head-image class="friend-head-image" :id="friend.id" :size="80" :name="friend.nickName"
-                        :url="friend.headImage" :isShowUserInfo="false">
+                        :url="friend.headImage" :isShowUserInfo="false" radius="0">
             </head-image>
             <video ref="remoteVideo" autoplay=""></video>
           </div>
