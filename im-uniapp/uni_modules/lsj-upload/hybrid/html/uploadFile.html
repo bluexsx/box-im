@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+	<head>
+		<meta charset="UTF-8">
+		<title class="title">[文件管理器]</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<style type="text/css">
+			.content {background: transparent;}
+			.btn {position: relative;top: 0;left: 0;bottom: 0;right: 0;}
+			.btn .file {position: fixed;z-index: 93;left: 0;right: 0;top: 0;bottom: 0;width: 100%;opacity: 0;}
+		</style>
+	</head>
+
+	<body>
+		
+		<div id="content" class="content">
+			<div class="btn">
+				<input :multiple="multiple" @change="onChange" :accept="accept" ref="file" class="file" type="file" />
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script type="text/javascript">
+			let _this;
+			var vm = new Vue({
+				el: '#content',
+				data: {
+					accept: '',
+					multiple: true,
+				},
+				mounted() {
+					console.log('加载webview');
+					_this = this;
+					this.files = new Map();
+					document.addEventListener('plusready', (e)=>{
+					let {debug,instantly,prohibited} = plus.webview.currentWebview();
+					this.debug = debug;
+					this.instantly = instantly;
+					this.prohibited = prohibited;
+					this.accept = prohibited.accept; 
+					if (prohibited.multiple === 'false') {
+						prohibited.multiple = false;
+					}
+					this.multiple = prohibited.multiple;
+					location.href = 'callback?retype=updateOption';
+					}, false);
+				},
+				methods: {
+					toast(msg) {
+						plus.nativeUI.toast(msg);
+					},
+					clear(name) {
+						if (!name) {
+							this.files.clear();
+							return;
+						}
+						this.files.delete(name);
+					},
+					setData(option='{}') {
+						this.debug&&console.log('更新参数：'+option);
+						try{
+							_this.option = JSON.parse(option);
+						}catch(e){
+							console.error('参数设置错误')
+						}
+					},
+					async upload(name=''){
+						if (name && this.files.has(name)) {
+							await this.createUpload(this.files.get(name));
+						}
+						else {
+							for (let item of this.files.values()) {
+								if (item.type === 'waiting' || item.type === 'fail') {
+									await this.createUpload(item);
+								}
+							}
+						}
+					},
+					onChange(e) {
+						let fileDom = this.$refs.file;
+						for (let file of fileDom.files) {
+							if (this.files.size >= this.prohibited.count) {
+								this.toast(`只允许上传${this.prohibited.count}个文件`);
+								fileDom.value = '';
+								break;
+							}
+							this.addFile(file);
+						}
+						this.uploadAfter();
+						fileDom.value = '';
+					},
+					addFile(file) {
+						if (file) {
+							let name = file.name;
+							this.debug&&console.log('文件名称',name,'大小',file.size);
+							// 限制文件格式
+							let suffix = name.substring(name.lastIndexOf(".")+1).toLowerCase();
+							let formats = this.prohibited.formats.toLowerCase();
+							if (formats&&!formats.includes(suffix)) {
+								this.toast(`不支持上传${suffix.toUpperCase()}格式文件`);
+								return;
+							}
+							// 限制文件大小
+							if (file.size > 1024 * 1024 * Math.abs(this.prohibited.size)) {
+								this.toast(`附件大小请勿超过${this.prohibited.size}M`)
+								return;
+							}
+							try{
+								if (!this.prohibited.distinct) {
+									let homonymIndex = [...this.files.keys()].findIndex(item=>{
+										return (item.substring(0,item.lastIndexOf("("))||item.substring(0,item.lastIndexOf("."))) == name.substring(0,name.lastIndexOf(".")) &&
+										item.substring(item.lastIndexOf(".")+1).toLowerCase() === suffix;
+									})
+									if (homonymIndex > -1) {
+										name = `${name.substring(0,name.lastIndexOf("."))}(${homonymIndex+1}).${suffix}`;
+									}
+								}
+							}catch(e){
+								//TODO handle the exception
+							}
+							
+							// let itemBlob = new Blob([file]);
+							// let path = URL.createObjectURL(itemBlob);
+							let path = URL.createObjectURL(file);
+							this.files.set(name,{file,path,name: name,size: file.size,progress: 0,type: 'waiting'});
+						}
+					},
+					/**
+					 * @returns {Map} 已选择的文件Map集
+					 */
+					callChange() {
+						location.href = 'callback?retype=change&files=' + escape(JSON.stringify([...this.files]));
+					},
+					/**
+					 * @returns {object} 正在处理的当前对象
+					 */
+					changeFilesItem(item,end='') {
+						this.files.set(item.name,item);
+						location.href = 'callback?retype=progress&end='+ end +'&item=' + escape(JSON.stringify(item));
+					},
+					uploadAfter() {
+						this.callChange();
+						setTimeout(()=>{
+							this.instantly&&this.upload();
+						},1000)
+					},
+					createUpload(item) {
+						this.debug&&console.log('准备上传,option=：'+JSON.stringify(this.option));
+						item.type = 'loading';
+						delete item.responseText;
+						return new Promise((resolve,reject)=>{
+							let {url,name,method='POST',header={},formData={}} = this.option;
+							let form = new FormData();
+							for (let keys in formData) {
+								form.append(keys, formData[keys])
+							}
+							form.append(name, item.file);
+							let xmlRequest = new XMLHttpRequest();
+							xmlRequest.open(method, url, true);
+							for (let keys in header) {
+								xmlRequest.setRequestHeader(keys, header[keys])
+							}
+							xmlRequest.upload.addEventListener(
+								'progress',
+								event => {
+									if (event.lengthComputable) {
+										let progress = Math.ceil((event.loaded * 100) / event.total)
+										if (progress <= 100) {
+											item.progress = progress;
+											this.changeFilesItem(item);
+										}
+									}
+								},
+								false
+							);
+							
+							xmlRequest.ontimeout = () => {
+								console.error('请求超时')
+								item.type = 'fail';
+								this.changeFilesItem(item,true);
+								return resolve(false);
+							}
+							
+							xmlRequest.onreadystatechange = ev => {
+								if (xmlRequest.readyState == 4) {
+									this.debug && console.log('接口是否支持跨域',xmlRequest.withCredentials); 
+									if (xmlRequest.status == 200) {
+										this.debug && console.log('上传完成：' + xmlRequest.responseText)
+										item['responseText'] = xmlRequest.responseText;
+										item.type = 'success';
+										this.changeFilesItem(item,true);
+										return resolve(true);
+									} else if (xmlRequest.status == 0) {
+										console.error('status = 0 :请检查请求头Content-Type与服务端是否匹配，服务端已正确开启跨域，并且nginx未拦截阻止请求')
+									}
+									console.error('--ERROR--：status = ' + xmlRequest.status) 
+									item.type = 'fail';
+									this.changeFilesItem(item,true);
+									return resolve(false);
+								}
+							}
+							xmlRequest.send(form)
+						});
+						
+					}
+				}
+			});
+			
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,93 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 3791506 */
+  src: url('iconfont.ttf?t=1718373714629') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-invite-rtc:before {
+  content: "\e65f";
+}
+
+.icon-quit:before {
+  content: "\e606";
+}
+
+.icon-camera-off:before {
+  content: "\e6b5";
+}
+
+.icon-speaker-off:before {
+  content: "\ea3c";
+}
+
+.icon-microphone-on:before {
+  content: "\e63b";
+}
+
+.icon-speaker-on:before {
+  content: "\e6a4";
+}
+
+.icon-camera-on:before {
+  content: "\e627";
+}
+
+.icon-microphone-off:before {
+  content: "\efe5";
+}
+
+.icon-chat:before {
+  content: "\e600";
+}
+
+.icon-setting:before {
+  content: "\e620";
+}
+
+.icon-friend:before {
+  content: "\e604";
+}
+
+.icon-exit:before {
+  content: "\e9e4";
+}
+
+.icon-chat-video:before {
+  content: "\e73b";
+}
+
+.icon-chat-voice:before {
+  content: "\e633";
+}
+
+.icon-ok:before {
+  content: "\e6ac";
+}
+
+.icon-receipt:before {
+  content: "\e61a";
+}
+
+.icon-emoji:before {
+  content: "\e60c";
+}
+
+.icon-group:before {
+  content: "\e7f4";
+}
+
+.icon-phone-reject:before {
+  content: "\e605";
+}
+
+.icon-phone-accept:before {
+  content: "\e8be";
+}
+

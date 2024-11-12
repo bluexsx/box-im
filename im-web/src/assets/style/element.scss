@@ -1,0 +1,112 @@
+/* 改变 icon 字体路径变量，必需 */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+// 文字
+$--font-family: Microsoft YaHei, 'Avenir', Helvetica, Arial, sans-serif;
+@import "thems";
+@import "~element-ui/packages/theme-chalk/src/index";
+
+.el-message {
+  z-index: 99999999 !important;
+  background: #fff !important;
+  box-shadow: 0 4px 12px 0 rgb(0 0 0 / 15%);
+  border: none !important;
+  min-width: unset !important;
+  border-radius: 3px !important;
+  padding: 14px 18px 14px 16px !important;
+
+  .el-message__content {
+    color: #000 !important;
+  }
+}
+
+.el-scrollbar__thumb {
+  background-color: #A0A8AF !important;
+}
+
+.el-dialog__title {
+  font-size: var(--im-font-size-larger);
+  color: var(--im-text-color);
+}
+
+.el-dialog__header {
+  padding: 12px 18px !important;
+
+}
+
+.el-dialog__headerbtn {
+  top: 15px;
+  right: 20px;
+  font-size: 18px;
+}
+
+.el-checkbox__inner {
+  border-radius: 50% !important;
+}
+
+
+.el-button--success {
+  //background-color: #688758 !important;
+  //border-color: #4cae1b !important;
+}
+
+.el-button--danger {
+  //background-color: #ea4949 !important;
+  //border-color: #ea4949 !important;
+}
+
+.el-button {
+  padding: 8px 15px !important;
+}
+
+.el-checkbox {
+  display: flex;
+  align-items: center;
+
+  //修改选中框的大小
+  .el-checkbox__inner {
+    width: 16px;
+    height: 16px;
+
+    //修改选中框中的对勾的大小和位置
+    &::after {
+      height: 7px;
+      left: 5px;
+      top: 2px;
+    }
+  }
+
+  // 修改点击文字颜色不变
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: #333333;
+  }
+
+  .el-checkbox__label {
+    line-height: 20px;
+    padding-left: 8px;
+  }
+}
+
+.el-form-item {
+  margin-bottom: 15px !important;
+}
+
+.el-input--small {
+  font-size: $--font-size-base;
+}
+
+.el-input__inner {
+  padding: 0 10px;
+}
+
+.el-textarea__inner {
+  padding: 5px 10px;
+  font-family: $--font-family;
+}
+
+.el-tag--mini {
+  height: 18px;
+  padding: 0 2px;
+  line-height: 16px;
+  border-radius: 2px;
+}

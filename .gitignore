@@ -1,0 +1,15 @@
+/.idea/
+/box-im.iml
+/im-server/im-server.iml
+/im-platform/im-platform.iml
+/im-client/im-client.iml
+/im-common/im-common.iml
+/im-server/target/
+/im-platform/target/
+/im-client/target/
+/im-common/target/
+/im-web/node_modules/
+/im-web/dist/
+/im-uniapp/node_modules/
+/im-uniapp/package-lock.json
+/im-uniapp/unpackage/
