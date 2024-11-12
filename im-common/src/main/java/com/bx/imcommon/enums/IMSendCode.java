@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public enum IMSendCode {
 
+
     /**
      * 发送成功
      */
