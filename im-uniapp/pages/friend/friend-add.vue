@@ -1,16 +1,18 @@
 <template>
 	<view class="page friend-add">
-		<view class="search-bar">
+    <nav-bar back>添加好友</nav-bar>
+		<view class="nav-bar">
+      <view class="nav-search">
 			<uni-search-bar v-model="searchText" radius="100" :focus="true" @confirm="onSearch()" @cancel="onCancel()"
 				placeholder="用户名/昵称"></uni-search-bar>
+      </view>
 		</view>
 		<view class="user-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(user) in users" :key="user.id" v-show="user.id != userStore.userInfo.id">
 					<view class="user-item">
 						<head-image :id="user.id" :name="user.nickName" 
-							:online="user.online" :url="user.headImage"
-							:size="100"></head-image>
+							:online="user.online" :url="user.headImage"></head-image>
 						<view class="user-name">{{ user.nickName}}</view>
 						<view class="user-btns">
 							<button type="primary" v-show="!isFriend(user.id)" size="mini"
@@ -82,9 +84,6 @@
 		display: flex;
 		flex-direction: column;
 
-		.search-bar {
-			background: white;
-		}
 		.user-items{
 			position: relative;
 			flex: 1;
@@ -102,8 +101,7 @@
 				.user-name {
 					flex:1;	
 					padding-left: 20rpx;
-					font-size: 30rpx;
-					font-weight: 600;
+					font-size: $im-font-size;
 					line-height: 60rpx;
 					white-space: nowrap;
 					overflow: hidden;

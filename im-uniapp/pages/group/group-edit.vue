@@ -1,29 +1,32 @@
 <template>
-	<view v-if="userStore.userInfo.type == 1" class="page group-edit">
-		<uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
-			label-width="100%">
-			<uni-forms-item label="群聊头像:" name="headImage">
-				<image-upload v-if="isOwner" :onSuccess="onUnloadImageSuccess">
-					<image :src="group.headImageThumb" class="group-image"></image>
-				</image-upload>
-				<head-image  v-if="!isOwner" :name="group.showGroupName" 
-					:url="group.headImageThumb" :size="200"></head-image>
-			</uni-forms-item>
-			<uni-forms-item label="群聊名称:" name="name" :required="true">
-				<uni-easyinput type="text" v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称" />
-			</uni-forms-item>
-			<uni-forms-item label="群聊备注:" name="remarkGroupName">
-				<uni-easyinput v-model="group.remarkGroupName" type="text" :placeholder="group.name" />
-			</uni-forms-item>
-			<uni-forms-item label="我在本群的昵称:" name="remarkNickName">
-				<uni-easyinput v-model="group.remarkNickName" type="text" :placeholder="userStore.userInfo.nickName" />
-			</uni-forms-item>
-			<uni-forms-item label="群公告:" name="notice">
-				<uni-easyinput type="textarea" v-model="group.notice" :disabled="!isOwner" placeholder="请输入群公告" />
-			</uni-forms-item>
-		</uni-forms>
-		<button type="primary" @click="submit()">提交</button>
-	</view>
+   <nav-bar back>修改群资料</nav-bar>
+    <view v-if="userStore.userInfo.type == 1" class="page group-edit">
+      <uni-card :is-shadow="false" is-full :border="false">
+        <uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
+          label-width="100%">
+          <uni-forms-item name="headImage" class="avatar">
+            <image-upload v-if="isOwner" :onSuccess="onUnloadImageSuccess">
+              <image :src="group.headImageThumb" class="group-image"></image>
+            </image-upload>
+            <head-image  v-if="!isOwner" :name="group.showGroupName"
+              :url="group.headImageThumb" :size="200"></head-image>
+          </uni-forms-item>
+          <uni-forms-item label="群聊名称" name="name" :required="true">
+            <uni-easyinput type="text" v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称" />
+          </uni-forms-item>
+          <uni-forms-item label="群聊备注" name="remarkGroupName">
+            <uni-easyinput v-model="group.remarkGroupName" type="text" :placeholder="group.name" />
+          </uni-forms-item>
+          <uni-forms-item label="我在本群的昵称" name="remarkNickName">
+            <uni-easyinput v-model="group.remarkNickName" type="text" :placeholder="userStore.userInfo.nickName" />
+          </uni-forms-item>
+          <uni-forms-item label="群公告" name="notice">
+            <uni-easyinput type="textarea" v-model="group.notice" :disabled="!isOwner" placeholder="请输入群公告" />
+          </uni-forms-item>
+        </uni-forms>
+      </uni-card>
+      <button class="bottom-btn" type="primary" @click="submit()">提交</button>
+    </view>
 </template>
 
 <script>
@@ -138,7 +141,7 @@
 
 <style lang="scss" scoped>
 	.group-edit {
-		padding: 20rpx;
+		//padding: 20rpx;
 
 		.group-image {
 			width: 200rpx;
@@ -147,4 +150,7 @@
 			border-radius: 5%;
 		}
 	}
+  .avatar {
+    margin-top: -30px;
+  }
 </style>

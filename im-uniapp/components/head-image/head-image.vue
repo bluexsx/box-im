@@ -3,7 +3,7 @@
 		<image class="avatar-image" v-if="url" :src="url" 
 		:style="avatarImageStyle"  lazy-load="true"  mode="aspectFill"/>
 		<view class="avatar-text" v-if="!url" :style="avatarTextStyle">
-			{{name.substring(0,1).toUpperCase()}}
+			{{name?.substring(0,1).toUpperCase()}}
 		</view>
 		<view v-if="online" class="online" title="用户当前在线">
 		</view>
@@ -24,20 +24,20 @@
 				type: Number
 			},
 			size: {
-				type: Number,
-				default: 20
+				type: [Number, String],
+				default: 'default'
 			},
 			url: {
 				type: String
 			},
 			name: {
 				type: String,
-				default: "?"
+				default: null
 			},
 			online: {
 				type: Boolean,
 				default: false
-			}
+			},
 		},
 		methods: {
 			showUserInfo(e) {
@@ -49,15 +49,30 @@
 			}
 		},
 		computed: {
+        _size(){
+          if(typeof this.size === 'number'){
+            return this.size;
+          } else if(typeof this.size === 'string'){
+            return {
+              'default': 96,
+              'small': 84,
+              'smaller': 72,
+              'mini': 60,
+              'minier': 48,
+              'lage': 108,
+              'lager': 120,
+            }[this.size]
+          }
+        },
 				avatarImageStyle() {
-					return `width:${this.size}rpx;
-					height:${this.size}rpx;`
+					return `width:${this._size}rpx;
+					height:${this._size}rpx;`
 				},
 				avatarTextStyle() {
-					return `width: ${this.size}rpx;
-					height:${this.size}rpx;
-					background-color:${this.textColor};
-					font-size:${this.size*0.5}rpx;
+					return `width: ${this._size}rpx;
+					height:${this._size}rpx;
+					background-color:${this.name ? this.textColor : '#fff'};
+					font-size:${this._size*0.5}rpx;
 					`
 				},
 			textColor() {

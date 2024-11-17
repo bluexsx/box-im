@@ -1,12 +1,10 @@
 <template>
 	<view class="tab-page group">
-		<view class="nav-bar">
+    <nav-bar add search @add="onCreateNewGroup" @search="showSearch = !showSearch">群聊</nav-bar>
+		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
 				<uni-search-bar v-model="searchText" cancelButton="none" radius="100"
 					placeholder="点击搜索群聊"></uni-search-bar>
-			</view>
-			<view class="nav-add" @click="onCreateNewGroup()">
-				<uni-icons type="personadd" size="35"></uni-icons>
 			</view>
 		</view>
 		<view class="group-tip" v-if="groupStore.groups.length==0">
@@ -27,6 +25,7 @@
 	export default {
 		data() {
 			return {
+        showSearch: false,
 				searchText: ""
 			}
 		},
@@ -49,21 +48,6 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
-
-		.nav-bar {
-			padding: 2rpx 10rpx;
-			display: flex;
-			align-items: center;
-			background-color: white;
-
-			.nav-search {
-				flex: 1;
-			}
-
-			.nav-add {
-				cursor: pointer;
-			}
-		}
 
 		.group-tip {
 			position: absolute;

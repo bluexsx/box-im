@@ -1,11 +1,9 @@
 <template>
+  <nav-bar add search @add="onAddNewFriends" @search="showSearch = !showSearch">好友</nav-bar>
 	<view class="tab-page friend">
-		<view class="nav-bar">
+		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
 				<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="点击搜索好友"></uni-search-bar>
-			</view>
-			<view class="nav-add" @click="onAddNewFriends()">
-				<uni-icons type="personadd" size="35"></uni-icons>
 			</view>
 		</view>
 		<view class="friend-tip" v-if="friends.length==0">
@@ -15,8 +13,7 @@
 			<up-index-list :index-list="friendIdx" >
 				<template v-for="(friends,i) in friendGroups">
 					<up-index-item>
-						<up-index-anchor :text="friendIdx[i]=='*'?'在线':friendIdx[i]"
-							bgColor="#f2f3fd"></up-index-anchor>
+						<up-index-anchor :text="friendIdx[i]=='*'?'在线':friendIdx[i]"></up-index-anchor>
 						<view v-for="(friend,idx) in friends" :key="idx">
 							<friend-item :friend="friend"></friend-item>
 						</view>
@@ -34,6 +31,7 @@
 	export default {
 		data() {
 			return {
+        showSearch: false,
 				searchText: ''
 			}
 		},
@@ -109,30 +107,29 @@
 		display: flex;
 		flex-direction: column;
 
+    :deep(.u-index-anchor){
+      height: 60rpx !important;
+      background-color: unset !important;
+      border-bottom: none !important;
+    }
+    :deep(.u-index-anchor__text){
+      color: $im-text-color !important;
+    }
+    :deep(.u-index-list__letter__item){
+      width: 48rpx !important;
+      height: 48rpx !important;
+    }
+    :deep(.u-index-list__letter__item__index){
+      font-size: $im-font-size-small !important;
+    }
+
 		.friend-tip {
 			position: absolute;
 			top: 400rpx;
 			padding: 50rpx;
 			text-align: center;
 			line-height: 50rpx;
-			text-align: left;
-			color: darkblue;
-			font-size: 30rpx;
-		}
-
-		.nav-bar {
-			padding: 2rpx 10rpx;
-			display: flex;
-			align-items: center;
-			background-color: white;
-
-			.nav-search {
-				flex: 1;
-			}
-
-			.nav-add {
-				cursor: pointer;
-			}
+      color: $im-text-color-lighter;
 		}
 
 		.friend-items {

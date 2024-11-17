@@ -1,17 +1,18 @@
 <template>
 	<view class="tab-page">
+    <nav-bar search @search="showSearch = !showSearch">消息</nav-bar>
 		<view v-if="loading" class="chat-loading">
 			<loading :size="50" :mask="false">
 				<view>消息接收中...</view>
 			</loading>
 		</view>
-		<view class="nav-bar">
+		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
 				<uni-search-bar radius="100" v-model="searchText" cancelButton="none" placeholder="搜索"></uni-search-bar>
 			</view>
 		</view>
 		<view class="chat-tip" v-if="!loading && chatStore.chats.length==0">
-			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
+        温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
 			<view v-for="(chat,index) in chatStore.chats" :key="index">
@@ -31,6 +32,7 @@
 	export default {
 		data() {
 			return {
+        showSearch: false,
 				searchText: "",
 				menu: {
 					show: false,
@@ -120,34 +122,16 @@
 <style scoped lang="scss">
 	.tab-page {
 		position: relative;
-		border: #dddddd solid 1px;
 		display: flex;
 		flex-direction: column;
-		
 
-		.nav-bar {
-			padding: 2rpx 20rpx;
-			display: flex;
-			align-items: center;
-			background-color: white;
-			border-bottom: 1px solid #ddd;
-			height: 110rpx;
-			.nav-search {
-				flex: 1;
-				height: 110rpx;
-			}
-		
-			
-		}
-		
 		.chat-tip {
 			position: absolute;
 			top: 400rpx;
 			padding: 50rpx;
 			line-height: 50rpx;
-			text-align: left;
-			color: darkblue;
-			font-size: 30rpx;
+			text-align: center;
+			color: $im-text-color-lighter;
 		}
 
 		.chat-loading {
@@ -158,11 +142,10 @@
 			position: fixed;
 			top:  0;
 			z-index: 999;
-			color: blue;
+      color: $im-text-color-lighter;
 
 			.loading-box {
 				position: relative;
-
 			}
 		}
 

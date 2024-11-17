@@ -1,7 +1,6 @@
 <template>
 	<view class="friend-item" @click="showFriendInfo()">
-		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage"
-			:size="90"></head-image>
+		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage" size="smaller"></head-image>
 		<view class="friend-info">
 			<view class="friend-name">{{ friend.nickName}}</view>
 			<view class="friend-online">
@@ -37,7 +36,7 @@
 
 <style scope lang="scss">
 	.friend-item {
-		height: 100rpx;
+		height: 80rpx;
 		display: flex;
 		margin-bottom: 1rpx;
 		position: relative;
@@ -48,7 +47,7 @@
 		white-space: nowrap;
 
 		&:hover {
-			background-color: #f5f6ff;
+			background-color: $im-bg;
 		}
 
 		.friend-info {
@@ -59,19 +58,17 @@
 			text-align: left;
 
 			.friend-name {
-				font-size: 30rpx;
-				font-weight: 600;
-				line-height: 60rpx;
+				font-size: $im-font-size;
 				white-space: nowrap;
 				overflow: hidden;
 			}
-			
+
 			.friend-online {
+        margin-top: 4rpx;
 				.online {
 					padding-right: 4rpx;
-					width: 32rpx;
-					height: 32rpx;
-				
+					width: 24rpx;
+					height: 24rpx;
 				}
 			}
 		}

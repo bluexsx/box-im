@@ -1,30 +1,46 @@
 <template>
 	<view class="page mine">
-		<view class="content" @click="onModifyInfo()">
-			<head-image :name="userInfo.nickName"  
-				:url="userInfo.headImage"
-				:size="160"></head-image>
-			<view class="info-item">
-				<view class="info-primary">
-					<text class="info-username">
-						{{userInfo.userName}}
-					</text>
-					<text v-show="userInfo.sex==0" class="iconfont icon-man" 
-						color="darkblue"></text>
-					<text v-show="userInfo.sex==1" class="iconfont icon-girl"
-						color="darkred"></text>
-				</view>
-				<text>
-					昵称 ：{{userInfo.nickName}}
-				</text>
-				<text>
-					签名 ：{{userInfo.signature}}
-				</text>
-			</view>
-			<view class="info-arrow">></view>
-		</view>
-		<view class="line"></view>
-		<view class="btn-group">
+    <nav-bar>我的</nav-bar>
+    <uni-card :is-shadow="false" is-full :border="false">
+      <view class="content" @click="onModifyInfo()">
+        <head-image :name="userInfo.nickName"
+          :url="userInfo.headImage"
+          :size="160"></head-image>
+        <view class="info-item">
+          <view class="info-primary">
+            <text class="info-username">
+              {{userInfo.userName}}
+            </text>
+            <text v-show="userInfo.sex==0" class="iconfont icon-man"
+              color="darkblue"></text>
+            <text v-show="userInfo.sex==1" class="iconfont icon-girl"
+              color="darkred"></text>
+          </view>
+          <view class="info-text">
+            <text class="label-text">
+              昵称:
+            </text>
+            <text class="content-text">
+               {{userInfo.nickName}}
+            </text>
+          </view>
+          <view  class="info-text">
+            <view>
+              <text class="label-text">
+                签名:
+              </text>
+              <text  class="content-text">
+                {{userInfo.signature}}
+              </text>
+            </view>
+          </view>
+        </view>
+        <view class="info-arrow">
+
+        </view>
+      </view>
+    </uni-card>
+		<view class="bottom-btn">
 			<button class="btn" type="primary" @click="onModifyPassword()">修改密码</button>
 			<button class="btn" type="warn" @click="onQuit()">退出</button>
 		</view>
@@ -72,7 +88,7 @@
 <style scoped lang="scss">
 	.mine {
 		.content {
-			height: 200rpx;
+			//height: 200rpx;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
@@ -85,18 +101,36 @@
 				padding-left: 40rpx;
 				flex: 1;
 
+        .info-text {
+          line-height: 1.5;
+          //margin-bottom: 10rpx;
+        }
+
+        .label-text {
+          font-size: $im-font-size-small;
+          color: $im-text-color-light;
+
+        }
+        .content-text {
+          font-size: $im-font-size-small;
+          color: $im-text-color-light;
+        }
+
 				.info-primary {
 					display: flex;
 					align-items: center;
+          margin-bottom: 10rpx;
 					.info-username {
-						font-size: 40rpx;
+						font-size: $im-font-size-large;
 						font-weight: 600;
 					}
-					
+
 					.icon-man {
-						color: darkblue;
+						color: $im-text-color;
+            font-size: $im-font-size-large;
+            padding-left: 10rpx;
 					}
-					
+
 					.icon-girl {
 						color: darkred;
 					}
@@ -106,22 +140,10 @@
 			.info-arrow {
 				width: 50rpx;
 				font-size: 30rpx;
-				font-weight: 600;
+        position: relative;
+        left: 30rpx;
 			}
 		}
 
-		.line {
-			margin: 20rpx;
-			border-bottom: 1px solid #aaaaaa;
-		}
-
-		.btn-group {
-			margin: 100rpx;
-
-			.btn {
-				margin-top: 20rpx;
-			}
-
-		}
 	}
 </style>

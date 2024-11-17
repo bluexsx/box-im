@@ -1,5 +1,6 @@
 <template>
-	<view class="register">
+	<view class="page register">
+    <nav-bar back>盒子im</nav-bar>
 		<view class="title">欢迎注册</view>
 		<uni-forms class="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
 			<uni-forms-item name="userName" label="用户名">
@@ -14,7 +15,7 @@
 			<uni-forms-item name="corfirmPassword" label="确认密码">
 				<uni-easyinput type="password" v-model="dataForm.corfirmPassword" placeholder="确认密码" />
 			</uni-forms-item>
-			<button class="btn-submit" @click="submit" type="warn">注册并登陆</button>
+			<button class="btn-submit" @click="submit" type="primary">注册并登陆</button>
 		</uni-forms>
 		<navigator class="nav-login" url="/pages/login/login"  >
 			返回登陆页面
@@ -116,9 +117,9 @@
 		.title {
 			padding-top: 150rpx;
 			padding-bottom: 50rpx;
-			color: royalblue;
+			color: $im-color-primary;
 			text-align: center;
-			font-size: 60rpx;
+			font-size: 24px;
 			font-weight: 600;
 		}
 
@@ -135,7 +136,7 @@
 			position: fixed;
 			width: 100%;
 			bottom: 100rpx;
-			color: royalblue;
+      color: $im-color-primary;
 			text-align: center;
 			font-size: 32rpx;
 		}

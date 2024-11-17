@@ -1,0 +1,141 @@
+/** 原生button样式 **/
+uni-button {
+	font-size: $im-font-size !important;
+}
+uni-button[type='primary'] {
+	colo: #fff !important;
+	background-color: $im-color-primary !important;
+}
+
+uni-button[type='primary'][plain] {
+	color: $im-color-primary !important;
+	border: 1px solid $im-color-primary;
+	background-color: transparent;
+}
+
+uni-button[type='warn'] {
+	colo: #fff !important;
+	background-color: $im-color-danger !important;
+}
+
+uni-button[type='warn'][plain] {
+	color: $im-color-danger !important;
+	border: 1px solid $im-color-danger !important;
+	background-color: transparent !important;
+}
+
+uni-button[size='mini'] {
+	font-size: $im-font-size-smaller !important;
+}
+
+.button-hover[type='primary'] {
+	colo: #fff !important;
+	background-color: $im-color-primary-dark-1 !important;
+}
+
+/** uni-ui input激活后边框、图标颜色 **/
+.uni-easyinput__content.is-focused:not(.is-input-error-border) {
+	border-color: $im-color-primary-light-2 !important;
+	
+	.content-clear-icon {
+		color: $im-color-primary-light-2 !important;	
+	}
+}
+
+/** 底部导航 **/
+.uni-tabbar-bottom .uni-tabbar {
+	box-shadow: $im-box-shadow;
+}
+
+.uni-tabbar-border {
+	display: none;
+}
+
+.segmented-control {
+	border-color: $im-color-primary !important;
+
+	.segmented-control__item--button {
+		border-color: $im-color-primary !important;
+	}
+	.segmented-control__item--button--active {
+		background-color: $im-color-primary !important;
+
+		.segmented-control__text{
+			color: #fff !important;
+		}
+	}
+	.segmented-control__text{
+		color: $im-color-primary !important;
+	}
+}
+
+.uni-radio-input {
+	//border-color: $im-color-primary !important;
+	//background-color: $im-color-primary !important;
+}
+
+.uni-section__content-title {
+	font-size: $im-font-size !important;
+	color: $im-text-color-light;
+}
+
+.uni-forms-item__label {
+	color: $im-text-color;
+	font-size: $im-font-size !important;
+}
+.uni-forms-item {
+	//margin-bottom: 8px !important;
+}
+.uni-easyinput__content-input {
+	font-size: $im-font-size !important;
+}
+.uni-easyinput__placeholder-class {
+	color: $im-text-color-lighter;
+	font-size: $im-font-size !important;;
+}
+.uni-easyinput__content-textarea {
+	font-size: $im-font-size !important;;
+}
+.uni-input-input:disabled {
+	color: $im-text-color-light;
+}
+.uni-forms-item.is-direction-top .uni-forms-item__label {
+	padding: 0 !important;
+}
+.uni-data-checklist .checklist-group .checklist-box .checklist-content .checklist-text {
+	font-size: $im-font-size !important;
+}
+.uni-card .uni-card__content {
+	color: unset !important;
+	padding: 10px 0 !important;
+}
+.uni-tag-text--small{
+	font-size: 10px !important;
+	font-weight: bolder !important;
+}
+
+.nav-bar {
+	height: 100rpx;
+	padding: 0 20rpx;
+	display: flex;
+	align-items: center;
+	background-color: white;
+	border-bottom: 1px solid $im-border;
+
+	.nav-search {
+		flex: 1;
+	}
+
+	.nav-add {
+		cursor: pointer;
+	}
+}
+
+
+.bottom-btn {
+	margin: 40rpx 40rpx;
+
+	uni-button + uni-button {
+		margin-top: 20rpx;
+	}
+}

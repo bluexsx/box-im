@@ -1,6 +1,6 @@
 <template>
 	<view class="chat-record">
-		<view class="chat-record-bar" id="chat-record-bar" :style="recordBarStyle" @click.stop=""
+		<view class="chat-record-bar" :class="{recording: recording }" id="chat-record-bar" @click.stop=""
 			@touchstart.prevent="onStartRecord" @touchmove.prevent="onTouchMove" @touchend.prevent="onEndRecord">
 			{{recording?'正在录音':'长按 说话'}}</view>
 		<view v-if="recording" class="chat-record-window" :style="recordWindowStyle">
@@ -130,12 +130,6 @@
 				const bottom = windowHeight - this.recordBarTop + 12;
 				return `bottom:${bottom}px;`
 			},
-			recordBarStyle() {
-				const bgColor = this.recording ? "royalblue" : "white";
-				const textColor = this.recording ? "white" : "black";
-				return `background-color:${bgColor};
-						color:${textColor};`
-			},
 			recordTip() {
 				if (this.druation > 50) {
 					return `${60-this.druation}s后将停止录音`;
@@ -157,7 +151,7 @@
 			height: 80rpx;
 
 			.note {
-				background: linear-gradient(to top, #395ff3 0%, #89aff3 100%);
+				background: linear-gradient(to top, $im-color-primary-light-1 0%, $im-color-primary-light-6 100%);
 				width: 4px;
 				height: 50%;
 				border-radius: 5rpx;
@@ -167,19 +161,19 @@
 
 				@keyframes loading {
 					0% {
-						background-image: linear-gradient(to right, #395ff3 0%, #89aff3 100%);
+						background-image: linear-gradient(to right, $im-color-primary-light-1 0%, $im-color-primary-light-6 100%);
 						height: 20%;
 						border-radius: 5rpx;
 					}
 
 					50% {
-						background-image: linear-gradient(to top, #395ff3 0%, #a9cff3 100%);
+						background-image: linear-gradient(to top, $im-color-primary-light-1 0%, $im-color-primary-light-6 100%);
 						height: 80%;
 						border-radius: 5rpx;
 					}
 
 					100% {
-						background-image: linear-gradient(to top, #395ff3 0%, #a9cff3 100%);
+						background-image: linear-gradient(to top, $im-color-primary-light-1 0%, $im-color-primary-light-6 100%);
 						height: 20%;
 						border-radius: 5rpx;
 					}
@@ -192,13 +186,19 @@
 			margin: 10rpx;
 			border-radius: 10rpx;
 			text-align: center;
+      box-shadow: $im-box-shadow;
+
+      &.recording {
+        background-color: $im-color-primary;
+        color: #fff;
+      }
 		}
 
 		.chat-record-window {
 			position: fixed;
 			left: 0;
+      right: 0;
 			height: 360rpx;
-			width: 100%;
 			background-color: rgba(255, 255, 255, 0.95);
 			padding: 30rpx;
 
@@ -211,7 +211,8 @@
 
 			.rc-tip {
 				text-align: center;
-				font-size: 30rpx;
+				font-size: $im-font-size-small;
+        color: $im-text-color-light;
 				margin-top: 20rpx;
 			}
 
@@ -229,12 +230,9 @@
 			}
 
 			.red {
-				color: red !important;
+				color: $im-color-danger !important;
 			}
 
-			.black {
-				color: gray;
-			}
 		}
 	}
 </style>

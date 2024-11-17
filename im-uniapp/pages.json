@@ -44,10 +44,9 @@
 	}
 	],
 	"globalStyle": {
-		"navigationBarTitleText": "盒子IM",
-		"navigationBarTextStyle": "black",
-		"navigationBarBackgroundColor": "#F0F0F0",
-		"backgroundColor": "#fdfdfd"
+		"navigationStyle": "custom",
+		"navigationBarBackgroundColor": "#f7f7f7",
+		"backgroundColor": "#f7f7f7"
 	},
 	"tabBar": {
 		"color": "#000000",
