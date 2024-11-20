@@ -65,6 +65,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         member.setGroupId(group.getId());
         member.setUserId(user.getId());
         member.setHeadImage(user.getHeadImageThumb());
+        member.setUserNickName(user.getNickName());
         member.setRemarkNickName(vo.getRemarkNickName());
         member.setRemarkGroupName(vo.getRemarkGroupName());
         groupMemberService.save(member);
