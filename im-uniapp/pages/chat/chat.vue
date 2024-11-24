@@ -16,9 +16,9 @@
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
 			<view v-for="(chat, index) in chatStore.chats" :key="index">
-				<pop-menu v-if="isShowChat(chat)" :items="menu.items" @select="onSelectMenu($event, index)">
+				<long-press-menu v-if="isShowChat(chat)" :items="menu.items" @select="onSelectMenu($event, index)">
 					<chat-item :chat="chat" :index="index" :active="menu.chatIdx == index"></chat-item>
-				</pop-menu>
+				</long-press-menu>
 			</view>
 		</scroll-view>
 	</view>

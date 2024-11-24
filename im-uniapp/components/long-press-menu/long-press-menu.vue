@@ -3,7 +3,7 @@
 		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
 			<slot></slot>
 		</view>
-		<view v-if="isShowMenu" class="pop-menu" @touchstart="onClose()" @contextmenu.prevent=""></view>
+		<view v-if="isShowMenu" class="menu-mask" @touchstart="onClose()" @contextmenu.prevent=""></view>
 		<view v-if="isShowMenu" class="menu" :style="menuStyle">
 			<view class="menu-item" v-for="(item) in items" :key="item.key" @click.prevent="onSelectMenu(item)">
 				<text :style="itemStyle(item)"> {{ item.name }}</text>
@@ -14,7 +14,7 @@
 
 <script>
 export default {
-	name: "pop-menu",
+	name: "long-press-menu",
 	data() {
 		return {
 			isShowMenu: false,
@@ -74,14 +74,14 @@ export default {
 			if (item.color) {
 				return `color:${item.color};`
 			}
-			// return `color:#4f76e6;`;
+			return `color:#000;`;
 		}
 	}
 }
 </script>
 
 <style lang="scss" scoped>
-.pop-menu {
+.menu-mask {
 	position: fixed;
 	left: 0;
 	top: 0;
