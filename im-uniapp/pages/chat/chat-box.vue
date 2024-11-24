@@ -1,9 +1,6 @@
 <template>
 	<view class="page chat-box">
-		<view class="header">
-			<text class="title">{{title}}</text>
-			<uni-icons class="btn-side right" type="more-filled" size="30" @click="onShowMore()"></uni-icons>
-		</view>
+    <nav-bar back more @more="onShowMore">{{title}}</nav-bar>
 		<view class="chat-msg" @click="switchChatTabBox('none',true)">
 			<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 				:scroll-into-view="'chat-item-'+scrollMsgIdx">
@@ -21,7 +18,7 @@
 			<scroll-view v-if="atUserIds.length>0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
 				<view class="chat-at-items">
 					<view v-for="m in atUserItems" class="chat-at-item">
-						<head-image :name="m.showNickName" :url="m.headImage" :size="50"></head-image>
+						<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
 					</view>
 				</view>
 			</scroll-view>
@@ -779,12 +776,13 @@
 			padding: 5px;
 			background-color: #f9f9f9;
 			line-height: 50px;
-			font-size: 36rpx;
+			font-size: $im-font-size-large;
+      box-shadow: $im-box-shadow-lighter;
+      z-index: 1;
 
 			.btn-side {
 				position: absolute;
 				line-height: 60rpx;
-				font-size: 28rpx;
 				cursor: pointer;
 
 				&.right {
@@ -811,9 +809,9 @@
 			padding: 0 10rpx;
 
 			.icon-at {
-				font-size: 35rpx;
-				color: darkblue;
-				font-weight: 600;
+				font-size: $im-font-size-larger;
+				color: $im-color-primary;
+        font-weight: bold;
 			}
 
 			.chat-at-scroll-box {
@@ -833,33 +831,37 @@
 
 		}
 
+    $icon-color: rgba(0,0,0, 0.88);
 		.send-bar {
 			display: flex;
 			align-items: center;
 			padding: 10rpx;
-			margin-bottom: 10rpx;
-			border-top: #eee solid 1px;
-			background-color: #f7f8fd;
+			//margin-bottom: 10rpx;
+			border-top: $im-border solid 1px;
+			background-color: $im-bg;
 			height: 80rpx;
+      //box-shadow: $im-box-shadow-lighter;
+      z-index: 1;
 
 			.iconfont {
-				font-size: 68rpx;
-				margin: 6rpx;
+				font-size: 60rpx;
+				margin: 0 10rpx;
+        color: $icon-color;
 			}
 
 			.chat-record {
 				flex: 1;
-
 			}
 
 			.send-text {
 				flex: 1;
 				overflow: auto;
-				padding: 20rpx;
+				padding: 14rpx 20rpx;
 				background-color: #fff;
-				border-radius: 20rpx;
-				font-size: 30rpx;
+				border-radius: 8rpx;
+				font-size: $im-font-size;
 				box-sizing: border-box;
+        margin: 0 10rpx;
 
 				.send-text-area {
 					width: 100%;
@@ -875,28 +877,30 @@
 		.chat-tab-bar {
 			height: 500rpx;
 			padding: 20rpx;
-			background-color: #f8f8f8;
+			background-color: $im-bg;
 
 			.chat-tools {
 				display: flex;
 				flex-wrap: wrap;
+        padding-top: 20rpx;
 
 				.chat-tools-item {
-					width: 140rpx;
+					width: 25%;
 					padding: 16rpx;
+          box-sizing: border-box;
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 
 					.tool-icon {
-						padding: 28rpx;
-						font-size: 60rpx;
+						padding: 26rpx;
+						font-size: 54rpx;
 						border-radius: 20%;
 						background-color: white;
-						color: black;
+						color: $icon-color;
 
-						&.active {
-							background-color: #ddd;
+						&:active {
+							background-color: $im-bg-active;
 						}
 					}
 
@@ -914,10 +918,11 @@
 				.emotion-item-list {
 					display: flex;
 					flex-wrap: wrap;
+          justify-content: space-between;
 
 					.emotion-item {
-						width: 40px;
-						height: 40px;
+						width: 34px;
+						height: 34px;
 						text-align: center;
 						cursor: pointer;
 						padding: 6px;

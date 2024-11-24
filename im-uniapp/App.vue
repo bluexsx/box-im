@@ -383,6 +383,7 @@
 
 <style lang="scss">
 	@import "@/uni_modules/uview-plus/index.scss";
+	@import "@/im.scss";
 	@import url('./static/icon/iconfont.css');
 
 	// #ifdef H5 
@@ -392,17 +393,37 @@
 	// #endif
 
 	.tab-page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
 		// #ifdef H5
-		height: calc(100vh - 50px); // h5平台100vh是包含了底部高度，需要减去
+		height: calc(100vh - 50px - $im-nav-bar-height); // h5平台100vh是包含了底部高度，需要减去
+    top: $im-nav-bar-height;
 		// #endif
+
 		// #ifndef H5
-		height: calc(100vh);
+		height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height);  // app平台还要减去顶部手机状态栏高度
+    top: calc($im-nav-bar-height + var(--status-bar-height));
 		// #endif
-		background-color: #f8f8f8;
+		color: $im-text-color;
+		background-color: $im-bg;
+		font-size: $im-font-size;
+		font-family: $font-family;
 	}
 
 	.page {
-		height: calc(100vh);
-		background-color: #f8f8f8;
+    position: relative;
+    // #ifdef H5
+    height: calc(100vh - $im-nav-bar-height);  // app平台还要减去顶部手机状态栏高度
+    top: $im-nav-bar-height;
+    // #endif
+    // #ifndef H5
+    height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height);  // app平台还要减去顶部手机状态栏高度
+    top: calc($im-nav-bar-height + var(--status-bar-height));
+    // #endif
+		color: $im-text-color;
+		background-color: $im-bg;
+		font-size: $im-font-size;
+		font-family: $font-family;
 	}
 </style>

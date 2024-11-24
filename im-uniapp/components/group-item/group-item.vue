@@ -1,7 +1,7 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
 		<head-image :name="group.showGroupName"
-			:url="group.headImage" :size="90"></head-image>
+			:url="group.headImage"></head-image>
 		<view class="group-name">
 			<view>{{ group.showGroupName}}</view>
 		</view>
@@ -33,21 +33,24 @@
 	.group-item {
 		height: 100rpx;
 		display: flex;
-		margin-bottom: 1rpx;
+    margin-bottom: 2rpx;
 		position: relative;
-		padding: 10rpx;
-		padding-left: 20rpx;
+    padding: 18rpx 20rpx;
 		align-items: center;
 		background-color: white;
 		white-space: nowrap;
-		&:hover {
-			background-color: #f5f6ff;
-		}
 
-		.group-name {
-			font-size: 32rpx;
+    &:hover {
+      background-color: $im-bg-active;
+    }
+
+    &.active {
+      background-color: $im-bg-active;
+    }
+
+    .group-name {
+			font-size: $im-font-size;
 			padding-left: 20rpx;
-			font-weight: 600;
 			text-align: left;
 			white-space: nowrap;
 			overflow: hidden;

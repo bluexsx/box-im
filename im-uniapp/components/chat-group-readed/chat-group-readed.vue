@@ -2,7 +2,7 @@
 	<uni-popup ref="popup" type="bottom">
 		<view class="chat-group-readed">
 			<view class="uni-padding-wrap uni-common-mt">
-				<uni-segmented-control :current="current" :values="items" style-type="button" active-color="#587ff0" @clickItem="onClickItem"/>
+				<uni-segmented-control :current="current" :values="items" style-type="button" @clickItem="onClickItem"/>
 			</view>
 			<view class="content">
 				<view v-if="current === 0">
@@ -100,7 +100,8 @@
 		flex-direction: column;
 		background-color: white;
 		padding: 10rpx;
-		border-radius: 15rpx;
+    
+		//border-radius: 15rpx;
 		.scroll-bar {
 			height: 800rpx;
 		}

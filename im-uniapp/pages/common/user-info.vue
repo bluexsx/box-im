@@ -1,33 +1,47 @@
 <template>
 	<view class="page user-info">
-		<view class="content">
-			<head-image  :name="userInfo.nickName" :url="userInfo.headImageThumb"
-			:size="160" @click="onShowFullImage()"></head-image>
-			
-			<view class="info-item">
-				<view class="info-primary">
-					<text class="info-username">
-						{{userInfo.userName}}
-					</text>
-					<uni-icons v-show="userInfo.sex==0" class="sex-boy" type="person-filled" size="20"
-						color="darkblue"></uni-icons>
-					<uni-icons v-show="userInfo.sex==1" class="sex-girl" type="person-filled" size="20"
-						color="darkred"></uni-icons>
-				</view>
-				<text>
-					昵称 ：{{userInfo.nickName}}
-				</text>
-				<text>
-					签名 ：{{userInfo.signature}}
-				</text>
-			</view>
-		</view>
-		<view class="line"></view>
-		<view class="btn-group">
-			<button class="btn" v-show="isFriend" type="primary" @click="onSendMessage()">发消息</button>
-			<button class="btn" v-show="!isFriend" type="primary" @click="onAddFriend()">加为好友</button>
-			<button class="btn" v-show="isFriend" type="warn" @click="onDelFriend()">删除好友</button>
-		</view>
+    <nav-bar back>用户信息</nav-bar>
+    <uni-card :is-shadow="false" is-full :border="false">
+      <view class="content">
+        <head-image  :name="userInfo.nickName" :url="userInfo.headImageThumb"
+        :size="160" @click="onShowFullImage()"></head-image>
+
+        <view class="info-item">
+          <view class="info-primary">
+            <text class="info-username">
+              {{userInfo.userName}}
+            </text>
+            <text v-show="userInfo.sex==0" class="iconfont icon-man"
+                  color="darkblue"></text>
+            <text v-show="userInfo.sex==1" class="iconfont icon-girl"
+                  color="darkred"></text>
+          </view>
+          <view class="info-text">
+            <text class="label-text">
+              昵称:
+            </text>
+            <text class="content-text">
+              {{userInfo.nickName}}
+            </text>
+          </view>
+          <view  class="info-text">
+            <view>
+              <text class="label-text">
+                签名:
+              </text>
+              <text  class="content-text">
+                {{userInfo.signature}}
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </uni-card>
+    <view class="bottom-btn">
+      <button class="btn" v-show="isFriend" type="primary" @click="onSendMessage()">发消息</button>
+      <button class="btn" v-show="!isFriend" type="primary" @click="onAddFriend()">加为好友</button>
+      <button class="btn" v-show="isFriend" type="warn" @click="onDelFriend()">删除好友</button>
+    </view>
 	</view>
 </template>
 
@@ -155,38 +169,49 @@
 			justify-content: space-between;
 			padding: 20rpx;
 
-			.info-item {
-				display: flex;
-				align-items: flex-start;
-				flex-direction: column;
-				padding-left: 40rpx;
-				flex: 1;
-				
-				
-				.info-primary {
-					display: flex;
-					align-items: center;
-					
-					.info-username {
-						font-size: 40rpx;
-						font-weight: 600;
-					}
-				}
-			}
+      .info-item {
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+        padding-left: 40rpx;
+        flex: 1;
+
+        .info-text {
+          line-height: 1.5;
+          //margin-bottom: 10rpx;
+        }
+
+        .label-text {
+          font-size: $im-font-size-small;
+          color: $im-text-color-light;
+
+        }
+        .content-text {
+          font-size: $im-font-size-small;
+          color: $im-text-color-light;
+        }
+
+        .info-primary {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10rpx;
+          .info-username {
+            font-size: $im-font-size-large;
+            font-weight: 600;
+          }
+
+          .icon-man {
+            color: $im-text-color;
+            font-size: $im-font-size-large;
+            padding-left: 10rpx;
+          }
+
+          .icon-girl {
+            color: darkred;
+          }
+        }
+      }
 		}
 
-		.line {
-			margin: 20rpx;
-			border-bottom: 1px solid #aaaaaa;
-		}
-
-		.btn-group {
-			margin: 100rpx;
-			
-			.btn{
-				margin-top: 20rpx;
-			}
-			
-		}
 	}
 </style>

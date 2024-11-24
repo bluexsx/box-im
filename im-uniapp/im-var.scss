@@ -1,0 +1,60 @@
+// 颜色
+$im-color-primary: #3e45d7;
+$im-color-primary-light-1: mix(#fff, $im-color-primary, 10%);
+$im-color-primary-light-2: mix(#fff, $im-color-primary, 20%);
+$im-color-primary-light-3: mix(#fff, $im-color-primary, 30%);
+$im-color-primary-light-4: mix(#fff, $im-color-primary, 40%);
+$im-color-primary-light-5: mix(#fff, $im-color-primary, 50%);
+$im-color-primary-light-6: mix(#fff, $im-color-primary, 60%);
+$im-color-primary-light-7: mix(#fff, $im-color-primary, 70%);
+$im-color-primary-light-8: mix(#fff, $im-color-primary, 80%);
+$im-color-primary-light-9: mix(#fff, $im-color-primary, 90%);
+$im-color-primary-dark-1: mix(#000, $im-color-primary, 10%);
+$im-color-primary-dark-2: mix(#000, $im-color-primary, 20%);
+$im-color-primary-dark-3: mix(#000, $im-color-primary, 30%);
+$im-color-primary-dark-4: mix(#000, $im-color-primary, 40%);
+
+$im-color-success: #18bc37;
+$im-color-warning: #f3a73f;
+$im-color-danger: #e43d33;
+$im-color-info: #8f939c;
+
+// 文字颜色
+$im-text-color: #000000;
+$im-text-color-light: #6a6a6a;  
+$im-text-color-lighter: #909399; 
+$im-text-color-lighter-extra: #c7c7c7;
+
+// 边框颜色
+$im-border: #F0F0F0;
+$im-border-light: #EDEDED;
+$im-border-lighter: #DCDCDC;
+$im-border-lighter-extra: #B9B9B9;
+
+// 文字大小
+$im-font-size: 30rpx;
+$im-font-size-small: 28rpx;
+$im-font-size-smaller: 26rpx;
+$im-font-size-smaller-extra: 24rpx;
+$im-font-size-large: 32rpx;
+$im-font-size-larger: 34rpx;
+$im-font-size-larger-extra: 36rpx;
+
+// 阴影
+$im-box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+$im-box-shadow-light:  0 2px 12px 0 rgba(0, 0, 0, 0.1);
+$im-box-shadow-lighter: 0px 0px 6px rgba(0, 0, 0, .12);
+$im-box-shadow-dark: 0px 1px 10px 2px rgba($color: #a5a4a4, $alpha: 0.5);
+
+// 背景
+$im-bg: #f7f7f7;
+$im-bg-active: #f1f1f1;
+
+// 标题
+$im-title-size: 26px; 
+$im-title-size-1: 22px; 
+$im-title-size-2: 18px;
+
+$font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+
+$im-nav-bar-height: 50px;

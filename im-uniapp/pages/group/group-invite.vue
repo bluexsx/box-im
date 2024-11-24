@@ -1,28 +1,27 @@
 <template>
 	<view class="page group-invite">
-		<view class="search-bar">
-			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
-		</view>
+    <view class="nav-bar">
+      <view class="nav-search">
+			  <uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入好友昵称搜索"></uni-search-bar>
+		  </view>
+    </view>
 		<view class="friend-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.includes(searchText)"
 					:key="friend.id">
-					<view class="friend-item" @click="onSwitchChecked(friend)">
+					<view class="friend-item" @click="onSwitchChecked(friend)" :class="{checked: friend.checked, disabled: friend.disabled}">
 						<head-image :name="friend.nickName" 
-							:online="friend.online" :url="friend.headImage"
-							:size="100"></head-image>
+							:online="friend.online" :url="friend.headImage"></head-image>
 						
 						<view class="friend-name">{{ friend.nickName}}</view>
-						<view class="friend-checked">
-							<radio :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>
-						</view>
+<!--						<view class="friend-checked">-->
+<!--							<radio :checked="friend.checked" :disabled="friend.disabled" @click.stop="onSwitchChecked(friend)"/>-->
+<!--						</view>-->
 					</view>
 				</view>
 			</scroll-view>
 		</view>
-		<view>
-			<button type="primary" :disabled="inviteSize==0" @click="onInviteFriends()">邀请({{inviteSize}}) </button>
-		</view>
+			<button class="bottom-btn" type="primary" :disabled="inviteSize==0" @click="onInviteFriends()">邀请({{inviteSize}}) </button>
 	</view>
 </template>
 
@@ -139,7 +138,15 @@
 				align-items: center;
 				background-color: white;
 				white-space: nowrap;
-			
+
+        &.disabled {
+          background-color: $im-bg-active !important;
+        }
+
+        &.checked {
+          background-color: $im-color-primary-light-9;
+        }
+
 				.friend-name {
 					flex:1;	
 					padding-left: 20rpx;

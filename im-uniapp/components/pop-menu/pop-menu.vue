@@ -6,7 +6,7 @@
 		<view v-if="isShowMenu" class="pop-menu" @touchstart="onClose()" @contextmenu.prevent=""></view>
 		<view v-if="isShowMenu" class="menu" :style="menuStyle">
 			<view class="menu-item"  v-for="(item) in items" :key="item.key"  @click.prevent="onSelectMenu(item)">
-				<uni-icons class="menu-icon" :type="item.icon" :style="itemStyle(item)" size="22"></uni-icons>
+<!--				<uni-icons class="menu-icon" :type="item.icon" :style="itemStyle(item)" size="20"></uni-icons>-->
 				<text :style="itemStyle(item)"> {{item.name}}</text>
 			</view>
 		</view>
@@ -75,7 +75,7 @@
 				if(item.color){
 					return `color:${item.color};`
 				}
-				return `color:#4f76e6;`;
+				// return `color:#4f76e6;`;
 			}
 		}
 	}
@@ -90,29 +90,29 @@
 		bottom: 0;
 		width: 100%;
 		height: 100%;
-		background-color: #333;
 		z-index: 999;
-		opacity: 0.5;
-
 	}
 	
 	.menu {
 		position: fixed;
-		border: 1px solid #b4b4b4;
-		border-radius: 7px;
+		border-radius: 4px;
 		overflow: hidden;
-		background-color: #f5f6ff;
+		background-color: #fff;
 		z-index: 1000;
+    box-shadow: $im-box-shadow-dark;
 		.menu-item {
-			height: 25px;
-			min-width: 150rpx;
-			line-height: 25px;
-			font-size: 18px;
+			height: 28px;
+			min-width: 120rpx;
+			line-height: 28px;
+			font-size: $im-font-size-small;
 			display: flex;
-			padding: 10px;
-			justify-content: center;
-			border-bottom: 1px solid #d0d0d8;
-			
+			padding: 6px 20px;
+			justify-content: flex-start;
+
+      &:hover {
+        background: $im-bg-active;
+      }
+
 			.menu-icon {
 				margin-right: 10rpx;
 			}

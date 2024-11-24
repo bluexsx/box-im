@@ -1,12 +1,13 @@
 <template>
 	<view class="page login">
+    <nav-bar>盒子im</nav-bar>
 		<view class="title">欢迎登录</view>
 		<uni-forms class="form" :modelValue="loginForm" :rules="rules" validate-trigger="bind">
 			<uni-forms-item name="userName">
 				<uni-easyinput type="text" v-model="loginForm.userName" prefix-icon="person" placeholder="用户名" />
 			</uni-forms-item>
 			<uni-forms-item name="password">
-				<uni-easyinput type="password" v-model="loginForm.password" prefix-icon="locked" placeholder="密码" />
+				<uni-easyinput type="password"  v-model="loginForm.password" prefix-icon="locked" placeholder="密码" />
 			</uni-forms-item>
 			<button class="btn-submit" @click="submit" type="primary">登录</button>
 		</uni-forms>
@@ -74,10 +75,10 @@
 		.title {
 			padding-top: 150rpx;
 			padding-bottom: 50rpx;
-			color: royalblue;
+			color: $im-color-primary;
 			text-align: center;
-			font-size: 60rpx;
-			font-weight: 600;
+			font-size: 24px;
+			font-weight: bold;
 		}
 
 		.form {
@@ -93,9 +94,9 @@
 			position: fixed;
 			width: 100%;
 			bottom: 100rpx;
-			color: royalblue;
+			color: $im-color-primary;
 			text-align: center;
-			font-size: 32rpx;
+			font-size: $im-font-size;
 		}
 	}
 </style>

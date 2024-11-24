@@ -1,26 +1,24 @@
 <template>
 	<view  class="page group-member">
-		<view class="search-bar">
-			<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入昵称搜索"></uni-search-bar>
-		</view>
+    <nav-bar back>群成员</nav-bar>
+    <view class="nav-bar">
+      <view class="nav-search">
+			  <uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="输入昵称搜索"></uni-search-bar>
+		  </view>
+    </view>
 		<view class="member-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(member,idx) in groupMembers"
 					v-show="!searchText || member.showNickName.includes(searchText)" :key="idx">
 					<view class="member-item" @click="onShowUserInfo(member.userId)">
-						<head-image :name="member.showNickName" 
-							:online="member.online" :url="member.headImage"
-							:size="100"></head-image>
+						<head-image :name="member.showNickName" :online="member.online" :url="member.headImage"></head-image>
 						<view class="member-name">{{ member.showNickName}}
-						<uni-tag v-if="member.userId==group.ownerId" 
-							text="群主" size="small" circle
-							custom-style="background-color: #e30a0a;">
+						<uni-tag v-if="member.userId==group.ownerId"
+							text="群主" size="small" circle type="error">
 						</uni-tag>
 						<uni-tag v-if="member.userId==userStore.userInfo.id"
 							 text="我" size="small" circle></uni-tag>
-							 
 						</view>
-						
 						<view class="member-kick">
 							<button type="warn" plain v-show="isOwner && !isSelf(member.userId)" size="mini"
 								@click.stop="onKickOut(member,idx)">移出群聊</button>
@@ -135,9 +133,8 @@
 					align-items: center;
 					flex:1;	
 					padding-left: 20rpx;
-					font-size: 30rpx;
-					font-weight: 600;
-					line-height: 60rpx;
+					font-size: $im-font-size;
+					line-height: $im-font-size * 2;
 					white-space: nowrap;
 					overflow: hidden;
 					

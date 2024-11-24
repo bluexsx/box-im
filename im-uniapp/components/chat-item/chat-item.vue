@@ -3,13 +3,13 @@
 		<!--rich-text中的表情包会屏蔽事件，所以这里用一个遮罩层捕获点击事件 -->
 		<view class="mask" @tap="showChatBox()"></view>
 		<view class="left">
-			<head-image :url="chat.headImage" :name="chat.showName" :size="90"></head-image>
+			<head-image :url="chat.headImage" :name="chat.showName"></head-image>
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
 				<view class="chat-name-text">
 					<view>{{chat.showName}}</view>
-					<uni-tag v-if="chat.type=='GROUP'" circle text="群" size="small"></uni-tag>
+					<uni-tag v-if="chat.type=='GROUP'" circle text="群" size="small" type="primary"></uni-tag>
 				</view>
 				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime,true)}}</view>
 			</view>
@@ -17,7 +17,7 @@
 				<view class="chat-at-text">{{atText}}</view>
 				<view class="chat-send-name" v-if="isShowSendName">{{chat.sendNickName+':&nbsp;'}}</view>
 				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
-				<uni-badge v-if="chat.unreadCount>0" size="small" :max-num="99" :text="chat.unreadCount" />
+				<uni-badge v-if="chat.unreadCount>0" :max-num="99" :text="chat.unreadCount" />
 			</view>
 		</view>
 	</view>
@@ -76,28 +76,29 @@
 
 <style scoped lang="scss">
 	.chat-item {
-		height: 100rpx;
+		height: 96rpx;
 		display: flex;
-		margin-bottom: 2rpx;
+    margin-bottom: 2rpx;
 		position: relative;
-		padding: 10rpx 20rpx;
+		padding: 18rpx 20rpx;
 		align-items: center;
 		background-color: white;
 		white-space: nowrap;
 
 		&:hover {
-			background-color: #f5f6ff;
+			background-color: $im-bg-active;
 		}
 
 		&.active {
-			background-color: #f5f6ff;
+			background-color: $im-bg-active;
 		}
-
 
 		.mask {
 			position: absolute;
 			width: 100%;
 			height: 100%;
+      left: 0;
+      right: 0;
 			z-index: 99;
 		}
 
@@ -108,27 +109,24 @@
 			align-items: center;
 			width: 100rpx;
 			height: 100rpx;
-
-
 		}
 
 		.chat-right {
+      height: 100%;
 			flex: 1;
 			display: flex;
 			flex-direction: column;
+      justify-content: center;
 			padding-left: 20rpx;
 			text-align: left;
 			overflow: hidden;
 
 			.chat-name {
 				display: flex;
-				line-height: 44rpx;
-				height: 44rpx;
 
 				.chat-name-text {
 					flex: 1;
-					font-size: 30rpx;
-					font-weight: 600;
+					font-size: $im-font-size-large;
 					white-space: nowrap;
 					overflow: hidden;
 					display: flex;
@@ -138,19 +136,15 @@
 						text-align: center;
 						margin-left: 5rpx;
 						border: 0;
-						height: 30rpx;
-						line-height: 30rpx;
-						font-size: 20rpx;
 						padding: 1px 5px;
-						background-color: #de1c1c;
-						opacity: 0.8;
+						//opacity: 0.8;
 					}
 				}
 
 				.chat-time {
-					font-size: 26rpx;
-					text-align: right;
-					color: #888888;
+					font-size: $im-font-size-smaller-extra;
+          color: $im-text-color-lighter;
+          text-align: right;
 					white-space: nowrap;
 					overflow: hidden;
 				}
@@ -158,24 +152,27 @@
 
 			.chat-content {
 				display: flex;
-				line-height: 60rpx;
-				height: 60rpx;
-
+        font-size: $im-font-size-smaller;
+        color: $im-text-color-lighter;
+        padding-top: 8rpx;
 				.chat-at-text {
-					color: #c70b0b;
-					font-size: 24rpx;
+					color: $im-color-danger;
 				}
 
 				.chat-send-name {
-					font-size: 26rpx;
+					font-size: $im-font-size-smaller;
 				}
 
 				.chat-content-text {
 					flex: 1;
-					font-size: 28rpx;
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;
+
+          img {
+            width: 40rpx !important;
+            height: 40rpx !important;
+          }
 				}
 
 			}

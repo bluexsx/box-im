@@ -9,7 +9,7 @@
 		</view>
 		<view class="chat-msg-normal" v-if="isNormal" :class="{'chat-msg-mine':msgInfo.selfSend}">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
-				:name="showName" :size="80"></head-image>
+				:name="showName" size="small"></head-image>
 			<view class="chat-msg-content">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
 					<text>{{showName}}</text>
@@ -23,7 +23,7 @@
 					<view class="chat-msg-image" v-if="msgInfo.type==$enums.MESSAGE_TYPE.IMAGE">
 						<pop-menu :items="menuItems" @select="onSelectMenu">
 							<view class="img-load-box">
-								<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
+								<image class="send-image" mode="widthFix" :src="JSON.parse(msgInfo.content).thumbUrl"
 									lazy-load="true" @click.stop="onShowFullImage()">
 								</image>
 								<loading v-if="loading"></loading>
@@ -230,15 +230,14 @@
 		.chat-msg-tip {
 			line-height: 60rpx;
 			text-align: center;
-			color: #555;
-			font-size: 24rpx;
+			color: $im-text-color-lighter;
+			font-size: $im-font-size-smaller-extra;
 			padding: 10rpx;
 		}
 
 		.chat-msg-normal {
 			position: relative;
-			font-size: 0;
-			margin-bottom: 15rpx;
+			margin-bottom: 22rpx;
 			padding-left: 110rpx;
 			min-height: 80rpx;
 
@@ -254,10 +253,9 @@
 				.chat-msg-top {
 					display: flex;
 					flex-wrap: nowrap;
-					color: #333;
-					font-size: 24rpx;
-					line-height: 24rpx;
-
+					color: $im-text-color-lighter;
+					font-size: $im-font-size-smaller;
+					line-height: $im-font-size-smaller;
 				}
 
 				.chat-msg-bottom {
@@ -266,13 +264,13 @@
 
 					.chat-msg-text {
 						position: relative;
-						line-height: 60rpx;
+						line-height: 1.6;
 						margin-top: 10rpx;
-						padding: 8rpx 20rpx;
-						background-color: #eee;
+						padding: 16rpx 24rpx;
+						background-color: $im-bg;
 						border-radius: 20rpx;
-						color: #333;
-						font-size: 30rpx;
+						color: $im-text-color;
+						font-size: $im-font-size;
 						text-align: left;
 						display: block;
 						word-break: break-all;
@@ -287,9 +285,10 @@
 							width: 6rpx;
 							height: 6rpx;
 							border-style: solid dashed dashed;
-							border-color: #eee transparent transparent;
+							border-color: $im-bg transparent transparent;
 							overflow: hidden;
 							border-width: 18rpx;
+              //box-shadow: $im-box-shadow-dark;
 						}
 					}
 
@@ -305,18 +304,16 @@
 
 							.send-image {
 								min-width: 200rpx;
-								min-height: 200rpx;
-								max-width: 400rpx;
-								max-height: 400rpx;
-								border: 8rpx solid #ebebf5;
+								max-width: 420rpx;
 								cursor: pointer;
+                border-radius: 4px;
 							}
 						}
 
 
 						.send-fail {
-							color: #e60c0c;
-							font-size: 30px;
+							color: $im-color-danger;
+							font-size: $im-font-size;
 							cursor: pointer;
 							margin: 0 20px;
 						}
@@ -334,12 +331,10 @@
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							min-height: 80px;
-							border: #eee solid 1px;
-							border-radius: 10rpx;
-							background-color: #eeeeee;
+							min-height: 60px;
+							border-radius: 4px;
 							padding: 10px 15px;
-							box-shadow: 2px 2px 2px #c0c0c0;
+							box-shadow: $im-box-shadow-dark;
 
 							.chat-file-info {
 								flex: 1;
@@ -349,7 +344,6 @@
 								width: 300rpx;
 
 								.chat-file-name {
-									font-size: 16px;
 									font-weight: 600;
 									margin-bottom: 15px;
 									word-break: break-all;
@@ -380,7 +374,7 @@
 						}
 
 						.icon-voice-play {
-							font-size: 20px;
+							font-size: 18px;
 							padding-right: 8px;
 						}
 					}
@@ -396,29 +390,28 @@
 					}
 
 					.chat-msg-status {
-						display: block;
-
+            line-height: $im-font-size-smaller-extra;
+            font-size: $im-font-size-smaller-extra;
+            padding-top: 2rpx;
 						.chat-readed {
-							font-size: 12px;
-							color: #888;
-							font-weight: 600;
+              display: block;
+              padding-top: 2rpx;
+							color: $im-text-color-lighter;
 						}
 
 						.chat-unread {
-							font-size: 12px;
-							color: #f23c0f;
-							font-weight: 600;
+							color: $im-color-danger;
 						}
 					}
 
 					.chat-receipt {
-						font-size: 13px;
-						color: darkblue;
+						font-size: $im-font-size-smaller;
+						color: $im-text-color-lighter;
 						font-weight: 600;
 
 						.icon-ok {
 							font-size: 20px;
-							color: #329432;
+							color: $im-color-success;
 						}
 					}
 				}
@@ -444,13 +437,13 @@
 
 						.chat-msg-text {
 							margin-left: 10px;
-							background-color: #587ff0;
+							background-color: $im-color-primary-light-2;
 							color: #fff;
 
 							&:after {
 								left: auto;
-								right: -10px;
-								border-top-color: #587ff0;
+								right: -9px;
+								border-top-color: $im-color-primary-light-2;
 							}
 						}
 
