@@ -2,7 +2,10 @@
 	<el-container class="register-view">
 		<div>
 			<el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" label-width="80px" class="web-ruleForm">
-				<div class="register-brand">欢迎成为盒子IM的用户</div>
+				<div class="register-brand">
+					<img class="logo" src="../../public/logo.png"/>
+					<div>欢迎成为盒子IM的用户</div>
+				</div>
 				<el-form-item label="用户名" prop="userName">
 					<el-input type="userName" v-model="registerForm.userName" autocomplete="off" placeholder="用户名(登录使用)"></el-input>
 				</el-form-item>
@@ -137,6 +140,9 @@
 			border-radius: 3%;
 			
 			.register-brand {
+				display: flex;
+				justify-content: center;
+				align-items: center;
 				line-height: 50px;
 				margin: 20px 0 30px 0;
 				font-size: 22px;
@@ -144,6 +150,12 @@
 				letter-spacing: 2px;
 				text-align: center;
 				text-transform: uppercase;
+				
+				.logo {
+					width: 30px;
+					height: 30px;
+					margin-right: 10px;
+				}
 			}
 			
 			.to-login {

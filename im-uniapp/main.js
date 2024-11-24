@@ -13,6 +13,10 @@ import useFriendStore from '@/store/friendStore.js'
 import useGroupStore from '@/store/groupStore.js'
 import useConfigStore from '@/store/configStore.js'
 import useUserStore from '@/store/userStore.js'
+import barGroup from '@/components/bar/bar-group'
+import arrowBar from '@/components/bar/arrow-bar'
+import btnBar from '@/components/bar/btn-bar'
+import switchBar from '@/components/bar/switch-bar'
 
 //import VConsole from 'vconsole'
 //new VConsole();
@@ -30,6 +34,10 @@ export function createApp() {
   const app = createSSRApp(App)
   app.use(uviewPlus);
   app.use(pinia.createPinia());
+  app.component('bar-group', barGroup);
+  app.component('arrow-bar', arrowBar);
+  app.component('btn-bar', btnBar);
+  app.component('switch-bar', switchBar);
   app.config.globalProperties.$http = request;
   app.config.globalProperties.$wsApi = socketApi;
   app.config.globalProperties.$msgType = messageType;

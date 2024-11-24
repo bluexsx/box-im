@@ -40,10 +40,12 @@
         </view>
       </view>
     </uni-card>
-		<view class="bottom-btn">
-			<button class="btn" type="primary" @click="onModifyPassword()">修改密码</button>
-			<button class="btn" type="warn" @click="onQuit()">退出</button>
-		</view>
+		<bar-group>
+			<arrow-bar title="修改密码" @click="onModifyPassword()"></arrow-bar>
+		</bar-group>
+		<bar-group>
+			<btn-bar title="退出登陆" type="danger" @click="onQuit()"></btn-bar>
+		</bar-group>
 	</view>
 </template>
 

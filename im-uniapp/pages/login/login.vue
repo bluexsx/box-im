@@ -1,6 +1,5 @@
 <template>
-	<view class="page login">
-    <nav-bar>盒子im</nav-bar>
+	<view class="login">
 		<view class="title">欢迎登录</view>
 		<uni-forms class="form" :modelValue="loginForm" :rules="rules" validate-trigger="bind">
 			<uni-forms-item name="userName">
@@ -56,7 +55,7 @@
 					// 调用App.vue的初始化方法
 					getApp().$vm.init()
 					// 跳转到聊天页面   
-					uni.switchTab({
+					uni.switchTab({ 
 						url: "/pages/chat/chat"
 					})
 				})

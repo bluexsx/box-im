@@ -3,7 +3,10 @@
 		<div class="login-content">
 			<el-form class="login-form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
 				@keyup.enter.native="submitForm('loginForm')">
-				<div class="login-brand">登陆盒子IM</div>
+				<div class="login-brand">
+					<img class="logo" src="../../public/logo.png"/>
+					<div>登陆盒子IM</div>
+				</div>
 				<el-form-item label="终端" prop="userName" v-show="false">
 					<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
 				</el-form-item>
@@ -144,6 +147,9 @@
 				border: 1px solid #ccc;
 
 				.login-brand {
+					display: flex;
+					justify-content: center;
+					align-items: center;
 					line-height: 50px;
 					margin: 30px 0 40px 0;
 					font-size: 22px;
@@ -151,8 +157,14 @@
 					letter-spacing: 2px;
 					text-transform: uppercase;
 					text-align: center;
+					
+					.logo {
+						width: 30px;
+						height: 30px;
+						margin-right: 10px;
+					}
 				}
-
+				
 				.register {
 					display: flex;
 					flex-direction: row-reverse;

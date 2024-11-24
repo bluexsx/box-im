@@ -1,7 +1,7 @@
 <template>
 	<view class="group-item" @click="showGroupInfo()">
 		<head-image :name="group.showGroupName"
-			:url="group.headImage"></head-image>
+			:url="group.headImage" size="small"></head-image>
 		<view class="group-name">
 			<view>{{ group.showGroupName}}</view>
 		</view>
@@ -31,7 +31,7 @@
 
 <style scope lang="scss">
 	.group-item {
-		height: 100rpx;
+		height: 90rpx;
 		display: flex;
     margin-bottom: 2rpx;
 		position: relative;

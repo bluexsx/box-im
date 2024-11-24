@@ -1,47 +1,46 @@
 <template>
 	<view class="page user-info">
-    <nav-bar back>用户信息</nav-bar>
-    <uni-card :is-shadow="false" is-full :border="false">
-      <view class="content">
-        <head-image  :name="userInfo.nickName" :url="userInfo.headImageThumb"
-        :size="160" @click="onShowFullImage()"></head-image>
+		<nav-bar back>用户信息</nav-bar>
+		<uni-card :is-shadow="false" is-full :border="false">
+			<view class="content">
+				<head-image :name="userInfo.nickName" :url="userInfo.headImageThumb" :size="160"
+					@click="onShowFullImage()"></head-image>
 
-        <view class="info-item">
-          <view class="info-primary">
-            <text class="info-username">
-              {{userInfo.userName}}
-            </text>
-            <text v-show="userInfo.sex==0" class="iconfont icon-man"
-                  color="darkblue"></text>
-            <text v-show="userInfo.sex==1" class="iconfont icon-girl"
-                  color="darkred"></text>
-          </view>
-          <view class="info-text">
-            <text class="label-text">
-              昵称:
-            </text>
-            <text class="content-text">
-              {{userInfo.nickName}}
-            </text>
-          </view>
-          <view  class="info-text">
-            <view>
-              <text class="label-text">
-                签名:
-              </text>
-              <text  class="content-text">
-                {{userInfo.signature}}
-              </text>
-            </view>
-          </view>
-        </view>
-      </view>
-    </uni-card>
-    <view class="bottom-btn">
-      <button class="btn" v-show="isFriend" type="primary" @click="onSendMessage()">发消息</button>
-      <button class="btn" v-show="!isFriend" type="primary" @click="onAddFriend()">加为好友</button>
-      <button class="btn" v-show="isFriend" type="warn" @click="onDelFriend()">删除好友</button>
-    </view>
+				<view class="info-item">
+					<view class="info-primary">
+						<text class="info-username">
+							{{userInfo.userName}}
+						</text>
+						<text v-show="userInfo.sex==0" class="iconfont icon-man" color="darkblue"></text>
+						<text v-show="userInfo.sex==1" class="iconfont icon-girl" color="darkred"></text>
+					</view>
+					<view class="info-text">
+						<text class="label-text">
+							昵称:
+						</text>
+						<text class="content-text">
+							{{userInfo.nickName}}
+						</text>
+					</view>
+					<view class="info-text">
+						<view>
+							<text class="label-text">
+								签名:
+							</text>
+							<text class="content-text">
+								{{userInfo.signature}}
+							</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</uni-card>
+		<bar-group>
+			<btn-bar v-show="isFriend" type="primary" title="发送消息" @click="onSendMessage()">
+			</btn-bar>
+			<btn-bar v-show="!isFriend" type="primary" title="加为好友" @click="onAddFriend()"></btn-bar>
+			<btn-bar v-show="isFriend" type="danger" title="删除好友" @click="onDelFriend()"></btn-bar>
+		</bar-group>
 	</view>
 </template>
 
@@ -53,9 +52,9 @@
 			}
 		},
 		methods: {
-			onShowFullImage(){
+			onShowFullImage() {
 				let imageUrl = this.userInfo.headImage;
-				if(imageUrl){
+				if (imageUrl) {
 					uni.previewImage({
 						urls: [imageUrl]
 					})
@@ -71,7 +70,7 @@
 				this.chatStore.openChat(chat);
 				let chatIdx = this.chatStore.findChatIdx(chat);
 				uni.navigateTo({
-					url:"/pages/chat/chat-box?chatIdx=" + chatIdx
+					url: "/pages/chat/chat-box?chatIdx=" + chatIdx
 				})
 			},
 			onAddFriend() {
@@ -92,12 +91,12 @@
 					})
 				})
 			},
-			onDelFriend(){
+			onDelFriend() {
 				uni.showModal({
 					title: "确认删除",
 					content: `确认删除 '${this.userInfo.nickName}',并删除聊天记录吗?`,
-					success: (res)=> {
-						if(res.cancel)
+					success: (res) => {
+						if (res.cancel)
 							return;
 						this.$http({
 							url: `/friend/delete/${this.userInfo.id}`,
@@ -106,7 +105,7 @@
 							this.friendStore.removeFriend(this.userInfo.id);
 							this.chatStore.removePrivateChat(this.userInfo.id);
 							uni.showToast({
-								title: 	`与 '${this.userInfo.nickName}'的好友关系已解除`,
+								title: `与 '${this.userInfo.nickName}'的好友关系已解除`,
 								icon: 'none'
 							})
 						})
@@ -129,7 +128,7 @@
 					this.chatStore.updateChatFromFriend(this.userInfo);
 				})
 			},
-			loadUserInfo(id){
+			loadUserInfo(id) {
 				this.$http({
 					url: "/user/find/" + id,
 					method: 'GET'
@@ -137,7 +136,7 @@
 					this.userInfo = user;
 					// 如果发现好友的头像和昵称改了，进行更新
 					if (this.isFriend && (this.userInfo.headImageThumb != this.friendInfo.headImage ||
-						this.userInfo.nickName != this.friendInfo.nickName)) {
+							this.userInfo.nickName != this.friendInfo.nickName)) {
 						this.updateFriendInfo()
 					}
 				})
@@ -147,7 +146,7 @@
 			isFriend() {
 				return !!this.friendInfo;
 			},
-			friendInfo(){
+			friendInfo() {
 				let friends = this.friendStore.friends;
 				let friend = friends.find((f) => f.id == this.userInfo.id);
 				return friend;
@@ -169,48 +168,50 @@
 			justify-content: space-between;
 			padding: 20rpx;
 
-      .info-item {
-        display: flex;
-        align-items: flex-start;
-        flex-direction: column;
-        padding-left: 40rpx;
-        flex: 1;
+			.info-item {
+				display: flex;
+				align-items: flex-start;
+				flex-direction: column;
+				padding-left: 40rpx;
+				flex: 1;
 
-        .info-text {
-          line-height: 1.5;
-          //margin-bottom: 10rpx;
-        }
+				.info-text {
+					line-height: 1.5;
+					//margin-bottom: 10rpx;
+				}
 
-        .label-text {
-          font-size: $im-font-size-small;
-          color: $im-text-color-light;
+				.label-text {
+					font-size: $im-font-size-small;
+					color: $im-text-color-light;
 
-        }
-        .content-text {
-          font-size: $im-font-size-small;
-          color: $im-text-color-light;
-        }
+				}
 
-        .info-primary {
-          display: flex;
-          align-items: center;
-          margin-bottom: 10rpx;
-          .info-username {
-            font-size: $im-font-size-large;
-            font-weight: 600;
-          }
+				.content-text {
+					font-size: $im-font-size-small;
+					color: $im-text-color-light;
+				}
 
-          .icon-man {
-            color: $im-text-color;
-            font-size: $im-font-size-large;
-            padding-left: 10rpx;
-          }
+				.info-primary {
+					display: flex;
+					align-items: center;
+					margin-bottom: 10rpx;
 
-          .icon-girl {
-            color: darkred;
-          }
-        }
-      }
+					.info-username {
+						font-size: $im-font-size-large;
+						font-weight: 600;
+					}
+
+					.icon-man {
+						color: $im-text-color;
+						font-size: $im-font-size-large;
+						padding-left: 10rpx;
+					}
+
+					.icon-girl {
+						color: darkred;
+					}
+				}
+			}
 		}
 
 	}

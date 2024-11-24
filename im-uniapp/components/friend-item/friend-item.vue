@@ -1,6 +1,6 @@
 <template>
 	<view class="friend-item" @click="showFriendInfo()">
-		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage" size="smaller"></head-image>
+		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage" size="small"></head-image>
 		<view class="friend-info">
 			<view class="friend-name">{{ friend.nickName}}</view>
 			<view class="friend-online">
@@ -36,7 +36,7 @@
 
 <style scope lang="scss">
 	.friend-item {
-		height: 80rpx;
+		height: 90rpx;
 		display: flex;
 		margin-bottom: 1rpx;
 		position: relative;

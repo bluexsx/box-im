@@ -15,10 +15,7 @@ ImCamera.prototype.openVideo = function() {
 			this.close()
 		}
 		let constraints = {
-			video: {
-				with: window.screen.width,
-				height: window.screen.height
-			},
+			video: true,
 			audio: {
 				echoCancellation: true, //音频开启回音消除
 				noiseSuppression: true // 开启降噪

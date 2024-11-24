@@ -46,11 +46,11 @@
 			</uni-section>
 			<view v-if="!group.quit"  class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
-		<view v-if="!group.quit"  class="bottom-btn">
-			<button type="primary" @click="onSendMessage()">发消息</button>
-			<button v-show="!isOwner" type="warn" @click="onQuitGroup()">退出群聊</button>
-			<button v-show="isOwner" type="warn" @click="onDissolveGroup()">解散群聊</button>
-		</view>
+		<bar-group v-if="!group.quit">
+			<btn-bar  type="primary" title="发送消息" @click="onSendMessage()"></btn-bar>
+			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @click="onQuitGroup()"></btn-bar>
+			<btn-bar v-if="isOwner" type="danger" title="解散群聊" @click="onDissolveGroup()"></btn-bar>
+		</bar-group>
 	</view>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
-	<view class="page register">
-    <nav-bar back>盒子im</nav-bar>
+	<view class="register">
 		<view class="title">欢迎注册</view>
 		<uni-forms class="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
 			<uni-forms-item name="userName" label="用户名">
