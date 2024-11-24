@@ -57,9 +57,9 @@ export default {
         groupMembers: {
             type: Array
         },
-		msgInfo: {
-			type: Object
-		}
+        msgInfo: {
+            type: Object
+        }
     },
     methods: {
         close() {
@@ -100,16 +100,16 @@ export default {
                     // 区分已读还是未读
                     if (userIds.find(userId => member.userId == userId)) {
                         this.readedMembers.push(member);
-                    } else  {
+                    } else {
                         this.unreadMembers.push(member);
                     }
                 })
-				// 更新已读人数
-				this.$store.commit("updateMessage", {
-				    id: this.msgInfo.id,
-				    groupId: this.msgInfo.groupId,
-				    readedCount: this.readedMembers.length
-				})
+                // 更新已读人数
+                this.$store.commit("updateMessage", {
+                    id: this.msgInfo.id,
+                    groupId: this.msgInfo.groupId,
+                    readedCount: this.readedMembers.length
+                })
             })
         }
     }

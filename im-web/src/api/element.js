@@ -16,14 +16,14 @@ let fixLeft = (e) => {
 
 let setTitleTip = (tip) => {
 	let title = process.env.VUE_APP_NAME;
-	if(tip){
+	if (tip) {
 		title = `(${tip})${title}`;
 	}
-	document.title =title;
-	
+	document.title = title;
+
 }
 
-export default{
+export default {
 	fixTop,
 	fixLeft,
 	setTitleTip

@@ -32,6 +32,6 @@ new Vue({
   // 配置路由
   router,
   store,
-  render: h=>h(App)
+  render: h => h(App)
 })
 

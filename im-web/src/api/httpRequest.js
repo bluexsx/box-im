@@ -42,7 +42,7 @@ http.interceptors.response.use(async response => {
 			headers: {
 				refreshToken: refreshToken
 			}
-		}).catch(()=>{
+		}).catch(() => {
 			location.href = "/";
 		})
 		// 保存token

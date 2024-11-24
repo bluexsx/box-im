@@ -1,21 +1,13 @@
 <template>
   <div>
-    <el-dialog
-        v-dialogDrag
-        top="5vh"
-        custom-class="rtc-private-video-dialog"
-        :title="title"
-        :width="width"
-        :visible.sync="showRoom"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        :before-close="onQuit">
+    <el-dialog v-dialogDrag top="5vh" custom-class="rtc-private-video-dialog" :title="title" :width="width"
+      :visible.sync="showRoom" :close-on-click-modal="false" :close-on-press-escape="false" :before-close="onQuit">
       <div class="rtc-private-video">
         <div v-show="isVideo" class="rtc-video-box">
           <div class="rtc-video-friend" v-loading="!isChating" element-loading-text="等待对方接听..."
-               element-loading-background="rgba(0, 0, 0, 0.1)">
+            element-loading-background="rgba(0, 0, 0, 0.1)">
             <head-image class="friend-head-image" :id="friend.id" :size="80" :name="friend.nickName"
-                        :url="friend.headImage" :isShowUserInfo="false" radius="0">
+              :url="friend.headImage" :isShowUserInfo="false" radius="0">
             </head-image>
             <video ref="remoteVideo" autoplay=""></video>
           </div>
@@ -24,20 +16,19 @@
           </div>
         </div>
         <div v-show="!isVideo" class="rtc-voice-box" v-loading="!isChating" element-loading-text="等待对方接听..."
-             element-loading-background="rgba(0, 0, 0, 0.1)">
+          element-loading-background="rgba(0, 0, 0, 0.1)">
           <head-image class="friend-head-image" :id="friend.id" :size="200" :name="friend.nickName"
-                      :url="friend.headImage" :isShowUserInfo="false">
+            :url="friend.headImage" :isShowUserInfo="false">
             <div class="rtc-voice-name">{{ friend.nickName }}</div>
           </head-image>
         </div>
         <div class="rtc-control-bar">
-          <div title="取消" class="icon iconfont icon-phone-reject reject"
-               style="color: red;" @click="onQuit()"></div>
+          <div title="取消" class="icon iconfont icon-phone-reject reject" style="color: red;" @click="onQuit()"></div>
         </div>
       </div>
     </el-dialog>
     <rtc-private-acceptor v-if="!isHost && isWaiting" ref="acceptor" :friend="friend" :mode="mode" @accept="onAccept"
-                          @reject="onReject"></rtc-private-acceptor>
+      @reject="onReject"></rtc-private-acceptor>
   </div>
 </template>
 
@@ -185,8 +176,8 @@ export default {
     onRTCMessage(msg) {
       // 除了发起通话，如果在关闭状态就无需处理
       if (msg.type != this.$enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
-          msg.type != this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO &&
-          this.isClose) {
+        msg.type != this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO &&
+        this.isClose) {
         return;
       }
       // RTC信令处理
@@ -504,5 +495,4 @@ export default {
     }
   }
 }
-
 </style>

@@ -2,12 +2,8 @@
   <el-dialog class="setting" title="设置" :visible.sync="visible" width="420px" :before-close="onClose">
     <el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm" size="small">
       <el-form-item label="头像" style="margin-bottom: 0 !important;">
-        <file-upload class="avatar-uploader"
-                     :action="imageAction"
-                     :showLoading="true"
-                     :maxSize="maxSize"
-                     @success="onUploadSuccess"
-                     :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
+        <file-upload class="avatar-uploader" :action="imageAction" :showLoading="true" :maxSize="maxSize"
+          @success="onUploadSuccess" :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp']">
           <img v-if="userInfo.headImage" :src="userInfo.headImage" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </file-upload>
@@ -30,9 +26,9 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-			<el-button @click="onClose()">取 消</el-button>
-			<el-button type="primary" @click="onSubmit()">确 定</el-button>
-		</span>
+      <el-button @click="onClose()">取 消</el-button>
+      <el-button type="primary" @click="onSubmit()">确 定</el-button>
+    </span>
   </el-dialog>
 </template>
 

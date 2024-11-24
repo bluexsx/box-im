@@ -8,9 +8,9 @@
         <el-button plain class="add-btn" icon="el-icon-plus" title="创建群聊" @click="onCreateGroup()"></el-button>
       </div>
       <el-scrollbar class="group-list-items">
-        <div v-for="(group,index) in groupStore.groups" :key="index">
-          <group-item v-show="!group.quit&&group.showGroupName.includes(searchText)" :group="group"
-                      :active="group === groupStore.activeGroup" @click.native="onActiveItem(group,index)">
+        <div v-for="(group, index) in groupStore.groups" :key="index">
+          <group-item v-show="!group.quit && group.showGroupName.includes(searchText)" :group="group"
+            :active="group === groupStore.activeGroup" @click.native="onActiveItem(group, index)">
           </group-item>
         </div>
       </el-scrollbar>
@@ -23,21 +23,20 @@
         <div v-show="activeGroup.id">
           <div class="group-info">
             <div>
-              <file-upload v-show="isOwner" class="avatar-uploader" :action="imageAction"
-                           :showLoading="true" :maxSize="maxSize" @success="onUploadSuccess"
-                           :fileTypes="['image/jpeg', 'image/png', 'image/jpg','image/webp']">
+              <file-upload v-show="isOwner" class="avatar-uploader" :action="imageAction" :showLoading="true"
+                :maxSize="maxSize" @success="onUploadSuccess"
+                :fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp']">
                 <img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </file-upload>
               <head-image v-show="!isOwner" class="avatar" :size="160" :url="activeGroup.headImage"
-                          :name="activeGroup.showGroupName" radius="10%">
+                :name="activeGroup.showGroupName" radius="10%">
               </head-image>
-              <el-button class="send-btn" icon="el-icon-position" type="primary"
-                         @click="onSendMessage()">发消息
+              <el-button class="send-btn" icon="el-icon-position" type="primary" @click="onSendMessage()">发消息
               </el-button>
             </div>
             <el-form class="group-form" label-width="130px" :model="activeGroup" :rules="rules" size="small"
-                     ref="groupForm">
+              ref="groupForm">
               <el-form-item label="群聊名称" prop="name">
                 <el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="20"></el-input>
               </el-form-item>
@@ -46,15 +45,15 @@
               </el-form-item>
               <el-form-item label="群名备注">
                 <el-input v-model="activeGroup.remarkGroupName" :placeholder="activeGroup.name"
-                          maxlength="20"></el-input>
+                  maxlength="20"></el-input>
               </el-form-item>
               <el-form-item label="我在本群的昵称">
                 <el-input v-model="activeGroup.remarkNickName" maxlength="20"
-                          :placeholder="$store.state.userStore.userInfo.nickName"></el-input>
+                  :placeholder="$store.state.userStore.userInfo.nickName"></el-input>
               </el-form-item>
               <el-form-item label="群公告">
-                <el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" :rows="3"
-                          maxlength="1024" placeholder="群主未设置"></el-input>
+                <el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" :rows="3" maxlength="1024"
+                  placeholder="群主未设置"></el-input>
               </el-form-item>
               <div>
                 <el-button type="warning" v-show="isOwner" @click="onInviteMember()">邀请</el-button>
@@ -68,16 +67,15 @@
           <div class="group-member-list">
             <div v-for="(member) in groupMembers" :key="member.id">
               <group-member v-show="!member.quit" class="group-member" :member="member"
-                            :showDel="isOwner && member.userId!=activeGroup.ownerId" @del="onKick"></group-member>
+                :showDel="isOwner && member.userId != activeGroup.ownerId" @del="onKick"></group-member>
             </div>
             <div class="group-invite">
               <div class="invite-member-btn" title="邀请好友进群聊" @click="onInviteMember()">
                 <i class="el-icon-plus"></i>
               </div>
               <div class="invite-member-text">邀请</div>
-              <add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id"
-                                :members="groupMembers" @reload="loadGroupMembers"
-                                @close="onCloseAddGroupMember"></add-group-member>
+              <add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id" :members="groupMembers"
+                @reload="loadGroupMembers" @close="onCloseAddGroupMember"></add-group-member>
             </div>
           </div>
         </div>

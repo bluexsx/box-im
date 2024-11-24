@@ -8,18 +8,16 @@
     <div class="group-side-scrollbar">
       <div v-show="!group.quit" class="group-side-member-list">
         <div class="group-side-invite">
-          <div class="invite-member-btn" title="邀请好友进群聊" @click="showAddGroupMember=true">
+          <div class="invite-member-btn" title="邀请好友进群聊" @click="showAddGroupMember = true">
             <i class="el-icon-plus"></i>
           </div>
           <div class="invite-member-text">邀请</div>
           <add-group-member :visible="showAddGroupMember" :groupId="group.id" :members="groupMembers"
-                            @reload="$emit('reload')"
-                            @close="showAddGroupMember=false"></add-group-member>
+            @reload="$emit('reload')" @close="showAddGroupMember = false"></add-group-member>
         </div>
         <div v-for="(member) in groupMembers" :key="member.id">
           <group-member class="group-side-member" v-show="!member.quit && member.showNickName.includes(searchText)"
-                        :member="member"
-                        :showDel="false"></group-member>
+            :member="member" :showDel="false"></group-member>
         </div>
       </div>
       <el-divider v-if="!group.quit" content-position="center"></el-divider>
@@ -34,16 +32,14 @@
           <el-input v-model="group.notice" disabled type="textarea" maxlength="1024"></el-input>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="group.remarkGroupName" :disabled="!editing"
-                    maxlength="20"></el-input>
+          <el-input v-model="group.remarkGroupName" :disabled="!editing" maxlength="20"></el-input>
         </el-form-item>
         <el-form-item label="我在本群的昵称">
-          <el-input v-model="group.remarkNickName" :disabled="!editing" maxlength="20"
-                    ></el-input>
+          <el-input v-model="group.remarkNickName" :disabled="!editing" maxlength="20"></el-input>
         </el-form-item>
         <div v-show="!group.quit" class="btn-group">
           <el-button v-if="editing" type="success" @click="onSaveGroup()">保存</el-button>
-          <el-button v-if="!editing" type="primary" @click="editing=!editing">编辑</el-button>
+          <el-button v-if="!editing" type="primary" @click="editing = !editing">编辑</el-button>
           <el-button type="danger" v-show="!isOwner" @click="onQuit()">退出群聊</el-button>
         </div>
       </el-form>
@@ -217,7 +213,8 @@ export default {
       }
     }
 
-    .el-input__inner, .el-textarea__inner {
+    .el-input__inner,
+    .el-textarea__inner {
       color: var(--im-text-color) !important;
     }
 

@@ -1,13 +1,13 @@
 <template>
-    <div class="group-member-item" :style="{'height':height+'px'}">
+    <div class="group-member-item" :style="{ 'height': height + 'px' }">
         <div class="member-avatar">
-            <head-image :size="headImageSize" :name="member.showNickName"
-				:url="member.headImage" :online="member.online"> </head-image>
+            <head-image :size="headImageSize" :name="member.showNickName" :url="member.headImage"
+                :online="member.online"> </head-image>
         </div>
-        <div class="member-name" :style="{'line-height':height+'px'}">
+        <div class="member-name" :style="{ 'line-height': height + 'px' }">
             <div>{{ member.showNickName }}</div>
         </div>
-		<slot></slot>
+        <slot></slot>
     </div>
 </template>
 
@@ -24,13 +24,13 @@ export default {
             type: Object,
             required: true
         },
-        height:{
+        height: {
             type: Number,
             default: 50
         }
     },
-    computed:{
-        headImageSize(){
+    computed: {
+        headImageSize() {
             return Math.ceil(this.height * 0.75)
         }
     }
@@ -55,7 +55,7 @@ export default {
     }
 
     .member-name {
-		flex:1;
+        flex: 1;
         padding-left: 10px;
         height: 100%;
         text-align: left;

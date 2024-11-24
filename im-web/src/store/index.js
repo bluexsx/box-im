@@ -10,7 +10,7 @@ import uiStore from './uiStore.js';
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-	modules: {chatStore,friendStore,userStore,groupStore,configStore,uiStore},
+	modules: { chatStore, friendStore, userStore, groupStore, configStore, uiStore },
 	state: {},
 	mutations: {
 	},
@@ -25,7 +25,7 @@ export default new Vuex.Store({
 				return Promise.all(promises);
 			})
 		},
-		unload(context){
+		unload(context) {
 			context.commit("clear");
 		}
 	},

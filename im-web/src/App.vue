@@ -12,7 +12,6 @@ export default {
 </script>
 
 <style lang="scss">
-
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -22,5 +21,4 @@ export default {
   color: var(--im-text-color);
   font-family: var(--im-font-family);
 }
-
 </style>

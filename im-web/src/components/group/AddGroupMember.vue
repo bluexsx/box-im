@@ -8,12 +8,11 @@
           </el-input>
         </div>
         <el-scrollbar style="height:400px;">
-          <div v-for="(friend,index) in friends" :key="friend.id">
+          <div v-for="(friend, index) in friends" :key="friend.id">
             <friend-item v-show="friend.nickName.includes(searchText)" :showDelete="false"
-                         @click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :index="index"
-                         :active="false">
+              @click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :index="index" :active="false">
               <el-checkbox :disabled="friend.disabled" @click.native.stop="" class="agm-friend-checkbox"
-                           v-model="friend.isCheck" size="medium"></el-checkbox>
+                v-model="friend.isCheck" size="medium"></el-checkbox>
             </friend-item>
           </div>
         </el-scrollbar>
@@ -22,18 +21,18 @@
       <div class="agm-r-box">
         <div class="agm-select-tip"> 已勾选{{ checkCount }}位好友</div>
         <el-scrollbar style="height:400px;">
-          <div v-for="(friend,index) in friends" :key="friend.id">
-            <friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :index="index"
-                         :active="false" @del="onRemoveFriend(friend,index)" :menu="false">
+          <div v-for="(friend, index) in friends" :key="friend.id">
+            <friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :index="index" :active="false"
+              @del="onRemoveFriend(friend, index)" :menu="false">
             </friend-item>
           </div>
         </el-scrollbar>
       </div>
     </div>
     <span slot="footer" class="dialog-footer">
-			<el-button @click="onClose()">取 消</el-button>
-			<el-button type="primary" @click="onOk()">确 定</el-button>
-		</span>
+      <el-button @click="onClose()">取 消</el-button>
+      <el-button type="primary" @click="onOk()">确 定</el-button>
+    </span>
   </el-dialog>
 </template>
 
@@ -110,7 +109,7 @@ export default {
         this.$store.state.friendStore.friends.forEach((f) => {
           let friend = JSON.parse(JSON.stringify(f))
           let m = this.members.filter((m) => !m.quit)
-              .find((m) => m.userId == f.id);
+            .find((m) => m.userId == f.id);
           if (m) {
             // 好友已经在群里
             friend.disabled = true;
@@ -173,7 +172,6 @@ export default {
       line-height: 40px;
       text-indent: 6px;
       color: var(--im-text-color-light)
-
     }
   }
 }

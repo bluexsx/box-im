@@ -7,13 +7,13 @@
         </el-input>
       </div>
       <div class="chat-list-loading" v-if="loading" v-loading="true" element-loading-text="消息接收中..."
-           element-loading-spinner="el-icon-loading" element-loading-background="#F9F9F9" element-loading-size="24">
+        element-loading-spinner="el-icon-loading" element-loading-background="#F9F9F9" element-loading-size="24">
       </div>
       <el-scrollbar class="chat-list-items" v-else>
-        <div v-for="(chat,index) in chatStore.chats" :key="index">
-          <chat-item v-show="!chat.delete&&chat.showName.includes(searchText)" :chat="chat" :index="index"
-                     @click.native="onActiveItem(index)" @delete="onDelItem(index)" @top="onTop(index)"
-                     :active="chat === chatStore.activeChat"></chat-item>
+        <div v-for="(chat, index) in chatStore.chats" :key="index">
+          <chat-item v-show="!chat.delete && chat.showName.includes(searchText)" :chat="chat" :index="index"
+            @click.native="onActiveItem(index)" @delete="onDelItem(index)" @top="onTop(index)"
+            :active="chat === chatStore.activeChat"></chat-item>
         </div>
       </el-scrollbar>
     </el-aside>

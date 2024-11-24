@@ -1,14 +1,12 @@
 <template>
   <div class="home-page">
-    <div class="app-container" :class="{fullscreen: isFullscreen}">
+    <div class="app-container" :class="{ fullscreen: isFullscreen }">
       <div class="navi-bar">
         <div class="navi-bar-box">
           <div class="top">
             <div class="user-head-image">
-              <head-image :name="$store.state.userStore.userInfo.nickName"
-                          :size="38"
-                          :url="$store.state.userStore.userInfo.headImageThumb"
-                          @click.native="showSettingDialog = true">
+              <head-image :name="$store.state.userStore.userInfo.nickName" :size="38"
+                :url="$store.state.userStore.userInfo.headImageThumb" @click.native="showSettingDialog = true">
               </head-image>
             </div>
 
@@ -50,9 +48,9 @@
       </div>
       <setting :visible="showSettingDialog" @close="closeSetting()"></setting>
       <user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user"
-                 @close="$store.commit('closeUserInfoBox')"></user-info>
+        @close="$store.commit('closeUserInfoBox')"></user-info>
       <full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
-                  @close="$store.commit('closeFullImageBox')"></full-image>
+        @close="$store.commit('closeFullImageBox')"></full-image>
       <rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
       <rtc-group-video ref="rtcGroupVideo"></rtc-group-video>
     </div>
@@ -133,7 +131,7 @@ export default {
             // 断线重连
             this.$message.error("连接断开，正在尝试重新连接...");
             this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, sessionStorage.getItem(
-                "accessToken"));
+              "accessToken"));
           }
         });
       }).catch((e) => {
@@ -206,7 +204,7 @@ export default {
       this.$store.commit("insertMessage", msg);
       // 播放提示音
       if (!msg.selfSend && this.$msgType.isNormal(msg.type) &&
-          msg.status != this.$enums.MESSAGE_STATUS.READED) {
+        msg.status != this.$enums.MESSAGE_STATUS.READED) {
         this.playAudioTip();
       }
     },
@@ -266,7 +264,7 @@ export default {
       this.$store.commit("insertMessage", msg);
       // 播放提示音
       if (!msg.selfSend && msg.type <= this.$enums.MESSAGE_TYPE.VIDEO &&
-          msg.status != this.$enums.MESSAGE_STATUS.READED) {
+        msg.status != this.$enums.MESSAGE_STATUS.READED) {
         this.playAudioTip();
       }
     },
@@ -509,6 +507,4 @@ export default {
     text-align: center;
   }
 }
-
-
 </style>

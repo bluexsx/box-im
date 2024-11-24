@@ -15,7 +15,7 @@ let transform = (content) => {
 let textToImg = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
-	if(idx==-1){
+	if (idx == -1) {
 		return emoText;
 	}
 	let url = require(`@/assets/emoji/${idx}.gif`);
@@ -25,7 +25,7 @@ let textToImg = (emoText) => {
 let textToUrl = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
-	if(idx==-1){
+	if (idx == -1) {
 		return "";
 	}
 	let url = require(`@/assets/emoji/${idx}.gif`);

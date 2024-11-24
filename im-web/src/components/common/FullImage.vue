@@ -9,70 +9,70 @@
 </template>
 
 <script>
-	export default {
-		name: "fullImage",
-		data() {
-			return {
-				fit: 'contain'
-			}
+export default {
+	name: "fullImage",
+	data() {
+		return {
+			fit: 'contain'
+		}
+	},
+	methods: {
+		onClose() {
+			this.$emit("close");
+		}
+	},
+	props: {
+		visible: {
+			type: Boolean
 		},
-		methods: {
-			onClose() {
-				this.$emit("close");
-			}
-		},
-		props: {
-			visible: {
-				type: Boolean
-			},
-			url: {
-				type: String
-			}
+		url: {
+			type: String
 		}
 	}
+}
 </script>
 
 <style lang="scss">
-	.full-image {
+.full-image {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+
+	.mask {
 		position: fixed;
 		width: 100%;
 		height: 100%;
-		left: 0;
-		top: 0;
-		bottom: 0;
-		right: 0;
+		background: black;
+		opacity: 0.5;
 
-		.mask {
-			position: fixed;
-			width: 100%;
-			height: 100%;
-			background: black;
-			opacity: 0.5;
+	}
 
-		}
+	.image-box {
+		position: relative;
+		width: 100%;
+		height: 100%;
 
-		.image-box {
-			position: relative;
-			width: 100%;
-			height: 100%;
-
-			img {
-				position: absolute;
-				left: 50%;
-				top: 50%;
-				transform: translate(-50%, -50%);
-				max-height: 100%;
-				max-width: 100%;
-			}
-		}
-
-		.close {
-			position: fixed;
-			top: 10px;
-			right: 10px;
-			color: white;
-			font-size: 25px;
-			cursor: pointer;
+		img {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			max-height: 100%;
+			max-width: 100%;
 		}
 	}
+
+	.close {
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		color: white;
+		font-size: 25px;
+		cursor: pointer;
+	}
+}
 </style>

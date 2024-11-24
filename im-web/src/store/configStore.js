@@ -6,27 +6,27 @@ export default {
 	},
 	mutations: {
 		setConfig(state, config) {
-			state.webrtc = config.webrtc; 
+			state.webrtc = config.webrtc;
 		},
-		clear(state){
+		clear(state) {
 			state.webrtc = {};
 		}
 	},
-	actions:{
-		loadConfig(context){
+	actions: {
+		loadConfig(context) {
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/system/config',
 					method: 'GET'
 				}).then((config) => {
-					console.log("系统配置",config)
-					context.commit("setConfig",config);
+					console.log("系统配置", config)
+					context.commit("setConfig", config);
 					resolve();
-				}).catch((res)=>{
+				}).catch((res) => {
 					reject(res);
 				});
 			})
 		}
 	}
-	
+
 }
