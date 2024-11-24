@@ -3,7 +3,7 @@ uni-button {
 	font-size: $im-font-size !important;
 }
 uni-button[type='primary'] {
-	colo: #fff !important;
+	color: #fff !important;
 	background-color: $im-color-primary !important;
 }
 
@@ -14,7 +14,7 @@ uni-button[type='primary'][plain] {
 }
 
 uni-button[type='warn'] {
-	colo: #fff !important;
+	color: #fff !important;
 	background-color: $im-color-danger !important;
 }
 
@@ -29,7 +29,7 @@ uni-button[size='mini'] {
 }
 
 .button-hover[type='primary'] {
-	colo: #fff !important;
+	color: #fff !important;
 	background-color: $im-color-primary-dark-1 !important;
 }
 
