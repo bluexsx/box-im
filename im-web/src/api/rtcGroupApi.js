@@ -1,8 +1,8 @@
 import http from './httpRequest.js'
 
-class RtcGroupApi {}
+class RtcGroupApi { }
 
-RtcGroupApi.prototype.setup = function(groupId, userInfos) {
+RtcGroupApi.prototype.setup = function (groupId, userInfos) {
 	let formData = {
 		groupId,
 		userInfos
@@ -14,21 +14,21 @@ RtcGroupApi.prototype.setup = function(groupId, userInfos) {
 	})
 }
 
-RtcGroupApi.prototype.accept = function(groupId) {
+RtcGroupApi.prototype.accept = function (groupId) {
 	return http({
-		url: '/webrtc/group/accept?groupId='+groupId,
+		url: '/webrtc/group/accept?groupId=' + groupId,
 		method: 'post'
 	})
 }
 
-RtcGroupApi.prototype.reject = function(groupId) {
+RtcGroupApi.prototype.reject = function (groupId) {
 	return http({
-		url: '/webrtc/group/reject?groupId='+groupId,
+		url: '/webrtc/group/reject?groupId=' + groupId,
 		method: 'post'
 	})
 }
 
-RtcGroupApi.prototype.failed = function(groupId,reason) {
+RtcGroupApi.prototype.failed = function (groupId, reason) {
 	let formData = {
 		groupId,
 		reason
@@ -41,14 +41,14 @@ RtcGroupApi.prototype.failed = function(groupId,reason) {
 }
 
 
-RtcGroupApi.prototype.join = function(groupId) {
+RtcGroupApi.prototype.join = function (groupId) {
 	return http({
-		url: '/webrtc/group/join?groupId='+groupId,
+		url: '/webrtc/group/join?groupId=' + groupId,
 		method: 'post'
 	})
 }
 
-RtcGroupApi.prototype.invite = function(groupId, userInfos) {
+RtcGroupApi.prototype.invite = function (groupId, userInfos) {
 	let formData = {
 		groupId,
 		userInfos
@@ -61,7 +61,7 @@ RtcGroupApi.prototype.invite = function(groupId, userInfos) {
 }
 
 
-RtcGroupApi.prototype.offer = function(groupId, userId, offer) {
+RtcGroupApi.prototype.offer = function (groupId, userId, offer) {
 	let formData = {
 		groupId,
 		userId,
@@ -74,7 +74,7 @@ RtcGroupApi.prototype.offer = function(groupId, userId, offer) {
 	})
 }
 
-RtcGroupApi.prototype.answer = function(groupId, userId, answer) {
+RtcGroupApi.prototype.answer = function (groupId, userId, answer) {
 	let formData = {
 		groupId,
 		userId,
@@ -87,21 +87,21 @@ RtcGroupApi.prototype.answer = function(groupId, userId, answer) {
 	})
 }
 
-RtcGroupApi.prototype.quit = function(groupId) {
+RtcGroupApi.prototype.quit = function (groupId) {
 	return http({
 		url: '/webrtc/group/quit?groupId=' + groupId,
 		method: 'post'
 	})
 }
 
-RtcGroupApi.prototype.cancel = function(groupId) {
+RtcGroupApi.prototype.cancel = function (groupId) {
 	return http({
 		url: '/webrtc/group/cancel?groupId=' + groupId,
 		method: 'post'
 	})
 }
 
-RtcGroupApi.prototype.candidate = function(groupId, userId, candidate) {
+RtcGroupApi.prototype.candidate = function (groupId, userId, candidate) {
 	let formData = {
 		groupId,
 		userId,
@@ -114,7 +114,7 @@ RtcGroupApi.prototype.candidate = function(groupId, userId, candidate) {
 	})
 }
 
-RtcGroupApi.prototype.device = function(groupId, isCamera, isMicroPhone) {
+RtcGroupApi.prototype.device = function (groupId, isCamera, isMicroPhone) {
 	let formData = {
 		groupId,
 		isCamera,
@@ -128,7 +128,7 @@ RtcGroupApi.prototype.device = function(groupId, isCamera, isMicroPhone) {
 }
 
 
-RtcGroupApi.prototype.candidate = function(groupId, userId, candidate) {
+RtcGroupApi.prototype.candidate = function (groupId, userId, candidate) {
 	let formData = {
 		groupId,
 		userId,
@@ -141,7 +141,7 @@ RtcGroupApi.prototype.candidate = function(groupId, userId, candidate) {
 	})
 }
 
-RtcGroupApi.prototype.heartbeat = function(groupId) {
+RtcGroupApi.prototype.heartbeat = function (groupId) {
 	return http({
 		url: '/webrtc/group/heartbeat?groupId=' + groupId,
 		method: 'post'

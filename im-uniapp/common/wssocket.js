@@ -55,7 +55,7 @@ let init = () => {
 		console.log(e)
 		isConnect = false;
 		// APP 应用切出超过一定时间(约1分钟)会触发报错，此处回调给应用进行重连
-		closeCallBack && closeCallBack({code: 1006});
+		closeCallBack && closeCallBack({ code: 1006 });
 	})
 };
 
@@ -92,7 +92,7 @@ let reconnect = (wsurl, accessToken) => {
 	let timeDiff = new Date().getTime() - lastConnectTime.getTime()
 	let delay = timeDiff < 10000 ? 10000 - timeDiff : 0;
 	rec && clearTimeout(rec);
-	rec = setTimeout(function() {
+	rec = setTimeout(function () {
 		connect(wsurl, accessToken);
 	}, delay);
 };
@@ -119,7 +119,7 @@ let close = (code) => {
 var heartCheck = {
 	timeout: 10000, //每段时间发送一次心跳包 这里设置为30s
 	timeoutObj: null, //延时发送消息对象（启动心跳新建这个对象，收到消息后重置对象）
-	start: function() {
+	start: function () {
 		if (isConnect) {
 			console.log('发送WebSocket心跳')
 			let heartBeat = {
@@ -134,9 +134,9 @@ var heartCheck = {
 			})
 		}
 	},
-	reset: function() {
+	reset: function () {
 		clearTimeout(this.timeoutObj);
-		this.timeoutObj = setTimeout(function() {
+		this.timeoutObj = setTimeout(function () {
 			heartCheck.start();
 		}, this.timeout);
 	}

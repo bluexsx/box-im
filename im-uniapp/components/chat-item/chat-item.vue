@@ -1,184 +1,182 @@
 <template>
-	<view class="chat-item" :class="active?'active':''">
+	<view class="chat-item" :class="active ? 'active' : ''">
 		<!--rich-text中的表情包会屏蔽事件，所以这里用一个遮罩层捕获点击事件 -->
 		<view class="mask" @tap="showChatBox()"></view>
 		<view class="left">
-			<head-image :url="chat.headImage" :name="chat.showName" :size="90"></head-image>
+			<head-image :url="chat.headImage" :name="chat.showName"></head-image>
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
 				<view class="chat-name-text">
-					<view>{{chat.showName}}</view>
-					<uni-tag v-if="chat.type=='GROUP'" circle text="群" size="small"></uni-tag>
+					<view>{{ chat.showName }}</view>
+					<uni-tag v-if="chat.type == 'GROUP'" circle text="群" size="small" type="primary"></uni-tag>
 				</view>
-				<view class="chat-time">{{$date.toTimeText(chat.lastSendTime,true)}}</view>
+				<view class="chat-time">{{ $date.toTimeText(chat.lastSendTime, true) }}</view>
 			</view>
 			<view class="chat-content">
-				<view class="chat-at-text">{{atText}}</view>
-				<view class="chat-send-name" v-if="isShowSendName">{{chat.sendNickName+':&nbsp;'}}</view>
+				<view class="chat-at-text">{{ atText }}</view>
+				<view class="chat-send-name" v-if="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</view>
 				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
-				<uni-badge v-if="chat.unreadCount>0" size="small" :max-num="99" :text="chat.unreadCount" />
+				<uni-badge v-if="chat.unreadCount > 0" :max-num="99" :text="chat.unreadCount" />
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	export default {
-		name: "chatItem",
-		data() {
-			return {}
+export default {
+	name: "chatItem",
+	data() {
+		return {}
+	},
+	props: {
+		chat: {
+			type: Object
 		},
-		props: {
-			chat: {
-				type: Object
-			},
-			index: {
-				type: Number
-			},
-			active: {
-				type: Boolean,
-				default: false
-			}
+		index: {
+			type: Number
 		},
-		methods: {
+		active: {
+			type: Boolean,
+			default: false
+		}
+	},
+	methods: {
 
-			showChatBox() {
-				uni.navigateTo({
-					url: "/pages/chat/chat-box?chatIdx=" + this.index
-				})
+		showChatBox() {
+			uni.navigateTo({
+				url: "/pages/chat/chat-box?chatIdx=" + this.index
+			})
+		}
+	},
+	computed: {
+		isShowSendName() {
+			if (!this.chat.sendNickName) {
+				return false;
 			}
+			let size = this.chat.messages.length;
+			if (size == 0) {
+				return false;
+			}
+			// 只有群聊的普通消息需要显示名称
+			let lastMsg = this.chat.messages[size - 1];
+			return this.$msgType.isNormal(lastMsg.type)
 		},
-		computed: {
-			isShowSendName() {
-				if (!this.chat.sendNickName) {
-					return false;
-				}
-				let size = this.chat.messages.length;
-				if (size == 0) {
-					return false;
-				}
-				// 只有群聊的普通消息需要显示名称
-				let lastMsg = this.chat.messages[size - 1];
-				return this.$msgType.isNormal(lastMsg.type)
-			},
-			atText() {
-				if (this.chat.atMe) {
-					return "[有人@我]"
-				} else if (this.chat.atAll) {
-					return "[@全体成员]"
-				}
-				return "";
+		atText() {
+			if (this.chat.atMe) {
+				return "[有人@我]"
+			} else if (this.chat.atAll) {
+				return "[@全体成员]"
 			}
+			return "";
 		}
 	}
+}
 </script>
 
 <style scoped lang="scss">
-	.chat-item {
-		height: 100rpx;
-		display: flex;
-		margin-bottom: 2rpx;
+.chat-item {
+	height: 96rpx;
+	display: flex;
+	margin-bottom: 2rpx;
+	position: relative;
+	padding: 18rpx 20rpx;
+	align-items: center;
+	background-color: white;
+	white-space: nowrap;
+
+	&:hover {
+		background-color: $im-bg-active;
+	}
+
+	&.active {
+		background-color: $im-bg-active;
+	}
+
+	.mask {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		right: 0;
+		z-index: 99;
+	}
+
+	.left {
 		position: relative;
-		padding: 10rpx 20rpx;
+		display: flex;
+		justify-content: center;
 		align-items: center;
-		background-color: white;
-		white-space: nowrap;
+		width: 100rpx;
+		height: 100rpx;
+	}
 
-		&:hover {
-			background-color: #f5f6ff;
-		}
+	.chat-right {
+		height: 100%;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding-left: 20rpx;
+		text-align: left;
+		overflow: hidden;
 
-		&.active {
-			background-color: #f5f6ff;
-		}
-
-
-		.mask {
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			z-index: 99;
-		}
-
-		.left {
-			position: relative;
+		.chat-name {
 			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: 100rpx;
-			height: 100rpx;
 
-
-		}
-
-		.chat-right {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			padding-left: 20rpx;
-			text-align: left;
-			overflow: hidden;
-
-			.chat-name {
+			.chat-name-text {
+				flex: 1;
+				font-size: $im-font-size-large;
+				white-space: nowrap;
+				overflow: hidden;
 				display: flex;
-				line-height: 44rpx;
-				height: 44rpx;
+				align-items: center;
 
-				.chat-name-text {
-					flex: 1;
-					font-size: 30rpx;
-					font-weight: 600;
-					white-space: nowrap;
-					overflow: hidden;
-					display: flex;
-					align-items: center;
-
-					.uni-tag {
-						text-align: center;
-						margin-left: 5rpx;
-						border: 0;
-						height: 30rpx;
-						line-height: 30rpx;
-						font-size: 20rpx;
-						padding: 1px 5px;
-						background-color: #de1c1c;
-						opacity: 0.8;
-					}
-				}
-
-				.chat-time {
-					font-size: 26rpx;
-					text-align: right;
-					color: #888888;
-					white-space: nowrap;
-					overflow: hidden;
+				.uni-tag {
+					text-align: center;
+					margin-left: 5rpx;
+					border: 0;
+					padding: 1px 5px;
+					//opacity: 0.8;
 				}
 			}
 
-			.chat-content {
-				display: flex;
-				line-height: 60rpx;
-				height: 60rpx;
-
-				.chat-at-text {
-					color: #c70b0b;
-					font-size: 24rpx;
-				}
-
-				.chat-send-name {
-					font-size: 26rpx;
-				}
-
-				.chat-content-text {
-					flex: 1;
-					font-size: 28rpx;
-					white-space: nowrap;
-					overflow: hidden;
-					text-overflow: ellipsis;
-				}
-
+			.chat-time {
+				font-size: $im-font-size-smaller-extra;
+				color: $im-text-color-lighter;
+				text-align: right;
+				white-space: nowrap;
+				overflow: hidden;
 			}
+		}
+
+		.chat-content {
+			display: flex;
+			font-size: $im-font-size-smaller;
+			color: $im-text-color-lighter;
+			padding-top: 8rpx;
+
+			.chat-at-text {
+				color: $im-color-danger;
+			}
+
+			.chat-send-name {
+				font-size: $im-font-size-smaller;
+			}
+
+			.chat-content-text {
+				flex: 1;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+
+				img {
+					width: 40rpx !important;
+					height: 40rpx !important;
+				}
+			}
+
 		}
 	}
+}
 </style>

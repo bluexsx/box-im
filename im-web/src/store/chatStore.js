@@ -249,7 +249,7 @@ export default {
 			let chat = this.getters.findChatByFriend(friend.id);
 			// 更新会话中的群名和头像
 			if (chat && (chat.headImage != friend.headImageThumb ||
-					chat.showName != friend.nickName)) {
+				chat.showName != friend.nickName)) {
 				chat.headImage = friend.headImageThumb;
 				chat.showName = friend.nickName;
 				chat.stored = false;
@@ -259,7 +259,7 @@ export default {
 		updateChatFromGroup(state, group) {
 			let chat = this.getters.findChatByGroup(group.id);
 			if (chat && (chat.headImage != group.headImageThumb ||
-					chat.showName != group.showGroupName)) {
+				chat.showName != group.showGroupName)) {
 				// 更新会话中的群名称和头像
 				chat.headImage = group.headImageThumb;
 				chat.showName = group.showGroupName;
@@ -280,7 +280,7 @@ export default {
 			}
 		},
 		refreshChats(state) {
-			if(!cacheChats){
+			if (!cacheChats) {
 				return;
 			}
 			// 排序
@@ -369,7 +369,7 @@ export default {
 			return state.loadingPrivateMsg || state.loadingGroupMsg
 		},
 		findChats: (state, getters) => () => {
-			if(cacheChats && getters.isLoading()){
+			if (cacheChats && getters.isLoading()) {
 				return cacheChats;
 			}
 			return state.chats;

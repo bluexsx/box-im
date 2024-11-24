@@ -14,7 +14,7 @@ export default defineStore('userStore', {
 		clear() {
 			this.userInfo = {};
 		},
-		loadUser(context) {
+		loadUser() {
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/user/self',

@@ -6,7 +6,7 @@ class ImWebRtc {
 	}
 }
 
-ImWebRtc.prototype.isEnable = function() {
+ImWebRtc.prototype.isEnable = function () {
 	window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window
 		.mozRTCPeerConnection;
 	window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window
@@ -16,11 +16,11 @@ ImWebRtc.prototype.isEnable = function() {
 	return !!window.RTCPeerConnection;
 }
 
-ImWebRtc.prototype.init = function(configuration) {
+ImWebRtc.prototype.init = function (configuration) {
 	this.configuration = configuration;
 }
 
-ImWebRtc.prototype.setupPeerConnection = function(callback) {
+ImWebRtc.prototype.setupPeerConnection = function (callback) {
 	this.peerConnection = new RTCPeerConnection(this.configuration);
 	this.peerConnection.ontrack = (e) => {
 		// 对方的视频流
@@ -29,11 +29,11 @@ ImWebRtc.prototype.setupPeerConnection = function(callback) {
 }
 
 
-ImWebRtc.prototype.setStream = function(stream) {
-	if(this.stream){
+ImWebRtc.prototype.setStream = function (stream) {
+	if (this.stream) {
 		this.peerConnection.removeStream(this.stream)
 	}
-	if(stream){
+	if (stream) {
 		stream.getTracks().forEach((track) => {
 			this.peerConnection.addTrack(track, stream);
 		});
@@ -42,7 +42,7 @@ ImWebRtc.prototype.setStream = function(stream) {
 }
 
 
-ImWebRtc.prototype.onIcecandidate = function(callback) {
+ImWebRtc.prototype.onIcecandidate = function (callback) {
 	this.peerConnection.onicecandidate = (event) => {
 		// 追踪到候选信息
 		if (event.candidate) {
@@ -51,7 +51,7 @@ ImWebRtc.prototype.onIcecandidate = function(callback) {
 	}
 }
 
-ImWebRtc.prototype.onStateChange = function(callback) {
+ImWebRtc.prototype.onStateChange = function (callback) {
 	// 监听连接状态
 	this.peerConnection.oniceconnectionstatechange = (event) => {
 		let state = event.target.iceConnectionState;
@@ -60,7 +60,7 @@ ImWebRtc.prototype.onStateChange = function(callback) {
 	};
 }
 
-ImWebRtc.prototype.createOffer = function() {
+ImWebRtc.prototype.createOffer = function () {
 	return new Promise((resolve, reject) => {
 		const offerParam = {};
 		offerParam.offerToRecieveAudio = 1;
@@ -78,7 +78,7 @@ ImWebRtc.prototype.createOffer = function() {
 }
 
 
-ImWebRtc.prototype.createAnswer = function(offer) {
+ImWebRtc.prototype.createAnswer = function (offer) {
 	return new Promise((resolve, reject) => {
 		// 设置远端的sdp
 		this.setRemoteDescription(offer);
@@ -97,17 +97,17 @@ ImWebRtc.prototype.createAnswer = function(offer) {
 	});
 }
 
-ImWebRtc.prototype.setRemoteDescription = function(offer) {
+ImWebRtc.prototype.setRemoteDescription = function (offer) {
 	// 设置对方的sdp信息
 	this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
 }
 
-ImWebRtc.prototype.addIceCandidate = function(candidate) {
+ImWebRtc.prototype.addIceCandidate = function (candidate) {
 	// 添加对方的候选人信息
 	this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
 }
 
-ImWebRtc.prototype.close = function(uid) {
+ImWebRtc.prototype.close = function (uid) {
 	// 关闭RTC连接
 	if (this.peerConnection) {
 		this.peerConnection.close();

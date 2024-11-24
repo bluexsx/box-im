@@ -57,9 +57,9 @@ export default {
         groupMembers: {
             type: Array
         },
-		msgInfo: {
-			type: Object
-		}
+        msgInfo: {
+            type: Object
+        }
     },
     methods: {
         close() {
@@ -100,16 +100,16 @@ export default {
                     // 区分已读还是未读
                     if (userIds.find(userId => member.userId == userId)) {
                         this.readedMembers.push(member);
-                    } else  {
+                    } else {
                         this.unreadMembers.push(member);
                     }
                 })
-				// 更新已读人数
-				this.$store.commit("updateMessage", {
-				    id: this.msgInfo.id,
-				    groupId: this.msgInfo.groupId,
-				    readedCount: this.readedMembers.length
-				})
+                // 更新已读人数
+                this.$store.commit("updateMessage", {
+                    id: this.msgInfo.id,
+                    groupId: this.msgInfo.groupId,
+                    readedCount: this.readedMembers.length
+                })
             })
         }
     }
@@ -130,17 +130,13 @@ export default {
 
 .chat-group-readed {
     position: fixed;
-    box-shadow: 0px 0px 10px #ccc;
     width: 300px;
-    background-color: #fafafa;
-    border-radius: 8px;
 
     .scroll-box {
         height: 400px;
     }
 
     .arrow-left {
-
         position: absolute;
         left: -15px;
         width: 0;

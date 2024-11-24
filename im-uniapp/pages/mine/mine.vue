@@ -1,127 +1,149 @@
 <template>
 	<view class="page mine">
-		<view class="content" @click="onModifyInfo()">
-			<head-image :name="userInfo.nickName"  
-				:url="userInfo.headImage"
-				:size="160"></head-image>
-			<view class="info-item">
-				<view class="info-primary">
-					<text class="info-username">
-						{{userInfo.userName}}
-					</text>
-					<text v-show="userInfo.sex==0" class="iconfont icon-man" 
-						color="darkblue"></text>
-					<text v-show="userInfo.sex==1" class="iconfont icon-girl"
-						color="darkred"></text>
+		<nav-bar>我的</nav-bar>
+		<uni-card :is-shadow="false" is-full :border="false">
+			<view class="content" @click="onModifyInfo()">
+				<head-image :name="userInfo.nickName" :url="userInfo.headImage" :size="160"></head-image>
+				<view class="info-item">
+					<view class="info-primary">
+						<text class="info-username">
+							{{ userInfo.userName }}
+						</text>
+						<text v-show="userInfo.sex == 0" class="iconfont icon-man" color="darkblue"></text>
+						<text v-show="userInfo.sex == 1" class="iconfont icon-girl" color="darkred"></text>
+					</view>
+					<view class="info-text">
+						<text class="label-text">
+							昵称:
+						</text>
+						<text class="content-text">
+							{{ userInfo.nickName }}
+						</text>
+					</view>
+					<view class="info-text">
+						<view>
+							<text class="label-text">
+								签名:
+							</text>
+							<text class="content-text">
+								{{ userInfo.signature }}
+							</text>
+						</view>
+					</view>
 				</view>
-				<text>
-					昵称 ：{{userInfo.nickName}}
-				</text>
-				<text>
-					签名 ：{{userInfo.signature}}
-				</text>
+				<view class="info-arrow">
+
+				</view>
 			</view>
-			<view class="info-arrow">></view>
-		</view>
-		<view class="line"></view>
-		<view class="btn-group">
-			<button class="btn" type="primary" @click="onModifyPassword()">修改密码</button>
-			<button class="btn" type="warn" @click="onQuit()">退出</button>
-		</view>
+		</uni-card>
+		<bar-group>
+			<arrow-bar title="修改密码" @click="onModifyPassword()"></arrow-bar>
+		</bar-group>
+		<bar-group>
+			<btn-bar title="退出登陆" type="danger" @click="onQuit()"></btn-bar>
+		</bar-group>
 	</view>
 </template>
 
 <script>
-	export default {
-		data() {
-			return {}
+export default {
+	data() {
+		return {}
+	},
+	methods: {
+		onModifyInfo() {
+			uni.navigateTo({
+				url: "/pages/mine/mine-edit"
+			})
 		},
-		methods: {
-			onModifyInfo() {
-				uni.navigateTo({
-					url: "/pages/mine/mine-edit"
-				})
-			},
-			onModifyPassword() {
-				uni.navigateTo({
-					url: "/pages/mine/mine-password"
-				})
-			},
-			onQuit() {
-				uni.showModal({
-					title: '确认退出?',
-					success: (res) => {
-						if (res.confirm) {
-							console.log(getApp())
-							getApp().$vm.exit()
-						}
+		onModifyPassword() {
+			uni.navigateTo({
+				url: "/pages/mine/mine-password"
+			})
+		},
+		onQuit() {
+			uni.showModal({
+				title: '确认退出?',
+				success: (res) => {
+					if (res.confirm) {
+						console.log(getApp())
+						getApp().$vm.exit()
 					}
-				});
-			}
-		},
-		computed: {
-			userInfo() {
-				return this.userStore.userInfo;
-			}
+				}
+			});
 		}
-
-
+	},
+	computed: {
+		userInfo() {
+			return this.userStore.userInfo;
+		}
 	}
+
+
+}
 </script>
 
 <style scoped lang="scss">
-	.mine {
-		.content {
-			height: 200rpx;
+.mine {
+	.content {
+		//height: 200rpx;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 20rpx;
+
+		.info-item {
 			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			padding: 20rpx;
+			align-items: flex-start;
+			flex-direction: column;
+			padding-left: 40rpx;
+			flex: 1;
 
-			.info-item {
+			.info-text {
+				line-height: 1.5;
+				//margin-bottom: 10rpx;
+			}
+
+			.label-text {
+				font-size: $im-font-size-small;
+				color: $im-text-color-light;
+
+			}
+
+			.content-text {
+				font-size: $im-font-size-small;
+				color: $im-text-color-light;
+			}
+
+			.info-primary {
 				display: flex;
-				align-items: flex-start;
-				flex-direction: column;
-				padding-left: 40rpx;
-				flex: 1;
+				align-items: center;
+				margin-bottom: 10rpx;
 
-				.info-primary {
-					display: flex;
-					align-items: center;
-					.info-username {
-						font-size: 40rpx;
-						font-weight: 600;
-					}
-					
-					.icon-man {
-						color: darkblue;
-					}
-					
-					.icon-girl {
-						color: darkred;
-					}
+				.info-username {
+					font-size: $im-font-size-large;
+					font-weight: 600;
+				}
+
+				.icon-man {
+					color: $im-text-color;
+					font-size: $im-font-size-large;
+					padding-left: 10rpx;
+				}
+
+				.icon-girl {
+					color: darkred;
 				}
 			}
-
-			.info-arrow {
-				width: 50rpx;
-				font-size: 30rpx;
-				font-weight: 600;
-			}
 		}
 
-		.line {
-			margin: 20rpx;
-			border-bottom: 1px solid #aaaaaa;
-		}
-
-		.btn-group {
-			margin: 100rpx;
-
-			.btn {
-				margin-top: 20rpx;
-			}
-
+		.info-arrow {
+			width: 50rpx;
+			font-size: 30rpx;
+			position: relative;
+			left: 30rpx;
 		}
 	}
+
+}
 </style>

@@ -5,20 +5,17 @@ class ImCamera {
 	}
 }
 
-ImCamera.prototype.isEnable = function() {
+ImCamera.prototype.isEnable = function () {
 	return !!navigator && !!navigator.mediaDevices && !!navigator.mediaDevices.getUserMedia;
 }
 
-ImCamera.prototype.openVideo = function() {
+ImCamera.prototype.openVideo = function () {
 	return new Promise((resolve, reject) => {
-		if(this.stream){
+		if (this.stream) {
 			this.close()
 		}
 		let constraints = {
-			video: {
-				with: window.screen.width,
-				height: window.screen.height
-			},
+			video: true,
 			audio: {
 				echoCancellation: true, //音频开启回音消除
 				noiseSuppression: true // 开启降噪
@@ -41,7 +38,7 @@ ImCamera.prototype.openVideo = function() {
 }
 
 
-ImCamera.prototype.openAudio = function() {
+ImCamera.prototype.openAudio = function () {
 	return new Promise((resolve, reject) => {
 		let constraints = {
 			video: false,
@@ -64,7 +61,7 @@ ImCamera.prototype.openAudio = function() {
 	})
 }
 
-ImCamera.prototype.close = function() {
+ImCamera.prototype.close = function () {
 	// 停止流
 	if (this.stream) {
 		this.stream.getTracks().forEach((track) => {

@@ -11,7 +11,7 @@ const request = (options) => {
 	if (loginInfo) {
 		header.accessToken = loginInfo.accessToken;
 	}
-	return new Promise(function(resolve, reject) {
+	return new Promise(function (resolve, reject) {
 		uni.request({
 			url: UNI_APP.BASE_URL + options.url,
 			method: options.method || 'GET',
@@ -72,7 +72,7 @@ const request = (options) => {
 
 
 const reqRefreshToken = (loginInfo) => {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function (resolve, reject) {
 		uni.request({
 			method: 'PUT',
 			url: UNI_APP.BASE_URL + '/refreshToken',
