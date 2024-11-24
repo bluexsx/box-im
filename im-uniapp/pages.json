@@ -1,47 +1,64 @@
 {
 	"easycom": {
-			"autoscan": true,
-			"custom": {
-				"^u--(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
-				"^up-(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
-		    "^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
-			}
+		"autoscan": true,
+		"custom": {
+			"^u--(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+			"^up-(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+			"^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/login/login"
 		},
-	"pages": [{
-		"path": "pages/login/login"
-	}, {
-		"path" : "pages/register/register"
-	},{
-		"path": "pages/chat/chat"
-	}, {
-		"path": "pages/friend/friend"
-	}, {
-		"path": "pages/group/group"
-	}, {
-		"path": "pages/mine/mine"
-	}, {
-		"path": "pages/common/user-info"
-	}, {
-		"path": "pages/chat/chat-box"
-	},{
-		"path": "pages/chat/chat-private-video"
-	},{
-		"path": "pages/chat/chat-group-video"
-	}, {
-		"path": "pages/friend/friend-add"
-	}, {
-		"path": "pages/group/group-info"
-	}, {
-		"path": "pages/group/group-edit"
-	}, {
-		"path": "pages/group/group-invite"
-	}, {
-		"path": "pages/group/group-member"
-	}, {
-		"path": "pages/mine/mine-edit"
-	},{
-		"path": "pages/mine/mine-password"
-	}
+		{
+			"path": "pages/register/register"
+		},
+		{
+			"path": "pages/chat/chat"
+		},
+		{
+			"path": "pages/friend/friend"
+		},
+		{
+			"path": "pages/group/group"
+		},
+		{
+			"path": "pages/mine/mine"
+		},
+		{
+			"path": "pages/common/user-info"
+		},
+		{
+			"path": "pages/chat/chat-box"
+		},
+		{
+			"path": "pages/chat/chat-private-video"
+		},
+		{
+			"path": "pages/chat/chat-group-video"
+		},
+		{
+			"path": "pages/friend/friend-add"
+		},
+		{
+			"path": "pages/group/group-info"
+		},
+		{
+			"path": "pages/group/group-edit"
+		},
+		{
+			"path": "pages/group/group-invite"
+		},
+		{
+			"path": "pages/group/group-member"
+		},
+		{
+			"path": "pages/mine/mine-edit"
+		},
+		{
+			"path": "pages/mine/mine-password"
+		}
 	],
 	"globalStyle": {
 		"navigationStyle": "custom",
@@ -53,12 +70,12 @@
 		"selectedColor": "#587ff0",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
-		"list": [{
+		"list": [
+			{
 				"pagePath": "pages/chat/chat",
 				"iconPath": "static/tarbar/chat.png",
 				"selectedIconPath": "static/tarbar/chat_active.png",
 				"text": "消息"
-				
 			},
 			{
 				"pagePath": "pages/friend/friend",

@@ -3,7 +3,7 @@ import UNI_APP from '@/.env.js';
 
 let rc = null;
 let start = () => {
-	if(rc != null){
+	if (rc != null) {
 		close();
 	}
 	rc = new Recorder();
@@ -22,7 +22,7 @@ let close = () => {
 let upload = () => {
 	return new Promise((resolve, reject) => {
 		const wavBlob = rc.getWAVBlob();
-		const newbolb = new Blob([wavBlob], { type: 'audio/wav'})
+		const newbolb = new Blob([wavBlob], { type: 'audio/wav' })
 		const name = new Date().getDate() + '.wav';
 		const file = new File([newbolb], name)
 		uni.uploadFile({
@@ -34,10 +34,10 @@ let upload = () => {
 			name: 'file',
 			success: (res) => {
 				let r = JSON.parse(res.data);
-				if(r.code != 200){
+				if (r.code != 200) {
 					console.log(res)
 					reject(r.message);
-				}else {
+				} else {
 					const data = {
 						duration: parseInt(rc.duration),
 						url: r.data

@@ -29,7 +29,6 @@
 		</div>
 		<icp></icp>
 	</div>
-
 </template>
 
 <script>

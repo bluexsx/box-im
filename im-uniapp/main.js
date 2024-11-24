@@ -27,9 +27,6 @@ import * as recorder from './common/recorder-h5';
 // #ifndef H5
 import * as recorder from './common/recorder-app';
 // #endif
-
-
-
 export function createApp() {
   const app = createSSRApp(App)
   app.use(uviewPlus);
@@ -46,15 +43,15 @@ export function createApp() {
   app.config.globalProperties.$date = date;
   app.config.globalProperties.$rc = recorder;
   // 初始化时再挂载store对象
-  app.config.globalProperties.$mountStore = ()=>{
-	  app.config.globalProperties.chatStore = useChatStore();
-	  app.config.globalProperties.friendStore = useFriendStore();
-	  app.config.globalProperties.groupStore = useGroupStore();
-	  app.config.globalProperties.configStore = useConfigStore();
-	  app.config.globalProperties.userStore = useUserStore();
+  app.config.globalProperties.$mountStore = () => {
+    app.config.globalProperties.chatStore = useChatStore();
+    app.config.globalProperties.friendStore = useFriendStore();
+    app.config.globalProperties.groupStore = useGroupStore();
+    app.config.globalProperties.configStore = useConfigStore();
+    app.config.globalProperties.userStore = useUserStore();
   }
   return {
     app,
-	pinia
+    pinia
   }
 }

@@ -86,7 +86,7 @@ export default defineStore('chatStore', {
 					this.saveToStorage();
 				}
 			}
-			
+
 		},
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
@@ -99,7 +99,7 @@ export default defineStore('chatStore', {
 					}
 				}
 			})
-			if(!chat.stored){
+			if (!chat.stored) {
 				this.saveToStorage();
 			}
 		},
@@ -293,7 +293,7 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats() {
-			if(!cacheChats){
+			if (!cacheChats) {
 				return;
 			}
 			// 排序
@@ -316,18 +316,18 @@ export default defineStore('chatStore', {
 			let key = "chats-app-" + userId;
 			let chatKeys = [];
 			// 按会话为单位存储，只存储有改动的会话
-			this.chats.forEach((chat)=>{
+			this.chats.forEach((chat) => {
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
-				if(!chat.stored){
-					if(chat.delete){
+				if (!chat.stored) {
+					if (chat.delete) {
 						uni.removeStorageSync(chatKey);
-					}else{
-						uni.setStorageSync(chatKey,chat);
+					} else {
+						uni.setStorageSync(chatKey, chat);
 					}
 					chat.stored = true;
 				}
-				if(!chat.delete){
-					chatKeys.push(chatKey);	
+				if (!chat.delete) {
+					chatKeys.push(chatKey);
 				}
 			})
 			// 会话核心信息
@@ -353,15 +353,15 @@ export default defineStore('chatStore', {
 				let userStore = useUserStore();
 				let userId = userStore.userInfo.id;
 				let chatsData = uni.getStorageSync("chats-app-" + userId)
-				if(chatsData){
-					if(chatsData.chatKeys){
+				if (chatsData) {
+					if (chatsData.chatKeys) {
 						let time = new Date().getTime();
 						chatsData.chats = [];
-						chatsData.chatKeys.forEach(key=>{
+						chatsData.chatKeys.forEach(key => {
 							let chat = uni.getStorageSync(key);
-							if(chat){
+							if (chat) {
 								chatsData.chats.push(chat);
-							}	
+							}
 						})
 					}
 					this.initChats(chatsData);
@@ -375,7 +375,7 @@ export default defineStore('chatStore', {
 			return state.loadingPrivateMsg || state.loadingGroupMsg
 		},
 		curChats: (state) => {
-			if(cacheChats && state.isLoading()){
+			if (cacheChats && state.isLoading()) {
 				return cacheChats;
 			}
 			return state.chats;

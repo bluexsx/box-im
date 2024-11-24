@@ -11,9 +11,11 @@
         <slot></slot>
       </view>
       <view class="btn">
-        <uni-icons class="btn-item" v-if="search" type="search" :size="iconFontSize" @click="$emit('search')"></uni-icons>
+        <uni-icons class="btn-item" v-if="search" type="search" :size="iconFontSize"
+          @click="$emit('search')"></uni-icons>
         <uni-icons class="btn-item" v-if="add" type="plusempty" :size="iconFontSize" @click="$emit('add')"></uni-icons>
-        <uni-icons class="btn-item" v-if="more" type="more-filled" :size="iconFontSize" @click="$emit('more')"></uni-icons>
+        <uni-icons class="btn-item" v-if="more" type="more-filled" :size="iconFontSize"
+          @click="$emit('more')"></uni-icons>
       </view>
     </view>
   </view>
@@ -85,8 +87,7 @@ export default {
     box-sizing: border-box;
     height: $im-nav-bar-height;
 
-    .title {
-    }
+    .title {}
 
     .back {
       position: absolute;

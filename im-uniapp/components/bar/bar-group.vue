@@ -5,13 +5,13 @@
 </template>
 
 <script>
-	export default{
-		name: "bar-group"
-	}
+export default {
+	name: "bar-group"
+}
 </script>
 
 <style lang="scss" scoped>
-	.bar-group{
-		margin: 20rpx 0;
-	}
+.bar-group {
+	margin: 20rpx 0;
+}
 </style>
