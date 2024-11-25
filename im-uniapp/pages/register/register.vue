@@ -1,7 +1,7 @@
 <template>
 	<view class="register">
 		<view class="title">欢迎注册</view>
-		<uni-forms class="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
+		<uni-forms class="form" ref="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
 			<uni-forms-item name="userName" label="用户名">
 				<uni-easyinput type="text" v-model="dataForm.userName" placeholder="用户名" />
 			</uni-forms-item>
