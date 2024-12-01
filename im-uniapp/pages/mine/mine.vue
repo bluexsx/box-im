@@ -40,7 +40,7 @@
 			<arrow-bar title="修改密码" @click="onModifyPassword()"></arrow-bar>
 		</bar-group>
 		<bar-group>
-			<btn-bar title="退出登陆" type="danger" @click="onQuit()"></btn-bar>
+			<btn-bar title="退出登录" type="danger" @click="onQuit()"></btn-bar>
 		</bar-group>
 	</view>
 </template>

@@ -47,7 +47,7 @@ export default {
 				if (cmd == 2) {
 					// 异地登录，强制下线
 					uni.showModal({
-						content: '您已在其他地方登陆，将被强制下线',
+						content: '您已在其他地方登录，将被强制下线',
 						showCancel: false,
 					})
 					this.exit();

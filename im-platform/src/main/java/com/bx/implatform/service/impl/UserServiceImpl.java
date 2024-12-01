@@ -81,7 +81,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public LoginVO refreshToken(String refreshToken) {
         //验证 token
         if (!JwtUtil.checkSign(refreshToken, jwtProperties.getRefreshTokenSecret())) {
-            throw new GlobalException("您的登陆信息已过期，请重新登陆");
+            throw new GlobalException("您的登录信息已过期，请重新登录");
         }
         String strJson = JwtUtil.getInfo(refreshToken);
         Long userId = JwtUtil.getUserId(refreshToken);

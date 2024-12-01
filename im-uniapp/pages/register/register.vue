@@ -14,10 +14,10 @@
 			<uni-forms-item name="corfirmPassword" label="确认密码">
 				<uni-easyinput type="password" v-model="dataForm.corfirmPassword" placeholder="确认密码" />
 			</uni-forms-item>
-			<button class="btn-submit" @click="submit" type="primary">注册并登陆</button>
+			<button class="btn-submit" @click="submit" type="primary">注册并登录</button>
 		</uni-forms>
 		<navigator class="nav-login" url="/pages/login/login">
-			返回登陆页面
+			返回登录页面
 		</navigator>
 	</view>
 </template>

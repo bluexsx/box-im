@@ -107,7 +107,7 @@ export default {
             // 关闭ws
             this.$wsApi.close(3000)
             // 异地登录，强制下线
-            this.$alert("您已在其他地方登陆，将被强制下线", "强制下线通知", {
+            this.$alert("您已在其他地方登录，将被强制下线", "强制下线通知", {
               confirmButtonText: '确定',
               callback: action => {
                 location.href = "/";

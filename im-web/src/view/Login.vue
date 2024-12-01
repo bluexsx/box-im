@@ -5,7 +5,7 @@
 				@keyup.enter.native="submitForm('loginForm')">
 				<div class="login-brand">
 					<img class="logo" src="../../public/logo.png" />
-					<div>登陆盒子IM</div>
+					<div>登录盒子IM</div>
 				</div>
 				<el-form-item label="终端" prop="userName" v-show="false">
 					<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
@@ -19,7 +19,7 @@
 						placeholder="密码"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="submitForm('loginForm')">登陆</el-button>
+					<el-button type="primary" @click="submitForm('loginForm')">登录</el-button>
 					<el-button @click="resetForm('loginForm')">清空</el-button>
 				</el-form-item>
 				<div class="register">
@@ -86,7 +86,7 @@ export default {
 							// 保存token
 							sessionStorage.setItem("accessToken", data.accessToken);
 							sessionStorage.setItem("refreshToken", data.refreshToken);
-							this.$message.success("登陆成功");
+							this.$message.success("登录成功");
 							this.$router.push("/home/chat");
 						})
 
