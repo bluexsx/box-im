@@ -62,7 +62,6 @@ let upload = () => {
 
 export {
 	start,
-	pause,
 	close,
 	upload
 }

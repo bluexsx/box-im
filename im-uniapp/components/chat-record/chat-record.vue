@@ -71,13 +71,12 @@ export default {
 		},
 		onEndRecord() {
 			this.recording = false;
-			// 停止录音
-			this.$rc.pause();
 			// 停止计时
 			this.StopTimer();
+			// 停止录音
+			this.$rc.close();
 			// 触屏位置是否移动到了取消区域
 			if (this.moveToCancel) {
-				this.$rc.close();
 				console.log("录音取消")
 				return;
 			}
@@ -87,7 +86,6 @@ export default {
 					title: "说话时间太短",
 					icon: 'none'
 				})
-				this.$rc.close();
 				return;
 			}
 			this.$rc.upload().then((data) => {
