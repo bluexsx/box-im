@@ -256,6 +256,7 @@ export default {
 				color: $im-text-color-lighter;
 				font-size: $im-font-size-smaller;
 				line-height: $im-font-size-smaller;
+				height: $im-font-size-smaller;
 			}
 
 			.chat-msg-bottom {
