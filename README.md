@@ -21,7 +21,7 @@
 
 - 后台管理端上线,后台管理代码仓库地址:https://gitee.com/bluexsx/box-im-admin
 - 框架和组件版本全面升级: jdk17、springboot3.3、node18等
-- 部分界面，功能、性能优化
+- 部分界面，功能、性能优化1
 
 
 #### 在线体验
