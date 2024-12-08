@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
@@ -34,6 +35,7 @@ public class LoginController {
         return ResultUtils.success(vo);
     }
 
+    @RepeatSubmit
     @PostMapping("/register")
     @Operation(summary = "用户注册", description = "用户注册")
     public Result register(@Valid @RequestBody RegisterDTO dto) {

@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.GroupService;
@@ -23,6 +24,7 @@ public class GroupController {
 
     private final GroupService groupService;
 
+    @RepeatSubmit
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")
     public Result<GroupVO> createGroup(@Valid @RequestBody GroupVO vo) {
