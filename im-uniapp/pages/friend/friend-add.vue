@@ -13,7 +13,13 @@
 					<view class="user-item">
 						<head-image :id="user.id" :name="user.nickName" :online="user.online"
 							:url="user.headImage"></head-image>
-						<view class="user-name">{{ user.nickName }}</view>
+						<view class="user-info">
+							<view class="user-name">
+								<view>{{ user.userName }}</view>
+								<uni-tag v-if="user.status == 1" circle type="error" text="已注销" size="small"></uni-tag>
+							</view>
+							<view class="nick-name">{{ `昵称:${user.nickName}`}}</view>
+						</view>
 						<view class="user-btns">
 							<button type="primary" v-show="!isFriend(user.id)" size="mini"
 								@click.stop="onAddFriend(user)">加为好友</button>
@@ -90,22 +96,45 @@ export default {
 		overflow: hidden;
 
 		.user-item {
-			height: 120rpx;
+			height: 100rpx;
 			display: flex;
 			margin-bottom: 1rpx;
 			position: relative;
-			padding: 0 30rpx;
+			padding: 18rpx 20rpx;
 			align-items: center;
 			background-color: white;
 			white-space: nowrap;
 
-			.user-name {
+			.user-info {
 				flex: 1;
+				display: flex;
+				flex-direction: column;
 				padding-left: 20rpx;
 				font-size: $im-font-size;
-				line-height: 60rpx;
 				white-space: nowrap;
 				overflow: hidden;
+
+				.user-name {
+					display: flex;
+					flex: 1;
+					font-size: $im-font-size-large;
+					white-space: nowrap;
+					overflow: hidden;
+					align-items: center;
+
+					.uni-tag {
+						text-align: center;
+						margin-left: 5rpx;
+						padding: 1px 5px;
+					}
+				}
+
+				.nick-name {
+					display: flex;
+					font-size: $im-font-size-smaller;
+					color: $im-text-color-lighter;
+					padding-top: 8rpx;
+				}
 			}
 		}
 

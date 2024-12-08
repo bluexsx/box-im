@@ -46,9 +46,9 @@
 			<view v-if="!group.quit" class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
 		<bar-group v-if="!group.quit">
-			<btn-bar type="primary" title="发送消息" @click="onSendMessage()"></btn-bar>
-			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @click="onQuitGroup()"></btn-bar>
-			<btn-bar v-if="isOwner" type="danger" title="解散群聊" @click="onDissolveGroup()"></btn-bar>
+			<btn-bar type="primary" title="发送消息" @tap="onSendMessage()"></btn-bar>
+			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @tap="onQuitGroup()"></btn-bar>
+			<btn-bar v-if="isOwner" type="danger" title="解散群聊" @tap="onDissolveGroup()"></btn-bar>
 		</bar-group>
 	</view>
 </template>

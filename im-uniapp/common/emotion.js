@@ -21,10 +21,6 @@ let textToImg = (emoText) => {
 		return emoText;
 	}
 	let path = textToPath(emoText);
-	// #ifdef MP
-	// 微信小程序不能有前面的'/'
-	path = path.slice(1);
-	// #endif
 	let img = `<img src="${path}" style="with:30px;height:30px;
 		margin: 0 -2px;vertical-align:bottom;"/>`;
 	return img;

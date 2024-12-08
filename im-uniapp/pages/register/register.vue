@@ -1,7 +1,7 @@
 <template>
 	<view class="register">
 		<view class="title">欢迎注册</view>
-		<uni-forms class="form" ref="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
+		<uni-forms  ref="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
 			<uni-forms-item name="userName" label="用户名">
 				<uni-easyinput type="text" v-model="dataForm.userName" placeholder="用户名" />
 			</uni-forms-item>
@@ -111,7 +111,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .register {
 	.title {
 		padding-top: 150rpx;
@@ -122,7 +122,7 @@ export default {
 		font-weight: 600;
 	}
 
-	.form {
+	.uni-forms {
 		padding: 50rpx;
 
 		.btn-submit {
