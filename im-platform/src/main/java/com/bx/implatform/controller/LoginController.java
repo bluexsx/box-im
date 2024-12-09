@@ -35,7 +35,6 @@ public class LoginController {
         return ResultUtils.success(vo);
     }
 
-    @RepeatSubmit
     @PostMapping("/register")
     @Operation(summary = "用户注册", description = "用户注册")
     public Result register(@Valid @RequestBody RegisterDTO dto) {
