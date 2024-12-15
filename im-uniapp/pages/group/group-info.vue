@@ -1,5 +1,5 @@
 <template>
-	<view v-if="userStore.userInfo.type == 1" class="page group-info">
+	<view class="page group-info">
 		<nav-bar back>群聊信息</nav-bar>
 		<view v-if="!group.quit" class="group-members">
 			<view class="member-items">

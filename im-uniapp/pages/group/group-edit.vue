@@ -1,5 +1,5 @@
 <template>
-	<view v-if="userStore.userInfo.type == 1" class="page group-edit">
+	<view class="page group-edit">
 		<nav-bar back>修改群资料</nav-bar>
 		<uni-card :is-shadow="false" is-full :border="false">
 			<uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
