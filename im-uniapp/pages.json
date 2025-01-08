@@ -7,8 +7,7 @@
 			"^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
 		}
 	},
-	"pages": [
-		{
+	"pages": [{
 			"path": "pages/login/login"
 		},
 		{
@@ -30,7 +29,14 @@
 			"path": "pages/common/user-info"
 		},
 		{
-			"path": "pages/chat/chat-box"
+			"path": "pages/chat/chat-box",
+			"style": {
+				"navigationStyle": "custom",
+				"app-plus": {
+					// adjustPan窗体高度不变，但窗体上推、adjustResize屏幕高度=webview窗体高度+软键盘高度
+					"softinputMode": "adjustResize"
+				}
+			}
 		},
 		{
 			"path": "pages/chat/chat-private-video"
@@ -71,8 +77,7 @@
 		"selectedColor": "#587ff0",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
-		"list": [
-			{
+		"list": [{
 				"pagePath": "pages/chat/chat",
 				"iconPath": "static/tarbar/chat.png",
 				"selectedIconPath": "static/tarbar/chat_active.png",

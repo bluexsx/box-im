@@ -16,7 +16,7 @@
 			<view class="chat-content">
 				<view class="chat-at-text">{{ atText }}</view>
 				<view class="chat-send-name" v-if="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</view>
-				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent)"></rich-text>
+				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent,'emoji-small')"></rich-text>
 				<uni-badge v-if="chat.unreadCount > 0" :max-num="99" :text="chat.unreadCount" />
 			</view>
 		</view>

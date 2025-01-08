@@ -17,7 +17,7 @@
 				<view class="chat-msg-bottom">
 					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<rich-text class="chat-msg-text" :nodes="$emo.transform(msgInfo.content)"></rich-text>
+							<rich-text class="chat-msg-text" :nodes="$emo.transform(msgInfo.content, 'emoji-normal')"></rich-text>
 						</long-press-menu>
 					</view>
 					<view class="chat-msg-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">

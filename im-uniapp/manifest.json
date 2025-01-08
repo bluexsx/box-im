@@ -22,6 +22,9 @@
             "Record" : {},
             "Bluetooth" : {}
         },
+        "softinput" : {
+            "mode" : "adjustResize"
+        },
         /* 应用发布信息 */
         "distribute" : {
             /* android打包配置 */
