@@ -369,6 +369,8 @@ export default {
 	},
 	onLaunch() {
 		this.$mountStore();
+		// 延迟1s，避免用户看到页面跳转
+		this.closeSplashscreen(1000);
 		// 登录状态校验
 		let loginInfo = uni.getStorageSync("loginInfo")
 		this.refreshToken(loginInfo).then(() => {
@@ -380,8 +382,6 @@ export default {
 			uni.navigateTo({
 				url: "/pages/login/login"
 			})
-			// 延迟1s，避免用户看到页面跳转动画
-			this.closeSplashscreen(1000);
 		})
 	}
 }
