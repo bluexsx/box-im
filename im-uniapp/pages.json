@@ -8,13 +8,12 @@
 		}
 	},
 	"pages": [{
+			"path": "pages/chat/chat"
+		}, {
 			"path": "pages/login/login"
 		},
 		{
 			"path": "pages/register/register"
-		},
-		{
-			"path": "pages/chat/chat"
 		},
 		{
 			"path": "pages/friend/friend"

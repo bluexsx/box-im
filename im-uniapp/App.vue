@@ -356,6 +356,15 @@ export default {
 				url: '/user/self',
 				method: 'GET'
 			})
+		},
+		closeSplashscreen(delay) {
+			// #ifdef APP-PLUS
+			// 关闭开机动画
+			setTimeout(() => {
+				console.log("plus.navigator.closeSplashscreen()")
+				plus.navigator.closeSplashscreen()
+			}, delay)
+			// #endif
 		}
 	},
 	onLaunch() {
@@ -365,17 +374,14 @@ export default {
 		this.refreshToken(loginInfo).then(() => {
 			// 初始化
 			this.init();
-			// 跳转到聊天页面
-			uni.switchTab({
-				url: "/pages/chat/chat"
-			})
+			this.closeSplashscreen(0);
 		}).catch(() => {
 			// 跳转到登录页
-			// #ifdef H5
 			uni.navigateTo({
 				url: "/pages/login/login"
 			})
-			// #endif
+			// 延迟1s，避免用户看到页面跳转动画
+			this.closeSplashscreen(1000);
 		})
 	}
 }
