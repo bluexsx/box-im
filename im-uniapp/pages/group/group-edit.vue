@@ -187,7 +187,7 @@ export default {
 			.group-image {
 				width: 120rpx;
 				height: 120rpx;
-				border-radius: 5%;
+				border-radius: 50%;
 				border: 1px solid #ccc;
 			}
 		}
