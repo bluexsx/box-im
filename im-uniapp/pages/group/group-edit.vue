@@ -1,31 +1,33 @@
 <template>
-	<view class="page group-edit">
+	<view  class="page group-edit">
 		<nav-bar back>修改群资料</nav-bar>
-		<uni-card :is-shadow="false" is-full :border="false">
-			<uni-forms ref="form" :modelValue="group" :rules="rules" validate-trigger="bind" label-position="top"
-				label-width="100%">
-				<uni-forms-item name="headImage" class="avatar">
-					<image-upload v-if="isOwner" :onSuccess="onUnloadImageSuccess">
-						<image :src="group.headImageThumb" class="group-image"></image>
-					</image-upload>
-					<head-image v-if="!isOwner" :name="group.showGroupName" :url="group.headImageThumb"
-						:size="200"></head-image>
-				</uni-forms-item>
-				<uni-forms-item label="群聊名称" name="name" :required="true">
-					<uni-easyinput type="text" v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称" />
-				</uni-forms-item>
-				<uni-forms-item label="群聊备注" name="remarkGroupName">
-					<uni-easyinput v-model="group.remarkGroupName" type="text" :placeholder="group.name" />
-				</uni-forms-item>
-				<uni-forms-item label="我在本群的昵称" name="remarkNickName">
-					<uni-easyinput v-model="group.remarkNickName" type="text"
-						:placeholder="userStore.userInfo.nickName" />
-				</uni-forms-item>
-				<uni-forms-item label="群公告" name="notice">
-					<uni-easyinput type="textarea" v-model="group.notice" :disabled="!isOwner" placeholder="请输入群公告" />
-				</uni-forms-item>
-			</uni-forms>
-		</uni-card>
+		<view class="form">
+			<view class="form-item">
+				<view class="label">群聊头像</view>
+				<view class="value"></view>
+				<image-upload v-if="isOwner" :onSuccess="onUnloadImageSuccess">
+					<image :src="group.headImageThumb" class="group-image"></image>
+				</image-upload>
+				<head-image v-else class="group-image" :name="group.showGroupName" :url="group.headImageThumb"
+					:size="120"></head-image>
+			</view>
+			<view class="form-item">
+				<view class="label">群聊名称</view>
+				<input class="input" :class="isOwner?'':'disable'" maxlength="20"  v-model="group.name" :disabled="!isOwner" placeholder="请输入群聊名称"/>
+			</view>
+			<view class="form-item">
+				<view class="label">群聊备注</view>
+				<input class="input" maxlength="20"  v-model="group.remarkGroupName"  :placeholder="group.name"/>
+			</view>
+			<view class="form-item">
+				<view class="label">我在本群的昵称</view>
+				<input class="input" maxlength="20"  v-model="group.remarkNickName"  :placeholder="userStore.userInfo.nickName"/>
+			</view>
+			<view class="form-item">
+				<view class="label">群公告</view>
+				<textarea class="notice" :class="isOwner?'':'disable'" maxlength="512" :disabled="!isOwner" v-model="group.notice" :placeholder="isOwner?'请输入群公告':''"></textarea>
+			</view>
+		</view>	
 		<button class="bottom-btn" type="primary" @click="submit()">提交</button>
 	</view>
 </template>
@@ -46,6 +48,7 @@ export default {
 			}
 		}
 	},
+
 	methods: {
 		submit() {
 			if (this.group.id) {
@@ -141,17 +144,54 @@ export default {
 
 <style lang="scss" scoped>
 .group-edit {
-	//padding: 20rpx;
 
-	.group-image {
-		width: 200rpx;
-		height: 200rpx;
-		border: 1px solid #ccc;
-		border-radius: 5%;
+	.form {
+		margin-top: 20rpx;
+	
+		.form-item {
+			padding: 0 40rpx;
+			display: flex;
+			background: white;
+			align-items: center;
+			margin-bottom: 2rpx;
+	
+			.label {
+				width: 220rpx;
+				line-height: 100rpx;
+				font-size: $im-font-size;
+				white-space: nowrap;
+			}
+			
+			.value{
+				flex: 1;
+			}
+			
+			.input {
+				flex: 1;
+				text-align: right;
+				line-height: 100rpx;
+				font-size: $im-font-size-small;
+			}
+			
+			.disable {
+				color: $im-text-color-lighter;
+			}
+			
+			.notice {
+				flex: 1;
+				font-size: $im-font-size-small;
+				max-height: 200rpx;
+				padding: 14rpx 0;
+			}
+			
+			.group-image {
+				width: 120rpx;
+				height: 120rpx;
+				border-radius: 5%;
+				border: 1px solid #ccc;
+			}
+		}
 	}
 }
 
-.avatar {
-	margin-top: -30px;
-}
 </style>

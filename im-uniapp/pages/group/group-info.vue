@@ -18,33 +18,33 @@
 			</view>
 			<view class="member-more" @click="onShowMoreMmeber()">{{ `查看全部群成员${groupMembers.length}人` }}></view>
 		</view>
-		<view class="group-detail">
-
-			<uni-section title="群聊名称">
-				<template v-slot:right>
-					<text class="detail-text">{{ group.name }}</text>
-				</template>
-			</uni-section>
-			<uni-section title="群主">
-				<template v-slot:right>
-					<text class="detail-text">{{ ownerName }}</text>
-				</template>
-			</uni-section>
-			<uni-section title="群名备注">
-				<template v-slot:right>
-					<text class="detail-text"> {{ group.remarkGroupName }}</text>
-				</template>
-			</uni-section>
-			<uni-section title="我在本群的昵称">
-				<template v-slot:right>
-					<text class="detail-text"> {{ group.showNickName }}</text>
-				</template>
-			</uni-section>
-			<uni-section v-if="group.notice" title="群公告">
+		<view class="form">
+			<view class="form-item">
+				<view class="label">群聊名称</view>
+				<view class="value">{{group.name}}</view>
+			</view>
+			<view class="form-item">
+				<view class="label">群主</view>
+				<view class="value">{{ownerName}}</view>
+			</view>
+			<view class="form-item">
+				<view class="label">群名备注</view>
+				<view class="value">{{group.remarkGroupName}}</view>
+			</view>
+			<view class="form-item">
+				<view class="label">我在本群的昵称</view>
+				<view class="value">{{group.showNickName}}</view>
+			</view>
+			<view v-if="group.notice" class="form-item" >
+				<view class="label">群公告</view>
+			</view>
+			<view v-if="group.notice" class="form-item" >
 				<uni-notice-bar :text="group.notice" />
-			</uni-section>
+			</view>
+			
 			<view v-if="!group.quit" class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
+		
 		<bar-group v-if="!group.quit">
 			<btn-bar type="primary" title="发送消息" @tap="onSendMessage()"></btn-bar>
 			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @tap="onQuitGroup()"></btn-bar>
@@ -63,7 +63,7 @@ export default {
 		}
 	},
 	methods: {
-		onFocusSearch() { },
+		onFocusSearch() {},
 		onInviteMember() {
 			uni.navigateTo({
 				url: `/pages/group/group-invite?id=${this.groupId}`
@@ -113,7 +113,8 @@ export default {
 										url: "/pages/group/group"
 									});
 									this.groupStore.removeGroup(this.groupId);
-									this.chatStore.removeGroupChat(this.groupId);
+									this.chatStore.removeGroupChat(this
+										.groupId);
 								}, 100)
 							}
 						})
@@ -142,7 +143,8 @@ export default {
 										url: "/pages/group/group"
 									});
 									this.groupStore.removeGroup(this.groupId);
-									this.chatStore.removeGroupChat(this.groupId);
+									this.chatStore.removeGroupChat(this
+										.groupId);
 								}, 100)
 							}
 						})
@@ -194,7 +196,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .group-info {
 	.group-members {
 		padding: 30rpx;
@@ -245,19 +247,38 @@ export default {
 		}
 	}
 
+	.form {
+		margin-top: 20rpx;
 
-	.group-detail {
-		margin-top: 30rpx;
-		padding: 20rpx 20rpx;
-		background: white;
-
-		.detail-text {
-			font-size: $im-font-size;
+		.form-item {
+			padding: 0 40rpx;
+			display: flex;
+			background: white;
+			align-items: center;
+			margin-top: 2rpx;
+			
+			.label {
+				width: 220rpx;
+				line-height: 100rpx;
+				font-size: $im-font-size;
+				white-space: nowrap;
+			}
+	
+			.value {
+				flex: 1;
+				text-align: right;
+				line-height: 100rpx;
+				color: $im-text-color-lighter;
+				font-size: $im-font-size-small;
+				white-space: nowrap;
+				overflow: hidden;
+			}
 		}
-
+		
 		.group-edit {
-			padding-top: 30rpx;
+			padding: 10rpx 40rpx 30rpx 40rpx	;
 			text-align: center;
+			background: white;
 			font-size: $im-font-size-small;
 			color: $im-text-color-lighter;
 		}

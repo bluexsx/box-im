@@ -1,28 +1,35 @@
 <template>
 	<view class="page mine-edit">
 		<nav-bar back>修改我的信息</nav-bar>
-		<uni-card :is-shadow="false" is-full :border="false">
-			<uni-forms ref="form" :modelValue="userInfo" label-position="top" label-width="100%">
-				<uni-forms-item name="headImage" class="avatar">
-					<image-upload :onSuccess="onUnloadImageSuccess">
-						<image :src="userInfo.headImageThumb" class="head-image"></image>
-					</image-upload>
-				</uni-forms-item>
-				<uni-forms-item label="用户名" name="userName">
-					<uni-easyinput type="text" v-model="userInfo.userName" :disabled="true" />
-				</uni-forms-item>
-				<uni-forms-item label="昵称" name="nickName">
-					<uni-easyinput v-model="userInfo.nickName" type="text" :placeholder="userInfo.userName" />
-				</uni-forms-item>
-				<uni-forms-item label="性别" name="sex">
-					<uni-data-checkbox v-model="userInfo.sex"
-						:localdata="[{ text: '男', value: 0 }, { text: '女', value: 1 }]"></uni-data-checkbox>
-				</uni-forms-item>
-				<uni-forms-item label="签名" name="signature">
-					<uni-easyinput type="textarea" v-model="userInfo.signature" placeholder="编辑个性标签,展示我的独特态度" />
-				</uni-forms-item>
-			</uni-forms>
-		</uni-card>
+		<view class="form">
+			<view class="form-item">
+				<view class="label">头像</view>
+				<image-upload class="value" :onSuccess="onUnloadImageSuccess">
+					<image :src="userInfo.headImageThumb" class="head-image"></image>
+				</image-upload>
+			</view>
+			<view class="form-item">
+				<view class="label">账号</view>
+				<view class="value">{{userInfo.userName}}</view>
+			</view>
+			<view class="form-item">
+				<view class="label">昵称</view>
+				<input class="input" maxlength="20" v-model="userInfo.nickName" placeholder="请输入您的昵称" />
+			</view>
+			<view class="form-item">
+				<view class="label">性别</view>
+				<radio-group class="radio-group" @change="onSexChange">
+					<radio class="radio" :value="0" :checked="userInfo.sex==0">男</radio>
+					<radio class="radio" :value="1" :checked="userInfo.sex==1">女</radio>
+				</radio-group>
+			</view>
+			<view class="form-item">
+				<view class="label">个性签名</view>
+				<textarea class="signature" maxlength="128" auto-height v-model="userInfo.signature"
+					:style="{'text-align': signTextAlign}" @linechange="onLineChange"
+					placeholder="编辑个性签名,展示我的独特态度"></textarea>
+			</view>
+		</view>
 		<button type="primary" class="bottom-btn" @click="onSubmit()">提交</button>
 	</view>
 </template>
@@ -31,11 +38,12 @@
 export default {
 	data() {
 		return {
+			signTextAlign: 'right',
 			userInfo: {}
 		}
 	},
 	methods: {
-		onSexchange(e) {
+		onSexChange(e) {
 			this.userInfo.sex = e.detail.value;
 		},
 		onUnloadImageSuccess(file, res) {
@@ -53,10 +61,10 @@ export default {
 					title: "修改成功",
 					icon: 'none'
 				});
-				setTimeout(() => {
-					uni.navigateBack();
-				}, 1000);
 			})
+		},
+		onLineChange(e) {
+			this.signTextAlign = e.detail.lineCount > 1 ? "left" : "right";
 		}
 	},
 	onLoad() {
@@ -69,13 +77,63 @@ export default {
 
 <style scoped lang="scss">
 .mine-edit {
-	.head-image {
-		width: 200rpx;
-		height: 200rpx;
-	}
-}
 
-.avatar {
-	margin-top: -30px;
+	.form {
+		margin-top: 20rpx;
+
+		.form-item {
+			padding: 0 40rpx;
+			display: flex;
+			background: white;
+			align-items: center;
+			margin-bottom: 2rpx;
+
+			.label {
+				width: 200rpx;
+				line-height: 100rpx;
+				font-size: $im-font-size;
+			}
+
+			.value {
+				flex: 1;
+				text-align: right;
+				line-height: 100rpx;
+				color: $im-text-color-lighter;
+				font-size: $im-font-size-small;
+			}
+
+
+
+			.radio-group {
+				flex: 1;
+				text-align: right;
+
+				.radio {
+					margin-left: 50rpx;
+				}
+			}
+
+			.input {
+				flex: 1;
+				text-align: right;
+				line-height: 100rpx;
+				font-size: $im-font-size-small;
+			}
+
+			.signature {
+				flex: 1;
+				font-size: $im-font-size-small;
+				max-height: 160rpx;
+				padding: 14rpx 0;
+				text-align: right;
+			}
+
+			.head-image {
+				width: 120rpx;
+				height: 120rpx;
+				border-radius: 5%;
+			}
+		}
+	}
 }
 </style>
