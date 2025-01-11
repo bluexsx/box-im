@@ -36,10 +36,10 @@
 			</view>
 		</uni-card>
 		<bar-group>
-			<btn-bar v-show="isFriend" type="primary" title="发送消息" @click="onSendMessage()">
+			<btn-bar v-show="isFriend" type="primary" title="发送消息" @tap="onSendMessage()">
 			</btn-bar>
-			<btn-bar v-show="!isFriend" type="primary" title="加为好友" @click="onAddFriend()"></btn-bar>
-			<btn-bar v-show="isFriend" type="danger" title="删除好友" @click="onDelFriend()"></btn-bar>
+			<btn-bar v-show="!isFriend" type="primary" title="加为好友" @tap="onAddFriend()"></btn-bar>
+			<btn-bar v-show="isFriend" type="danger" title="删除好友" @tap="onDelFriend()"></btn-bar>
 		</bar-group>
 	</view>
 </template>
