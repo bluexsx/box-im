@@ -102,10 +102,10 @@ https://www.yuque.com/u1475064/mufu2a/vn5u10ephxh9sau8
 
 #### 界面截图
 私聊：
-![输入图片说明](D:\开源项目\box-im\截图\web\私聊.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%A7%81%E8%81%8A.jpg)
 
 群聊：
-![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%81%8A.png)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%81%8A.jpg)
 
 群通话：
 ![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%A7%86%E9%A2%91.png)
