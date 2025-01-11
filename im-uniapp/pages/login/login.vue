@@ -1,7 +1,7 @@
 <template>
 	<view class="login">
 		<view class="title">欢迎登录</view>
-		<uni-forms class="form" :modelValue="loginForm" :rules="rules" validate-trigger="bind">
+		<uni-forms :modelValue="loginForm" :rules="rules" validate-trigger="bind">
 			<uni-forms-item name="userName">
 				<uni-easyinput type="text" v-model="loginForm.userName" prefix-icon="person" placeholder="用户名" />
 			</uni-forms-item>
@@ -69,7 +69,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .login {
 	.title {
 		padding-top: 150rpx;
@@ -80,7 +80,7 @@ export default {
 		font-weight: bold;
 	}
 
-	.form {
+	.uni-forms {
 		padding: 50rpx;
 
 		.btn-submit {

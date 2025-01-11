@@ -7,28 +7,20 @@ const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心',
 ];
 
 
-
-let transform = (content) => {
-	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, textToImg);
+let transform = (content, extClass) => {
+	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, (emoText)=>{
+		// 将匹配结果替换表情图片
+		let word = emoText.replace(/\#|\;/gi, '');
+		let idx = emoTextList.indexOf(word);
+		if (idx == -1) {
+			return emoText;
+		}
+		let path = textToPath(emoText);
+		let img = `<img src="${path}" class="${extClass}"/>`;
+		return img;
+	});
 }
 
-
-// 将匹配结果替换表情图片
-let textToImg = (emoText) => {
-	let word = emoText.replace(/\#|\;/gi, '');
-	let idx = emoTextList.indexOf(word);
-	if (idx == -1) {
-		return emoText;
-	}
-	let path = textToPath(emoText);
-	// #ifdef MP
-	// 微信小程序不能有前面的'/'
-	path = path.slice(1);
-	// #endif
-	let img = `<img src="${path}" style="with:30px;height:30px;
-		margin: 0 -2px;vertical-align:bottom;"/>`;
-	return img;
-}
 
 
 let textToPath = (emoText) => {
@@ -42,6 +34,5 @@ let textToPath = (emoText) => {
 export default {
 	emoTextList,
 	transform,
-	textToImg,
 	textToPath
 }

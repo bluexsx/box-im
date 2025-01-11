@@ -1,32 +1,35 @@
 {
-    "name": "盒子IM",
-    "appid": "__UNI__69DD57A",
-    "description": "",
-    "versionName": "3.1.0",
-    "versionCode": 3100,
-    "transformPx": false,
+    "name" : "盒子IM",
+    "appid" : "__UNI__69DD57A",
+    "description" : "",
+    "versionName" : "3.1.0",
+    "versionCode" : 3100,
+    "transformPx" : false,
     /* 5+App特有相关 */
-    "app-plus": {
-        "usingComponents": true,
-        "nvueStyleCompiler": "uni-app",
-        "compilerVersion": 3,
-        "splashscreen": {
-            "alwaysShowBeforeRender": true,
-            "waiting": true,
-            "autoclose": true,
-            "delay": 0
+    "app-plus" : {
+        "usingComponents" : true,
+        "nvueStyleCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : false,
+            "waiting" : false,
+            "autoclose" : false,
+            "delay" : 0
         },
         /* 模块配置 */
-        "modules": {
-            "Camera": {},
-            "Record": {},
-            "Bluetooth": {}
+        "modules" : {
+            "Camera" : {},
+            "Record" : {},
+            "Bluetooth" : {}
+        },
+        "softinput" : {
+            "mode" : "adjustResize"
         },
         /* 应用发布信息 */
-        "distribute": {
+        "distribute" : {
             /* android打包配置 */
-            "android": {
-                "permissions": [
+            "android" : {
+                "permissions" : [
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
                     "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
@@ -45,90 +48,87 @@
                     "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\" />",
                     "<uses-permission android:name=\"android.permission.RECORD_AUDIO\" />"
                 ],
-                "abiFilters": [
-                    "armeabi-v7a",
-                    "arm64-v8a",
-                    "x86"
-                ],
-                "minSdkVersion": 21
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
+                "minSdkVersion" : 21
             },
             /* ios打包配置 */
-            "ios": {
-                "dSYMs": false,
-                "privacyDescription": {
-                    "NSMicrophoneUsageDescription": "",
-                    "NSCameraUsageDescription": ""
+            "ios" : {
+                "dSYMs" : false,
+                "privacyDescription" : {
+                    "NSMicrophoneUsageDescription" : "",
+                    "NSCameraUsageDescription" : ""
                 },
-                "idfa": false
+                "idfa" : false
             },
             /* SDK配置 */
-            "sdkConfigs": {
-                "ad": {},
-                "speech": {}
+            "sdkConfigs" : {
+                "ad" : {},
+                "speech" : {}
             },
-            "icons": {
-                "android": {
-                    "xhdpi": "unpackage/res/icons/96x96.png",
-                    "hdpi": "unpackage/res/icons/72x72.png",
-                    "xxhdpi": "unpackage/res/icons/144x144.png",
-                    "xxxhdpi": "unpackage/res/icons/192x192.png"
+            "icons" : {
+                "android" : {
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
                 },
-                "ios": {
-                    "appstore": "unpackage/res/icons/1024x1024.png",
-                    "ipad": {
-                        "app": "unpackage/res/icons/76x76.png",
-                        "app@2x": "unpackage/res/icons/152x152.png",
-                        "notification": "unpackage/res/icons/20x20.png",
-                        "notification@2x": "unpackage/res/icons/40x40.png",
-                        "proapp@2x": "unpackage/res/icons/167x167.png",
-                        "settings": "unpackage/res/icons/29x29.png",
-                        "settings@2x": "unpackage/res/icons/58x58.png",
-                        "spotlight": "unpackage/res/icons/40x40.png",
-                        "spotlight@2x": "unpackage/res/icons/80x80.png"
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
                     },
-                    "iphone": {
-                        "app@2x": "unpackage/res/icons/120x120.png",
-                        "app@3x": "unpackage/res/icons/180x180.png",
-                        "notification@2x": "unpackage/res/icons/40x40.png",
-                        "notification@3x": "unpackage/res/icons/60x60.png",
-                        "settings@2x": "unpackage/res/icons/58x58.png",
-                        "settings@3x": "unpackage/res/icons/87x87.png",
-                        "spotlight@2x": "unpackage/res/icons/80x80.png",
-                        "spotlight@3x": "unpackage/res/icons/120x120.png"
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
                     }
                 }
             }
         }
     },
     /* 快应用特有相关 */
-    "quickapp": {},
+    "quickapp" : {},
     /* 小程序特有相关 */
-    "mp-weixin": {
-        "appid": "wxda94f40bfad0262c",
-        "libVersion": "latest",
-        "setting": {
-            "urlCheck": false
+    "mp-weixin" : {
+        "appid" : "wxda94f40bfad0262c",
+        "libVersion" : "latest",
+        "setting" : {
+            "urlCheck" : false
         },
-        "usingComponents": true
+        "usingComponents" : true
     },
-    "mp-alipay": {
-        "usingComponents": true
+    "mp-alipay" : {
+        "usingComponents" : true
     },
-    "mp-baidu": {
-        "usingComponents": true
+    "mp-baidu" : {
+        "usingComponents" : true
     },
-    "mp-toutiao": {
-        "usingComponents": true
+    "mp-toutiao" : {
+        "usingComponents" : true
     },
-    "uniStatistics": {
-        "enable": false
+    "uniStatistics" : {
+        "enable" : false
     },
-    "vueVersion": "3",
-    "h5": {
-        "title": "盒子IM",
-        "router": {
-            "base": "/h5/"
+    "vueVersion" : "3",
+    "h5" : {
+        "title" : "盒子IM",
+        "router" : {
+            "base" : "/h5/"
         }
     }
 }
-/* ios打包配置 */ /* SDK配置 */
+/* ios打包配置 *//* SDK配置 */
+

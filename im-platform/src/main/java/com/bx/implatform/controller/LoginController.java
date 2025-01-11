@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;
@@ -13,7 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "注册登陆")
+@Tag(name = "注册登录")
 @RestController
 @RequiredArgsConstructor
 public class LoginController {
@@ -21,7 +22,7 @@ public class LoginController {
     private final UserService userService;
 
     @PostMapping("/login")
-    @Operation(summary = "用户登陆", description = "用户登陆")
+    @Operation(summary = "用户登录", description = "用户登录")
     public Result<LoginVO> login(@Valid @RequestBody LoginDTO dto) {
         LoginVO vo = userService.login(dto);
         return ResultUtils.success(vo);

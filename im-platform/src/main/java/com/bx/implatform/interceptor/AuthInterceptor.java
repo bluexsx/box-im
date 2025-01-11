@@ -32,7 +32,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         //从 http 请求头中取出 token
         String token = request.getHeader("accessToken");
         if (StrUtil.isEmpty(token)) {
-            log.error("未登陆，url:{}", request.getRequestURI());
+            log.error("未登录，url:{}", request.getRequestURI());
             throw new GlobalException(ResultCode.NO_LOGIN);
         }
         String strJson = JwtUtil.getInfo(token);

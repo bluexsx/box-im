@@ -49,7 +49,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
             // 不允许多地登录,强制下线
             IMSendInfo<Object> sendInfo = new IMSendInfo<>();
             sendInfo.setCmd(IMCmdType.FORCE_LOGUT.code());
-            sendInfo.setData("您已在其他地方登陆，将被强制下线");
+            sendInfo.setData("您已在其他地方登录，将被强制下线");
             context.channel().writeAndFlush(sendInfo);
             log.info("异地登录，强制下线,userId:{}", userId);
         }

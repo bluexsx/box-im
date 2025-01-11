@@ -47,9 +47,10 @@ public final class RedisKey {
      * 缓存群聊成员id
      */
     public static final String IM_CACHE_GROUP_MEMBER_ID = "im:cache:group_member_ids";
+
     /**
-     * 分布式锁前缀
+     * 重复提交
      */
-    public static final String IM_LOCK_RTC_GROUP =  "im:lock:rtc:group";
+    public static final String IM_REPEAT_SUBMIT = "im:repeat:submit";
 
 }

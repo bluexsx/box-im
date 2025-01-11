@@ -43,6 +43,12 @@ export default {
 		}
 	},
 	methods: {
+		show() {
+			this.$refs.lsjUpload.show();
+		},
+		hide() {
+			this.$refs.lsjUpload.hide();
+		},
 		onUploadEnd(item) {
 			let file = this.fileMap.get(item.path);
 			if (item.type == 'fail') {

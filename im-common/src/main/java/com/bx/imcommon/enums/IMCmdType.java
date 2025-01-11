@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 public enum IMCmdType {
 
     /**
-     * 登陆
+     * 登录
      */
-    LOGIN(0, "登陆"),
+    LOGIN(0, "登录"),
     /**
      * 心跳
      */

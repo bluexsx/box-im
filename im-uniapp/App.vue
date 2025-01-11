@@ -47,7 +47,7 @@ export default {
 				if (cmd == 2) {
 					// 异地登录，强制下线
 					uni.showModal({
-						content: '您已在其他地方登陆，将被强制下线',
+						content: '您已在其他地方登录，将被强制下线',
 						showCancel: false,
 					})
 					this.exit();
@@ -356,26 +356,32 @@ export default {
 				url: '/user/self',
 				method: 'GET'
 			})
+		},
+		closeSplashscreen(delay) {
+			// #ifdef APP-PLUS
+			// 关闭开机动画
+			setTimeout(() => {
+				console.log("plus.navigator.closeSplashscreen()")
+				plus.navigator.closeSplashscreen()
+			}, delay)
+			// #endif
 		}
 	},
 	onLaunch() {
 		this.$mountStore();
+		// 延迟1s，避免用户看到页面跳转
+		this.closeSplashscreen(1000);
 		// 登录状态校验
 		let loginInfo = uni.getStorageSync("loginInfo")
 		this.refreshToken(loginInfo).then(() => {
 			// 初始化
 			this.init();
-			// 跳转到聊天页面
-			uni.switchTab({
-				url: "/pages/chat/chat"
-			})
+			this.closeSplashscreen(0);
 		}).catch(() => {
 			// 跳转到登录页
-			// #ifdef H5
 			uni.navigateTo({
 				url: "/pages/login/login"
 			})
-			// #endif
 		})
 	}
 }

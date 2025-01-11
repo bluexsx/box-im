@@ -28,6 +28,39 @@ uni-button[size='mini'] {
 	font-size: $im-font-size-smaller !important;
 }
 
+// #ifdef MP-WEIXIN
+// wx小程序只有button,没有uni-botton
+button {
+	font-size: $im-font-size !important;
+}
+
+button[type='primary'] {
+	color: #fff !important;
+	background-color: $im-color-primary !important;
+}
+
+button[type='primary'][plain] {
+	color: $im-color-primary !important;
+	border: 1px solid $im-color-primary;
+	background-color: transparent;
+}
+
+button[type='warn'] {
+	color: #fff !important;
+	background-color: $im-color-danger !important;
+}
+
+button[type='warn'][plain] {
+	color: $im-color-danger !important;
+	border: 1px solid $im-color-danger !important;
+	background-color: transparent !important;
+}
+
+button[size='mini'] {
+	font-size: $im-font-size-smaller !important;
+}
+// #endif
+
 .button-hover[type='primary'] {
 	color: #fff !important;
 	background-color: $im-color-primary-dark-1 !important;
@@ -138,4 +171,22 @@ uni-button[size='mini'] {
 	uni-button + uni-button {
 		margin-top: 20rpx;
 	}
+}
+
+.emoji-large {
+	width: 64rpx;
+	height: 64rpx;
+	vertical-align: bottom;
+}
+
+.emoji-normal {
+	width: 54rpx;
+	height: 54rpx;
+	vertical-align: bottom;
+}
+
+.emoji-small {
+	width: 36rpx;
+	height: 36rpx; 
+	vertical-align: bottom;
 }

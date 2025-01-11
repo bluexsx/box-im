@@ -1,49 +1,54 @@
 <template>
 	<view class="page chat-box">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
-		<view class="chat-msg" @click="switchChatTabBox('none', true)">
-			<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
-				:scroll-into-view="'chat-item-' + scrollMsgIdx">
-				<view v-if="chat" v-for="(msgInfo, idx) in chat.messages" :key="idx">
-					<chat-message-item v-if="idx >= showMinIdx" :headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)"
-						:showName="showName(msgInfo)" @recall="onRecallMessage" @copy="onCopyMessage"
-						@delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
-						:id="'chat-item-' + idx" :msgInfo="msgInfo" :groupMembers="groupMembers">
-					</chat-message-item>
-				</view>
-			</scroll-view>
-		</view>
-		<view v-if="atUserIds.length > 0" class="chat-at-bar" @click="openAtBox()">
-			<view class="iconfont icon-at">:&nbsp;</view>
-			<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
-				<view class="chat-at-items">
-					<view v-for="m in atUserItems" class="chat-at-item">
-						<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
+		<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
+			<view class="chat-msg" @click="switchChatTabBox('none')">
+				<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
+					:scroll-into-view="'chat-item-' + scrollMsgIdx">
+					<view v-if="chat" v-for="(msgInfo, idx) in chat.messages" :key="idx">
+						<chat-message-item v-if="idx >= showMinIdx" :headImage="headImage(msgInfo)"
+							@call="onRtCall(msgInfo)" :showName="showName(msgInfo)" @recall="onRecallMessage"
+							@copy="onCopyMessage" @delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)"
+							@download="onDownloadFile" :id="'chat-item-' + idx" :msgInfo="msgInfo"
+							:groupMembers="groupMembers">
+						</chat-message-item>
 					</view>
+				</scroll-view>
+			</view>
+			<view v-if="atUserIds.length > 0" class="chat-at-bar" @click="openAtBox()">
+				<view class="iconfont icon-at">:&nbsp;</view>
+				<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
+					<view class="chat-at-items">
+						<view v-for="m in atUserItems" class="chat-at-item">
+							<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+			<view class="send-bar">
+				<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
+				<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
+				<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
+				<view v-else class="send-text">
+					<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''"
+						:read-only="isReadOnly" @focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady"
+						@input="onTextInput">
+					</editor>
+					<!-- <textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
+						:placeholder="isReceipt ? '[回执消息]' : ''" :adjust-position="false" @confirm="sendTextMessage()"
+						@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send"
+						confirm-hold :hold-keyboard="true"></textarea> -->
 				</view>
-			</scroll-view>
-		</view>
-		<view class="send-bar">
-			<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
-			<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
-			<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
-			<view v-else class="send-text">
-				<textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
-					:placeholder="isReceipt ? '[回执消息]' : ''" :adjust-position="false" @confirm="sendTextMessage()"
-					@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send" confirm-hold
-					:hold-keyboard="true"></textarea>
+				<view v-if="chat && chat.type == 'GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
+				<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
+				<view v-if="isEmpty" class="iconfont icon-add" @click="onShowToolsChatTab()">
+				</view>
+				<button v-if="!isEmpty || atUserIds.length > 0" class="btn-send" type="primary"
+					@touchend.prevent="sendTextMessage()" size="mini">发送</button>
 			</view>
-			<view v-if="chat && chat.type == 'GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
-			<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
-			<view v-if="sendText == ''" class="iconfont icon-add" @click="onShowToolsChatTab()">
-			</view>
-			<button v-if="sendText != '' || atUserIds.length > 0" class="btn-send" type="primary"
-				@touchend.prevent="sendTextMessage()" size="mini">发送</button>
 		</view>
-
-		<view class="chat-tab-bar" v-show="chatTabBox != 'none' || (showKeyBoard && !isH5)"
-			:style="{ height: `${keyboardHeight}px` }">
-			<view v-if="chatTabBox == 'tools'" class="chat-tools">
+		<view class="chat-tab-bar">
+			<view v-if="chatTabBox == 'tools'" class="chat-tools" :style="{height: keyboardHeight+'px'}">
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
 						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
@@ -60,7 +65,7 @@
 				</view>
 
 				<view class="chat-tools-item">
-					<file-upload :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
+					<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
 						:onError="onUploadFileFail">
 						<view class="tool-icon iconfont icon-folder"></view>
 					</file-upload>
@@ -91,9 +96,10 @@
 				</view>
 				<!-- #endif -->
 			</view>
-			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true">
+			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
+				:style="{height: keyboardHeight+'px'}">
 				<view class="emotion-item-list">
-					<image class="emotion-item" :title="emoText" :src="$emo.textToPath(emoText)"
+					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
 						v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
 						lazy-load="true"></image>
 				</view>
@@ -122,29 +128,31 @@ export default {
 			friend: {},
 			group: {},
 			groupMembers: [],
-			sendText: "",
 			isReceipt: false, // 是否回执消息
 			scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 			chatTabBox: 'none',
-			showKeyBoard: false,
 			showRecord: false,
-			keyboardHeight: 322,
+			keyboardHeight: 300,
 			atUserIds: [],
 			needScrollToBottom: false, // 需要滚动到底部 
 			showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
 			reqQueue: [], // 请求队列
 			isSending: false, // 是否正在发送请求
-			isH5: false  // h5键盘会强制推起页面，有些地方要区别对待
+			isShowKeyBoard: false, // 键盘是否正在弹起 
+			editorCtx: null, // 编辑器上下文
+			isEmpty: true, // 编辑器是否为空
+			isFocus: false, // 编辑器是否焦点
+			isReadOnly: false // 编辑器是否只读
 		}
 	},
 	methods: {
 		onRecorderInput() {
 			this.showRecord = true;
-			this.switchChatTabBox('none', true);
+			this.switchChatTabBox('none');
 		},
 		onKeyboardInput() {
 			this.showRecord = false;
-			this.switchChatTabBox('none', false);
+			this.switchChatTabBox('none');
 		},
 		onSendRecord(data) {
 			let msgInfo = {
@@ -250,35 +258,49 @@ export default {
 			}
 		},
 		sendTextMessage() {
-			if (!this.sendText.trim() && this.atUserIds.length == 0) {
-				return uni.showToast({
-					title: "不能发送空白信息",
-					icon: "none"
-				});
-			}
-			let receiptText = this.isReceipt ? "【回执消息】" : "";
-			let atText = this.createAtText();
-			let msgInfo = {
-				content: receiptText + this.sendText + atText,
-				atUserIds: this.atUserIds,
-				receipt: this.isReceipt,
-				type: 0
-			}
-			this.sendText = "";
-			// 填充对方id
-			this.fillTargetId(msgInfo, this.chat.targetId);
-			this.sendMessageRequest(msgInfo).then((m) => {
-				m.selfSend = true;
-				this.chatStore.insertMessage(m);
-				// 会话置顶
-				this.moveChatToTop();
-			}).finally(() => {
-				// 滚动到底部
-				this.scrollToBottom();
-				// 清空@用户列表
-				this.atUserIds = [];
-				this.isReceipt = false;
-			});
+			this.editorCtx.getContents({
+				success: (e) => {
+					let sendText = this.isReceipt ? "【回执消息】" : "";
+					e.delta.ops.forEach((op) => {
+						if (op.insert.image) {
+							// emo表情
+							sendText += `#${op.attributes.alt};`
+						} else(
+							// 文字
+							sendText += op.insert
+						)
+					})
+					if (!sendText.trim() && this.atUserIds.length == 0) {
+						return uni.showToast({
+							title: "不能发送空白信息",
+							icon: "none"
+						});
+					}
+					let receiptText = this.isReceipt ? "【回执消息】" : "";
+					let atText = this.createAtText();
+					let msgInfo = {
+						content: receiptText + sendText + atText,
+						atUserIds: this.atUserIds,
+						receipt: this.isReceipt,
+						type: 0
+					}
+					// 填充对方id
+					this.fillTargetId(msgInfo, this.chat.targetId);
+					this.sendMessageRequest(msgInfo).then((m) => {
+						m.selfSend = true;
+						this.chatStore.insertMessage(m, this.chat);
+						// 会话置顶
+						this.moveChatToTop();
+					}).finally(() => {
+						// 滚动到底部
+						this.scrollToBottom();
+						// 清空编辑框数据
+						this.atUserIds = [];
+						this.isReceipt = false;
+						this.editorCtx.clear();
+					});
+				}
+			})
 		},
 		createAtText() {
 			let atText = "";
@@ -325,31 +347,35 @@ export default {
 		},
 		onShowEmoChatTab() {
 			this.showRecord = false;
-			this.switchChatTabBox('emo', true)
+			this.switchChatTabBox('emo')
 		},
 		onShowToolsChatTab() {
 			this.showRecord = false;
-			this.switchChatTabBox('tools', true)
+			this.switchChatTabBox('tools')
 		},
-		switchChatTabBox(chatTabBox, hideKeyBoard) {
+		switchChatTabBox(chatTabBox) {
 			this.chatTabBox = chatTabBox;
-			if (hideKeyBoard) {
-				uni.hideKeyboard();
-				this.showKeyBoard = false;
+			if (chatTabBox != 'tools' && this.$refs.fileUpload) {
+				this.$refs.fileUpload.hide()
 			}
 		},
 		selectEmoji(emoText) {
-			this.sendText += `#${emoText};`;
-		},
-		onKeyboardheightchange(e) {
-			if (e.detail.height > 0) {
-				this.showKeyBoard = true;
-				this.switchChatTabBox('none', false)
-				this.keyboardHeight = this.rpxTopx(e.detail.height);
-				this.scrollToBottom();
-			} else {
-				this.showKeyBoard = false;
-			}
+			let path = this.$emo.textToPath(emoText)
+			// 先把键盘禁用了，否则会重新弹出键盘
+			this.isReadOnly = true;
+			this.isEmpty = false;
+			this.$nextTick(() => {
+				this.editorCtx.insertImage({
+					src: path,
+					alt: emoText,
+					extClass: 'emoji-small',
+					nowrap: true,
+					complete: () => {
+						this.isReadOnly = false;
+						this.editorCtx.blur();
+					}
+				});
+			})
 		},
 		onUploadImageBefore(file) {
 			let data = {
@@ -540,14 +566,22 @@ export default {
 			}
 		},
 		onTextInput(e) {
-			let idx = e.detail.cursor - 1;
-			if (this.chat.type == 'GROUP' && e.detail.value[idx] == '@') {
-				this.openAtBox();
-				let sendText = e.detail.value.replace("@", '');
-				this.$nextTick(() => {
-					this.sendText = sendText;
-				})
-			}
+			this.isEmpty = e.detail.html == '<p><br></p>'
+		},
+		onEditorReady() {
+			const query = uni.createSelectorQuery().in(this);
+			query.select('#editor').context((res) => {
+				this.editorCtx = res.context
+			}).exec()
+		},
+		onEditorFocus(e) {
+			this.isFocus = true;
+			this.scrollToBottom()
+			this.switchChatTabBox('none')
+
+		},
+		onEditorBlur(e) {
+			this.isFocus = false;
 		},
 		loadReaded(fid) {
 			this.$http({
@@ -638,21 +672,27 @@ export default {
 				})
 			}
 		},
-		listenKeyBoardForH5() {
+		listenKeyBoard() {
+			// #ifdef H5
 			// 由于H5无法触发TextArea的@keyboardheightchange事件，所以通过
 			// 监听屏幕高度变化来实现键盘监听
 			let initHeight = window.innerHeight;
 			window.addEventListener('resize', () => {
 				let keyboardHeight = initHeight - window.innerHeight;
-				if (keyboardHeight > 0) {
-					this.keyboardHeight = keyboardHeight - 20;
-					this.showKeyBoard = true;
-					this.switchChatTabBox('none', false)
-					this.scrollToBottom();
-				} else {
-					this.showKeyBoard = false;
+				this.isShowKeyBoard = keyboardHeight > 0;
+				if (this.isShowKeyBoard) {
+					this.keyboardHeight = keyboardHeight;
 				}
 			});
+			// #endif
+			// #ifndef H5
+			uni.onKeyboardHeightChange((res) => {
+				this.isShowKeyBoard = res.height > 0;
+				if (this.isShowKeyBoard) {
+					this.keyboardHeight = res.height; // 获取并保存键盘高度
+				}
+			});
+			// #endif
 		},
 		generateId() {
 			// 生成临时id
@@ -705,10 +745,30 @@ export default {
 				}
 			})
 			return atUsers;
+		},
+		chatMainHeight() {
+			const sysInfo = uni.getSystemInfoSync();
+			let h = sysInfo.windowHeight;
+			// 减去标题栏高度
+			h -= 50;
+			// #ifdef H5
+			// h5的sysInfo.windowHeight默认就已经减去键盘高度了
+			if (this.chatTabBox != 'none') {
+				h -= this.keyboardHeight;
+			}
+			// #endif
+			// #ifndef H5
+			// 减去状态栏高度
+			h -= sysInfo.statusBarHeight;
+			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
+				h -= this.keyboardHeight;
+			}
+			// #endif
+			return h;
 		}
 	},
 	watch: {
-		messageSize: function (newSize, oldSize) {
+		messageSize: function(newSize, oldSize) {
 			// 接收到消息时滚动到底部
 			if (newSize > oldSize) {
 				let pages = getCurrentPages();
@@ -730,10 +790,6 @@ export default {
 		}
 	},
 	onLoad(options) {
-		// #ifdef H5
-		this.isH5 = true;
-		this.listenKeyBoardForH5();
-		// #endif
 		// 聊天数据
 		this.chat = this.chatStore.chats[options.chatIdx];
 		// 初始状态只显示20条消息
@@ -752,6 +808,8 @@ export default {
 		this.chatStore.activeChat(options.chatIdx);
 		// 复位回执消息
 		this.isReceipt = false;
+		// 监听键盘高度
+		this.listenKeyBoard();
 	},
 	onShow() {
 		if (this.needScrollToBottom) {
@@ -765,9 +823,11 @@ export default {
 
 <style lang="scss" scoped>
 .chat-box {
+	$icon-color: rgba(0, 0, 0, 0.88);
 	position: relative;
-	display: flex;
-	flex-direction: column;
+	background-color: #fafafa;
+
+
 
 	.header {
 		display: flex;
@@ -775,7 +835,7 @@ export default {
 		align-items: center;
 		height: 60rpx;
 		padding: 5px;
-		background-color: #f9f9f9;
+		background-color: #fafafa;
 		line-height: 50px;
 		font-size: $im-font-size-large;
 		box-shadow: $im-box-shadow-lighter;
@@ -792,99 +852,118 @@ export default {
 		}
 	}
 
-	.chat-msg {
-		flex: 1;
-		padding: 0;
-		overflow: hidden;
-		position: relative;
-		background-color: white;
-
-		.scroll-box {
-			height: 100%;
-		}
-	}
-
-	.chat-at-bar {
+	.chat-main-box {
+		// #ifdef H5
+		top: $im-nav-bar-height;
+		// #endif
+		// #ifndef H5
+		top: calc($im-nav-bar-height + var(--status-bar-height));
+		// #endif
+		position: fixed;
+		width: 100%;
 		display: flex;
-		align-items: center;
-		padding: 0 10rpx;
+		flex-direction: column;
+		z-index: 9;
 
-		.icon-at {
-			font-size: $im-font-size-larger;
-			color: $im-color-primary;
-			font-weight: bold;
+		.chat-msg {
+			flex: 1;
+			padding: 0;
+			overflow: hidden;
+			position: relative;
+			background-color: white;
+
+			.scroll-box {
+				height: 100%;
+			}
 		}
 
-		.chat-at-scroll-box {
-			flex: 1;
-			width: 80%;
+		.chat-at-bar {
+			display: flex;
+			align-items: center;
+			padding: 0 10rpx;
 
-			.chat-at-items {
-				display: flex;
-				align-items: center;
-				height: 70rpx;
+			.icon-at {
+				font-size: $im-font-size-larger;
+				color: $im-color-primary;
+				font-weight: bold;
+			}
 
-				.chat-at-item {
-					padding: 0 3rpx;
+			.chat-at-scroll-box {
+				flex: 1;
+				width: 80%;
+
+				.chat-at-items {
+					display: flex;
+					align-items: center;
+					height: 70rpx;
+
+					.chat-at-item {
+						padding: 0 3rpx;
+					}
 				}
 			}
+
 		}
 
-	}
 
-	$icon-color: rgba(0, 0, 0, 0.88);
 
-	.send-bar {
-		display: flex;
-		align-items: center;
-		padding: 10rpx;
-		//margin-bottom: 10rpx;
-		border-top: $im-border solid 1px;
-		background-color: $im-bg;
-		height: 80rpx;
-		//box-shadow: $im-box-shadow-lighter;
-		z-index: 1;
+		.send-bar {
+			display: flex;
+			align-items: center;
+			padding: 10rpx;
+			border-top: $im-border solid 1px;
+			background-color: $im-bg;
+			min-height: 80rpx;
+			margin-bottom: 14rpx;
 
-		.iconfont {
-			font-size: 60rpx;
-			margin: 0 10rpx;
-			color: $icon-color;
-		}
+			.iconfont {
+				font-size: 60rpx;
+				margin: 0 10rpx;
+				color: $icon-color;
+			}
 
-		.chat-record {
-			flex: 1;
-		}
+			.chat-record {
+				flex: 1;
+			}
 
-		.send-text {
-			flex: 1;
-			overflow: auto;
-			padding: 14rpx 20rpx;
-			background-color: #fff;
-			border-radius: 8rpx;
-			font-size: $im-font-size;
-			box-sizing: border-box;
-			margin: 0 10rpx;
+			.send-text {
+				flex: 1;
+				overflow: auto;
+				padding: 14rpx 20rpx;
+				background-color: #fff;
+				border-radius: 8rpx;
+				font-size: $im-font-size;
+				box-sizing: border-box;
+				margin: 0 10rpx;
+				position: relative;
 
-			.send-text-area {
-				width: 100%;
+				.send-text-area {
+					width: 100%;
+					height: 100%;
+					min-height: 40rpx;
+					max-height: 200rpx;
+					font-size: 30rpx;
+				}
+			}
+
+			.btn-send {
+				margin: 5rpx;
 			}
 		}
-
-		.btn-send {
-			margin: 5rpx;
-		}
 	}
 
-
 	.chat-tab-bar {
-		height: 500rpx;
-		padding: 20rpx;
+		position: fixed;
+		bottom: 0;
 		background-color: $im-bg;
 
 		.chat-tools {
 			display: flex;
 			flex-wrap: wrap;
-			padding-top: 20rpx;
+			align-items: top;
+			height: 310px;
+			padding: 40rpx;
+			box-sizing: border-box;
 
 			.chat-tools-item {
 				width: 25%;
@@ -915,19 +994,20 @@ export default {
 		}
 
 		.chat-emotion {
-			height: 100%;
+			height: 310px;
+			padding: 20rpx;
+			box-sizing: border-box;
 
 			.emotion-item-list {
 				display: flex;
 				flex-wrap: wrap;
 				justify-content: space-between;
+				align-content: center;
 
 				.emotion-item {
-					width: 34px;
-					height: 34px;
 					text-align: center;
 					cursor: pointer;
-					padding: 6px;
+					padding: 5px;
 				}
 			}
 		}

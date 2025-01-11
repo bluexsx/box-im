@@ -1,5 +1,6 @@
 package com.bx.implatform.controller;
 
+import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
@@ -39,6 +40,7 @@ public class FriendController {
     }
 
 
+    @RepeatSubmit
     @PostMapping("/add")
     @Operation(summary = "添加好友", description = "双方建立好友关系")
     public Result addFriend(@NotNull(message = "好友id不可为空") @RequestParam Long friendId) {

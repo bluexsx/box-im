@@ -31,16 +31,13 @@
 						</view>
 					</view>
 				</view>
-				<view class="info-arrow">
-
-				</view>
 			</view>
 		</uni-card>
 		<bar-group>
-			<arrow-bar title="修改密码" @click="onModifyPassword()"></arrow-bar>
+			<arrow-bar title="修改密码" @tap="onModifyPassword()"></arrow-bar>
 		</bar-group>
 		<bar-group>
-			<btn-bar title="退出登陆" type="danger" @click="onQuit()"></btn-bar>
+			<btn-bar title="退出登录" type="danger" @tap="onQuit()"></btn-bar>
 		</bar-group>
 	</view>
 </template>
