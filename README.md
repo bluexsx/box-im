@@ -102,24 +102,25 @@ https://www.yuque.com/u1475064/mufu2a/vn5u10ephxh9sau8
 
 #### 界面截图
 私聊：
-![输入图片说明](D:\开源项目\box-im\截图\web\私聊.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%A7%81%E8%81%8A.jpg)
 
 群聊：
-![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%81%8A.png)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%81%8A.jpg)
 
 群通话：
-![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E8%A7%86%E9%A2%91.png)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E5%A4%9A%E4%BA%BA%E9%80%9A%E8%AF%9D.jpg)
 
 好友列表：
-![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E5%A5%BD%E5%8F%8B%E5%88%97%E8%A1%A8.png)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E5%A5%BD%E5%8F%8B.jpg)
 
 群列表：
-![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E5%88%97%E8%A1%A8.png)
+![输入图片说明](%E6%88%AA%E5%9B%BE/web/%E7%BE%A4%E5%88%97%E8%A1%A8.jpg)
 
 移动端APP:
-![输入图片说明](%E6%88%AA%E5%9B%BE/app/1.jpg)  
+![输入图片说明](%E6%88%AA%E5%9B%BE/app/1.png)  
+  
 
-![输入图片说明](%E6%88%AA%E5%9B%BE/app/2.jpg)
+![输入图片说明](%E6%88%AA%E5%9B%BE/app/2.png)  
 
 #### 加入交流群
 群1: 741174521(已满)  
