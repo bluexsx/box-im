@@ -104,7 +104,6 @@
 						lazy-load="true"></image>
 				</view>
 			</scroll-view>
-			<view v-if="showKeyBoard"></view>
 		</view>
 		<!-- @用户时选择成员 -->
 		<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers"
@@ -133,6 +132,7 @@ export default {
 			chatTabBox: 'none',
 			showRecord: false,
 			keyboardHeight: 300,
+			chatMainHeight: 0, // 聊天窗口高度
 			atUserIds: [],
 			needScrollToBottom: false, // 需要滚动到底部 
 			showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
@@ -355,6 +355,7 @@ export default {
 		},
 		switchChatTabBox(chatTabBox) {
 			this.chatTabBox = chatTabBox;
+			this.reCalChatMainHeight();
 			if (chatTabBox != 'tools' && this.$refs.fileUpload) {
 				this.$refs.fileUpload.hide()
 			}
@@ -683,6 +684,7 @@ export default {
 				if (this.isShowKeyBoard) {
 					this.keyboardHeight = keyboardHeight;
 				}
+				this.reCalChatMainHeight();
 			});
 			// #endif
 			// #ifndef H5
@@ -691,8 +693,30 @@ export default {
 				if (this.isShowKeyBoard) {
 					this.keyboardHeight = res.height; // 获取并保存键盘高度
 				}
+				this.reCalChatMainHeight();
 			});
 			// #endif
+		},
+		reCalChatMainHeight() {
+			const sysInfo = uni.getSystemInfoSync();
+			let h = sysInfo.windowHeight;
+			// 减去标题栏高度
+			h -= 50;
+			// #ifdef H5
+			// h5的sysInfo.windowHeight默认就已经减去键盘高度了
+			if (this.chatTabBox != 'none') {
+				h -= this.keyboardHeight;
+			}
+			// #endif
+			// #ifndef H5
+			// 减去状态栏高度
+			h -= sysInfo.statusBarHeight;
+			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
+				h -= this.keyboardHeight;
+			}
+			// #endif
+			console.log("h:", h)
+			this.chatMainHeight = h;
 		},
 		generateId() {
 			// 生成临时id
@@ -745,26 +769,6 @@ export default {
 				}
 			})
 			return atUsers;
-		},
-		chatMainHeight() {
-			const sysInfo = uni.getSystemInfoSync();
-			let h = sysInfo.windowHeight;
-			// 减去标题栏高度
-			h -= 50;
-			// #ifdef H5
-			// h5的sysInfo.windowHeight默认就已经减去键盘高度了
-			if (this.chatTabBox != 'none') {
-				h -= this.keyboardHeight;
-			}
-			// #endif
-			// #ifndef H5
-			// 减去状态栏高度
-			h -= sysInfo.statusBarHeight;
-			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
-				h -= this.keyboardHeight;
-			}
-			// #endif
-			return h;
 		}
 	},
 	watch: {
@@ -810,6 +814,8 @@ export default {
 		this.isReceipt = false;
 		// 监听键盘高度
 		this.listenKeyBoard();
+		// 计算聊天窗口高度
+		this.$nextTick(()=>this.reCalChatMainHeight())
 	},
 	onShow() {
 		if (this.needScrollToBottom) {
