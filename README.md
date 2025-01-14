@@ -134,11 +134,6 @@ https://www.yuque.com/u1475064/mufu2a/vn5u10ephxh9sau8
 如果项目对您有帮助，请点亮右上方的star，支持一下作者吧！
 
 
-#### 广告
-![输入图片说明](%E6%88%AA%E5%9B%BE/%E8%85%BE%E8%AE%AF%E4%BA%91.png)(https://curl.qcloud.com/XKkpMtIn)
-
-
-
 #### 说明几点
 
 1. 本系统允许用于商业用途，且不收费（自愿投币）。**但切记不要用于任何非法用途** ，本软件作者不会为此承担任何责任
