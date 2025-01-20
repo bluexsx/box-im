@@ -50,12 +50,14 @@ export default {
 			/* 用户第一次使用语音会唤醒录音权限请求，此时会导致@touchend失效，
 				一直处于录音状态，这里允许用户再次点击发送语音并结束录音 */
 			if (this.recording) {
-				this.onEndRecord();
 				return;
 			}
 			console.log("开始录音")
 			this.moveToCancel = false;
 			this.initRecordBar();
+			if(!this.$rc.checkIsEnable()){
+				return;
+			}
 			this.$rc.start().then(() => {
 				this.recording = true;
 				console.log("开始录音成功")
@@ -70,9 +72,12 @@ export default {
 			});
 		},
 		onEndRecord() {
+			if(!this.recording){
+				return;
+			}
 			this.recording = false;
 			// 停止计时
-			this.StopTimer();
+			this.stopTimer();
 			// 停止录音
 			this.$rc.close();
 			// 触屏位置是否移动到了取消区域
@@ -80,8 +85,8 @@ export default {
 				console.log("录音取消")
 				return;
 			}
-			// 小于1秒不发送
-			if (this.druation == 0) {
+			// 大于1秒才发送
+			if (this.druation <= 1) {
 				uni.showToast({
 					title: "说话时间太短",
 					icon: 'none'
@@ -95,13 +100,11 @@ export default {
 					title: e,
 					icon: 'none'
 				})
-			}).finally(() => {
-				this.$rc.close();
 			})
 		},
 		startTimer() {
 			this.druation = 0;
-			this.StopTimer();
+			this.stopTimer();
 			this.rcTimer = setInterval(() => {
 				this.druation++;
 				// 大于60s,直接结束
@@ -110,7 +113,7 @@ export default {
 				}
 			}, 1000)
 		},
-		StopTimer() {
+		stopTimer() {
 			this.rcTimer && clearInterval(this.rcTimer);
 			this.rcTimer = null;
 		},
@@ -134,6 +137,10 @@ export default {
 			}
 			return `录音时长:${this.druation}s`;
 		}
+	},
+	unmounted() {
+		this.stopTimer();
+		this.recording = false;
 	}
 
 }

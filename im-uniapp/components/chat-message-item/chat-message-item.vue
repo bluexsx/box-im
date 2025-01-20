@@ -17,7 +17,7 @@
 				<view class="chat-msg-bottom">
 					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<rich-text class="chat-msg-text" :nodes="$emo.transform(msgInfo.content, 'emoji-normal')"></rich-text>
+							<rich-text class="chat-msg-text" :nodes="$emo.transform(msgInfo.content,'emoji-normal')"></rich-text>
 						</long-press-menu>
 					</view>
 					<view class="chat-msg-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
@@ -65,12 +65,12 @@
 						</view>
 					</long-press-menu>
 					<view class="chat-msg-status" v-if="!isAction">
-						<text class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
+						<text class="chat-readed" v-if="msgInfo.selfSend && !msgInfo.groupId
 							&& msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</text>
-						<text class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId
+						<text class="chat-unread" v-if="msgInfo.selfSend && !msgInfo.groupId
 							&& msgInfo.status != $enums.MESSAGE_STATUS.READED">未读</text>
 					</view>
-					<view class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
+					<view class="chat-receipt" v-if="msgInfo.receipt" @click="onShowReadedBox">
 						<text v-if="msgInfo.receiptOk" class="tool-icon iconfont icon-ok"></text>
 						<text v-else>{{ msgInfo.readedCount }}人已读</text>
 					</view>
@@ -125,14 +125,16 @@ export default {
 				this.innerAudioContext = uni.createInnerAudioContext();
 				let url = JSON.parse(this.msgInfo.content).url;
 				this.innerAudioContext.src = url;
-				console.log(url);
 				this.innerAudioContext.onEnded((e) => {
 					console.log('停止')
 					this.audioPlayState = "STOP"
+					this.emit();
 				})
 				this.innerAudioContext.onError((e) => {
+					this.audioPlayState = "STOP"
 					console.log("播放音频出错");
 					console.log(e)
+					this.emit();
 				});
 			}
 			if (this.audioPlayState == 'STOP') {
@@ -145,6 +147,7 @@ export default {
 				this.innerAudioContext.play();
 				this.audioPlayState = "PLAYING"
 			}
+			this.emit();
 		},
 		onSelectMenu(item) {
 			this.$emit(item.key.toLowerCase(), this.msgInfo);
@@ -158,6 +161,16 @@ export default {
 		},
 		onShowReadedBox() {
 			this.$refs.chatGroupReaded.open();
+		},
+		emit(){
+			this.$emit("audioStateChange",this.audioPlayState,this.msgInfo);
+		},
+		stopPlayAudio(){
+			if (this.innerAudioContext) {
+				this.innerAudioContext.stop();
+				this.innerAudioContext = null;
+				this.audioPlayState = "STOP"
+			}
 		}
 	},
 	computed: {
@@ -262,6 +275,7 @@ export default {
 			.chat-msg-bottom {
 				display: inline-block;
 				padding-right: 80rpx;
+				margin-top: 5rpx;
 
 				.chat-msg-text {
 					position: relative;
@@ -289,7 +303,6 @@ export default {
 						border-color: $im-bg transparent transparent;
 						overflow: hidden;
 						border-width: 18rpx;
-						//box-shadow: $im-box-shadow-dark;
 					}
 				}
 

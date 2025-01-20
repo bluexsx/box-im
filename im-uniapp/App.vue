@@ -378,6 +378,12 @@ export default {
 		// 登录状态校验
 		let loginInfo = uni.getStorageSync("loginInfo")
 		this.refreshToken(loginInfo).then(() => {
+			// #ifdef H5
+			// 跳转到聊天页
+			uni.switchTab({
+				url: "/pages/chat/chat"
+			})
+			// #endif			
 			// 初始化
 			this.init();
 			this.closeSplashscreen(0);
