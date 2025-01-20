@@ -9,6 +9,7 @@ import UNI_APP from '@/.env.js'
 export default {
 	data() {
 		return {
+			isInit: false, // 是否已经初始化
 			isExit: false, // 是否已退出
 			audioTip: null,
 			reconnecting: false // 正在重连标志
@@ -21,6 +22,7 @@ export default {
 			this.loadStore().then(() => {
 				// 初始化websocket
 				this.initWebSocket();
+				this.isInit = true;
 			}).catch((e) => {
 				console.log(e);
 				this.exit();
@@ -169,7 +171,7 @@ export default {
 			// 打开会话
 			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg);
+			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			this.playAudioTip();
 
@@ -192,6 +194,10 @@ export default {
 			}
 			// 消息回执处理
 			if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: msg.groupId
+				}
 				// 更新消息已读人数
 				let msgInfo = {
 					id: msg.id,
@@ -199,7 +205,7 @@ export default {
 					readedCount: msg.readedCount,
 					receiptOk: msg.receiptOk
 				};
-				this.chatStore.updateMessage(msgInfo)
+				this.chatStore.updateMessage(msgInfo,chatInfo)
 				return;
 			}
 			// 标记这条消息是不是自己发的
@@ -259,7 +265,7 @@ export default {
 			// 打开会话
 			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg);
+			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			this.playAudioTip();
 		},
@@ -374,6 +380,12 @@ export default {
 		// 登录状态校验
 		let loginInfo = uni.getStorageSync("loginInfo")
 		this.refreshToken(loginInfo).then(() => {
+			// #ifdef H5
+			// 跳转到聊天页
+			uni.switchTab({
+				url: "/pages/chat/chat"
+			})
+			// #endif			
 			// 初始化
 			this.init();
 			this.closeSplashscreen(0);

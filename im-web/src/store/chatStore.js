@@ -137,8 +137,8 @@ export default {
 				this.commit("saveToStorage");
 			}
 		},
-		insertMessage(state, msgInfo) {
-			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
+		insertMessage(state, [msgInfo, chatInfo]) {
+			let type = chatInfo.type;
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > state.privateMsgMaxId) {
 				state.privateMsgMaxId = msgInfo.id;
@@ -147,7 +147,7 @@ export default {
 				state.groupMsgMaxId = msgInfo.id;
 			}
 			// 如果是已存在消息，则覆盖旧的消息数据
-			let chat = this.getters.findChat(msgInfo);
+			let chat = this.getters.findChat(chatInfo);
 			let message = this.getters.findMessage(chat, msgInfo);
 			if (message) {
 				Object.assign(message, msgInfo);
@@ -178,7 +178,8 @@ export default {
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
-			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
+			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
+				msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
@@ -216,9 +217,9 @@ export default {
 			chat.stored = false;
 			this.commit("saveToStorage");
 		},
-		updateMessage(state, msgInfo) {
+		updateMessage(state, [msgInfo, chatInfo]) {
 			// 获取对方id或群id
-			let chat = this.getters.findChat(msgInfo);
+			let chat = this.getters.findChat(chatInfo);
 			let message = this.getters.findMessage(chat, msgInfo);
 			if (message) {
 				// 属性拷贝
@@ -227,8 +228,8 @@ export default {
 				this.commit("saveToStorage");
 			}
 		},
-		deleteMessage(state, msgInfo) {
-			let chat = this.getters.findChat(msgInfo);
+		deleteMessage(state, [msgInfo, chatInfo]) {
+			let chat = this.getters.findChat(chatInfo);
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
@@ -289,7 +290,7 @@ export default {
 			});
 			// 将消息一次性装载回来
 			state.chats = cacheChats;
-			// 清空缓存,不再使用
+			// 清空缓存
 			cacheChats = null;
 			this.commit("saveToStorage");
 		},
@@ -384,20 +385,10 @@ export default {
 				}
 			}
 		},
-		findChat: (state, getters) => (msgInfo) => {
+		findChat: (state, getters) => (chat) => {
 			let chats = getters.findChats();
-			// 获取对方id或群id
-			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
-			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo.sendId;
-			let chat = null;
-			for (let idx in chats) {
-				if (chats[idx].type == type &&
-					chats[idx].targetId === targetId) {
-					chat = chats[idx];
-					break;
-				}
-			}
-			return chat;
+			let idx = getters.findChatIdx(chat);
+			return chats[idx];
 		},
 		findChatByFriend: (state, getters) => (fid) => {
 			let chats = getters.findChats();

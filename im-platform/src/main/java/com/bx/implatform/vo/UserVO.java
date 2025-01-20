@@ -43,4 +43,9 @@ public class UserVO {
     @Schema(description = "是否在线")
     private Boolean online;
 
+    @Schema(description = "账号是否被封禁")
+    private Boolean isBanned;
+
+    @Schema(description = "被封禁原因")
+    private String reason;
 }

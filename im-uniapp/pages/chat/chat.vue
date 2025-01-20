@@ -1,14 +1,20 @@
 <template>
 	<view class="tab-page">
-		<nav-bar search @search="showSearch = !showSearch">消息</nav-bar>
+		<nav-bar search @search="onSearch()">消息</nav-bar>
 		<view v-if="loading" class="chat-loading">
 			<loading :size="50" :mask="false">
 				<view>消息接收中...</view>
 			</loading>
 		</view>
+		<view v-if="initializing" class="chat-loading">
+			<loading :size="50" :mask="false">
+				<view>正在初始化...</view>
+			</loading>
+		</view>
 		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
-				<uni-search-bar radius="100" v-model="searchText" cancelButton="none" placeholder="搜索"></uni-search-bar>
+				<uni-search-bar focus="true" radius="100" v-model="searchText" cancelButton="none"
+					placeholder="搜索"></uni-search-bar>
 			</view>
 		</view>
 		<view class="chat-tip" v-if="!loading && chatStore.chats.length == 0">
@@ -77,6 +83,10 @@ export default {
 			}
 			return !this.searchText || chat.showName.includes(this.searchText)
 		},
+		onSearch() {
+			this.showSearch = !this.showSearch;
+			this.searchText = "";
+		},
 		refreshUnreadBadge() {
 			if (this.unreadCount > 0) {
 				uni.setTabBarBadge({
@@ -86,7 +96,7 @@ export default {
 			} else {
 				uni.removeTabBarBadge({
 					index: 0,
-					complete: () => { }
+					complete: () => {}
 				})
 			}
 		}
@@ -102,7 +112,10 @@ export default {
 			return count;
 		},
 		loading() {
-			return this.chatStore.loadingGroupMsg || this.chatStore.loadingPrivateMsg
+			return this.chatStore.isLoading();
+		},
+		initializing(){
+			return !getApp().$vm.isInit;
 		}
 	},
 	watch: {
@@ -116,7 +129,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style  lang="scss">
 .tab-page {
 	position: relative;
 	display: flex;
@@ -136,9 +149,7 @@ export default {
 		width: 100%;
 		height: 120rpx;
 		background: white;
-		position: fixed;
-		top: 0;
-		z-index: 999;
+
 		color: $im-text-color-lighter;
 
 		.loading-box {

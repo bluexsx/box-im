@@ -3,6 +3,9 @@ import UNI_APP from '@/.env.js';
 const rc = uni.getRecorderManager();
 // 录音开始时间
 let startTime = null;
+let checkIsEnable = ()=>{
+	return true;
+}
 
 let start = () => {
 	return new Promise((resolve, reject) => {
@@ -18,10 +21,6 @@ let start = () => {
 			format: 'mp3' // 录音格式，可选值：aac/mp3
 		});
 	})
-}
-
-let pause = () => {
-	rc.stop();
 }
 
 let close = () => {
@@ -61,6 +60,7 @@ let upload = () => {
 }
 
 export {
+	checkIsEnable,
 	start,
 	close,
 	upload

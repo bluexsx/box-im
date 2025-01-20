@@ -201,7 +201,7 @@ export default {
       // 打开会话
       this.$store.commit("openChat", chatInfo);
       // 插入消息
-      this.$store.commit("insertMessage", msg);
+      this.$store.commit("insertMessage", [msg, chatInfo]);
       // 播放提示音
       if (!msg.selfSend && this.$msgType.isNormal(msg.type) &&
         msg.status != this.$enums.MESSAGE_STATUS.READED) {
@@ -251,7 +251,6 @@ export default {
       })
     },
     insertGroupMessage(group, msg) {
-
       let chatInfo = {
         type: 'GROUP',
         targetId: group.id,
@@ -261,7 +260,7 @@ export default {
       // 打开会话
       this.$store.commit("openChat", chatInfo);
       // 插入消息
-      this.$store.commit("insertMessage", msg);
+      this.$store.commit("insertMessage", [msg, chatInfo]);
       // 播放提示音
       if (!msg.selfSend && msg.type <= this.$enums.MESSAGE_TYPE.VIDEO &&
         msg.status != this.$enums.MESSAGE_STATUS.READED) {

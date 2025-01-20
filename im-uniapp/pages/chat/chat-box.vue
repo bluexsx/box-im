@@ -6,10 +6,11 @@
 				<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 					:scroll-into-view="'chat-item-' + scrollMsgIdx">
 					<view v-if="chat" v-for="(msgInfo, idx) in chat.messages" :key="idx">
-						<chat-message-item v-if="idx >= showMinIdx" :headImage="headImage(msgInfo)"
-							@call="onRtCall(msgInfo)" :showName="showName(msgInfo)" @recall="onRecallMessage"
-							@copy="onCopyMessage" @delete="onDeleteMessage" @longPressHead="onLongPressHead(msgInfo)"
-							@download="onDownloadFile" :id="'chat-item-' + idx" :msgInfo="msgInfo"
+						<chat-message-item :ref="'message'+msgInfo.id" v-if="idx >= showMinIdx"
+							:headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)" :showName="showName(msgInfo)"
+							@recall="onRecallMessage" @delete="onDeleteMessage" @copy="onCopyMessage"
+							@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
+							@audioStateChange="onAudioStateChange" :id="'chat-item-' + idx" :msgInfo="msgInfo"
 							:groupMembers="groupMembers">
 						</chat-message-item>
 					</view>
@@ -19,7 +20,7 @@
 				<view class="iconfont icon-at">:&nbsp;</view>
 				<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
 					<view class="chat-at-items">
-						<view v-for="m in atUserItems" class="chat-at-item">
+						<view v-for="m in atUserItems" class="chat-at-item" :key="m.userId">
 							<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
 						</view>
 					</view>
@@ -31,24 +32,26 @@
 				<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
 				<view v-else class="send-text">
 					<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''"
-						:read-only="isReadOnly" @focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady"
-						@input="onTextInput">
+						:read-only="isReadOnly" @focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady" @input="onTextInput">
 					</editor>
-					<!-- <textarea class="send-text-area" v-model="sendText" auto-height :show-confirm-bar="false"
-						:placeholder="isReceipt ? '[回执消息]' : ''" :adjust-position="false" @confirm="sendTextMessage()"
-						@keyboardheightchange="onKeyboardheightchange" @input="onTextInput" confirm-type="send"
-						confirm-hold :hold-keyboard="true"></textarea> -->
 				</view>
 				<view v-if="chat && chat.type == 'GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
 				<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
 				<view v-if="isEmpty" class="iconfont icon-add" @click="onShowToolsChatTab()">
 				</view>
-				<button v-if="!isEmpty || atUserIds.length > 0" class="btn-send" type="primary"
+				<button v-if="!isEmpty || atUserIds.length" class="btn-send" type="primary"
 					@touchend.prevent="sendTextMessage()" size="mini">发送</button>
 			</view>
 		</view>
 		<view class="chat-tab-bar">
 			<view v-if="chatTabBox == 'tools'" class="chat-tools" :style="{height: keyboardHeight+'px'}">
+				<view class="chat-tools-item">
+					<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
+						:onError="onUploadFileFail">
+						<view class="tool-icon iconfont icon-folder"></view>
+					</file-upload>
+					<view class="tool-name">文件</view>
+				</view>
 				<view class="chat-tools-item">
 					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
 						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
@@ -63,15 +66,6 @@
 					</image-upload>
 					<view class="tool-name">拍摄</view>
 				</view>
-
-				<view class="chat-tools-item">
-					<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
-						:onError="onUploadFileFail">
-						<view class="tool-icon iconfont icon-folder"></view>
-					</file-upload>
-					<view class="tool-name">文件</view>
-				</view>
-
 				<view class="chat-tools-item" @click="onRecorderInput()">
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音消息</view>
@@ -131,8 +125,10 @@ export default {
 			scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 			chatTabBox: 'none',
 			showRecord: false,
-			keyboardHeight: 300,
 			chatMainHeight: 0, // 聊天窗口高度
+			keyboardHeight: 290, // 键盘高度
+			windowHeight: 1000, // 窗口高度
+			initHeight: 1000, // h5初始高度
 			atUserIds: [],
 			needScrollToBottom: false, // 需要滚动到底部 
 			showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
@@ -142,7 +138,8 @@ export default {
 			editorCtx: null, // 编辑器上下文
 			isEmpty: true, // 编辑器是否为空
 			isFocus: false, // 编辑器是否焦点
-			isReadOnly: false // 编辑器是否只读
+			isReadOnly: false, // 编辑器是否只读
+			playingAudio: null // 当前正在播放的录音消息
 		}
 	},
 	methods: {
@@ -155,6 +152,11 @@ export default {
 			this.switchChatTabBox('none');
 		},
 		onSendRecord(data) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let msgInfo = {
 				content: JSON.stringify(data),
 				type: this.$enums.MESSAGE_TYPE.AUDIO,
@@ -164,7 +166,7 @@ export default {
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			this.sendMessageRequest(msgInfo).then((m) => {
 				m.selfSend = true;
-				this.chatStore.insertMessage(m);
+				this.chatStore.insertMessage(m, this.chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 滚动到底部
@@ -260,6 +262,15 @@ export default {
 		sendTextMessage() {
 			this.editorCtx.getContents({
 				success: (e) => {
+					// 清空编辑框数据
+					this.editorCtx.clear();
+					this.atUserIds = [];
+					this.isReceipt = false;
+					// 检查是否被封禁
+					if (this.isBanned) {
+						this.showBannedTip();
+						return;
+					}
 					let sendText = this.isReceipt ? "【回执消息】" : "";
 					e.delta.ops.forEach((op) => {
 						if (op.insert.image) {
@@ -294,13 +305,10 @@ export default {
 					}).finally(() => {
 						// 滚动到底部
 						this.scrollToBottom();
-						// 清空编辑框数据
-						this.atUserIds = [];
-						this.isReceipt = false;
-						this.editorCtx.clear();
 					});
 				}
 			})
+
 		},
 		createAtText() {
 			let atText = "";
@@ -343,7 +351,6 @@ export default {
 			this.$nextTick(() => {
 				this.scrollMsgIdx = idx;
 			});
-
 		},
 		onShowEmoChatTab() {
 			this.showRecord = false;
@@ -379,6 +386,11 @@ export default {
 			})
 		},
 		onUploadImageBefore(file) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let data = {
 				originUrl: file.path,
 				thumbUrl: file.path
@@ -399,7 +411,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
 			// 借助file对象保存
@@ -416,15 +428,20 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo);
+				this.chatStore.insertMessage(msgInfo, this.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
 		onUploadFileBefore(file) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let data = {
 				name: file.name,
 				size: file.size,
@@ -445,7 +462,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
 			// 借助file对象保存
@@ -467,13 +484,13 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo);
+				this.chatStore.insertMessage(msgInfo, this.chat);
 			})
 		},
 		onUploadFileFail(file, res) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
 		onDeleteMessage(msgInfo) {
 			uni.showModal({
@@ -481,7 +498,7 @@ export default {
 				content: '确认删除消息?',
 				success: (res) => {
 					if (!res.cancel) {
-						this.chatStore.deleteMessage(msgInfo);
+						this.chatStore.deleteMessage(msgInfo, this.chat);
 						uni.showToast({
 							title: "删除成功",
 							icon: "none"
@@ -505,7 +522,7 @@ export default {
 							msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
 							msgInfo.content = '你撤回了一条消息';
 							msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-							this.chatStore.insertMessage(msgInfo);
+							this.chatStore.insertMessage(msgInfo, this.chat);
 						})
 					}
 				}
@@ -515,7 +532,7 @@ export default {
 			uni.setClipboardData({
 				data: msgInfo.content,
 				success: () => {
-					uni.showToast({ title: '已复制', icon: 'none' });
+					uni.showToast({ title: '复制成功' });
 				},
 				fail: () => {
 					uni.showToast({ title: '复制失败', icon: 'none' });
@@ -552,7 +569,7 @@ export default {
 			// 防止滚动条定格在顶部，不能一直往上滚
 			this.scrollToMsgIdx(this.showMinIdx);
 			// #endif
-			// 多展示0条信息
+			// 多展示20条信息
 			this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
 		},
 		onShowMore() {
@@ -583,6 +600,15 @@ export default {
 		},
 		onEditorBlur(e) {
 			this.isFocus = false;
+		},
+		onAudioStateChange(state, msgInfo) {
+			const playingAudio = this.$refs['message' + msgInfo.id][0]
+			if (state == 'PLAYING' && playingAudio != this.playingAudio) {
+				// 停止之前的录音
+				this.playingAudio && this.playingAudio.stopPlayAudio();
+				// 记录当前正在播放的消息
+				this.playingAudio = playingAudio;
+			}
 		},
 		loadReaded(fid) {
 			this.$http({
@@ -642,7 +668,7 @@ export default {
 			})
 		},
 		rpxTopx(rpx) {
-			// px转换成rpx
+			// rpx转换成px
 			let info = uni.getSystemInfoSync()
 			let px = info.windowWidth * rpx / 750;
 			return Math.floor(rpx);
@@ -673,53 +699,122 @@ export default {
 				})
 			}
 		},
-		listenKeyBoard() {
-			// #ifdef H5
-			// 由于H5无法触发TextArea的@keyboardheightchange事件，所以通过
-			// 监听屏幕高度变化来实现键盘监听
-			let initHeight = window.innerHeight;
-			window.addEventListener('resize', () => {
-				let keyboardHeight = initHeight - window.innerHeight;
-				this.isShowKeyBoard = keyboardHeight > 0;
-				if (this.isShowKeyBoard) {
-					this.keyboardHeight = keyboardHeight;
+		reCalChatMainHeight() {
+			setTimeout(() => {
+				let h = this.windowHeight;
+				// 减去标题栏高度
+				h -= 50;
+				// 减去键盘高度
+				if (this.isShowKeyBoard || this.chatTabBox != 'none') {
+					console.log("减去键盘高度:", this.keyboardHeight)
+					h -= this.keyboardHeight;
+					this.scrollToBottom();
 				}
-				this.reCalChatMainHeight();
-			});
+				// #ifndef H5
+				// h5需要减去状态栏高度
+				h -= uni.getSystemInfoSync().statusBarHeight;
+				// #endif
+				this.chatMainHeight = h;
+				console.log("窗口高度:", this.chatMainHeight)
+				if (this.isShowKeyBoard || this.chatTabBox != 'none') {
+					this.scrollToBottom();
+				}
+				// ios浏览器键盘把页面顶起后，页面长度不会变化，这里把页面拉到顶部适配一下
+				// #ifdef H5
+				if (uni.getSystemInfoSync().platform == 'ios') {
+					// 不同手机需要的延时时间不一致，采用分段延时的方式处理
+					const delays = [50, 100, 500];
+					delays.forEach((delay) => {
+						setTimeout(() => {
+							uni.pageScrollTo({
+								scrollTop: 0,
+								duration: 10
+							});
+						}, delay);
+					})
+				}
+				// #endif
+			}, 30)
+		},
+		listenKeyBoard() {
+			// #ifdef H5	
+			const userAgent = navigator.userAgent;
+			const regex = /(macintosh|windows)/i;
+			if (regex.test(userAgent)) {
+				// 电脑端不需要弹出键盘
+				console.log("userAgent:", userAgent)
+				return;
+			}
+			if (uni.getSystemInfoSync().platform == 'ios') {
+				// ios h5实现键盘监听
+				window.addEventListener('focusin', this.focusInListener);
+				window.addEventListener('focusout', this.focusOutListener);
+			} else {
+				// 安卓h5实现键盘监听
+				let initHeight = window.innerHeight;
+				window.addEventListener('resize', this.resizeListener);
+			}
 			// #endif
 			// #ifndef H5
-			uni.onKeyboardHeightChange((res) => {
-				this.isShowKeyBoard = res.height > 0;
-				if (this.isShowKeyBoard) {
-					this.keyboardHeight = res.height; // 获取并保存键盘高度
-				}
-				this.reCalChatMainHeight();
-			});
+			// app实现键盘监听
+			uni.onKeyboardHeightChange(this.keyBoardListener);
 			// #endif
 		},
-		reCalChatMainHeight() {
-			const sysInfo = uni.getSystemInfoSync();
-			let h = sysInfo.windowHeight;
-			// 减去标题栏高度
-			h -= 50;
+		unListenKeyboard() {
 			// #ifdef H5
-			// h5的sysInfo.windowHeight默认就已经减去键盘高度了
-			if (this.chatTabBox != 'none') {
-				h -= this.keyboardHeight;
-			}
+			// 安卓h5实现键盘监听
+			window.removeEventListener('resize', this.resizeListener);
+			window.removeEventListener('focusin', this.focusInListener);
+			window.removeEventListener('focusout', this.focusOutListener);
 			// #endif
 			// #ifndef H5
-			// 减去状态栏高度
-			h -= sysInfo.statusBarHeight;
-			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
-				h -= this.keyboardHeight;
-			}
+			uni.offKeyboardHeightChange(this.keyBoardListener);
 			// #endif
-			console.log("h:", h)
-			this.chatMainHeight = h;
+		},
+		keyBoardListener(res) {
+			this.isShowKeyBoard = res.height > 0;
+			if (this.isShowKeyBoard) {
+				this.keyboardHeight = res.height; // 获取并保存键盘高度
+			}
+			this.reCalChatMainHeight();
+		},
+		resizeListener() {
+			console.log("resize")
+			let keyboardHeight = this.initHeight - window.innerHeight;
+			this.isShowKeyBoard = keyboardHeight > 150;
+			if (this.isShowKeyBoard) {
+				this.keyboardHeight = keyboardHeight;
+			}
+			this.reCalChatMainHeight();
+		},
+		focusInListener() {
+			console.log("focusInListener")
+			this.isShowKeyBoard = true;
+			this.reCalChatMainHeight();
+		},
+		focusOutListener() {
+			console.log("focusOutListener")
+			this.isShowKeyBoard = false;
+			this.reCalChatMainHeight();
+		},
+		showBannedTip() {
+			let msgInfo = {
+				tmpId: this.generateId(),
+				sendId: this.mine.id,
+				sendTime: new Date().getTime(),
+				type: this.$enums.MESSAGE_TYPE.TIP_TEXT
+			}
+			if (this.chat.type == "PRIVATE") {
+				msgInfo.recvId = this.mine.id
+				msgInfo.content = "该用户已被管理员封禁,原因:" + this.friend.reason
+			} else {
+				msgInfo.groupId = this.group.id;
+				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
+			}
+			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
 		generateId() {
-			// 生成临时id
+			// 生成临时id 
 			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
 		}
 	},
@@ -752,6 +847,10 @@ export default {
 				return 0;
 			}
 			return this.chat.unreadCount;
+		},
+		isBanned() {
+			return (this.chat.type == "PRIVATE" && this.friend.isBanned) ||
+				(this.chat.type == "GROUP" && this.group.isBanned)
 		},
 		atUserItems() {
 			let atUsers = [];
@@ -815,7 +914,20 @@ export default {
 		// 监听键盘高度
 		this.listenKeyBoard();
 		// 计算聊天窗口高度
-		this.$nextTick(()=>this.reCalChatMainHeight())
+		this.$nextTick(() => {
+			this.windowHeight = uni.getSystemInfoSync().windowHeight;
+			this.reCalChatMainHeight()
+			// 兼容ios h5:禁止页面滚动
+			// #ifdef H5
+			this.initHeight = window.innerHeight;
+			document.body.addEventListener('touchmove', function(e) {
+				e.preventDefault();
+			}, { passive: false });
+			// #endif
+		});
+	},
+	onUnload() {
+		this.unListenKeyboard();
 	},
 	onShow() {
 		if (this.needScrollToBottom) {
@@ -827,13 +939,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .chat-box {
 	$icon-color: rgba(0, 0, 0, 0.88);
 	position: relative;
 	background-color: #fafafa;
-
-
 
 	.header {
 		display: flex;
@@ -869,7 +979,7 @@ export default {
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		z-index: 9;
+		z-index: 2;
 
 		.chat-msg {
 			flex: 1;
