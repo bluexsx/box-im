@@ -9,6 +9,7 @@ import UNI_APP from '@/.env.js'
 export default {
 	data() {
 		return {
+			isInit: false, // 是否已经初始化
 			isExit: false, // 是否已退出
 			audioTip: null,
 			reconnecting: false // 正在重连标志
@@ -21,6 +22,7 @@ export default {
 			this.loadStore().then(() => {
 				// 初始化websocket
 				this.initWebSocket();
+				this.isInit = true;
 			}).catch((e) => {
 				console.log(e);
 				this.exit();
