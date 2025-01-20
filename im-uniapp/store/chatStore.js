@@ -141,9 +141,9 @@ export default defineStore('chatStore', {
 				this.saveToStorage();
 			}
 		},
-		insertMessage(msgInfo) {
+		insertMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id
-			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
+			let type = chatInfo.type;
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
 				this.privateMsgMaxId = msgInfo.id;
@@ -152,7 +152,7 @@ export default defineStore('chatStore', {
 				this.groupMsgMaxId = msgInfo.id;
 			}
 			// 如果是已存在消息，则覆盖旧的消息数据
-			let chat = this.findChat(msgInfo);
+			let chat = this.findChat(chatInfo);
 			let message = this.findMessage(chat, msgInfo);
 			if (message) {
 				Object.assign(message, msgInfo);
@@ -228,9 +228,9 @@ export default defineStore('chatStore', {
 			chat.stored = false;
 			this.saveToStorage();
 		},
-		updateMessage(msgInfo) {
+		updateMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id
-			let chat = this.findChat(msgInfo);
+			let chat = this.findChat(chatInfo);
 			let message = this.findMessage(chat, msgInfo);
 			if (message) {
 				// 属性拷贝
@@ -239,9 +239,9 @@ export default defineStore('chatStore', {
 				this.saveToStorage();
 			}
 		},
-		deleteMessage(msgInfo) {
+		deleteMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id
-			let chat = this.findChat(msgInfo);
+			let chat = this.findChat(chatInfo);
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
@@ -261,7 +261,7 @@ export default defineStore('chatStore', {
 		updateChatFromFriend(friend) {
 			let chat = this.findChatByFriend(friend.id)
 			if (chat && (chat.headImage != friend.headImageThumb ||
-				chat.showName != friend.nickName)) {
+					chat.showName != friend.nickName)) {
 				// 更新会话中的群名和头像
 				chat.headImage = friend.headImageThumb;
 				chat.showName = friend.nickName;
@@ -272,7 +272,7 @@ export default defineStore('chatStore', {
 		updateChatFromGroup(group) {
 			let chat = this.findChatByGroup(group.id);
 			if (chat && (chat.headImage != group.headImageThumb ||
-				chat.showName != group.showGroupName)) {
+					chat.showName != group.showGroupName)) {
 				// 更新会话中的群名称和头像
 				chat.headImage = group.headImageThumb;
 				chat.showName = group.showGroupName;
@@ -390,21 +390,10 @@ export default defineStore('chatStore', {
 				}
 			}
 		},
-		findChat: (state) => (msgInfo) => {
+		findChat: (state) => (chat) => {
 			let chats = state.curChats;
-			// 获取对方id或群id
-			let type = msgInfo.groupId ? 'GROUP' : 'PRIVATE';
-			let targetId = msgInfo.groupId ? msgInfo.groupId : msgInfo.selfSend ? msgInfo.recvId : msgInfo
-				.sendId;
-			let chat = null;
-			for (let idx in chats) {
-				if (chats[idx].type == type &&
-					chats[idx].targetId === targetId) {
-					chat = chats[idx];
-					break;
-				}
-			}
-			return chat;
+			let idx = state.findChatIdx(chat);
+			return chats[idx];
 		},
 		findChatByFriend: (state) => (fid) => {
 			return state.curChats.find(chat => chat.type == 'PRIVATE' &&

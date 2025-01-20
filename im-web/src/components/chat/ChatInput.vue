@@ -443,7 +443,7 @@ export default {
 						if (node.dataset.id) {
 							tempText += node.innerHTML;
 							atUserIds.push(node.dataset.id)
-						} else {
+						} else if(node.outerHtml) {
 							tempText += node.outerHtml;
 						}
 					}

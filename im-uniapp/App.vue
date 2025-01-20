@@ -169,7 +169,7 @@ export default {
 			// 打开会话
 			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg);
+			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			this.playAudioTip();
 
@@ -192,6 +192,10 @@ export default {
 			}
 			// 消息回执处理
 			if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: msg.groupId
+				}
 				// 更新消息已读人数
 				let msgInfo = {
 					id: msg.id,
@@ -199,7 +203,7 @@ export default {
 					readedCount: msg.readedCount,
 					receiptOk: msg.receiptOk
 				};
-				this.chatStore.updateMessage(msgInfo)
+				this.chatStore.updateMessage(msgInfo,chatInfo)
 				return;
 			}
 			// 标记这条消息是不是自己发的
@@ -259,7 +263,7 @@ export default {
 			// 打开会话
 			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg);
+			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			this.playAudioTip();
 		},

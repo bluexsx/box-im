@@ -79,12 +79,18 @@ export default {
 				})
 				this.items[0] = `已读(${this.readedMembers.length})`;
 				this.items[1] = `未读(${this.unreadMembers.length})`;
-				// 更新已读人数
-				this.chatStore.updateMessage({
+
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: this.msgInfo.groupId
+				}
+				let msgInfo = {
 					id: this.msgInfo.id,
 					groupId: this.msgInfo.groupId,
 					readedCount: this.readedMembers.length
-				})
+				}
+				// 更新已读人数
+				this.chatStore.updateMessage(msgInfo, chatInfo)
 			})
 		},
 		onClickItem(e) {

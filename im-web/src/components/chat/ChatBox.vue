@@ -161,15 +161,20 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.$store.commit("insertMessage", msgInfo);
+				this.$store.commit("insertMessage", [msgInfo, this.chat]);
 			})
 		},
 		onImageFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.$store.commit("insertMessage", msgInfo);
+			this.$store.commit("insertMessage", [msgInfo, this.chat]);
 		},
 		onImageBefore(file) {
+			// 被封禁提示
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let url = URL.createObjectURL(file);
 			let data = {
 				originUrl: url,
@@ -191,7 +196,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.$store.commit("insertMessage", msgInfo);
+			this.$store.commit("insertMessage", [msgInfo, this.chat]);
 			// 会话置顶
 			this.moveChatToTop();
 			// 滚动到底部
@@ -213,15 +218,20 @@ export default {
 				msgInfo.id = m.id;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
-				this.$store.commit("insertMessage", msgInfo);
+				this.$store.commit("insertMessage", [msgInfo, this.chat]);
 			})
 		},
 		onFileFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.$store.commit("insertMessage", msgInfo);
+			this.$store.commit("insertMessage", [msgInfo, this.chat]);
 		},
 		onFileBefore(file) {
+			// 被封禁提示
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let url = URL.createObjectURL(file);
 			let data = {
 				name: file.name,
@@ -243,7 +253,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.$store.commit("insertMessage", msgInfo);
+			this.$store.commit("insertMessage", [msgInfo, this.chat]);
 			// 会话置顶
 			this.moveChatToTop();
 			// 滚动到底部
@@ -285,6 +295,12 @@ export default {
 			this.showRecord = false;
 		},
 		showPrivateVideo(mode) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
+
 			let rtcInfo = {
 				mode: mode,
 				isHost: true,
@@ -294,6 +310,11 @@ export default {
 			this.$eventBus.$emit("openPrivateVideo", rtcInfo);
 		},
 		onGroupVideo() {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			// 邀请成员发起通话
 			let ids = [this.mine.id];
 			let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
@@ -329,6 +350,11 @@ export default {
 			this.showHistory = false;
 		},
 		onSendRecord(data) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let msgInfo = {
 				content: JSON.stringify(data),
 				type: 3,
@@ -338,7 +364,7 @@ export default {
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			this.sendMessageRequest(msgInfo).then((m) => {
 				m.selfSend = true;
-				this.$store.commit("insertMessage", m);
+				this.$store.commit("insertMessage", [m, this.chat]);
 				// 会话置顶
 				this.moveChatToTop();
 				// 保持输入框焦点
@@ -364,6 +390,11 @@ export default {
 		async sendMessage(fullList) {
 			this.resetEditor();
 			this.readedMessage();
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let sendText = this.isReceipt ? "【回执消息】" : "";
 			let promiseList = [];
 			for (let i = 0; i < fullList.length; i++) {
@@ -421,7 +452,7 @@ export default {
 				this.lockMessage = true;
 				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
-					this.$store.commit("insertMessage", m);
+					this.$store.commit("insertMessage", [m, this.chat]);
 					// 会话置顶
 					this.moveChatToTop();
 				}).finally(() => {
@@ -465,7 +496,7 @@ export default {
 					msgInfo.type = 10;
 					msgInfo.content = '你撤回了一条消息';
 					msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-					this.$store.commit("insertMessage", msgInfo);
+					this.$store.commit("insertMessage", [msgInfo, this.chat]);
 				})
 			});
 		},
@@ -482,7 +513,7 @@ export default {
 			this.$http({
 				url: url,
 				method: 'put'
-			}).then(() => { })
+			}).then(() => {})
 		},
 		loadReaded(fId) {
 			this.$http({
@@ -588,6 +619,22 @@ export default {
 				})
 			}
 		},
+		showBannedTip() {
+			let msgInfo = {
+				tmpId: this.generateId(),
+				sendId: this.mine.id,
+				sendTime: new Date().getTime(),
+				type: this.$enums.MESSAGE_TYPE.TIP_TEXT
+			}
+			if (this.chat.type == "PRIVATE") {
+				msgInfo.recvId = this.mine.id
+				msgInfo.content = "该用户已被管理员封禁,原因:" + this.friend.reason
+			} else {
+				msgInfo.groupId = this.group.id;
+				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
+			}
+			this.$store.commit("insertMessage", [msgInfo, this.chat]);
+		},
 		generateId() {
 			// 生成临时id
 			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
@@ -616,13 +663,17 @@ export default {
 				return 0;
 			}
 			return this.chat.messages.length;
+		},
+		isBanned() {
+			return (this.chat.type == "PRIVATE" && this.friend.isBanned) ||
+				(this.chat.type == "GROUP" && this.group.isBanned)
 		}
 	},
 	watch: {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-					newChat.targetId != oldChat.targetId)) {
+						newChat.targetId != oldChat.targetId)) {
 					if (this.chat.type == "GROUP") {
 						this.loadGroup(this.chat.targetId);
 					} else {

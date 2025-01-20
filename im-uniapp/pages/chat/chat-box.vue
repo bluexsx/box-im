@@ -155,6 +155,11 @@ export default {
 			this.switchChatTabBox('none');
 		},
 		onSendRecord(data) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let msgInfo = {
 				content: JSON.stringify(data),
 				type: this.$enums.MESSAGE_TYPE.AUDIO,
@@ -164,7 +169,7 @@ export default {
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			this.sendMessageRequest(msgInfo).then((m) => {
 				m.selfSend = true;
-				this.chatStore.insertMessage(m);
+				this.chatStore.insertMessage(m, this.chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 滚动到底部
@@ -260,6 +265,17 @@ export default {
 		sendTextMessage() {
 			this.editorCtx.getContents({
 				success: (e) => {
+
+					// 清空编辑框数据
+					this.editorCtx.clear();
+					this.atUserIds = [];
+					this.isReceipt = false;
+					// 检查是否被封禁
+					if (this.isBanned) {
+						this.showBannedTip();
+						return;
+					}
+
 					let sendText = this.isReceipt ? "【回执消息】" : "";
 					e.delta.ops.forEach((op) => {
 						if (op.insert.image) {
@@ -286,6 +302,7 @@ export default {
 					}
 					// 填充对方id
 					this.fillTargetId(msgInfo, this.chat.targetId);
+
 					this.sendMessageRequest(msgInfo).then((m) => {
 						m.selfSend = true;
 						this.chatStore.insertMessage(m, this.chat);
@@ -294,10 +311,6 @@ export default {
 					}).finally(() => {
 						// 滚动到底部
 						this.scrollToBottom();
-						// 清空编辑框数据
-						this.atUserIds = [];
-						this.isReceipt = false;
-						this.editorCtx.clear();
 					});
 				}
 			})
@@ -379,6 +392,11 @@ export default {
 			})
 		},
 		onUploadImageBefore(file) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let data = {
 				originUrl: file.path,
 				thumbUrl: file.path
@@ -399,7 +417,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
 			// 借助file对象保存
@@ -416,15 +434,20 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo);
+				this.chatStore.insertMessage(msgInfo, this.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
 		onUploadFileBefore(file) {
+			// 检查是否被封禁
+			if (this.isBanned) {
+				this.showBannedTip();
+				return;
+			}
 			let data = {
 				name: file.name,
 				size: file.size,
@@ -445,7 +468,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
 			// 借助file对象保存
@@ -467,13 +490,13 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo);
+				this.chatStore.insertMessage(msgInfo, this.chat);
 			})
 		},
 		onUploadFileFail(file, res) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.chatStore.insertMessage(msgInfo);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
 		onDeleteMessage(msgInfo) {
 			uni.showModal({
@@ -481,7 +504,7 @@ export default {
 				content: '确认删除消息?',
 				success: (res) => {
 					if (!res.cancel) {
-						this.chatStore.deleteMessage(msgInfo);
+						this.chatStore.deleteMessage(msgInfo, this.chat);
 						uni.showToast({
 							title: "删除成功",
 							icon: "none"
@@ -505,7 +528,7 @@ export default {
 							msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
 							msgInfo.content = '你撤回了一条消息';
 							msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-							this.chatStore.insertMessage(msgInfo);
+							this.chatStore.insertMessage(msgInfo, this.chat);
 						})
 					}
 				}
@@ -697,6 +720,22 @@ export default {
 			});
 			// #endif
 		},
+		showBannedTip() {
+			let msgInfo = {
+				tmpId: this.generateId(),
+				sendId: this.mine.id,
+				sendTime: new Date().getTime(),
+				type: this.$enums.MESSAGE_TYPE.TIP_TEXT
+			}
+			if (this.chat.type == "PRIVATE") {
+				msgInfo.recvId = this.mine.id
+				msgInfo.content = "该用户已被管理员封禁,原因:" + this.friend.reason
+			} else {
+				msgInfo.groupId = this.group.id;
+				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
+			}
+			this.chatStore.insertMessage(msgInfo, this.chat);
+		},
 		reCalChatMainHeight() {
 			const sysInfo = uni.getSystemInfoSync();
 			let h = sysInfo.windowHeight;
@@ -752,6 +791,10 @@ export default {
 				return 0;
 			}
 			return this.chat.unreadCount;
+		},
+		isBanned() {
+			return (this.chat.type == "PRIVATE" && this.friend.isBanned) ||
+				(this.chat.type == "GROUP" && this.group.isBanned)
 		},
 		atUserItems() {
 			let atUsers = [];
@@ -815,7 +858,7 @@ export default {
 		// 监听键盘高度
 		this.listenKeyBoard();
 		// 计算聊天窗口高度
-		this.$nextTick(()=>this.reCalChatMainHeight())
+		this.$nextTick(() => this.reCalChatMainHeight())
 	},
 	onShow() {
 		if (this.needScrollToBottom) {
