@@ -17,7 +17,8 @@
 				<view class="chat-msg-bottom">
 					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<rich-text class="chat-msg-text" :nodes="$emo.transform(msgInfo.content,'emoji-normal')"></rich-text>
+							<up-parse class="chat-msg-text" :showImgMenu="false" :content="nodesText"></up-parse>
+							<!-- <rich-text class="chat-msg-text" :nodes="nodesText"></rich-text> -->
 						</long-press-menu>
 					</view>
 					<view class="chat-msg-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
@@ -47,7 +48,8 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<long-press-menu v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" :items="menuItems" @select="onSelectMenu">
+					<long-press-menu v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" :items="menuItems"
+						@select="onSelectMenu">
 						<view class="chat-msg-audio chat-msg-text" @click="onPlayAudio()">
 							<text class="iconfont icon-voice-play"></text>
 							<text class="chat-audio-text">{{ JSON.parse(msgInfo.content).duration + '"' }}</text>
@@ -162,10 +164,10 @@ export default {
 		onShowReadedBox() {
 			this.$refs.chatGroupReaded.open();
 		},
-		emit(){
-			this.$emit("audioStateChange",this.audioPlayState,this.msgInfo);
+		emit() {
+			this.$emit("audioStateChange", this.audioPlayState, this.msgInfo);
 		},
-		stopPlayAudio(){
+		stopPlayAudio() {
 			if (this.innerAudioContext) {
 				this.innerAudioContext.stop();
 				this.innerAudioContext = null;
@@ -230,6 +232,11 @@ export default {
 		isNormal() {
 			const type = this.msgInfo.type;
 			return this.$msgType.isNormal(type) || this.$msgType.isAction(type)
+		},
+		nodesText() {
+			let color = this.msgInfo.selfSend ? 'white' : '';
+			let text = this.$url.replaceURLWithHTMLLinks(this.msgInfo.content, color)
+			return this.$emo.transform(text, 'emoji-normal')
 		}
 	}
 
