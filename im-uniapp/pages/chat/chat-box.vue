@@ -264,14 +264,12 @@ export default {
 				success: (e) => {
 					// 清空编辑框数据
 					this.editorCtx.clear();
-					this.atUserIds = [];
-					this.isReceipt = false;
 					// 检查是否被封禁
 					if (this.isBanned) {
 						this.showBannedTip();
 						return;
 					}
-					let sendText = this.isReceipt ? "【回执消息】" : "";
+					let sendText = "";
 					e.delta.ops.forEach((op) => {
 						if (op.insert.image) {
 							// emo表情
@@ -295,6 +293,9 @@ export default {
 						receipt: this.isReceipt,
 						type: 0
 					}
+					// 清空@成员和回执标记
+					this.atUserIds = [];
+					this.isReceipt = false;
 					// 填充对方id
 					this.fillTargetId(msgInfo, this.chat.targetId);
 					this.sendMessageRequest(msgInfo).then((m) => {

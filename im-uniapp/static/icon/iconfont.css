@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4272106 */
-  src: url('iconfont.ttf?t=1719727774055') format('truetype');
+  src: url('iconfont.ttf?t=1739084401359') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,34 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-privacy-protocol:before {
+  content: "\e70a";
+}
+
+.icon-un-register:before {
+  content: "\e656";
+}
+
+.icon-modify-pwd:before {
+  content: "\e63c";
+}
+
+.icon-user-protocol:before {
+  content: "\e61a";
+}
+
+.icon-film:before {
+  content: "\e66b";
+}
+
+.icon-chat:before {
+  content: "\e624";
+}
+
+.icon-delete:before {
+  content: "\e605";
 }
 
 .icon-receipt:before {

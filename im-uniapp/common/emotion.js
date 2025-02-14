@@ -26,7 +26,11 @@ let transform = (content, extClass) => {
 let textToPath = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
-	return `/static/emoji/${idx}.gif`;
+	let baseUrl = "/"
+	// #ifdef H5
+		baseUrl = window.location.pathname;
+	// #endif
+	return `${baseUrl}static/emoji/${idx}.gif`;
 }
 
 

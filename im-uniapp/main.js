@@ -1,6 +1,7 @@
 import App from './App'
 import request from './common/request';
 import emotion from './common/emotion.js';
+import url from './common/url.js';
 import * as  enums from './common/enums.js';
 import * as date from './common/date';
 import * as socketApi from './common/wssocket';
@@ -39,6 +40,7 @@ export function createApp() {
   app.config.globalProperties.$wsApi = socketApi;
   app.config.globalProperties.$msgType = messageType;
   app.config.globalProperties.$emo = emotion;
+  app.config.globalProperties.$url = url;
   app.config.globalProperties.$enums = enums;
   app.config.globalProperties.$date = date;
   app.config.globalProperties.$rc = recorder;
