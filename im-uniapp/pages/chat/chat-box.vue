@@ -750,9 +750,12 @@ export default {
 				// ios h5实现键盘监听
 				window.addEventListener('focusin', this.focusInListener);
 				window.addEventListener('focusout', this.focusOutListener);
+				// 监听键盘高度，ios13以上开始支持
+				if(window.visualViewport){
+					window.visualViewport.addEventListener('resize', this.resizeListener);
+				}
 			} else {
 				// 安卓h5实现键盘监听
-				let initHeight = window.innerHeight;
 				window.addEventListener('resize', this.resizeListener);
 			}
 			// #endif
@@ -763,7 +766,6 @@ export default {
 		},
 		unListenKeyboard() {
 			// #ifdef H5
-			// 安卓h5实现键盘监听
 			window.removeEventListener('resize', this.resizeListener);
 			window.removeEventListener('focusin', this.focusInListener);
 			window.removeEventListener('focusout', this.focusOutListener);
