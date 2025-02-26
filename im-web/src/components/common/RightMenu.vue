@@ -1,5 +1,5 @@
 <template>
-	<div class="right-menu-mask" @click="close()" @contextmenu.prevent="close()">
+	<div class="right-menu-mask" @click.stop="close()" @contextmenu.prevent="close()">
 		<div class="right-menu" :style="{ 'left': pos.x + 'px', 'top': pos.y + 'px' }">
 			<el-menu text-color="#333333">
 				<el-menu-item v-for="(item) in items" :key="item.key" :title="item.name"
