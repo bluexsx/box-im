@@ -17,8 +17,11 @@
 				<view class="chat-msg-bottom">
 					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<up-parse class="chat-msg-text" :showImgMenu="false" :content="nodesText"></up-parse>
-							<!-- <rich-text class="chat-msg-text" :nodes="nodesText"></rich-text> -->
+							<!-- rich-text支持显示表情，但是不支持点击a标签 -->
+							<rich-text v-if="$emo.containEmoji(msgInfo.content)" class="chat-msg-text"
+								:nodes="nodesText"></rich-text>
+							<!-- up-parse支持点击a标签,但安卓打包后表情无法显示,原因未知 -->
+							<up-parse v-else class="chat-msg-text" :showImgMenu="false" :content="nodesText"></up-parse>
 						</long-press-menu>
 					</view>
 					<view class="chat-msg-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
