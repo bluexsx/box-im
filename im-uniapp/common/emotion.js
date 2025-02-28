@@ -6,9 +6,14 @@ const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心',
 	"摇头", "偷瞄", "庆祝", "疾跑", "打滚", "惊吓", "起跳"
 ];
 
+const regex = /\#[\u4E00-\u9FA5]{1,3}\;/gi;
+
+let containEmoji = (content) => {
+	return regex.test(content)
+}
 
 let transform = (content, extClass) => {
-	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, (emoText)=>{
+	return content.replace(regex, (emoText)=>{
 		// 将匹配结果替换表情图片
 		let word = emoText.replace(/\#|\;/gi, '');
 		let idx = emoTextList.indexOf(word);
@@ -21,21 +26,14 @@ let transform = (content, extClass) => {
 	});
 }
 
-
-
 let textToPath = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
-	let baseUrl = "/"
-	// #ifdef H5
-		baseUrl = window.location.pathname;
-	// #endif
-	return `${baseUrl}static/emoji/${idx}.gif`;
+	return `/static/emoji/${idx}.gif`;
 }
 
-
-
 export default {
+	containEmoji,
 	emoTextList,
 	transform,
 	textToPath
