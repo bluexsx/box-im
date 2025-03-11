@@ -18,9 +18,10 @@ import barGroup from '@/components/bar/bar-group'
 import arrowBar from '@/components/bar/arrow-bar'
 import btnBar from '@/components/bar/btn-bar'
 import switchBar from '@/components/bar/switch-bar'
-
-//import VConsole from 'vconsole'
-//new VConsole();
+// #ifdef H5
+// import VConsole from 'vconsole'
+// new VConsole();
+// #endif
 
 // #ifdef H5
 import * as recorder from './common/recorder-h5';
