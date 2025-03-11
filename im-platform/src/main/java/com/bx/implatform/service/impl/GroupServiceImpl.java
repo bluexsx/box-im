@@ -70,11 +70,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         member.setRemarkGroupName(vo.getRemarkGroupName());
         groupMemberService.save(member);
         // 返回
-        vo.setId(group.getId());
-        vo.setShowNickName(member.getShowNickName());
-        vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
         log.info("创建群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
-        return vo;
+        return findById(group.getId());
     }
 
     @CacheEvict(key = "#vo.getId()")
@@ -97,10 +94,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             group = BeanUtils.copyProperties(vo, Group.class);
             this.updateById(group);
         }
-        vo.setShowNickName(member.getShowNickName());
-        vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
         log.info("修改群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
-        return vo;
+        return convert(group,member);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -175,13 +170,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if (Objects.isNull(member)) {
             throw new GlobalException("您未加入群聊");
         }
-        GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
-        vo.setRemarkGroupName(member.getRemarkGroupName());
-        vo.setRemarkNickName(member.getRemarkNickName());
-        vo.setShowNickName(member.getShowNickName());
-        vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
-        vo.setQuit(member.getQuit());
-        return vo;
+        return convert(group,member);
     }
 
     @Cacheable(key = "#groupId")
@@ -217,13 +206,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         List<Group> groups = this.list(groupWrapper);
         // 转vo
         return groups.stream().map(group -> {
-            GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
             GroupMember member =
                 groupMembers.stream().filter(m -> group.getId().equals(m.getGroupId())).findFirst().get();
-            vo.setShowNickName(StrUtil.blankToDefault(member.getRemarkNickName(), session.getNickName()));
-            vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
-            vo.setQuit(member.getQuit());
-            return vo;
+            return convert(group, member);
         }).collect(Collectors.toList());
     }
 
@@ -244,8 +229,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 找出好友信息
         List<Friend> friends = friendsService.findFriendByUserId(session.getUserId());
         List<Friend> friendsList = vo.getFriendIds().stream()
-            .map(id -> friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get())
-            .toList();
+            .map(id -> friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get()).toList();
         if (friendsList.size() != vo.getFriendIds().size()) {
             throw new GlobalException("部分用户不是您的好友，邀请失败");
         }
@@ -317,5 +301,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         sendMessage.setSendResult(false);
         sendMessage.setSendToSelf(false);
         imClient.sendGroupMessage(sendMessage);
+    }
+
+    private GroupVO convert(Group group, GroupMember member) {
+        GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
+        vo.setRemarkGroupName(member.getRemarkGroupName());
+        vo.setRemarkNickName(member.getRemarkNickName());
+        vo.setShowNickName(member.getShowNickName());
+        vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
+        vo.setQuit(member.getQuit());
+        return vo;
     }
 }

@@ -588,10 +588,12 @@ export default {
 			this.isEmpty = e.detail.html == '<p><br></p>'
 		},
 		onEditorReady() {
-			const query = uni.createSelectorQuery().in(this);
-			query.select('#editor').context((res) => {
-				this.editorCtx = res.context
-			}).exec()
+			this.$nextTick(()=>{
+				const query = uni.createSelectorQuery().in(this);
+				query.select('#editor').context((res) => {
+					this.editorCtx = res.context
+				}).exec()
+			})
 		},
 		onEditorFocus(e) {
 			this.isFocus = true;
@@ -739,11 +741,9 @@ export default {
 		},
 		listenKeyBoard() {
 			// #ifdef H5	
-			const userAgent = navigator.userAgent;
-			const regex = /(macintosh|windows)/i;
-			if (regex.test(userAgent)) {
+			if (navigator.platform == "Win32" || navigator.platform == "MacIntel" ) {
 				// 电脑端不需要弹出键盘
-				console.log("userAgent:", userAgent)
+				console.log("navigator.platform:", navigator.platform)
 				return;
 			}
 			if (uni.getSystemInfoSync().platform == 'ios') {

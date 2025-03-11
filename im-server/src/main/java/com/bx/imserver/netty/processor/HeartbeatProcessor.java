@@ -45,7 +45,7 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo
         }
         AttributeKey<Long> userIdAttr = AttributeKey.valueOf(ChannelAttrKey.USER_ID);
         Long userId = ctx.channel().attr(userIdAttr).get();
-        log.info("心跳,userId:{},{}",userId,ctx.channel().id().asLongText());
+        log.debug("心跳,userId:{},{}",userId,ctx.channel().id().asLongText());
     }
 
     @Override
