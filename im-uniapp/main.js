@@ -22,7 +22,12 @@ import switchBar from '@/components/bar/switch-bar'
 // import VConsole from 'vconsole'
 // new VConsole();
 // #endif
-
+// #ifdef H5  
+import ImageResize from "quill-image-resize-mp";  
+import Quill from "quill";  
+window.Quill = Quill;  
+window.ImageResize = { default: ImageResize };  
+// #endif  
 // #ifdef H5
 import * as recorder from './common/recorder-h5';
 // #endif

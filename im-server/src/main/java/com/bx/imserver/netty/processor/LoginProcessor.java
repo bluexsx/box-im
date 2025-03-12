@@ -38,6 +38,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         if (!JwtUtil.checkSign(loginInfo.getAccessToken(), accessTokenSecret)) {
             ctx.channel().close();
             log.warn("用户token校验不通过，强制下线,token:{}", loginInfo.getAccessToken());
+            return;
         }
         String strInfo = JwtUtil.getInfo(loginInfo.getAccessToken());
         IMSessionInfo sessionInfo = JSON.parseObject(strInfo, IMSessionInfo.class);
