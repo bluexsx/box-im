@@ -13,23 +13,30 @@ let containEmoji = (content) => {
 }
 
 let transform = (content, extClass) => {
-	return content.replace(regex, (emoText)=>{
+	return content.replace(regex, (emoText) => {
 		// 将匹配结果替换表情图片
 		let word = emoText.replace(/\#|\;/gi, '');
 		let idx = emoTextList.indexOf(word);
 		if (idx == -1) {
 			return emoText;
 		}
-		let path = textToPath(emoText);
+		let path = textToPath(emoText, true);
 		let img = `<img src="${path}" class="${extClass}"/>`;
 		return img;
 	});
 }
 
-let textToPath = (emoText) => {
+let textToPath = (emoText, isRichText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
-	return `/static/emoji/${idx}.gif`;
+	let path = `/static/emoji/${idx}.gif`;
+	// #ifdef MP-WEIXIN	
+	// 小程序的表情要去掉最前面"/"(但有的时候又不能去掉,十分奇怪)
+	if (isRichText) {
+		path = path.slice(1);
+	}
+	// #endif
+	return path;
 }
 
 export default {

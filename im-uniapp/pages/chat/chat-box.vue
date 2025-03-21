@@ -32,7 +32,8 @@
 				<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
 				<view v-else class="send-text">
 					<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''"
-						:read-only="isReadOnly" @focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady" @input="onTextInput">
+						:read-only="isReadOnly" @focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady"
+						@input="onTextInput">
 					</editor>
 				</view>
 				<view v-if="chat && chat.type == 'GROUP'" class="iconfont icon-at" @click="openAtBox()"></view>
@@ -93,7 +94,7 @@
 			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
 				:style="{height: keyboardHeight+'px'}">
 				<view class="emotion-item-list">
-					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
+					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText,false)"
 						v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
 						lazy-load="true"></image>
 				</view>
@@ -369,7 +370,7 @@ export default {
 			}
 		},
 		selectEmoji(emoText) {
-			let path = this.$emo.textToPath(emoText)
+			let path = this.$emo.textToPath(emoText, true)
 			// 先把键盘禁用了，否则会重新弹出键盘
 			this.isReadOnly = true;
 			this.isEmpty = false;
@@ -588,7 +589,7 @@ export default {
 			this.isEmpty = e.detail.html == '<p><br></p>'
 		},
 		onEditorReady() {
-			this.$nextTick(()=>{
+			this.$nextTick(() => {
 				const query = uni.createSelectorQuery().in(this);
 				query.select('#editor').context((res) => {
 					this.editorCtx = res.context
@@ -741,7 +742,7 @@ export default {
 		},
 		listenKeyBoard() {
 			// #ifdef H5	
-			if (navigator.platform == "Win32" || navigator.platform == "MacIntel" ) {
+			if (navigator.platform == "Win32" || navigator.platform == "MacIntel") {
 				// 电脑端不需要弹出键盘
 				console.log("navigator.platform:", navigator.platform)
 				return;
@@ -751,7 +752,7 @@ export default {
 				window.addEventListener('focusin', this.focusInListener);
 				window.addEventListener('focusout', this.focusOutListener);
 				// 监听键盘高度，ios13以上开始支持
-				if(window.visualViewport){
+				if (window.visualViewport) {
 					window.visualViewport.addEventListener('resize', this.resizeListener);
 				}
 			} else {
