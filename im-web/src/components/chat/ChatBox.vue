@@ -490,13 +490,10 @@ export default {
 				this.$http({
 					url: url,
 					method: 'delete'
-				}).then(() => {
+				}).then((m) => {
 					this.$message.success("消息已撤回");
-					msgInfo = JSON.parse(JSON.stringify(msgInfo));
-					msgInfo.type = 10;
-					msgInfo.content = '你撤回了一条消息';
-					msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-					this.$store.commit("insertMessage", [msgInfo, this.chat]);
+					m.selfSend = true;
+					this.$store.commit("recallMessage", [m, this.chat]);
 				})
 			});
 		},
@@ -572,7 +569,6 @@ export default {
 			}
 		},
 		resetEditor() {
-
 			this.$nextTick(() => {
 				this.$refs.chatInputEditor.clear();
 				this.$refs.chatInputEditor.focus();

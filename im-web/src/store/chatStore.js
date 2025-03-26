@@ -151,10 +151,6 @@ export default {
 			let message = this.getters.findMessage(chat, msgInfo);
 			if (message) {
 				Object.assign(message, msgInfo);
-				// 撤回消息需要显示
-				if (msgInfo.type == MESSAGE_TYPE.RECALL) {
-					chat.lastContent = msgInfo.content;
-				}
 				chat.stored = false;
 				this.commit("saveToStorage");
 				return;
@@ -236,11 +232,41 @@ export default {
 					chat.messages.splice(idx, 1);
 					break;
 				}
-				// 正在发送中的消息可能没有id，根据发送时间删除
-				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
-					chat.messages[idx].sendTime == msgInfo.sendTime) {
+				// 正在发送中的消息可能没有id，只有临时id
+				if (chat.messages[idx].tmpId && chat.messages[idx].tmpId == msgInfo.tmpId) {
 					chat.messages.splice(idx, 1);
 					break;
+				}
+			}
+			chat.stored = false;
+			this.commit("saveToStorage");
+		},
+		recallMessage(state, [msgInfo, chatInfo]) {
+			let chat = this.getters.findChat(chatInfo);
+			if (!chat) return;
+			// 要撤回的消息id
+			let id = msgInfo.content;
+			let name = msgInfo.selfSend ? '你' : chat.type == 'PRIVATE' ? '对方' : msgInfo.sendNickName;
+			for (let idx in chat.messages) {
+				let m = chat.messages[idx];
+				if (m.id && m.id == id) {
+					// 改造成一条提示消息
+					m.status = MESSAGE_STATUS.RECALL;
+					m.content = name + "撤回了一条消息";
+					m.type = MESSAGE_TYPE.TIP_TEXT
+					// 会话列表
+					chat.lastContent = m.content;
+					chat.lastSendTime = msgInfo.sendTime;
+					chat.sendNickName = '';
+					if(!msgInfo.selfSend){
+						chat.unreadCount++;
+					}
+				}
+				// 被引用的消息也要撤回
+				if (m.quoteMessage && m.quoteMessage.id == msgInfo.id) {
+					m.quoteMessage.content = "引用内容已撤回";
+					m.quoteMessage.status = MESSAGE_STATUS.RECALL;
+					m.quoteMessage.type = MESSAGE_TYPE.TIP_TEXT
 				}
 			}
 			chat.stored = false;
@@ -250,7 +276,7 @@ export default {
 			let chat = this.getters.findChatByFriend(friend.id);
 			// 更新会话中的群名和头像
 			if (chat && (chat.headImage != friend.headImageThumb ||
-				chat.showName != friend.nickName)) {
+					chat.showName != friend.nickName)) {
 				chat.headImage = friend.headImageThumb;
 				chat.showName = friend.nickName;
 				chat.stored = false;
@@ -260,7 +286,7 @@ export default {
 		updateChatFromGroup(state, group) {
 			let chat = this.getters.findChatByGroup(group.id);
 			if (chat && (chat.headImage != group.headImageThumb ||
-				chat.showName != group.showGroupName)) {
+					chat.showName != group.showGroupName)) {
 				// 更新会话中的群名称和头像
 				chat.headImage = group.headImageThumb;
 				chat.showName = group.showGroupName;

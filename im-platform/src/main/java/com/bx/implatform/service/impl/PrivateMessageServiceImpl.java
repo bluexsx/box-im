@@ -74,8 +74,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         return msgInfo;
     }
 
+    @Transactional
     @Override
-    public void recallMessage(Long id) {
+    public PrivateMessageVO recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
         PrivateMessage msg = this.getById(id);
         if (Objects.isNull(msg)) {
@@ -90,26 +91,24 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 修改消息状态
         msg.setStatus(MessageStatus.RECALL.code());
         this.updateById(msg);
+        // 生成一条撤回消息
+        PrivateMessage recallMsg = new PrivateMessage();
+        recallMsg.setSendId(session.getUserId());
+        recallMsg.setStatus(MessageStatus.UNSEND.code());
+        recallMsg.setSendTime(new Date());
+        recallMsg.setRecvId(msg.getRecvId());
+        recallMsg.setType(MessageType.RECALL.code());
+        recallMsg.setContent(id.toString());
+        this.save(recallMsg);
         // 推送消息
-        PrivateMessageVO msgInfo = BeanUtils.copyProperties(msg, PrivateMessageVO.class);
-        msgInfo.setType(MessageType.RECALL.code());
-        msgInfo.setSendTime(new Date());
-        msgInfo.setContent("对方撤回了一条消息");
-
+        PrivateMessageVO msgInfo = BeanUtils.copyProperties(recallMsg, PrivateMessageVO.class);
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvId(msgInfo.getRecvId());
-        sendMessage.setSendToSelf(false);
         sendMessage.setData(msgInfo);
-        sendMessage.setSendResult(false);
-        imClient.sendPrivateMessage(sendMessage);
-
-        // 推给自己其他终端
-        msgInfo.setContent("你撤回了一条消息");
-        sendMessage.setSendToSelf(true);
-        sendMessage.setRecvTerminals(Collections.emptyList());
         imClient.sendPrivateMessage(sendMessage);
         log.info("撤回私聊消息，发送id:{},接收id:{}，内容:{}", msg.getSendId(), msg.getRecvId(), msg.getContent());
+        return msgInfo;
     }
 
     @Override
@@ -154,8 +153,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 只能拉取最近3个月的消息,移动端只拉取一个月消息
         int months = session.getTerminal().equals(IMTerminalType.APP.code()) ? 1 : 3;
         Date minDate = DateUtils.addMonths(new Date(), -months);
-        queryWrapper.gt(PrivateMessage::getId, minId).ge(PrivateMessage::getSendTime, minDate)
-            .ne(PrivateMessage::getStatus, MessageStatus.RECALL.code()).and(wrap -> wrap.and(
+        queryWrapper.gt(PrivateMessage::getId, minId).ge(PrivateMessage::getSendTime, minDate).and(wrap -> wrap.and(
                     wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).in(PrivateMessage::getRecvId, friendIds))
                 .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId()).in(PrivateMessage::getSendId, friendIds)))
             .orderByAsc(PrivateMessage::getId);

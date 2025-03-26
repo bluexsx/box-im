@@ -1,13 +1,12 @@
 <template>
 	<view class="chat-msg-item">
-		<view class="chat-msg-tip"
-			v-if="msgInfo.type == $enums.MESSAGE_TYPE.RECALL || msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
+		<view class="chat-msg-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
 			{{ msgInfo.content }}
 		</view>
-		<view class="chat-msg-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
+		<view class="chat-msg-tip" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
 			{{ $date.toTimeText(msgInfo.sendTime) }}
 		</view>
-		<view class="chat-msg-normal" v-if="isNormal" :class="{ 'chat-msg-mine': msgInfo.selfSend }">
+		<view class="chat-msg-normal" v-else-if="isNormal" :class="{ 'chat-msg-mine': msgInfo.selfSend }">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
 				:name="showName" size="small"></head-image>
 			<view class="chat-msg-content">

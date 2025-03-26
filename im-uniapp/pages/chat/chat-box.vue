@@ -519,12 +519,9 @@ export default {
 						this.$http({
 							url: url,
 							method: 'DELETE'
-						}).then(() => {
-							msgInfo = JSON.parse(JSON.stringify(msgInfo));
-							msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
-							msgInfo.content = '你撤回了一条消息';
-							msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-							this.chatStore.insertMessage(msgInfo, this.chat);
+						}).then((m) => {
+							m.selfSend = true;
+							this.chatStore.recallMessage(m, this.chat);
 						})
 					}
 				}

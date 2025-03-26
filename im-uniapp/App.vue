@@ -107,6 +107,15 @@ export default {
 			})
 		},
 		handlePrivateMessage(msg) {
+			// 标记这条消息是不是自己发的
+			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
+			// 好友id
+			let friendId = msg.selfSend ? msg.recvId : msg.sendId;
+			// 会话信息
+			let chatInfo = {
+				type: 'PRIVATE',
+				targetId: friendId
+			}
 			// 消息加载标志
 			if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 				this.chatStore.setLoadingPrivateMsg(JSON.parse(msg.content))
@@ -114,10 +123,7 @@ export default {
 			}
 			// 消息已读处理，清空已读数量
 			if (msg.type == enums.MESSAGE_TYPE.READED) {
-				this.chatStore.resetUnreadCount({
-					type: 'PRIVATE',
-					targetId: msg.recvId
-				})
+				this.chatStore.resetUnreadCount(chatInfo);
 				return;
 			}
 			// 消息回执处理,改消息状态为已读
@@ -127,10 +133,12 @@ export default {
 				})
 				return;
 			}
-			// 标记这条消息是不是自己发的
-			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
-			// 好友id
-			let friendId = msg.selfSend ? msg.recvId : msg.sendId;
+			// 消息撤回
+			if (msg.type == enums.MESSAGE_TYPE.RECALL) {
+				this.chatStore.recallMessage(msg, chatInfo);
+				return;
+			}
+			// 消息插入
 			this.loadFriendInfo(friendId, (friend) => {
 				this.insertPrivateMessage(friend, msg);
 			})
@@ -177,6 +185,12 @@ export default {
 
 		},
 		handleGroupMessage(msg) {
+			// 标记这条消息是不是自己发的
+			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
+			let chatInfo = {
+				type: 'GROUP',
+				targetId: msg.groupId
+			}
 			// 消息加载标志
 			if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 				this.chatStore.setLoadingGroupMsg(JSON.parse(msg.content))
@@ -185,19 +199,11 @@ export default {
 			// 消息已读处理
 			if (msg.type == enums.MESSAGE_TYPE.READED) {
 				// 我已读对方的消息，清空已读数量
-				let chatInfo = {
-					type: 'GROUP',
-					targetId: msg.groupId
-				}
 				this.chatStore.resetUnreadCount(chatInfo)
 				return;
 			}
 			// 消息回执处理
 			if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
-				let chatInfo = {
-					type: 'GROUP',
-					targetId: msg.groupId
-				}
 				// 更新消息已读人数
 				let msgInfo = {
 					id: msg.id,
@@ -205,11 +211,14 @@ export default {
 					readedCount: msg.readedCount,
 					receiptOk: msg.receiptOk
 				};
-				this.chatStore.updateMessage(msgInfo,chatInfo)
+				this.chatStore.updateMessage(msgInfo, chatInfo)
 				return;
 			}
-			// 标记这条消息是不是自己发的
-			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
+			// 消息撤回
+			if (msg.type == this.$enums.MESSAGE_TYPE.RECALL) {
+				this.chatStore.recallMessage(msg, chatInfo)
+				return;
+			}
 			this.loadGroupInfo(msg.groupId, (group) => {
 				// 插入群聊消息
 				this.insertGroupMessage(group, msg);

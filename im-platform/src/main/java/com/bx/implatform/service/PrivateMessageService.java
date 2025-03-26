@@ -23,7 +23,7 @@ public interface PrivateMessageService extends IService<PrivateMessage> {
      *
      * @param id 消息id
      */
-    void recallMessage(Long id);
+    PrivateMessageVO recallMessage(Long id);
 
     /**
      * 拉取历史聊天记录
