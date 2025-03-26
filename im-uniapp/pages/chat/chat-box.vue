@@ -94,7 +94,7 @@
 			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
 				:style="{height: keyboardHeight+'px'}">
 				<view class="emotion-item-list">
-					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText,false)"
+					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
 						v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
 						lazy-load="true"></image>
 				</view>
@@ -370,7 +370,7 @@ export default {
 			}
 		},
 		selectEmoji(emoText) {
-			let path = this.$emo.textToPath(emoText, true)
+			let path = this.$emo.textToPath(emoText)
 			// 先把键盘禁用了，否则会重新弹出键盘
 			this.isReadOnly = true;
 			this.isEmpty = false;
