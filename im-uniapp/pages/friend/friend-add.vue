@@ -61,7 +61,8 @@ export default {
 					id: user.id,
 					nickName: user.nickName,
 					headImage: user.headImage,
-					online: user.online
+					online: user.online,
+					delete: false
 				}
 				this.friendStore.addFriend(friend);
 				uni.showToast({
@@ -76,9 +77,7 @@ export default {
 			})
 		},
 		isFriend(userId) {
-			let friends = this.friendStore.friends;
-			let friend = friends.find((f) => f.id == userId);
-			return !!friend;
+			return this.friendStore.isFriend(userId);
 		}
 	}
 }

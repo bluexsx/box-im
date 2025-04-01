@@ -180,7 +180,7 @@ export default defineStore('chatStore', {
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
-				msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
+				msgInfo.status != MESSAGE_STATUS.RECALL && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
@@ -270,7 +270,9 @@ export default defineStore('chatStore', {
 					chat.lastContent = m.content;
 					chat.lastSendTime = msgInfo.sendTime;
 					chat.sendNickName = '';
-					chat.unreadCount++;
+					if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
+						chat.unreadCount++;
+					}
 				}
 				// 被引用的消息也要撤回
 				if (m.quoteMessage && m.quoteMessage.id == msgInfo.id) {
@@ -284,11 +286,22 @@ export default defineStore('chatStore', {
 		},
 		updateChatFromFriend(friend) {
 			let chat = this.findChatByFriend(friend.id)
-			if (chat && (chat.headImage != friend.headImageThumb ||
+			if (chat && (chat.headImage != friend.headImage ||
 					chat.showName != friend.nickName)) {
 				// 更新会话中的群名和头像
-				chat.headImage = friend.headImageThumb;
+				chat.headImage = friend.headImage;
 				chat.showName = friend.nickName;
+				chat.stored = false;
+				this.saveToStorage();
+			}
+		},
+		updateChatFromUser(user) {
+			let chat = this.findChatByFriend(user.id);
+			// 更新会话中的昵称和头像
+			if (chat && (chat.headImage != user.headImageThumb ||
+					chat.showName != user.nickName)) {
+				chat.headImage = user.headImageThumb;
+				chat.showName = user.nickName;
 				chat.stored = false;
 				this.saveToStorage();
 			}

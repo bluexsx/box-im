@@ -11,9 +11,9 @@
 			</div>
 			<el-scrollbar class="friend-list-items">
 				<div v-for="(friend, index) in $store.state.friendStore.friends" :key="index">
-					<friend-item v-show="friend.nickName.includes(searchText)" :index="index"
+					<friend-item  v-if="!friend.deleted" v-show="friend.nickName.includes(searchText)" :index="index"
 						:active="friend === $store.state.friendStore.activeFriend" @chat="onSendMessage(friend)"
-						@delete="onDelItem(friend, index)" @click.native="onActiveItem(friend, index)">
+						@delete="onDelItem(friend)" @click.native="onActiveItem(friend, index)">
 					</friend-item>
 				</div>
 			</el-scrollbar>
@@ -72,7 +72,8 @@ export default {
 			searchText: "",
 			showAddFriend: false,
 			activeIdx: -1,
-			userInfo: {}
+			userInfo: {},
+			friend: {}
 		}
 	},
 	methods: {
@@ -85,9 +86,10 @@ export default {
 		onActiveItem(friend, idx) {
 			this.$store.commit("activeFriend", idx);
 			this.activeIdx = idx
-			this.loadUserInfo(friend, idx);
+			this.friend = friend;
+			this.loadUserInfo(friend.id);
 		},
-		onDelItem(friend, idx) {
+		onDelItem(friend) {
 			this.$confirm(`确认删除'${friend.nickName}',并清空聊天记录吗?`, '确认解除?', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
@@ -96,9 +98,9 @@ export default {
 				this.$http({
 					url: `/friend/delete/${friend.id}`,
 					method: 'delete'
-				}).then((data) => {
+				}).then(() => {
 					this.$message.success("删除好友成功");
-					this.$store.commit("removeFriend", idx);
+					this.$store.commit("removeFriend", friend.id);
 					this.$store.commit("removePrivateChat", friend.id);
 				})
 			})
@@ -110,7 +112,7 @@ export default {
 				params: {
 					friendId: user.id
 				}
-			}).then((data) => {
+			}).then(() => {
 				this.$message.success("添加成功，对方已成为您的好友");
 				let friend = {
 					id: user.id,
@@ -128,6 +130,7 @@ export default {
 				showName: user.nickName,
 				headImage: user.headImageThumb,
 			};
+			console.log("chat:",chat)
 			this.$store.commit("openChat", chat);
 			this.$store.commit("activeChat", 0);
 			this.$router.push("/home/chat");
@@ -137,31 +140,24 @@ export default {
 				this.$store.commit('showFullImageBox', this.userInfo.headImage);
 			}
 		},
-		updateFriendInfo(friend, user, index) {
-			// store的数据不能直接修改，深拷贝一份store的数据
-			friend = JSON.parse(JSON.stringify(friend));
-			friend.headImage = user.headImageThumb;
-			friend.nickName = user.nickName;
-			this.$http({
-				url: "/friend/update",
-				method: "put",
-				data: friend
-			}).then(() => {
+		updateFriendInfo() {
+			if (this.isFriend) {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				let friend = JSON.parse(JSON.stringify(this.friend));
+				friend.headImage = this.userInfo.headImageThumb;
+				friend.nickName = this.userInfo.nickName;
+				this.$store.commit("updateChatFromFriend", friend);
 				this.$store.commit("updateFriend", friend);
-				this.$store.commit("updateChatFromFriend", user);
-			})
+			}
 		},
-		loadUserInfo(friend, index) {
+		loadUserInfo(id) {
+			// 获取好友用户信息
 			this.$http({
-				url: `/user/find/${friend.id}`,
-				method: 'get'
-			}).then((user) => {
-				this.userInfo = user;
-				// 如果发现好友的头像和昵称改了，进行更新
-				if (user.headImageThumb != friend.headImage ||
-					user.nickName != friend.nickName) {
-					this.updateFriendInfo(friend, user, index)
-				}
+				url: `/user/find/${id}`,
+				method: 'GET'
+			}).then((userInfo) => {
+				this.userInfo = userInfo;
+				this.updateFriendInfo();
 			})
 		}
 	},

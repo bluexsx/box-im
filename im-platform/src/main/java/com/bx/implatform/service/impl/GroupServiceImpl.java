@@ -227,14 +227,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             throw new GlobalException("群聊人数不能大于" + Constant.MAX_GROUP_MEMBER + "人");
         }
         // 找出好友信息
-        List<Friend> friends = friendsService.findFriendByUserId(session.getUserId());
-        List<Friend> friendsList = vo.getFriendIds().stream()
-            .map(id -> friends.stream().filter(f -> f.getFriendId().equals(id)).findFirst().get()).toList();
-        if (friendsList.size() != vo.getFriendIds().size()) {
+        List<Friend> friends = friendsService.findByFriendIds(vo.getFriendIds());
+        if (vo.getFriendIds().size() != friends.size()) {
             throw new GlobalException("部分用户不是您的好友，邀请失败");
         }
         // 批量保存成员数据
-        List<GroupMember> groupMembers = friendsList.stream().map(f -> {
+        List<GroupMember> groupMembers = friends.stream().map(f -> {
             Optional<GroupMember> optional =
                 members.stream().filter(m -> m.getUserId().equals(f.getFriendId())).findFirst();
             GroupMember groupMember = optional.orElseGet(GroupMember::new);

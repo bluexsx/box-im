@@ -29,12 +29,16 @@ export default defineStore('friendStore', {
 		removeFriend(id) {
 			this.friends.forEach((f, idx) => {
 				if (f.id == id) {
-					this.friends.splice(idx, 1)
+					this.friends[idx].deleted = true;
 				}
 			})
 		},
 		addFriend(friend) {
-			this.friends.push(friend);
+			if (this.friends.find((f) => f.id == friend.id)) {
+				this.updateFriend(friend)
+			} else {
+				this.friends.unshift(friend);
+			}
 		},
 		setOnlineStatus(onlineTerminals) {
 			this.friends.forEach((f) => {
@@ -51,16 +55,16 @@ export default defineStore('friendStore', {
 			});
 		},
 		refreshOnlineStatus() {
-			if (this.friends.length > 0) {
-				let userIds = [];
-				this.friends.forEach(f => userIds.push(f.id));
-				http({
-					url: '/user/terminal/online?userIds=' + userIds.join(','),
-					method: 'GET'
-				}).then((onlineTerminals) => {
-					this.setOnlineStatus(onlineTerminals);
-				})
+			let userIds = this.friends.filter((f) => !f.deleted).map((f) => f.id);
+			if (userIds.length == 0) {
+				return;
 			}
+			http({
+				url: '/user/terminal/online?userIds=' + userIds.join(','),
+				method: 'GET'
+			}).then((onlineTerminals) => {
+				this.setOnlineStatus(onlineTerminals);
+			})
 			// 30s后重新拉取
 			clearTimeout(this.timer);
 			this.timer = setTimeout(() => {
@@ -88,6 +92,9 @@ export default defineStore('friendStore', {
 		}
 	},
 	getters: {
+		isFriend: (state) => (userId) => {
+			return state.friends.filter((f) => !f.deleted).some((f) => f.id == userId);
+		},
 		findFriend: (state) => (id) => {
 			return state.friends.find((f) => f.id == id);
 		}

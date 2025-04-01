@@ -117,7 +117,7 @@ export default {
 	},
 	data() {
 		return {
-			friend: {},
+			userInfo: {},
 			group: {},
 			groupMembers: [],
 			sendImageUrl: "",
@@ -540,15 +540,27 @@ export default {
 				this.groupMembers = groupMembers;
 			});
 		},
-		loadFriend(friendId) {
-			// 获取对方最新信息
-			this.$http({
-				url: `/user/find/${friendId}`,
-				method: 'get'
-			}).then((friend) => {
-				this.friend = friend;
+		updateFriendInfo() {
+			if (this.isFriend) {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				let friend = JSON.parse(JSON.stringify(this.friend));
+				friend.headImage = this.userInfo.headImageThumb;
+				friend.nickName = this.userInfo.nickName;
+				friend.showNickName = friend.remarkNickName ? friend.remarkNickName : friend.nickName;
 				this.$store.commit("updateChatFromFriend", friend);
 				this.$store.commit("updateFriend", friend);
+			}else {
+				this.$store.commit("updateChatFromUser", this.userInfo);
+			}
+		},
+		loadFriend(friendId) {
+			// 获取好友信息
+			this.$http({
+				url: `/user/find/${friendId}`,
+				method: 'GET'
+			}).then((userInfo) => {
+				this.userInfo = userInfo;
+				this.updateFriendInfo();
 			})
 		},
 		showName(msgInfo) {
@@ -624,7 +636,7 @@ export default {
 			}
 			if (this.chat.type == "PRIVATE") {
 				msgInfo.recvId = this.mine.id
-				msgInfo.content = "该用户已被管理员封禁,原因:" + this.friend.reason
+				msgInfo.content = "该用户已被管理员封禁,原因:" + this.userInfo.reason
 			} else {
 				msgInfo.groupId = this.group.id;
 				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
@@ -639,6 +651,12 @@ export default {
 	computed: {
 		mine() {
 			return this.$store.state.userStore.userInfo;
+		},
+		isFriend() {
+			return this.$store.getters.isFriend(this.userInfo.id);
+		},
+		friend() {
+			return  this.$store.getters.findFriend(this.userInfo.id)
 		},
 		title() {
 			let title = this.chat.showName;
@@ -661,7 +679,7 @@ export default {
 			return this.chat.messages.length;
 		},
 		isBanned() {
-			return (this.chat.type == "PRIVATE" && this.friend.isBanned) ||
+			return (this.chat.type == "PRIVATE" && this.userInfo.isBanned) ||
 				(this.chat.type == "GROUP" && this.group.isBanned)
 		}
 	},

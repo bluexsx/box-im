@@ -33,6 +33,8 @@ public enum MessageType {
     USER_BANNED(50,"用户封禁"),
     GROUP_BANNED(51,"群聊封禁"),
     GROUP_UNBAN(52,"群聊解封"),
+    FRIEND_NEW(80, "新增好友"),
+    FRIEND_DEL(81, "删除好友"),
     RTC_CALL_VOICE(100, "语音呼叫"),
     RTC_CALL_VIDEO(101, "视频呼叫"),
     RTC_ACCEPT(102, "接受"),

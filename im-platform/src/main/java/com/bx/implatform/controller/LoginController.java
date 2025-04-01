@@ -1,6 +1,5 @@
 package com.bx.implatform.controller;
 
-import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.dto.LoginDTO;
 import com.bx.implatform.dto.ModifyPwdDTO;
 import com.bx.implatform.dto.RegisterDTO;

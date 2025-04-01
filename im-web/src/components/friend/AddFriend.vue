@@ -74,21 +74,20 @@ export default {
 				params: {
 					friendId: user.id
 				}
-			}).then((data) => {
+			}).then(() => {
 				this.$message.success("添加成功，对方已成为您的好友");
 				let friend = {
 					id: user.id,
 					nickName: user.nickName,
 					headImage: user.headImage,
-					online: user.online
+					online: user.online,
+					deleted: false
 				}
 				this.$store.commit("addFriend", friend);
 			})
 		},
 		isFriend(userId) {
-			let friends = this.$store.state.friendStore.friends;
-			let friend = friends.find((f) => f.id == userId);
-			return friend != undefined;
+			return this.$store.getters.isFriend(userId);
 		}
 	}
 }

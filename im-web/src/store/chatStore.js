@@ -175,7 +175,7 @@ export default {
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
-				msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
+				msgInfo.status != MESSAGE_STATUS.RECALL && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
@@ -258,7 +258,7 @@ export default {
 					chat.lastContent = m.content;
 					chat.lastSendTime = msgInfo.sendTime;
 					chat.sendNickName = '';
-					if(!msgInfo.selfSend){
+					if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 						chat.unreadCount++;
 					}
 				}
@@ -275,12 +275,23 @@ export default {
 		updateChatFromFriend(state, friend) {
 			let chat = this.getters.findChatByFriend(friend.id);
 			// 更新会话中的群名和头像
-			if (chat && (chat.headImage != friend.headImageThumb ||
+			if (chat && (chat.headImage != friend.headImage ||
 					chat.showName != friend.nickName)) {
-				chat.headImage = friend.headImageThumb;
+				chat.headImage = friend.headImage;
 				chat.showName = friend.nickName;
 				chat.stored = false;
 				this.commit("saveToStorage")
+			}
+		},
+		updateChatFromUser(user) {
+			let chat = this.getters.findChatByFriend(user.id);
+			// 更新会话中的昵称和头像
+			if (chat && (chat.headImage != user.headImageThumb ||
+					chat.showName != user.nickName)) {
+				chat.headImage = user.headImageThumb;
+				chat.showName = user.nickName;
+				chat.stored = false;
+				this.saveToStorage();
 			}
 		},
 		updateChatFromGroup(state, group) {
@@ -333,7 +344,6 @@ export default {
 				// 只存储有改动的会话
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
-					console.log(chatKey)
 					if (chat.delete) {
 						localForage.removeItem(chatKey);
 					} else {

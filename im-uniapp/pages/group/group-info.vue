@@ -113,8 +113,7 @@ export default {
 										url: "/pages/group/group"
 									});
 									this.groupStore.removeGroup(this.groupId);
-									this.chatStore.removeGroupChat(this
-										.groupId);
+									this.chatStore.removeGroupChat(this.groupId);
 								}, 100)
 							}
 						})

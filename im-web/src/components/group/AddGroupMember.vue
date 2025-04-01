@@ -55,7 +55,6 @@ export default {
       this.$emit("close");
     },
     onOk() {
-
       let inviteVO = {
         groupId: this.groupId,
         friendIds: []
@@ -107,6 +106,9 @@ export default {
       if (newData) {
         this.friends = [];
         this.$store.state.friendStore.friends.forEach((f) => {
+          if (f.deleted) {
+            return;
+          }
           let friend = JSON.parse(JSON.stringify(f))
           let m = this.members.filter((m) => !m.quit)
             .find((m) => m.userId == f.id);

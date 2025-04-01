@@ -189,18 +189,27 @@ export default {
 				this.$store.commit("recallMessage", [msg, chatInfo])
 				return;
 			}
+			// 新增好友
+			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_NEW) {
+				this.$store.commit("addFriend", JSON.parse(msg.content));
+				return;
+			}
+			// 删除好友
+			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_DEL) {
+				this.$store.commit("removeFriend", friendId);
+				return;
+			}
 			// 单人webrtc 信令
 			if (this.$msgType.isRtcPrivate(msg.type)) {
 				this.$refs.rtcPrivateVideo.onRTCMessage(msg)
 				return;
 			}
 			// 好友id
-			this.loadFriendInfo(friendId).then((friend) => {
-				this.insertPrivateMessage(friend, msg);
-			})
+			let friend = this.loadFriendInfo(friendId);
+			this.insertPrivateMessage(friend, msg);
+
 		},
 		insertPrivateMessage(friend, msg) {
-
 			let chatInfo = {
 				type: 'PRIVATE',
 				targetId: friend.id,
@@ -322,20 +331,15 @@ export default {
 			this.showSettingDialog = false;
 		},
 		loadFriendInfo(id) {
-			return new Promise((resolve, reject) => {
-				let friend = this.$store.state.friendStore.friends.find((f) => f.id == id);
-				if (friend) {
-					resolve(friend);
-				} else {
-					this.$http({
-						url: `/friend/find/${id}`,
-						method: 'get'
-					}).then((friend) => {
-						this.$store.commit("addFriend", friend);
-						resolve(friend)
-					})
+			let friend = this.$store.state.friendStore.friends.find((f) => f.id == id);
+			if (!friend) {
+				friend = {
+					id: id,
+					showNickName: "未知用户",
+					headImage: ""
 				}
-			});
+			}
+			return friend;
 		},
 		loadGroupInfo(id) {
 			return new Promise((resolve, reject) => {

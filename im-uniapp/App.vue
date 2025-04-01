@@ -138,10 +138,19 @@ export default {
 				this.chatStore.recallMessage(msg, chatInfo);
 				return;
 			}
+			// 新增好友
+			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_NEW) {
+				this.friendStore.addFriend(JSON.parse(msg.content));
+				return;
+			}
+			// 删除好友
+			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_DEL) {
+				this.friendStore.removeFriend(friendId);
+				return;
+			}
 			// 消息插入
-			this.loadFriendInfo(friendId, (friend) => {
-				this.insertPrivateMessage(friend, msg);
-			})
+			let friend = this.loadFriendInfo(friendId);
+			this.insertPrivateMessage(friend, msg);
 		},
 		insertPrivateMessage(friend, msg) {
 			// 单人视频信令
@@ -280,17 +289,15 @@ export default {
 		},
 		loadFriendInfo(id, callback) {
 			let friend = this.friendStore.findFriend(id);
-			if (friend) {
-				callback(friend);
-			} else {
-				http({
-					url: `/friend/find/${id}`,
-					method: 'GET'
-				}).then((friend) => {
-					this.friendStore.addFriend(friend);
-					callback(friend)
-				})
+			if (!friend) {
+				console.log("未知用户:", id)
+				friend = {
+					id: id,
+					showNickName: "未知用户",
+					headImage: ""
+				}
 			}
+			return friend;
 		},
 		loadGroupInfo(id, callback) {
 			let group = this.groupStore.findGroup(id);

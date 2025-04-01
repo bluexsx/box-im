@@ -19,4 +19,7 @@ public class FriendVO {
 
     @Schema(description = "好友头像")
     private String headImage;
+
+    @Schema(description = "是否已删除")
+    private Boolean deleted;
 }

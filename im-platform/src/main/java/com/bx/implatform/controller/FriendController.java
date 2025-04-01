@@ -1,11 +1,9 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.annotation.RepeatSubmit;
-import com.bx.implatform.entity.Friend;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.FriendService;
-import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.FriendVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "好友")
 @RestController
@@ -28,15 +25,7 @@ public class FriendController {
     @GetMapping("/list")
     @Operation(summary = "好友列表", description = "获取好友列表")
     public Result<List<FriendVO>> findFriends() {
-        List<Friend> friends = friendService.findFriendByUserId(SessionContext.getSession().getUserId());
-        List<FriendVO> vos = friends.stream().map(f -> {
-            FriendVO vo = new FriendVO();
-            vo.setId(f.getFriendId());
-            vo.setHeadImage(f.getFriendHeadImage());
-            vo.setNickName(f.getFriendNickName());
-            return vo;
-        }).collect(Collectors.toList());
-        return ResultUtils.success(vos);
+        return ResultUtils.success(friendService.findFriends());
     }
 
 
@@ -61,14 +50,6 @@ public class FriendController {
         friendService.delFriend(friendId);
         return ResultUtils.success();
     }
-
-    @PutMapping("/update")
-    @Operation(summary = "更新好友信息", description = "更新好友头像或昵称")
-    public Result modifyFriend(@Valid @RequestBody FriendVO vo) {
-        friendService.update(vo);
-        return ResultUtils.success();
-    }
-
 
 }
 

@@ -1,6 +1,5 @@
 package com.bx.implatform.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -12,7 +11,6 @@ import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.dto.PrivateMessageDTO;
-import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
@@ -31,7 +29,9 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -135,29 +135,19 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     @Override
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
-        if (!imClient.isOnline(session.getUserId())) {
-            throw new GlobalException("网络连接失败，无法拉取离线消息");
-        }
-        // 查询用户好友列表
-        List<Friend> friends = friendService.findFriendByUserId(session.getUserId());
-        if (friends.isEmpty()) {
-            // 关闭加载中标志
-            this.sendLoadingMessage(false);
-            return;
-        }
         // 开启加载中标志
         this.sendLoadingMessage(true);
-        List<Long> friendIds = friends.stream().map(Friend::getFriendId).collect(Collectors.toList());
         // 获取当前用户的消息
-        LambdaQueryWrapper<PrivateMessage> queryWrapper = Wrappers.lambdaQuery();
+        LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
         // 只能拉取最近3个月的消息,移动端只拉取一个月消息
         int months = session.getTerminal().equals(IMTerminalType.APP.code()) ? 1 : 3;
         Date minDate = DateUtils.addMonths(new Date(), -months);
-        queryWrapper.gt(PrivateMessage::getId, minId).ge(PrivateMessage::getSendTime, minDate).and(wrap -> wrap.and(
-                    wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).in(PrivateMessage::getRecvId, friendIds))
-                .or(wp -> wp.eq(PrivateMessage::getRecvId, session.getUserId()).in(PrivateMessage::getSendId, friendIds)))
-            .orderByAsc(PrivateMessage::getId);
-        List<PrivateMessage> messages = this.list(queryWrapper);
+        wrapper.gt(PrivateMessage::getId, minId);
+        wrapper.ge(PrivateMessage::getSendTime, minDate);
+        wrapper.and(wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).or()
+            .eq(PrivateMessage::getRecvId, session.getUserId()));
+        wrapper.orderByAsc(PrivateMessage::getId);
+        List<PrivateMessage> messages = this.list(wrapper);
         // 推送消息
         for (PrivateMessage m : messages) {
             PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);

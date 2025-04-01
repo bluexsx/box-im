@@ -60,7 +60,6 @@ public class GroupUnbanConsumerTask extends RedisMQConsumer<GroupUnbanDTO> {
         IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
         sendMessage.setSender(new IMUserInfo(Constant.SYS_USER_ID, IMTerminalType.PC.code()));
         sendMessage.setRecvIds(userIds);
-        sendMessage.setSendResult(true);
         sendMessage.setSendToSelf(false);
         sendMessage.setData(msgInfo);
         imClient.sendGroupMessage(sendMessage);
