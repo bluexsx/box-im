@@ -47,8 +47,6 @@
 						</div>
 					</div>
 				</div>
-				<!--				<el-divider content-position="center"></el-divider>-->
-
 			</div>
 		</el-container>
 	</el-container>
@@ -166,7 +164,7 @@ export default {
 			return this.$store.state.friendStore;
 		},
 		isFriend() {
-			return this.friendStore.friends.find((f) => f.id == this.userInfo.id);
+			return this.$store.getters.isFriend(this.userInfo.id);
 		}
 	}
 }

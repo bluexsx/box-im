@@ -1,7 +1,6 @@
 import http from '../api/httpRequest.js'
 
 export default {
-
 	state: {
 		groups: [],
 		activeGroup: null,
@@ -11,18 +10,18 @@ export default {
 			state.groups = groups;
 		},
 		activeGroup(state, idx) {
-			state.activeGroup = state.groups[idx];
+			state.activeGroup = idx > 0 ? state.groups[idx] : null;
 		},
 		addGroup(state, group) {
-			state.groups.unshift(group);
+			if (state.groups.some((g) => g.id == group.id)) {
+				this.commit("updateGroup", group)
+			} else {
+				state.groups.unshift(group);
+			}
 		},
-		removeGroup(state, groupId) {
-			state.groups.forEach((g, idx) => {
-				if (g.id == groupId) {
-					state.groups.splice(idx, 1);
-				}
-			})
-			if (state.activeGroup && state.activeGroup.id == groupId) {
+		removeGroup(state, id) {
+			state.groups.filter(g => g.id == id).forEach(g => g.quit = true);
+			if (state.activeGroup && id == state.activeGroup.id) {
 				state.activeGroup = null;
 			}
 		},
@@ -52,6 +51,11 @@ export default {
 					reject(res);
 				})
 			});
+		}
+	},
+	getters: {
+		findGroup: (state) => (id) => {
+			return state.groups.find((g) => g.id == id);
 		}
 	}
 }

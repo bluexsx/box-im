@@ -2,6 +2,7 @@ package com.bx.implatform.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,6 +31,7 @@ import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.vo.GroupVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -69,9 +71,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         member.setRemarkNickName(vo.getRemarkNickName());
         member.setRemarkGroupName(vo.getRemarkGroupName());
         groupMemberService.save(member);
+        GroupVO groupVo = findById(group.getId());
+        // 推送同步消息给自己的其他终端
+        sendAddGroupMessage(groupVo, Lists.newArrayList(), true);
         // 返回
         log.info("创建群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
-        return findById(group.getId());
+        return groupVo;
     }
 
     @CacheEvict(key = "#vo.getId()")
@@ -95,7 +100,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             this.updateById(group);
         }
         log.info("修改群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
-        return convert(group,member);
+        return convert(group, member);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -119,6 +124,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         redisTemplate.delete(key);
         // 推送解散群聊提示
         this.sendTipMessage(groupId, userIds, String.format("'%s'解散了群聊", session.getNickName()));
+        // 推送同步消息
+        this.sendDelGroupMessage(groupId, userIds, false);
         log.info("删除群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
     }
 
@@ -136,6 +143,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         redisTemplate.opsForHash().delete(key, userId.toString());
         // 推送退出群聊提示
         this.sendTipMessage(groupId, List.of(userId), "您已退出群聊");
+        // 推送同步消息
+        this.sendDelGroupMessage(groupId, Lists.newArrayList(), true);
         log.info("退出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
     }
 
@@ -156,6 +165,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         redisTemplate.opsForHash().delete(key, userId.toString());
         // 推送踢出群聊提示
         this.sendTipMessage(groupId, List.of(userId), "您已被移出群聊");
+        // 推送同步消息
+        this.sendDelGroupMessage(groupId, List.of(userId), false);
         log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
     }
 
@@ -170,7 +181,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if (Objects.isNull(member)) {
             throw new GlobalException("您未加入群聊");
         }
-        return convert(group,member);
+        return convert(group, member);
     }
 
     @Cacheable(key = "#groupId")
@@ -247,6 +258,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if (!groupMembers.isEmpty()) {
             groupMemberService.saveOrUpdateBatch(group.getId(), groupMembers);
         }
+        // 推送同步消息给被邀请人
+        for (GroupMember m : groupMembers) {
+            GroupVO groupVo = convert(group, m);
+            sendAddGroupMessage(groupVo, List.of(m.getUserId()), false);
+        }
         // 推送进入群聊消息
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(vo.getGroupId());
         String memberNames = groupMembers.stream().map(GroupMember::getShowNickName).collect(Collectors.joining(","));
@@ -309,5 +325,38 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
         vo.setQuit(member.getQuit());
         return vo;
+    }
+
+    private void sendAddGroupMessage(GroupVO group, List<Long> recvIds, Boolean sendToSelf) {
+        UserSession session = SessionContext.getSession();
+        GroupMessageVO msgInfo = new GroupMessageVO();
+        msgInfo.setContent(JSON.toJSONString(group));
+        msgInfo.setType(MessageType.GROUP_NEW.code());
+        msgInfo.setSendTime(new Date());
+        msgInfo.setGroupId(group.getId());
+        msgInfo.setSendId(session.getUserId());
+        IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setRecvIds(recvIds);
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendResult(false);
+        sendMessage.setSendToSelf(sendToSelf);
+        imClient.sendGroupMessage(sendMessage);
+    }
+
+    private void sendDelGroupMessage(Long groupId, List<Long> recvIds, Boolean sendToSelf) {
+        UserSession session = SessionContext.getSession();
+        GroupMessageVO msgInfo = new GroupMessageVO();
+        msgInfo.setType(MessageType.GROUP_DEL.code());
+        msgInfo.setSendTime(new Date());
+        msgInfo.setGroupId(groupId);
+        msgInfo.setSendId(session.getUserId());
+        IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setRecvIds(recvIds);
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendResult(false);
+        sendMessage.setSendToSelf(sendToSelf);
+        imClient.sendGroupMessage(sendMessage);
     }
 }

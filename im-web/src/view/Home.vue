@@ -204,10 +204,11 @@ export default {
 				this.$refs.rtcPrivateVideo.onRTCMessage(msg)
 				return;
 			}
-			// 好友id
-			let friend = this.loadFriendInfo(friendId);
-			this.insertPrivateMessage(friend, msg);
-
+			// 插入消息
+			if (this.$msgType.isNormal(msg.type) || this.$msgType.isTip(msg.type) || this.$msgType.isAction(msg.type)) {
+				let friend = this.loadFriendInfo(friendId);
+				this.insertPrivateMessage(friend, msg);
+			}
 		},
 		insertPrivateMessage(friend, msg) {
 			let chatInfo = {
@@ -261,6 +262,17 @@ export default {
 				this.$store.commit("recallMessage", [msg, chatInfo])
 				return;
 			}
+			// 新增群
+			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_NEW) {
+				this.$store.commit("addGroup", JSON.parse(msg.content));
+				return;
+			}
+			// 删除群
+			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_DEL) {
+				console.log("this.$enums.MESSAGE_TYPE.GROUP_DE")
+				this.$store.commit("removeGroup", msg.groupId);
+				return;
+			}
 			// 群视频信令
 			if (this.$msgType.isRtcGroup(msg.type)) {
 				this.$nextTick(() => {
@@ -268,10 +280,11 @@ export default {
 				})
 				return;
 			}
-			this.loadGroupInfo(msg.groupId).then((group) => {
-				// 插入群聊消息
+			// 插入群聊消息
+			if (this.$msgType.isNormal(msg.type) || this.$msgType.isTip(msg.type) || this.$msgType.isAction(msg.type)) {
+				let group = this.loadGroupInfo(msg.groupId);
 				this.insertGroupMessage(group, msg);
-			})
+			}
 		},
 		insertGroupMessage(group, msg) {
 			let chatInfo = {
@@ -292,7 +305,6 @@ export default {
 		},
 		handleSystemMessage(msg) {
 			// 用户被封禁
-
 			if (msg.type == this.$enums.MESSAGE_TYPE.USER_BANNED) {
 				this.$wsApi.close(3000);
 				this.$alert("您的账号已被管理员封禁,原因:" + msg.content, "账号被封禁", {
@@ -331,7 +343,7 @@ export default {
 			this.showSettingDialog = false;
 		},
 		loadFriendInfo(id) {
-			let friend = this.$store.state.friendStore.friends.find((f) => f.id == id);
+			let friend = this.$store.getters.findFriend(id);
 			if (!friend) {
 				friend = {
 					id: id,
@@ -342,20 +354,15 @@ export default {
 			return friend;
 		},
 		loadGroupInfo(id) {
-			return new Promise((resolve, reject) => {
-				let group = this.$store.state.groupStore.groups.find((g) => g.id == id);
-				if (group) {
-					resolve(group);
-				} else {
-					this.$http({
-						url: `/group/find/${id}`,
-						method: 'get'
-					}).then((group) => {
-						resolve(group)
-						this.$store.commit("addGroup", group);
-					})
+			let group = this.$store.getters.findGroup(id);
+			if (!group) {
+				group = {
+					id: id,
+					showGroupName: "未知群聊",
+					headImageThumb: ""
 				}
-			});
+			}
+			return group;
 		}
 	},
 	computed: {

@@ -139,12 +139,12 @@ export default {
 				return;
 			}
 			// 新增好友
-			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_NEW) {
+			if (msg.type == enums.MESSAGE_TYPE.FRIEND_NEW) {
 				this.friendStore.addFriend(JSON.parse(msg.content));
 				return;
 			}
 			// 删除好友
-			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_DEL) {
+			if (msg.type == enums.MESSAGE_TYPE.FRIEND_DEL) {
 				this.friendStore.removeFriend(friendId);
 				return;
 			}
@@ -179,18 +179,22 @@ export default {
 				}, delayTime)
 				return;
 			}
-			let chatInfo = {
-				type: 'PRIVATE',
-				targetId: friend.id,
-				showName: friend.nickName,
-				headImage: friend.headImage
-			};
-			// 打开会话
-			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg, chatInfo);
-			// 播放提示音
-			this.playAudioTip();
+			if (msgType.isNormal(msg.type) || msgType.isTip(msg.type) || msgType.isAction(msg.type)) {
+				let chatInfo = {
+					type: 'PRIVATE',
+					targetId: friend.id,
+					showName: friend.nickName,
+					headImage: friend.headImage
+				};
+				// 打开会话
+				this.chatStore.openChat(chatInfo);
+				// 插入消息
+				this.chatStore.insertMessage(msg, chatInfo);
+				// 播放提示音
+				this.playAudioTip();
+			}
+
 
 		},
 		handleGroupMessage(msg) {
@@ -224,14 +228,24 @@ export default {
 				return;
 			}
 			// 消息撤回
-			if (msg.type == this.$enums.MESSAGE_TYPE.RECALL) {
+			if (msg.type == enums.MESSAGE_TYPE.RECALL) {
 				this.chatStore.recallMessage(msg, chatInfo)
 				return;
 			}
-			this.loadGroupInfo(msg.groupId, (group) => {
-				// 插入群聊消息
-				this.insertGroupMessage(group, msg);
-			})
+			// 新增群
+			if (msg.type == enums.MESSAGE_TYPE.GROUP_NEW) {
+				this.groupStore.addGroup(JSON.parse(msg.content));
+				return;
+			}
+			// 删除群
+			if (msg.type == enums.MESSAGE_TYPE.GROUP_DEL) {
+				this.groupStore.removeGroup(msg.groupId);
+				return;
+			}
+			// 插入消息
+			let group = this.loadGroupInfo(msg.groupId);
+			this.insertGroupMessage(group, msg);
+
 		},
 		handleSystemMessage(msg) {
 			if (msg.type == enums.MESSAGE_TYPE.USER_BANNED) {
@@ -273,19 +287,22 @@ export default {
 				}, delayTime)
 				return;
 			}
-
-			let chatInfo = {
-				type: 'GROUP',
-				targetId: group.id,
-				showName: group.showGroupName,
-				headImage: group.headImageThumb
-			};
-			// 打开会话
-			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg, chatInfo);
-			// 播放提示音
-			this.playAudioTip();
+			if (msgType.isNormal(msg.type) || msgType.isTip(msg.type) || msgType.isAction(msg.type)) {
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: group.id,
+					showName: group.showGroupName,
+					headImage: group.headImageThumb
+				};
+				// 打开会话
+				this.chatStore.openChat(chatInfo);
+				// 插入消息
+				this.chatStore.insertMessage(msg, chatInfo);
+				// 播放提示音
+				this.playAudioTip();
+			}
+
 		},
 		loadFriendInfo(id, callback) {
 			let friend = this.friendStore.findFriend(id);
@@ -299,19 +316,16 @@ export default {
 			}
 			return friend;
 		},
-		loadGroupInfo(id, callback) {
+		loadGroupInfo(id) {
 			let group = this.groupStore.findGroup(id);
-			if (group) {
-				callback(group);
-			} else {
-				http({
-					url: `/group/find/${id}`,
-					method: 'GET'
-				}).then((group) => {
-					this.groupStore.addGroup(group);
-					callback(group)
-				})
+			if (!group) {
+				group = {
+					id: id,
+					showGroupName: "未知群聊",
+					headImageThumb: ""
+				}
 			}
+			return group;
 		},
 		exit() {
 			console.log("exit");

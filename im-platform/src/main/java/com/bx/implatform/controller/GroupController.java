@@ -31,18 +31,21 @@ public class GroupController {
         return ResultUtils.success(groupService.createGroup(vo));
     }
 
+    @RepeatSubmit
     @Operation(summary = "修改群聊信息", description = "修改群聊信息")
     @PutMapping("/modify")
     public Result<GroupVO> modifyGroup(@Valid @RequestBody GroupVO vo) {
         return ResultUtils.success(groupService.modifyGroup(vo));
     }
 
+    @RepeatSubmit
     @Operation(summary = "解散群聊", description = "解散群聊")
     @DeleteMapping("/delete/{groupId}")
     public Result deleteGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
         groupService.deleteGroup(groupId);
         return ResultUtils.success();
     }
+
 
     @Operation(summary = "查询群聊", description = "查询单个群聊信息")
     @GetMapping("/find/{groupId}")
@@ -56,6 +59,7 @@ public class GroupController {
         return ResultUtils.success(groupService.findGroups());
     }
 
+    @RepeatSubmit
     @Operation(summary = "邀请进群", description = "邀请好友进群")
     @PostMapping("/invite")
     public Result invite(@Valid @RequestBody GroupInviteVO vo) {
@@ -70,6 +74,7 @@ public class GroupController {
         return ResultUtils.success(groupService.findGroupMembers(groupId));
     }
 
+    @RepeatSubmit
     @Operation(summary = "退出群聊", description = "退出群聊")
     @DeleteMapping("/quit/{groupId}")
     public Result quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
@@ -77,6 +82,7 @@ public class GroupController {
         return ResultUtils.success();
     }
 
+    @RepeatSubmit
     @Operation(summary = "踢出群聊", description = "将用户踢出群聊")
     @DeleteMapping("/kick/{groupId}")
     public Result kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,

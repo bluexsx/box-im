@@ -27,14 +27,10 @@ export default defineStore('friendStore', {
 			f.onlineApp = copy.onlineApp;
 		},
 		removeFriend(id) {
-			this.friends.forEach((f, idx) => {
-				if (f.id == id) {
-					this.friends[idx].deleted = true;
-				}
-			})
+			this.friends.filter(f => f.id == id).forEach(f => f.deleted = true);
 		},
 		addFriend(friend) {
-			if (this.friends.find((f) => f.id == friend.id)) {
+			if (this.friends.some((f) => f.id == friend.id)) {
 				this.updateFriend(friend)
 			} else {
 				this.friends.unshift(friend);

@@ -90,6 +90,7 @@ export default defineStore('chatStore', {
 		},
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
+			if (!chat) return;
 			chat.messages.forEach((m) => {
 				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读

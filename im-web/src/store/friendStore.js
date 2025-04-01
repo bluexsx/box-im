@@ -28,25 +28,16 @@ export default {
 			})
 		},
 		activeFriend(state, idx) {
-			if (idx < 0) {
-				state.activeFriend = null;
-			} else {
-				state.activeFriend = state.friends[idx];
-			}
+			state.activeFriend = idx > 0 ? state.friends[idx] : null;
 		},
 		removeFriend(state, id) {
-			for (let idx in state.friends) {
-				if (id && state.friends[idx].id == id) {
-					state.friends[idx].deleted = true;
-					if (state.friends[idx] == state.activeFriend) {
-						state.activeFriend = null;
-					}
-					return;
-				}
+			state.friends.filter(f => f.id == id).forEach(f => f.deleted = true);
+			if (state.activeFriend && id == state.activeFriend.id) {
+				state.activeFriend = null;
 			}
 		},
 		addFriend(state, friend) {
-			if (state.friends.find((f) => f.id == friend.id)) {
+			if (state.friends.some((f) => f.id == friend.id)) {
 				this.commit("updateFriend", friend)
 			} else {
 				state.friends.unshift(friend);
@@ -119,10 +110,10 @@ export default {
 	},
 	getters: {
 		isFriend: (state) => (userId) => {
-			return state.friends.filter((f)=>!f.deleted).some((f)=>f.id == userId);
+			return state.friends.filter((f) => !f.deleted).some((f) => f.id == userId);
 		},
 		findFriend: (state) => (userId) => {
-			return state.friends.find((f)=>f.id == userId);
+			return state.friends.find((f) => f.id == userId);
 		}
 	}
 }
