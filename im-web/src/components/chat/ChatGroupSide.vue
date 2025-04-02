@@ -109,7 +109,6 @@ export default {
           method: 'delete'
         }).then(() => {
           this.$store.commit("removeGroup", this.group.id);
-          this.$store.commit("activeGroup", -1);
           this.$store.commit("removeGroupChat", this.group.id);
         });
       })

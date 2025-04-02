@@ -63,17 +63,12 @@ export default {
 			this.$emit(item.key.toLowerCase(), this.msgInfo);
 		}
 	},
-	computed: {
-		friend() {
-			return this.$store.state.friendStore.friends[this.index];
-		}
-	},
 	props: {
 		active: {
 			type: Boolean
 		},
-		index: {
-			type: Number
+		friend: {
+			type: Object
 		},
 		menu: {
 			type: Boolean,

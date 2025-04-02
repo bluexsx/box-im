@@ -10,11 +10,14 @@
 				<add-friend :dialogVisible="showAddFriend" @close="onCloseAddFriend"></add-friend>
 			</div>
 			<el-scrollbar class="friend-list-items">
-				<div v-for="(friend, index) in $store.state.friendStore.friends" :key="index">
-					<friend-item  v-if="!friend.deleted" v-show="friend.nickName.includes(searchText)" :index="index"
-						:active="friend === $store.state.friendStore.activeFriend" @chat="onSendMessage(friend)"
-						@delete="onDelItem(friend)" @click.native="onActiveItem(friend, index)">
-					</friend-item>
+				<div v-for="(friends, i) in friendValues" :key="i">
+					<div class="index-title">{{ friendKeys[i] }}</div>
+					<div v-for="(friend) in friends" :key="friend.id">
+						<friend-item :friend="friend" :active="friend.id === activeFriend.id" @chat="onSendMessage(friend)"
+							@delete="onDelFriend(friend)" @click.native="onActiveItem(friend)">
+						</friend-item>
+					</div>
+					<div v-if="i < friendValues.length - 1" class="divider"></div>
 				</div>
 			</el-scrollbar>
 		</el-aside>
@@ -33,7 +36,8 @@
 								</el-descriptions-item>
 								<el-descriptions-item label="昵称">{{ userInfo.nickName }}
 								</el-descriptions-item>
-								<el-descriptions-item label="性别">{{ userInfo.sex == 0 ? "男" : "女" }}</el-descriptions-item>
+								<el-descriptions-item label="性别">{{ userInfo.sex == 0 ? "男" : "女"
+								}}</el-descriptions-item>
 								<el-descriptions-item label="签名">{{ userInfo.signature }}</el-descriptions-item>
 							</el-descriptions>
 						</div>
@@ -43,7 +47,7 @@
 							<el-button v-show="!isFriend" icon="el-icon-plus" type="primary"
 								@click="onAddFriend(userInfo)">加为好友</el-button>
 							<el-button v-show="isFriend" icon="el-icon-delete" type="danger"
-								@click="onDelItem(userInfo, activeIdx)">删除好友</el-button>
+								@click="onDelFriend(userInfo)">删除好友</el-button>
 						</div>
 					</div>
 				</div>
@@ -56,6 +60,7 @@
 import FriendItem from "../components/friend/FriendItem.vue";
 import AddFriend from "../components/friend/AddFriend.vue";
 import HeadImage from "../components/common/HeadImage.vue";
+import { pinyin } from 'pinyin-pro';
 
 export default {
 	name: "friend",
@@ -69,9 +74,8 @@ export default {
 		return {
 			searchText: "",
 			showAddFriend: false,
-			activeIdx: -1,
 			userInfo: {},
-			friend: {}
+			activeFriend: {}
 		}
 	},
 	methods: {
@@ -81,13 +85,11 @@ export default {
 		onCloseAddFriend() {
 			this.showAddFriend = false;
 		},
-		onActiveItem(friend, idx) {
-			this.$store.commit("activeFriend", idx);
-			this.activeIdx = idx
-			this.friend = friend;
+		onActiveItem(friend) {
+			this.activeFriend = friend;
 			this.loadUserInfo(friend.id);
 		},
-		onDelItem(friend) {
+		onDelFriend(friend) {
 			this.$confirm(`确认删除'${friend.nickName}',并清空聊天记录吗?`, '确认解除?', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
@@ -128,7 +130,7 @@ export default {
 				showName: user.nickName,
 				headImage: user.headImageThumb,
 			};
-			console.log("chat:",chat)
+			console.log("chat:", chat)
 			this.$store.commit("openChat", chat);
 			this.$store.commit("activeChat", 0);
 			this.$router.push("/home/chat");
@@ -141,7 +143,7 @@ export default {
 		updateFriendInfo() {
 			if (this.isFriend) {
 				// store的数据不能直接修改，深拷贝一份store的数据
-				let friend = JSON.parse(JSON.stringify(this.friend));
+				let friend = JSON.parse(JSON.stringify(this.activeFriend));
 				friend.headImage = this.userInfo.headImageThumb;
 				friend.nickName = this.userInfo.nickName;
 				this.$store.commit("updateChatFromFriend", friend);
@@ -157,6 +159,18 @@ export default {
 				this.userInfo = userInfo;
 				this.updateFriendInfo();
 			})
+		},
+		firstLetter(strText) {
+			// 使用pinyin-pro库将中文转换为拼音
+			let pinyinOptions = {
+				toneType: 'none', // 无声调
+				type: 'normal' // 普通拼音
+			};
+			let pyText = pinyin(strText, pinyinOptions);
+			return pyText[0];
+		},
+		isEnglish(character) {
+			return /^[A-Za-z]+$/.test(character);
 		}
 	},
 	computed: {
@@ -165,6 +179,45 @@ export default {
 		},
 		isFriend() {
 			return this.$store.getters.isFriend(this.userInfo.id);
+		},
+		friendMap() {
+			// 按首字母分组
+			let map = new Map();
+			this.friendStore.friends.forEach((f) => {
+				if (f.deleted || (this.searchText && !f.showNickName.includes(this.searchText))) {
+					return;
+				}
+				let letter = this.firstLetter(f.showNickName).toUpperCase();
+				// 非英文一律为#组
+				if (!this.isEnglish(letter)) {
+					letter = "#"
+				}
+				if (f.online) {
+					letter = '在线'
+				}
+				if (map.has(letter)) {
+					map.get(letter).push(f);
+				} else {
+					map.set(letter, [f]);
+				}
+			})
+			// 排序
+			let arrayObj = Array.from(map);
+			arrayObj.sort((a, b) => {
+				// #组在最后面
+				if (a[0] == '#' || b[0] == '#') {
+					return b[0].localeCompare(a[0])
+				}
+				return a[0].localeCompare(b[0])
+			})
+			map = new Map(arrayObj.map(i => [i[0], i[1]]));
+			return map;
+		},
+		friendKeys() {
+			return Array.from(this.friendMap.keys());
+		},
+		friendValues() {
+			return Array.from(this.friendMap.values());
 		}
 	}
 }

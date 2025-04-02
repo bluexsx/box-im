@@ -8,10 +8,13 @@
         <el-button plain class="add-btn" icon="el-icon-plus" title="创建群聊" @click="onCreateGroup()"></el-button>
       </div>
       <el-scrollbar class="group-list-items">
-        <div v-for="(group, index) in groupStore.groups" :key="index">
-          <group-item v-show="!group.quit && group.showGroupName.includes(searchText)" :group="group"
-            :active="group === groupStore.activeGroup" @click.native="onActiveItem(group, index)">
-          </group-item>
+        <div v-for="(groups, i) in groupValues" :key="i">
+          <div class="index-title">{{ groupKeys[i] }}</div>
+          <div v-for="group in groups" :key="group.id">
+            <group-item :group="group" :active="group.id == activeGroup.id" @click.native="onActiveItem(group)">
+            </group-item>
+          </div>
+          <div v-if="i < groupValues.length - 1" class="divider"></div>
         </div>
       </el-scrollbar>
     </el-aside>
@@ -91,6 +94,7 @@ import FileUpload from '../components/common/FileUpload';
 import GroupMember from '../components/group/GroupMember.vue';
 import AddGroupMember from '../components/group/AddGroupMember.vue';
 import HeadImage from '../components/common/HeadImage.vue';
+import { pinyin } from 'pinyin-pro';
 
 export default {
   name: "group",
@@ -138,8 +142,7 @@ export default {
         })
       })
     },
-    onActiveItem(group, index) {
-      this.$store.commit("activeGroup", index);
+    onActiveItem(group) {
       // store数据不能直接修改，所以深拷贝一份内存
       this.activeGroup = JSON.parse(JSON.stringify(group));
       // 重新加载群成员
@@ -182,7 +185,6 @@ export default {
         }).then(() => {
           this.$message.success(`群聊'${this.activeGroup.name}'已解散`);
           this.$store.commit("removeGroup", this.activeGroup.id);
-          this.$store.commit("removeGroupChat", this.activeGroup.id);
           this.reset();
         });
       })
@@ -223,7 +225,6 @@ export default {
           this.reset();
         });
       })
-
     },
     onSendMessage() {
       let chat = {
@@ -247,6 +248,18 @@ export default {
     reset() {
       this.activeGroup = {};
       this.groupMembers = [];
+    },
+    firstLetter(strText) {
+      // 使用pinyin-pro库将中文转换为拼音
+      let pinyinOptions = {
+        toneType: 'none', // 无声调
+        type: 'normal' // 普通拼音
+      };
+      let pyText = pinyin(strText, pinyinOptions);
+      return pyText[0];
+    },
+    isEnglish(character) {
+      return /^[A-Za-z]+$/.test(character);
     }
   },
   computed: {
@@ -262,6 +275,42 @@ export default {
     },
     imageAction() {
       return `/image/upload`;
+    },
+    groupMap() {
+      // 按首字母分组
+      let map = new Map();
+      this.groupStore.groups.forEach((g) => {
+        if (g.quit || (this.searchText && !g.showGroupName.includes(this.searchText))) {
+          return;
+        }
+        let letter = this.firstLetter(g.showGroupName).toUpperCase();
+        // 非英文一律为#组
+        if (!this.isEnglish(letter)) {
+          letter = "#"
+        }
+        if (map.has(letter)) {
+          map.get(letter).push(g);
+        } else {
+          map.set(letter, [g]);
+        }
+      })
+      // 排序
+      let arrayObj = Array.from(map);
+      arrayObj.sort((a, b) => {
+        // #组在最后面
+        if (a[0] == '#' || b[0] == '#') {
+          return b[0].localeCompare(a[0])
+        }
+        return a[0].localeCompare(b[0])
+      })
+      map = new Map(arrayObj.map(i => [i[0], i[1]]));
+      return map;
+    },
+    groupKeys() {
+      return Array.from(this.groupMap.keys());
+    },
+    groupValues() {
+      return Array.from(this.groupMap.values());
     }
   }
 }

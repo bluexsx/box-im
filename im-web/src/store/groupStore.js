@@ -2,15 +2,11 @@ import http from '../api/httpRequest.js'
 
 export default {
 	state: {
-		groups: [],
-		activeGroup: null,
+		groups: []
 	},
 	mutations: {
 		setGroups(state, groups) {
 			state.groups = groups;
-		},
-		activeGroup(state, idx) {
-			state.activeGroup = idx > 0 ? state.groups[idx] : null;
 		},
 		addGroup(state, group) {
 			if (state.groups.some((g) => g.id == group.id)) {
@@ -21,9 +17,6 @@ export default {
 		},
 		removeGroup(state, id) {
 			state.groups.filter(g => g.id == id).forEach(g => g.quit = true);
-			if (state.activeGroup && id == state.activeGroup.id) {
-				state.activeGroup = null;
-			}
 		},
 		updateGroup(state, group) {
 			state.groups.forEach((g, idx) => {
@@ -35,7 +28,6 @@ export default {
 		},
 		clear(state) {
 			state.groups = [];
-			state.activeGroup = null;
 		}
 	},
 	actions: {

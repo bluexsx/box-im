@@ -18,8 +18,12 @@ export default defineStore('chatStore', {
 			cacheChats = [];
 			this.chats = [];
 			for (let chat of chatsData.chats) {
-				// 暂存至缓冲区
 				chat.stored = false;
+				// 清理多余的消息，避免消息过多导致卡顿
+				if (UNI_APP.MAX_MESSAGE_SIZE > 0 && chat.messages.length > UNI_APP.MAX_MESSAGE_SIZE) {
+					chat.messages = chat.messages.slice(0, UNI_APP.MAX_MESSAGE_SIZE);
+				}
+				// 暂存至缓冲区
 				cacheChats.push(JSON.parse(JSON.stringify(chat)));
 				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
 				if (this.chats.length < 15) {

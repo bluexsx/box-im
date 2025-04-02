@@ -5,7 +5,6 @@ export default {
 
 	state: {
 		friends: [],
-		activeFriend: null,
 		timer: null
 	},
 	mutations: {
@@ -27,14 +26,8 @@ export default {
 				}
 			})
 		},
-		activeFriend(state, idx) {
-			state.activeFriend = idx > 0 ? state.friends[idx] : null;
-		},
 		removeFriend(state, id) {
 			state.friends.filter(f => f.id == id).forEach(f => f.deleted = true);
-			if (state.activeFriend && id == state.activeFriend.id) {
-				state.activeFriend = null;
-			}
 		},
 		addFriend(state, friend) {
 			if (state.friends.some((f) => f.id == friend.id)) {
@@ -89,7 +82,6 @@ export default {
 			state.timer && clearTimeout(state.timer);
 			state.friends = [];
 			state.timer = null;
-			state.activeFriend = [];
 		}
 	},
 	actions: {
