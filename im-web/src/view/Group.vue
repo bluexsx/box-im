@@ -67,20 +67,22 @@
             </el-form>
           </div>
           <el-divider content-position="center"></el-divider>
-          <div class="group-member-list">
-            <div v-for="(member) in groupMembers" :key="member.id">
-              <group-member v-show="!member.quit" class="group-member" :member="member"
-                :showDel="isOwner && member.userId != activeGroup.ownerId" @del="onKick"></group-member>
-            </div>
-            <div class="group-invite">
-              <div class="invite-member-btn" title="邀请好友进群聊" @click="onInviteMember()">
-                <i class="el-icon-plus"></i>
+          <el-scrollbar ref="scrollbar" :style="'height: ' + scrollHeight + 'px'">
+            <div class="group-member-list">
+              <div class="group-invite">
+                <div class="invite-member-btn" title="邀请好友进群聊" @click="onInviteMember()">
+                  <i class="el-icon-plus"></i>
+                </div>
+                <div class="invite-member-text">邀请</div>
+                <add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id" :members="groupMembers"
+                  @reload="loadGroupMembers" @close="onCloseAddGroupMember"></add-group-member>
               </div>
-              <div class="invite-member-text">邀请</div>
-              <add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id" :members="groupMembers"
-                @reload="loadGroupMembers" @close="onCloseAddGroupMember"></add-group-member>
+              <div v-for="(member, idx) in showMembers" :key="member.id">
+                <group-member v-if="idx < showMaxIdx" class="group-member" :member="member"
+                  :showDel="isOwner && member.userId != activeGroup.ownerId" @del="onKick"></group-member>
+              </div>
             </div>
-          </div>
+          </el-scrollbar>
         </div>
       </div>
     </el-container>
@@ -112,6 +114,7 @@ export default {
       activeGroup: {},
       groupMembers: [],
       showAddGroupMember: false,
+      showMaxIdx: 150,
       rules: {
         name: [{
           required: true,
@@ -143,6 +146,7 @@ export default {
       })
     },
     onActiveItem(group) {
+      this.showMaxIdx = 150;
       // store数据不能直接修改，所以深拷贝一份内存
       this.activeGroup = JSON.parse(JSON.stringify(group));
       // 重新加载群成员
@@ -188,7 +192,6 @@ export default {
           this.reset();
         });
       })
-
     },
     onKick(member) {
       this.$confirm(`确定将成员'${member.showNickName}'移出群聊吗？`, '确认移出?', {
@@ -236,6 +239,15 @@ export default {
       this.$store.commit("openChat", chat);
       this.$store.commit("activeChat", 0);
       this.$router.push("/home/chat");
+    },
+    onScroll(e) {
+      const scrollbar = e.target;
+      // 滚到底部
+      if (scrollbar.scrollTop + scrollbar.clientHeight >= scrollbar.scrollHeight - 30) {
+        if (this.showMaxIdx < this.showMembers.length) {
+          this.showMaxIdx += 50;
+        }
+      }
     },
     loadGroupMembers() {
       this.$http({
@@ -311,7 +323,17 @@ export default {
     },
     groupValues() {
       return Array.from(this.groupMap.values());
+    },
+    showMembers() {
+      return this.groupMembers.filter((m) => !m.quit)
+    },
+    scrollHeight() {
+      return Math.min(300, 80 + this.showMembers.length / 10 * 80);
     }
+  },
+  mounted() {
+    let scrollWrap = this.$refs.scrollbar.$el.querySelector('.el-scrollbar__wrap');
+    scrollWrap.addEventListener('scroll', this.onScroll);
   }
 }
 </script>

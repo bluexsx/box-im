@@ -41,8 +41,9 @@
 										<i class="el-icon-wallet"></i>
 									</file-upload>
 								</div>
-								<div title="回执消息" v-show="chat.type == 'GROUP'" class="icon iconfont icon-receipt"
-									:class="isReceipt ? 'chat-tool-active' : ''" @click="onSwitchReceipt">
+								<div title="回执消息" v-show="chat.type == 'GROUP' && memberSize <= 500"
+									class="icon iconfont icon-receipt" :class="isReceipt ? 'chat-tool-active' : ''"
+									@click="onSwitchReceipt">
 								</div>
 								<div title="发送语音" class="el-icon-microphone" @click="showRecordBox()">
 								</div>
@@ -67,7 +68,7 @@
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="260px" v-if="showSide">
+					<el-aside class="chat-group-side-box" width="320px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>
@@ -510,7 +511,7 @@ export default {
 			this.$http({
 				url: url,
 				method: 'put'
-			}).then(() => {})
+			}).then(() => { })
 		},
 		loadReaded(fId) {
 			this.$http({
@@ -549,7 +550,7 @@ export default {
 				friend.showNickName = friend.remarkNickName ? friend.remarkNickName : friend.nickName;
 				this.$store.commit("updateChatFromFriend", friend);
 				this.$store.commit("updateFriend", friend);
-			}else {
+			} else {
 				this.$store.commit("updateChatFromUser", this.userInfo);
 			}
 		},
@@ -656,7 +657,7 @@ export default {
 			return this.$store.getters.isFriend(this.userInfo.id);
 		},
 		friend() {
-			return  this.$store.getters.findFriend(this.userInfo.id)
+			return this.$store.getters.findFriend(this.userInfo.id)
 		},
 		title() {
 			let title = this.chat.showName;
@@ -681,13 +682,16 @@ export default {
 		isBanned() {
 			return (this.chat.type == "PRIVATE" && this.userInfo.isBanned) ||
 				(this.chat.type == "GROUP" && this.group.isBanned)
+		},
+		memberSize() {
+			return this.groupMembers.filter(m => !m.quit).length;
 		}
 	},
 	watch: {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-						newChat.targetId != oldChat.targetId)) {
+					newChat.targetId != oldChat.targetId)) {
 					if (this.chat.type == "GROUP") {
 						this.loadGroup(this.chat.targetId);
 					} else {

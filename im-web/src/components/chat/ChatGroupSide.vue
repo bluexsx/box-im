@@ -6,20 +6,22 @@
       </el-input>
     </div>
     <div class="group-side-scrollbar">
-      <div v-show="!group.quit" class="group-side-member-list">
-        <div class="group-side-invite">
-          <div class="invite-member-btn" title="邀请好友进群聊" @click="showAddGroupMember = true">
-            <i class="el-icon-plus"></i>
+      <el-scrollbar v-show="!group.quit" ref="scrollbar" :style="'height: ' + scrollHeight + 'px'">
+        <div class="group-side-member-list">
+          <div class="group-side-invite">
+            <div class="invite-member-btn" title="邀请好友进群聊" @click="showAddGroupMember = true">
+              <i class="el-icon-plus"></i>
+            </div>
+            <div class="invite-member-text">邀请</div>
+            <add-group-member :visible="showAddGroupMember" :groupId="group.id" :members="groupMembers"
+              @reload="$emit('reload')" @close="showAddGroupMember = false"></add-group-member>
           </div>
-          <div class="invite-member-text">邀请</div>
-          <add-group-member :visible="showAddGroupMember" :groupId="group.id" :members="groupMembers"
-            @reload="$emit('reload')" @close="showAddGroupMember = false"></add-group-member>
+          <div v-for="(member, idx) in showMembers" :key="member.id">
+            <group-member v-if="idx < showMaxIdx" class="group-side-member" :member="member"
+              :showDel="false"></group-member>
+          </div>
         </div>
-        <div v-for="(member) in groupMembers" :key="member.id">
-          <group-member class="group-side-member" v-show="!member.quit && member.showNickName.includes(searchText)"
-            :member="member" :showDel="false"></group-member>
-        </div>
-      </div>
+      </el-scrollbar>
       <el-divider v-if="!group.quit" content-position="center"></el-divider>
       <el-form labelPosition="top" class="group-side-form" :model="group" size="small">
         <el-form-item label="群聊名称">
@@ -62,7 +64,8 @@ export default {
     return {
       searchText: "",
       editing: false,
-      showAddGroupMember: false
+      showAddGroupMember: false,
+      showMaxIdx: 50
     }
   },
   props: {
@@ -113,7 +116,15 @@ export default {
         });
       })
     },
-
+    onScroll(e) {
+      const scrollbar = e.target;
+      // 滚到底部
+      if (scrollbar.scrollTop + scrollbar.clientHeight >= scrollbar.scrollHeight - 30) {
+        if (this.showMaxIdx < this.showMembers.length) {
+          this.showMaxIdx += 30;
+        }
+      }
+    }
   },
   computed: {
     ownerName() {
@@ -122,8 +133,17 @@ export default {
     },
     isOwner() {
       return this.group.ownerId == this.$store.state.userStore.userInfo.id;
+    },
+    showMembers() {
+      return this.groupMembers.filter((m) => !m.quit && m.showNickName.includes(this.searchText))
+    },
+    scrollHeight() {
+      return Math.min(400, 80 + this.showMembers.length / 5 * 80);
     }
-
+  },
+  mounted() {
+    let scrollWrap = this.$refs.scrollbar.$el.querySelector('.el-scrollbar__wrap');
+    scrollWrap.addEventListener('scroll', this.onScroll);
   }
 }
 </script>

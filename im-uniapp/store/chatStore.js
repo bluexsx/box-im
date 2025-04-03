@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { MESSAGE_TYPE, MESSAGE_STATUS } from '@/common/enums.js';
 import useUserStore from './userStore';
+import UNI_APP from '../.env';
 
 let cacheChats = [];
 export default defineStore('chatStore', {

@@ -5,15 +5,14 @@
 				<el-input placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="suffix"> </i>
 				</el-input>
-				<el-scrollbar style="height:400px;">
-					<div v-for="m in members" :key="m.userId">
-						<group-member-item v-show="!m.quit && m.showNickName.includes(searchText)" :member="m"
-							@click.native="onClickMember(m)">
-							<el-checkbox :disabled="m.locked" v-model="m.checked" @change="onChange(m)"
+				<virtual-scroller class="scroll-box" :items="showMembers">
+					<template v-slot="{ item }">
+						<group-member-item :member="item" @click.native="onClickMember(item)">
+							<el-checkbox :disabled="item.locked" v-model="item.checked" @change="onChange(item)"
 								@click.native.stop=""></el-checkbox>
 						</group-member-item>
-					</div>
-				</el-scrollbar>
+					</template>
+				</virtual-scroller>
 			</div>
 			<div class="arrow el-icon-d-arrow-right"></div>
 			<div class="right-box">
@@ -33,6 +32,7 @@
 </template>
 
 <script>
+import VirtualScroller from '../common/VirtualScroller.vue';
 import GroupMemberItem from './GroupMemberItem.vue';
 import GroupMember from './GroupMember.vue';
 
@@ -40,7 +40,8 @@ export default {
 	name: "addGroupMember",
 	components: {
 		GroupMemberItem,
-		GroupMember
+		GroupMember,
+		VirtualScroller
 	},
 	data() {
 		return {
@@ -106,6 +107,9 @@ export default {
 				}
 			})
 			return ids;
+		},
+		showMembers() {
+			return this.members.filter((m) => !m.hide && !m.quit && m.showNickName.includes(this.searchText))
 		}
 	}
 
@@ -116,10 +120,17 @@ export default {
 .group-member-selector {
 	display: flex;
 
+
 	.left-box {
 		width: 48%;
 		overflow: hidden;
 		border: var(--im-border);
+
+
+		.scroll-box {
+			height: 400px;
+		}
+
 
 		.el-input__inner {
 			border: none;

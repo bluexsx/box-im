@@ -14,6 +14,7 @@ import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.CommaTextUtils;
+import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.GroupMessageDTO;
 import com.bx.implatform.entity.Group;
@@ -64,6 +65,10 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 群聊成员列表
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(group.getId());
+        if (dto.getReceipt() && userIds.size() > Constant.LARGE_GROUP_MEMBER) {
+            // 大群的回执消息过于消耗资源，不允许发送
+            throw new GlobalException(String.format("当前群聊大于%s人,不支持发送回执消息", Constant.LARGE_GROUP_MEMBER));
+        }
         // 不用发给自己
         userIds = userIds.stream().filter(id -> !session.getUserId().equals(id)).collect(Collectors.toList());
         // 保存消息

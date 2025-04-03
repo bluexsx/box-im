@@ -14,9 +14,15 @@ public final class Constant {
      * 最大上传文件大小
      */
     public static final Long MAX_FILE_SIZE = 20 * 1024 * 1024L;
+
     /**
      * 群聊最大人数
      */
-    public static final Long MAX_GROUP_MEMBER = 500L;
+    public static final Long MAX_GROUP_MEMBER = 10000L;
+
+    /**
+     * 回执消息限制最大人数
+     */
+    public static final Long LARGE_GROUP_MEMBER = 500L;
 
 }

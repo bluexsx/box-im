@@ -71,7 +71,7 @@
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音消息</view>
 				</view>
-				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
+				<view v-if="chat.type == 'GROUP' && memberSize<=500" class="chat-tools-item" @click="switchReceipt()">
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
@@ -886,6 +886,9 @@ export default {
 				}
 			})
 			return atUsers;
+		},
+		memberSize() {
+			return this.groupMembers.filter(m => !m.quit).length;
 		}
 	},
 	watch: {
