@@ -7,8 +7,8 @@
 						radius="10%" @click.native="showFullImage()"> </head-image>
 				</div>
 				<div>
-					<el-descriptions :column="1" :title="user.userName" class="user-info-items">
-						<el-descriptions-item label="昵称">{{ user.nickName }}
+					<el-descriptions :column="1" :title="user.nickName" class="user-info-items">
+						<el-descriptions-item label="用户名">{{ user.userName }}
 						</el-descriptions-item>
 						<el-descriptions-item label="签名">{{ user.signature }}
 						</el-descriptions-item>

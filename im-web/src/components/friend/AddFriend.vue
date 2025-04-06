@@ -12,13 +12,13 @@
 						<head-image :name="user.nickName" :url="user.headImage" :online="user.online"></head-image>
 					</div>
 					<div class="add-friend-text">
-						<div class="text-user-name">
-							<div>{{ user.userName }}</div>
+						<div class="nick-name">
+							<div>{{ user.nickName }}</div>
 							<div :class="user.online ? 'online-status  online' : 'online-status'">{{
 								user.online ? "[在线]" :"[离线]"}}</div>
 						</div>
-						<div class="text-nick-name">
-							<div>昵称:{{ user.nickName }}</div>
+						<div class="user-name">
+							<div>用户名:{{ user.userName }}</div>
 						</div>
 					</div>
 					<el-button type="success" size="mini" v-show="!isFriend(user.id)"
@@ -111,7 +111,7 @@ export default {
 			flex-shrink: 0;
 			overflow: hidden;
 
-			.text-user-name {
+			.nick-name {
 				display: flex;
 				flex-direction: row;
 				font-weight: 600;
@@ -128,7 +128,7 @@ export default {
 				}
 			}
 
-			.text-nick-name {
+			.user-name {
 				display: flex;
 				flex-direction: row;
 				font-size: 12px;

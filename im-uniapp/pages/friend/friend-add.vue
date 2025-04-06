@@ -14,11 +14,11 @@
 						<head-image :id="user.id" :name="user.nickName" :online="user.online"
 							:url="user.headImage"></head-image>
 						<view class="user-info">
-							<view class="user-name">
-								<view>{{ user.userName }}</view>
+							<view class="nick-name">
+								<view>{{ user.nickName }}</view>
 								<uni-tag v-if="user.status == 1" circle type="error" text="已注销" size="small"></uni-tag>
 							</view>
-							<view class="nick-name">{{ `昵称:${user.nickName}`}}</view>
+							<view class="user-name">用户名:{{ `${user.userName}`}}</view>
 						</view>
 						<view class="user-btns">
 							<button type="primary" v-show="!isFriend(user.id)" size="mini"
@@ -113,7 +113,7 @@ export default {
 				white-space: nowrap;
 				overflow: hidden;
 
-				.user-name {
+				.nick-name {
 					display: flex;
 					flex: 1;
 					font-size: $im-font-size-large;
@@ -128,7 +128,7 @@ export default {
 					}
 				}
 
-				.nick-name {
+				.user-name {
 					display: flex;
 					font-size: $im-font-size-smaller;
 					color: $im-text-color-lighter;

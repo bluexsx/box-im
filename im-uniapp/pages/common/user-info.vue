@@ -9,17 +9,17 @@
 				<view class="info-item">
 					<view class="info-primary">
 						<text class="info-username">
-							{{ userInfo.userName }}
+							{{ userInfo.nickName }}
 						</text>
 						<text v-show="userInfo.sex == 0" class="iconfont icon-man" color="darkblue"></text>
 						<text v-show="userInfo.sex == 1" class="iconfont icon-girl" color="darkred"></text>
 					</view>
 					<view class="info-text">
 						<text class="label-text">
-							昵称:
+							用户名:
 						</text>
 						<text class="content-text">
-							{{ userInfo.nickName }}
+							{{ userInfo.userName }}
 						</text>
 					</view>
 					<view class="info-text">
