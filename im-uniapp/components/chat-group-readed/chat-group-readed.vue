@@ -7,26 +7,26 @@
 			</view>
 			<view class="content">
 				<view v-if="current === 0">
-					<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-						<view v-for="m in readedMembers" :key="m.userId">
+					<virtual-scroller class="scroll-bar" :items="readedMembers">
+						<template v-slot="{ item }">
 							<view class="member-item">
-								<head-image :name="m.aliasName" :online="m.online" :url="m.headImage"
+								<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
 									:size="90"></head-image>
-								<view class="member-name">{{ m.aliasName }}</view>
+								<view class="member-name">{{ item.showNickName }}</view>
 							</view>
-						</view>
-					</scroll-view>
+						</template>
+					</virtual-scroller>
 				</view>
 				<view v-if="current === 1">
-					<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-						<view v-for="m in unreadMembers" :key="m.userId">
+					<virtual-scroller class="scroll-bar" :items="unreadMembers">
+						<template v-slot="{ item }">
 							<view class="member-item">
-								<head-image :name="m.aliasName" :online="m.online" :url="m.headImage"
+								<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
 									:size="90"></head-image>
-								<view class="member-name">{{ m.aliasName }}</view>
+								<view class="member-name">{{ item.showNickName }}</view>
 							</view>
-						</view>
-					</scroll-view>
+						</template>
+					</virtual-scroller>
 				</view>
 			</view>
 		</view>

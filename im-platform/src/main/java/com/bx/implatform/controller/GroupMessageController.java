@@ -30,9 +30,8 @@ public class GroupMessageController {
 
     @DeleteMapping("/recall/{id}")
     @Operation(summary = "撤回消息", description = "撤回群聊消息")
-    public Result<Long> recallMessage(@NotNull(message = "消息id不能为空") @PathVariable Long id) {
-        groupMessageService.recallMessage(id);
-        return ResultUtils.success();
+    public Result<GroupMessageVO> recallMessage(@NotNull(message = "消息id不能为空") @PathVariable Long id) {
+        return ResultUtils.success(groupMessageService.recallMessage(id));
     }
 
     @GetMapping("/pullOfflineMessage")

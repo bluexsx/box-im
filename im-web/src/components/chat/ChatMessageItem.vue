@@ -1,13 +1,13 @@
 <template>
 	<div class="chat-msg-item">
 		<div class="chat-msg-tip"
-			v-if="msgInfo.type == $enums.MESSAGE_TYPE.RECALL || msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
+			v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
 			{{ msgInfo.content }}
 		</div>
-		<div class="chat-msg-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
+		<div class="chat-msg-tip" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
 			{{ $date.toTimeText(msgInfo.sendTime) }}
 		</div>
-		<div class="chat-msg-normal" v-if="isNormal" :class="{ 'chat-msg-mine': mine }">
+		<div class="chat-msg-normal" v-else-if="isNormal" :class="{ 'chat-msg-mine': mine }">
 			<div class="head-image">
 				<head-image :name="showName" :size="38" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
@@ -207,7 +207,7 @@ export default {
 		htmlText() {
 			let color = this.msgInfo.selfSend ? 'white' : '';
 			let text = this.$url.replaceURLWithHTMLLinks(this.msgInfo.content, color)
-			return this.$emo.transform(text)
+			return this.$emo.transform(text,'emoji-normal')
 		}
 	}
 }

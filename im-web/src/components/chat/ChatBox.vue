@@ -41,8 +41,9 @@
 										<i class="el-icon-wallet"></i>
 									</file-upload>
 								</div>
-								<div title="回执消息" v-show="chat.type == 'GROUP'" class="icon iconfont icon-receipt"
-									:class="isReceipt ? 'chat-tool-active' : ''" @click="onSwitchReceipt">
+								<div title="回执消息" v-show="chat.type == 'GROUP' && memberSize <= 500"
+									class="icon iconfont icon-receipt" :class="isReceipt ? 'chat-tool-active' : ''"
+									@click="onSwitchReceipt">
 								</div>
 								<div title="发送语音" class="el-icon-microphone" @click="showRecordBox()">
 								</div>
@@ -67,7 +68,7 @@
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="260px" v-if="showSide">
+					<el-aside class="chat-group-side-box" width="320px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>
@@ -117,7 +118,7 @@ export default {
 	},
 	data() {
 		return {
-			friend: {},
+			userInfo: {},
 			group: {},
 			groupMembers: [],
 			sendImageUrl: "",
@@ -490,13 +491,10 @@ export default {
 				this.$http({
 					url: url,
 					method: 'delete'
-				}).then(() => {
+				}).then((m) => {
 					this.$message.success("消息已撤回");
-					msgInfo = JSON.parse(JSON.stringify(msgInfo));
-					msgInfo.type = 10;
-					msgInfo.content = '你撤回了一条消息';
-					msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-					this.$store.commit("insertMessage", [msgInfo, this.chat]);
+					m.selfSend = true;
+					this.$store.commit("recallMessage", [m, this.chat]);
 				})
 			});
 		},
@@ -513,7 +511,7 @@ export default {
 			this.$http({
 				url: url,
 				method: 'put'
-			}).then(() => {})
+			}).then(() => { })
 		},
 		loadReaded(fId) {
 			this.$http({
@@ -543,15 +541,27 @@ export default {
 				this.groupMembers = groupMembers;
 			});
 		},
-		loadFriend(friendId) {
-			// 获取对方最新信息
-			this.$http({
-				url: `/user/find/${friendId}`,
-				method: 'get'
-			}).then((friend) => {
-				this.friend = friend;
+		updateFriendInfo() {
+			if (this.isFriend) {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				let friend = JSON.parse(JSON.stringify(this.friend));
+				friend.headImage = this.userInfo.headImageThumb;
+				friend.nickName = this.userInfo.nickName;
+				friend.showNickName = friend.remarkNickName ? friend.remarkNickName : friend.nickName;
 				this.$store.commit("updateChatFromFriend", friend);
 				this.$store.commit("updateFriend", friend);
+			} else {
+				this.$store.commit("updateChatFromUser", this.userInfo);
+			}
+		},
+		loadFriend(friendId) {
+			// 获取好友信息
+			this.$http({
+				url: `/user/find/${friendId}`,
+				method: 'GET'
+			}).then((userInfo) => {
+				this.userInfo = userInfo;
+				this.updateFriendInfo();
 			})
 		},
 		showName(msgInfo) {
@@ -572,7 +582,6 @@ export default {
 			}
 		},
 		resetEditor() {
-
 			this.$nextTick(() => {
 				this.$refs.chatInputEditor.clear();
 				this.$refs.chatInputEditor.focus();
@@ -628,7 +637,7 @@ export default {
 			}
 			if (this.chat.type == "PRIVATE") {
 				msgInfo.recvId = this.mine.id
-				msgInfo.content = "该用户已被管理员封禁,原因:" + this.friend.reason
+				msgInfo.content = "该用户已被管理员封禁,原因:" + this.userInfo.reason
 			} else {
 				msgInfo.groupId = this.group.id;
 				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
@@ -643,6 +652,12 @@ export default {
 	computed: {
 		mine() {
 			return this.$store.state.userStore.userInfo;
+		},
+		isFriend() {
+			return this.$store.getters.isFriend(this.userInfo.id);
+		},
+		friend() {
+			return this.$store.getters.findFriend(this.userInfo.id)
 		},
 		title() {
 			let title = this.chat.showName;
@@ -665,15 +680,18 @@ export default {
 			return this.chat.messages.length;
 		},
 		isBanned() {
-			return (this.chat.type == "PRIVATE" && this.friend.isBanned) ||
+			return (this.chat.type == "PRIVATE" && this.userInfo.isBanned) ||
 				(this.chat.type == "GROUP" && this.group.isBanned)
+		},
+		memberSize() {
+			return this.groupMembers.filter(m => !m.quit).length;
 		}
 	},
 	watch: {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-						newChat.targetId != oldChat.targetId)) {
+					newChat.targetId != oldChat.targetId)) {
 					if (this.chat.type == "GROUP") {
 						this.loadGroup(this.chat.targetId);
 					} else {
@@ -800,72 +818,6 @@ export default {
 			flex-direction: column;
 			height: 100%;
 			background-color: white !important;
-
-			.send-text-area {
-				box-sizing: border-box;
-				padding: 5px;
-				width: 100%;
-				flex: 1;
-				resize: none;
-				font-size: 16px;
-				outline: none;
-
-				text-align: left;
-				line-height: 30px;
-
-				&:before {
-					content: attr(placeholder);
-					color: gray;
-				}
-
-				.at {
-					color: blue;
-					font-weight: 600;
-				}
-
-				.receipt {
-					color: darkblue;
-					font-size: 15px;
-					font-weight: 600;
-				}
-
-				.emo {
-					width: 30px;
-					height: 30px;
-					vertical-align: bottom;
-				}
-			}
-
-			.send-image-area {
-				text-align: left;
-				border: #53a0e7 solid 1px;
-
-				.send-image-box {
-					position: relative;
-					display: inline-block;
-
-					.send-image {
-						max-height: 180px;
-						border: 1px solid #ccc;
-						border-radius: 2%;
-						margin: 2px;
-					}
-
-					.send-image-close {
-						position: absolute;
-						padding: 3px;
-						right: 7px;
-						top: 7px;
-						color: white;
-						cursor: pointer;
-						font-size: 15px;
-						font-weight: 600;
-						background-color: #aaa;
-						border-radius: 50%;
-						border: 1px solid #ccc;
-					}
-				}
-			}
 
 			.send-btn-area {
 				padding: 10px;

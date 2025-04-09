@@ -20,7 +20,11 @@ public enum IMTerminalType {
     /**
      * pc
      */
-    PC(2, "pc");
+    PC(2, "pc"),
+    /**
+     * 未知
+     */
+    UNKNOW(-1, "未知");
 
     private final Integer code;
 

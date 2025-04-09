@@ -31,7 +31,6 @@
 </template>
 
 <script>
-
 export default {
 	data() {
 		return {
@@ -43,16 +42,16 @@ export default {
 				chatIdx: -1,
 				isTouchMove: false,
 				items: [{
-					key: 'DELETE',
-					name: '删除该聊天',
-					icon: 'trash',
-					color: '#e64e4e'
-				},
-				{
-					key: 'TOP',
-					name: '置顶该聊天',
-					icon: 'arrow-up'
-				}
+						key: 'DELETE',
+						name: '删除该聊天',
+						icon: 'trash',
+						color: '#e64e4e'
+					},
+					{
+						key: 'TOP',
+						name: '置顶该聊天',
+						icon: 'arrow-up'
+					}
 				]
 			}
 		}
@@ -114,8 +113,12 @@ export default {
 		loading() {
 			return this.chatStore.isLoading();
 		},
-		initializing(){
+		initializing() {
 			return !getApp().$vm.isInit;
+		},
+		showChats() {
+			this.chatStore.chats.filter((chat) => !chat.delete && chat.showName && chat.showName.includes(this
+				.searchText))
 		}
 	},
 	watch: {
@@ -129,7 +132,7 @@ export default {
 }
 </script>
 
-<style  lang="scss">
+<style lang="scss">
 .tab-page {
 	position: relative;
 	display: flex;
@@ -149,7 +152,6 @@ export default {
 		width: 100%;
 		height: 120rpx;
 		background: white;
-
 		color: $im-text-color-lighter;
 
 		.loading-box {

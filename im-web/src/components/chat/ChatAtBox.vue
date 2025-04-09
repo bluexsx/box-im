@@ -51,6 +51,10 @@ export default {
 				})
 			}
 			this.members.forEach((m) => {
+				// 只显示100条
+				if (this.showMembers.length > 100) {
+					return;
+				}
 				if (m.userId != userId && !m.quit && m.showNickName.startsWith(this.searchText)) {
 					this.showMembers.push(m);
 				}

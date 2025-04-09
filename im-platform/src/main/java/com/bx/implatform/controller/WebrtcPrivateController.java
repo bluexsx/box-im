@@ -1,6 +1,5 @@
 package com.bx.implatform.controller;
 
-import com.bx.implatform.annotation.OnlineCheck;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.WebrtcPrivateService;

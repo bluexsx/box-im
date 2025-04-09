@@ -19,17 +19,15 @@ import arrowBar from '@/components/bar/arrow-bar'
 import btnBar from '@/components/bar/btn-bar'
 import switchBar from '@/components/bar/switch-bar'
 // #ifdef H5
-// import VConsole from 'vconsole'
-// new VConsole();
-// #endif
-// #ifdef H5  
-import ImageResize from "quill-image-resize-mp";  
-import Quill from "quill";  
+import * as recorder from './common/recorder-h5';
+import ImageResize from "quill-image-resize-mp";
+import Quill from "quill"; 
+// 以下组件用于兼容部分手机聊天边框无法输入的问题
 window.Quill = Quill;  
 window.ImageResize = { default: ImageResize };  
-// #endif  
-// #ifdef H5
-import * as recorder from './common/recorder-h5';
+// 调试器
+// import VConsole from 'vconsole'
+// new VConsole();
 // #endif
 // #ifndef H5
 import * as recorder from './common/recorder-app';

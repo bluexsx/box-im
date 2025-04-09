@@ -5,7 +5,6 @@ export default {
 
 	state: {
 		friends: [],
-		activeFriend: null,
 		timer: null
 	},
 	mutations: {
@@ -27,24 +26,21 @@ export default {
 				}
 			})
 		},
-		activeFriend(state, idx) {
-			state.activeFriend = state.friends[idx];
-		},
-		removeFriend(state, idx) {
-			if (state.friends[idx] == state.activeFriend) {
-				state.activeFriend = null;
-			}
-			state.friends.splice(idx, 1);
+		removeFriend(state, id) {
+			state.friends.filter(f => f.id == id).forEach(f => f.deleted = true);
 		},
 		addFriend(state, friend) {
-			state.friends.push(friend);
+			if (state.friends.some((f) => f.id == friend.id)) {
+				this.commit("updateFriend", friend)
+			} else {
+				state.friends.unshift(friend);
+			}
 		},
 		refreshOnlineStatus(state) {
-			let userIds = [];
-			if (state.friends.length == 0) {
+			let userIds = state.friends.filter((f) => !f.deleted).map((f) => f.id);
+			if (userIds.length == 0) {
 				return;
 			}
-			state.friends.forEach((f) => { userIds.push(f.id) });
 			http({
 				url: '/user/terminal/online',
 				method: 'get',
@@ -52,7 +48,6 @@ export default {
 			}).then((onlineTerminals) => {
 				this.commit("setOnlineStatus", onlineTerminals);
 			})
-
 			// 30s后重新拉取
 			state.timer && clearTimeout(state.timer);
 			state.timer = setTimeout(() => {
@@ -87,7 +82,6 @@ export default {
 			state.timer && clearTimeout(state.timer);
 			state.friends = [];
 			state.timer = null;
-			state.activeFriend = [];
 		}
 	},
 	actions: {
@@ -100,10 +94,18 @@ export default {
 					context.commit("setFriends", friends);
 					context.commit("refreshOnlineStatus");
 					resolve()
-				}).catch((res) => {
+				}).catch(() => {
 					reject();
 				})
 			});
+		}
+	},
+	getters: {
+		isFriend: (state) => (userId) => {
+			return state.friends.filter((f) => !f.deleted).some((f) => f.id == userId);
+		},
+		findFriend: (state) => (userId) => {
+			return state.friends.find((f) => f.id == userId);
 		}
 	}
 }

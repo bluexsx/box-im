@@ -1,30 +1,22 @@
 import http from '../api/httpRequest.js'
 
 export default {
-
 	state: {
-		groups: [],
-		activeGroup: null,
+		groups: []
 	},
 	mutations: {
 		setGroups(state, groups) {
 			state.groups = groups;
 		},
-		activeGroup(state, idx) {
-			state.activeGroup = state.groups[idx];
-		},
 		addGroup(state, group) {
-			state.groups.unshift(group);
-		},
-		removeGroup(state, groupId) {
-			state.groups.forEach((g, idx) => {
-				if (g.id == groupId) {
-					state.groups.splice(idx, 1);
-				}
-			})
-			if (state.activeGroup && state.activeGroup.id == groupId) {
-				state.activeGroup = null;
+			if (state.groups.some((g) => g.id == group.id)) {
+				this.commit("updateGroup", group)
+			} else {
+				state.groups.unshift(group);
 			}
+		},
+		removeGroup(state, id) {
+			state.groups.filter(g => g.id == id).forEach(g => g.quit = true);
 		},
 		updateGroup(state, group) {
 			state.groups.forEach((g, idx) => {
@@ -36,7 +28,6 @@ export default {
 		},
 		clear(state) {
 			state.groups = [];
-			state.activeGroup = null;
 		}
 	},
 	actions: {
@@ -52,6 +43,11 @@ export default {
 					reject(res);
 				})
 			});
+		}
+	},
+	getters: {
+		findGroup: (state) => (id) => {
+			return state.groups.find((g) => g.id == id);
 		}
 	}
 }

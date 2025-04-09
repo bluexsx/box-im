@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { MESSAGE_TYPE, MESSAGE_STATUS } from '@/common/enums.js';
 import useUserStore from './userStore';
+import UNI_APP from '../.env';
 
 let cacheChats = [];
 export default defineStore('chatStore', {
@@ -18,8 +19,12 @@ export default defineStore('chatStore', {
 			cacheChats = [];
 			this.chats = [];
 			for (let chat of chatsData.chats) {
-				// 暂存至缓冲区
 				chat.stored = false;
+				// 清理多余的消息，避免消息过多导致卡顿
+				if (UNI_APP.MAX_MESSAGE_SIZE > 0 && chat.messages.length > UNI_APP.MAX_MESSAGE_SIZE) {
+					chat.messages = chat.messages.slice(0, UNI_APP.MAX_MESSAGE_SIZE);
+				}
+				// 暂存至缓冲区
 				cacheChats.push(JSON.parse(JSON.stringify(chat)));
 				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
 				if (this.chats.length < 15) {
@@ -90,6 +95,7 @@ export default defineStore('chatStore', {
 		},
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
+			if (!chat) return;
 			chat.messages.forEach((m) => {
 				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读
@@ -156,10 +162,6 @@ export default defineStore('chatStore', {
 			let message = this.findMessage(chat, msgInfo);
 			if (message) {
 				Object.assign(message, msgInfo);
-				// 撤回消息需要显示
-				if (msgInfo.type == MESSAGE_TYPE.RECALL) {
-					chat.lastContent = msgInfo.content;
-				}
 				chat.stored = false;
 				this.saveToStorage();
 				return;
@@ -184,7 +186,7 @@ export default defineStore('chatStore', {
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
 			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
-				msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
+				msgInfo.status != MESSAGE_STATUS.RECALL && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
 			// 是否有人@我
@@ -248,9 +250,8 @@ export default defineStore('chatStore', {
 					chat.messages.splice(idx, 1);
 					break;
 				}
-				// 正在发送中的消息可能没有id，根据发送时间删除
-				if (msgInfo.selfSend && chat.messages[idx].selfSend &&
-					chat.messages[idx].sendTime == msgInfo.sendTime) {
+				// 正在发送中的消息可能没有id，只有临时id
+				if (chat.messages[idx].tmpId && chat.messages[idx].tmpId == msgInfo.tmpId) {
 					chat.messages.splice(idx, 1);
 					break;
 				}
@@ -258,13 +259,55 @@ export default defineStore('chatStore', {
 			chat.stored = false;
 			this.saveToStorage();
 		},
+		recallMessage(msgInfo, chatInfo) {
+			let chat = this.findChat(chatInfo);
+			if (!chat) return;
+			// 要撤回的消息id
+			let id = msgInfo.content;
+			let name = msgInfo.selfSend ? '你' : chat.type == 'PRIVATE' ? '对方' : msgInfo.sendNickName;
+			for (let idx in chat.messages) {
+				let m = chat.messages[idx];
+				if (m.id && m.id == id) {
+					// 改造成一条提示消息
+					m.status = MESSAGE_STATUS.RECALL;
+					m.content = name + "撤回了一条消息";
+					m.type = MESSAGE_TYPE.TIP_TEXT
+					// 会话列表
+					chat.lastContent = m.content;
+					chat.lastSendTime = msgInfo.sendTime;
+					chat.sendNickName = '';
+					if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
+						chat.unreadCount++;
+					}
+				}
+				// 被引用的消息也要撤回
+				if (m.quoteMessage && m.quoteMessage.id == msgInfo.id) {
+					m.quoteMessage.content = "引用内容已撤回";
+					m.quoteMessage.status = MESSAGE_STATUS.RECALL;
+					m.quoteMessage.type = MESSAGE_TYPE.TIP_TEXT
+				}
+			}
+			chat.stored = false;
+			this.saveToStorage();
+		},
 		updateChatFromFriend(friend) {
 			let chat = this.findChatByFriend(friend.id)
-			if (chat && (chat.headImage != friend.headImageThumb ||
+			if (chat && (chat.headImage != friend.headImage ||
 					chat.showName != friend.nickName)) {
 				// 更新会话中的群名和头像
-				chat.headImage = friend.headImageThumb;
+				chat.headImage = friend.headImage;
 				chat.showName = friend.nickName;
+				chat.stored = false;
+				this.saveToStorage();
+			}
+		},
+		updateChatFromUser(user) {
+			let chat = this.findChatByFriend(user.id);
+			// 更新会话中的昵称和头像
+			if (chat && (chat.headImage != user.headImageThumb ||
+					chat.showName != user.nickName)) {
+				chat.headImage = user.headImageThumb;
+				chat.showName = user.nickName;
 				chat.stored = false;
 				this.saveToStorage();
 			}

@@ -71,7 +71,7 @@
 					<view class="tool-icon iconfont icon-microphone"></view>
 					<view class="tool-name">语音消息</view>
 				</view>
-				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="switchReceipt()">
+				<view v-if="chat.type == 'GROUP' && memberSize<=500" class="chat-tools-item" @click="switchReceipt()">
 					<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
 					<view class="tool-name">回执消息</view>
 				</view>
@@ -94,7 +94,7 @@
 			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
 				:style="{height: keyboardHeight+'px'}">
 				<view class="emotion-item-list">
-					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText,false)"
+					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
 						v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
 						lazy-load="true"></image>
 				</view>
@@ -119,7 +119,7 @@ export default {
 	data() {
 		return {
 			chat: {},
-			friend: {},
+			userInfo: {},
 			group: {},
 			groupMembers: [],
 			isReceipt: false, // 是否回执消息
@@ -289,7 +289,7 @@ export default {
 					let receiptText = this.isReceipt ? "【回执消息】" : "";
 					let atText = this.createAtText();
 					let msgInfo = {
-						content: receiptText + sendText + atText,
+						content: receiptText + this.html2Escape(sendText) + atText,
 						atUserIds: this.atUserIds,
 						receipt: this.isReceipt,
 						type: 0
@@ -370,7 +370,7 @@ export default {
 			}
 		},
 		selectEmoji(emoText) {
-			let path = this.$emo.textToPath(emoText, true)
+			let path = this.$emo.textToPath(emoText)
 			// 先把键盘禁用了，否则会重新弹出键盘
 			this.isReadOnly = true;
 			this.isEmpty = false;
@@ -519,12 +519,9 @@ export default {
 						this.$http({
 							url: url,
 							method: 'DELETE'
-						}).then(() => {
-							msgInfo = JSON.parse(JSON.stringify(msgInfo));
-							msgInfo.type = this.$enums.MESSAGE_TYPE.RECALL;
-							msgInfo.content = '你撤回了一条消息';
-							msgInfo.status = this.$enums.MESSAGE_STATUS.RECALL;
-							this.chatStore.insertMessage(msgInfo, this.chat);
+						}).then((m) => {
+							m.selfSend = true;
+							this.chatStore.recallMessage(m, this.chat);
 						})
 					}
 				}
@@ -581,7 +578,7 @@ export default {
 				})
 			} else {
 				uni.navigateTo({
-					url: "/pages/common/user-info?id=" + this.friend.id
+					url: "/pages/common/user-info?id=" + this.userInfo.id
 				})
 			}
 		},
@@ -660,15 +657,29 @@ export default {
 				this.groupMembers = groupMembers;
 			});
 		},
+		updateFriendInfo() {
+			if (this.isFriend) {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				let friend = JSON.parse(JSON.stringify(this.friend));
+				friend.headImage = this.userInfo.headImageThumb;
+				friend.nickName = this.userInfo.nickName;
+				friend.showNickName = friend.remarkNickName ? friend.remarkNickName : friend.nickName;
+				// 更新好友列表中的昵称和头像
+				this.friendStore.updateFriend(friend);
+				// 更新会话中的头像和昵称
+				this.chatStore.updateChatFromFriend(friend);
+			} else {
+				this.chatStore.updateChatFromUser(this.userInfo);
+			}
+		},
 		loadFriend(friendId) {
-			// 获取对方最新信息
+			// 获取好友用户信息
 			this.$http({
 				url: `/user/find/${friendId}`,
 				method: 'GET'
-			}).then((friend) => {
-				this.friend = friend;
-				this.chatStore.updateChatFromFriend(friend);
-				this.friendStore.updateFriend(friend);
+			}).then((userInfo) => {
+				this.userInfo = userInfo;
+				this.updateFriendInfo();
 			})
 		},
 		rpxTopx(rpx) {
@@ -676,6 +687,16 @@ export default {
 			let info = uni.getSystemInfoSync()
 			let px = info.windowWidth * rpx / 750;
 			return Math.floor(rpx);
+		},
+		html2Escape(strHtml) {
+			return strHtml.replace(/[<>&"]/g, function(c) {
+				return {
+					'<': '&lt;',
+					'>': '&gt;',
+					'&': '&amp;',
+					'"': '&quot;'
+				} [c];
+			});
 		},
 		sendMessageRequest(msgInfo) {
 			return new Promise((resolve, reject) => {
@@ -810,7 +831,7 @@ export default {
 			}
 			if (this.chat.type == "PRIVATE") {
 				msgInfo.recvId = this.mine.id
-				msgInfo.content = "该用户已被管理员封禁,原因:" + this.friend.reason
+				msgInfo.content = "该用户已被管理员封禁,原因:" + this.userInfo.reason
 			} else {
 				msgInfo.groupId = this.group.id;
 				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
@@ -825,6 +846,9 @@ export default {
 	computed: {
 		mine() {
 			return this.userStore.userInfo;
+		},
+		friend() {
+			return this.friendStore.findFriend(this.userInfo.id);
 		},
 		title() {
 			if (!this.chat) {
@@ -853,7 +877,7 @@ export default {
 			return this.chat.unreadCount;
 		},
 		isBanned() {
-			return (this.chat.type == "PRIVATE" && this.friend.isBanned) ||
+			return (this.chat.type == "PRIVATE" && this.userInfo.isBanned) ||
 				(this.chat.type == "GROUP" && this.group.isBanned)
 		},
 		atUserItems() {
@@ -872,6 +896,9 @@ export default {
 				}
 			})
 			return atUsers;
+		},
+		memberSize() {
+			return this.groupMembers.filter(m => !m.quit).length;
 		}
 	},
 	watch: {

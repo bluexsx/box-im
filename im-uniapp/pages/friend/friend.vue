@@ -8,7 +8,7 @@
 					placeholder="点击搜索好友"></uni-search-bar>
 			</view>
 		</view>
-		<view class="friend-tip" v-if="friends.length == 0">
+		<view class="friend-tip" v-if="friendIdx.length == 0">
 			温馨提示：您现在还没有任何好友，快点击右上方'+'按钮添加好友吧~
 		</view>
 		<view class="friend-items" v-else>
@@ -56,14 +56,11 @@ export default {
 		}
 	},
 	computed: {
-		friends() {
-			return this.friendStore.friends;
-		},
 		friendGroupMap() {
 			// 按首字母分组
 			let groupMap = new Map();
-			this.friends.forEach((f) => {
-				if (this.searchText && !f.nickName.includes(this.searchText)) {
+			this.friendStore.friends.forEach((f) => {
+				if (f.deleted || (this.searchText && !f.nickName.includes(this.searchText))) {
 					return;
 				}
 				let letter = this.firstLetter(f.nickName).toUpperCase();

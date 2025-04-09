@@ -8,24 +8,22 @@
 			</view>
 		</view>
 		<view class="member-items">
-			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="(member, idx) in groupMembers"
-					v-show="!searchText || member.showNickName.includes(searchText)" :key="idx">
-					<view class="member-item" @click="onShowUserInfo(member.userId)">
-						<head-image :name="member.showNickName" :online="member.online"
-							:url="member.headImage"></head-image>
-						<view class="member-name">{{ member.showNickName }}
-							<uni-tag v-if="member.userId == group.ownerId" text="群主" size="small" circle type="error">
+			<virtual-scroller class="scroll-bar" :items="showMembers">
+				<template v-slot="{ item }">
+					<view class="member-item" @click="onShowUserInfo(item.userId)">
+						<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"></head-image>
+						<view class="member-name">{{ item.showNickName }}
+							<uni-tag v-if="item.userId == group.ownerId" text="群主" size="small" circle type="error">
 							</uni-tag>
-							<uni-tag v-if="member.userId == userStore.userInfo.id" text="我" size="small" circle></uni-tag>
+							<uni-tag v-if="item.userId == userStore.userInfo.id" text="我" size="small" circle></uni-tag>
 						</view>
 						<view class="member-kick">
-							<button type="warn" plain v-show="isOwner && !isSelf(member.userId)" size="mini"
-								@click.stop="onKickOut(member, idx)">移出群聊</button>
+							<button type="warn" plain v-show="isOwner && !isSelf(item.userId)" size="mini"
+								@click.stop="onKickOut(item)">移出群聊</button>
 						</view>
 					</view>
-				</view>
-			</scroll-view>
+				</template>
+			</virtual-scroller>
 		</view>
 	</view>
 </template>
@@ -37,7 +35,7 @@ export default {
 			isModify: false,
 			searchText: "",
 			group: {},
-			groupMembers: []
+			members: []
 		}
 	},
 	methods: {
@@ -46,7 +44,7 @@ export default {
 				url: "/pages/common/user-info?id=" + userId
 			})
 		},
-		onKickOut(member, idx) {
+		onKickOut(member) {
 			uni.showModal({
 				title: '确认移出?',
 				content: `确定将成员'${member.showNickName}'移出群聊吗？`,
@@ -61,7 +59,7 @@ export default {
 							title: `已将${member.showNickName}移出群聊`,
 							icon: 'none'
 						})
-						this.groupMembers.splice(idx, 1);
+						member.quit = true;
 						this.isModify = true;
 					});
 				}
@@ -80,7 +78,7 @@ export default {
 				url: `/group/members/${id}`,
 				method: "GET"
 			}).then((members) => {
-				this.groupMembers = members.filter(m => !m.quit);
+				this.members = members;
 			})
 		},
 		isSelf(userId) {
@@ -90,6 +88,9 @@ export default {
 	computed: {
 		isOwner() {
 			return this.userStore.userInfo.id == this.group.ownerId;
+		},
+		showMembers() {
+			return this.members.filter(m => !m.quit && m.showNickName.includes(this.searchText))
 		}
 	},
 	onLoad(options) {

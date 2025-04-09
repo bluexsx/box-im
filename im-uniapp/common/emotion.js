@@ -1,3 +1,6 @@
+import UNI_APP from '@/.env.js'
+
+
 const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心', '笑哭', '拍手', '惊喜', '打气',
 	'大哭', '流泪', '饥饿', '难受', '健身', '示爱', '色色', '眨眼', '暴怒', '惊恐',
 	'思考', '头晕', '大吐', '酷笑', '翻滚', '享受', '鼻涕', '快乐', '雀跃', '微笑',
@@ -13,30 +16,23 @@ let containEmoji = (content) => {
 }
 
 let transform = (content, extClass) => {
-	return content.replace(regex, (emoText) => {
+	return content.replace(regex, (emoText)=>{
 		// 将匹配结果替换表情图片
 		let word = emoText.replace(/\#|\;/gi, '');
 		let idx = emoTextList.indexOf(word);
 		if (idx == -1) {
 			return emoText;
 		}
-		let path = textToPath(emoText, true);
+		let path = textToPath(emoText);
 		let img = `<img src="${path}" class="${extClass}"/>`;
 		return img;
 	});
 }
 
-let textToPath = (emoText, isRichText) => {
+let textToPath = (emoText) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
-	let path = `/static/emoji/${idx}.gif`;
-	// #ifdef MP-WEIXIN	
-	// 小程序的表情要去掉最前面"/"(但有的时候又不能去掉,十分奇怪)
-	if (isRichText) {
-		path = path.slice(1);
-	}
-	// #endif
-	return path;
+	return UNI_APP.EMO_URL + idx + ".gif";
 }
 
 export default {

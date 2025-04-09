@@ -46,6 +46,11 @@ public class Friend{
     private String friendHeadImage;
 
     /**
+     * 是否已删除
+     */
+    private Boolean deleted;
+
+    /**
      * 创建时间
      */
     private Date createdTime;

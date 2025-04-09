@@ -17,6 +17,7 @@ export default {
 	},
 	methods: {
 		init() {
+			this.reconnecting = false;
 			this.isExit = false;
 			// 加载数据
 			this.loadStore().then(() => {
@@ -30,20 +31,17 @@ export default {
 		},
 		initWebSocket() {
 			let loginInfo = uni.getStorageSync("loginInfo")
-			wsApi.init();
 			wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 			wsApi.onConnect(() => {
-				// 重连成功提示
 				if (this.reconnecting) {
-					this.reconnecting = false;
-					uni.showToast({
-						title: "已重新连接",
-						icon: 'none'
-					})
+					// 重连成功
+					this.onReconnectWs();
+				} else {
+					// 加载离线消息
+					this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+					this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+
 				}
-				// 加载离线消息
-				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
-				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
 			});
 			wsApi.onMessage((cmd, msgInfo) => {
 				if (cmd == 2) {
@@ -107,6 +105,15 @@ export default {
 			})
 		},
 		handlePrivateMessage(msg) {
+			// 标记这条消息是不是自己发的
+			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
+			// 好友id
+			let friendId = msg.selfSend ? msg.recvId : msg.sendId;
+			// 会话信息
+			let chatInfo = {
+				type: 'PRIVATE',
+				targetId: friendId
+			}
 			// 消息加载标志
 			if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 				this.chatStore.setLoadingPrivateMsg(JSON.parse(msg.content))
@@ -114,10 +121,7 @@ export default {
 			}
 			// 消息已读处理，清空已读数量
 			if (msg.type == enums.MESSAGE_TYPE.READED) {
-				this.chatStore.resetUnreadCount({
-					type: 'PRIVATE',
-					targetId: msg.recvId
-				})
+				this.chatStore.resetUnreadCount(chatInfo);
 				return;
 			}
 			// 消息回执处理,改消息状态为已读
@@ -127,13 +131,24 @@ export default {
 				})
 				return;
 			}
-			// 标记这条消息是不是自己发的
-			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
-			// 好友id
-			let friendId = msg.selfSend ? msg.recvId : msg.sendId;
-			this.loadFriendInfo(friendId, (friend) => {
-				this.insertPrivateMessage(friend, msg);
-			})
+			// 消息撤回
+			if (msg.type == enums.MESSAGE_TYPE.RECALL) {
+				this.chatStore.recallMessage(msg, chatInfo);
+				return;
+			}
+			// 新增好友
+			if (msg.type == enums.MESSAGE_TYPE.FRIEND_NEW) {
+				this.friendStore.addFriend(JSON.parse(msg.content));
+				return;
+			}
+			// 删除好友
+			if (msg.type == enums.MESSAGE_TYPE.FRIEND_DEL) {
+				this.friendStore.removeFriend(friendId);
+				return;
+			}
+			// 消息插入
+			let friend = this.loadFriendInfo(friendId);
+			this.insertPrivateMessage(friend, msg);
 		},
 		insertPrivateMessage(friend, msg) {
 			// 单人视频信令
@@ -162,21 +177,31 @@ export default {
 				}, delayTime)
 				return;
 			}
-			let chatInfo = {
-				type: 'PRIVATE',
-				targetId: friend.id,
-				showName: friend.nickName,
-				headImage: friend.headImage
-			};
-			// 打开会话
-			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg, chatInfo);
-			// 播放提示音
-			this.playAudioTip();
+			if (msgType.isNormal(msg.type) || msgType.isTip(msg.type) || msgType.isAction(msg.type)) {
+				let chatInfo = {
+					type: 'PRIVATE',
+					targetId: friend.id,
+					showName: friend.nickName,
+					headImage: friend.headImage
+				};
+				// 打开会话
+				this.chatStore.openChat(chatInfo);
+				// 插入消息
+				this.chatStore.insertMessage(msg, chatInfo);
+				// 播放提示音
+				this.playAudioTip();
+			}
+
 
 		},
 		handleGroupMessage(msg) {
+			// 标记这条消息是不是自己发的
+			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
+			let chatInfo = {
+				type: 'GROUP',
+				targetId: msg.groupId
+			}
 			// 消息加载标志
 			if (msg.type == enums.MESSAGE_TYPE.LOADING) {
 				this.chatStore.setLoadingGroupMsg(JSON.parse(msg.content))
@@ -185,19 +210,11 @@ export default {
 			// 消息已读处理
 			if (msg.type == enums.MESSAGE_TYPE.READED) {
 				// 我已读对方的消息，清空已读数量
-				let chatInfo = {
-					type: 'GROUP',
-					targetId: msg.groupId
-				}
 				this.chatStore.resetUnreadCount(chatInfo)
 				return;
 			}
 			// 消息回执处理
 			if (msg.type == enums.MESSAGE_TYPE.RECEIPT) {
-				let chatInfo = {
-					type: 'GROUP',
-					targetId: msg.groupId
-				}
 				// 更新消息已读人数
 				let msgInfo = {
 					id: msg.id,
@@ -205,15 +222,28 @@ export default {
 					readedCount: msg.readedCount,
 					receiptOk: msg.receiptOk
 				};
-				this.chatStore.updateMessage(msgInfo,chatInfo)
+				this.chatStore.updateMessage(msgInfo, chatInfo)
 				return;
 			}
-			// 标记这条消息是不是自己发的
-			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
-			this.loadGroupInfo(msg.groupId, (group) => {
-				// 插入群聊消息
-				this.insertGroupMessage(group, msg);
-			})
+			// 消息撤回
+			if (msg.type == enums.MESSAGE_TYPE.RECALL) {
+				this.chatStore.recallMessage(msg, chatInfo)
+				return;
+			}
+			// 新增群
+			if (msg.type == enums.MESSAGE_TYPE.GROUP_NEW) {
+				this.groupStore.addGroup(JSON.parse(msg.content));
+				return;
+			}
+			// 删除群
+			if (msg.type == enums.MESSAGE_TYPE.GROUP_DEL) {
+				this.groupStore.removeGroup(msg.groupId);
+				return;
+			}
+			// 插入消息
+			let group = this.loadGroupInfo(msg.groupId);
+			this.insertGroupMessage(group, msg);
+
 		},
 		handleSystemMessage(msg) {
 			if (msg.type == enums.MESSAGE_TYPE.USER_BANNED) {
@@ -255,47 +285,45 @@ export default {
 				}, delayTime)
 				return;
 			}
-
-			let chatInfo = {
-				type: 'GROUP',
-				targetId: group.id,
-				showName: group.showGroupName,
-				headImage: group.headImageThumb
-			};
-			// 打开会话
-			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.chatStore.insertMessage(msg, chatInfo);
-			// 播放提示音
-			this.playAudioTip();
+			if (msgType.isNormal(msg.type) || msgType.isTip(msg.type) || msgType.isAction(msg.type)) {
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: group.id,
+					showName: group.showGroupName,
+					headImage: group.headImageThumb
+				};
+				// 打开会话
+				this.chatStore.openChat(chatInfo);
+				// 插入消息
+				this.chatStore.insertMessage(msg, chatInfo);
+				// 播放提示音
+				this.playAudioTip();
+			}
+
 		},
 		loadFriendInfo(id, callback) {
 			let friend = this.friendStore.findFriend(id);
-			if (friend) {
-				callback(friend);
-			} else {
-				http({
-					url: `/friend/find/${id}`,
-					method: 'GET'
-				}).then((friend) => {
-					this.friendStore.addFriend(friend);
-					callback(friend)
-				})
+			if (!friend) {
+				console.log("未知用户:", id)
+				friend = {
+					id: id,
+					showNickName: "未知用户",
+					headImage: ""
+				}
 			}
+			return friend;
 		},
-		loadGroupInfo(id, callback) {
+		loadGroupInfo(id) {
 			let group = this.groupStore.findGroup(id);
-			if (group) {
-				callback(group);
-			} else {
-				http({
-					url: `/group/find/${id}`,
-					method: 'GET'
-				}).then((group) => {
-					this.groupStore.addGroup(group);
-					callback(group)
-				})
+			if (!group) {
+				group = {
+					id: id,
+					showGroupName: "未知群聊",
+					headImageThumb: ""
+				}
 			}
+			return group;
 		},
 		exit() {
 			console.log("exit");
@@ -341,12 +369,11 @@ export default {
 			// 记录标志
 			this.reconnecting = true;
 			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			this.reloadUserInfo().then((userInfo) => {
+			this.userStore.loadUser().then((userInfo) => {
 				uni.showToast({
 					title: '连接已断开，尝试重新连接...',
-					icon: 'none',
+					icon: 'none'
 				})
-				this.userStore.setUserInfo(userInfo);
 				// 重新连接
 				let loginInfo = uni.getStorageSync("loginInfo")
 				wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
@@ -357,10 +384,23 @@ export default {
 				}, 5000)
 			})
 		},
-		reloadUserInfo() {
-			return http({
-				url: '/user/self',
-				method: 'GET'
+		onReconnectWs() {
+			this.reconnecting = false;
+			// 重新加载好友和群聊
+			const promises = [];
+			promises.push(this.friendStore.loadFriend());
+			promises.push(this.groupStore.loadGroup());
+			Promise.all(promises).then(() => {
+				uni.showToast({
+					title: "已重新连接",
+					icon: 'none'
+				})
+				// 加载离线消息
+				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+			}).catch((e) => {
+				console.log(e);
+				this.exit();
 			})
 		},
 		closeSplashscreen(delay) {

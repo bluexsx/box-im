@@ -14,6 +14,7 @@ import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.CommaTextUtils;
+import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.GroupMessageDTO;
 import com.bx.implatform.entity.Group;
@@ -31,13 +32,12 @@ import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
 import com.bx.implatform.util.SensitiveFilterUtil;
 import com.bx.implatform.vo.GroupMessageVO;
-import com.google.common.base.Splitter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,6 +65,10 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 群聊成员列表
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(group.getId());
+        if (dto.getReceipt() && userIds.size() > Constant.MAX_LARGE_GROUP_MEMBER) {
+            // 大群的回执消息过于消耗资源，不允许发送
+            throw new GlobalException(String.format("当前群聊大于%s人,不支持发送回执消息", Constant.MAX_LARGE_GROUP_MEMBER));
+        }
         // 不用发给自己
         userIds = userIds.stream().filter(id -> !session.getUserId().equals(id)).collect(Collectors.toList());
         // 保存消息
@@ -92,8 +96,9 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         return msgInfo;
     }
 
+    @Transactional
     @Override
-    public void recallMessage(Long id) {
+    public GroupMessageVO recallMessage(Long id) {
         UserSession session = SessionContext.getSession();
         GroupMessage msg = this.getById(id);
         if (Objects.isNull(msg)) {
@@ -113,31 +118,26 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         // 修改数据库
         msg.setStatus(MessageStatus.RECALL.code());
         this.updateById(msg);
+        // 生成一条撤回消息
+        GroupMessage recallMsg = new GroupMessage();
+        recallMsg.setStatus(MessageStatus.UNSEND.code());
+        recallMsg.setType(MessageType.RECALL.code());
+        recallMsg.setGroupId(msg.getGroupId());
+        recallMsg.setSendId(session.getUserId());
+        recallMsg.setSendNickName(member.getShowNickName());
+        recallMsg.setContent(id.toString());
+        recallMsg.setSendTime(new Date());
+        this.save(recallMsg);
         // 群发
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(msg.getGroupId());
-        // 不用发给自己
-        userIds = userIds.stream().filter(uid -> !session.getUserId().equals(uid)).collect(Collectors.toList());
-        GroupMessageVO msgInfo = BeanUtils.copyProperties(msg, GroupMessageVO.class);
-        msgInfo.setType(MessageType.RECALL.code());
-        String content = String.format("'%s'撤回了一条消息", member.getShowNickName());
-        msgInfo.setContent(content);
-        msgInfo.setSendTime(new Date());
-
+        GroupMessageVO msgInfo = BeanUtils.copyProperties(recallMsg, GroupMessageVO.class);
         IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setRecvIds(userIds);
         sendMessage.setData(msgInfo);
-        sendMessage.setSendResult(false);
-        sendMessage.setSendToSelf(false);
-        imClient.sendGroupMessage(sendMessage);
-
-        // 推给自己其他终端
-        msgInfo.setContent("你撤回了一条消息");
-        sendMessage.setSendToSelf(true);
-        sendMessage.setRecvIds(Collections.emptyList());
-        sendMessage.setRecvTerminals(Collections.emptyList());
         imClient.sendGroupMessage(sendMessage);
         log.info("撤回群聊消息，发送id:{},群聊id:{},内容:{}", session.getUserId(), msg.getGroupId(), msg.getContent());
+        return msgInfo;
     }
 
 
@@ -165,7 +165,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         wrapper.gt(GroupMessage::getId, minId)
             .gt(GroupMessage::getSendTime, minDate)
             .in(GroupMessage::getGroupId, groupIds)
-            .ne(GroupMessage::getStatus, MessageStatus.RECALL.code())
             .orderByAsc(GroupMessage::getId);
         List<GroupMessage> messages = this.list(wrapper);
         // 通过群聊对消息进行分组

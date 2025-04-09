@@ -8,9 +8,9 @@
           </el-input>
         </div>
         <el-scrollbar style="height:400px;">
-          <div v-for="(friend, index) in friends" :key="friend.id">
+          <div v-for="friend in friends" :key="friend.id">
             <friend-item v-show="friend.nickName.includes(searchText)" :showDelete="false"
-              @click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :index="index" :active="false">
+              @click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :active="false">
               <el-checkbox :disabled="friend.disabled" @click.native.stop="" class="agm-friend-checkbox"
                 v-model="friend.isCheck" size="medium"></el-checkbox>
             </friend-item>
@@ -21,9 +21,9 @@
       <div class="agm-r-box">
         <div class="agm-select-tip"> 已勾选{{ checkCount }}位好友</div>
         <el-scrollbar style="height:400px;">
-          <div v-for="(friend, index) in friends" :key="friend.id">
-            <friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :index="index" :active="false"
-              @del="onRemoveFriend(friend, index)" :menu="false">
+          <div v-for="friend in friends" :key="friend.id">
+            <friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :active="false"
+              @del="onRemoveFriend(friend)" :menu="false">
             </friend-item>
           </div>
         </el-scrollbar>
@@ -55,7 +55,6 @@ export default {
       this.$emit("close");
     },
     onOk() {
-
       let inviteVO = {
         groupId: this.groupId,
         friendIds: []
@@ -77,7 +76,7 @@ export default {
         })
       }
     },
-    onRemoveFriend(friend, index) {
+    onRemoveFriend(friend) {
       friend.isCheck = false;
     },
     onSwitchCheck(friend) {
@@ -107,6 +106,9 @@ export default {
       if (newData) {
         this.friends = [];
         this.$store.state.friendStore.friends.forEach((f) => {
+          if (f.deleted) {
+            return;
+          }
           let friend = JSON.parse(JSON.stringify(f))
           let m = this.members.filter((m) => !m.quit)
             .find((m) => m.userId == f.id);

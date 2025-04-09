@@ -16,7 +16,7 @@
 			<div class="chat-content">
 				<div class="chat-at-text">{{ atText }}</div>
 				<div class="chat-send-name" v-show="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</div>
-				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent)"></div>
+				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent,'emoji-small')"></div>
 			</div>
 		</div>
 		<right-menu v-show="rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
@@ -216,11 +216,6 @@ export default {
 				font-size: var(--im-font-size-small);
 				color: var(--im-text-color-light);
 
-				img {
-					width: 20px !important;
-					height: 20px !important;
-					vertical-align: bottom;
-				}
 			}
 
 		}

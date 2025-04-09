@@ -15,6 +15,7 @@
     "localforage": "1.10.0",
     "sass": "1.32.12",
     "sass-loader": "10.1.1",
+    "pinyin-pro": "^3.26.0",
     "vue": "2.7.16",
     "vue-axios": "3.5.2",
     "vue-router": "3.6.5",

@@ -9,17 +9,17 @@
 				<view class="info-item">
 					<view class="info-primary">
 						<text class="info-username">
-							{{ userInfo.userName }}
+							{{ userInfo.nickName }}
 						</text>
 						<text v-show="userInfo.sex == 0" class="iconfont icon-man" color="darkblue"></text>
 						<text v-show="userInfo.sex == 1" class="iconfont icon-girl" color="darkred"></text>
 					</view>
 					<view class="info-text">
 						<text class="label-text">
-							昵称:
+							用户名:
 						</text>
 						<text class="content-text">
-							{{ userInfo.nickName }}
+							{{ userInfo.userName }}
 						</text>
 					</view>
 					<view class="info-text">
@@ -82,7 +82,8 @@ export default {
 					id: this.userInfo.id,
 					nickName: this.userInfo.nickName,
 					headImage: this.userInfo.headImageThumb,
-					online: this.userInfo.online
+					online: this.userInfo.online,
+					deleted: false
 				}
 				this.friendStore.addFriend(friend);
 				uni.showToast({
@@ -113,20 +114,17 @@ export default {
 			})
 		},
 		updateFriendInfo() {
-			// store的数据不能直接修改，深拷贝一份store的数据
-			let friend = JSON.parse(JSON.stringify(this.friendInfo));
-			friend.headImage = this.userInfo.headImageThumb;
-			friend.nickName = this.userInfo.nickName;
-			this.$http({
-				url: "/friend/update",
-				method: "PUT",
-				data: friend
-			}).then(() => {
+			if (this.isFriend) {
+				// store的数据不能直接修改，深拷贝一份store的数据
+				let friend = JSON.parse(JSON.stringify(this.friendInfo));
+				friend.headImage = this.userInfo.headImageThumb;
+				friend.nickName = this.userInfo.nickName;
+
 				// 更新好友列表中的昵称和头像
 				this.friendStore.updateFriend(friend);
 				// 更新会话中的头像和昵称
 				this.chatStore.updateChatFromFriend(this.userInfo);
-			})
+			}
 		},
 		loadUserInfo(id) {
 			this.$http({
@@ -135,21 +133,17 @@ export default {
 			}).then((user) => {
 				this.userInfo = user;
 				// 如果发现好友的头像和昵称改了，进行更新
-				if (this.isFriend && (this.userInfo.headImageThumb != this.friendInfo.headImage ||
-					this.userInfo.nickName != this.friendInfo.nickName)) {
-					this.updateFriendInfo()
-				}
+				this.updateFriendInfo()
+
 			})
 		}
 	},
 	computed: {
 		isFriend() {
-			return !!this.friendInfo;
+			return this.friendStore.isFriend(this.userInfo.id);
 		},
 		friendInfo() {
-			let friends = this.friendStore.friends;
-			let friend = friends.find((f) => f.id == this.userInfo.id);
-			return friend;
+			return this.friendStore.findFriend(this.userInfo.id);
 		}
 	},
 	onLoad(options) {

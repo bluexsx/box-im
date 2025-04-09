@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
  * 30-39: UI交互类消息: 显示加载状态等
  * 40-49: 操作交互类消息: 语音通话、视频通话消息等
  * 50-60: 后台操作类消息: 用户封禁、群组封禁等
+ * 80-89: 好友变化消息
+ * 90-99: 群聊变化消息
  * 100-199: 单人语音通话rtc信令
  * 200-299: 多人语音通话rtc信令
  *
@@ -33,6 +35,10 @@ public enum MessageType {
     USER_BANNED(50,"用户封禁"),
     GROUP_BANNED(51,"群聊封禁"),
     GROUP_UNBAN(52,"群聊解封"),
+    FRIEND_NEW(80, "新增好友"),
+    FRIEND_DEL(81, "删除好友"),
+    GROUP_NEW(90, "新增群聊"),
+    GROUP_DEL(91, "删除群聊"),
     RTC_CALL_VOICE(100, "语音呼叫"),
     RTC_CALL_VIDEO(101, "视频呼叫"),
     RTC_ACCEPT(102, "接受"),

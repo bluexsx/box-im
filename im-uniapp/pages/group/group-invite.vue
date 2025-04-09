@@ -8,9 +8,9 @@
 		</view>
 		<view class="friend-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="friend in friendItems" v-show="!searchText || friend.nickName.includes(searchText)"
-					:key="friend.id">
-					<view class="friend-item" @click="onSwitchChecked(friend)"
+				<view v-for="friend in friendItems" :key="friend.id">
+					<view v-show="!searchText || friend.nickName.includes(searchText)" class="friend-item"
+						@click="onSwitchChecked(friend)"
 						:class="{ checked: friend.checked, disabled: friend.disabled }">
 						<head-image :name="friend.nickName" :online="friend.online"
 							:url="friend.headImage"></head-image>
@@ -79,7 +79,7 @@ export default {
 		initFriendItems() {
 			this.friendItems = [];
 			let friends = this.friendStore.friends;
-			friends.forEach((f => {
+			friends.filter(f => !f.deleted).forEach((f => {
 				let item = {
 					id: f.id,
 					headImage: f.headImage,

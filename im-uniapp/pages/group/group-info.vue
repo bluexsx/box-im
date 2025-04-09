@@ -35,16 +35,16 @@
 				<view class="label">我在本群的昵称</view>
 				<view class="value">{{group.showNickName}}</view>
 			</view>
-			<view v-if="group.notice" class="form-item" >
+			<view v-if="group.notice" class="form-item">
 				<view class="label">群公告</view>
 			</view>
-			<view v-if="group.notice" class="form-item" >
+			<view v-if="group.notice" class="form-item">
 				<uni-notice-bar :text="group.notice" />
 			</view>
-			
+
 			<view v-if="!group.quit" class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
-		
+
 		<bar-group v-if="!group.quit">
 			<btn-bar type="primary" title="发送消息" @tap="onSendMessage()"></btn-bar>
 			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @tap="onQuitGroup()"></btn-bar>
@@ -103,21 +103,18 @@ export default {
 						url: `/group/quit/${this.groupId}`,
 						method: 'DELETE'
 					}).then(() => {
-						uni.showModal({
-							title: `退出成功`,
-							content: `您已退出群聊'${this.group.name}'`,
-							showCancel: false,
-							success: () => {
-								setTimeout(() => {
-									uni.switchTab({
-										url: "/pages/group/group"
-									});
-									this.groupStore.removeGroup(this.groupId);
-									this.chatStore.removeGroupChat(this
-										.groupId);
-								}, 100)
-							}
+						uni.showToast({
+							title: `您退出了群聊'${this.group.name}'`,
+							icon: "none"
 						})
+						setTimeout(() => {
+							uni.switchTab({
+								url: "/pages/group/group"
+							});
+							this.groupStore.removeGroup(this.groupId);
+							this.chatStore.removeGroupChat(this
+								.groupId);
+						}, 1500)
 					});
 				}
 			});
@@ -133,25 +130,21 @@ export default {
 						url: `/group/delete/${this.groupId}`,
 						method: 'delete'
 					}).then(() => {
-						uni.showModal({
-							title: `解散成功`,
-							content: `群聊'${this.group.name}'已解散`,
-							showCancel: false,
-							success: () => {
-								setTimeout(() => {
-									uni.switchTab({
-										url: "/pages/group/group"
-									});
-									this.groupStore.removeGroup(this.groupId);
-									this.chatStore.removeGroupChat(this
-										.groupId);
-								}, 100)
-							}
+						uni.showToast({
+							title: `您解散了群聊'${this.group.name}'`,
+							icon: "none"
 						})
+						setTimeout(() => {
+							uni.switchTab({
+								url: "/pages/group/group"
+							});
+							this.groupStore.removeGroup(this.groupId);
+							this.chatStore.removeGroupChat(this
+								.groupId);
+						}, 1500)
 					});
 				}
 			});
-
 		},
 		loadGroupInfo() {
 			this.$http({
@@ -256,14 +249,14 @@ export default {
 			background: white;
 			align-items: center;
 			margin-top: 2rpx;
-			
+
 			.label {
 				width: 220rpx;
 				line-height: 100rpx;
 				font-size: $im-font-size;
 				white-space: nowrap;
 			}
-	
+
 			.value {
 				flex: 1;
 				text-align: right;
@@ -274,9 +267,9 @@ export default {
 				overflow: hidden;
 			}
 		}
-		
+
 		.group-edit {
-			padding: 10rpx 40rpx 30rpx 40rpx	;
+			padding: 10rpx 40rpx 30rpx 40rpx;
 			text-align: center;
 			background: white;
 			font-size: $im-font-size-small;

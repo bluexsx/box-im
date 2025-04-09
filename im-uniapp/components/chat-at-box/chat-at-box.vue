@@ -9,7 +9,7 @@
 			</view>
 			<scroll-view v-show="atUserIds.length > 0" scroll-x="true" scroll-left="120">
 				<view class="at-user-items">
-					<view v-for="m in showMembers" v-show="m.checked" class="at-user-item" :key="m.userId">
+					<view v-for="m in checkedMembers"  class="at-user-item" :key="m.userId">
 						<head-image :name="m.showNickName" :url="m.headImage" size="mini"></head-image>
 					</view>
 				</view>
@@ -18,18 +18,15 @@
 				<uni-search-bar v-model="searchText" cancelButton="none" radius="100" placeholder="搜索"></uni-search-bar>
 			</view>
 			<view class="member-items">
-				<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-					<view v-for="m in showMembers" v-show="m.showNickName.includes(searchText)" :key="m.userId">
-						<view class="member-item" :class="{ checked: m.checked }" @click="onSwitchChecked(m)">
-							<head-image :name="m.showNickName" :online="m.online" :url="m.headImage"
+				<virtual-scroller class="scroll-bar" :items="memberItems">
+					<template v-slot="{ item }">
+						<view class="member-item" :class="{ checked: item.checked }" @click="onSwitchChecked(item)">
+							<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
 								size="small"></head-image>
-							<view class="member-name">{{ m.showNickName }}</view>
-							<!--							<view class="member-checked">-->
-							<!--								<radio :checked="m.checked" @click.stop="onSwitchChecked(m)" />-->
-							<!--							</view>-->
+							<view class="member-name">{{ item.showNickName }}</view>
 						</view>
-					</view>
-				</scroll-view>
+					</template>
+				</virtual-scroller>
 			</view>
 		</view>
 	</uni-popup>
@@ -91,13 +88,13 @@ export default {
 	},
 	computed: {
 		atUserIds() {
-			let ids = [];
-			this.showMembers.forEach((m) => {
-				if (m.checked) {
-					ids.push(m.userId);
-				}
-			})
-			return ids;
+			return this.showMembers.filter(m => m.checked).map(m => m.userId);
+		},
+		checkedMembers() {
+			return this.showMembers.filter(m => m.checked);
+		},
+		memberItems() {
+			return this.showMembers.filter(m => m.showNickName.includes(this.searchText));
 		}
 	}
 }

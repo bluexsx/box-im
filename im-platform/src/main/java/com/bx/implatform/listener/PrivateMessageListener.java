@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Lazy;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -31,7 +32,7 @@ public class PrivateMessageListener implements MessageListener<PrivateMessageVO>
         for(IMSendResult<PrivateMessageVO> result : results){
             PrivateMessageVO messageInfo = result.getData();
             // 更新消息状态,这里只处理成功消息，失败的消息继续保持未读状态
-            if (result.getCode().equals(IMSendCode.SUCCESS.code())) {
+            if (result.getCode().equals(IMSendCode.SUCCESS.code()) && !Objects.isNull(messageInfo.getId())) {
                 messageIds.add(messageInfo.getId());
                 log.info("消息送达，消息id:{}，发送者:{},接收者:{},终端:{}", messageInfo.getId(), result.getSender().getId(), result.getReceiver().getId(), result.getReceiver().getTerminal());
             }

@@ -4,29 +4,22 @@ import http from '@/common/request';
 export default defineStore('groupStore', {
 	state: () => {
 		return {
-			groups: [],
-			activeIndex: -1
+			groups: []
 		}
 	},
 	actions: {
 		setGroups(groups) {
 			this.groups = groups;
 		},
-		activeGroup(index) {
-			this.activeIndex = index;
-		},
 		addGroup(group) {
-			this.groups.unshift(group);
+			if (this.groups.some((g) => g.id == group.id)) {
+				this.updateGroup(group);
+			} else {
+				this.groups.unshift(group);
+			}
 		},
-		removeGroup(groupId) {
-			this.groups.forEach((g, index) => {
-				if (g.id == groupId) {
-					this.groups.splice(index, 1);
-					if (this.activeIndex >= this.groups.length) {
-						this.activeIndex = this.groups.length - 1;
-					}
-				}
-			})
+		removeGroup(id) {
+			this.groups.filter(g => g.id == id).forEach(g => g.quit = true);
 		},
 		updateGroup(group) {
 			let g = this.findGroup(group.id);
@@ -34,7 +27,6 @@ export default defineStore('groupStore', {
 		},
 		clear() {
 			this.groups = [];
-			this.activeGroup = -1;
 		},
 		loadGroup() {
 			return new Promise((resolve, reject) => {
