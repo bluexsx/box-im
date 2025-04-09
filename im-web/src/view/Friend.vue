@@ -13,8 +13,9 @@
 				<div v-for="(friends, i) in friendValues" :key="i">
 					<div class="index-title">{{ friendKeys[i] }}</div>
 					<div v-for="(friend) in friends" :key="friend.id">
-						<friend-item :friend="friend" :active="friend.id === activeFriend.id" @chat="onSendMessage(friend)"
-							@delete="onDelFriend(friend)" @click.native="onActiveItem(friend)">
+						<friend-item :friend="friend" :active="friend.id === activeFriend.id"
+							@chat="onSendMessage(friend)" @delete="onDelFriend(friend)"
+							@click.native="onActiveItem(friend)">
 						</friend-item>
 					</div>
 					<div v-if="i < friendValues.length - 1" class="divider"></div>
@@ -184,10 +185,10 @@ export default {
 			// 按首字母分组
 			let map = new Map();
 			this.friendStore.friends.forEach((f) => {
-				if (f.deleted || (this.searchText && !f.showNickName.includes(this.searchText))) {
+				if (f.deleted || (this.searchText && !f.nickName.includes(this.searchText))) {
 					return;
 				}
-				let letter = this.firstLetter(f.showNickName).toUpperCase();
+				let letter = this.firstLetter(f.nickName).toUpperCase();
 				// 非英文一律为#组
 				if (!this.isEnglish(letter)) {
 					letter = "#"
@@ -246,6 +247,13 @@ export default {
 
 		.friend-list-items {
 			flex: 1;
+
+			.index-title {
+				text-align: left;
+				font-size: var(--im-larger-size-larger);
+				padding: 5px 15px;
+				color: var(--im-text-color-light);
+			}
 		}
 	}
 

@@ -7,19 +7,19 @@ const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心',
 ];
 
 
-let transform = (content) => {
-	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, textToImg);
+let transform = (content, extClass) => {
+	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, (text) => textToImg(text, extClass));
 }
 
 // 将匹配结果替换表情图片
-let textToImg = (emoText) => {
+let textToImg = (emoText, extClass) => {
 	let word = emoText.replace(/\#|\;/gi, '');
 	let idx = emoTextList.indexOf(word);
 	if (idx == -1) {
 		return emoText;
 	}
 	let url = require(`@/assets/emoji/${idx}.gif`);
-	return `<img src="${url}" style="width:32px;height:32px;vertical-align:bottom;"/>`
+	return `<img src="${url}" class="${extClass}" />`
 }
 
 let textToUrl = (emoText) => {

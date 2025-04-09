@@ -123,7 +123,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
         redisTemplate.delete(key);
         // 推送解散群聊提示
-        this.sendTipMessage(groupId, userIds, String.format("'%s'解散了群聊", session.getNickName()));
+        String content = String.format("'%s'解散了群聊", session.getNickName());
+        this.sendTipMessage(groupId, userIds, content, true);
         // 推送同步消息
         this.sendDelGroupMessage(groupId, userIds, false);
         log.info("删除群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
@@ -142,7 +143,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
         redisTemplate.opsForHash().delete(key, userId.toString());
         // 推送退出群聊提示
-        this.sendTipMessage(groupId, List.of(userId), "您已退出群聊");
+        this.sendTipMessage(groupId, List.of(userId), "您已退出群聊", false);
         // 推送同步消息
         this.sendDelGroupMessage(groupId, Lists.newArrayList(), true);
         log.info("退出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
@@ -164,7 +165,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
         redisTemplate.opsForHash().delete(key, userId.toString());
         // 推送踢出群聊提示
-        this.sendTipMessage(groupId, List.of(userId), "您已被移出群聊");
+        this.sendTipMessage(groupId, List.of(userId), "您已被移出群聊", false);
         // 推送同步消息
         this.sendDelGroupMessage(groupId, List.of(userId), false);
         log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
@@ -234,8 +235,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 群聊人数校验
         List<GroupMember> members = groupMemberService.findByGroupId(vo.getGroupId());
         long size = members.stream().filter(m -> !m.getQuit()).count();
-        if (vo.getFriendIds().size() + size > Constant.MAX_GROUP_MEMBER) {
-            throw new GlobalException("群聊人数不能大于" + Constant.MAX_GROUP_MEMBER + "人");
+        if (vo.getFriendIds().size() + size > Constant.MAX_LARGE_GROUP_MEMBER) {
+            throw new GlobalException("群聊人数不能大于" + Constant.MAX_LARGE_GROUP_MEMBER + "人");
         }
         // 找出好友信息
         List<Friend> friends = friendsService.findByFriendIds(vo.getFriendIds());
@@ -267,7 +268,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(vo.getGroupId());
         String memberNames = groupMembers.stream().map(GroupMember::getShowNickName).collect(Collectors.joining(","));
         String content = String.format("'%s'邀请'%s'加入了群聊", session.getNickName(), memberNames);
-        this.sendTipMessage(vo.getGroupId(), userIds, content);
+        this.sendTipMessage(vo.getGroupId(), userIds, content, true);
         log.info("邀请进入群聊，群聊id:{},群聊名称:{},被邀请用户id:{}", group.getId(), group.getName(),
             vo.getFriendIds());
     }
@@ -287,7 +288,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }).sorted((m1, m2) -> m2.getOnline().compareTo(m1.getOnline())).collect(Collectors.toList());
     }
 
-    private void sendTipMessage(Long groupId, List<Long> recvIds, String content) {
+    private void sendTipMessage(Long groupId, List<Long> recvIds, String content, Boolean sendToAll) {
         UserSession session = SessionContext.getSession();
         // 消息入库
         GroupMessage message = new GroupMessage();
@@ -298,7 +299,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         message.setSendNickName(session.getNickName());
         message.setGroupId(groupId);
         message.setSendId(session.getUserId());
-        message.setRecvIds(CommaTextUtils.asText(recvIds));
+        message.setRecvIds(sendToAll ? "" : CommaTextUtils.asText(recvIds));
         groupMessageMapper.insert(message);
         // 推送
         GroupMessageVO msgInfo = BeanUtils.copyProperties(message, GroupMessageVO.class);

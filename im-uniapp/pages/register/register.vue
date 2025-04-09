@@ -1,21 +1,23 @@
 <template>
 	<view class="register">
 		<view class="title">欢迎注册</view>
-		<uni-forms  ref="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
-			<uni-forms-item name="userName" label="用户名">
-				<uni-easyinput type="text" v-model="dataForm.userName" placeholder="用户名" />
-			</uni-forms-item>
-			<uni-forms-item name="nickName" label="昵称">
-				<uni-easyinput type="text" v-model="dataForm.nickName" placeholder="昵称" />
-			</uni-forms-item>
-			<uni-forms-item name="password" label="密码">
-				<uni-easyinput type="password" v-model="dataForm.password" placeholder="密码" />
-			</uni-forms-item>
-			<uni-forms-item name="corfirmPassword" label="确认密码">
-				<uni-easyinput type="password" v-model="dataForm.corfirmPassword" placeholder="确认密码" />
-			</uni-forms-item>
-			<button class="btn-submit" @click="submit" type="primary">注册并登录</button>
-		</uni-forms>
+		<view class="form">
+			<uni-forms  ref="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
+				<uni-forms-item name="userName" label="用户名">
+					<uni-easyinput type="text" v-model="dataForm.userName" placeholder="用户名" />
+				</uni-forms-item>
+				<uni-forms-item name="nickName" label="昵称">
+					<uni-easyinput type="text" v-model="dataForm.nickName" placeholder="昵称" />
+				</uni-forms-item>
+				<uni-forms-item name="password" label="密码">
+					<uni-easyinput type="password" v-model="dataForm.password" placeholder="密码" />
+				</uni-forms-item>
+				<uni-forms-item name="corfirmPassword" label="确认密码">
+					<uni-easyinput type="password" v-model="dataForm.corfirmPassword" placeholder="确认密码" />
+				</uni-forms-item>
+				<button class="btn-submit" @click="submit" type="primary">注册并登录</button>
+			</uni-forms>
+		</view>
 		<navigator class="nav-login" url="/pages/login/login">
 			返回登录页面
 		</navigator>
@@ -111,10 +113,10 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .register {
 	.title {
-		padding-top: 150rpx;
+		padding-top: 250rpx;
 		padding-bottom: 50rpx;
 		color: $im-color-primary;
 		text-align: center;
@@ -122,7 +124,7 @@ export default {
 		font-weight: 600;
 	}
 
-	.uni-forms {
+	.form {
 		padding: 50rpx;
 
 		.btn-submit {

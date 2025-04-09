@@ -4,7 +4,7 @@
 			<el-scrollbar style="height: 220px">
 				<div class="emotion-item-list">
 					<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="i"
-						@click="onClickEmo(emoText)" v-html="$emo.textToImg(emoText)">
+						@click="onClickEmo(emoText)" v-html="$emo.textToImg(emoText,'emoji-large')">
 					</div>
 				</div>
 			</el-scrollbar>

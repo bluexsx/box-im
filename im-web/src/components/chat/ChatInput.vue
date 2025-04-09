@@ -249,7 +249,7 @@ export default {
 		},
 		insertEmoji(emojiText) {
 			let emojiElement = document.createElement('img');
-			emojiElement.className = 'chat-emoji no-text';
+			emojiElement.className = 'emoji-normal no-text';
 			emojiElement.dataset.emojiCode = emojiText;
 			emojiElement.src = this.$emo.textToUrl(emojiText);
 
@@ -482,7 +482,7 @@ export default {
 		bottom: 0;
 		outline: none;
 		padding: 5px;
-		line-height: 1.5;
+		line-height: 26px;
 		font-size: var(--im-font-size);
 		text-align: left;
 		overflow-y: auto;
@@ -501,13 +501,6 @@ export default {
 			max-width: 200px;
 			max-height: 100px;
 			border: 1px solid #e6e6e6;
-			cursor: pointer;
-		}
-
-		.chat-emoji {
-			width: 30px;
-			height: 30px;
-			vertical-align: top;
 			cursor: pointer;
 		}
 

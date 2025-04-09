@@ -16,13 +16,13 @@ public final class Constant {
     public static final Long MAX_FILE_SIZE = 20 * 1024 * 1024L;
 
     /**
-     * 群聊最大人数
+     * 大群人数上限
      */
-    public static final Long MAX_GROUP_MEMBER = 10000L;
+    public static final Long MAX_LARGE_GROUP_MEMBER = 10000L;
 
     /**
-     * 回执消息限制最大人数
+     * 普通群人数上限
      */
-    public static final Long LARGE_GROUP_MEMBER = 500L;
+    public static final Long MAX_NORMAL_GROUP_MEMBER = 500L;
 
 }

@@ -17,6 +17,7 @@ export default {
 	},
 	methods: {
 		init() {
+			this.reconnecting = false;
 			this.isExit = false;
 			// 加载数据
 			this.loadStore().then(() => {
@@ -30,20 +31,17 @@ export default {
 		},
 		initWebSocket() {
 			let loginInfo = uni.getStorageSync("loginInfo")
-			wsApi.init();
 			wsApi.connect(UNI_APP.WS_URL, loginInfo.accessToken);
 			wsApi.onConnect(() => {
-				// 重连成功提示
 				if (this.reconnecting) {
-					this.reconnecting = false;
-					uni.showToast({
-						title: "已重新连接",
-						icon: 'none'
-					})
+					// 重连成功
+					this.onReconnectWs();
+				} else {
+					// 加载离线消息
+					this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+					this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+
 				}
-				// 加载离线消息
-				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
-				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
 			});
 			wsApi.onMessage((cmd, msgInfo) => {
 				if (cmd == 2) {
@@ -371,12 +369,11 @@ export default {
 			// 记录标志
 			this.reconnecting = true;
 			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			this.reloadUserInfo().then((userInfo) => {
+			this.userStore.loadUser().then((userInfo) => {
 				uni.showToast({
 					title: '连接已断开，尝试重新连接...',
-					icon: 'none',
+					icon: 'none'
 				})
-				this.userStore.setUserInfo(userInfo);
 				// 重新连接
 				let loginInfo = uni.getStorageSync("loginInfo")
 				wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
@@ -387,10 +384,23 @@ export default {
 				}, 5000)
 			})
 		},
-		reloadUserInfo() {
-			return http({
-				url: '/user/self',
-				method: 'GET'
+		onReconnectWs() {
+			this.reconnecting = false;
+			// 重新加载好友和群聊
+			const promises = [];
+			promises.push(this.friendStore.loadFriend());
+			promises.push(this.groupStore.loadGroup());
+			Promise.all(promises).then(() => {
+				uni.showToast({
+					title: "已重新连接",
+					icon: 'none'
+				})
+				// 加载离线消息
+				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+			}).catch((e) => {
+				console.log(e);
+				this.exit();
 			})
 		},
 		closeSplashscreen(delay) {

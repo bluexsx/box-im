@@ -76,6 +76,12 @@ export default {
 		moveToTop(chatIdx) {
 			this.chatStore.moveTop(chatIdx);
 		},
+		isShowChat(chat) {
+			if (chat.delete) {
+				return false;
+			}
+			return !this.searchText || chat.showName.includes(this.searchText)
+		},
 		onSearch() {
 			this.showSearch = !this.showSearch;
 			this.searchText = "";
@@ -146,7 +152,6 @@ export default {
 		width: 100%;
 		height: 120rpx;
 		background: white;
-
 		color: $im-text-color-lighter;
 
 		.loading-box {

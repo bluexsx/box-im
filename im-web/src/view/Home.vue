@@ -81,7 +81,8 @@ export default {
 		return {
 			showSettingDialog: false,
 			lastPlayAudioTime: new Date().getTime() - 1000,
-			isFullscreen: true
+			isFullscreen: true,
+			reconnecting: false
 		}
 	},
 	methods: {
@@ -99,9 +100,13 @@ export default {
 				// ws初始化
 				this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
 				this.$wsApi.onConnect(() => {
-					// 加载离线消息
-					this.pullPrivateOfflineMessage(this.$store.state.chatStore.privateMsgMaxId);
-					this.pullGroupOfflineMessage(this.$store.state.chatStore.groupMsgMaxId);
+					if (this.reconnecting) {
+						this.onReconnectWs();
+					} else {
+						// 加载离线消息
+						this.pullPrivateOfflineMessage(this.$store.state.chatStore.privateMsgMaxId);
+						this.pullGroupOfflineMessage(this.$store.state.chatStore.groupMsgMaxId);
+					}
 				});
 				this.$wsApi.onMessage((cmd, msgInfo) => {
 					if (cmd == 2) {
@@ -130,13 +135,42 @@ export default {
 					console.log(e);
 					if (e.code != 3000) {
 						// 断线重连
-						this.$message.error("连接断开，正在尝试重新连接...");
-						this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, sessionStorage.getItem(
-							"accessToken"));
+						this.reconnectWs();
 					}
 				});
 			}).catch((e) => {
 				console.log("初始化失败", e);
+			})
+		},
+		reconnectWs() {
+			// 记录标志
+			this.reconnecting = true;
+			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
+			this.$store.dispatch("loadUser").then(() => {
+				// 断线重连
+				this.$message.error("连接断开，正在尝试重新连接...");
+				this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, sessionStorage.getItem(
+					"accessToken"));
+			}).catch(() => {
+				// 10s后重试
+				setTimeout(() => this.reconnectWs(), 10000)
+			})
+		},
+		onReconnectWs() {
+			// 重连成功
+			this.reconnecting = false;
+			// 重新加载群和好友
+			const promises = [];
+			promises.push(this.$store.dispatch("loadFriend"));
+			promises.push(this.$store.dispatch("loadGroup"));
+			Promise.all(promises).then(() => {
+				// 加载离线消息
+				this.pullPrivateOfflineMessage(this.$store.state.chatStore.privateMsgMaxId);
+				this.pullGroupOfflineMessage(this.$store.state.chatStore.groupMsgMaxId);
+				this.$message.success("重新连接成功");
+			}).catch(() => {
+				this.$message.error("初始化失败");
+				this.onExit();
 			})
 		},
 		pullPrivateOfflineMessage(minId) {
