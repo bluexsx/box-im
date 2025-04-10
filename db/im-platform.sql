@@ -22,6 +22,7 @@ create table `im_friend`(
     `friend_id` bigint not null  comment '好友id',
     `friend_nick_name` varchar(255) not null comment '好友昵称',
     `friend_head_image` varchar(255) default '' comment '好友头像',
+    `deleted` tinyint comment '删除标识  0：正常   1：已删除',
     `created_time` datetime DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     key `idx_user_id` (`user_id`),
     key `idx_friend_id` (`friend_id`)
