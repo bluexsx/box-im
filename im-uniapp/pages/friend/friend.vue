@@ -8,7 +8,7 @@
 					placeholder="点击搜索好友"></uni-search-bar>
 			</view>
 		</view>
-		<view class="friend-tip" v-if="friendIdx.length == 0">
+		<view class="friend-tip" v-if="!hasFriends">
 			温馨提示：您现在还没有任何好友，快点击右上方'+'按钮添加好友吧~
 		</view>
 		<view class="friend-items" v-else>
@@ -94,6 +94,9 @@ export default {
 		},
 		friendGroups() {
 			return Array.from(this.friendGroupMap.values());
+		},
+		hasFriends() {
+			return this.friendStore.friends.some(f => !f.deleted);
 		}
 	}
 }

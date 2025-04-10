@@ -7,7 +7,7 @@
 					placeholder="点击搜索群聊"></uni-search-bar>
 			</view>
 		</view>
-		<view class="group-tip" v-if="groupStore.groups.length == 0">
+		<view class="group-tip" v-if="!hasGroups">
 			温馨提示：您现在还没有加入任何群聊，点击右上方'+'按钮可以创建群聊哦~
 		</view>
 		<view class="group-items" v-else>
@@ -37,6 +37,11 @@ export default {
 			uni.navigateTo({
 				url: "/pages/group/group-edit"
 			})
+		}
+	},
+	computed: {
+		hasGroups() {
+			return this.groupStore.groups.some((g) => !g.quit);
 		}
 	}
 }
