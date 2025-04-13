@@ -9,7 +9,7 @@
 				</image-upload>
 			</view>
 			<view class="form-item">
-				<view class="label">账号</view>
+				<view class="label">用户名</view>
 				<view class="value">{{userInfo.userName}}</view>
 			</view>
 			<view class="form-item">
@@ -25,7 +25,7 @@
 			</view>
 			<view class="form-item">
 				<view class="label">个性签名</view>
-				<textarea class="signature" maxlength="128" auto-height v-model="userInfo.signature"
+				<textarea class="signature" maxlength="64" auto-height v-model="userInfo.signature"
 					:style="{'text-align': signTextAlign}" @linechange="onLineChange"
 					placeholder="编辑个性签名,展示我的独特态度"></textarea>
 			</view>

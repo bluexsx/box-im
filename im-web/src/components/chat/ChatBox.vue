@@ -162,13 +162,13 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.$store.commit("insertMessage", [msgInfo, this.chat]);
+				this.$store.commit("insertMessage", [msgInfo, file.chat]);
 			})
 		},
 		onImageFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.$store.commit("insertMessage", [msgInfo, this.chat]);
+			this.$store.commit("insertMessage", [msgInfo, file.chat]);
 		},
 		onImageBefore(file) {
 			// 被封禁提示
@@ -204,6 +204,7 @@ export default {
 			this.scrollToBottom();
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
+			file.chat = this.chat;
 		},
 		onFileSuccess(url, file) {
 			let data = {
@@ -219,13 +220,13 @@ export default {
 				msgInfo.id = m.id;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
-				this.$store.commit("insertMessage", [msgInfo, this.chat]);
+				this.$store.commit("insertMessage", [msgInfo, file.chat]);
 			})
 		},
 		onFileFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.$store.commit("insertMessage", [msgInfo, this.chat]);
+			this.$store.commit("insertMessage", [msgInfo, file.chat]);
 		},
 		onFileBefore(file) {
 			// 被封禁提示
@@ -261,6 +262,7 @@ export default {
 			this.scrollToBottom();
 			// 借助file对象透传
 			file.msgInfo = msgInfo;
+			file.chat = this.chat;
 		},
 		onCloseSide() {
 			this.showSide = false;
@@ -511,7 +513,7 @@ export default {
 			this.$http({
 				url: url,
 				method: 'put'
-			}).then(() => { })
+			}).then(() => {})
 		},
 		loadReaded(fId) {
 			this.$http({
@@ -691,7 +693,7 @@ export default {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-					newChat.targetId != oldChat.targetId)) {
+						newChat.targetId != oldChat.targetId)) {
 					if (this.chat.type == "GROUP") {
 						this.loadGroup(this.chat.targetId);
 					} else {

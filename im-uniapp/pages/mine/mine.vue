@@ -6,31 +6,24 @@
 				<head-image :name="userInfo.nickName" :url="userInfo.headImage" :size="160"></head-image>
 				<view class="info-item">
 					<view class="info-primary">
-						<text class="info-username">
-							{{ userInfo.userName }}
+						<text class="nick-name">
+							{{ userInfo.nickName }}
 						</text>
 						<text v-show="userInfo.sex == 0" class="iconfont icon-man" color="darkblue"></text>
 						<text v-show="userInfo.sex == 1" class="iconfont icon-girl" color="darkred"></text>
 					</view>
 					<view class="info-text">
-						<text class="label-text">
-							昵称:
-						</text>
-						<text class="content-text">
-							{{ userInfo.nickName }}
-						</text>
+						<text class="label-text">用户名:</text>
+						<text class="content-text">	{{ userInfo.userName }}	</text>
 					</view>
 					<view class="info-text">
 						<view>
-							<text class="label-text">
-								签名:
-							</text>
-							<text class="content-text">
-								{{ userInfo.signature }}
-							</text>
+							<text class="label-text">签名:</text>
+							<text class="content-text">	{{ userInfo.signature }}</text>
 						</view>
 					</view>
 				</view>
+				<uni-icons class="info-arrow" type="right" size="16"></uni-icons>
 			</view>
 		</uni-card>
 		<bar-group>
@@ -75,19 +68,18 @@ export default {
 			return this.userStore.userInfo;
 		}
 	}
-
-
 }
 </script>
 
 <style scoped lang="scss">
 .mine {
 	.content {
-		//height: 200rpx;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 20rpx;
+		padding: 10rpx;
+		padding-right: 30rpx;
+		overflow: hidden;
 
 		.info-item {
 			display: flex;
@@ -110,14 +102,17 @@ export default {
 			.content-text {
 				font-size: $im-font-size-small;
 				color: $im-text-color-light;
-			}
+				margin-left: 10rpx;
+				word-break: break-all;
+				overflow: hidden;
+			}	
 
 			.info-primary {
 				display: flex;
 				align-items: center;
 				margin-bottom: 10rpx;
 
-				.info-username {
+				.nick-name {
 					font-size: $im-font-size-large;
 					font-weight: 600;
 				}
