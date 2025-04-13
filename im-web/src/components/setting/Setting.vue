@@ -21,7 +21,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="个性签名">
-        <el-input type="textarea" v-model="userInfo.signature" :rows="3"></el-input>
+        <el-input type="textarea" v-model="userInfo.signature" :rows="3" maxlength="64"></el-input>
       </el-form-item>
     </el-form>
 

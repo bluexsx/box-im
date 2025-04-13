@@ -418,6 +418,7 @@ export default {
 			this.moveChatToTop();
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
+			file.chat = this.chat;
 			// 滚到最低部
 			this.scrollToBottom();
 			return true;
@@ -430,13 +431,13 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo, this.chat);
+				this.chatStore.insertMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.chatStore.insertMessage(msgInfo, this.chat);
+			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onUploadFileBefore(file) {
 			// 检查是否被封禁
@@ -469,6 +470,7 @@ export default {
 			this.moveChatToTop();
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
+			file.chat = this.chat;
 			// 滚到最低部
 			this.scrollToBottom();
 			return true;
@@ -486,13 +488,13 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo, this.chat);
+				this.chatStore.insertMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadFileFail(file, res) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.chatStore.insertMessage(msgInfo, this.chat);
+			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onDeleteMessage(msgInfo) {
 			uni.showModal({
