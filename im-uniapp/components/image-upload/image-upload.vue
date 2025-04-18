@@ -29,6 +29,10 @@ export default {
 			type: String,
 			default: 'album'
 		},
+		isPermanent: {
+			type: Boolean,
+			default: false
+		},
 		onBefore: {
 			type: Function,
 			default: null
@@ -61,7 +65,7 @@ export default {
 		},
 		uploadImage(file) {
 			uni.uploadFile({
-				url: UNI_APP.BASE_URL + '/image/upload',
+				url: UNI_APP.BASE_URL + '/image/upload?isPermanent=' + this.isPermanent,
 				header: {
 					accessToken: uni.getStorageSync("loginInfo").accessToken
 				},

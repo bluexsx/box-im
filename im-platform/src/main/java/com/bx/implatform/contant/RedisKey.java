@@ -53,4 +53,9 @@ public final class RedisKey {
      */
     public static final String IM_REPEAT_SUBMIT = "im:repeat:submit";
 
+    /**
+     * 分布式锁-清理过期文件
+     */
+    public static final String IM_LOCK_FILE_TASK =  "im:lock:task:file";
+
 }

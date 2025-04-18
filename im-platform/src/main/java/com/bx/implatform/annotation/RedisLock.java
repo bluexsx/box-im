@@ -21,7 +21,7 @@ public @interface RedisLock {
     /**
      * spel 表达式
      */
-    String key();
+    String key() default "";
 
     /**
      * 等待锁的时间，默认-1，不等待直接失败,redisson默认也是-1

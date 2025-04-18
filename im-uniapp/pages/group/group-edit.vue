@@ -5,7 +5,7 @@
 			<view class="form-item">
 				<view class="label">群聊头像</view>
 				<view class="value"></view>
-				<image-upload v-if="isOwner" :onSuccess="onUnloadImageSuccess">
+				<image-upload v-if="isOwner" :isPermanent="true" :onSuccess="onUnloadImageSuccess">
 					<image :src="group.headImageThumb" class="group-image"></image>
 				</image-upload>
 				<head-image v-else class="group-image" :name="group.showGroupName" :url="group.headImageThumb"

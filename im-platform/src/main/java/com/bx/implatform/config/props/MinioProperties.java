@@ -29,4 +29,6 @@ public class MinioProperties {
     private String filePath;
 
     private String videoPath;
+
+    private Integer expireIn;
 }

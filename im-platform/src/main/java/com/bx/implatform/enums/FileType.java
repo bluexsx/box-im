@@ -16,11 +16,7 @@ public enum FileType {
     /**
      * 视频
      */
-    VIDEO(2, "视频"),
-    /**
-     * 声音
-     */
-    AUDIO(3, "声音");
+    VIDEO(2, "视频");
 
     private final Integer code;
 

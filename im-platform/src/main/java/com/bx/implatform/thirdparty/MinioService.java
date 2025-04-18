@@ -1,5 +1,6 @@
-package com.bx.implatform.util;
+package com.bx.implatform.thirdparty;
 
+import com.bx.implatform.util.DateTimeUtils;
 import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MinioUtil {
+public class MinioService {
 
     private final MinioClient minioClient;
 
@@ -137,11 +138,29 @@ public class MinioUtil {
      */
     public boolean remove(String bucketName, String path, String fileName) {
         try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(path + fileName).build());
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(path + "/"  + fileName).build());
         } catch (Exception e) {
             log.error("删除文件失败,", e);
             return false;
         }
         return true;
     }
+
+    /**
+     * 判断文件是否存在
+     *
+     * @param bucketName bucket名称
+     * @param path       路径
+     * @param fileName   文件名
+     * @return
+     */
+    public Boolean isExist(String bucketName, String path, String fileName) {
+        try {
+            minioClient.statObject(StatObjectArgs.builder().bucket(bucketName).object(path + "/"  + fileName).build());
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 }

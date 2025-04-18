@@ -19,6 +19,7 @@ minio:
   imagePath: image
   filePath: file
   videoPath: video
+  expireIn: 180 # 文件过期时间,单位:天
 
 webrtc:
   max-channel: 9 # 多人通话最大通道数量，最大不能超过16,建议值:4,9,16
