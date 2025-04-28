@@ -88,13 +88,13 @@ export default {
 			this.close();
 		},
 		scrollToActive() {
-			if (this.activeIdx * 35 - this.$refs.scrollBox.wrap.clientHeight > this.$refs.scrollBox.wrap.scrollTop) {
+			if (this.activeIdx * 40 - this.$refs.scrollBox.wrap.clientHeight > this.$refs.scrollBox.wrap.scrollTop) {
 				this.$refs.scrollBox.wrap.scrollTop += 140;
 				if (this.$refs.scrollBox.wrap.scrollTop > this.$refs.scrollBox.wrap.scrollHeight) {
 					this.$refs.scrollBox.wrap.scrollTop = this.$refs.scrollBox.wrap.scrollHeight
 				}
 			}
-			if (this.activeIdx * 35 < this.$refs.scrollBox.wrap.scrollTop) {
+			if (this.activeIdx * 40 < this.$refs.scrollBox.wrap.scrollTop) {
 				this.$refs.scrollBox.wrap.scrollTop -= 140;
 				if (this.$refs.scrollBox.wrap.scrollTop < 0) {
 					this.$refs.scrollBox.wrap.scrollTop = 0;

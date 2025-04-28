@@ -238,8 +238,9 @@ export default {
 
 		},
 		onBlur(e) {
-			this.updateRange();
-
+			if(!this.atIng){
+				this.updateRange();
+			}
 		},
 		onMousedown() {
 			if (this.atIng) {
