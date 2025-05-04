@@ -733,7 +733,6 @@ export default {
 				h -= 50;
 				// 减去键盘高度
 				if (this.isShowKeyBoard || this.chatTabBox != 'none') {
-					console.log("减去键盘高度:", this.keyboardHeight)
 					h -= this.keyboardHeight;
 					this.scrollToBottom();
 				}
@@ -742,7 +741,6 @@ export default {
 				h -= uni.getSystemInfoSync().statusBarHeight;
 				// #endif
 				this.chatMainHeight = h;
-				console.log("窗口高度:", this.chatMainHeight)
 				if (this.isShowKeyBoard || this.chatTabBox != 'none') {
 					this.scrollToBottom();
 				}
@@ -806,7 +804,6 @@ export default {
 			this.reCalChatMainHeight();
 		},
 		resizeListener() {
-			console.log("resize")
 			let keyboardHeight = this.initHeight - window.innerHeight;
 			this.isShowKeyBoard = keyboardHeight > 150;
 			if (this.isShowKeyBoard) {
@@ -815,12 +812,10 @@ export default {
 			this.reCalChatMainHeight();
 		},
 		focusInListener() {
-			console.log("focusInListener")
 			this.isShowKeyBoard = true;
 			this.reCalChatMainHeight();
 		},
 		focusOutListener() {
-			console.log("focusOutListener")
 			this.isShowKeyBoard = false;
 			this.reCalChatMainHeight();
 		},

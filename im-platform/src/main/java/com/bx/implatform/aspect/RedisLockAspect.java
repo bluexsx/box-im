@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.bx.implatform.annotation.RedisLock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -61,18 +62,22 @@ public class RedisLockAspect {
     private String parseKey(ProceedingJoinPoint joinPoint){
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         RedisLock annotation = method.getAnnotation(RedisLock.class);
+        String key = annotation.key();
+        if(StrUtil.isEmpty(key)){
+            return Strings.EMPTY;
+        }
         // el解析需要的上下文对象
         EvaluationContext context = new StandardEvaluationContext();
         // 参数名
         String[] params = parameterNameDiscoverer.getParameterNames(method);
         if(Objects.isNull(params)){
-            return annotation.key();
+            return key;
         }
         Object[] args = joinPoint.getArgs();
         for (int i = 0; i < params.length; i++) {
             context.setVariable(params[i], args[i]);//所有参数都作为原材料扔进去
         }
-        Expression expression = parser.parseExpression(annotation.key());
+        Expression expression = parser.parseExpression(key);
         return expression.getValue(context, String.class);
     }
 

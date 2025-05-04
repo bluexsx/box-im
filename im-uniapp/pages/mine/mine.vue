@@ -56,7 +56,6 @@ export default {
 				title: '确认退出?',
 				success: (res) => {
 					if (res.confirm) {
-						console.log(getApp())
 						getApp().$vm.exit()
 					}
 				}

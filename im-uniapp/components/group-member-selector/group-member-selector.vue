@@ -42,12 +42,15 @@
 export default {
 	name: "chat-group-member-choose",
 	props: {
+		group: {
+			type: Object
+		},
 		members: {
 			type: Array
 		},
 		maxSize: {
 			type: Number,
-			default: -1
+			default: 50
 		}
 	},
 	data() {
@@ -56,10 +59,11 @@ export default {
 		};
 	},
 	methods: {
-		init(checkedIds, lockedIds) {
+		init(checkedIds, lockedIds, hideIds) {
 			this.members.forEach((m) => {
 				m.checked = checkedIds.indexOf(m.userId) >= 0;
 				m.locked = lockedIds.indexOf(m.userId) >= 0;
+				m.hide = hideIds.indexOf(m.userId) >= 0;
 			});
 		},
 		open() {
@@ -80,7 +84,7 @@ export default {
 		},
 		onClean() {
 			this.members.forEach((m) => {
-				if (!m.locked) {
+				if (!m.locked && m.checked) {
 					m.checked = false;
 				}
 			})
@@ -88,20 +92,17 @@ export default {
 		onOk() {
 			this.$refs.popup.close();
 			this.$emit("complete", this.checkedIds)
-		},
-		isChecked(m) {
-			return this.checkedIds.indexOf(m.userId) >= 0;
 		}
 	},
 	computed: {
 		checkedIds() {
-			return this.members.filter((m) => m.checked).map(m => m.userId)
+			return this.checkedMembers.map(m => m.userId)
 		},
 		checkedMembers() {
-			return this.members.filter((m) => m.checked);
+			return this.members.filter((m) => !m.quit && !m.hide && m.checked);
 		},
 		showMembers() {
-			return this.members.filter(m => !m.quit && m.showNickName.includes(this.searchText))
+			return this.members.filter(m => !m.quit && !m.hide && m.showNickName.includes(this.searchText))
 		}
 	}
 }
@@ -115,7 +116,8 @@ export default {
 	flex-direction: column;
 	background-color: white;
 	padding: 10rpx;
-	border-radius: 15rpx;
+	border-radius: 15rpx 15rpx 0 0;
+	overflow: hidden;
 
 	.top-bar {
 		display: flex;
@@ -158,6 +160,8 @@ export default {
 			white-space: nowrap;
 
 			.member-name {
+				display: flex;
+				align-items: center;
 				flex: 1;
 				padding-left: 20rpx;
 				font-size: 30rpx;
@@ -165,11 +169,15 @@ export default {
 				line-height: 60rpx;
 				white-space: nowrap;
 				overflow: hidden;
+
+				.uni-tag {
+					margin-left: 5rpx;
+				}
 			}
 		}
 
 		.scroll-bar {
-			height: 800rpx;
+			height: 65vh;
 		}
 	}
 }

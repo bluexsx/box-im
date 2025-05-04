@@ -407,7 +407,6 @@ export default {
 			// #ifdef APP-PLUS
 			// 关闭开机动画
 			setTimeout(() => {
-				console.log("plus.navigator.closeSplashscreen()")
 				plus.navigator.closeSplashscreen()
 			}, delay)
 			// #endif

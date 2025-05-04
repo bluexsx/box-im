@@ -28,7 +28,6 @@ export default {
 	},
 	methods: {
 		onScrollToBottom(e) {
-			console.log("onScrollToBottom")
 			if (this.showMaxIdx >= this.items.length) {
 				this.showTip();
 			} else {

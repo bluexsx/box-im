@@ -20,7 +20,6 @@ export default defineStore('userStore', {
 					url: '/user/self',
 					method: 'GET'
 				}).then((userInfo) => {
-					console.log(userInfo)
 					this.setUserInfo(userInfo);
 					resolve();
 				}).catch((res) => {

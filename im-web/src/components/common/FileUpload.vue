@@ -33,6 +33,10 @@ export default {
 			type: Boolean,
 			default: false
 		},
+		isPermanent: {
+			type: Boolean,
+			default: false
+		},
 		disabled: {
 			type: Boolean,
 			default: false
@@ -52,7 +56,7 @@ export default {
 			let formData = new FormData()
 			formData.append('file', file.file)
 			this.$http({
-				url: this.action,
+				url: this.action + '?isPermanent=' + this.isPermanent,
 				data: formData,
 				method: 'post',
 				headers: {

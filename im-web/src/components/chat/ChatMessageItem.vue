@@ -70,8 +70,7 @@
 				</div>
 			</div>
 		</div>
-		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="menuItems"
-			@close="rightMenu.show = false" @select="onSelectMenu"></right-menu>
+		<right-menu ref="rightMenu" @select="onSelectMenu"></right-menu>
 		<chat-group-readed ref="chatGroupReadedBox" :msgInfo="msgInfo" :groupMembers="groupMembers"></chat-group-readed>
 	</div>
 </template>
@@ -118,14 +117,7 @@ export default {
 	},
 	data() {
 		return {
-			audioPlayState: 'STOP',
-			rightMenu: {
-				show: false,
-				pos: {
-					x: 0,
-					y: 0
-				}
-			}
+			audioPlayState: 'STOP'
 		}
 	},
 	methods: {
@@ -147,11 +139,7 @@ export default {
 			this.onPlayVoice = 'RUNNING';
 		},
 		showRightMenu(e) {
-			this.rightMenu.pos = {
-				x: e.x,
-				y: e.y
-			};
-			this.rightMenu.show = "true";
+			this.$refs.rightMenu.open(e, this.menuItems);
 		},
 		onSelectMenu(item) {
 			this.$emit(item.key.toLowerCase(), this.msgInfo);

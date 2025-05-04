@@ -2,8 +2,7 @@
 	<div class="head-image" @click="showUserInfo($event)" :style="{ cursor: isShowUserInfo ? 'pointer' : null }">
 		<img class="avatar-image" v-show="url" :src="url" :style="avatarImageStyle" loading="lazy" />
 		<div class="avatar-text" v-show="!url" :style="avatarTextStyle">
-			{{ name?.substring(0, 2).toUpperCase() }}
-		</div>
+			{{ name?.substring(0, 2).toUpperCase() }}</div>
 		<div v-show="online" class="online" title="用户当前在线"></div>
 		<slot></slot>
 	</div>
@@ -15,8 +14,7 @@ export default {
 	data() {
 		return {
 			colors: ["#5daa31", "#c7515a", "#e03697", "#85029b",
-				"#c9b455", "#326eb6"
-			]
+				"#c9b455", "#326eb6"]
 		}
 	},
 	props: {
@@ -61,7 +59,11 @@ export default {
 					url: `/user/find/${this.id}`,
 					method: 'get'
 				}).then((user) => {
-					this.$store.commit("setUserInfoBoxPos", e);
+					let pos = {
+						x: e.x + 30,
+						y: e.y
+					}
+					this.$store.commit("setUserInfoBoxPos", pos);
 					this.$store.commit("showUserInfoBox", user);
 				})
 			}
@@ -111,8 +113,6 @@ export default {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		//border: 1px solid #ccc;
-		//box-shadow: var(--im-box-shadow);
 	}
 
 	.online {

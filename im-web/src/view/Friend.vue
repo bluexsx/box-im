@@ -131,7 +131,6 @@ export default {
 				showName: user.nickName,
 				headImage: user.headImageThumb,
 			};
-			console.log("chat:", chat)
 			this.$store.commit("openChat", chat);
 			this.$store.commit("activeChat", 0);
 			this.$router.push("/home/chat");

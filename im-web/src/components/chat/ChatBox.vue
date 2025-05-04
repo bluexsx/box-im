@@ -480,7 +480,7 @@ export default {
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				this.$store.commit("deleteMessage", msgInfo);
+				this.$store.commit("deleteMessage", [msgInfo, this.chat]);
 			});
 		},
 		recallMessage(msgInfo) {
@@ -567,13 +567,15 @@ export default {
 			})
 		},
 		showName(msgInfo) {
-			if (this.chat.type == 'GROUP') {
-				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
-				return member ? member.showNickName : "";
-			} else {
-				return msgInfo.sendId == this.mine.id ? this.mine.nickName : this.chat.showName
+			if (!msgInfo) {
+				return ""
 			}
-
+			if (this.isGroup) {
+				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
+				return member ? member.showNickName : msgInfo.sendNickName || "";
+			} else {
+				return msgInfo.selfSend ? this.mine.nickName : this.chat.showName
+			}
 		},
 		headImage(msgInfo) {
 			if (this.chat.type == 'GROUP') {

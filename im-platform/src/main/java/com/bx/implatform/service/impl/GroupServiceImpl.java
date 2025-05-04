@@ -12,6 +12,7 @@ import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.CommaTextUtils;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
+import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.entity.*;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
@@ -25,7 +26,7 @@ import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
-import com.bx.implatform.vo.GroupInviteVO;
+import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupMessageVO;
 import com.bx.implatform.vo.GroupVO;
@@ -126,7 +127,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         String content = String.format("'%s'解散了群聊", session.getNickName());
         this.sendTipMessage(groupId, userIds, content, true);
         // 推送同步消息
-        this.sendDelGroupMessage(groupId, userIds, false);
+        this.sendDelGroupMessage(groupId, userIds);
         log.info("删除群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
     }
 
@@ -145,7 +146,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 推送退出群聊提示
         this.sendTipMessage(groupId, List.of(userId), "您已退出群聊", false);
         // 推送同步消息
-        this.sendDelGroupMessage(groupId, Lists.newArrayList(), true);
+        this.sendDelGroupMessage(groupId, List.of(userId));
         log.info("退出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
     }
 
@@ -167,8 +168,33 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 推送踢出群聊提示
         this.sendTipMessage(groupId, List.of(userId), "您已被移出群聊", false);
         // 推送同步消息
-        this.sendDelGroupMessage(groupId, List.of(userId), false);
+        this.sendDelGroupMessage(groupId, List.of(userId));
         log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
+    }
+
+    @Override
+    public void removeGroupMembers(GroupMemberRemoveDTO dto) {
+        UserSession session = SessionContext.getSession();
+        Group group = this.getAndCheckById(dto.getGroupId());
+        if (!group.getOwnerId().equals(session.getUserId())) {
+            throw new GlobalException("您没有权限");
+        }
+        if (dto.getUserIds().contains(group.getOwnerId())) {
+            throw new GlobalException("不允许移除群主");
+        }
+        if (dto.getUserIds().contains(session.getUserId())) {
+            throw new GlobalException("不允许移除自己");
+        }
+        // 删除群聊成员
+        groupMemberService.removeByGroupAndUserIds(dto.getGroupId(), dto.getUserIds());
+        // 清理已读缓存
+        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, dto.getGroupId());
+        dto.getUserIds().forEach(id -> redisTemplate.opsForHash().delete(key, id.toString()));
+        // 推送踢出群聊提示
+        this.sendTipMessage(dto.getGroupId(), dto.getUserIds(), "您已被移出群聊", false);
+        // 推送同步消息
+        this.sendDelGroupMessage(dto.getGroupId(), dto.getUserIds());
+        log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), dto.getUserIds());
     }
 
     @Override
@@ -225,22 +251,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
     @Override
-    public void invite(GroupInviteVO vo) {
+    public void invite(GroupInviteDTO dto) {
         UserSession session = SessionContext.getSession();
-        Group group = this.getAndCheckById(vo.getGroupId());
-        GroupMember member = groupMemberService.findByGroupAndUserId(vo.getGroupId(), session.getUserId());
+        Group group = this.getAndCheckById(dto.getGroupId());
+        GroupMember member = groupMemberService.findByGroupAndUserId(dto.getGroupId(), session.getUserId());
         if (Objects.isNull(group) || member.getQuit()) {
             throw new GlobalException("您不在群聊中,邀请失败");
         }
         // 群聊人数校验
-        List<GroupMember> members = groupMemberService.findByGroupId(vo.getGroupId());
+        List<GroupMember> members = groupMemberService.findByGroupId(dto.getGroupId());
         long size = members.stream().filter(m -> !m.getQuit()).count();
-        if (vo.getFriendIds().size() + size > Constant.MAX_LARGE_GROUP_MEMBER) {
+        if (dto.getFriendIds().size() + size > Constant.MAX_LARGE_GROUP_MEMBER) {
             throw new GlobalException("群聊人数不能大于" + Constant.MAX_LARGE_GROUP_MEMBER + "人");
         }
         // 找出好友信息
-        List<Friend> friends = friendsService.findByFriendIds(vo.getFriendIds());
-        if (vo.getFriendIds().size() != friends.size()) {
+        List<Friend> friends = friendsService.findByFriendIds(dto.getFriendIds());
+        if (dto.getFriendIds().size() != friends.size()) {
             throw new GlobalException("部分用户不是您的好友，邀请失败");
         }
         // 批量保存成员数据
@@ -248,7 +274,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             Optional<GroupMember> optional =
                 members.stream().filter(m -> m.getUserId().equals(f.getFriendId())).findFirst();
             GroupMember groupMember = optional.orElseGet(GroupMember::new);
-            groupMember.setGroupId(vo.getGroupId());
+            groupMember.setGroupId(dto.getGroupId());
             groupMember.setUserId(f.getFriendId());
             groupMember.setUserNickName(f.getFriendNickName());
             groupMember.setHeadImage(f.getFriendHeadImage());
@@ -265,12 +291,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             sendAddGroupMessage(groupVo, List.of(m.getUserId()), false);
         }
         // 推送进入群聊消息
-        List<Long> userIds = groupMemberService.findUserIdsByGroupId(vo.getGroupId());
+        List<Long> userIds = groupMemberService.findUserIdsByGroupId(dto.getGroupId());
         String memberNames = groupMembers.stream().map(GroupMember::getShowNickName).collect(Collectors.joining(","));
         String content = String.format("'%s'邀请'%s'加入了群聊", session.getNickName(), memberNames);
-        this.sendTipMessage(vo.getGroupId(), userIds, content, true);
+        this.sendTipMessage(dto.getGroupId(), userIds, content, true);
         log.info("邀请进入群聊，群聊id:{},群聊名称:{},被邀请用户id:{}", group.getId(), group.getName(),
-            vo.getFriendIds());
+            dto.getFriendIds());
     }
 
     @Override
@@ -345,7 +371,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         imClient.sendGroupMessage(sendMessage);
     }
 
-    private void sendDelGroupMessage(Long groupId, List<Long> recvIds, Boolean sendToSelf) {
+    private void sendDelGroupMessage(Long groupId, List<Long> recvIds) {
         UserSession session = SessionContext.getSession();
         GroupMessageVO msgInfo = new GroupMessageVO();
         msgInfo.setType(MessageType.GROUP_DEL.code());
@@ -357,7 +383,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         sendMessage.setRecvIds(recvIds);
         sendMessage.setData(msgInfo);
         sendMessage.setSendResult(false);
-        sendMessage.setSendToSelf(sendToSelf);
+        sendMessage.setSendToSelf(false);
         imClient.sendGroupMessage(sendMessage);
     }
 }

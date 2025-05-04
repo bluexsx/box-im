@@ -59,7 +59,6 @@ export default {
 						errorMessage: '请输入确认密码',
 					}, {
 						validateFunction: (rule, value, data, callback) => {
-							console.log("validateFunction")
 							if (data.password != value) {
 								callback('两次密码输入不一致')
 							}

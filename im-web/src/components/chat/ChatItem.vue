@@ -19,8 +19,7 @@
 				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent,'emoji-small')"></div>
 			</div>
 		</div>
-		<right-menu v-show="rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
-			@close="rightMenu.show = false" @select="onSelectMenu"></right-menu>
+		<right-menu ref="rightMenu" @select="onSelectMenu"></right-menu>
 	</div>
 
 </template>
@@ -37,22 +36,15 @@ export default {
 	},
 	data() {
 		return {
-			rightMenu: {
-				show: false,
-				pos: {
-					x: 0,
-					y: 0
-				},
-				items: [{
-					key: 'TOP',
-					name: '置顶',
-					icon: 'el-icon-top'
-				}, {
-					key: 'DELETE',
-					name: '删除',
-					icon: 'el-icon-delete'
-				}]
-			}
+			menuItems: [{
+				key: 'TOP',
+				name: '置顶',
+				icon: 'el-icon-top'
+			}, {
+				key: 'DELETE',
+				name: '删除',
+				icon: 'el-icon-delete'
+			}]
 		}
 	},
 	props: {
@@ -68,11 +60,7 @@ export default {
 	},
 	methods: {
 		showRightMenu(e) {
-			this.rightMenu.pos = {
-				x: e.x,
-				y: e.y
-			};
-			this.rightMenu.show = "true";
+			this.$refs.rightMenu.open(e, this.menuItems);
 		},
 		onSelectMenu(item) {
 			this.$emit(item.key.toLowerCase(), this.msgInfo);

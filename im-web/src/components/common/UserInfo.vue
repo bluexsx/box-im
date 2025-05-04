@@ -1,27 +1,32 @@
 <template>
-	<div class="user-info-mask" @click="$emit('close')">
-		<div class="user-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
-			<div class="user-info-box">
-				<div class="avatar">
-					<head-image :name="user.nickName" :url="user.headImageThumb" :size="70" :online="user.online"
-						radius="10%" @click.native="showFullImage()"> </head-image>
-				</div>
-				<div>
-					<el-descriptions :column="1" :title="user.nickName" class="user-info-items">
-						<el-descriptions-item label="用户名">{{ user.userName }}
-						</el-descriptions-item>
-						<el-descriptions-item label="签名">{{ user.signature }}
-						</el-descriptions-item>
-					</el-descriptions>
-				</div>
+	<div class="user-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
+		<div class="user-info-box">
+			<div class="avatar">
+				<head-image :name="user.nickName" :url="user.headImageThumb" :size="60" :online="user.online"
+					@click.native="showFullImage()" radius="10%"> </head-image>
 			</div>
-			<el-divider content-position="center"></el-divider>
-			<div class="user-btn-group">
-				<el-button v-show="isFriend" type="primary" @click="onSendMessage()">发消息</el-button>
-				<el-button v-show="!isFriend" type="primary" @click="onAddFriend()">加为好友</el-button>
+			<div class="info-card">
+				<div class="header">
+					<div class="nick-name">{{ user.nickName }}</div>
+					<div v-if="user.sex == 0" class="icon iconfont icon-man" style="color: darkblue;"></div>
+					<div v-if="user.sex == 1" class="icon iconfont icon-girl" style="color: darkred;"></div>
+				</div>
+				<div class="info-item">
+					用户名: {{ user.userName }}
+				</div>
+				<div class="info-item">
+					个性签名: {{ user.signature }}
+				</div>
 			</div>
 		</div>
+		<el-divider content-position="center"></el-divider>
+		<div class="user-btn-group">
+			<el-button v-if="isFriend" type="primary" @click="onSendMessage()">发消息</el-button>
+			<el-button v-else type="primary" @click="onAddFriend()">加为好友</el-button>
+		</div>
 	</div>
+
+
 </template>
 
 <script>
@@ -62,23 +67,7 @@ export default {
 			this.$emit("close");
 		},
 		onAddFriend() {
-			this.$http({
-				url: "/friend/add",
-				method: "post",
-				params: {
-					friendId: this.user.id
-				}
-			}).then(() => {
-				this.$message.success("添加成功，对方已成为您的好友");
-				let friend = {
-					id: this.user.id,
-					nickName: this.user.nickName,
-					headImage: this.user.headImageThumb,
-					online: this.user.online,
-					deleted: false
-				}
-				this.$store.commit("addFriend", friend);
-			})
+			this.$refs.applyRef.open(this.user);
 		},
 		showFullImage() {
 			if (this.user.headImage) {
@@ -89,6 +78,9 @@ export default {
 	computed: {
 		isFriend() {
 			return this.$store.getters.isFriend(this.user.id);
+		},
+		isWaitingApprove() {
+			return this.$store.getters.isInRecvRequest(this.user.id);
 		}
 	}
 }
@@ -96,7 +88,7 @@ export default {
 
 <style lang="scss">
 .user-info-mask {
-	background-color: rgba($color: #000000, $alpha: 0);
+	background-color: rgba($color: #f4f4f4, $alpha: 0);
 	position: fixed;
 	left: 0;
 	top: 0;
@@ -116,23 +108,33 @@ export default {
 		display: flex;
 		align-items: center;
 
-		.user-info-items {
-			margin-left: 10px;
-			white-space: nowrap;
-			overflow: hidden;
+		.info-card {
+			flex: 1;
+			padding-left: 10px;
 
-			.el-descriptions__header {
-				margin-bottom: 5px;
+			.header {
+				display: flex;
+				align-items: center;
+
+				.nick-name {
+					font-size: var(--im-font-size-large);
+					font-weight: 600;
+				}
+
+				.icon {
+					margin-left: 3px;
+					font-size: var(--im-font-size);
+				}
 			}
 
-			.el-descriptions__title {
-				font-size: 18px;
-			}
+			.info-item {
+				font-size: var(--im-font-size);
+				margin-top: 5px;
+				word-break: break-all;
 
-			.el-descriptions-item__cell {
-				padding-bottom: 1px;
 			}
 		}
+
 	}
 
 	.el-divider--horizontal {
@@ -141,6 +143,11 @@ export default {
 
 	.user-btn-group {
 		text-align: center;
+
+		.wait-text {
+			font-size: 14px;
+			color: var(--im-text-color-light);
+		}
 	}
 }
 </style>

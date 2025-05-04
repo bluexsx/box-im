@@ -29,6 +29,10 @@ export default {
 			type: String,
 			default: 'album'
 		},
+		isPermanent: {
+			type: Boolean,
+			default: false
+		},
 		onBefore: {
 			type: Function,
 			default: null
@@ -50,7 +54,6 @@ export default {
 				sizeType: ['original'], //original 原图，compressed 压缩图，默认二者都有
 				success: (res) => {
 					res.tempFiles.forEach((file) => {
-						console.log("文件:", file)
 						if (!this.onBefore || this.onBefore(file)) {
 							// 调用上传图片的接口
 							this.uploadImage(file);
@@ -61,7 +64,7 @@ export default {
 		},
 		uploadImage(file) {
 			uni.uploadFile({
-				url: UNI_APP.BASE_URL + '/image/upload',
+				url: UNI_APP.BASE_URL + '/image/upload?isPermanent=' + this.isPermanent,
 				header: {
 					accessToken: uni.getStorageSync("loginInfo").accessToken
 				},

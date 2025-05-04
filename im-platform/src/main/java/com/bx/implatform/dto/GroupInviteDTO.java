@@ -1,4 +1,4 @@
-package com.bx.implatform.vo;
+package com.bx.implatform.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
@@ -9,8 +9,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@Schema(description = "邀请好友进群请求VO")
-public class GroupInviteVO {
+@Schema(description = "邀请好友进群请求DTO")
+public class GroupInviteDTO {
 
     @NotNull(message = "群id不可为空")
     @Schema(description = "群id")

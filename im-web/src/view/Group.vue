@@ -61,7 +61,7 @@
 									maxlength="1024" placeholder="群主未设置"></el-input>
 							</el-form-item>
 							<div>
-								<el-button type="warning" v-show="isOwner" @click="onInviteMember()">邀请</el-button>
+								<el-button type="warning" @click="onInviteMember()">邀请</el-button>
 								<el-button type="success" @click="onSaveGroup()">保存</el-button>
 								<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出</el-button>
 								<el-button type="danger" v-show="isOwner" @click="onDissolve()">解散</el-button>
@@ -71,19 +71,24 @@
 					<el-divider content-position="center"></el-divider>
 					<el-scrollbar ref="scrollbar" :style="'height: ' + scrollHeight + 'px'">
 						<div class="group-member-list">
-							<div class="group-invite">
-								<div class="invite-member-btn" title="邀请好友进群聊" @click="onInviteMember()">
+							<div class="member-tools">
+								<div class="tool-btn" title="邀请好友进群聊" @click="onInvite()">
 									<i class="el-icon-plus"></i>
 								</div>
-								<div class="invite-member-text">邀请</div>
-								<add-group-member :visible="showAddGroupMember" :groupId="activeGroup.id"
-									:members="groupMembers" @reload="loadGroupMembers"
-									@close="onCloseAddGroupMember"></add-group-member>
+								<div class="tool-text">邀请</div>
+								<add-group-member ref="addGroupMember" :groupId="activeGroup.id" :members="groupMembers"
+									@reload="$emit('reload')"></add-group-member>
+							</div>
+							<div class="member-tools" v-if="isOwner">
+								<div class="tool-btn" title="选择成员移出群聊" @click="onRemove()">
+									<i class="el-icon-minus"></i>
+								</div>
+								<div class="tool-text">移除</div>
+								<group-member-selector ref="removeSelector" title="选择成员进行移除" :group="activeGroup"
+									@complete="onRemoveComplete"></group-member-selector>
 							</div>
 							<div v-for="(member, idx) in showMembers" :key="member.id">
-								<group-member v-if="idx < showMaxIdx" class="group-member" :member="member"
-									:showDel="isOwner && member.userId != activeGroup.ownerId"
-									@del="onKick"></group-member>
+								<group-member v-if="idx < showMaxIdx" class="group-member" :member="member"></group-member>
 							</div>
 						</div>
 					</el-scrollbar>
@@ -99,6 +104,7 @@ import GroupItem from '../components/group/GroupItem';
 import FileUpload from '../components/common/FileUpload';
 import GroupMember from '../components/group/GroupMember.vue';
 import AddGroupMember from '../components/group/AddGroupMember.vue';
+import GroupMemberSelector from '../components/group/GroupMemberSelector.vue';
 import HeadImage from '../components/common/HeadImage.vue';
 import { pinyin } from 'pinyin-pro';
 
@@ -109,6 +115,7 @@ export default {
 		GroupMember,
 		FileUpload,
 		AddGroupMember,
+		GroupMemberSelector,
 		HeadImage
 	},
 	data() {
@@ -154,13 +161,31 @@ export default {
 			// store数据不能直接修改，所以深拷贝一份内存
 			this.activeGroup = JSON.parse(JSON.stringify(group));
 			// 重新加载群成员
+			this.groupMembers = [];
 			this.loadGroupMembers();
 		},
-		onInviteMember() {
-			this.showAddGroupMember = true;
+		onInvite() {
+			this.$refs.addGroupMember.open();
 		},
-		onCloseAddGroupMember() {
-			this.showAddGroupMember = false;
+		onRemove() {
+			// 群主不显示
+			let hideIds = [this.activeGroup.ownerId];
+			this.$refs.removeSelector.open(50, [], [], hideIds);
+		},
+		onRemoveComplete(members) {
+			let userIds = members.map(m => m.userId);
+			let data = {
+				groupId: this.activeGroup.id,
+				userIds: userIds
+			}
+			this.$http({
+				url: "/group/members/remove",
+				method: 'delete',
+				data: data
+			}).then(() => {
+				this.loadGroupMembers();
+				this.$message.success(`您移除了${userIds.length}位成员`);
+			})
 		},
 		onUploadSuccess(data) {
 			this.activeGroup.headImage = data.originUrl;
@@ -196,25 +221,6 @@ export default {
 					this.reset();
 				});
 			})
-		},
-		onKick(member) {
-			this.$confirm(`确定将成员'${member.showNickName}'移出群聊吗？`, '确认移出?', {
-				confirmButtonText: '确定',
-				cancelButtonText: '取消',
-				type: 'warning'
-			}).then(() => {
-				this.$http({
-					url: `/group/kick/${this.activeGroup.id}`,
-					method: 'delete',
-					params: {
-						userId: member.userId
-					}
-				}).then(() => {
-					this.$message.success(`已将${member.showNickName}移出群聊`);
-					member.quit = true;
-				});
-			})
-
 		},
 		onQuit() {
 			this.$confirm(`确认退出'${this.activeGroup.showGroupName}',并清空聊天记录吗？`, '确认退出?', {
@@ -455,13 +461,13 @@ export default {
 					margin-right: 5px;
 				}
 
-				.group-invite {
+				.member-tools {
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 					width: 60px;
 
-					.invite-member-btn {
+					.tool-btn {
 						width: 38px;
 						height: 38px;
 						line-height: 38px;
@@ -475,7 +481,7 @@ export default {
 						}
 					}
 
-					.invite-member-text {
+					.tool-text {
 						font-size: var(--im-font-size-smaller);
 						text-align: center;
 						width: 100%;

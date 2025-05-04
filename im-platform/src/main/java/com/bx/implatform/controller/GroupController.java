@@ -1,10 +1,11 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.annotation.RepeatSubmit;
+import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.GroupService;
-import com.bx.implatform.vo.GroupInviteVO;
+import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,8 +63,8 @@ public class GroupController {
     @RepeatSubmit
     @Operation(summary = "邀请进群", description = "邀请好友进群")
     @PostMapping("/invite")
-    public Result invite(@Valid @RequestBody GroupInviteVO vo) {
-        groupService.invite(vo);
+    public Result invite(@Valid @RequestBody GroupInviteDTO dto) {
+        groupService.invite(dto);
         return ResultUtils.success();
     }
 
@@ -75,6 +76,15 @@ public class GroupController {
     }
 
     @RepeatSubmit
+    @Operation(summary = "将成员移出群聊", description = "将成员移出群聊")
+    @DeleteMapping("/members/remove")
+    public Result removeMembers(@Valid @RequestBody GroupMemberRemoveDTO dto) {
+        groupService.removeGroupMembers(dto);
+        return ResultUtils.success();
+    }
+
+
+    @RepeatSubmit
     @Operation(summary = "退出群聊", description = "退出群聊")
     @DeleteMapping("/quit/{groupId}")
     public Result quitGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId) {
@@ -83,7 +93,7 @@ public class GroupController {
     }
 
     @RepeatSubmit
-    @Operation(summary = "踢出群聊", description = "将用户踢出群聊")
+    @Operation(summary = "踢出群聊(已废弃)", description = "将用户踢出群聊")
     @DeleteMapping("/kick/{groupId}")
     public Result kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,
         @NotNull(message = "用户id不能为空") @RequestParam Long userId) {

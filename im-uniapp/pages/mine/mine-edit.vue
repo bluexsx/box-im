@@ -4,7 +4,7 @@
 		<view class="form">
 			<view class="form-item">
 				<view class="label">头像</view>
-				<image-upload class="value" :onSuccess="onUnloadImageSuccess">
+				<image-upload class="value" :isPermanent="true" :onSuccess="onUnloadImageSuccess">
 					<image :src="userInfo.headImageThumb" class="head-image"></image>
 				</image-upload>
 			</view>
