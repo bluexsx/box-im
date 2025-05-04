@@ -76,7 +76,6 @@ export default {
 		},
 	},
 	onBackPress() {
-		console.log("onBackPress")
 		this.sendMessageToWebView("NAV_BACK", {})
 	},
 	onLoad(options) {

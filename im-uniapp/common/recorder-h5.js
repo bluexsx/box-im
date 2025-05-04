@@ -26,7 +26,6 @@ let checkIsEnable = () => {
 
 let start = () => {
 	return navigator.mediaDevices.getUserMedia({ audio: true }).then(audioStream => {
-		console.log("start record")
 		startTime = new Date().getTime();
 		chunks = [];
 		stream = audioStream;
@@ -36,7 +35,6 @@ let start = () => {
 }
 
 let close = () => {
-	console.log("stream:", stream)
 	stream.getTracks().forEach((track) => {
 		track.stop()
 	})
@@ -47,9 +45,6 @@ let close = () => {
 let upload = () => {
 	return new Promise((resolve, reject) => {
 		rc.ondataavailable = (e) => {
-			console.log("ondataavailable:",e.data)
-			console.log("size:",e.data.size)
-			console.log("type:",e.data.type)
 			chunks.push(e.data)
 		}
 		rc.onstop = () => {
@@ -58,8 +53,6 @@ let upload = () => {
 				return; 
 			}
 			duration = (new Date().getTime() - startTime) / 1000;
-			console.log("时长：", duration)
-			console.log("上传,chunks:", chunks.length)
 			const newbolb = new Blob(chunks, { 'type': 'audio/mpeg' });
 			const name = new Date().getDate() + '.mp3';
 			const file = new File([newbolb], name)

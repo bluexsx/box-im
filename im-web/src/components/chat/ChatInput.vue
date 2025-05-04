@@ -117,7 +117,6 @@ export default {
 				e.preventDefault();
 				e.stopPropagation();
 				if (this.atIng) {
-					console.log('选中at的人')
 					this.$refs.atBox.select();
 					return;
 				}
@@ -137,12 +136,10 @@ export default {
 			}
 			// 删除键
 			if (e.keyCode === 8) {
-				console.log("delete")
 				// 等待dom更新
 				setTimeout(() => {
 					let s = this.$refs.content.innerHTML.trim();
 					// 空dom时，需要刷新dom
-					console.log(s);
 					if (s === '' || s === '<br>' || s === '<div>&nbsp;</div>') {
 						// 拼接随机长度的空格，以刷新dom
 						this.empty();
@@ -179,7 +176,6 @@ export default {
 			blurRange.setEnd(blurRange.endContainer, endOffset);
 			blurRange.deleteContents()
 			blurRange.collapse();
-			console.log("onAtSelect")
 			this.focus();
 			// 创建元素节点
 			let element = document.createElement('SPAN')

@@ -4,7 +4,7 @@
 		<view v-if="!group.quit" class="group-members">
 			<view class="member-items">
 				<view v-for="(member, idx) in groupMembers" :key="idx">
-					<view class="member-item" v-if="idx < 9">
+					<view class="member-item" v-if="idx < showMaxIdx">
 						<head-image :id="member.userId" :name="member.showNickName" :url="member.headImage" size="small"
 							:online="member.online"></head-image>
 						<view class="member-name">
@@ -12,8 +12,17 @@
 						</view>
 					</view>
 				</view>
-				<view class="invite-btn" @click="onInviteMember()">
-					<uni-icons type="plusempty" size="20" color="#888888"></uni-icons>
+				<view class="member-item" @click="onInviteMember()">
+					<view class="tools-btn">
+						<uni-icons class="icon" type="plusempty" color="#888888"></uni-icons>
+					</view>
+					<view class="member-name">邀请</view>
+				</view>
+				<view v-if="isOwner" class="member-item" @click="onRemoveMember()">
+					<view class="tools-btn">
+						<text class="icon iconfont icon-remove"></text>
+					</view>
+					<view class="member-name">移除</view>
 				</view>
 			</view>
 			<view class="member-more" @click="onShowMoreMmeber()">{{ `查看全部群成员${groupMembers.length}人` }}></view>
@@ -41,15 +50,15 @@
 			<view v-if="group.notice" class="form-item">
 				<uni-notice-bar :text="group.notice" />
 			</view>
-
 			<view v-if="!group.quit" class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
-
 		<bar-group v-if="!group.quit">
 			<btn-bar type="primary" title="发送消息" @tap="onSendMessage()"></btn-bar>
 			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @tap="onQuitGroup()"></btn-bar>
 			<btn-bar v-if="isOwner" type="danger" title="解散群聊" @tap="onDissolveGroup()"></btn-bar>
 		</bar-group>
+		<group-member-selector ref="removeSelector" :members="groupMembers" :group="group"
+			@complete="onRemoveComplete"></group-member-selector>
 	</view>
 </template>
 
@@ -67,6 +76,29 @@ export default {
 		onInviteMember() {
 			uni.navigateTo({
 				url: `/pages/group/group-invite?id=${this.groupId}`
+			})
+		},
+		onRemoveMember() {
+			// 群主不显示
+			let hideIds = [this.group.ownerId];
+			this.$refs.removeSelector.init([], [], hideIds);
+			this.$refs.removeSelector.open();
+		},
+		onRemoveComplete(userIds) {
+			let data = {
+				groupId: this.group.id,
+				userIds: userIds
+			}
+			this.$http({
+				url: "/group/members/remove",
+				method: 'DELETE',
+				data: data
+			}).then(() => {
+				this.loadGroupMembers();
+				uni.showToast({
+					title: `您移除了${userIds.length}位成员`,
+					icon: 'none'
+				})
 			})
 		},
 		onShowMoreMmeber() {
@@ -160,7 +192,6 @@ export default {
 			});
 		},
 		loadGroupMembers() {
-			console.log("loadGroupMembers")
 			this.$http({
 				url: `/group/members/${this.groupId}`,
 				method: "GET"
@@ -176,6 +207,9 @@ export default {
 		},
 		isOwner() {
 			return this.group.ownerId == this.userStore.userInfo.id;
+		},
+		showMaxIdx() {
+			return this.isOwner ? 8 : 9;
 		}
 	},
 	onLoad(options) {
@@ -218,17 +252,21 @@ export default {
 					padding-top: 8rpx;
 					font-size: $im-font-size-smaller;
 				}
-			}
 
-			.invite-btn {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				width: 86rpx;
-				height: 86rpx;
-				margin: 10rpx;
-				border: $im-border solid 2rpx;
-				border-radius: 10%;
+				.tools-btn {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					border: $im-border solid 1rpx;
+					border-radius: 10%;
+					width: 80rpx;
+					height: 80rpx;
+
+					.icon {
+						font-size: 40rpx !important;
+						color: $im-text-color-lighter !important;
+					}
+				}
 			}
 		}
 

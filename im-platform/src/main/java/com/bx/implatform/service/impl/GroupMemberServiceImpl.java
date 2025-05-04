@@ -37,10 +37,12 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
     @Override
     public GroupMember findByGroupAndUserId(Long groupId, Long userId) {
-        QueryWrapper<GroupMember> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(GroupMember::getGroupId, groupId).eq(GroupMember::getUserId, userId);
+        LambdaQueryWrapper<GroupMember> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GroupMember::getGroupId, groupId);
+        wrapper.eq(GroupMember::getUserId, userId);
         return this.getOne(wrapper);
     }
+
 
     @Override
     public List<GroupMember> findByUserId(Long userId) {
@@ -88,10 +90,24 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public void removeByGroupAndUserId(Long groupId, Long userId) {
         LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(GroupMember::getGroupId, groupId).eq(GroupMember::getUserId, userId).set(GroupMember::getQuit, true)
-            .set(GroupMember::getQuitTime, new Date());
+        wrapper.eq(GroupMember::getGroupId, groupId);
+        wrapper.eq(GroupMember::getUserId, userId);
+        wrapper.set(GroupMember::getQuit, true);
+        wrapper.set(GroupMember::getQuitTime, new Date());
         this.update(wrapper);
     }
+
+    @CacheEvict(key = "#groupId")
+    @Override
+    public void removeByGroupAndUserIds(Long groupId, List<Long> userId) {
+        LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(GroupMember::getGroupId, groupId);
+        wrapper.in(GroupMember::getUserId, userId);
+        wrapper.set(GroupMember::getQuit, true);
+        wrapper.set(GroupMember::getQuitTime, new Date());
+        this.update(wrapper);
+    }
+
 
     @Override
     public Boolean isInGroup(Long groupId, List<Long> userIds) {
@@ -99,8 +115,10 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
             return true;
         }
         LambdaQueryWrapper<GroupMember> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(GroupMember::getGroupId, groupId).eq(GroupMember::getQuit, false)
-            .in(GroupMember::getUserId, userIds);
+        wrapper.eq(GroupMember::getGroupId, groupId);
+        wrapper.eq(GroupMember::getQuit, false);
+        wrapper.in(GroupMember::getUserId, userIds);
         return userIds.size() == this.count(wrapper);
     }
+
 }

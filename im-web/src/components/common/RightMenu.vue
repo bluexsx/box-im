@@ -1,10 +1,9 @@
 <template>
-	<div class="right-menu-mask" @click.stop="close()" @contextmenu.prevent="close()">
+	<div v-if="show" class="right-menu-mask" @click.stop="close()" @contextmenu.prevent="close()">
 		<div class="right-menu" :style="{ 'left': pos.x + 'px', 'top': pos.y + 'px' }">
 			<el-menu text-color="#333333">
 				<el-menu-item v-for="(item) in items" :key="item.key" :title="item.name"
 					@click.native.stop="onSelectMenu(item)">
-					<!--					<span :class="item.icon"></span>-->
 					<span>{{ item.name }}</span>
 				</el-menu-item>
 			</el-menu>
@@ -16,19 +15,23 @@
 export default {
 	name: "rightMenu",
 	data() {
-		return {}
-	},
-	props: {
-		pos: {
-			type: Object
-		},
-		items: {
-			type: Array
+		return {
+			show: false,
+			pos: {
+				x: 0,
+				y: 0,
+			},
+			items: []
 		}
 	},
 	methods: {
+		open(pos, items) {
+			this.pos = pos;
+			this.items = items;
+			this.show = true;
+		},
 		close() {
-			this.$emit("close");
+			this.show = false;
 		},
 		onSelectMenu(item) {
 			this.$emit("select", item);
@@ -64,8 +67,7 @@ export default {
 			height: 36px;
 			line-height: 36px;
 			min-width: 100px;
-			text-align: left;
-			padding: 0 0 0 20px;
+			text-align: center;
 
 			&:hover {
 				background-color: var(--im-background-active);

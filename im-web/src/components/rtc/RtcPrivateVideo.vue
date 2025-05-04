@@ -157,7 +157,6 @@ export default {
       })
     },
     onReject() {
-      console.log("onReject")
       // 退出通话
       this.API.reject(this.friend.id);
       // 退出

@@ -54,7 +54,6 @@ export default {
 				sizeType: ['original'], //original 原图，compressed 压缩图，默认二者都有
 				success: (res) => {
 					res.tempFiles.forEach((file) => {
-						console.log("文件:", file)
 						if (!this.onBefore || this.onBefore(file)) {
 							// 调用上传图片的接口
 							this.uploadImage(file);

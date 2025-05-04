@@ -21,7 +21,6 @@ ImCamera.prototype.openVideo = function () {
 				noiseSuppression: true // 开启降噪
 			}
 		}
-		console.log("getUserMedia")
 		navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
 			console.log("摄像头打开")
 			this.stream = stream;

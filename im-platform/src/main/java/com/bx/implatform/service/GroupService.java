@@ -1,8 +1,9 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.entity.Group;
-import com.bx.implatform.vo.GroupInviteVO;
+import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
 
@@ -49,6 +50,12 @@ public interface GroupService extends IService<Group> {
     void kickGroup(Long groupId, Long userId);
 
     /**
+     * 将用户移出群聊
+     * @param dto dto
+     */
+    void removeGroupMembers(GroupMemberRemoveDTO dto);
+
+    /**
      * 查询当前用户的所有群聊
      *
      * @return 群聊信息列表
@@ -58,9 +65,9 @@ public interface GroupService extends IService<Group> {
     /**
      * 邀请好友进群
      *
-     * @param vo 群id、好友id列表
+     * @param dto 群id、好友id列表
      **/
-    void invite(GroupInviteVO vo);
+    void invite(GroupInviteDTO dto);
 
     /**
      * 根据id查找群聊，并进行缓存

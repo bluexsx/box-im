@@ -2,7 +2,6 @@
 	<div class="group-member">
 		<head-image :id="member.userId" :name="member.showNickName" :url="member.headImage" :size="38"
 			:online="member.online">
-			<div v-if="showDel" @click.stop="onDelete()" class="btn-kick el-icon-error"></div>
 		</head-image>
 		<div class="member-name">{{ member.showNickName }}</div>
 	</div>
@@ -20,16 +19,9 @@ export default {
 		member: {
 			type: Object,
 			required: true
-		},
-		showDel: {
-			type: Boolean,
-			default: false
 		}
 	},
 	methods: {
-		onDelete() {
-			this.$emit("del", this.member);
-		}
 	}
 }
 </script>

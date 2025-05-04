@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="邀请好友" :visible.sync="visible" width="620px" :before-close="onClose">
+  <el-dialog title="邀请好友" :visible.sync="show" width="620px" :before-close="close">
     <div class="agm-container">
       <div class="agm-l-box">
         <div class="search">
@@ -30,7 +30,7 @@
       </div>
     </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="onClose()">取 消</el-button>
+      <el-button @click="close()">取 消</el-button>
       <el-button type="primary" @click="onOk()">确 定</el-button>
     </span>
   </el-dialog>
@@ -46,13 +46,35 @@ export default {
   },
   data() {
     return {
+      show: false,
       searchText: "",
       friends: []
     }
   },
   methods: {
-    onClose() {
-      this.$emit("close");
+    open() {
+      this.show = true;
+      this.friends = [];
+      this.$store.state.friendStore.friends.forEach((f) => {
+        if (f.deleted) {
+          return;
+        }
+        let friend = JSON.parse(JSON.stringify(f))
+        let m = this.members.filter((m) => !m.quit)
+          .find((m) => m.userId == f.id);
+        if (m) {
+          // 好友已经在群里
+          friend.disabled = true;
+          friend.isCheck = true
+        } else {
+          friend.disabled = false;
+          friend.isCheck = false;
+        }
+        this.friends.push(friend);
+      })
+    },
+    close() {
+      this.show = false;
     },
     onOk() {
       let inviteVO = {
@@ -72,7 +94,7 @@ export default {
         }).then(() => {
           this.$message.success("邀请成功");
           this.$emit("reload");
-          this.$emit("close");
+          this.close()
         })
       }
     },
@@ -86,9 +108,6 @@ export default {
     }
   },
   props: {
-    visible: {
-      type: Boolean
-    },
     groupId: {
       type: Number
     },
@@ -100,32 +119,7 @@ export default {
     checkCount() {
       return this.friends.filter((f) => f.isCheck && !f.disabled).length;
     }
-  },
-  watch: {
-    visible: function (newData, oldData) {
-      if (newData) {
-        this.friends = [];
-        this.$store.state.friendStore.friends.forEach((f) => {
-          if (f.deleted) {
-            return;
-          }
-          let friend = JSON.parse(JSON.stringify(f))
-          let m = this.members.filter((m) => !m.quit)
-            .find((m) => m.userId == f.id);
-          if (m) {
-            // 好友已经在群里
-            friend.disabled = true;
-            friend.isCheck = true
-          } else {
-            friend.disabled = false;
-            friend.isCheck = false;
-          }
-          this.friends.push(friend);
-        })
-      }
-    }
   }
-
 }
 </script>
 

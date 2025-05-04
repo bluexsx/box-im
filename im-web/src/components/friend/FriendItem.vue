@@ -15,8 +15,7 @@
 				</i>
 			</div>
 		</div>
-		<right-menu v-show="menu && rightMenu.show" :pos="rightMenu.pos" :items="rightMenu.items"
-			@close="rightMenu.show = false" @select="onSelectMenu"></right-menu>
+		<right-menu ref="rightMenu" @select="onSelectMenu"></right-menu>
 		<slot></slot>
 	</div>
 </template>
@@ -33,31 +32,22 @@ export default {
 	},
 	data() {
 		return {
-			rightMenu: {
-				show: false,
-				pos: {
-					x: 0,
-					y: 0
-				},
-				items: [{
-					key: 'CHAT',
-					name: '发送消息',
-					icon: 'el-icon-chat-dot-round'
-				}, {
-					key: 'DELETE',
-					name: '删除好友',
-					icon: 'el-icon-delete'
-				}]
-			}
+			menuItems: [{
+				key: 'CHAT',
+				name: '发送消息',
+				icon: 'el-icon-chat-dot-round'
+			}, {
+				key: 'DELETE',
+				name: '删除好友',
+				icon: 'el-icon-delete'
+			}]
 		}
 	},
 	methods: {
 		showRightMenu(e) {
-			this.rightMenu.pos = {
-				x: e.x,
-				y: e.y
-			};
-			this.rightMenu.show = "true";
+			if (this.menu) {
+				this.$refs.rightMenu.open(e, this.menuItems);
+			}
 		},
 		onSelectMenu(item) {
 			this.$emit(item.key.toLowerCase(), this.msgInfo);

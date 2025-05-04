@@ -16,6 +16,7 @@ public interface GroupMemberService extends IService<GroupMember> {
      */
     GroupMember findByGroupAndUserId(Long groupId, Long userId);
 
+
     /**
      * 根据用户id查询群聊成员
      *
@@ -73,6 +74,14 @@ public interface GroupMemberService extends IService<GroupMember> {
      * @param userId  用户id
      */
     void removeByGroupAndUserId(Long groupId, Long userId);
+
+    /**
+     * 根据群聊id和用户id移除成员
+     *
+     * @param groupId 群聊id
+     * @param userIds  用户id
+     */
+    void removeByGroupAndUserIds(Long groupId, List<Long> userIds);
 
     /**
      * 用户用户是否在群中

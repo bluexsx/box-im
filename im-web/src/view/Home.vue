@@ -1,5 +1,5 @@
 <template>
-	<div class="home-page">
+	<div class="home-page" @click="$store.commit('closeUserInfoBox')">
 		<div class="app-container" :class="{ fullscreen: isFullscreen }">
 			<div class="navi-bar">
 				<div class="navi-bar-box">
@@ -132,7 +132,6 @@ export default {
 					}
 				});
 				this.$wsApi.onClose((e) => {
-					console.log(e);
 					if (e.code != 3000) {
 						// 断线重连
 						this.reconnectWs();
@@ -303,7 +302,6 @@ export default {
 			}
 			// 删除群
 			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_DEL) {
-				console.log("this.$enums.MESSAGE_TYPE.GROUP_DE")
 				this.$store.commit("removeGroup", msg.groupId);
 				return;
 			}

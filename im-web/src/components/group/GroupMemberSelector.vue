@@ -1,5 +1,5 @@
 <template>
-	<el-dialog title="选择成员" :visible.sync="isShow" width="700px">
+	<el-dialog :title="title" :visible.sync="isShow" width="700px">
 		<div class="group-member-selector">
 			<div class="left-box">
 				<el-input placeholder="搜索" v-model="searchText">
@@ -7,7 +7,8 @@
 				</el-input>
 				<virtual-scroller class="scroll-box" :items="showMembers">
 					<template v-slot="{ item }">
-						<group-member-item :member="item" @click.native="onClickMember(item)">
+						<group-member-item :group="group" :groupMembers="showMembers" :member="item" :menu="false"
+							@click.native="onClickMember(item)">
 							<el-checkbox :disabled="item.locked" v-model="item.checked" @change="onChange(item)"
 								@click.native.stop=""></el-checkbox>
 						</group-member-item>
@@ -17,11 +18,13 @@
 			<div class="arrow el-icon-d-arrow-right"></div>
 			<div class="right-box">
 				<div class="select-tip"> 已勾选{{ checkedMembers.length }}位成员</div>
-				<div class="checked-member-list">
-					<div v-for="m in members" :key="m.userId">
-						<group-member class="member-item" v-if="m.checked" :member="m"></group-member>
+				<el-scrollbar class="scroll-box">
+					<div class="checked-member-list">
+						<div v-for="m in members" :key="m.userId">
+							<group-member class="member-item" v-if="m.checked" :member="m"></group-member>
+						</div>
 					</div>
-				</div>
+				</el-scrollbar>
 			</div>
 		</div>
 		<span slot="footer" class="dialog-footer">
@@ -52,25 +55,30 @@ export default {
 		}
 	},
 	props: {
-		groupId: {
-			type: Number
+		group: {
+			type: Object
+		},
+		title: {
+			type: String,
+			default: "选择成员"
 		}
 	},
 	methods: {
-		open(maxSize, checkedIds, lockedIds) {
+		open(maxSize, checkedIds, lockedIds, hideIds) {
 			this.maxSize = maxSize;
 			this.isShow = true;
-			this.loadGroupMembers(checkedIds, lockedIds);
+			this.loadGroupMembers(checkedIds, lockedIds, hideIds);
 		},
-		loadGroupMembers(checkedIds, lockedIds) {
+		loadGroupMembers(checkedIds, lockedIds, hideIds) {
 			this.$http({
-				url: `/group/members/${this.groupId}`,
+				url: `/group/members/${this.group.id}`,
 				method: 'get'
 			}).then((members) => {
 				members.forEach((m) => {
 					// 默认选择和锁定的用户
 					m.checked = checkedIds.indexOf(m.userId) >= 0;
 					m.locked = lockedIds.indexOf(m.userId) >= 0;
+					m.hide = hideIds.indexOf(m.userId) >= 0;
 				});
 				this.members = members;
 			});
@@ -79,13 +87,13 @@ export default {
 			if (!m.locked) {
 				m.checked = !m.checked;
 			}
-			if (this.checkedMembers.length > this.maxSize) {
+			if (this.maxSize > 0 && this.checkedMembers.length > this.maxSize) {
 				this.$message.error(`最多选择${this.maxSize}位成员`)
 				m.checked = false;
 			}
 		},
 		onChange(m) {
-			if (this.checkedMembers.length > this.maxSize) {
+			if (this.maxSize > 0 && this.checkedMembers.length > this.maxSize) {
 				this.$message.error(`最多选择${this.maxSize}位成员`)
 				m.checked = false;
 			}
@@ -112,7 +120,6 @@ export default {
 			return this.members.filter((m) => !m.hide && !m.quit && m.showNickName.includes(this.searchText))
 		}
 	}
-
 }
 </script>
 
@@ -120,24 +127,20 @@ export default {
 .group-member-selector {
 	display: flex;
 
+	.scroll-box {
+		height: 400px;
+	}
 
 	.left-box {
 		width: 48%;
 		overflow: hidden;
 		border: var(--im-border);
 
-
-		.scroll-box {
-			height: 400px;
-		}
-
-
 		.el-input__inner {
 			border: none;
 			border-bottom: var(--im-border);
 		}
 	}
-
 
 	.arrow {
 		display: flex;

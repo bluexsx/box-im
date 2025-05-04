@@ -13,13 +13,8 @@
 					<view class="member-item" @click="onShowUserInfo(item.userId)">
 						<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"></head-image>
 						<view class="member-name">{{ item.showNickName }}
-							<uni-tag v-if="item.userId == group.ownerId" text="群主" size="small" circle type="error">
-							</uni-tag>
+							<uni-tag v-if="item.userId == group.ownerId" text="群主" size="small" circle type="error"></uni-tag>
 							<uni-tag v-if="item.userId == userStore.userInfo.id" text="我" size="small" circle></uni-tag>
-						</view>
-						<view class="member-kick">
-							<button type="warn" plain v-show="isOwner && !isSelf(item.userId)" size="mini"
-								@click.stop="onKickOut(item)">移出群聊</button>
 						</view>
 					</view>
 				</template>
@@ -42,27 +37,6 @@ export default {
 		onShowUserInfo(userId) {
 			uni.navigateTo({
 				url: "/pages/common/user-info?id=" + userId
-			})
-		},
-		onKickOut(member) {
-			uni.showModal({
-				title: '确认移出?',
-				content: `确定将成员'${member.showNickName}'移出群聊吗？`,
-				success: (res) => {
-					if (res.cancel)
-						return;
-					this.$http({
-						url: `/group/kick/${this.group.id}?userId=${member.userId}`,
-						method: 'DELETE'
-					}).then(() => {
-						uni.showToast({
-							title: `已将${member.showNickName}移出群聊`,
-							icon: 'none'
-						})
-						member.quit = true;
-						this.isModify = true;
-					});
-				}
 			})
 		},
 		loadGroupInfo(id) {
@@ -141,12 +115,6 @@ export default {
 
 				.uni-tag {
 					margin-left: 5rpx;
-					width: 40rpx;
-					border: 0;
-					height: 30rpx;
-					line-height: 30rpx;
-					font-size: 20rpx;
-					text-align: center;
 				}
 			}
 		}
