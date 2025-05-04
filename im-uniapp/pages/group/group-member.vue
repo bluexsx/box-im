@@ -8,7 +8,7 @@
 			</view>
 		</view>
 		<view class="member-items">
-			<virtual-scroller class="scroll-bar" :items="showMembers">
+			<virtual-scroller height="100%" class="scroll-bar" :items="showMembers">
 				<template v-slot="{ item }">
 					<view class="member-item" @click="onShowUserInfo(item.userId)">
 						<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"></head-image>

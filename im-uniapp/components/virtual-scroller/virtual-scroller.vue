@@ -1,5 +1,6 @@
 <template>
-	<scroll-view scroll-y="true" upper-threshold="200" @scrolltolower="onScrollToBottom"  scroll-with-animation="true">
+	<scroll-view scroll-y="true" :style="{height: height}" upper-threshold="200" @scrolltolower="onScrollToBottom"
+		scroll-with-animation="true">
 		<view v-for="(item, idx) in showItems" :key="idx">
 			<slot :item="item">
 			</slot>
@@ -18,6 +19,10 @@ export default {
 		}
 	},
 	props: {
+		height: {
+			type: String,
+			default: '60vh'
+		},
 		items: {
 			type: Array
 		},
