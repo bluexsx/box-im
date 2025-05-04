@@ -161,6 +161,7 @@ export default {
 			// store数据不能直接修改，所以深拷贝一份内存
 			this.activeGroup = JSON.parse(JSON.stringify(group));
 			// 重新加载群成员
+			this.groupMembers = [];
 			this.loadGroupMembers();
 		},
 		onInvite() {

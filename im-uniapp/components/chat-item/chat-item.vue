@@ -9,7 +9,6 @@
 			<view class="chat-name">
 				<view class="chat-name-text">
 					<view>{{ chat.showName }}</view>
-					<uni-tag v-if="chat.type == 'GROUP'" circle text="群" size="small" type="primary"></uni-tag>
 				</view>
 				<view class="chat-time">{{ $date.toTimeText(chat.lastSendTime, true) }}</view>
 			</view>
@@ -138,14 +137,6 @@ export default {
 				overflow: hidden;
 				display: flex;
 				align-items: center;
-
-				.uni-tag {
-					text-align: center;
-					margin-left: 5rpx;
-					border: 0;
-					padding: 1px 5px;
-					//opacity: 0.8;
-				}
 			}
 
 			.chat-time {
