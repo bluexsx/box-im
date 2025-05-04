@@ -47,8 +47,8 @@
 			<view v-if="group.notice" class="form-item">
 				<view class="label">群公告</view>
 			</view>
-			<view v-if="group.notice" class="form-item">
-				<uni-notice-bar :text="group.notice" />
+			<view v-if="group.notice" class="notice-text">
+				{{group.notice}}
 			</view>
 			<view v-if="!group.quit" class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
@@ -304,6 +304,15 @@ export default {
 				white-space: nowrap;
 				overflow: hidden;
 			}
+		}
+
+		.notice-text {
+			padding: 0 40rpx;
+			background: white;
+			text-align: left;
+			font-size: $im-font-size;
+			color: $im-text-color-light;
+			line-height: 50rpx;
 		}
 
 		.group-edit {

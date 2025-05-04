@@ -7,7 +7,7 @@
 			</view>
 			<view class="content">
 				<view v-if="current === 0">
-					<virtual-scroller class="scroll-bar" :items="readedMembers">
+					<virtual-scroller :items="readedMembers">
 						<template v-slot="{ item }">
 							<view class="member-item">
 								<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
@@ -18,7 +18,7 @@
 					</virtual-scroller>
 				</view>
 				<view v-if="current === 1">
-					<virtual-scroller class="scroll-bar" :items="unreadMembers">
+					<virtual-scroller :items="unreadMembers">
 						<template v-slot="{ item }">
 							<view class="member-item">
 								<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
@@ -107,11 +107,6 @@ export default {
 	flex-direction: column;
 	background-color: white;
 	padding: 10rpx;
-
-	//border-radius: 15rpx;
-	.scroll-bar {
-		height: 800rpx;
-	}
 
 	.member-item {
 		height: 120rpx;

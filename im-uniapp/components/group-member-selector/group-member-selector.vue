@@ -18,7 +18,7 @@
 				<uni-search-bar v-model="searchText" cancelButton="none" placeholder="搜索"></uni-search-bar>
 			</view>
 			<view class="member-items">
-				<virtual-scroller class="scroll-bar" :items="showMembers">
+				<virtual-scroller :items="showMembers">
 					<template v-slot="{ item }">
 						<view class="member-item" @click="onSwitchChecked(item)">
 							<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
@@ -174,10 +174,6 @@ export default {
 					margin-left: 5rpx;
 				}
 			}
-		}
-
-		.scroll-bar {
-			height: 65vh;
 		}
 	}
 }

@@ -18,7 +18,7 @@
 				<uni-search-bar v-model="searchText" cancelButton="none" radius="100" placeholder="搜索"></uni-search-bar>
 			</view>
 			<view class="member-items">
-				<virtual-scroller class="scroll-bar" :items="memberItems">
+				<virtual-scroller :items="memberItems">
 					<template v-slot="{ item }">
 						<view class="member-item" :class="{ checked: item.checked }" @click="onSwitchChecked(item)">
 							<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
@@ -165,10 +165,6 @@ export default {
 				white-space: nowrap;
 				overflow: hidden;
 			}
-		}
-
-		.scroll-bar {
-			height: 800rpx;
 		}
 	}
 }
