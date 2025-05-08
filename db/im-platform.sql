@@ -104,5 +104,5 @@ CREATE TABLE `im_file_info` (
   `upload_time` datetime DEFAULT CURRENT_TIMESTAMP comment '上传时间',
   `is_permanent` tinyint DEFAULT 0 comment '是否永久文件',
   `md5` VARCHAR(64) NOT NULL comment '文件md5',
-  UNIQUE KEY `idx_md5` (md5),
+  UNIQUE KEY `idx_md5` (md5)
 ) ENGINE = InnoDB CHARSET = utf8mb4 comment '文件';
