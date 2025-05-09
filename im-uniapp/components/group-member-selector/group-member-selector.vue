@@ -1,6 +1,6 @@
 <template>
 	<uni-popup ref="popup" type="bottom">
-		<view class="chat-group-member-choose">
+		<view class="group-member-selector">
 			<view class="top-bar">
 				<view class="top-tip">选择成员</view>
 				<button class="top-btn" type="warn" size="mini" @click="onClean()">清空 </button>
@@ -40,7 +40,7 @@
 
 <script>
 export default {
-	name: "chat-group-member-choose",
+	name: "group-member-selector",
 	props: {
 		group: {
 			type: Object
@@ -110,7 +110,7 @@ export default {
 
 
 <style lang="scss" scoped>
-.chat-group-member-choose {
+.group-member-selector {
 	position: relative;
 	display: flex;
 	flex-direction: column;

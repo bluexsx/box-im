@@ -1,11 +1,11 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.annotation.RepeatSubmit;
+import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.GroupService;
-import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
 import io.swagger.v3.oas.annotations.Operation;

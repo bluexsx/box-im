@@ -67,7 +67,23 @@ export default {
 			this.$emit("close");
 		},
 		onAddFriend() {
-			this.$refs.applyRef.open(this.user);
+			this.$http({
+				url: "/friend/add",
+				method: "post",
+				params: {
+					friendId: this.user.id
+				}
+			}).then(() => {
+				this.$message.success("添加成功，对方已成为您的好友");
+				let friend = {
+					id: this.user.id,
+					nickName: this.user.nickName,
+					headImage: this.user.headImageThumb,
+					online: this.user.online,
+					deleted: false
+				}
+				this.$store.commit("addFriend", friend);
+			})
 		},
 		showFullImage() {
 			if (this.user.headImage) {
@@ -78,9 +94,6 @@ export default {
 	computed: {
 		isFriend() {
 			return this.$store.getters.isFriend(this.user.id);
-		},
-		isWaitingApprove() {
-			return this.$store.getters.isInRecvRequest(this.user.id);
 		}
 	}
 }

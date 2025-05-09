@@ -76,7 +76,7 @@
 			</el-main>
 			<emotion ref="emoBox" @emotion="onEmotion"></Emotion>
 			<chat-record :visible="showRecord" @close="closeRecordBox" @send="onSendRecord"></chat-record>
-			<group-member-selector ref="rtcSel" :groupId="group.id" @complete="onInviteOk"></group-member-selector>
+			<group-member-selector ref="rtcSel" :group="group" @complete="onInviteOk"></group-member-selector>
 			<rtc-group-join ref="rtcJoin" :groupId="group.id"></rtc-group-join>
 			<chat-history :visible="showHistory" :chat="chat" :friend="friend" :group="group"
 				:groupMembers="groupMembers" @close="closeHistoryBox"></chat-history>
@@ -321,7 +321,7 @@ export default {
 			// 邀请成员发起通话
 			let ids = [this.mine.id];
 			let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
-			this.$refs.rtcSel.open(maxChannel, ids, ids);
+			this.$refs.rtcSel.open(maxChannel, ids, ids,[]);
 		},
 		onInviteOk(members) {
 			if (members.length < 2) {

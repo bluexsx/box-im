@@ -61,7 +61,7 @@
 									maxlength="1024" placeholder="群主未设置"></el-input>
 							</el-form-item>
 							<div>
-								<el-button type="warning" @click="onInviteMember()">邀请</el-button>
+								<el-button type="warning" @click="onInvite()">邀请</el-button>
 								<el-button type="success" @click="onSaveGroup()">保存</el-button>
 								<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出</el-button>
 								<el-button type="danger" v-show="isOwner" @click="onDissolve()">解散</el-button>
