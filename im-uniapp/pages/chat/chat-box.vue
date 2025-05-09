@@ -198,7 +198,7 @@ export default {
 		onGroupVideo() {
 			// 邀请成员发起通话
 			let ids = [this.mine.id];
-			this.$refs.selBox.init(ids, ids);
+			this.$refs.selBox.init(ids, ids, []);
 			this.$refs.selBox.open();
 		},
 		onInviteOk(ids) {
