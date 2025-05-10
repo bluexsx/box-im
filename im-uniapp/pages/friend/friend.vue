@@ -118,9 +118,13 @@ export default {
 		color: $im-text-color !important;
 	}
 
+	:deep(.u-index-list__letter) {
+		margin-top: 50px;
+	}
+
 	:deep(.u-index-list__letter__item) {
-		width: 48rpx !important;
-		height: 48rpx !important;
+		width: 40rpx !important;
+		height: 40rpx !important;
 	}
 
 	:deep(.u-index-list__letter__item__index) {
