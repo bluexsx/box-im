@@ -3,7 +3,7 @@
 		<el-container>
 			<el-header height="50px">
 				<span>{{ title }}</span>
-				<span title="群聊信息" v-show="this.chat.type == 'GROUP'" class="btn-side el-icon-more"
+				<span title="群聊信息" v-show="isGroup" class="btn-side el-icon-more"
 					@click="showSide = !showSide"></span>
 			</el-header>
 			<el-main style="padding: 0;">
@@ -41,19 +41,19 @@
 										<i class="el-icon-wallet"></i>
 									</file-upload>
 								</div>
-								<div title="回执消息" v-show="chat.type == 'GROUP' && memberSize <= 500"
+								<div title="回执消息" v-show="isGroup && memberSize <= 500"
 									class="icon iconfont icon-receipt" :class="isReceipt ? 'chat-tool-active' : ''"
 									@click="onSwitchReceipt">
 								</div>
 								<div title="发送语音" class="el-icon-microphone" @click="showRecordBox()">
 								</div>
-								<div title="语音通话" v-show="chat.type == 'PRIVATE'" class="el-icon-phone-outline"
+								<div title="语音通话" v-show="isPrivate" class="el-icon-phone-outline"
 									@click="showPrivateVideo('voice')">
 								</div>
-								<div title="语音通话" v-show="chat.type == 'GROUP'" class="el-icon-phone-outline"
+								<div title="语音通话" v-show="isGroup" class="el-icon-phone-outline"
 									@click="onGroupVideo()">
 								</div>
-								<div title="视频通话" v-show="chat.type == 'PRIVATE'" class="el-icon-video-camera"
+								<div title="视频通话" v-show="isPrivate" class="el-icon-video-camera"
 									@click="showPrivateVideo('video')">
 								</div>
 								<div title="聊天记录" class="el-icon-chat-dot-round" @click="showHistoryBox()"></div>
@@ -578,7 +578,7 @@ export default {
 			}
 		},
 		headImage(msgInfo) {
-			if (this.chat.type == 'GROUP') {
+			if (this.isGroup) {
 				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
 				return member ? member.headImage : "";
 			} else {
@@ -689,6 +689,12 @@ export default {
 		},
 		memberSize() {
 			return this.groupMembers.filter(m => !m.quit).length;
+		},
+		isGroup() {
+			return this.chat.type == 'GROUP';
+		},
+		isPrivate() {
+			return this.chat.type == 'PRIVATE';
 		}
 	},
 	watch: {
