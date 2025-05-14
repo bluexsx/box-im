@@ -1,4 +1,4 @@
-package com.bx.implatform.service;
+package com.bx.implatform.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -11,6 +11,7 @@ import com.bx.implatform.enums.FileType;
 import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FileInfoMapper;
+import com.bx.implatform.service.FileService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.thirdparty.MinioService;
 import com.bx.implatform.util.FileUtil;

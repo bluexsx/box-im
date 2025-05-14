@@ -119,8 +119,8 @@ export default {
 	}
 
 	:deep(.u-index-list__letter__item) {
-		width: 48rpx !important;
-		height: 48rpx !important;
+		width: 40rpx !important;
+		height: 40rpx !important;
 	}
 
 	:deep(.u-index-list__letter__item__index) {

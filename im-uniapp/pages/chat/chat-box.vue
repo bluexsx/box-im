@@ -763,7 +763,7 @@ export default {
 		},
 		listenKeyBoard() {
 			// #ifdef H5	
-			if (navigator.platform == "Win32" || navigator.platform == "MacIntel") {
+			if (navigator.platform == "Win32") {
 				// 电脑端不需要弹出键盘
 				console.log("navigator.platform:", navigator.platform)
 				return;
@@ -805,6 +805,11 @@ export default {
 		},
 		resizeListener() {
 			let keyboardHeight = this.initHeight - window.innerHeight;
+			// 兼容部分ios浏览器
+			if (window.visualViewport && uni.getSystemInfoSync().platform == 'ios') {
+				keyboardHeight = this.initHeight - window.visualViewport.height;
+			}
+			console.log("resizeListener:",window.visualViewport.height)
 			this.isShowKeyBoard = keyboardHeight > 150;
 			if (this.isShowKeyBoard) {
 				this.keyboardHeight = keyboardHeight;
