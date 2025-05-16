@@ -9,7 +9,7 @@
 			<div class="chat-name">
 				<div class="chat-name-text">
 					<div>{{ chat.showName }}</div>
-					<el-tag v-if="chat.type == 'GROUP'" size="mini" effect="dark">群</el-tag>
+					<el-tag v-if="chat.type == 'GROUP'" size="mini" >群</el-tag>
 				</div>
 				<div class="chat-time-text">{{ showTime }}</div>
 			</div>
@@ -53,9 +53,6 @@ export default {
 		},
 		active: {
 			type: Boolean
-		},
-		index: {
-			type: Number
 		}
 	},
 	methods: {
@@ -159,15 +156,9 @@ export default {
 				.el-tag {
 					min-width: 22px;
 					text-align: center;
-					background-color: #2830d3;
 					border-radius: 10px;
 					border: 0;
 					height: 16px;
-					line-height: 16px;
-					font-size: 10px;
-					margin-left: 2px;
-					opacity: 0.8;
-
 				}
 			}
 

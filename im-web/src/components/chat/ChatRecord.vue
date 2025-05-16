@@ -1,5 +1,5 @@
 <template>
-	<el-dialog class="chat-record" title="语音录制" :visible.sync="visible" width="600px" :before-close="onClose">
+	<el-dialog v-dialogDrag class="chat-record" title="语音录制" :visible.sync="visible" width="600px" :before-close="onClose">
 		<div v-show="mode == 'RECORD'">
 			<div class="tip">{{ stateTip }}</div>
 			<div>时长: {{ state == 'STOP' ? 0 : parseInt(rc.duration) }}s</div>

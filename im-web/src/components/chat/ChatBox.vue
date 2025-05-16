@@ -399,9 +399,7 @@ export default {
 				return;
 			}
 			let sendText = this.isReceipt ? "【回执消息】" : "";
-			let promiseList = [];
-			for (let i = 0; i < fullList.length; i++) {
-				let msg = fullList[i];
+			fullList.forEach(async msg => {
 				switch (msg.type) {
 					case "text":
 						await this.sendTextMessage(sendText + msg.content, msg.atUserIds);
@@ -413,8 +411,7 @@ export default {
 						await this.sendFileMessage(msg.content.file);
 						break;
 				}
-
-			}
+			})
 		},
 		sendImageMessage(file) {
 			return new Promise((resolve, reject) => {

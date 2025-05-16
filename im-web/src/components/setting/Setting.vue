@@ -1,5 +1,5 @@
 <template>
-	<el-dialog class="setting" title="设置" :visible.sync="visible" width="420px" :before-close="onClose">
+	<el-dialog v-dialogDrag class="setting" title="设置" :visible.sync="visible" width="420px" :before-close="onClose">
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm" size="small">
 			<el-form-item label="头像" style="margin-bottom: 0 !important;">
 				<file-upload class="avatar-uploader" :action="imageAction" :showLoading="true" :maxSize="maxSize"

@@ -78,26 +78,26 @@
 		"backgroundColor": "#ffffff",
 		"list": [{
 				"pagePath": "pages/chat/chat",
-				"iconPath": "static/tarbar/chat.png",
-				"selectedIconPath": "static/tarbar/chat_active.png",
+				"iconPath": "static/tab/chat.png",
+				"selectedIconPath": "static/tab/chat_active.png",
 				"text": "消息"
 			},
 			{
 				"pagePath": "pages/friend/friend",
-				"iconPath": "static/tarbar/friend.png",
-				"selectedIconPath": "static/tarbar/friend_active.png",
+				"iconPath": "static/tab/friend.png",
+				"selectedIconPath": "static/tab/friend_active.png",
 				"text": "好友"
 			},
 			{
 				"pagePath": "pages/group/group",
-				"iconPath": "static/tarbar/group.png",
-				"selectedIconPath": "static/tarbar/group_active.png",
+				"iconPath": "static/tab/group.png",
+				"selectedIconPath": "static/tab/group_active.png",
 				"text": "群聊"
 			},
 			{
 				"pagePath": "pages/mine/mine",
-				"iconPath": "static/tarbar/mine.png",
-				"selectedIconPath": "static/tarbar/mine_active.png",
+				"iconPath": "static/tab/mine.png",
+				"selectedIconPath": "static/tab/mine_active.png",
 				"text": "我的"
 			}
 		]
