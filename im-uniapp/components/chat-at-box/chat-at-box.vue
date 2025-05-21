@@ -20,10 +20,12 @@
 			<view class="member-items">
 				<virtual-scroller :items="memberItems">
 					<template v-slot="{ item }">
-						<view class="member-item" :class="{ checked: item.checked }" @click="onSwitchChecked(item)">
+						<view class="member-item"  @click="onSwitchChecked(item)">
 							<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
 								size="small"></head-image>
 							<view class="member-name">{{ item.showNickName }}</view>
+							<radio :checked="item.checked" :disabled="item.locked"
+								@click.stop="onSwitchChecked(item)" />
 						</view>
 					</template>
 				</virtual-scroller>
@@ -152,11 +154,11 @@ export default {
 			background-color: white;
 			white-space: nowrap;
 			margin-bottom: 1px;
-
-			&.checked {
-				background-color: $im-color-primary-light-9;
+			
+			&:hover {
+				background-color: $im-bg-active;
 			}
-
+			
 			.member-name {
 				flex: 1;
 				padding-left: 20rpx;

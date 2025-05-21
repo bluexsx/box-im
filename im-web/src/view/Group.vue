@@ -21,7 +21,7 @@
 		</el-aside>
 		<el-container class="group-box">
 			<div class="group-header" v-show="activeGroup.id">
-				{{ activeGroup.showGroupName }}({{ groupMembers.length }})
+				{{ activeGroup.showGroupName }}({{ showMembers.length }})
 			</div>
 			<div class="group-container">
 				<div v-show="activeGroup.id">

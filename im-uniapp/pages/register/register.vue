@@ -4,16 +4,16 @@
 		<view class="form">
 			<uni-forms  ref="form" :modelValue="dataForm" :rules="rules" validate-trigger="bind" label-width="80px">
 				<uni-forms-item name="userName" label="用户名">
-					<uni-easyinput type="text" v-model="dataForm.userName" placeholder="用户名" />
+					<uni-easyinput type="text" v-model="dataForm.userName" placeholder="用户名"  maxlength="20"/>
 				</uni-forms-item>
 				<uni-forms-item name="nickName" label="昵称">
-					<uni-easyinput type="text" v-model="dataForm.nickName" placeholder="昵称" />
+					<uni-easyinput type="text" v-model="dataForm.nickName" placeholder="昵称" maxlength="20"/>
 				</uni-forms-item>
 				<uni-forms-item name="password" label="密码">
-					<uni-easyinput type="password" v-model="dataForm.password" placeholder="密码" />
+					<uni-easyinput type="password" v-model="dataForm.password" placeholder="密码" maxlength="20"/>
 				</uni-forms-item>
 				<uni-forms-item name="corfirmPassword" label="确认密码">
-					<uni-easyinput type="password" v-model="dataForm.corfirmPassword" placeholder="确认密码" />
+					<uni-easyinput type="password" v-model="dataForm.corfirmPassword" placeholder="确认密码" maxlength="20"/>
 				</uni-forms-item>
 				<button class="btn-submit" @click="submit" type="primary">注册并登录</button>
 			</uni-forms>

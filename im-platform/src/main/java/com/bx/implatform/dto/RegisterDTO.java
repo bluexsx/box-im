@@ -9,7 +9,7 @@ import org.hibernate.validator.constraints.Length;
 @Schema(description = "用户注册DTO")
 public class RegisterDTO {
 
-    @Length(max = 64, message = "用户名不能大于64字符")
+    @Length(max = 20, message = "用户名不能大于20字符")
     @NotEmpty(message = "用户名不可为空")
     @Schema(description = "用户名")
     private String userName;
@@ -19,7 +19,7 @@ public class RegisterDTO {
     @Schema(description = "用户密码")
     private String password;
 
-    @Length(max = 64, message = "昵称不能大于64字符")
+    @Length(max = 20, message = "昵称不能大于20字符")
     @NotEmpty(message = "用户昵称不可为空")
     @Schema(description = "用户昵称")
     private String nickName;

@@ -13,7 +13,7 @@
 				<el-input disabled v-model="userInfo.userName" autocomplete="off" size="small"></el-input>
 			</el-form-item>
 			<el-form-item prop="nickName" label="昵称">
-				<el-input v-model="userInfo.nickName" autocomplete="off" size="small"></el-input>
+				<el-input v-model="userInfo.nickName" autocomplete="off" size="small" maxlength="20"></el-input>
 			</el-form-item>
 			<el-form-item label="性别">
 				<el-radio-group v-model="userInfo.sex">

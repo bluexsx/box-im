@@ -1,5 +1,6 @@
 <template>
 	<view class="page group-invite">
+		<nav-bar back>邀请</nav-bar>
 		<view class="nav-bar">
 			<view class="nav-search">
 				<uni-search-bar v-model="searchText" radius="100" cancelButton="none"
@@ -7,20 +8,18 @@
 			</view>
 		</view>
 		<view class="friend-items">
-			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="friend in friendItems" :key="friend.id">
-					<view v-show="!searchText || friend.nickName.includes(searchText)" class="friend-item"
-						@click="onSwitchChecked(friend)"
-						:class="{ checked: friend.checked, disabled: friend.disabled }">
-						<head-image :name="friend.nickName" :online="friend.online"
-							:url="friend.headImage"></head-image>
-						<view class="friend-name">{{ friend.nickName }}</view>
-					</view>
-				</view>
-			</scroll-view>
+			<virtual-scroller height="100%" :items="showFriends">
+				<template v-slot="{ item }">
+					<friend-item :friend="item" :detail="false" @tap="onSwitchChecked(item)">
+						<radio @click.stop="onSwitchChecked(item)" :disabled="item.disabled" :checked="item.checked" />
+					</friend-item>
+				</template>
+			</virtual-scroller>
 		</view>
-		<button class="bottom-btn" type="primary" :disabled="inviteSize == 0"
-			@click="onInviteFriends()">邀请({{ inviteSize }}) </button>
+		<view class="btn-bar">
+			<button class="btn" type="primary" :disabled="inviteSize == 0"
+				@click="onInviteFriends()">邀请({{ inviteSize }}) </button>
+		</view>
 	</view>
 </template>
 
@@ -108,6 +107,9 @@ export default {
 	computed: {
 		inviteSize() {
 			return this.friendItems.filter(f => !f.disabled && f.checked).length;
+		},
+		showFriends() {
+			return this.friendItems.filter(f => f.nickName.includes(this.searchText))
 		}
 	},
 	onLoad(options) {
@@ -160,6 +162,15 @@ export default {
 		.scroll-bar {
 			height: 100%;
 		}
+	}
+	
+	.btn-bar {
+		position: fixed;
+		bottom: 0;
+		background: $im-bg;
+		padding: 30rpx;
+		box-sizing: border-box;
+		width: 100%;
 	}
 }
 </style>

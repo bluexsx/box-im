@@ -102,9 +102,34 @@ button[size='mini'] {
 	}
 }
 
+
+.uni-radio-input svg{
+	border-color: white !important;
+	background-color: $im-color-primary !important;
+}
+
+.uni-radio-input svg {
+	background-color:  $im-color-primary !important;
+	border-color: $im-color-primary !important;
+	background-clip: content-box !important;
+	box-sizing: border-box;
+	border-radius: 50%;
+	transform: translate(-50%, -50%) scale(0.7)!important; 
+}
+
+.uni-radio-input svg path{
+	fill: $im-color-primary !important;
+}
+
 .uni-radio-input {
-	//border-color: $im-color-primary !important;
-	//background-color: $im-color-primary !important;
+	background-color: white !important;
+	border-color: $im-color-primary !important;
+}	
+
+.uni-radio-input-disabled {
+	background-color: rgb(225, 225, 225) !important;
+	border-color: rgb(209, 209, 209) !important;
+	opacity: 0.5;
 }
 
 .uni-section__content-title {

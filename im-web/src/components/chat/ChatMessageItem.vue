@@ -253,7 +253,7 @@ export default {
 				padding-left: 5px;
 
 				.chat-msg-text {
-					display: block;
+					display: inline-block;
 					position: relative;
 					line-height: 26px;
 					//margin-top: 3px;

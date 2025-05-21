@@ -1,5 +1,5 @@
 <template>
-	<view class="page chat-box">
+	<view class="page chat-box" id="chatBox">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
 		<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
 			<view class="chat-msg" @click="switchChatTabBox('none')">
@@ -17,7 +17,7 @@
 				</scroll-view>
 			</view>
 			<view v-if="atUserIds.length > 0" class="chat-at-bar" @click="openAtBox()">
-				<view class="iconfont icon-at">:&nbsp;</view>
+				<view class="iconfont icon-at">&nbsp;</view>
 				<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
 					<view class="chat-at-items">
 						<view v-for="m in atUserItems" class="chat-at-item" :key="m.userId">
@@ -809,7 +809,7 @@ export default {
 			if (window.visualViewport && uni.getSystemInfoSync().platform == 'ios') {
 				keyboardHeight = this.initHeight - window.visualViewport.height;
 			}
-			console.log("resizeListener:",window.visualViewport.height)
+			console.log("resizeListener:", window.visualViewport.height)
 			this.isShowKeyBoard = keyboardHeight > 150;
 			if (this.isShowKeyBoard) {
 				this.keyboardHeight = keyboardHeight;
@@ -950,11 +950,12 @@ export default {
 		this.$nextTick(() => {
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.reCalChatMainHeight()
-			// 兼容ios h5:禁止页面滚动
 			// #ifdef H5
 			this.initHeight = window.innerHeight;
-			document.body.addEventListener('touchmove', function(e) {
-				e.preventDefault();
+			// 兼容ios的h5:禁止页面滚动
+			const chatBox = document.getElementById('chatBox')
+			chatBox.addEventListener('touchmove', e => {
+				e.preventDefault()
 			}, { passive: false });
 			// #endif
 		});

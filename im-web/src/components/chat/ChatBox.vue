@@ -3,8 +3,7 @@
 		<el-container>
 			<el-header height="50px">
 				<span>{{ title }}</span>
-				<span title="群聊信息" v-show="isGroup" class="btn-side el-icon-more"
-					@click="showSide = !showSide"></span>
+				<span title="群聊信息" v-show="isGroup" class="btn-side el-icon-more" @click="showSide = !showSide"></span>
 			</el-header>
 			<el-main style="padding: 0;">
 				<el-container>
@@ -321,7 +320,7 @@ export default {
 			// 邀请成员发起通话
 			let ids = [this.mine.id];
 			let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
-			this.$refs.rtcSel.open(maxChannel, ids, ids,[]);
+			this.$refs.rtcSel.open(maxChannel, ids, ids, []);
 		},
 		onInviteOk(members) {
 			if (members.length < 2) {
@@ -699,6 +698,9 @@ export default {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
 						newChat.targetId != oldChat.targetId)) {
+					this.userInfo = {}
+					this.group = {};
+					this.groupMembers = [];
 					if (this.chat.type == "GROUP") {
 						this.loadGroup(this.chat.targetId);
 					} else {
