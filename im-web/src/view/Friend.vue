@@ -1,7 +1,7 @@
 <template>
 	<el-container class="friend-page">
-		<el-aside width="260px" class="friend-list-box">
-			<div class="friend-list-header">
+		<el-aside width="260px" class="aside">
+			<div class="header">
 				<el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
 				</el-input>
@@ -9,9 +9,9 @@
 					@click="onShowAddFriend()"></el-button>
 				<add-friend :dialogVisible="showAddFriend" @close="onCloseAddFriend"></add-friend>
 			</div>
-			<el-scrollbar class="friend-list-items">
+			<el-scrollbar class="friend-items">
 				<div v-for="(friends, i) in friendValues" :key="i">
-					<div class="index-title">{{ friendKeys[i] }}</div>
+					<div class="letter">{{ friendKeys[i] }}</div>
 					<div v-for="(friend) in friends" :key="friend.id">
 						<friend-item :friend="friend" :active="friend.id === activeFriend.id"
 							@chat="onSendMessage(friend)" @delete="onDelFriend(friend)"
@@ -22,12 +22,12 @@
 				</div>
 			</el-scrollbar>
 		</el-aside>
-		<el-container class="friend-box">
-			<div class="friend-header" v-show="userInfo.id">
+		<el-container class="container">
+			<div class="header" v-show="userInfo.id">
 				{{ userInfo.nickName }}
 			</div>
 			<div v-show="userInfo.id">
-				<div class="friend-detail">
+				<div class="friend-info">
 					<head-image :size="160" :name="userInfo.nickName" :url="userInfo.headImage" radius="10%"
 						@click.native="showFullImage()"></head-image>
 					<div>
@@ -42,7 +42,7 @@
 								<el-descriptions-item label="签名">{{ userInfo.signature }}</el-descriptions-item>
 							</el-descriptions>
 						</div>
-						<div class="frient-btn-group">
+						<div class="btn-group">
 							<el-button v-show="isFriend" icon="el-icon-position" type="primary"
 								@click="onSendMessage(userInfo)">发消息</el-button>
 							<el-button v-show="!isFriend" icon="el-icon-plus" type="primary"
@@ -223,14 +223,14 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .friend-page {
-	.friend-list-box {
+	.aside {
 		display: flex;
 		flex-direction: column;
 		background: var(--im-background);
 
-		.friend-list-header {
+		.header {
 			height: 50px;
 			display: flex;
 			align-items: center;
@@ -244,10 +244,10 @@ export default {
 			}
 		}
 
-		.friend-list-items {
+		.friend-items {
 			flex: 1;
 
-			.index-title {
+			.letter {
 				text-align: left;
 				font-size: var(--im-larger-size-larger);
 				padding: 5px 15px;
@@ -256,11 +256,11 @@ export default {
 		}
 	}
 
-	.friend-box {
+	.container {
 		display: flex;
 		flex-direction: column;
 
-		.friend-header {
+		.header {
 			height: 50px;
 			display: flex;
 			justify-content: space-between;
@@ -271,7 +271,7 @@ export default {
 			box-sizing: border-box;
 		}
 
-		.friend-detail {
+		.friend-info {
 			display: flex;
 			padding: 50px 80px 20px 80px;
 			text-align: center;
@@ -287,7 +287,7 @@ export default {
 			}
 		}
 
-		.frient-btn-group {
+		.btn-group {
 			text-align: left !important;
 			padding: 20px;
 		}

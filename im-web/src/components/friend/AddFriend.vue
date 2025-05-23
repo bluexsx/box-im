@@ -1,6 +1,6 @@
 <template>
 	<el-dialog v-dialogDrag title="添加好友" :visible.sync="dialogVisible" width="400px" :before-close="onClose"
-		custom-class="add-friend-dialog">
+		custom-class="add-friend">
 		<el-input placeholder="输入用户名或昵称按下enter搜索，最多展示20条" class="input-with-select" v-model="searchText" size="small"
 			@keyup.enter.native="onSearch()">
 			<i class="el-icon-search el-input__icon" slot="suffix" @click="onSearch()"> </i>
@@ -11,7 +11,7 @@
 					<div class="avatar">
 						<head-image :name="user.nickName" :url="user.headImage" :online="user.online"></head-image>
 					</div>
-					<div class="add-friend-text">
+					<div class="friend-info">
 						<div class="nick-name">
 							<div>{{ user.nickName }}</div>
 							<div :class="user.online ? 'online-status  online' : 'online-status'">{{
@@ -93,8 +93,8 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.add-friend-dialog {
+<style lang="scss" scoped>
+.add-friend {
 	.item {
 		height: 65px;
 		display: flex;
@@ -103,7 +103,7 @@ export default {
 		align-items: center;
 		padding-right: 25px;
 
-		.add-friend-text {
+		.friend-info {
 			margin-left: 15px;
 			flex: 3;
 			display: flex;

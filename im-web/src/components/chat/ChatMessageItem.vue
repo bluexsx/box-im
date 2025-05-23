@@ -1,29 +1,28 @@
 <template>
-	<div class="chat-msg-item">
-		<div class="chat-msg-tip"
-			v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
+	<div class="chat-message-item">
+		<div class="message-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
 			{{ msgInfo.content }}
 		</div>
-		<div class="chat-msg-tip" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
+		<div class="message-tip" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
 			{{ $date.toTimeText(msgInfo.sendTime) }}
 		</div>
-		<div class="chat-msg-normal" v-else-if="isNormal" :class="{ 'chat-msg-mine': mine }">
+		<div class="message-normal" v-else-if="isNormal" :class="{ 'message-mine': mine }">
 			<div class="head-image">
 				<head-image :name="showName" :size="38" :url="headImage" :id="msgInfo.sendId"></head-image>
 			</div>
-			<div class="chat-msg-content">
-				<div v-show="mode == 1 && msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
+			<div class="content">
+				<div v-show="mode == 1 && msgInfo.groupId && !msgInfo.selfSend" class="message-top">
 					<span>{{ showName }}</span>
 				</div>
-				<div v-show="mode == 2" class="chat-msg-top">
+				<div v-show="mode == 2" class="message-top">
 					<span>{{ showName }}</span>
 					<span>{{ $date.toTimeText(msgInfo.sendTime) }}</span>
 				</div>
-				<div class="chat-msg-bottom" @contextmenu.prevent="showRightMenu($event)">
+				<div class="message-bottom" @contextmenu.prevent="showRightMenu($event)">
 					<div ref="chatMsgBox">
-						<span class="chat-msg-text" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT"
+						<span class="message-text" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT"
 							v-html="htmlText"></span>
-						<div class="chat-msg-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
+						<div class="message-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
 							<div class="img-load-box" v-loading="loading" element-loading-text="上传中.."
 								element-loading-background="rgba(0, 0, 0, 0.4)">
 								<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
@@ -32,7 +31,7 @@
 							<span title="发送失败" v-show="loadFail" @click="onSendFail"
 								class="send-fail el-icon-warning"></span>
 						</div>
-						<div class="chat-msg-file" v-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
+						<div class="message-file" v-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
 							<div class="chat-file-box" v-loading="loading">
 								<div class="chat-file-info">
 									<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
@@ -47,17 +46,17 @@
 								class="send-fail el-icon-warning"></span>
 						</div>
 					</div>
-					<div class="chat-msg-voice" v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
+					<div class="message-voice" v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
 						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 					</div>
-					<div class="chat-action chat-msg-text" v-if="isAction">
+					<div class="chat-action message-text" v-if="isAction">
 						<span v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE" title="重新呼叫"
 							@click="$emit('call')" class="iconfont icon-chat-voice"></span>
 						<span v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VIDEO" title="重新呼叫"
 							@click="$emit('call')" class="iconfont icon-chat-video"></span>
 						<span>{{ msgInfo.content }}</span>
 					</div>
-					<div class="chat-msg-status" v-if="!isAction">
+					<div class="message-status" v-if="!isAction">
 						<span class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
 							&& msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</span>
 						<span class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId
@@ -195,22 +194,22 @@ export default {
 		htmlText() {
 			let color = this.msgInfo.selfSend ? 'white' : '';
 			let text = this.$url.replaceURLWithHTMLLinks(this.msgInfo.content, color)
-			return this.$emo.transform(text,'emoji-normal')
+			return this.$emo.transform(text, 'emoji-normal')
 		}
 	}
 }
 </script>
 
-<style lang="scss">
-.chat-msg-item {
+<style lang="scss" scoped>
+.chat-message-item {
 
-	.chat-msg-tip {
+	.message-tip {
 		line-height: 50px;
 		font-size: var(--im-font-size-small);
 		color: var(--im-text-color-light);
 	}
 
-	.chat-msg-normal {
+	.message-normal {
 		position: relative;
 		font-size: 0;
 		padding-left: 48px;
@@ -225,7 +224,7 @@ export default {
 			left: 0;
 		}
 
-		.chat-msg-content {
+		.content {
 			text-align: left;
 
 			.send-fail {
@@ -235,7 +234,7 @@ export default {
 				margin: 0 20px;
 			}
 
-			.chat-msg-top {
+			.message-top {
 				display: flex;
 				flex-wrap: nowrap;
 				color: var(--im-text-color-light);
@@ -247,12 +246,12 @@ export default {
 				}
 			}
 
-			.chat-msg-bottom {
+			.message-bottom {
 				display: inline-block;
 				padding-right: 300px;
 				padding-left: 5px;
 
-				.chat-msg-text {
+				.message-text {
 					display: inline-block;
 					position: relative;
 					line-height: 26px;
@@ -279,7 +278,7 @@ export default {
 					}
 				}
 
-				.chat-msg-image {
+				.message-image {
 					display: flex;
 					flex-wrap: nowrap;
 					flex-direction: row;
@@ -296,7 +295,7 @@ export default {
 
 				}
 
-				.chat-msg-file {
+				.message-file {
 					display: flex;
 					flex-wrap: nowrap;
 					flex-direction: row;
@@ -351,7 +350,7 @@ export default {
 
 				}
 
-				.chat-msg-voice {
+				.message-voice {
 					font-size: 14px;
 					cursor: pointer;
 
@@ -372,7 +371,7 @@ export default {
 					}
 				}
 
-				.chat-msg-status {
+				.message-status {
 					display: block;
 
 					.chat-readed {
@@ -406,7 +405,7 @@ export default {
 		}
 
 
-		&.chat-msg-mine {
+		&.message-mine {
 			text-align: right;
 			padding-left: 0;
 			padding-right: 48px;
@@ -416,10 +415,10 @@ export default {
 				right: 0;
 			}
 
-			.chat-msg-content {
+			.content {
 				text-align: right;
 
-				.chat-msg-top {
+				.message-top {
 					flex-direction: row-reverse;
 
 					span {
@@ -428,11 +427,11 @@ export default {
 					}
 				}
 
-				.chat-msg-bottom {
+				.message-bottom {
 					padding-left: 180px;
 					padding-right: 5px;
 
-					.chat-msg-text {
+					.message-text {
 						margin-left: 10px;
 						background-color: var(--im-color-primary-light-2);
 						color: #fff;
@@ -444,11 +443,11 @@ export default {
 						}
 					}
 
-					.chat-msg-image {
+					.message-image {
 						flex-direction: row-reverse;
 					}
 
-					.chat-msg-file {
+					.message-file {
 						flex-direction: row-reverse;
 					}
 

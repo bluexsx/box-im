@@ -101,7 +101,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .setting {
 	.el-form {
 		padding: 10px 0 0 10px;

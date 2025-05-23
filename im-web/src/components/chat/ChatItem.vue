@@ -91,7 +91,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-item {
 	height: 50px;
 	display: flex;
@@ -185,8 +185,7 @@ export default {
 				font-size: var(--im-font-size-small);
 				color: var(--im-text-color-light);
 			}
-
-
+			
 			.chat-content-text {
 				flex: 1;
 				white-space: nowrap;
@@ -194,7 +193,6 @@ export default {
 				text-overflow: ellipsis;
 				font-size: var(--im-font-size-small);
 				color: var(--im-text-color-light);
-
 			}
 
 		}

@@ -11,7 +11,7 @@
 					<div v-for="friend in friends" :key="friend.id">
 						<friend-item v-show="friend.nickName.includes(searchText)" :showDelete="false"
 							@click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :active="false">
-							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="friend-checkbox"
+							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="checkbox"
 								v-model="friend.isCheck" size="medium"></el-checkbox>
 						</friend-item>
 					</div>
@@ -143,7 +143,7 @@ export default {
 			}
 		}
 
-		.friend-checkbox {
+		.checkbox {
 			margin-right: 20px;
 		}
 	}

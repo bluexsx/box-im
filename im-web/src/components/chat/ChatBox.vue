@@ -67,7 +67,7 @@
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="320px" v-if="showSide">
+					<el-aside class="side-box" width="320px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>
@@ -742,7 +742,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-box {
 	position: relative;
 	width: 100%;
@@ -837,9 +837,8 @@ export default {
 		}
 	}
 
-	.chat-group-side-box {
+	.side-box {
 		border-left: var(--im-border);
-		//animation: rtl-drawer-in .3s 1ms;
 	}
 
 }

@@ -1,9 +1,9 @@
 <template>
 	<div class="login-view">
-		<div class="login-content">
-			<el-form class="login-form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
+		<div class="content">
+			<el-form class="form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
 				@keyup.enter.native="submitForm('loginForm')">
-				<div class="login-brand">
+				<div class="title">
 					<img class="logo" src="../../public/logo.png" />
 					<div>登录盒子IM</div>
 				</div>
@@ -126,14 +126,14 @@ export default {
 	box-sizing: border-box;
 
 
-	.login-content {
+	.content {
 		position: relative;
 		display: flex;
 		justify-content: space-around;
 		align-items: center;
 		padding: 10%;
 
-		.login-form {
+		.form {
 			height: 340px;
 			width: 400px;
 			padding: 30px;
@@ -144,7 +144,7 @@ export default {
 			overflow: hidden;
 			border: 1px solid #ccc;
 
-			.login-brand {
+			.title {
 				display: flex;
 				justify-content: center;
 				align-items: center;

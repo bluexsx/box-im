@@ -37,7 +37,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .rtc-group-video {
 	height: 300px;
 	background-color: #E8F2FF;
