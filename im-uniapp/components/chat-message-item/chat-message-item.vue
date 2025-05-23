@@ -1,29 +1,29 @@
 <template>
-	<view class="chat-msg-item">
-		<view class="chat-msg-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
+	<view class="chat-message-item">
+		<view class="message-tip" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TEXT">
 			{{ msgInfo.content }}
 		</view>
-		<view class="chat-msg-tip" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
+		<view class="message-tip" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.TIP_TIME">
 			{{ $date.toTimeText(msgInfo.sendTime) }}
 		</view>
-		<view class="chat-msg-normal" v-else-if="isNormal" :class="{ 'chat-msg-mine': msgInfo.selfSend }">
+		<view class="message-normal" v-else-if="isNormal" :class="{ 'message-mine': msgInfo.selfSend }">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="msgInfo.sendId" :url="headImage"
 				:name="showName" size="small"></head-image>
-			<view class="chat-msg-content">
-				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="chat-msg-top">
+			<view class="content">
+				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="top">
 					<text>{{ showName }}</text>
 				</view>
-				<view class="chat-msg-bottom">
+				<view class="bottom">
 					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
 							<!-- rich-text支持显示表情，但是不支持点击a标签 -->
-							<rich-text v-if="$emo.containEmoji(msgInfo.content)" class="chat-msg-text"
+							<rich-text v-if="$emo.containEmoji(msgInfo.content)" class="message-text"
 								:nodes="nodesText"></rich-text>
 							<!-- up-parse支持点击a标签,但安卓打包后表情无法显示,原因未知 -->
-							<up-parse v-else class="chat-msg-text" :showImgMenu="false" :content="nodesText"></up-parse>
+							<up-parse v-else class="message-text" :showImgMenu="false" :content="nodesText"></up-parse>
 						</long-press-menu>
 					</view>
-					<view class="chat-msg-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
+					<view class="message-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
 							<view class="img-load-box">
 								<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
@@ -35,15 +35,15 @@
 						<text title="发送失败" v-if="loadFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></text>
 					</view>
-					<view class="chat-msg-file" v-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
+					<view class="message-file" v-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<view class="chat-file-box">
-								<view class="chat-file-info">
-									<uni-link class="chat-file-name" :text="data.name" showUnderLine="true"
+							<view class="file-box">
+								<view class="file-info">
+									<uni-link class="file-name" :text="data.name" showUnderLine="true"
 										color="#007BFF" :href="data.url"></uni-link>
-									<view class="chat-file-size">{{ fileSize }}</view>
+									<view class="file-size">{{ fileSize }}</view>
 								</view>
-								<view class="chat-file-icon iconfont icon-file"></view>
+								<view class="file-icon iconfont icon-file"></view>
 								<loading v-if="loading"></loading>
 							</view>
 						</long-press-menu>
@@ -52,7 +52,7 @@
 					</view>
 					<long-press-menu v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" :items="menuItems"
 						@select="onSelectMenu">
-						<view class="chat-msg-audio chat-msg-text" @click="onPlayAudio()">
+						<view class="message-audio message-text" @click="onPlayAudio()">
 							<text class="iconfont icon-voice-play"></text>
 							<text class="chat-audio-text">{{ JSON.parse(msgInfo.content).duration + '"' }}</text>
 							<text v-if="audioPlayState == 'PAUSE'" class="iconfont icon-play"></text>
@@ -60,7 +60,7 @@
 						</view>
 					</long-press-menu>
 					<long-press-menu v-if="isAction" :items="menuItems" @select="onSelectMenu">
-						<view class="chat-realtime chat-msg-text" @click="$emit('call')">
+						<view class="chat-realtime message-text" @click="$emit('call')">
 							<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE"
 								class="iconfont icon-chat-voice"></text>
 							<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VIDEO"
@@ -68,7 +68,7 @@
 							<text>{{ msgInfo.content }}</text>
 						</view>
 					</long-press-menu>
-					<view class="chat-msg-status" v-if="!isAction">
+					<view class="message-status" v-if="!isAction">
 						<text class="chat-readed" v-if="msgInfo.selfSend && !msgInfo.groupId
 							&& msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</text>
 						<text class="chat-unread" v-if="msgInfo.selfSend && !msgInfo.groupId
@@ -82,7 +82,6 @@
 			</view>
 		</view>
 		<chat-group-readed ref="chatGroupReaded" :groupMembers="groupMembers" :msgInfo="msgInfo"></chat-group-readed>
-
 	</view>
 </template>
 
@@ -241,15 +240,14 @@ export default {
 			return this.$emo.transform(text, 'emoji-normal')
 		}
 	}
-
 }
 </script>
 
 <style scoped lang="scss">
-.chat-msg-item {
+.chat-message-item {
 	padding: 2rpx 20rpx;
 
-	.chat-msg-tip {
+	.message-tip {
 		line-height: 60rpx;
 		text-align: center;
 		color: $im-text-color-lighter;
@@ -257,7 +255,7 @@ export default {
 		padding: 10rpx;
 	}
 
-	.chat-msg-normal {
+	.message-normal {
 		position: relative;
 		margin-bottom: 22rpx;
 		padding-left: 110rpx;
@@ -269,10 +267,10 @@ export default {
 			left: 0;
 		}
 
-		.chat-msg-content {
+		.content {
 			text-align: left;
 
-			.chat-msg-top {
+			.top {
 				display: flex;
 				flex-wrap: nowrap;
 				color: $im-text-color-lighter;
@@ -281,12 +279,12 @@ export default {
 				height: $im-font-size-smaller;
 			}
 
-			.chat-msg-bottom {
+			.bottom {
 				display: inline-block;
 				padding-right: 80rpx;
 				margin-top: 5rpx;
 
-				.chat-msg-text {
+				.message-text {
 					position: relative;
 					line-height: 1.6;
 					margin-top: 10rpx;
@@ -299,7 +297,6 @@ export default {
 					display: block;
 					word-break: break-all;
 					white-space: pre-line;
-
 
 					&:after {
 						content: "";
@@ -315,8 +312,7 @@ export default {
 					}
 				}
 
-
-				.chat-msg-image {
+				.message-image {
 					display: flex;
 					flex-wrap: nowrap;
 					flex-direction: row;
@@ -334,7 +330,6 @@ export default {
 						}
 					}
 
-
 					.send-fail {
 						color: $im-color-danger;
 						font-size: $im-font-size;
@@ -343,14 +338,14 @@ export default {
 					}
 				}
 
-				.chat-msg-file {
+				.message-file {
 					display: flex;
 					flex-wrap: nowrap;
 					flex-direction: row;
 					align-items: center;
 					cursor: pointer;
 
-					.chat-file-box {
+					.file-box {
 						position: relative;
 						display: flex;
 						flex-wrap: nowrap;
@@ -360,21 +355,21 @@ export default {
 						padding: 10px 15px;
 						box-shadow: $im-box-shadow-dark;
 
-						.chat-file-info {
+						.file-info {
 							flex: 1;
 							height: 100%;
 							text-align: left;
 							font-size: 14px;
 							width: 300rpx;
 
-							.chat-file-name {
+							.file-name {
 								font-weight: 600;
 								margin-bottom: 15px;
 								word-break: break-all;
 							}
 						}
 
-						.chat-file-icon {
+						.file-icon {
 							font-size: 80rpx;
 							color: #d42e07;
 						}
@@ -386,10 +381,9 @@ export default {
 						cursor: pointer;
 						margin: 0 20rpx;
 					}
-
 				}
 
-				.chat-msg-audio {
+				.message-audio {
 					display: flex;
 					align-items: center;
 
@@ -413,7 +407,7 @@ export default {
 					}
 				}
 
-				.chat-msg-status {
+				.message-status {
 					line-height: $im-font-size-smaller-extra;
 					font-size: $im-font-size-smaller-extra;
 					padding-top: 2rpx;
@@ -442,8 +436,7 @@ export default {
 			}
 		}
 
-
-		&.chat-msg-mine {
+		&.message-mine {
 			text-align: right;
 			padding-left: 0;
 			padding-right: 110rpx;
@@ -453,14 +446,14 @@ export default {
 				right: 0;
 			}
 
-			.chat-msg-content {
+			.content {
 				text-align: right;
 
-				.chat-msg-bottom {
+				.bottom {
 					padding-left: 80rpx;
 					padding-right: 0;
 
-					.chat-msg-text {
+					.message-text {
 						margin-left: 10px;
 						background-color: $im-color-primary-light-2;
 						color: #fff;
@@ -472,15 +465,15 @@ export default {
 						}
 					}
 
-					.chat-msg-image {
+					.message-image {
 						flex-direction: row-reverse;
 					}
 
-					.chat-msg-file {
+					.message-file {
 						flex-direction: row-reverse;
 					}
 
-					.chat-msg-audio {
+					.message-audio {
 						flex-direction: row-reverse;
 
 						.chat-audio-text {
@@ -501,11 +494,9 @@ export default {
 							transform: rotateY(180deg);
 						}
 					}
-
 				}
 			}
 		}
-
 	}
 }
 </style>

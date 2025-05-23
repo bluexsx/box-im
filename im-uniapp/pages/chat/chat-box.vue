@@ -2,7 +2,7 @@
 	<view class="page chat-box" id="chatBox">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
 		<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
-			<view class="chat-msg" @click="switchChatTabBox('none')">
+			<view class="chat-message" @click="switchChatTabBox('none')">
 				<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 					:scroll-into-view="'chat-item-' + scrollMsgIdx">
 					<view v-if="chat" v-for="(msgInfo, idx) in chat.messages" :key="idx">
@@ -1015,7 +1015,7 @@ export default {
 		flex-direction: column;
 		z-index: 2;
 
-		.chat-msg {
+		.chat-message {
 			flex: 1;
 			padding: 0;
 			overflow: hidden;

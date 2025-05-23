@@ -20,14 +20,20 @@ export default {
 	},
 	methods: {
 		showFriendInfo() {
-			uni.navigateTo({
-				url: "/pages/common/user-info?id=" + this.friend.id
-			})
-		},
+			if (this.detail) {
+				uni.navigateTo({
+					url: "/pages/common/user-info?id=" + this.friend.id
+				})
+			}
+		}
 	},
 	props: {
 		friend: {
 			type: Object
+		},
+		detail: {
+			type: Boolean,
+			default: true
 		}
 	}
 }
