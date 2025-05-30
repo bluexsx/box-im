@@ -25,7 +25,7 @@
 					</view>
 					<view class="message-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<view class="img-load-box">
+							<view class="image-box">
 								<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
 									lazy-load="true" @click.stop="onShowFullImage()">
 								</image>
@@ -318,7 +318,7 @@ export default {
 					flex-direction: row;
 					align-items: center;
 
-					.img-load-box {
+					.image-box {
 						position: relative;
 
 						.send-image {
