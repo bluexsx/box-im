@@ -15,6 +15,9 @@
 						</chat-message-item>
 					</view>
 				</scroll-view>
+				<view v-if="!isInBottom" class="scroll-to-bottom" @click="onClickToBottom">
+					{{ newMessageSize > 0 ?  newMessageSize+'条新消息' :'回到底部'}}
+				</view>
 			</view>
 			<view v-if="atUserIds.length > 0" class="chat-at-bar" @click="openAtBox()">
 				<view class="iconfont icon-at">&nbsp;</view>
@@ -140,7 +143,9 @@ export default {
 			isEmpty: true, // 编辑器是否为空
 			isFocus: false, // 编辑器是否焦点
 			isReadOnly: false, // 编辑器是否只读
-			playingAudio: null // 当前正在播放的录音消息
+			playingAudio: null, // 当前正在播放的录音消息
+			isInBottom: true, // 滚动条是否在底部
+			newMessageSize: 0 // 滚动条不在底部时新的消息数量
 		}
 	},
 	methods: {
@@ -561,17 +566,32 @@ export default {
 				}
 			});
 		},
+		onClickToBottom() {
+			this.scrollToBottom();
+			// 有些设备滚到底部时会莫名触发滚动到顶部的事件
+			// 所以这里延迟100s保证能准确设置底部标志
+			setTimeout(() => {
+				this.isInBottom = true;
+				this.newMessageSize = 0;
+			}, 100)
+		},
 		onScrollToTop() {
-			if (this.showMinIdx == 0) {
-				console.log("消息已滚动到顶部")
-				return;
+			console.log("onScrollToTop")
+			if (this.showMinIdx > 0) {
+				//  #ifndef H5
+				// 防止滚动条定格在顶部，不能一直往上滚
+				this.scrollToMsgIdx(this.showMinIdx);
+				// #endif
+				// 多展示20条信息
+				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
 			}
-			//  #ifndef H5
-			// 防止滚动条定格在顶部，不能一直往上滚
-			this.scrollToMsgIdx(this.showMinIdx);
-			// #endif
-			// 多展示20条信息
-			this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
+			// 清除底部标识
+			this.isInBottom = false;
+		},
+		onScrollToBottom(e) {
+			// 设置底部标识
+			this.isInBottom = true;
+			this.newMessageSize = 0;
 		},
 		onShowMore() {
 			if (this.chat.type == "GROUP") {
@@ -639,7 +659,6 @@ export default {
 				method: 'PUT'
 			}).then(() => {
 				this.chatStore.resetUnreadCount(this.chat)
-				this.scrollToBottom();
 			})
 		},
 		loadGroup(groupId) {
@@ -907,12 +926,12 @@ export default {
 		messageSize: function(newSize, oldSize) {
 			// 接收到消息时滚动到底部
 			if (newSize > oldSize) {
-				let pages = getCurrentPages();
-				let curPage = pages[pages.length - 1].route;
-				if (curPage == "pages/chat/chat-box") {
+				if (this.isInBottom) {
+					// 收到消息,则滚动至底部
 					this.scrollToBottom();
 				} else {
-					this.needScrollToBottom = true;
+					// 若滚动条不在底部，说明用户正在翻历史消息，此时滚动条不能动，同时增加新消息提示
+					this.newMessageSize++;
 				}
 			}
 		},
@@ -949,7 +968,8 @@ export default {
 		// 计算聊天窗口高度
 		this.$nextTick(() => {
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
-			this.reCalChatMainHeight()
+			this.reCalChatMainHeight();
+			this.scrollToBottom();
 			// #ifdef H5
 			this.initHeight = window.innerHeight;
 			// 兼容ios的h5:禁止页面滚动
@@ -1024,6 +1044,19 @@ export default {
 
 			.scroll-box {
 				height: 100%;
+			}
+
+			.scroll-to-bottom {
+				position: absolute;
+				right: 30rpx;
+				bottom: 30rpx;
+				font-size: $im-font-size;
+				color: $im-color-primary;
+				font-weight: 600;
+				background: white;
+				padding: 10rpx 30rpx;
+				border-radius: 25rpx;
+				box-shadow: $im-box-shadow-dark;
 			}
 		}
 
