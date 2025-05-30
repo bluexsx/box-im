@@ -20,7 +20,7 @@
 			</div>
 		</div>
 		<el-divider content-position="center"></el-divider>
-		<div class="user-btn-group">
+		<div class="btn-group">
 			<el-button v-if="isFriend" type="primary" @click="onSendMessage()">发消息</el-button>
 			<el-button v-else type="primary" @click="onAddFriend()">加为好友</el-button>
 		</div>
@@ -99,7 +99,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .user-info-mask {
 	background-color: rgba($color: #f4f4f4, $alpha: 0);
 	position: fixed;
@@ -144,23 +144,16 @@ export default {
 				font-size: var(--im-font-size);
 				margin-top: 5px;
 				word-break: break-all;
-
 			}
 		}
-
 	}
 
 	.el-divider--horizontal {
 		margin: 18px 0;
 	}
 
-	.user-btn-group {
+	.btn-group {
 		text-align: center;
-
-		.wait-text {
-			font-size: 14px;
-			color: var(--im-text-color-light);
-		}
 	}
 }
 </style>

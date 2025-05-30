@@ -100,7 +100,6 @@ export default {
 <style scoped lang="scss">
 .head-image {
 	position: relative;
-	//cursor: pointer;
 
 	.avatar-image {
 		position: relative;

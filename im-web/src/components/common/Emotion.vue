@@ -2,7 +2,7 @@
 	<div v-show="show" @click="close()">
 		<div class="emotion-box" :style="{ 'left': x + 'px', 'top': y + 'px' }">
 			<el-scrollbar style="height: 220px">
-				<div class="emotion-item-list">
+				<div class="emotion-items">
 					<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="i"
 						@click="onClickEmo(emoText)" v-html="$emo.textToImg(emoText,'emoji-large')">
 					</div>
@@ -53,11 +53,10 @@ export default {
 	width: 372px;
 	box-sizing: border-box;
 	padding: 5px;
-	//border-radius: 5px;
 	background-color: #fff;
 	box-shadow: var(--im-box-shadow);
 
-	.emotion-item-list {
+	.emotion-items {
 		display: flex;
 		flex-wrap: wrap;
 
@@ -68,18 +67,5 @@ export default {
 
 		}
 	}
-
-	//&:after {
-	//	content: "";
-	//	position: absolute;
-	//	left: 185px;
-	//	bottom: -30px;
-	//	width: 0;
-	//	height: 0;
-	//	border-style: solid dashed dashed;
-	//	border-color: #f5f5f5 transparent transparent;
-	//	overflow: hidden;
-	//	border-width: 15px;
-	//}
 }
 </style>

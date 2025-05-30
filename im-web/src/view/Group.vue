@@ -1,15 +1,15 @@
 <template>
 	<el-container class="group-page">
-		<el-aside width="260px" class="group-list-box">
-			<div class="group-list-header">
+		<el-aside width="260px" class="aside">
+			<div class="header">
 				<el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
 				</el-input>
 				<el-button plain class="add-btn" icon="el-icon-plus" title="创建群聊" @click="onCreateGroup()"></el-button>
 			</div>
-			<el-scrollbar class="group-list-items">
+			<el-scrollbar class="group-items">
 				<div v-for="(groups, i) in groupValues" :key="i">
-					<div class="index-title">{{ groupKeys[i] }}</div>
+					<div class="letter">{{ groupKeys[i] }}</div>
 					<div v-for="group in groups" :key="group.id">
 						<group-item :group="group" :active="group.id == activeGroup.id"
 							@click.native="onActiveItem(group)">
@@ -19,80 +19,75 @@
 				</div>
 			</el-scrollbar>
 		</el-aside>
-		<el-container class="group-box">
-			<div class="group-header" v-show="activeGroup.id">
-				{{ activeGroup.showGroupName }}({{ groupMembers.length }})
-			</div>
-			<div class="group-container">
-				<div v-show="activeGroup.id">
-					<div class="group-info">
-						<div>
-							<file-upload v-show="isOwner" class="avatar-uploader" :action="imageAction"
-								:showLoading="true" :maxSize="maxSize" @success="onUploadSuccess"
-								:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp']">
-								<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
-								<i v-else class="el-icon-plus avatar-uploader-icon"></i>
-							</file-upload>
-							<head-image v-show="!isOwner" class="avatar" :size="160" :url="activeGroup.headImage"
-								:name="activeGroup.showGroupName" radius="10%">
-							</head-image>
-							<el-button class="send-btn" icon="el-icon-position" type="primary"
-								@click="onSendMessage()">发消息
-							</el-button>
-						</div>
-						<el-form class="group-form" label-width="130px" :model="activeGroup" :rules="rules" size="small"
-							ref="groupForm">
-							<el-form-item label="群聊名称" prop="name">
-								<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="20"></el-input>
-							</el-form-item>
-							<el-form-item label="群主">
-								<el-input :value="ownerName" disabled></el-input>
-							</el-form-item>
-							<el-form-item label="群名备注">
-								<el-input v-model="activeGroup.remarkGroupName" :placeholder="activeGroup.name"
-									maxlength="20"></el-input>
-							</el-form-item>
-							<el-form-item label="我在本群的昵称">
-								<el-input v-model="activeGroup.remarkNickName" maxlength="20"
-									:placeholder="$store.state.userStore.userInfo.nickName"></el-input>
-							</el-form-item>
-							<el-form-item label="群公告">
-								<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" :rows="3"
-									maxlength="1024" placeholder="群主未设置"></el-input>
-							</el-form-item>
-							<div>
-								<el-button type="warning" @click="onInvite()">邀请</el-button>
-								<el-button type="success" @click="onSaveGroup()">保存</el-button>
-								<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出</el-button>
-								<el-button type="danger" v-show="isOwner" @click="onDissolve()">解散</el-button>
-							</div>
-						</el-form>
+		<el-container class="container">
+			<div class="header" v-show="activeGroup.id">{{ activeGroup.showGroupName }}({{ showMembers.length }})</div>
+			<div class="container-box" v-show="activeGroup.id">
+				<div class="group-info">
+					<div>
+						<file-upload v-show="isOwner" class="avatar-uploader" :action="imageAction" :showLoading="true"
+							:maxSize="maxSize" @success="onUploadSuccess"
+							:fileTypes="['image/jpeg', 'image/png', 'image/jpg', 'image/webp']">
+							<img v-if="activeGroup.headImage" :src="activeGroup.headImage" class="avatar">
+							<i v-else class="el-icon-plus avatar-uploader-icon"></i>
+						</file-upload>
+						<head-image v-show="!isOwner" class="avatar" :size="160" :url="activeGroup.headImage"
+							:name="activeGroup.showGroupName" radius="10%">
+						</head-image>
+						<el-button class="send-btn" icon="el-icon-position" type="primary" @click="onSendMessage()">发消息
+						</el-button>
 					</div>
-					<el-divider content-position="center"></el-divider>
-					<el-scrollbar ref="scrollbar" :style="'height: ' + scrollHeight + 'px'">
-						<div class="group-member-list">
-							<div class="member-tools">
-								<div class="tool-btn" title="邀请好友进群聊" @click="onInvite()">
-									<i class="el-icon-plus"></i>
-								</div>
-								<div class="tool-text">邀请</div>
-								<add-group-member ref="addGroupMember" :groupId="activeGroup.id" :members="groupMembers"
-									@reload="$emit('reload')"></add-group-member>
-							</div>
-							<div class="member-tools" v-if="isOwner">
-								<div class="tool-btn" title="选择成员移出群聊" @click="onRemove()">
-									<i class="el-icon-minus"></i>
-								</div>
-								<div class="tool-text">移除</div>
-								<group-member-selector ref="removeSelector" title="选择成员进行移除" :group="activeGroup"
-									@complete="onRemoveComplete"></group-member-selector>
-							</div>
-							<div v-for="(member, idx) in showMembers" :key="member.id">
-								<group-member v-if="idx < showMaxIdx" class="group-member" :member="member"></group-member>
-							</div>
+					<el-form class="form" label-width="130px" :model="activeGroup" :rules="rules" size="small"
+						ref="groupForm">
+						<el-form-item label="群聊名称" prop="name">
+							<el-input v-model="activeGroup.name" :disabled="!isOwner" maxlength="20"></el-input>
+						</el-form-item>
+						<el-form-item label="群主">
+							<el-input :value="ownerName" disabled></el-input>
+						</el-form-item>
+						<el-form-item label="群名备注">
+							<el-input v-model="activeGroup.remarkGroupName" :placeholder="activeGroup.name"
+								maxlength="20"></el-input>
+						</el-form-item>
+						<el-form-item label="我在本群的昵称">
+							<el-input v-model="activeGroup.remarkNickName" maxlength="20"
+								:placeholder="$store.state.userStore.userInfo.nickName"></el-input>
+						</el-form-item>
+						<el-form-item label="群公告">
+							<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" :rows="3"
+								maxlength="1024" placeholder="群主未设置"></el-input>
+						</el-form-item>
+						<div>
+							<el-button type="warning" @click="onInvite()">邀请</el-button>
+							<el-button type="success" @click="onSaveGroup()">保存</el-button>
+							<el-button type="danger" v-show="!isOwner" @click="onQuit()">退出</el-button>
+							<el-button type="danger" v-show="isOwner" @click="onDissolve()">解散</el-button>
 						</div>
-					</el-scrollbar>
+					</el-form>
 				</div>
+				<el-divider content-position="center"></el-divider>
+				<el-scrollbar ref="scrollbar" :style="'height: ' + scrollHeight + 'px'">
+					<div class="member-items">
+						<div class="member-tools">
+							<div class="tool-btn" title="邀请好友进群聊" @click="onInvite()">
+								<i class="el-icon-plus"></i>
+							</div>
+							<div class="tool-text">邀请</div>
+							<add-group-member ref="addGroupMember" :groupId="activeGroup.id" :members="groupMembers"
+								@reload="$emit('reload')"></add-group-member>
+						</div>
+						<div class="member-tools" v-if="isOwner">
+							<div class="tool-btn" title="选择成员移出群聊" @click="onRemove()">
+								<i class="el-icon-minus"></i>
+							</div>
+							<div class="tool-text">移除</div>
+							<group-member-selector ref="removeSelector" title="选择成员进行移除" :group="activeGroup"
+								@complete="onRemoveComplete"></group-member-selector>
+						</div>
+						<div v-for="(member, idx) in showMembers" :key="member.id">
+							<group-member v-if="idx < showMaxIdx" class="member-item" :member="member"></group-member>
+						</div>
+					</div>
+				</el-scrollbar>
 			</div>
 		</el-container>
 	</el-container>
@@ -348,14 +343,14 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .group-page {
-	.group-list-box {
+	.aside {
 		display: flex;
 		flex-direction: column;
 		background: var(--im-background);
 
-		.group-list-header {
+		.header {
 			height: 50px;
 			display: flex;
 			align-items: center;
@@ -369,10 +364,10 @@ export default {
 			}
 		}
 
-		.group-list-items {
+		.group-items {
 			flex: 1;
 
-			.index-title {
+			.letter {
 				text-align: left;
 				font-size: var(--im-larger-size-larger);
 				padding: 5px 15px;
@@ -381,11 +376,11 @@ export default {
 		}
 	}
 
-	.group-box {
+	.container {
 		display: flex;
 		flex-direction: column;
 
-		.group-header {
+		.header {
 			display: flex;
 			justify-content: space-between;
 			padding: 0 12px;
@@ -398,7 +393,7 @@ export default {
 			margin: 16px 0;
 		}
 
-		.group-container {
+		.container-box {
 			overflow: auto;
 			padding: 20px;
 			flex: 1;
@@ -407,7 +402,7 @@ export default {
 				display: flex;
 				padding: 5px 20px;
 
-				.group-form {
+				.form {
 					flex: 1;
 					padding-left: 40px;
 					max-width: 700px;
@@ -450,14 +445,14 @@ export default {
 				}
 			}
 
-			.group-member-list {
+			.member-items {
 				padding: 0 12px;
 				display: flex;
 				align-items: center;
 				flex-wrap: wrap;
 				text-align: center;
 
-				.group-member {
+				.member-item {
 					margin-right: 5px;
 				}
 
@@ -495,8 +490,6 @@ export default {
 
 			}
 		}
-
-
 	}
 }
 </style>

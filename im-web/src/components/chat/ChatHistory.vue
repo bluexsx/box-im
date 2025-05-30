@@ -1,7 +1,7 @@
 <template>
 	<el-drawer title="聊天历史记录" size="700px" :visible.sync="visible" direction="rtl" :before-close="onClose">
 		<div class="chat-history" v-loading="loading" element-loading-text="拼命加载中">
-			<el-scrollbar class="chat-history-scrollbar" ref="scrollbar" id="historyScrollbar">
+			<el-scrollbar class="scroll-box" ref="scrollbar" id="historyScrollbar">
 				<ul>
 					<li v-for="(msgInfo, idx) in messages" :key="idx">
 						<chat-message-item :mode="2" :mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
@@ -147,12 +147,12 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-history {
 	display: flex;
 	height: 100%;
 
-	.chat-history-scrollbar {
+	.scroll-box {
 		flex: 1;
 
 		.el-scrollbar__thumb {

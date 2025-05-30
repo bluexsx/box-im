@@ -1,5 +1,5 @@
 <template>
-	<el-scrollbar v-show="show && showMembers.length" ref="scrollBox" class="group-member-choose"
+	<el-scrollbar v-show="show && showMembers.length" ref="scrollBox" class="chat-at-box"
 		:style="{ 'left': pos.x + 'px', 'top': pos.y - 300 + 'px' }">
 		<div v-for="(member, idx) in showMembers" :key="member.id">
 			<chat-group-member :member="member" :height="40" :active='activeIdx == idx'
@@ -123,12 +123,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.group-member-choose {
+.chat-at-box {
 	position: fixed;
 	width: 200px;
 	height: 300px;
-	//border: 1px solid #53a0e79c;
-	//border-radius: 5px;
 	background-color: #fff;
 	box-shadow: var(--im-box-shadow);
 }

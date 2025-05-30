@@ -3,8 +3,7 @@
 		<el-container>
 			<el-header height="50px">
 				<span>{{ title }}</span>
-				<span title="群聊信息" v-show="isGroup" class="btn-side el-icon-more"
-					@click="showSide = !showSide"></span>
+				<span title="群聊信息" v-show="isGroup" class="btn-side el-icon-more" @click="showSide = !showSide"></span>
 			</el-header>
 			<el-main style="padding: 0;">
 				<el-container>
@@ -23,6 +22,9 @@
 								</ul>
 							</div>
 						</el-main>
+						<div v-if="!isInBottom" class="scroll-to-bottom" @click="scrollToBottom">
+							{{ newMessageSize > 0 ? newMessageSize + '条新消息' : '回到底部' }}
+						</div>
 						<el-footer height="220px" class="im-chat-footer">
 							<div class="chat-tool-bar">
 								<div title="表情" class="icon iconfont icon-emoji" ref="emotion"
@@ -68,7 +70,7 @@
 							</div>
 						</el-footer>
 					</el-container>
-					<el-aside class="chat-group-side-box" width="320px" v-if="showSide">
+					<el-aside class="side-box" width="320px" v-if="showSide">
 						<chat-group-side :group="group" :groupMembers="groupMembers" @reload="loadGroup(group.id)">
 						</chat-group-side>
 					</el-aside>
@@ -130,8 +132,10 @@ export default {
 			showHistory: false, // 是否显示历史聊天记录
 			lockMessage: false, // 是否锁定发送，
 			showMinIdx: 0, // 下标低于showMinIdx的消息不显示，否则页面会很卡置
-			reqQueue: [],
-			isSending: false
+			reqQueue: [], // 等待发送的请求队列
+			isSending: false, // 是否正在发消息
+			isInBottom: false, // 滚动条是否在底部
+			newMessageSize: 0 // 滚动条不在底部时新的消息数量
 		}
 	},
 	methods: {
@@ -277,6 +281,12 @@ export default {
 			if (scrollTop < 30) { // 在顶部,不滚动的情况
 				// 多展示20条信息
 				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
+				this.isInBottom = false;
+			}
+			// 滚到底部
+			if (scrollTop + scrollElement.clientHeight >= scrollElement.scrollHeight - 30) {
+				this.isInBottom = true;
+				this.newMessageSize = 0;
 			}
 		},
 		showEmotionBox() {
@@ -321,7 +331,7 @@ export default {
 			// 邀请成员发起通话
 			let ids = [this.mine.id];
 			let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
-			this.$refs.rtcSel.open(maxChannel, ids, ids,[]);
+			this.$refs.rtcSel.open(maxChannel, ids, ids, []);
 		},
 		onInviteOk(members) {
 			if (members.length < 2) {
@@ -399,9 +409,7 @@ export default {
 				return;
 			}
 			let sendText = this.isReceipt ? "【回执消息】" : "";
-			let promiseList = [];
-			for (let i = 0; i < fullList.length; i++) {
-				let msg = fullList[i];
+			fullList.forEach(async msg => {
 				switch (msg.type) {
 					case "text":
 						await this.sendTextMessage(sendText + msg.content, msg.atUserIds);
@@ -413,8 +421,7 @@ export default {
 						await this.sendFileMessage(msg.content.file);
 						break;
 				}
-
-			}
+			})
 		},
 		sendImageMessage(file) {
 			return new Promise((resolve, reject) => {
@@ -702,6 +709,9 @@ export default {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
 						newChat.targetId != oldChat.targetId)) {
+					this.userInfo = {}
+					this.group = {};
+					this.groupMembers = [];
 					if (this.chat.type == "GROUP") {
 						this.loadGroup(this.chat.targetId);
 					} else {
@@ -730,8 +740,13 @@ export default {
 		messageSize: {
 			handler(newSize, oldSize) {
 				if (newSize > oldSize) {
-					// 拉至底部
-					this.scrollToBottom();
+					if (this.isInBottom) {
+						// 拉至底部
+						this.scrollToBottom();
+					} else {
+						// 增加新消息提醒
+						this.newMessageSize++;
+					}
 				}
 			}
 		}
@@ -743,7 +758,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-box {
 	position: relative;
 	width: 100%;
@@ -768,79 +783,98 @@ export default {
 		}
 	}
 
-	.im-chat-main {
-		padding: 0;
-		background-color: #fff;
+	.content-box {
+		position: relative;
 
-		.im-chat-box {
-			>ul {
-				padding: 0 20px;
+		.im-chat-main {
+			padding: 0;
+			background-color: #fff;
 
-				li {
-					list-style-type: none;
+			.im-chat-box {
+				>ul {
+					padding: 0 20px;
+
+					li {
+						list-style-type: none;
+					}
 				}
 			}
 		}
-	}
 
-	.im-chat-footer {
-		display: flex;
-		flex-direction: column;
-		padding: 0;
-
-		.chat-tool-bar {
-			display: flex;
-			position: relative;
-			width: 100%;
-			height: 36px;
-			text-align: left;
-			box-sizing: border-box;
-			border-top: var(--im-border);
-			padding: 4px 2px 2px 8px;
-
-			>div {
-				font-size: 22px;
-				cursor: pointer;
-				line-height: 30px;
-				width: 30px;
-				height: 30px;
-				text-align: center;
-				border-radius: 2px;
-				margin-right: 8px;
-				color: #999;
-				transition: 0.3s;
-
-				&.chat-tool-active {
-					font-weight: 600;
-					color: var(--im-color-primary);
-					background-color: #ddd;
-				}
-			}
-
-			>div:hover {
-				color: #333;
-			}
+		.scroll-to-bottom {
+			text-align: right;
+			position: absolute;
+			right: 20px;
+			bottom: 230px;
+			color: var(--im-color-primary);
+			font-size: var(--im-font-size);
+			font-weight: 600;
+			background: #eee;
+			padding: 5px 15px;
+			border-radius: 15px;
+			cursor: pointer;
+			z-index: 99;
+			box-shadow: var(--im-box-shadow-light);
 		}
 
-		.send-content-area {
-			position: relative;
+		.im-chat-footer {
 			display: flex;
 			flex-direction: column;
-			height: 100%;
-			background-color: white !important;
+			padding: 0;
 
-			.send-btn-area {
-				padding: 10px;
-				position: absolute;
-				bottom: 4px;
-				right: 6px;
+			.chat-tool-bar {
+				display: flex;
+				position: relative;
+				width: 100%;
+				height: 36px;
+				text-align: left;
+				box-sizing: border-box;
+				border-top: var(--im-border);
+				padding: 4px 2px 2px 8px;
+
+				>div {
+					font-size: 22px;
+					cursor: pointer;
+					line-height: 30px;
+					width: 30px;
+					height: 30px;
+					text-align: center;
+					border-radius: 2px;
+					margin-right: 8px;
+					color: #999;
+					transition: 0.3s;
+
+					&.chat-tool-active {
+						font-weight: 600;
+						color: var(--im-color-primary);
+						background-color: #ddd;
+					}
+				}
+
+				>div:hover {
+					color: #333;
+				}
+			}
+
+			.send-content-area {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				background-color: white !important;
+
+				.send-btn-area {
+					padding: 10px;
+					position: absolute;
+					bottom: 4px;
+					right: 6px;
+				}
 			}
 		}
 	}
 
-	.chat-group-side-box {
+	.side-box {
 		border-left: var(--im-border);
-		//animation: rtl-drawer-in .3s 1ms;
 	}
 
 }

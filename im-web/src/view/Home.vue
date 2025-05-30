@@ -32,13 +32,13 @@
 					</div>
 
 					<div class="botoom">
-						<div class="botoom-item" @click="isFullscreen = !isFullscreen">
+						<div class="bottom-item" @click="isFullscreen = !isFullscreen">
 							<i class="el-icon-full-screen"></i>
 						</div>
-						<div class="botoom-item" @click="showSetting">
+						<div class="bottom-item" @click="showSetting">
 							<span class="icon iconfont icon-setting" style="font-size: 20px"></span>
 						</div>
-						<div class="botoom-item" @click="onExit()" title="退出">
+						<div class="bottom-item" @click="onExit()" title="退出">
 							<span class="icon iconfont icon-exit"></span>
 						</div>
 					</div>
@@ -440,7 +440,6 @@ export default {
 	border-radius: 4px;
 	overflow: hidden;
 	background: var(--im-color-primary-light-9);
-	//background-image: url('../assets/image/background.jpg');
 
 	.app-container {
 		width: 62vw;
@@ -535,7 +534,7 @@ export default {
 			}
 		}
 
-		.botoom-item {
+		.bottom-item {
 			display: flex;
 			justify-content: center;
 			align-items: center;

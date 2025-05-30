@@ -1,5 +1,5 @@
 <template>
-	<el-dialog class="setting" title="设置" :visible.sync="visible" width="420px" :before-close="onClose">
+	<el-dialog v-dialogDrag class="setting" title="设置" :visible.sync="visible" width="420px" :before-close="onClose">
 		<el-form :model="userInfo" label-width="80px" :rules="rules" ref="settingForm" size="small">
 			<el-form-item label="头像" style="margin-bottom: 0 !important;">
 				<file-upload class="avatar-uploader" :action="imageAction" :showLoading="true" :maxSize="maxSize"
@@ -13,7 +13,7 @@
 				<el-input disabled v-model="userInfo.userName" autocomplete="off" size="small"></el-input>
 			</el-form-item>
 			<el-form-item prop="nickName" label="昵称">
-				<el-input v-model="userInfo.nickName" autocomplete="off" size="small"></el-input>
+				<el-input v-model="userInfo.nickName" autocomplete="off" size="small" maxlength="20"></el-input>
 			</el-form-item>
 			<el-form-item label="性别">
 				<el-radio-group v-model="userInfo.sex">
@@ -101,7 +101,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .setting {
 	.el-form {
 		padding: 10px 0 0 10px;

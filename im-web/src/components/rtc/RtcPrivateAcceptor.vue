@@ -5,7 +5,7 @@
 		<div class="acceptor-text">
 			{{ tip }}
 		</div>
-		<div class="acceptor-btn-group">
+		<div class="btn-group">
 			<div class="icon iconfont icon-phone-accept accept" @click="$emit('accept')" title="接受"></div>
 			<div class="icon iconfont icon-phone-reject reject" @click="$emit('reject')" title="拒绝"></div>
 		</div>
@@ -61,7 +61,7 @@ export default {
 		font-size: 16px;
 	}
 
-	.acceptor-btn-group {
+	.btn-group {
 		display: flex;
 		justify-content: space-around;
 		margin-top: 20px;

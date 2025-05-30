@@ -3,7 +3,7 @@
 		<div class="member-avatar">
 			<head-image :size="headImageSize" :name="member.showNickName" :url="member.headImage"> </head-image>
 		</div>
-		<div class="member-name" :style="{ 'line-height': height + 'px' }">
+		<div class="name" :style="{ 'line-height': height + 'px' }">
 			<div>{{ member.showNickName }}</div>
 		</div>
 	</div>
@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-group-member {
 	display: flex;
 	position: relative;
@@ -52,7 +52,7 @@ export default {
 		background: #E1EAF7;
 	}
 
-	.member-name {
+	.name {
 		padding-left: 10px;
 		height: 100%;
 		text-align: left;

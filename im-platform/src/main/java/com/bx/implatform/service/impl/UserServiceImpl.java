@@ -24,6 +24,7 @@ import com.bx.implatform.service.UserService;
 import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.session.UserSession;
 import com.bx.implatform.util.BeanUtils;
+import com.bx.implatform.util.SensitiveFilterUtil;
 import com.bx.implatform.vo.LoginVO;
 import com.bx.implatform.vo.OnlineTerminalVO;
 import com.bx.implatform.vo.UserVO;
@@ -46,6 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final FriendService friendService;
     private final JwtProperties jwtProperties;
     private final IMClient imClient;
+    private final SensitiveFilterUtil sensitiveFilterUtil;
 
     @Override
     public LoginVO login(LoginDTO dto) {
@@ -108,6 +110,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void register(RegisterDTO dto) {
         User user = this.findUserByUserName(dto.getUserName());
+        if(!dto.getUserName().equals(sensitiveFilterUtil.filter(dto.getUserName()))){
+            throw new GlobalException("用户名包含敏感字符");
+        }
+        if(!dto.getNickName().equals(sensitiveFilterUtil.filter(dto.getNickName()))){
+            throw new GlobalException("昵称包含敏感字符");
+        }
         if (!Objects.isNull(user)) {
             throw new GlobalException(ResultCode.USERNAME_ALREADY_REGISTER);
         }
@@ -140,14 +148,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void update(UserVO vo) {
         UserSession session = SessionContext.getSession();
+        if(!vo.getNickName().equals(sensitiveFilterUtil.filter(vo.getNickName()))){
+            throw new GlobalException("昵称包含敏感字符");
+        }
+        if(!vo.getSignature().equals(sensitiveFilterUtil.filter(vo.getSignature()))){
+            throw new GlobalException("签名内容包含敏感字符");
+        }
         if (!session.getUserId().equals(vo.getId())) {
-            throw new GlobalException("不允许修改其他用户的信息!");
+            throw new GlobalException("不允许修改其他用户的信息");
         }
         User user = this.getById(vo.getId());
         if (Objects.isNull(user)) {
             throw new GlobalException("用户不存在");
         }
-
         if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
             // 更新好友昵称和头像
             LambdaUpdateWrapper<Friend> wrapper1 = Wrappers.lambdaUpdate();

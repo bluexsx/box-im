@@ -4,13 +4,13 @@
 		<uni-card :is-shadow="false" is-full :border="false">
 			<uni-forms ref="form" :modelValue="formData" label-position="top" label-width="100%">
 				<uni-forms-item label="原密码" name="oldPassword">
-					<uni-easyinput type="password" v-model="formData.oldPassword" />
+					<uni-easyinput type="password" v-model="formData.oldPassword" maxlength="20"/>
 				</uni-forms-item>
 				<uni-forms-item label="新密码" name="newPassword">
-					<uni-easyinput type="password" v-model="formData.newPassword" />
+					<uni-easyinput type="password" v-model="formData.newPassword" maxlength="20"/>
 				</uni-forms-item>
 				<uni-forms-item label="确认密码" name="confirmPassword">
-					<uni-easyinput type="password" v-model="formData.confirmPassword" />
+					<uni-easyinput type="password" v-model="formData.confirmPassword" maxlength="20"/>
 				</uni-forms-item>
 			</uni-forms>
 		</uni-card>

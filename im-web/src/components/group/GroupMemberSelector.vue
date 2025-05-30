@@ -1,5 +1,5 @@
 <template>
-	<el-dialog :title="title" :visible.sync="isShow" width="700px">
+	<el-dialog v-dialogDrag :title="title" :visible.sync="isShow" width="700px">
 		<div class="group-member-selector">
 			<div class="left-box">
 				<el-input placeholder="搜索" v-model="searchText">
@@ -19,7 +19,7 @@
 			<div class="right-box">
 				<div class="select-tip"> 已勾选{{ checkedMembers.length }}位成员</div>
 				<el-scrollbar class="scroll-box">
-					<div class="checked-member-list">
+					<div class="member-items">
 						<div v-for="m in members" :key="m.userId">
 							<group-member class="member-item" v-if="m.checked" :member="m"></group-member>
 						</div>
@@ -123,7 +123,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .group-member-selector {
 	display: flex;
 
@@ -163,7 +163,7 @@ export default {
 			color: var(--im-text-color-light)
 		}
 
-		.checked-member-list {
+		.member-items {
 			padding: 10px;
 			display: flex;
 			flex-direction: row;

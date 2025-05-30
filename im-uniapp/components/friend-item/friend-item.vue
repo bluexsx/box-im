@@ -7,6 +7,7 @@
 				<image v-show="friend.onlineWeb" class="online" src="/static/image/online_web.png" title="电脑设备在线" />
 				<image v-show="friend.onlineApp" class="online" src="/static/image/online_app.png" title="移动设备在线" />
 			</view>
+			<slot></slot>
 		</view>
 	</view>
 </template>
@@ -19,14 +20,20 @@ export default {
 	},
 	methods: {
 		showFriendInfo() {
-			uni.navigateTo({
-				url: "/pages/common/user-info?id=" + this.friend.id
-			})
-		},
+			if (this.detail) {
+				uni.navigateTo({
+					url: "/pages/common/user-info?id=" + this.friend.id
+				})
+			}
+		}
 	},
 	props: {
 		friend: {
 			type: Object
+		},
+		detail: {
+			type: Boolean,
+			default: true
 		}
 	}
 }
@@ -51,11 +58,11 @@ export default {
 	.friend-info {
 		flex: 1;
 		display: flex;
-		flex-direction: column;
 		padding-left: 20rpx;
 		text-align: left;
 
 		.friend-name {
+			flex: 1;
 			font-size: $im-font-size;
 			white-space: nowrap;
 			overflow: hidden;

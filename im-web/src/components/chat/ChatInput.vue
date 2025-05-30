@@ -1,8 +1,9 @@
 <template>
 	<div class="chat-input-area">
-		<div :class="['edit-chat-container', isEmpty ? '' : 'not-empty']" contenteditable="true" @paste.prevent="onPaste"
-			@keydown="onKeydown" @compositionstart="compositionFlag = true" @compositionend="onCompositionEnd"
-			@input="onEditorInput" @mousedown="onMousedown" ref="content" @blur="onBlur">
+		<div :class="['edit-chat-container', isEmpty ? '' : 'not-empty']" contenteditable="true"
+			@paste.prevent="onPaste" @keydown="onKeydown" @compositionstart="compositionFlag = true"
+			@compositionend="onCompositionEnd" @input="onEditorInput" @mousedown="onMousedown" ref="content"
+			@blur="onBlur">
 		</div>
 		<chat-at-box @select="onAtSelect" :search-text="atSearchText" ref="atBox" :ownerId="ownerId"
 			:members="groupMembers"></chat-at-box>
@@ -45,7 +46,7 @@ export default {
 				range.deleteContents();
 			}
 			// 粘贴图片和文件时，这里没有数据
-			if (txt && typeof (txt) == 'string') {
+			if (txt && typeof(txt) == 'string') {
 				let textNode = document.createTextNode(txt);
 				range.insertNode(textNode)
 				range.collapse();
@@ -234,7 +235,7 @@ export default {
 
 		},
 		onBlur(e) {
-			if(!this.atIng){
+			if (!this.atIng) {
 				this.updateRange();
 			}
 		},
@@ -342,6 +343,7 @@ export default {
 			this.empty();
 			this.imageList = [];
 			this.fileList = [];
+			this.$refs.atBox.close();
 		},
 		empty() {
 			this.$refs.content.innerHTML = "";
@@ -366,13 +368,13 @@ export default {
 			this.updateRange();
 		},
 		html2Escape(strHtml) {
-			return strHtml.replace(/[<>&"]/g, function (c) {
+			return strHtml.replace(/[<>&"]/g, function(c) {
 				return {
 					'<': '&lt;',
 					'>': '&gt;',
 					'&': '&amp;',
 					'"': '&quot;'
-				}[c];
+				} [c];
 			});
 		},
 		submit() {
@@ -440,7 +442,7 @@ export default {
 						if (node.dataset.id) {
 							tempText += node.innerHTML;
 							atUserIds.push(node.dataset.id)
-						} else if(node.outerHtml) {
+						} else if (node.outerHtml) {
 							tempText += node.outerHtml;
 						}
 					}

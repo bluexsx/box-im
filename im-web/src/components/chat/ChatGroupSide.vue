@@ -1,6 +1,6 @@
 <template>
   <div class="chat-group-side">
-    <div v-show="!group.quit" class="group-side-search">
+    <div v-show="!group.quit" class="search">
       <el-input placeholder="搜索群成员" v-model="searchText" size="small">
         <i class="el-icon-search el-input__icon" slot="prefix"> </i>
       </el-input>
@@ -29,7 +29,7 @@
       </div>
     </el-scrollbar>
     <el-divider v-if="!group.quit" content-position="center"></el-divider>
-    <el-form labelPosition="top" class="group-side-form" :model="group" size="small">
+    <el-form labelPosition="top" class="form" :model="group" size="small">
       <el-form-item label="群聊名称">
         <el-input v-model="group.name" disabled maxlength="20"></el-input>
       </el-form-item>
@@ -179,14 +179,13 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-group-side {
   position: relative;
 
-  .group-side-search {
+  .search {
     padding: 10px;
   }
-
 
   .el-divider--horizontal {
     margin: 0;
@@ -207,7 +206,6 @@ export default {
     .group-side-member {
       margin-left: 5px;
     }
-
 
     .member-tools {
       display: flex;
@@ -243,7 +241,7 @@ export default {
     }
   }
 
-  .group-side-form {
+  .form {
     text-align: left;
     padding: 10px;
     height: 30%;
@@ -272,6 +270,5 @@ export default {
       margin-top: 12px;
     }
   }
-
 }
 </style>
