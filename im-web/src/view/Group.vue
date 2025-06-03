@@ -73,7 +73,7 @@
 							</div>
 							<div class="tool-text">邀请</div>
 							<add-group-member ref="addGroupMember" :groupId="activeGroup.id" :members="groupMembers"
-								@reload="$emit('reload')"></add-group-member>
+								@reload="loadGroupMembers"></add-group-member>
 						</div>
 						<div class="member-tools" v-if="isOwner">
 							<div class="tool-btn" title="选择成员移出群聊" @click="onRemove()">
