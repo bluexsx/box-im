@@ -10,16 +10,13 @@
 					<el-container class="content-box">
 						<el-main class="im-chat-main" id="chatScrollBox" @scroll="onScroll">
 							<div class="im-chat-box">
-								<ul>
-									<li v-for="(msgInfo, idx) in chat.messages" :key="idx">
-										<chat-message-item v-if="idx >= showMinIdx" @call="onCall(msgInfo.type)"
-											:mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
-											:showName="showName(msgInfo)" :msgInfo="msgInfo"
-											:groupMembers="groupMembers" @delete="deleteMessage"
-											@recall="recallMessage">
-										</chat-message-item>
-									</li>
-								</ul>
+								<div v-for="(msgInfo, idx) in showMessages" :key="showMinIdx + idx">
+									<chat-message-item @call="onCall(msgInfo.type)"
+										:mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
+										:showName="showName(msgInfo)" :msgInfo="msgInfo" :groupMembers="groupMembers"
+										@delete="deleteMessage" @recall="recallMessage">
+									</chat-message-item>
+								</div>
 							</div>
 						</el-main>
 						<div v-if="!isInBottom" class="scroll-to-bottom" @click="scrollToBottom">
@@ -683,6 +680,10 @@ export default {
 		},
 		unreadCount() {
 			return this.chat.unreadCount;
+		},
+		showMessages() {
+			console.log("this.chat.messages.slice(this.showMinIdx):",this.chat.messages.slice(this.showMinIdx))
+			return this.chat.messages.slice(this.showMinIdx)
 		},
 		messageSize() {
 			if (!this.chat || !this.chat.messages) {

@@ -10,6 +10,7 @@ import com.bx.imcommon.contant.IMConstant;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.imcommon.util.ThreadPoolExecutorFactory;
 import com.bx.implatform.dto.PrivateMessageDTO;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,6 +45,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private final FriendService friendService;
     private final IMClient imClient;
     private final SensitiveFilterUtil sensitiveFilterUtil;
+    private static final ScheduledThreadPoolExecutor EXECUTOR = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 
     @Override
     public PrivateMessageVO sendMessage(PrivateMessageDTO dto) {
@@ -135,8 +138,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     @Override
     public void pullOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
-        // 开启加载中标志
-        this.sendLoadingMessage(true);
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
         // 只能拉取最近3个月的消息,移动端只拉取一个月消息
@@ -148,21 +149,25 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             .eq(PrivateMessage::getRecvId, session.getUserId()));
         wrapper.orderByAsc(PrivateMessage::getId);
         List<PrivateMessage> messages = this.list(wrapper);
-        // 推送消息
-        for (PrivateMessage m : messages) {
-            PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
-            IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-            sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
-            sendMessage.setRecvId(session.getUserId());
-            sendMessage.setRecvTerminals(List.of(session.getTerminal()));
-            sendMessage.setSendToSelf(false);
-            sendMessage.setData(vo);
-            sendMessage.setSendResult(true);
-            imClient.sendPrivateMessage(sendMessage);
-        }
-        // 关闭加载中标志
-        this.sendLoadingMessage(false);
-        log.info("拉取私聊消息，用户id:{},数量:{}", session.getUserId(), messages.size());
+        // 异步推送消息
+        EXECUTOR.execute(() -> {
+            // 开启加载中标志
+            this.sendLoadingMessage(true, session);
+            for (PrivateMessage m : messages) {
+                PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
+                IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
+                sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
+                sendMessage.setRecvId(session.getUserId());
+                sendMessage.setRecvTerminals(List.of(session.getTerminal()));
+                sendMessage.setSendToSelf(false);
+                sendMessage.setData(vo);
+                sendMessage.setSendResult(true);
+                imClient.sendPrivateMessage(sendMessage);
+            }
+            // 关闭加载中标志
+            this.sendLoadingMessage(false, session);
+            log.info("拉取私聊消息，用户id:{},数量:{}", session.getUserId(), messages.size());
+        });
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -215,8 +220,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         return message.getId();
     }
 
-    private void sendLoadingMessage(Boolean isLoadding) {
-        UserSession session = SessionContext.getSession();
+    private void sendLoadingMessage(Boolean isLoadding, UserSession session) {
         PrivateMessageVO msgInfo = new PrivateMessageVO();
         msgInfo.setType(MessageType.LOADING.code());
         msgInfo.setContent(isLoadding.toString());
