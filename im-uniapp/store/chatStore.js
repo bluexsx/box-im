@@ -22,7 +22,8 @@ export default defineStore('chatStore', {
 				chat.stored = false;
 				// 清理多余的消息，避免消息过多导致卡顿
 				if (UNI_APP.MAX_MESSAGE_SIZE > 0 && chat.messages.length > UNI_APP.MAX_MESSAGE_SIZE) {
-					chat.messages = chat.messages.slice(0, UNI_APP.MAX_MESSAGE_SIZE);
+					let idx = chat.messages.length - UNI_APP.MAX_MESSAGE_SIZE;
+					chat.messages = chat.messages.slice(idx);
 				}
 				// 暂存至缓冲区
 				cacheChats.push(JSON.parse(JSON.stringify(chat)));
@@ -64,6 +65,7 @@ export default defineStore('chatStore', {
 					lastContent: "",
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
+					hotMinIdx: 0,
 					messages: [],
 					atMe: false,
 					atAll: false,
@@ -244,24 +246,28 @@ export default defineStore('chatStore', {
 		deleteMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id
 			let chat = this.findChat(chatInfo);
+			let isColdMessage = false;
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
 					chat.messages.splice(idx, 1);
+					isColdMessage = idx < chat.hotMinIdx;
 					break;
 				}
 				// 正在发送中的消息可能没有id，只有临时id
 				if (chat.messages[idx].tmpId && chat.messages[idx].tmpId == msgInfo.tmpId) {
 					chat.messages.splice(idx, 1);
+					isColdMessage = idx < chat.hotMinIdx;
 					break;
 				}
 			}
 			chat.stored = false;
-			this.saveToStorage();
+			this.saveToStorage(isColdMessage);
 		},
 		recallMessage(msgInfo, chatInfo) {
 			let chat = this.findChat(chatInfo);
 			if (!chat) return;
+			let isColdMessage = false;
 			// 要撤回的消息id
 			let id = msgInfo.content;
 			let name = msgInfo.selfSend ? '你' : chat.type == 'PRIVATE' ? '对方' : msgInfo.sendNickName;
@@ -279,6 +285,7 @@ export default defineStore('chatStore', {
 					if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 						chat.unreadCount++;
 					}
+					isColdMessage = idx < chat.hotMinIdx;
 				}
 				// 被引用的消息也要撤回
 				if (m.quoteMessage && m.quoteMessage.id == msgInfo.id) {
@@ -288,7 +295,7 @@ export default defineStore('chatStore', {
 				}
 			}
 			chat.stored = false;
-			this.saveToStorage();
+			this.saveToStorage(isColdMessage);
 		},
 		updateChatFromFriend(friend) {
 			let chat = this.findChatByFriend(friend.id)
@@ -336,20 +343,19 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats() {
-			if (!cacheChats) {
-				return;
-			}
+			if (!cacheChats) return;
 			// 排序
-			cacheChats.sort((chat1, chat2) => {
-				return chat2.lastSendTime - chat1.lastSendTime;
-			});
+			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			// 记录热数据索引位置
+			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
 			this.chats = cacheChats;
-			// 清空缓存，不再使用
+			// 清空缓存,不再使用
 			cacheChats = null;
-			this.saveToStorage();
+			// 消息持久化
+			this.saveToStorage(true);
 		},
-		saveToStorage(state) {
+		saveToStorage(withColdMessage) {
 			// 加载中不保存，防止卡顿
 			if (this.isLoading()) {
 				return;
@@ -362,12 +368,27 @@ export default defineStore('chatStore', {
 			this.chats.forEach((chat) => {
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
+					chat.stored = true;
 					if (chat.delete) {
 						uni.removeStorageSync(chatKey);
 					} else {
-						uni.setStorageSync(chatKey, chat);
+						// 存储冷数据
+						if (withColdMessage) {
+							let coldChat = Object.assign({}, chat);
+							coldChat.messages = chat.messages.slice(0, chat.hotMinIdx);
+							uni.setStorageSync(chatKey, coldChat)
+						}
+						// 存储热消息
+						let hotKey = chatKey + '-hot';
+						if (chat.messages.length > chat.hotMinIdx) {
+							let hotChat = Object.assign({}, chat);
+							hotChat.messages = chat.messages.slice(chat.hotMinIdx)
+							uni.setStorageSync(hotKey, hotChat);
+							console.log("热数据：",hotChat.messages.length)
+						} else {
+							uni.removeStorageSync(hotKey);
+						}
 					}
-					chat.stored = true;
 				}
 				if (!chat.delete) {
 					chatKeys.push(chatKey);
@@ -391,20 +412,26 @@ export default defineStore('chatStore', {
 			this.loadingPrivateMsg = false;
 			this.loadingGroupMsg = false;
 		},
-		loadChat(context) {
+		loadChat() {
 			return new Promise((resolve, reject) => {
 				let userStore = useUserStore();
 				let userId = userStore.userInfo.id;
 				let chatsData = uni.getStorageSync("chats-app-" + userId)
 				if (chatsData) {
 					if (chatsData.chatKeys) {
-						let time = new Date().getTime();
 						chatsData.chats = [];
 						chatsData.chatKeys.forEach(key => {
-							let chat = uni.getStorageSync(key);
-							if (chat) {
-								chatsData.chats.push(chat);
+							let coldChat = uni.getStorageSync(key);
+							let hotChat = uni.getStorageSync(key + '-hot');
+							if (!coldChat && hotChat) {
+								return;
 							}
+							// 冷热消息合并
+							let chat = Object.assign({}, coldChat, hotChat);
+							if (hotChat && coldChat) {
+								chat.messages = coldChat.messages.concat(hotChat.messages)
+							}
+							chatsData.chats.push(chat);
 						})
 					}
 					this.initChats(chatsData);

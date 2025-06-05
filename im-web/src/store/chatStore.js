@@ -69,6 +69,7 @@ export default defineStore('chatStore', {
 					lastContent: "",
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
+					hotMinIdx: 0,
 					messages: [],
 					atMe: false,
 					atAll: false,
@@ -246,24 +247,28 @@ export default defineStore('chatStore', {
 		},
 		deleteMessage(msgInfo, chatInfo) {
 			let chat = this.findChat(chatInfo);
+			let isColdMessage = false;
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
 					chat.messages.splice(idx, 1);
+					isColdMessage = idx < chat.hotMinIdx;
 					break;
 				}
 				// 正在发送中的消息可能没有id，只有临时id
 				if (chat.messages[idx].tmpId && chat.messages[idx].tmpId == msgInfo.tmpId) {
 					chat.messages.splice(idx, 1);
+					isColdMessage = idx < chat.hotMinIdx;
 					break;
 				}
 			}
 			chat.stored = false;
-			this.saveToStorage();
+			this.saveToStorage(isColdMessage);
 		},
 		recallMessage(msgInfo, chatInfo) {
 			let chat = this.findChat(chatInfo);
 			if (!chat) return;
+			let isColdMessage = false;
 			// 要撤回的消息id
 			let id = msgInfo.content;
 			let name = msgInfo.selfSend ? '你' : chat.type == 'PRIVATE' ? '对方' : msgInfo.sendNickName;
@@ -281,6 +286,7 @@ export default defineStore('chatStore', {
 					if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED) {
 						chat.unreadCount++;
 					}
+					isColdMessage = idx < chat.hotMinIdx;
 				}
 				// 被引用的消息也要撤回
 				if (m.quoteMessage && m.quoteMessage.id == msgInfo.id) {
@@ -290,7 +296,7 @@ export default defineStore('chatStore', {
 				}
 			}
 			chat.stored = false;
-			this.saveToStorage();
+			this.saveToStorage(isColdMessage);
 		},
 		updateChatFromFriend(friend) {
 			let chat = this.findChatByFriend(friend.id);
@@ -338,20 +344,19 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats() {
-			if (!cacheChats) {
-				return;
-			}
+			if (!cacheChats) return;
 			// 排序
-			cacheChats.sort((chat1, chat2) => {
-				return chat2.lastSendTime - chat1.lastSendTime;
-			});
+			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			// 记录热数据索引位置
+			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
 			this.chats = cacheChats;
 			// 清空缓存
 			cacheChats = null;
-			this.saveToStorage();
+			// 持久化消息
+			this.saveToStorage(true);
 		},
-		saveToStorage() {
+		saveToStorage(withColdMessage) {
 			// 加载中不保存，防止卡顿
 			if (this.isLoading()) {
 				return;
@@ -365,12 +370,26 @@ export default defineStore('chatStore', {
 				// 只存储有改动的会话
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
+					chat.stored = true;
 					if (chat.delete) {
 						localForage.removeItem(chatKey);
 					} else {
-						localForage.setItem(chatKey, chat);
+						// 存储冷数据
+						if (withColdMessage) {
+							let coldChat = Object.assign({}, chat);
+							coldChat.messages = chat.messages.slice(0, chat.hotMinIdx);
+							localForage.setItem(chatKey, coldChat)
+						}
+						// 存储热消息
+						let hotKey = chatKey + '-hot';
+						if (chat.messages.length > chat.hotMinIdx) {
+							let hotChat = Object.assign({}, chat);
+							hotChat.messages = chat.messages.slice(chat.hotMinIdx)
+							localForage.setItem(hotKey, hotChat)
+						} else {
+							localForage.removeItem(hotKey);
+						}
 					}
-					chat.stored = true;
 				}
 				if (!chat.delete) {
 					chatKeys.push(chatKey);
@@ -403,9 +422,24 @@ export default defineStore('chatStore', {
 						const promises = [];
 						chatsData.chatKeys.forEach(key => {
 							promises.push(localForage.getItem(key))
+							promises.push(localForage.getItem(key + "-hot"))
 						})
 						Promise.all(promises).then(chats => {
-							chatsData.chats = chats.filter(o => o);
+							chatsData.chats = [];
+							// 偶数下标为冷消息，奇数下标为热消息
+							for (let i = 0; i < chats.length; i += 2) {
+								if (!chats[i] && !chats[i + 1]) {
+									continue;
+								}
+								let coldChat = chats[i];
+								let hotChat = chats[i + 1];
+								// 冷热消息合并
+								let chat = Object.assign({}, coldChat, hotChat);
+								if (hotChat && coldChat) {
+									chat.messages = coldChat.messages.concat(hotChat.messages)
+								}
+								chatsData.chats.push(chat);
+							}
 							this.initChats(chatsData);
 							resolve();
 						})
