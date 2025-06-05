@@ -137,7 +137,7 @@ export default {
 		},
 		showFullImage() {
 			if (this.userInfo.headImage) {
-				this.$store.commit('showFullImageBox', this.userInfo.headImage);
+				this.$eventBus.$emit("openFullImage", this.userInfo.headImage);
 			}
 		},
 		updateFriendInfo() {

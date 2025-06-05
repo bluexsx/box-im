@@ -31,7 +31,7 @@
 							<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 						</file-upload>
 						<head-image v-show="!isOwner" class="avatar" :size="160" :url="activeGroup.headImage"
-							:name="activeGroup.showGroupName" radius="10%">
+							:name="activeGroup.showGroupName" radius="10%" @click.native="showFullImage()">
 						</head-image>
 						<el-button class="send-btn" icon="el-icon-position" type="primary" @click="onSendMessage()">发消息
 						</el-button>
@@ -253,6 +253,11 @@ export default {
 				if (this.showMaxIdx < this.showMembers.length) {
 					this.showMaxIdx += 50;
 				}
+			}
+		},
+		showFullImage() {
+			if (this.activeGroup.headImage) {
+				this.$eventBus.$emit("openFullImage", this.activeGroup.headImage);
 			}
 		},
 		loadGroupMembers() {

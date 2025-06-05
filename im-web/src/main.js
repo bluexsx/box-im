@@ -19,7 +19,6 @@ import useFriendStore from './store/friendStore.js'
 import useGroupStore from './store/groupStore.js'
 import useUserStore from './store/userStore.js'
 import useConfigStore from './store/configStore.js'
-import useUiStore from './store/uiStore.js'
 
 
 Vue.use(PiniaVuePlugin)
@@ -51,4 +50,3 @@ Vue.prototype.friendStore = useFriendStore();
 Vue.prototype.groupStore = useGroupStore();
 Vue.prototype.userStore = useUserStore();
 Vue.prototype.configStore = useConfigStore();
-Vue.prototype.uiStore = useUiStore();

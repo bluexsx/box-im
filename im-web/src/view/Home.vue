@@ -1,5 +1,5 @@
 <template>
-	<div class="home-page" @click="uiStore.closeUserInfoBox()">
+	<div class="home-page" @click="closeUserInfo">
 		<div class="app-container" :class="{ fullscreen: isFullscreen }">
 			<div class="navi-bar">
 				<div class="navi-bar-box">
@@ -46,10 +46,8 @@
 				<router-view></router-view>
 			</div>
 			<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
-			<!-- <user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user"
-				@close="uiStore.closeUserInfoBox()"></user-info> -->
-			<!-- <full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
-				@close="uiStore.closeFullImageBox()"></full-image> -->
+			<user-info ref="userInfo"></user-info>
+			<full-image ref="fullImage"></full-image>
 			<rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
 			<rtc-group-video ref="rtcGroupVideo"></rtc-group-video>
 		</div>
@@ -64,7 +62,6 @@ import FullImage from '../components/common/FullImage.vue';
 import RtcPrivateVideo from '../components/rtc/RtcPrivateVideo.vue';
 import RtcPrivateAcceptor from '../components/rtc/RtcPrivateAcceptor.vue';
 import RtcGroupVideo from '../components/rtc/RtcGroupVideo.vue';
-import uiStore from '../store/uiStore';
 
 export default {
 	components: {
@@ -94,7 +91,14 @@ export default {
 				// 进入多人视频通话
 				this.$refs.rtcGroupVideo.open(rctInfo);
 			});
-
+			this.$eventBus.$on('openUserInfo', (user, pos) => {
+				// 打开用户卡片
+				this.$refs.userInfo.open(user, pos);
+			});
+			this.$eventBus.$on('openFullImage', url => {
+				// 图片全屏
+				this.$refs.fullImage.open(url);
+			});
 			this.loadStore().then(() => {
 				// ws初始化
 				this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
@@ -312,7 +316,7 @@ export default {
 			}
 			// 新增群
 			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_NEW) {
-				this.chatStore.addGroup(JSON.parse(msg.content));
+				this.groupStore.addGroup(JSON.parse(msg.content));
 				return;
 			}
 			// 删除群
@@ -362,6 +366,9 @@ export default {
 				});
 				return;
 			}
+		},
+		closeUserInfo() {
+			this.$refs.userInfo.close();
 		},
 		onExit() {
 			this.unloadStore();
