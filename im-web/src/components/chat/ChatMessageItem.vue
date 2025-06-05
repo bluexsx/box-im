@@ -126,7 +126,7 @@ export default {
 		showFullImageBox() {
 			let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
 			if (imageUrl) {
-				this.$store.commit('showFullImageBox', imageUrl);
+				this.$eventBus.$emit("openFullImage", imageUrl);
 			}
 		},
 		onPlayVoice() {

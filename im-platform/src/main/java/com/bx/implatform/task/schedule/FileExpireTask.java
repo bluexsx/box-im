@@ -34,7 +34,7 @@ public class FileExpireTask {
     private final MinioProperties minioProps;
 
     @RedisLock(prefixKey = RedisKey.IM_LOCK_FILE_TASK)
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void run() {
         log.info("【定时任务】过期文件处理...");
         int batchSize = 100;

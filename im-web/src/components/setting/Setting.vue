@@ -56,7 +56,6 @@ export default {
 		}
 	},
 	methods: {
-
 		onClose() {
 			this.$emit("close");
 		},
@@ -70,7 +69,7 @@ export default {
 					method: "put",
 					data: this.userInfo
 				}).then(() => {
-					this.$store.commit("setUserInfo", this.userInfo);
+					this.userStore.setUserInfo(this.userInfo);
 					this.$emit("close");
 					this.$message.success("修改成功");
 				})
@@ -92,9 +91,9 @@ export default {
 		}
 	},
 	watch: {
-		visible: function(newData, oldData) {
+		visible: function () {
 			// 深拷贝
-			let mine = this.$store.state.userStore.userInfo;
+			let mine = this.userStore.userInfo;
 			this.userInfo = JSON.parse(JSON.stringify(mine));
 		}
 	}

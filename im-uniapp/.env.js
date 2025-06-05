@@ -1,9 +1,6 @@
 //设置环境(打包前修改此变量)
 const ENV = "DEV";
 const UNI_APP = {}
-
-// 每个会话最大消息缓存数量，-1表示不限制
-UNI_APP.MAX_MESSAGE_SIZE = 3000;
 // 表情包路径
 UNI_APP.EMO_URL = "/static/emoji/";
 // #ifdef MP-WEIXIN

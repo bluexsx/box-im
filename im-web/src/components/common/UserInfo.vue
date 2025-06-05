@@ -1,5 +1,5 @@
 <template>
-	<div class="user-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
+	<div v-if="show" class="user-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
 		<div class="user-info-box">
 			<div class="avatar">
 				<head-image :name="user.nickName" :url="user.headImageThumb" :size="60" :online="user.online"
@@ -39,18 +39,26 @@ export default {
 	},
 	data() {
 		return {
-
-		}
-	},
-	props: {
-		user: {
-			type: Object
-		},
-		pos: {
-			type: Object
+			show: false,
+			user: {},
+			pos: {
+				x: 0,
+				y: 0
+			}
 		}
 	},
 	methods: {
+		open(user, pos) {
+			this.show = true;
+			this.user = user;
+			let w = document.documentElement.clientWidth;
+			let h = document.documentElement.clientHeight;
+			this.pos.x = Math.min(pos.x, w - 350);
+			this.pos.y = Math.min(pos.y, h - 200);
+		},
+		close() {
+			this.show = false;
+		},
 		onSendMessage() {
 			let user = this.user;
 			let chat = {
@@ -59,12 +67,12 @@ export default {
 				showName: user.nickName,
 				headImage: user.headImage,
 			};
-			this.$store.commit("openChat", chat);
-			this.$store.commit("activeChat", 0);
+			this.chatStore.openChat(chat);
+			this.chatStore.setActiveChat(0);
 			if (this.$route.path != "/home/chat") {
 				this.$router.push("/home/chat");
 			}
-			this.$emit("close");
+			this.show = false;
 		},
 		onAddFriend() {
 			this.$http({
@@ -82,18 +90,18 @@ export default {
 					online: this.user.online,
 					deleted: false
 				}
-				this.$store.commit("addFriend", friend);
+				this.friendStore.addFriend(friend);
 			})
 		},
 		showFullImage() {
 			if (this.user.headImage) {
-				this.$store.commit("showFullImageBox", this.user.headImage);
+				this.$eventBus.$emit("openFullImage", this.user.headImage);
 			}
 		}
 	},
 	computed: {
 		isFriend() {
-			return this.$store.getters.isFriend(this.user.id);
+			return this.friendStore.isFriend(this.user.id);
 		}
 	}
 }

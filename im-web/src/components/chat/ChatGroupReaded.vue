@@ -115,7 +115,7 @@ export default {
                     type: 'GROUP',
                     targetId: this.msgInfo.groupId
                 }
-                this.$store.commit("updateMessage", [msgInfo, chatInfo])
+                this.chatStore.updateMessage(msgInfo, chatInfo)
 			})
 		}
 	}

@@ -63,8 +63,7 @@ export default {
 						x: e.x + 30,
 						y: e.y
 					}
-					this.$store.commit("setUserInfoBoxPos", pos);
-					this.$store.commit("showUserInfoBox", user);
+					this.$eventBus.$emit("openUserInfo", user, pos);
 				})
 			}
 		}

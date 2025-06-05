@@ -52,7 +52,7 @@ export default {
 		onOk() {
 			this.isShow = false;
 			let userInfos = this.rtcInfo.userInfos;
-			let mine = this.$store.state.userStore.userInfo;
+			let mine = this.userStore.userInfo;
 			if (!userInfos.find((user) => user.id == mine.id)) {
 				// 加入自己的信息
 				userInfos.push({

@@ -101,8 +101,8 @@ export default {
 					method: 'delete'
 				}).then(() => {
 					this.$message.success("删除好友成功");
-					this.$store.commit("removeFriend", friend.id);
-					this.$store.commit("removePrivateChat", friend.id);
+					this.friendStore.removeFriend(friend.id);
+					this.chatStore.removePrivateChat(friend.id);
 				})
 			})
 		},
@@ -121,7 +121,7 @@ export default {
 					headImage: user.headImage,
 					online: user.online
 				}
-				this.$store.commit("addFriend", friend);
+				this.friendStore.addFriend(friend);
 			})
 		},
 		onSendMessage(user) {
@@ -131,13 +131,13 @@ export default {
 				showName: user.nickName,
 				headImage: user.headImageThumb,
 			};
-			this.$store.commit("openChat", chat);
-			this.$store.commit("activeChat", 0);
+			this.chatStore.openChat(chat);
+			this.chatStore.setActiveChat(0);
 			this.$router.push("/home/chat");
 		},
 		showFullImage() {
 			if (this.userInfo.headImage) {
-				this.$store.commit('showFullImageBox', this.userInfo.headImage);
+				this.$eventBus.$emit("openFullImage", this.userInfo.headImage);
 			}
 		},
 		updateFriendInfo() {
@@ -146,8 +146,8 @@ export default {
 				let friend = JSON.parse(JSON.stringify(this.activeFriend));
 				friend.headImage = this.userInfo.headImageThumb;
 				friend.nickName = this.userInfo.nickName;
-				this.$store.commit("updateChatFromFriend", friend);
-				this.$store.commit("updateFriend", friend);
+				this.chatStore.updateChatFromFriend(friend);
+				this.friendStore.updateFriend(friend);
 			}
 		},
 		loadUserInfo(id) {
@@ -174,11 +174,8 @@ export default {
 		}
 	},
 	computed: {
-		friendStore() {
-			return this.$store.state.friendStore;
-		},
 		isFriend() {
-			return this.$store.getters.isFriend(this.userInfo.id);
+			return this.friendStore.isFriend(this.userInfo.id);
 		},
 		friendMap() {
 			// 按首字母分组

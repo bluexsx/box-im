@@ -31,7 +31,7 @@
 							<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 						</file-upload>
 						<head-image v-show="!isOwner" class="avatar" :size="160" :url="activeGroup.headImage"
-							:name="activeGroup.showGroupName" radius="10%">
+							:name="activeGroup.showGroupName" radius="10%" @click.native="showFullImage()">
 						</head-image>
 						<el-button class="send-btn" icon="el-icon-position" type="primary" @click="onSendMessage()">发消息
 						</el-button>
@@ -50,7 +50,7 @@
 						</el-form-item>
 						<el-form-item label="我在本群的昵称">
 							<el-input v-model="activeGroup.remarkNickName" maxlength="20"
-								:placeholder="$store.state.userStore.userInfo.nickName"></el-input>
+								:placeholder="userStore.userInfo.nickName"></el-input>
 						</el-form-item>
 						<el-form-item label="群公告">
 							<el-input v-model="activeGroup.notice" :disabled="!isOwner" type="textarea" :rows="3"
@@ -137,8 +137,7 @@ export default {
 				cancelButtonText: '取消',
 				inputPattern: /\S/,
 				inputErrorMessage: '请输入群聊名称'
-			}).then((o) => {
-				let userInfo = this.$store.state.userStore.userInfo;
+			}).then(o => {
 				let data = {
 					name: o.value
 				}
@@ -147,7 +146,9 @@ export default {
 					method: 'post',
 					data: data
 				}).then((group) => {
-					this.$store.commit("addGroup", group);
+					this.groupStore.addGroup(group);
+					this.onActiveItem(group)
+					this.$message.success('创建成功');
 				})
 			})
 		},
@@ -195,7 +196,7 @@ export default {
 						method: "put",
 						data: vo
 					}).then((group) => {
-						this.$store.commit("updateGroup", group);
+						this.groupStore.updateGroup(group);
 						this.$message.success("修改成功");
 					})
 				}
@@ -212,7 +213,7 @@ export default {
 					method: 'delete'
 				}).then(() => {
 					this.$message.success(`群聊'${this.activeGroup.name}'已解散`);
-					this.$store.commit("removeGroup", this.activeGroup.id);
+					this.groupStore.removeGroup(this.activeGroup.id);
 					this.reset();
 				});
 			})
@@ -228,8 +229,8 @@ export default {
 					method: 'delete'
 				}).then(() => {
 					this.$message.success(`您已退出'${this.activeGroup.name}'`);
-					this.$store.commit("removeGroup", this.activeGroup.id);
-					this.$store.commit("removeGroupChat", this.activeGroup.id);
+					this.groupStore.removeGroup(this.activeGroup.id);
+					this.chatStore.removeGroupChat(this.activeGroup.id);
 					this.reset();
 				});
 			})
@@ -241,8 +242,8 @@ export default {
 				showName: this.activeGroup.showGroupName,
 				headImage: this.activeGroup.headImage,
 			};
-			this.$store.commit("openChat", chat);
-			this.$store.commit("activeChat", 0);
+			this.chatStore.openChat(chat);
+			this.chatStore.setActiveChat(0);
 			this.$router.push("/home/chat");
 		},
 		onScroll(e) {
@@ -252,6 +253,11 @@ export default {
 				if (this.showMaxIdx < this.showMembers.length) {
 					this.showMaxIdx += 50;
 				}
+			}
+		},
+		showFullImage() {
+			if (this.activeGroup.headImage) {
+				this.$eventBus.$emit("openFullImage", this.activeGroup.headImage);
 			}
 		},
 		loadGroupMembers() {
@@ -280,15 +286,12 @@ export default {
 		}
 	},
 	computed: {
-		groupStore() {
-			return this.$store.state.groupStore;
-		},
 		ownerName() {
-			let member = this.groupMembers.find((m) => m.userId == this.activeGroup.ownerId);
+			let member = this.groupMembers.find(m => m.userId == this.activeGroup.ownerId);
 			return member && member.showNickName;
 		},
 		isOwner() {
-			return this.activeGroup.ownerId == this.$store.state.userStore.userInfo.id;
+			return this.activeGroup.ownerId == this.userStore.userInfo.id;
 		},
 		imageAction() {
 			return `/image/upload`;

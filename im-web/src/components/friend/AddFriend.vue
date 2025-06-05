@@ -6,7 +6,7 @@
 			<i class="el-icon-search el-input__icon" slot="suffix" @click="onSearch()"> </i>
 		</el-input>
 		<el-scrollbar style="height:400px">
-			<div v-for="(user) in users" :key="user.id" v-show="user.id != $store.state.userStore.userInfo.id">
+			<div v-for="(user) in users" :key="user.id" v-show="user.id != userStore.userInfo.id">
 				<div class="item">
 					<div class="avatar">
 						<head-image :name="user.nickName" :url="user.headImage" :online="user.online"></head-image>
@@ -15,7 +15,7 @@
 						<div class="nick-name">
 							<div>{{ user.nickName }}</div>
 							<div :class="user.online ? 'online-status  online' : 'online-status'">{{
-								user.online ? "[在线]" :"[离线]"}}</div>
+								user.online ? "[在线]" : "[离线]" }}</div>
 						</div>
 						<div class="user-name">
 							<div>用户名:{{ user.userName }}</div>
@@ -83,11 +83,11 @@ export default {
 					online: user.online,
 					deleted: false
 				}
-				this.$store.commit("addFriend", friend);
+				this.friendStore.addFriend(friend);
 			})
 		},
 		isFriend(userId) {
-			return this.$store.getters.isFriend(userId);
+			return this.friendStore.isFriend(userId);
 		}
 	}
 }

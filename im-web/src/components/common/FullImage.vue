@@ -1,10 +1,10 @@
 <template>
-	<div class="full-image" v-show="visible" :before-close="onClose" :modal="true">
+	<div class="full-image" v-if="show" :before-close="close" :modal="true">
 		<div class="mask"></div>
 		<div class="image-box">
 			<img :src="url" />
 		</div>
-		<div class="close" @click="onClose"><i class="el-icon-close"></i></div>
+		<div class="close" @click="close"><i class="el-icon-close"></i></div>
 	</div>
 </template>
 
@@ -13,20 +13,17 @@ export default {
 	name: "fullImage",
 	data() {
 		return {
-			fit: 'contain'
+			show: false,
+			url: ''
 		}
 	},
 	methods: {
-		onClose() {
-			this.$emit("close");
-		}
-	},
-	props: {
-		visible: {
-			type: Boolean
+		open(url) {
+			this.show = true;
+			this.url = url;
 		},
-		url: {
-			type: String
+		close() {
+			this.show = false;
 		}
 	}
 }
