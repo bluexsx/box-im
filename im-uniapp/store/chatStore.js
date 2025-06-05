@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { MESSAGE_TYPE, MESSAGE_STATUS } from '@/common/enums.js';
 import useUserStore from './userStore';
-import UNI_APP from '../.env';
 
 let cacheChats = [];
 export default defineStore('chatStore', {
@@ -20,11 +19,6 @@ export default defineStore('chatStore', {
 			this.chats = [];
 			for (let chat of chatsData.chats) {
 				chat.stored = false;
-				// 清理多余的消息，避免消息过多导致卡顿
-				if (UNI_APP.MAX_MESSAGE_SIZE > 0 && chat.messages.length > UNI_APP.MAX_MESSAGE_SIZE) {
-					let idx = chat.messages.length - UNI_APP.MAX_MESSAGE_SIZE;
-					chat.messages = chat.messages.slice(idx);
-				}
 				// 暂存至缓冲区
 				cacheChats.push(JSON.parse(JSON.stringify(chat)));
 				// 加载期间显示只前15个会话做做样子,一切都为了加快初始化时间
@@ -346,6 +340,18 @@ export default defineStore('chatStore', {
 			if (!cacheChats) return;
 			// 排序
 			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			// #ifndef APP-PLUS
+			/**
+			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，
+			 * 所以这里每个会话只保留1000条消息，防止溢出
+			 */
+			cacheChats.forEach(chat =>{
+				if(chat.messages.length > 1000){
+					let idx = chat.messages.length - 1000;
+					chat.messages = chat.messages.slice(idx);
+				}
+			})
+			// #endif
 			// 记录热数据索引位置
 			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
