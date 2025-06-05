@@ -383,7 +383,7 @@ export default {
       return strTime;
     },
     configuration() {
-      const iceServers = this.$store.state.configStore.webrtc.iceServers;
+      const iceServers = this.configStore.webrtc.iceServers;
       return {
         iceServers: iceServers
       }

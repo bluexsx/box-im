@@ -126,7 +126,7 @@ export default {
 	},
 	computed: {
 		mine() {
-			return this.$store.state.userStore.userInfo;
+			return this.userStore.userInfo;
 		},
 		histroyAction() {
 			return `/message/${this.chat.type.toLowerCase()}/history`;

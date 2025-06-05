@@ -1,26 +1,24 @@
+import { defineStore } from 'pinia';
 import http from '../api/httpRequest.js'
 
-export default {
-	state: {
-		webrtc: {}
-	},
-	mutations: {
-		setConfig(state, config) {
-			state.webrtc = config.webrtc;
-		},
-		clear(state) {
-			state.webrtc = {};
+export default defineStore('configStore', {
+	state: () => {
+		return {
+			webrtc: {}
 		}
 	},
 	actions: {
-		loadConfig(context) {
+		setConfig(config) {
+			this.webrtc = config.webrtc;
+		},
+		loadConfig() {
 			return new Promise((resolve, reject) => {
 				http({
 					url: '/system/config',
 					method: 'GET'
-				}).then((config) => {
+				}).then(config => {
 					console.log("系统配置", config)
-					context.commit("setConfig", config);
+					this.setConfig(config);
 					resolve();
 				}).catch((res) => {
 					reject(res);
@@ -28,5 +26,4 @@ export default {
 			})
 		}
 	}
-
-}
+});

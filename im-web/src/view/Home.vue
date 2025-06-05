@@ -1,16 +1,14 @@
 <template>
-	<div class="home-page" @click="$store.commit('closeUserInfoBox')">
+	<div class="home-page" @click="uiStore.closeUserInfoBox()">
 		<div class="app-container" :class="{ fullscreen: isFullscreen }">
 			<div class="navi-bar">
 				<div class="navi-bar-box">
 					<div class="top">
 						<div class="user-head-image">
-							<head-image :name="$store.state.userStore.userInfo.nickName" :size="38"
-								:url="$store.state.userStore.userInfo.headImageThumb"
-								@click.native="showSettingDialog = true">
+							<head-image :name="userStore.userInfo.nickName" :size="38"
+								:url="userStore.userInfo.headImageThumb" @click.native="showSettingDialog = true">
 							</head-image>
 						</div>
-
 						<div class="menu">
 							<router-link class="link" v-bind:to="'/home/chat'">
 								<div class="menu-item">
@@ -48,10 +46,10 @@
 				<router-view></router-view>
 			</div>
 			<setting :visible="showSettingDialog" @close="closeSetting()"></setting>
-			<user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user"
-				@close="$store.commit('closeUserInfoBox')"></user-info>
-			<full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
-				@close="$store.commit('closeFullImageBox')"></full-image>
+			<!-- <user-info v-show="uiStore.userInfo.show" :pos="uiStore.userInfo.pos" :user="uiStore.userInfo.user"
+				@close="uiStore.closeUserInfoBox()"></user-info> -->
+			<!-- <full-image :visible="uiStore.fullImage.show" :url="uiStore.fullImage.url"
+				@close="uiStore.closeFullImageBox()"></full-image> -->
 			<rtc-private-video ref="rtcPrivateVideo"></rtc-private-video>
 			<rtc-group-video ref="rtcGroupVideo"></rtc-group-video>
 		</div>
@@ -66,6 +64,7 @@ import FullImage from '../components/common/FullImage.vue';
 import RtcPrivateVideo from '../components/rtc/RtcPrivateVideo.vue';
 import RtcPrivateAcceptor from '../components/rtc/RtcPrivateAcceptor.vue';
 import RtcGroupVideo from '../components/rtc/RtcGroupVideo.vue';
+import uiStore from '../store/uiStore';
 
 export default {
 	components: {
@@ -96,7 +95,7 @@ export default {
 				this.$refs.rtcGroupVideo.open(rctInfo);
 			});
 
-			this.$store.dispatch("load").then(() => {
+			this.loadStore().then(() => {
 				// ws初始化
 				this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
 				this.$wsApi.onConnect(() => {
@@ -104,8 +103,8 @@ export default {
 						this.onReconnectWs();
 					} else {
 						// 加载离线消息
-						this.pullPrivateOfflineMessage(this.$store.state.chatStore.privateMsgMaxId);
-						this.pullGroupOfflineMessage(this.$store.state.chatStore.groupMsgMaxId);
+						this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+						this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
 					}
 				});
 				this.$wsApi.onMessage((cmd, msgInfo) => {
@@ -145,7 +144,7 @@ export default {
 			// 记录标志
 			this.reconnecting = true;
 			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			this.$store.dispatch("loadUser").then(() => {
+			this.userStore.loadUser().then(() => {
 				// 断线重连
 				this.$message.error("连接断开，正在尝试重新连接...");
 				this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, sessionStorage.getItem(
@@ -160,39 +159,55 @@ export default {
 			this.reconnecting = false;
 			// 重新加载群和好友
 			const promises = [];
-			promises.push(this.$store.dispatch("loadFriend"));
-			promises.push(this.$store.dispatch("loadGroup"));
+			promises.push(this.friendStore.loadFriend());
+			promises.push(this.groupStore.loadGroup());
 			Promise.all(promises).then(() => {
 				// 加载离线消息
-				this.pullPrivateOfflineMessage(this.$store.state.chatStore.privateMsgMaxId);
-				this.pullGroupOfflineMessage(this.$store.state.chatStore.groupMsgMaxId);
+				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
+				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
 				this.$message.success("重新连接成功");
 			}).catch(() => {
 				this.$message.error("初始化失败");
 				this.onExit();
 			})
 		},
+		loadStore() {
+			return this.userStore.loadUser().then(() => {
+				const promises = [];
+				promises.push(this.friendStore.loadFriend());
+				promises.push(this.groupStore.loadGroup());
+				promises.push(this.chatStore.loadChat());
+				promises.push(this.configStore.loadConfig());
+				return Promise.all(promises);
+			})
+		},
+		unloadStore() {
+			this.friendStore.clear();
+			this.groupStore.clear();
+			this.chatStore.clear();
+			this.userStore.clear();
+		},
 		pullPrivateOfflineMessage(minId) {
-			this.$store.commit("loadingPrivateMsg", true)
+			this.chatStore.setLoadingPrivateMsg(true)
 			this.$http({
 				url: "/message/private/pullOfflineMessage?minId=" + minId,
 				method: 'GET'
 			}).catch(() => {
-				this.$store.commit("loadingPrivateMsg", false)
+				this.chatStore.setLoadingPrivateMsg(false)
 			})
 		},
 		pullGroupOfflineMessage(minId) {
-			this.$store.commit("loadingGroupMsg", true)
+			this.chatStore.setLoadingGroupMsg(true)
 			this.$http({
 				url: "/message/group/pullOfflineMessage?minId=" + minId,
 				method: 'GET'
 			}).catch(() => {
-				this.$store.commit("loadingGroupMsg", false)
+				this.chatStore.setLoadingGroupMsg(false)
 			})
 		},
 		handlePrivateMessage(msg) {
 			// 标记这条消息是不是自己发的
-			msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
+			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
 			// 好友id
 			let friendId = msg.selfSend ? msg.recvId : msg.sendId;
 			// 会话信息
@@ -202,34 +217,34 @@ export default {
 			}
 			// 消息加载标志
 			if (msg.type == this.$enums.MESSAGE_TYPE.LOADING) {
-				this.$store.commit("loadingPrivateMsg", JSON.parse(msg.content))
+				this.chatStore.setLoadingPrivateMsg(JSON.parse(msg.content))
 				return;
 			}
 			// 消息已读处理，清空已读数量
 			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
-				this.$store.commit("resetUnreadCount", chatInfo)
+				this.chatStore.resetUnreadCount(chatInfo)
 				return;
 			}
 			// 消息回执处理,改消息状态为已读
 			if (msg.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
-				this.$store.commit("readedMessage", {
+				this.chatStore.readedMessage({
 					friendId: msg.sendId
 				})
 				return;
 			}
 			// 消息撤回
 			if (msg.type == this.$enums.MESSAGE_TYPE.RECALL) {
-				this.$store.commit("recallMessage", [msg, chatInfo])
+				this.chatStore.recallMessage(msg, chatInfo)
 				return;
 			}
 			// 新增好友
 			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_NEW) {
-				this.$store.commit("addFriend", JSON.parse(msg.content));
+				this.friendStore.addFriend(JSON.parse(msg.content));
 				return;
 			}
 			// 删除好友
 			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_DEL) {
-				this.$store.commit("removeFriend", friendId);
+				this.friendStore.removeFriend(friendId);
 				return;
 			}
 			// 单人webrtc 信令
@@ -251,9 +266,9 @@ export default {
 				headImage: friend.headImage
 			};
 			// 打开会话
-			this.$store.commit("openChat", chatInfo);
+			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.$store.commit("insertMessage", [msg, chatInfo]);
+			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			if (!msg.selfSend && this.$msgType.isNormal(msg.type) &&
 				msg.status != this.$enums.MESSAGE_STATUS.READED) {
@@ -262,20 +277,20 @@ export default {
 		},
 		handleGroupMessage(msg) {
 			// 标记这条消息是不是自己发的
-			msg.selfSend = msg.sendId == this.$store.state.userStore.userInfo.id;
+			msg.selfSend = msg.sendId == this.userStore.userInfo.id;
 			let chatInfo = {
 				type: 'GROUP',
 				targetId: msg.groupId
 			}
 			// 消息加载标志
 			if (msg.type == this.$enums.MESSAGE_TYPE.LOADING) {
-				this.$store.commit("loadingGroupMsg", JSON.parse(msg.content))
+				this.chatStore.setLoadingGroupMsg(JSON.parse(msg.content))
 				return;
 			}
 			// 消息已读处理
 			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
 				// 我已读对方的消息，清空已读数量
-				this.$store.commit("resetUnreadCount", chatInfo)
+				this.chatStore.resetUnreadCount(chatInfo)
 				return;
 			}
 			// 消息回执处理
@@ -287,22 +302,22 @@ export default {
 					readedCount: msg.readedCount,
 					receiptOk: msg.receiptOk
 				};
-				this.$store.commit("updateMessage", [msgInfo, chatInfo])
+				this.chatStore.updateMessage(msgInfo, chatInfo)
 				return;
 			}
 			// 消息撤回
 			if (msg.type == this.$enums.MESSAGE_TYPE.RECALL) {
-				this.$store.commit("recallMessage", [msg, chatInfo])
+				this.chatStore.recallMessage(msg, chatInfo)
 				return;
 			}
 			// 新增群
 			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_NEW) {
-				this.$store.commit("addGroup", JSON.parse(msg.content));
+				this.chatStore.addGroup(JSON.parse(msg.content));
 				return;
 			}
 			// 删除群
 			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_DEL) {
-				this.$store.commit("removeGroup", msg.groupId);
+				this.groupStore.removeGroup(msg.groupId);
 				return;
 			}
 			// 群视频信令
@@ -326,9 +341,9 @@ export default {
 				headImage: group.headImageThumb
 			};
 			// 打开会话
-			this.$store.commit("openChat", chatInfo);
+			this.chatStore.openChat(chatInfo);
 			// 插入消息
-			this.$store.commit("insertMessage", [msg, chatInfo]);
+			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			if (!msg.selfSend && msg.type <= this.$enums.MESSAGE_TYPE.VIDEO &&
 				msg.status != this.$enums.MESSAGE_STATUS.READED) {
@@ -341,7 +356,7 @@ export default {
 				this.$wsApi.close(3000);
 				this.$alert("您的账号已被管理员封禁,原因:" + msg.content, "账号被封禁", {
 					confirmButtonText: '确定',
-					callback: action => {
+					callback: () => {
 						this.onExit();
 					}
 				});
@@ -349,13 +364,14 @@ export default {
 			}
 		},
 		onExit() {
+			this.unloadStore();
 			this.$wsApi.close(3000);
 			sessionStorage.removeItem("accessToken");
 			location.href = "/";
 		},
 		playAudioTip() {
 			// 离线消息不播放铃声
-			if (this.$store.getters.isLoading()) {
+			if (this.chatStore.isLoading()) {
 				return;
 			}
 			// 防止过于密集播放
@@ -375,7 +391,7 @@ export default {
 			this.showSettingDialog = false;
 		},
 		loadFriendInfo(id) {
-			let friend = this.$store.getters.findFriend(id);
+			let friend = this.friendStore.findFriend(id);
 			if (!friend) {
 				friend = {
 					id: id,
@@ -386,7 +402,7 @@ export default {
 			return friend;
 		},
 		loadGroupInfo(id) {
-			let group = this.$store.getters.findGroup(id);
+			let group = this.groupStore.findGroup(id);
 			if (!group) {
 				group = {
 					id: id,
@@ -398,12 +414,9 @@ export default {
 		}
 	},
 	computed: {
-		uiStore() {
-			return this.$store.state.uiStore;
-		},
 		unreadCount() {
 			let unreadCount = 0;
-			let chats = this.$store.state.chatStore.chats;
+			let chats = this.chatStore.chats;
 			chats.forEach((chat) => {
 				if (!chat.delete) {
 					unreadCount += chat.unreadCount

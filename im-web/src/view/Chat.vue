@@ -43,19 +43,16 @@ export default {
   },
   methods: {
     onActiveItem(index) {
-      this.$store.commit("activeChat", index);
+      this.chatStore.setActiveChat(index);
     },
     onDelItem(index) {
-      this.$store.commit("removeChat", index);
+      this.chatStore.removeChat(index);
     },
     onTop(chatIdx) {
-      this.$store.commit("moveTop", chatIdx);
+      this.chatStore.moveTop(chatIdx);
     },
   },
   computed: {
-    chatStore() {
-      return this.$store.state.chatStore;
-    },
     loading() {
       return this.chatStore.loadingGroupMsg || this.chatStore.loadingPrivateMsg
     }

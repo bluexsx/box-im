@@ -1,19 +1,22 @@
-export default {
-	state: {
-		userInfo: { // 用户信息窗口
-			show: false,
-			user: {},
-			pos: {
-				x: 0,
-				y: 0
+import { defineStore } from 'pinia';
+export default defineStore('groupStore', {
+	state: () => {
+		return {
+			userInfo: { // 用户信息窗口
+				show: false,
+				user: {},
+				pos: {
+					x: 0,
+					y: 0
+				}
+			},
+			fullImage: { // 全屏大图
+				show: false,
+				url: ""
 			}
-		},
-		fullImage: { // 全屏大图
-			show: false,
-			url: ""
 		}
 	},
-	mutations: {
+	actions: {
 		showUserInfoBox(state, user) {
 			state.userInfo.show = true;
 			state.userInfo.user = user;
@@ -36,4 +39,4 @@ export default {
 			state.fullImage.show = false;
 		}
 	}
-}
+})

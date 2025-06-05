@@ -140,8 +140,8 @@ export default {
 	},
 	methods: {
 		moveChatToTop() {
-			let chatIdx = this.$store.getters.findChatIdx(this.chat);
-			this.$store.commit("moveTop", chatIdx);
+			let chatIdx = this.chatStore.findChatIdx(this.chat);
+			this.chatStore.moveTop(chatIdx);
 		},
 		closeRefBox() {
 			this.$refs.emoBox.close();
@@ -166,13 +166,13 @@ export default {
 				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
 				this.isReceipt = false;
-				this.$store.commit("insertMessage", [msgInfo, file.chat]);
+				this.chatStore.insertMessage(msgInfo, file.chat);
 			})
 		},
 		onImageFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.$store.commit("insertMessage", [msgInfo, file.chat]);
+			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onImageBefore(file) {
 			// 被封禁提示
@@ -201,7 +201,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.$store.commit("insertMessage", [msgInfo, this.chat]);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
 			// 滚动到底部
@@ -224,13 +224,13 @@ export default {
 				msgInfo.id = m.id;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
-				this.$store.commit("insertMessage", [msgInfo, file.chat]);
+				this.chatStore.insertMessage(msgInfo, file.chat);
 			})
 		},
 		onFileFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.loadStatus = 'fail';
-			this.$store.commit("insertMessage", [msgInfo, file.chat]);
+			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onFileBefore(file) {
 			// 被封禁提示
@@ -259,7 +259,7 @@ export default {
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
 			// 插入消息
-			this.$store.commit("insertMessage", [msgInfo, this.chat]);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
 			// 滚动到底部
@@ -330,7 +330,7 @@ export default {
 			}
 			// 邀请成员发起通话
 			let ids = [this.mine.id];
-			let maxChannel = this.$store.state.configStore.webrtc.maxChannel;
+			let maxChannel = this.configStore.webrtc.maxChannel;
 			this.$refs.rtcSel.open(maxChannel, ids, ids, []);
 		},
 		onInviteOk(members) {
@@ -375,9 +375,9 @@ export default {
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
-			this.sendMessageRequest(msgInfo).then((m) => {
+			this.sendMessageRequest(msgInfo).then(m => {
 				m.selfSend = true;
-				this.$store.commit("insertMessage", [m, this.chat]);
+				this.chatStore.insertMessage(m, this.chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 保持输入框焦点
@@ -462,7 +462,7 @@ export default {
 				this.lockMessage = true;
 				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
-					this.$store.commit("insertMessage", [m, this.chat]);
+					this.chatStore.insertMessage(m, this.chat);
 					// 会话置顶
 					this.moveChatToTop();
 				}).finally(() => {
@@ -487,7 +487,7 @@ export default {
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				this.$store.commit("deleteMessage", [msgInfo, this.chat]);
+				this.chatStore.deleteMessage(msgInfo, this.chat);
 			});
 		},
 		recallMessage(msgInfo) {
@@ -503,7 +503,7 @@ export default {
 				}).then((m) => {
 					this.$message.success("消息已撤回");
 					m.selfSend = true;
-					this.$store.commit("recallMessage", [m, this.chat]);
+					this.chatStore.recallMessage(m, this.chat);
 				})
 			});
 		},
@@ -511,7 +511,7 @@ export default {
 			if (this.chat.unreadCount == 0) {
 				return;
 			}
-			this.$store.commit("resetUnreadCount", this.chat)
+			this.chatStore.resetUnreadCount(this.chat)
 			if (this.chat.type == "GROUP") {
 				var url = `/message/group/readed?groupId=${this.chat.targetId}`
 			} else {
@@ -520,14 +520,14 @@ export default {
 			this.$http({
 				url: url,
 				method: 'put'
-			}).then(() => {})
+			}).then(() => { })
 		},
 		loadReaded(fId) {
 			this.$http({
 				url: `/message/private/maxReadedId?friendId=${fId}`,
 				method: 'get'
 			}).then((id) => {
-				this.$store.commit("readedMessage", {
+				this.chatStore.readedMessage({
 					friendId: fId,
 					maxId: id
 				});
@@ -539,8 +539,8 @@ export default {
 				method: 'get'
 			}).then((group) => {
 				this.group = group;
-				this.$store.commit("updateChatFromGroup", group);
-				this.$store.commit("updateGroup", group);
+				this.chatStore.updateChatFromGroup(group);
+				this.groupStore.updateGroup(group);
 			});
 
 			this.$http({
@@ -557,10 +557,10 @@ export default {
 				friend.headImage = this.userInfo.headImageThumb;
 				friend.nickName = this.userInfo.nickName;
 				friend.showNickName = friend.remarkNickName ? friend.remarkNickName : friend.nickName;
-				this.$store.commit("updateChatFromFriend", friend);
-				this.$store.commit("updateFriend", friend);
+				this.chatStore.updateChatFromFriend(friend);
+				this.friendStore.updateFriend(friend);
 			} else {
-				this.$store.commit("updateChatFromUser", this.userInfo);
+				this.chatStore.updateChatFromUser(this.userInfo);
 			}
 		},
 		loadFriend(friendId) {
@@ -653,7 +653,7 @@ export default {
 				msgInfo.groupId = this.group.id;
 				msgInfo.content = "本群聊已被管理员封禁,原因:" + this.group.reason
 			}
-			this.$store.commit("insertMessage", [msgInfo, this.chat]);
+			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
 		generateId() {
 			// 生成临时id
@@ -662,13 +662,13 @@ export default {
 	},
 	computed: {
 		mine() {
-			return this.$store.state.userStore.userInfo;
+			return this.userStore.userInfo;
 		},
 		isFriend() {
-			return this.$store.getters.isFriend(this.userInfo.id);
+			return this.friendStore.isFriend(this.userInfo.id);
 		},
 		friend() {
-			return this.$store.getters.findFriend(this.userInfo.id)
+			return this.friendStore.findFriend(this.userInfo.id)
 		},
 		title() {
 			let title = this.chat.showName;
@@ -708,7 +708,7 @@ export default {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-						newChat.targetId != oldChat.targetId)) {
+					newChat.targetId != oldChat.targetId)) {
 					this.userInfo = {}
 					this.group = {};
 					this.groupMembers = [];

@@ -55,7 +55,7 @@ export default {
 		open() {
 			this.show = true;
 			this.friends = [];
-			this.$store.state.friendStore.friends.forEach((f) => {
+			this.friendStore.friends.forEach((f) => {
 				if (f.deleted) {
 					return;
 				}

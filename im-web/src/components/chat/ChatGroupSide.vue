@@ -124,7 +124,7 @@ export default {
         data: vo
       }).then((group) => {
         this.editing = !this.editing
-        this.$store.commit("updateGroup", group);
+        this.groupStore.updateGroup(group);
         this.$emit('reload');
         this.$message.success("修改成功");
       })
@@ -139,8 +139,8 @@ export default {
           url: `/group/quit/${this.group.id}`,
           method: 'delete'
         }).then(() => {
-          this.$store.commit("removeGroup", this.group.id);
-          this.$store.commit("removeGroupChat", this.group.id);
+          this.groupStore.removeGroup(this.group.id);
+          this.chatStore.removeGroupChat(this.group.id);
         });
       })
     },
@@ -156,7 +156,7 @@ export default {
   },
   computed: {
     mine() {
-      return this.$store.state.userStore.userInfo;
+      return this.userStore.userInfo;
     },
     ownerName() {
       let member = this.groupMembers.find((m) => m.userId == this.group.ownerId);

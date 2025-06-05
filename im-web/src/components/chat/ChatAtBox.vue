@@ -42,7 +42,7 @@ export default {
 		init() {
 			this.$refs.scrollBox.wrap.scrollTop = 0;
 			this.showMembers = [];
-			let userId = this.$store.state.userStore.userInfo.id;
+			let userId = this.userStore.userInfo.id;
 			let name = "全体成员";
 			if (this.ownerId == userId && name.startsWith(this.searchText)) {
 				this.showMembers.push({
@@ -108,7 +108,7 @@ export default {
 	},
 	computed: {
 		isOwner() {
-			return this.$store.state.userStore.userInfo.id == this.ownerId;
+			return this.userStore.userInfo.id == this.ownerId;
 		}
 	},
 	watch: {

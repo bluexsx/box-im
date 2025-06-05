@@ -59,8 +59,8 @@ export default {
 				showName: user.nickName,
 				headImage: user.headImage,
 			};
-			this.$store.commit("openChat", chat);
-			this.$store.commit("activeChat", 0);
+			this.chatStore.openChat(chat);
+			this.chatStore.setActiveChat(0);
 			if (this.$route.path != "/home/chat") {
 				this.$router.push("/home/chat");
 			}
@@ -82,7 +82,7 @@ export default {
 					online: this.user.online,
 					deleted: false
 				}
-				this.$store.commit("addFriend", friend);
+				this.friendStore.addFriend(friend);
 			})
 		},
 		showFullImage() {
@@ -93,7 +93,7 @@ export default {
 	},
 	computed: {
 		isFriend() {
-			return this.$store.getters.isFriend(this.user.id);
+			return this.friendStore.isFriend(this.user.id);
 		}
 	}
 }
