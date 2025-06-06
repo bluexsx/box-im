@@ -374,7 +374,6 @@ export default defineStore('chatStore', {
 			this.chats.forEach((chat) => {
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
-					chat.stored = true;
 					if (chat.delete) {
 						uni.removeStorageSync(chatKey);
 					} else {
@@ -386,15 +385,11 @@ export default defineStore('chatStore', {
 						}
 						// 存储热消息
 						let hotKey = chatKey + '-hot';
-						if (chat.messages.length > chat.hotMinIdx) {
-							let hotChat = Object.assign({}, chat);
-							hotChat.messages = chat.messages.slice(chat.hotMinIdx)
-							uni.setStorageSync(hotKey, hotChat);
-							console.log("热数据：",hotChat.messages.length)
-						} else {
-							uni.removeStorageSync(hotKey);
-						}
+						let hotChat = Object.assign({}, chat);
+						hotChat.messages = chat.messages.slice(chat.hotMinIdx)
+						uni.setStorageSync(hotKey, hotChat);
 					}
+					chat.stored = true;
 				}
 				if (!chat.delete) {
 					chatKeys.push(chatKey);
@@ -429,7 +424,7 @@ export default defineStore('chatStore', {
 						chatsData.chatKeys.forEach(key => {
 							let coldChat = uni.getStorageSync(key);
 							let hotChat = uni.getStorageSync(key + '-hot');
-							if (!coldChat && hotChat) {
+							if (!coldChat && !hotChat) {
 								return;
 							}
 							// 冷热消息合并

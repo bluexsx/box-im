@@ -370,7 +370,6 @@ export default defineStore('chatStore', {
 				// 只存储有改动的会话
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
-					chat.stored = true;
 					if (chat.delete) {
 						localForage.removeItem(chatKey);
 					} else {
@@ -382,14 +381,11 @@ export default defineStore('chatStore', {
 						}
 						// 存储热消息
 						let hotKey = chatKey + '-hot';
-						if (chat.messages.length > chat.hotMinIdx) {
-							let hotChat = Object.assign({}, chat);
-							hotChat.messages = chat.messages.slice(chat.hotMinIdx)
-							localForage.setItem(hotKey, hotChat)
-						} else {
-							localForage.removeItem(hotKey);
-						}
+						let hotChat = Object.assign({}, chat);
+						hotChat.messages = chat.messages.slice(chat.hotMinIdx)
+						localForage.setItem(hotKey, hotChat)
 					}
+					chat.stored = true;
 				}
 				if (!chat.delete) {
 					chatKeys.push(chatKey);
