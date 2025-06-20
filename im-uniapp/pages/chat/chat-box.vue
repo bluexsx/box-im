@@ -129,7 +129,7 @@ export default {
 			scrollMsgIdx: 0, // 滚动条定位为到哪条消息
 			chatTabBox: 'none',
 			showRecord: false,
-			chatMainHeight: 0, // 聊天窗口高度
+			chatMainHeight: 800, // 聊天窗口高度
 			keyboardHeight: 290, // 键盘高度
 			windowHeight: 1000, // 窗口高度
 			initHeight: 1000, // h5初始高度

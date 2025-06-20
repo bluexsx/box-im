@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="long-press-menu none-pointer-events">
 		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
 			<slot></slot>
 		</view>
@@ -81,40 +81,42 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.menu-mask {
-	position: fixed;
-	left: 0;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 999;
-}
+.long-press-menu {
+	.menu-mask {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 999;
+	}
 
-.menu {
-	position: fixed;
-	border-radius: 4px;
-	overflow: hidden;
-	background-color: #fff;
-	z-index: 1000;
-	box-shadow: $im-box-shadow-dark;
+	.menu {
+		position: fixed;
+		border-radius: 4px;
+		overflow: hidden;
+		background-color: #fff;
+		z-index: 1000;
+		box-shadow: $im-box-shadow-dark;
 
-	.menu-item {
-		height: 28px;
-		min-width: 120rpx;
-		line-height: 28px;
-		font-size: $im-font-size-small;
-		display: flex;
-		padding: 6px 20px;
-		justify-content: flex-start;
+		.menu-item {
+			height: 28px;
+			min-width: 120rpx;
+			line-height: 28px;
+			font-size: $im-font-size-small;
+			display: flex;
+			padding: 6px 20px;
+			justify-content: flex-start;
 
-		&:hover {
-			background: $im-bg-active;
-		}
+			&:hover {
+				background: $im-bg-active;
+			}
 
-		.menu-icon {
-			margin-right: 10rpx;
+			.menu-icon {
+				margin-right: 10rpx;
+			}
 		}
 	}
 }
