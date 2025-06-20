@@ -120,4 +120,12 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return userIds.size() == this.count(wrapper);
     }
 
+    @Override
+    public void setDnd(Long groupId, Long userId, Boolean isDnd) {
+        LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(GroupMember::getGroupId, groupId);
+        wrapper.eq(GroupMember::getUserId, userId);
+        wrapper.set(GroupMember::getIsDnd, isDnd);
+        this.update(wrapper);
+    }
 }

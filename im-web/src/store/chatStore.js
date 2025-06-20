@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { MESSAGE_TYPE, MESSAGE_STATUS } from "../api/enums.js"
+import useFriendStore from './friendStore.js';
+import useGroupStore from './groupStore.js';
 import useUserStore from './userStore.js';
 import localForage from 'localforage';
 
@@ -66,6 +68,7 @@ export default defineStore('chatStore', {
 					type: chatInfo.type,
 					showName: chatInfo.showName,
 					headImage: chatInfo.headImage,
+					isDnd: chatInfo.isDnd,
 					lastContent: "",
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
@@ -193,7 +196,7 @@ export default defineStore('chatStore', {
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
-			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
+			if (!chat.isDnd && !msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
 				msgInfo.status != MESSAGE_STATUS.RECALL && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
@@ -343,8 +346,34 @@ export default defineStore('chatStore', {
 				this.refreshChats();
 			}
 		},
+		setDnd(chatInfo, isDnd) {
+			let chat = this.findChat(chatInfo);
+			if (chat) {
+				chat.isDnd = isDnd;
+				chat.unreadCount = 0;
+			}
+		},
 		refreshChats() {
 			if (!cacheChats) return;
+			// 刷新免打扰状态
+			const friendStore = useFriendStore();
+			const groupStore = useGroupStore();
+			cacheChats.forEach(chat => {
+				if (chat.type == 'PRIVATE') {
+					let friend = friendStore.findFriend(chat.targetId);
+					if (friend) {
+						chat.isDnd = friend.isDnd
+					}
+				} else if (chat.type == 'GROUP') {
+					let group = groupStore.findGroup(chat.targetId);
+					if (group) {
+						chat.isDnd = group.isDnd
+					}
+				}
+				if (chat.isDnd) {
+					chat.unreadCount = 0;
+				}
+			})
 			// 排序
 			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
 			// 记录热数据索引位置

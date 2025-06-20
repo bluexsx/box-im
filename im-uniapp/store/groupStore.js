@@ -25,6 +25,10 @@ export default defineStore('groupStore', {
 			let g = this.findGroup(group.id);
 			Object.assign(g, group);
 		},
+		setDnd(id, isDnd) {
+			let group = this.findGroup(id);
+			group.isDnd = isDnd;
+		},
 		clear() {
 			this.groups = [];
 		},

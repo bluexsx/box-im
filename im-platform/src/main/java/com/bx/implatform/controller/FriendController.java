@@ -1,12 +1,14 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.annotation.RepeatSubmit;
+import com.bx.implatform.dto.FriendDndDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.FriendService;
 import com.bx.implatform.vo.FriendVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,13 @@ public class FriendController {
     @Operation(summary = "删除好友", description = "解除好友关系")
     public Result delFriend(@NotNull(message = "好友id不可为空") @PathVariable Long friendId) {
         friendService.delFriend(friendId);
+        return ResultUtils.success();
+    }
+
+    @PutMapping("/dnd")
+    @Operation(summary = "开启/关闭免打扰状态", description = "开启/关闭免打扰状态")
+    public Result setFriendDnd(@Valid @RequestBody FriendDndDTO dto) {
+        friendService.setDnd(dto);
         return ResultUtils.success();
     }
 

@@ -146,6 +146,12 @@ export default {
 				this.friendStore.removeFriend(friendId);
 				return;
 			}
+			// 对好友设置免打扰
+			if (msg.type == enums.MESSAGE_TYPE.FRIEND_DND) {
+				this.friendStore.setDnd(friendId, JSON.parse(msg.content));
+				this.chatStore.setDnd(chatInfo, JSON.parse(msg.content));
+				return;
+			}
 			// 消息插入
 			let friend = this.loadFriendInfo(friendId);
 			this.insertPrivateMessage(friend, msg);
@@ -183,14 +189,20 @@ export default {
 					type: 'PRIVATE',
 					targetId: friend.id,
 					showName: friend.nickName,
-					headImage: friend.headImage
+					headImage: friend.headImage,
+					isDnd: friend.isDnd
 				};
 				// 打开会话
 				this.chatStore.openChat(chatInfo);
 				// 插入消息
 				this.chatStore.insertMessage(msg, chatInfo);
 				// 播放提示音
-				this.playAudioTip();
+				this.chatStore.insertMessage(msg, chatInfo);
+				if (!friend.isDnd && !this.chatStore.isLoading() &&
+					!msg.selfSend && msgType.isNormal(msg.type) &&
+					msg.status != enums.MESSAGE_STATUS.READED) {
+					this.playAudioTip();
+				}
 			}
 
 
@@ -238,6 +250,12 @@ export default {
 			// 删除群
 			if (msg.type == enums.MESSAGE_TYPE.GROUP_DEL) {
 				this.groupStore.removeGroup(msg.groupId);
+				return;
+			}
+			// 对群设置免打扰
+			if (msg.type == enums.MESSAGE_TYPE.GROUP_DND) {
+				this.groupStore.setDnd(msg.groupId, JSON.parse(msg.content));
+				this.chatStore.setDnd(chatInfo, JSON.parse(msg.content));
 				return;
 			}
 			// 插入消息
@@ -291,14 +309,19 @@ export default {
 					type: 'GROUP',
 					targetId: group.id,
 					showName: group.showGroupName,
-					headImage: group.headImageThumb
+					headImage: group.headImageThumb,
+					isDnd: group.isDnd
 				};
 				// 打开会话
 				this.chatStore.openChat(chatInfo);
 				// 插入消息
 				this.chatStore.insertMessage(msg, chatInfo);
 				// 播放提示音
-				this.playAudioTip();
+				if (!group.isDnd && !this.chatStore.isLoading() &&
+					!msg.selfSend && msgType.isNormal(msg.type) &&
+					msg.status != enums.MESSAGE_STATUS.READED) {
+					this.playAudioTip();
+				}
 			}
 
 		},

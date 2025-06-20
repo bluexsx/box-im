@@ -56,5 +56,8 @@ public class GroupVO {
     @Schema(description = "被封禁原因")
     private String reason;
 
+    @Schema(description = "是否开启免打扰")
+    private Boolean isDnd;
+
 
 }

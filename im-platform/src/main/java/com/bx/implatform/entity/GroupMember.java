@@ -59,6 +59,12 @@ public class GroupMember extends Model<GroupMember> {
     private String remarkGroupName;
 
     /**
+     * 是否免打扰
+     */
+    private Boolean isDnd;
+
+
+    /**
      * 是否已退出
      */
     private Boolean quit;

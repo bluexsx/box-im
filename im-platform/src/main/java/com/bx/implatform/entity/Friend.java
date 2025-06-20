@@ -46,6 +46,11 @@ public class Friend{
     private String friendHeadImage;
 
     /**
+     * 是否开启免打扰
+     */
+    private Boolean isDnd;
+
+    /**
      * 是否已删除
      */
     private Boolean deleted;

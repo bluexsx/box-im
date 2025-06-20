@@ -1,6 +1,7 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.entity.Group;
@@ -92,4 +93,10 @@ public interface GroupService extends IService<Group> {
      * @return List<GroupMemberVO>
      **/
     List<GroupMemberVO> findGroupMembers(Long groupId);
+
+    /**
+     * 开启/关闭免打扰
+     * @param dto
+     */
+    void setDnd(GroupDndDTO dto);
 }

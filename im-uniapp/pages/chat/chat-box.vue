@@ -133,8 +133,7 @@ export default {
 			keyboardHeight: 290, // 键盘高度
 			windowHeight: 1000, // 窗口高度
 			initHeight: 1000, // h5初始高度
-			atUserIds: [],
-			needScrollToBottom: false, // 需要滚动到底部 
+			atUserIds: [], 
 			showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
 			reqQueue: [], // 请求队列
 			isSending: false, // 是否正在发送请求
@@ -576,7 +575,6 @@ export default {
 			}, 100)
 		},
 		onScrollToTop() {
-			console.log("onScrollToTop")
 			if (this.showMinIdx > 0) {
 				//  #ifndef H5
 				// 防止滚动条定格在顶部，不能一直往上滚
@@ -924,14 +922,17 @@ export default {
 	},
 	watch: {
 		messageSize: function(newSize, oldSize) {
-			// 接收到消息时滚动到底部
-			if (newSize > oldSize) {
-				if (this.isInBottom) {
-					// 收到消息,则滚动至底部
-					this.scrollToBottom();
-				} else {
-					// 若滚动条不在底部，说明用户正在翻历史消息，此时滚动条不能动，同时增加新消息提示
-					this.newMessageSize++;
+			// 接收到新消息
+			if (newSize > oldSize && oldSize > 0) {
+				let lastMessage = this.chat.messages[newSize - 1];
+				if (this.$msgType.isNormal(lastMessage.type)) {
+					if (this.isInBottom) {
+						// 收到消息,则滚动至底部
+						this.scrollToBottom();
+					} else {
+						// 若滚动条不在底部，说明用户正在翻历史消息，此时滚动条不能动，同时增加新消息提示
+						this.newMessageSize++;
+					}
 				}
 			}
 		},
@@ -963,13 +964,16 @@ export default {
 		this.chatStore.activeChat(options.chatIdx);
 		// 复位回执消息
 		this.isReceipt = false;
+		// 清空底部标志
+		this.isInBottom = true;
+		this.newMessageSize = 0;
 		// 监听键盘高度
 		this.listenKeyBoard();
 		// 计算聊天窗口高度
 		this.$nextTick(() => {
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.reCalChatMainHeight();
-			this.scrollToBottom();
+			
 			// #ifdef H5
 			this.initHeight = window.innerHeight;
 			// 兼容ios的h5:禁止页面滚动
@@ -982,13 +986,6 @@ export default {
 	},
 	onUnload() {
 		this.unListenKeyboard();
-	},
-	onShow() {
-		if (this.needScrollToBottom) {
-			// 页面滚到底部
-			this.scrollToBottom();
-			this.needScrollToBottom = false;
-		}
 	}
 }
 </script>

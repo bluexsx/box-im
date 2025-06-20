@@ -9,14 +9,15 @@
 			<div class="chat-name">
 				<div class="chat-name-text">
 					<div>{{ chat.showName }}</div>
-					<el-tag v-if="chat.type == 'GROUP'" size="mini" >群</el-tag>
+					<el-tag v-if="chat.type == 'GROUP'" size="mini">群</el-tag>
 				</div>
 				<div class="chat-time-text">{{ showTime }}</div>
 			</div>
 			<div class="chat-content">
 				<div class="chat-at-text">{{ atText }}</div>
 				<div class="chat-send-name" v-show="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</div>
-				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent,'emoji-small')"></div>
+				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent, 'emoji-small')"></div>
+				<div class="icon iconfont icon-dnd" v-if="chat.isDnd"></div>
 			</div>
 		</div>
 		<right-menu ref="rightMenu" @select="onSelectMenu"></right-menu>
@@ -36,15 +37,6 @@ export default {
 	},
 	data() {
 		return {
-			menuItems: [{
-				key: 'TOP',
-				name: '置顶',
-				icon: 'el-icon-top'
-			}, {
-				key: 'DELETE',
-				name: '删除',
-				icon: 'el-icon-delete'
-			}]
 		}
 	},
 	props: {
@@ -86,6 +78,30 @@ export default {
 				return "[@全体成员]"
 			}
 			return "";
+		},
+		menuItems() {
+			let items = [];
+			items.push({
+				key: 'TOP',
+				name: '置顶'
+			});
+			if (this.chat.isDnd) {
+				items.push({
+					key: 'DND',
+					name: '新消息提醒'
+				})
+			} else {
+				items.push({
+					key: 'DND',
+					name: '消息免打扰'
+				})
+			}
+			items.push({
+				key: 'DELETE',
+				name: '删除聊天',
+				color: '#F56C6C'
+			})
+			return items;
 		}
 	}
 }
@@ -185,7 +201,7 @@ export default {
 				font-size: var(--im-font-size-small);
 				color: var(--im-text-color-light);
 			}
-			
+
 			.chat-content-text {
 				flex: 1;
 				white-space: nowrap;
@@ -195,6 +211,9 @@ export default {
 				color: var(--im-text-color-light);
 			}
 
+			.icon {
+				color: var(--im-text-color-light);
+			}
 		}
 	}
 }

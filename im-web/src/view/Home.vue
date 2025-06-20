@@ -251,6 +251,12 @@ export default {
 				this.friendStore.removeFriend(friendId);
 				return;
 			}
+			// 对好友设置免打扰
+			if (msg.type == this.$enums.MESSAGE_TYPE.FRIEND_DND) {
+				this.friendStore.setDnd(friendId, JSON.parse(msg.content));
+				this.chatStore.setDnd(chatInfo, JSON.parse(msg.content));
+				return;
+			}
 			// 单人webrtc 信令
 			if (this.$msgType.isRtcPrivate(msg.type)) {
 				this.$refs.rtcPrivateVideo.onRTCMessage(msg)
@@ -267,14 +273,15 @@ export default {
 				type: 'PRIVATE',
 				targetId: friend.id,
 				showName: friend.nickName,
-				headImage: friend.headImage
+				headImage: friend.headImage,
+				isDnd: friend.isDnd
 			};
 			// 打开会话
 			this.chatStore.openChat(chatInfo);
 			// 插入消息
 			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
-			if (!msg.selfSend && this.$msgType.isNormal(msg.type) &&
+			if (!friend.isDnd && !this.chatStore.isLoading() && !msg.selfSend && this.$msgType.isNormal(msg.type) &&
 				msg.status != this.$enums.MESSAGE_STATUS.READED) {
 				this.playAudioTip();
 			}
@@ -324,6 +331,12 @@ export default {
 				this.groupStore.removeGroup(msg.groupId);
 				return;
 			}
+			// 对群设置免打扰
+			if (msg.type == this.$enums.MESSAGE_TYPE.GROUP_DND) {
+				this.groupStore.setDnd(msg.groupId, JSON.parse(msg.content));
+				this.chatStore.setDnd(chatInfo, JSON.parse(msg.content));
+				return;
+			}
 			// 群视频信令
 			if (this.$msgType.isRtcGroup(msg.type)) {
 				this.$nextTick(() => {
@@ -342,15 +355,17 @@ export default {
 				type: 'GROUP',
 				targetId: group.id,
 				showName: group.showGroupName,
-				headImage: group.headImageThumb
+				headImage: group.headImageThumb,
+				isDnd: group.isDnd
 			};
 			// 打开会话
 			this.chatStore.openChat(chatInfo);
 			// 插入消息
 			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
-			if (!msg.selfSend && msg.type <= this.$enums.MESSAGE_TYPE.VIDEO &&
-				msg.status != this.$enums.MESSAGE_STATUS.READED) {
+			if (!group.isDnd && !this.chatStore.isLoading() &&
+				!msg.selfSend && this.$msgType.isNormal(msg.type)
+				&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
 				this.playAudioTip();
 			}
 		},

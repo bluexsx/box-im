@@ -1,6 +1,7 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.entity.GroupMember;
 
 import java.util.List;
@@ -90,4 +91,12 @@ public interface GroupMemberService extends IService<GroupMember> {
      * @param userIds  用户id
      */
     Boolean isInGroup(Long groupId,List<Long> userIds);
+
+    /**
+     * 设置免打扰状态
+     * @param groupId 群id
+     * @param userId 用户id
+     * @param isDnd 是否开启免打扰
+     */
+    void setDnd(Long groupId, Long userId, Boolean isDnd);
 }

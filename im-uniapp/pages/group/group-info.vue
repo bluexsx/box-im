@@ -53,6 +53,12 @@
 			<view v-if="!group.quit" class="group-edit" @click="onEditGroup()">修改群聊资料 > </view>
 		</view>
 		<bar-group v-if="!group.quit">
+			<switch-bar title="消息免打扰" :checked="group.isDnd" @change="onDndChange"></switch-bar>
+		</bar-group>
+		<bar-group v-if="!group.quit && chatIdx>=0">
+			<arrow-bar title="清空聊天记录" @tap="onCleanMessage()"></arrow-bar>
+		</bar-group>
+		<bar-group v-if="!group.quit">
 			<btn-bar type="primary" title="发送消息" @tap="onSendMessage()"></btn-bar>
 			<btn-bar v-if="!isOwner" type="danger" title="退出群聊" @tap="onQuitGroup()"></btn-bar>
 			<btn-bar v-if="isOwner" type="danger" title="解散群聊" @tap="onDissolveGroup()"></btn-bar>
@@ -117,6 +123,7 @@ export default {
 				targetId: this.group.id,
 				showName: this.group.showGroupName,
 				headImage: this.group.headImage,
+				isDnd: this.group.isDnd
 			};
 			this.chatStore.openChat(chat);
 			let chatIdx = this.chatStore.findChatIdx(chat);
@@ -178,6 +185,42 @@ export default {
 				}
 			});
 		},
+		onDndChange(e) {
+			let isDnd = e.detail.value;
+			let groupId = this.group.id;
+			let formData = {
+				groupId: groupId,
+				isDnd: isDnd
+			}
+			this.$http({
+				url: '/group/dnd',
+				method: 'PUT',
+				data: formData
+			}).then(() => {
+				this.groupStore.setDnd(groupId, isDnd);
+				let chat = this.chatStore.findChatByGroup(groupId);
+				if (chat) {
+					this.chatStore.setDnd(chat, isDnd)
+				}
+			})
+		},
+		onCleanMessage() {
+			uni.showModal({
+				title: '清空聊天记录',
+				content: `确认删除群聊'${this.group.name}'的聊天记录吗?`,
+				confirmText: '确认',
+				success: (res) => {
+					if (res.cancel) {
+						return;
+					}
+					this.chatStore.cleanMessage(this.chatIdx);
+					uni.showToast({
+						title: `您清空了'${this.group.name}'的聊天记录`,
+						icon: 'none'
+					})
+				}
+			})
+		},
 		loadGroupInfo() {
 			this.$http({
 				url: `/group/find/${this.groupId}`,
@@ -210,6 +253,13 @@ export default {
 		},
 		showMaxIdx() {
 			return this.isOwner ? 8 : 9;
+		},
+		chatIdx() {
+			let chat = this.chatStore.findChatByGroup(this.groupId);
+			if (chat) {
+				return this.chatStore.findChatIdx(chat);
+			}
+			return -1;
 		}
 	},
 	onLoad(options) {

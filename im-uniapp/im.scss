@@ -102,7 +102,6 @@ button[size='mini'] {
 	}
 }
 
-
 .uni-radio-input svg{
 	border-color: white !important;
 	background-color: $im-color-primary !important;
@@ -171,6 +170,26 @@ button[size='mini'] {
 	font-size: 10px !important;
 	font-weight: bolder !important;
 }
+.uni-switch-input-checked {
+	background-color: $im-color-primary-light-1 !important;
+	border-color: $im-color-primary-light-1 !important;
+}
+.uni-modal__title {
+	font-size: $im-font-size-larger !important;
+}
+.uni-modal__bd {
+	font-size: $im-font-size;
+}
+.uni-modal__ft {
+	font-size: $im-font-size;
+	line-height: 90rpx !important;
+
+	.uni-modal__btn_primary {
+		color: $im-color-primary !important;
+	}
+}
+
+
 
 .nav-bar {
 	height: 100rpx;
@@ -214,4 +233,19 @@ button[size='mini'] {
 	width: 36rpx !important;
 	height: 36rpx !important;
 	vertical-align: bottom !important;
+}
+
+.none-pointer-events {
+	uni-image img {
+		// 阻止微信默认长按菜单
+		pointer-events: none;
+		-webkit-pointer-events: none;
+		-ms-pointer-events: none;
+		-moz-pointer-events: none;
+	 }
+}
+
+p {
+	margin-block-start: 1em;
+	margin-block-end: 1em;
 }
