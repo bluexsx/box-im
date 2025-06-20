@@ -4,15 +4,17 @@
 		<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
 			<view class="chat-message" @click="switchChatTabBox('none')">
 				<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
-					:scroll-into-view="'chat-item-' + scrollMsgIdx">
-					<view v-if="chat" v-for="(msgInfo, idx) in chat.messages" :key="idx">
-						<chat-message-item :ref="'message'+msgInfo.id" v-if="idx >= showMinIdx"
-							:headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)" :showName="showName(msgInfo)"
-							@recall="onRecallMessage" @delete="onDeleteMessage" @copy="onCopyMessage"
-							@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
-							@audioStateChange="onAudioStateChange" :id="'chat-item-' + idx" :msgInfo="msgInfo"
-							:groupMembers="groupMembers">
-						</chat-message-item>
+					@scroll="onScroll" :scroll-into-view="'chat-item-' + scrollMsgIdx" :scroll-top="scrollTop">
+					<view v-if="chat" class="chat-wrap">
+						<view v-for="(msgInfo, idx) in chat.messages" :key="idx">
+							<chat-message-item :ref="'message'+msgInfo.id" v-if="idx >= showMinIdx"
+								:headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)" :showName="showName(msgInfo)"
+								@recall="onRecallMessage" @delete="onDeleteMessage" @copy="onCopyMessage"
+								@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
+								@audioStateChange="onAudioStateChange" :id="'chat-item-' + idx" :msgInfo="msgInfo"
+								:groupMembers="groupMembers">
+							</chat-message-item>
+						</view>
 					</view>
 				</scroll-view>
 				<view v-if="!isInBottom" class="scroll-to-bottom" @click="onClickToBottom">
@@ -133,7 +135,7 @@ export default {
 			keyboardHeight: 290, // 键盘高度
 			windowHeight: 1000, // 窗口高度
 			initHeight: 1000, // h5初始高度
-			atUserIds: [], 
+			atUserIds: [],
 			showMinIdx: 0, // 下标小于showMinIdx的消息不显示，否则可能很卡
 			reqQueue: [], // 请求队列
 			isSending: false, // 是否正在发送请求
@@ -144,7 +146,9 @@ export default {
 			isReadOnly: false, // 编辑器是否只读
 			playingAudio: null, // 当前正在播放的录音消息
 			isInBottom: true, // 滚动条是否在底部
-			newMessageSize: 0 // 滚动条不在底部时新的消息数量
+			newMessageSize: 0, // 滚动条不在底部时新的消息数量
+			scrollTop: 0, // 用于ios h5定位滚动条
+			scrollViewHeight: 0 // 滚动条总长度
 		}
 	},
 	methods: {
@@ -574,11 +578,19 @@ export default {
 				this.newMessageSize = 0;
 			}, 100)
 		},
+		onScroll(e) {
+			// 记录当前滚动条高度
+			this.scrollViewHeight = e.detail.scrollHeight;
+		},
 		onScrollToTop() {
 			if (this.showMinIdx > 0) {
-				//  #ifndef H5
-				// 防止滚动条定格在顶部，不能一直往上滚
+				// #ifndef H5
+				// 防止滚动条定格在顶部，不能一直往上滚，app和小程序采用scroll-into-view定位
 				this.scrollToMsgIdx(this.showMinIdx);
+				// #endif
+				// #ifdef H5
+				// 防止滚动条定格在顶部，不能一直往上滚，h5采用scroll-top定位
+				this.holdingScrollBar(this.scrollViewHeight);
 				// #endif
 				// 多展示20条信息
 				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
@@ -590,6 +602,20 @@ export default {
 			// 设置底部标识
 			this.isInBottom = true;
 			this.newMessageSize = 0;
+		},
+		holdingScrollBar(scrollViewHeight) {
+			// 内容高度
+			const query = uni.createSelectorQuery().in(this);
+			setTimeout(() => {
+				query.select('.chat-wrap').boundingClientRect();
+				query.exec(data => {
+					this.scrollTop = data[0].height - scrollViewHeight;
+					if(this.scrollTop < 10){
+						// 未渲染完成，重试一次
+						this.holdingScrollBar();
+					}
+				});
+			}, 50)
 		},
 		onShowMore() {
 			if (this.chat.type == "GROUP") {
@@ -973,7 +999,7 @@ export default {
 		this.$nextTick(() => {
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.reCalChatMainHeight();
-			
+			this.scrollToBottom();
 			// #ifdef H5
 			this.initHeight = window.innerHeight;
 			// 兼容ios的h5:禁止页面滚动
