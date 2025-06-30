@@ -6,7 +6,7 @@
 				<view>消息接收中...</view>
 			</loading>
 		</view>
-		<view v-if="initializing" class="chat-loading">
+		<view v-else-if="initializing" class="chat-loading">
 			<loading :size="50" :mask="false">
 				<view>正在初始化...</view>
 			</loading>
@@ -17,7 +17,7 @@
 					placeholder="搜索"></uni-search-bar>
 			</view>
 		</view>
-		<view class="chat-tip" v-if="!loading && chatStore.chats.length == 0">
+		<view class="chat-tip" v-if="!initializing && !loading && chatStore.chats.length == 0">
 			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">

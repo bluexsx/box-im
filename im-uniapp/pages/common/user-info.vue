@@ -14,17 +14,23 @@
 					</view>
 					<view class="info-text">
 						<text class="label-text">用户名:</text>
-						<text class="content-text">	{{ userInfo.userName }}</text>
+						<text class="content-text"> {{ userInfo.userName }}</text>
 					</view>
 					<view class="info-text">
 						<view>
 							<text class="label-text">签名:</text>
-							<text class="content-text">	{{ userInfo.signature }} </text>
+							<text class="content-text"> {{ userInfo.signature }} </text>
 						</view>
 					</view>
 				</view>
 			</view>
 		</uni-card>
+		<bar-group v-if="isFriend">
+			<switch-bar title="消息免打扰" :checked="friendInfo.isDnd" @change="onDndChange"></switch-bar>
+		</bar-group>
+		<bar-group v-if="chatIdx>=0">
+			<arrow-bar title="清空聊天记录" @tap="onCleanMessage()"></arrow-bar>
+		</bar-group>
 		<bar-group>
 			<btn-bar v-show="isFriend" type="primary" title="发送消息" @tap="onSendMessage()">
 			</btn-bar>
@@ -57,6 +63,9 @@ export default {
 				showName: this.userInfo.nickName,
 				headImage: this.userInfo.headImage,
 			};
+			if (this.isFriend) {
+				chat.isDnd = this.friendInfo.isDnd;
+			}
 			this.chatStore.openChat(chat);
 			let chatIdx = this.chatStore.findChatIdx(chat);
 			uni.navigateTo({
@@ -103,6 +112,41 @@ export default {
 				}
 			})
 		},
+		onCleanMessage() {
+			uni.showModal({
+				title: '清空聊天记录',
+				content: `确认删除与'${this.userInfo.nickName}'的聊天记录吗?`,
+				confirmText: '确认',
+				success: (res) => {
+					if (res.cancel)
+						return;
+					this.chatStore.cleanMessage(this.chatIdx);
+					uni.showToast({
+						title: `您清空了'${this.userInfo.nickName}'的聊天记录`,
+						icon: 'none'
+					})
+				}
+			})
+		},
+		onDndChange(e) {
+			let isDnd = e.detail.value;
+			let friendId = this.userInfo.id;
+			let formData = {
+				friendId: friendId,
+				isDnd: isDnd
+			}
+			this.$http({
+				url: '/friend/dnd',
+				method: 'PUT',
+				data: formData
+			}).then(() => {
+				this.friendStore.setDnd(friendId, isDnd)
+				let chat = this.chatStore.findChatByFriend(friendId)
+				if (chat) {
+					this.chatStore.setDnd(chat, isDnd)
+				}
+			})
+		},
 		updateFriendInfo() {
 			if (this.isFriend) {
 				// store的数据不能直接修改，深拷贝一份store的数据
@@ -134,6 +178,13 @@ export default {
 		},
 		friendInfo() {
 			return this.friendStore.findFriend(this.userInfo.id);
+		},
+		chatIdx() {
+			let chat = this.chatStore.findChatByFriend(this.userInfo.id);
+			if (chat) {
+				return this.chatStore.findChatIdx(chat);
+			}
+			return -1;
 		}
 	},
 	onLoad(options) {

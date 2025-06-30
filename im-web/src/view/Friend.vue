@@ -44,7 +44,7 @@
 						</div>
 						<div class="btn-group">
 							<el-button v-show="isFriend" icon="el-icon-position" type="primary"
-								@click="onSendMessage(userInfo)">发消息</el-button>
+								@click="onSendMessage(activeFriend)">发消息</el-button>
 							<el-button v-show="!isFriend" icon="el-icon-plus" type="primary"
 								@click="onAddFriend(userInfo)">加为好友</el-button>
 							<el-button v-show="isFriend" icon="el-icon-delete" type="danger"
@@ -124,12 +124,13 @@ export default {
 				this.friendStore.addFriend(friend);
 			})
 		},
-		onSendMessage(user) {
+		onSendMessage(friend) {
 			let chat = {
 				type: 'PRIVATE',
-				targetId: user.id,
-				showName: user.nickName,
-				headImage: user.headImageThumb,
+				targetId: friend.id,
+				showName: friend.nickName,
+				headImage: friend.headImage,
+				isDnd: friend.isDnd
 			};
 			this.chatStore.openChat(chat);
 			this.chatStore.setActiveChat(0);

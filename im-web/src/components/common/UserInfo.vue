@@ -65,8 +65,11 @@ export default {
 				type: 'PRIVATE',
 				targetId: user.id,
 				showName: user.nickName,
-				headImage: user.headImage,
+				headImage: user.headImage
 			};
+			if (this.isFriend) {
+				chat.isDnd = this.friendInfo.isDnd;
+			}
 			this.chatStore.openChat(chat);
 			this.chatStore.setActiveChat(0);
 			if (this.$route.path != "/home/chat") {
@@ -102,6 +105,9 @@ export default {
 	computed: {
 		isFriend() {
 			return this.friendStore.isFriend(this.user.id);
+		},
+		friendInfo() {
+			return this.friendStore.findFriend(this.user.id);
 		}
 	}
 }

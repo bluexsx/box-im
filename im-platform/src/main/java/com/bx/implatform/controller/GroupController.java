@@ -1,6 +1,7 @@
 package com.bx.implatform.controller;
 
 import com.bx.implatform.annotation.RepeatSubmit;
+import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.result.Result;
@@ -98,6 +99,13 @@ public class GroupController {
     public Result kickGroup(@NotNull(message = "群聊id不能为空") @PathVariable Long groupId,
         @NotNull(message = "用户id不能为空") @RequestParam Long userId) {
         groupService.kickGroup(groupId, userId);
+        return ResultUtils.success();
+    }
+
+    @Operation(summary = "开启/关闭免打扰", description = "开启/关闭免打扰")
+    @PutMapping("/dnd")
+    public Result setGroupDnd(@Valid @RequestBody GroupDndDTO dto) {
+        groupService.setDnd(dto);
         return ResultUtils.success();
     }
 

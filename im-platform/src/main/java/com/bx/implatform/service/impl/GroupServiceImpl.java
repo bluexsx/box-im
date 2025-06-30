@@ -12,6 +12,7 @@ import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.CommaTextUtils;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
+import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.entity.*;
@@ -314,6 +315,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }).sorted((m1, m2) -> m2.getOnline().compareTo(m1.getOnline())).collect(Collectors.toList());
     }
 
+    @Override
+    public void setDnd(GroupDndDTO dto) {
+        UserSession session = SessionContext.getSession();
+        groupMemberService.setDnd(dto.getGroupId(), session.getUserId(), dto.getIsDnd());
+        // 推送同步消息
+        sendSyncDndMessage(dto.getGroupId(), dto.getIsDnd());
+    }
+
+
     private void sendTipMessage(Long groupId, List<Long> recvIds, String content, Boolean sendToAll) {
         UserSession session = SessionContext.getSession();
         // 消息入库
@@ -351,6 +361,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         vo.setShowNickName(member.getShowNickName());
         vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
         vo.setQuit(member.getQuit());
+        vo.setIsDnd(member.getIsDnd());
         return vo;
     }
 
@@ -386,4 +397,20 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         sendMessage.setSendToSelf(false);
         imClient.sendGroupMessage(sendMessage);
     }
+
+    private void sendSyncDndMessage(Long groupId, Boolean isDnd) {
+        UserSession session = SessionContext.getSession();
+        GroupMessageVO msgInfo = new GroupMessageVO();
+        msgInfo.setType(MessageType.GROUP_DND.code());
+        msgInfo.setSendTime(new Date());
+        msgInfo.setGroupId(groupId);
+        msgInfo.setSendId(session.getUserId());
+        msgInfo.setContent(isDnd.toString());
+        IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendResult(false);
+        imClient.sendGroupMessage(sendMessage);
+    }
+
 }

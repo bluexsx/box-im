@@ -1,5 +1,5 @@
 <template>
-	<view class="head-image" @click="showUserInfo($event)" :title="name">
+	<view class="head-image  none-pointer-events" @click="showUserInfo($event)" :title="name">
 		<image class="avatar-image" v-if="url" :src="url" :style="avatarImageStyle" lazy-load="true"
 			mode="aspectFill" />
 		<view class="avatar-text" v-if="!url" :style="avatarTextStyle">

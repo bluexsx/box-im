@@ -15,8 +15,10 @@
 			<view class="chat-content">
 				<view class="chat-at-text">{{ atText }}</view>
 				<view class="chat-send-name" v-if="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</view>
-				<rich-text class="chat-content-text" :nodes="$emo.transform(chat.lastContent,'emoji-small')"></rich-text>
+				<rich-text class="chat-content-text"
+					:nodes="$emo.transform(chat.lastContent,'emoji-small')"></rich-text>
 				<uni-badge v-if="chat.unreadCount > 0" :max-num="99" :text="chat.unreadCount" />
+				<view v-if="chat.isDnd" class="icon iconfont icon-dnd"></view>
 			</view>
 		</view>
 	</view>
@@ -43,7 +45,7 @@ export default {
 	methods: {
 		showChatBox() {
 			// 初始化期间进入会话会导致消息不刷新
-			if(!getApp().$vm.isInit || this.chatStore.isLoading()){
+			if (!getApp().$vm.isInit || this.chatStore.isLoading()) {
 				uni.showToast({
 					title: "正在初始化页面,请稍后...",
 					icon: 'none'
@@ -153,8 +155,8 @@ export default {
 			font-size: $im-font-size-smaller;
 			color: $im-text-color-lighter;
 			padding-top: 8rpx;
-			align-items: center;  
-			
+			align-items: center;
+
 			.chat-at-text {
 				color: $im-color-danger;
 			}

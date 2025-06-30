@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { MESSAGE_TYPE, MESSAGE_STATUS } from '@/common/enums.js';
+import useFriendStore from './friendStore.js';
+import useGroupStore from './groupStore.js';
 import useUserStore from './userStore';
 
 let cacheChats = [];
@@ -56,6 +58,7 @@ export default defineStore('chatStore', {
 					type: chatInfo.type,
 					showName: chatInfo.showName,
 					headImage: chatInfo.headImage,
+					isDnd: chatInfo.isDnd,
 					lastContent: "",
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
@@ -104,6 +107,17 @@ export default defineStore('chatStore', {
 			if (!chat.stored) {
 				this.saveToStorage();
 			}
+		},
+		cleanMessage(idx) {
+			let chat = this.curChats[idx];
+			chat.lastContent = '';
+			chat.hotMinIdx = 0;
+			chat.unreadCount = 0;
+			chat.atMe = false;
+			chat.atAll = false;
+			chat.stored = false
+			chat.messages = [];
+			this.saveToStorage(true);
 		},
 		removeChat(idx) {
 			let chats = this.curChats;
@@ -181,7 +195,7 @@ export default defineStore('chatStore', {
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
-			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
+			if (!chat.isDnd && !msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
 				msgInfo.status != MESSAGE_STATUS.RECALL && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
@@ -336,8 +350,34 @@ export default defineStore('chatStore', {
 				this.refreshChats()
 			}
 		},
+		setDnd(chatInfo, isDnd) {
+			let chat = this.findChat(chatInfo);
+			if (chat) {
+				chat.isDnd = isDnd;
+				chat.unreadCount = 0;
+			}
+		},
 		refreshChats() {
 			if (!cacheChats) return;
+			// 更新会话免打扰状态
+			const friendStore = useFriendStore();
+			const groupStore = useGroupStore();
+			cacheChats.forEach(chat => {
+				if (chat.type == 'PRIVATE') {
+					let friend = friendStore.findFriend(chat.targetId);
+					if (friend) {
+						chat.isDnd = friend.isDnd
+					}
+				} else if (chat.type == 'GROUP') {
+					let group = groupStore.findGroup(chat.targetId);
+					if (group) {
+						chat.isDnd = group.isDnd
+					}
+				}
+				if (chat.isDnd) {
+					chat.unreadCount = 0;
+				}
+			})
 			// 排序
 			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
 			// #ifndef APP-PLUS
@@ -345,8 +385,8 @@ export default defineStore('chatStore', {
 			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，
 			 * 所以这里每个会话只保留1000条消息，防止溢出
 			 */
-			cacheChats.forEach(chat =>{
-				if(chat.messages.length > 1000){
+			cacheChats.forEach(chat => {
+				if (chat.messages.length > 1000) {
 					let idx = chat.messages.length - 1000;
 					chat.messages = chat.messages.slice(idx);
 				}

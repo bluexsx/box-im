@@ -1,6 +1,7 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bx.implatform.dto.FriendDndDTO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.vo.FriendVO;
 
@@ -69,5 +70,11 @@ public interface FriendService extends IService<Friend> {
      * @return 好友信息
      */
     void bindFriend(Long userId, Long friendId);
+
+    /**
+     * 设置好友免打扰状态
+     * @param dto
+     */
+    void setDnd(FriendDndDTO dto);
 
 }

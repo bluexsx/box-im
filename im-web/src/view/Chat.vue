@@ -13,7 +13,7 @@
         <div v-for="(chat, index) in chatStore.chats" :key="index">
           <chat-item v-show="!chat.delete && chat.showName && chat.showName.includes(searchText)" :chat="chat"
             :index="index" @click.native="onActiveItem(index)" @delete="onDelItem(index)" @top="onTop(index)"
-            :active="chat === chatStore.activeChat"></chat-item>
+            @dnd="onDnd(chat)" :active="chat === chatStore.activeChat"></chat-item>
         </div>
       </el-scrollbar>
     </el-aside>
@@ -51,6 +51,41 @@ export default {
     onTop(chatIdx) {
       this.chatStore.moveTop(chatIdx);
     },
+    onDnd(chat) {
+      if (chat.type == 'PRIVATE') {
+        this.setFriendDnd(chat, chat.targetId, !chat.isDnd)
+      } else {
+        this.setGroupDnd(chat, chat.targetId, !chat.isDnd)
+      }
+    },
+    setFriendDnd(chat, friendId, isDnd) {
+      let formData = {
+        friendId: friendId,
+        isDnd: isDnd
+      }
+      this.$http({
+        url: '/friend/dnd',
+        method: 'put',
+        data: formData
+      }).then(() => {
+        this.friendStore.setDnd(friendId, isDnd)
+        this.chatStore.setDnd(chat, isDnd)
+      })
+    },
+    setGroupDnd(chat, groupId, isDnd) {
+      let formData = {
+        groupId: groupId,
+        isDnd: isDnd
+      }
+      this.$http({
+        url: '/group/dnd',
+        method: 'put',
+        data: formData
+      }).then(() => {
+        this.groupStore.setDnd(groupId, isDnd)
+        this.chatStore.setDnd(chat, isDnd)
+      })
+    }
   },
   computed: {
     loading() {

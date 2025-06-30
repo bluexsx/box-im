@@ -35,6 +35,10 @@ export default defineStore('groupStore', {
 				group.topMessage = topMessage;
 			}
 		},
+		setDnd(id, isDnd) {
+			let group = this.findGroup(id);
+			group.isDnd = isDnd;
+		},		
 		clear() {
 			this.groups = [];
 		},

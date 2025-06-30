@@ -11,6 +11,7 @@ import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.contant.RedisKey;
+import com.bx.implatform.dto.FriendDndDTO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.entity.User;
@@ -138,6 +139,18 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         sendAddFriendMessage(userId, friendId, friend);
     }
 
+    @Override
+    public void setDnd(FriendDndDTO dto) {
+        UserSession session = SessionContext.getSession();
+        LambdaUpdateWrapper<Friend> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(Friend::getUserId, session.getUserId());
+        wrapper.eq(Friend::getFriendId, dto.getFriendId());
+        wrapper.set(Friend::getIsDnd, dto.getIsDnd());
+        this.update(wrapper);
+        // 推送同步消息
+        sendSyncDndMessage(dto.getFriendId(), dto.getIsDnd());
+    }
+
     /**
      * 单向解除好友关系
      *
@@ -175,6 +188,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         vo.setHeadImage(f.getFriendHeadImage());
         vo.setNickName(f.getFriendNickName());
         vo.setDeleted(f.getDeleted());
+        vo.setIsDnd(f.getIsDnd());
         return vo;
     }
 
@@ -254,4 +268,21 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         sendMessage.setData(messageInfo);
         imClient.sendPrivateMessage(sendMessage);
     }
+
+    void sendSyncDndMessage(Long friendId, Boolean isDnd) {
+        // 同步免打扰状态到其他终端
+        UserSession session = SessionContext.getSession();
+        PrivateMessageVO msgInfo = new PrivateMessageVO();
+        msgInfo.setSendId(session.getUserId());
+        msgInfo.setRecvId(friendId);
+        msgInfo.setSendTime(new Date());
+        msgInfo.setType(MessageType.FRIEND_DND.code());
+        msgInfo.setContent(isDnd.toString());
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendToSelf(true);
+        imClient.sendPrivateMessage(sendMessage);
+    }
+
 }

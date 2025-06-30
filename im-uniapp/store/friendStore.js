@@ -67,6 +67,10 @@ export default defineStore('friendStore', {
 				this.refreshOnlineStatus();
 			}, 30000)
 		},
+		setDnd(id, isDnd) {
+			let friend = this.findFriend(id);
+			friend.isDnd = isDnd;
+		},
 		clear() {
 			clearTimeout(this.timer);
 			this.friends = [];

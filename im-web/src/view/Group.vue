@@ -241,6 +241,7 @@ export default {
 				targetId: this.activeGroup.id,
 				showName: this.activeGroup.showGroupName,
 				headImage: this.activeGroup.headImage,
+				isDnd: this.activeGroup.isDnd
 			};
 			this.chatStore.openChat(chat);
 			this.chatStore.setActiveChat(0);
