@@ -309,9 +309,11 @@ export default {
 					this.isReceipt = false;
 					// 填充对方id
 					this.fillTargetId(msgInfo, this.chat.targetId);
+					// 防止发送期间用户切换会话导致串扰
+					const chat = this.chat;
 					this.sendMessageRequest(msgInfo).then((m) => {
 						m.selfSend = true;
-						this.chatStore.insertMessage(m, this.chat);
+						this.chatStore.insertMessage(m, chat);
 						// 会话置顶
 						this.moveChatToTop();
 					}).finally(() => {

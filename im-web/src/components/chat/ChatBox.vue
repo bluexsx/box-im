@@ -456,13 +456,12 @@ export default {
 					msgInfo.receipt = this.isReceipt;
 				}
 				this.lockMessage = true;
+				const chat = this.chat;
 				this.sendMessageRequest(msgInfo).then((m) => {
 					m.selfSend = true;
-					this.chatStore.insertMessage(m, this.chat);
-					// 会话置顶
+					this.chatStore.insertMessage(m, chat);
 					this.moveChatToTop();
 				}).finally(() => {
-					// 解除锁定
 					this.scrollToBottom();
 					this.isReceipt = false;
 					resolve();
