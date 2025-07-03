@@ -288,7 +288,9 @@ export default {
 							sendText += op.insert
 						)
 					})
-					if (!sendText.trim() && this.atUserIds.length == 0) {
+					// 去除最后的换行符
+					sendText = sendText.trim();
+					if (!sendText && this.atUserIds.length == 0) {
 						return uni.showToast({
 							title: "不能发送空白信息",
 							icon: "none"
@@ -610,7 +612,7 @@ export default {
 				query.select('.chat-wrap').boundingClientRect();
 				query.exec(data => {
 					this.scrollTop = data[0].height - scrollViewHeight;
-					if(this.scrollTop < 10){
+					if (this.scrollTop < 10) {
 						// 未渲染完成，重试一次
 						this.holdingScrollBar();
 					}

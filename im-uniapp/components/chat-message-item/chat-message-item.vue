@@ -16,11 +16,11 @@
 				<view class="bottom">
 					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<!-- rich-text支持显示表情，但是不支持点击a标签 -->
-							<rich-text v-if="$emo.containEmoji(msgInfo.content)" class="message-text"
-								:nodes="nodesText"></rich-text>
-							<!-- up-parse支持点击a标签,但安卓打包后表情无法显示,原因未知 -->
-							<up-parse v-else class="message-text" :showImgMenu="false" :content="nodesText"></up-parse>
+							<!-- up-parse支持点击a标签,但是不支持显示emo表情，也不支持换行 -->
+							<up-parse v-if="$url.containUrl(msgInfo.content)&&!$emo.containEmoji(msgInfo.content)"
+								class="message-text" :showImgMenu="false" :content="nodesText"></up-parse>
+							<!-- rich-text支持显示emo表情以及消息换行，但是不支持点击a标签 -->
+							<rich-text v-else class="message-text" :nodes="nodesText"></rich-text>
 						</long-press-menu>
 					</view>
 					<view class="message-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
@@ -39,8 +39,8 @@
 						<long-press-menu :items="menuItems" @select="onSelectMenu">
 							<view class="file-box">
 								<view class="file-info">
-									<uni-link class="file-name" :text="data.name" showUnderLine="true"
-										color="#007BFF" :href="data.url"></uni-link>
+									<uni-link class="file-name" :text="data.name" showUnderLine="true" color="#007BFF"
+										:href="data.url"></uni-link>
 									<view class="file-size">{{ fileSize }}</view>
 								</view>
 								<view class="file-icon iconfont icon-file"></view>
