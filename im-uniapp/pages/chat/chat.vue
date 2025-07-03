@@ -104,7 +104,7 @@ export default {
 		unreadCount() {
 			let count = 0;
 			this.chatStore.chats.forEach(chat => {
-				if (!chat.delete) {
+				if (!chat.isDnd && !chat.delete) {
 					count += chat.unreadCount;
 				}
 			})

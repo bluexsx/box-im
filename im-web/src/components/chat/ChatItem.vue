@@ -3,7 +3,7 @@
 		<div class="chat-left">
 			<head-image :url="chat.headImage" :name="chat.showName" :size="42"
 				:id="chat.type == 'PRIVATE' ? chat.targetId : 0" :isShowUserInfo="false"></head-image>
-			<div v-show="chat.unreadCount > 0" class="unread-text">{{ chat.unreadCount }}</div>
+			<div v-show="!chat.isDnd && chat.unreadCount > 0" class="unread-text">{{ chat.unreadCount }}</div>
 		</div>
 		<div class="chat-right">
 			<div class="chat-name">

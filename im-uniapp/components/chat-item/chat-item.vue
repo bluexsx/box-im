@@ -17,8 +17,8 @@
 				<view class="chat-send-name" v-if="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</view>
 				<rich-text class="chat-content-text"
 					:nodes="$emo.transform(chat.lastContent,'emoji-small')"></rich-text>
-				<uni-badge v-if="chat.unreadCount > 0" :max-num="99" :text="chat.unreadCount" />
 				<view v-if="chat.isDnd" class="icon iconfont icon-dnd"></view>
+				<uni-badge v-else-if="chat.unreadCount > 0" :max-num="99" :text="chat.unreadCount" />
 			</view>
 		</view>
 	</view>
@@ -170,9 +170,11 @@ export default {
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
-
 			}
-
+			
+			.icon {
+				font-size: $im-font-size;
+			}
 		}
 	}
 }
