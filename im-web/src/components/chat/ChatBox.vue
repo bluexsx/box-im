@@ -11,10 +11,9 @@
 						<el-main class="im-chat-main" id="chatScrollBox" @scroll="onScroll">
 							<div class="im-chat-box">
 								<div v-for="(msgInfo, idx) in showMessages" :key="showMinIdx + idx">
-									<chat-message-item @call="onCall(msgInfo.type)"
-										:mine="msgInfo.sendId == mine.id" :headImage="headImage(msgInfo)"
-										:showName="showName(msgInfo)" :msgInfo="msgInfo" :groupMembers="groupMembers"
-										@delete="deleteMessage" @recall="recallMessage">
+									<chat-message-item @call="onCall(msgInfo.type)" :mine="msgInfo.sendId == mine.id"
+										:headImage="headImage(msgInfo)" :showName="showName(msgInfo)" :msgInfo="msgInfo"
+										:groupMembers="groupMembers" @delete="deleteMessage" @recall="recallMessage">
 									</chat-message-item>
 								</div>
 							</div>
@@ -505,19 +504,18 @@ export default {
 			});
 		},
 		readedMessage() {
-			if (this.chat.unreadCount == 0) {
-				return;
+			if (this.chat.unreadCount > 0) {
+				if (this.isGroup) {
+					var url = `/message/group/readed?groupId=${this.chat.targetId}`
+				} else {
+					url = `/message/private/readed?friendId=${this.chat.targetId}`
+				}
+				this.$http({
+					url: url,
+					method: 'put'
+				}).then(() => { })
+				this.chatStore.resetUnreadCount(this.chat)
 			}
-			this.chatStore.resetUnreadCount(this.chat)
-			if (this.chat.type == "GROUP") {
-				var url = `/message/group/readed?groupId=${this.chat.targetId}`
-			} else {
-				url = `/message/private/readed?friendId=${this.chat.targetId}`
-			}
-			this.$http({
-				url: url,
-				method: 'put'
-			}).then(() => { })
 		},
 		loadReaded(fId) {
 			this.$http({
@@ -682,7 +680,6 @@ export default {
 			return this.chat.unreadCount;
 		},
 		showMessages() {
-			console.log("this.chat.messages.slice(this.showMinIdx):",this.chat.messages.slice(this.showMinIdx))
 			return this.chat.messages.slice(this.showMinIdx)
 		},
 		messageSize() {

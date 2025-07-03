@@ -392,10 +392,6 @@ export default {
 			location.href = "/";
 		},
 		playAudioTip() {
-			// 离线消息不播放铃声
-			if (this.chatStore.isLoading()) {
-				return;
-			}
 			// 防止过于密集播放
 			if (new Date().getTime() - this.lastPlayAudioTime > 1000) {
 				this.lastPlayAudioTime = new Date().getTime();
@@ -439,8 +435,8 @@ export default {
 		unreadCount() {
 			let unreadCount = 0;
 			let chats = this.chatStore.chats;
-			chats.forEach((chat) => {
-				if (!chat.delete) {
+			chats.forEach(chat => {
+				if (!chat.delete && !chat.isDnd) {
 					unreadCount += chat.unreadCount
 				}
 			});

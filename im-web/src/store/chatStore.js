@@ -196,7 +196,7 @@ export default defineStore('chatStore', {
 			chat.lastSendTime = msgInfo.sendTime;
 			chat.sendNickName = msgInfo.sendNickName;
 			// 未读加1
-			if (!chat.isDnd && !msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
+			if (!msgInfo.selfSend && msgInfo.status != MESSAGE_STATUS.READED &&
 				msgInfo.status != MESSAGE_STATUS.RECALL && msgInfo.type != MESSAGE_TYPE.TIP_TEXT) {
 				chat.unreadCount++;
 			}
@@ -350,7 +350,6 @@ export default defineStore('chatStore', {
 			let chat = this.findChat(chatInfo);
 			if (chat) {
 				chat.isDnd = isDnd;
-				chat.unreadCount = 0;
 			}
 		},
 		refreshChats() {
@@ -369,9 +368,6 @@ export default defineStore('chatStore', {
 					if (group) {
 						chat.isDnd = group.isDnd
 					}
-				}
-				if (chat.isDnd) {
-					chat.unreadCount = 0;
 				}
 			})
 			// 排序

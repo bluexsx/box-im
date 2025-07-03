@@ -669,21 +669,19 @@ export default {
 			});
 		},
 		readedMessage() {
-			if (this.unreadCount == 0) {
-				return;
+			if (this.unreadCount > 0) {
+				let url = ""
+				if (this.chat.type == "GROUP") {
+					url = `/message/group/readed?groupId=${this.chat.targetId}`
+				} else {
+					url = `/message/private/readed?friendId=${this.chat.targetId}`
+				}
+				this.$http({
+					url: url,
+					method: 'PUT'
+				}).then(() => {})
 			}
-			let url = ""
-			if (this.chat.type == "GROUP") {
-				url = `/message/group/readed?groupId=${this.chat.targetId}`
-			} else {
-				url = `/message/private/readed?friendId=${this.chat.targetId}`
-			}
-			this.$http({
-				url: url,
-				method: 'PUT'
-			}).then(() => {
-				this.chatStore.resetUnreadCount(this.chat)
-			})
+			this.chatStore.resetUnreadCount(this.chat)
 		},
 		loadGroup(groupId) {
 			this.$http({
