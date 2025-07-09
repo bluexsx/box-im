@@ -154,6 +154,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             // 开启加载中标志
             this.sendLoadingMessage(true, session);
             for (PrivateMessage m : messages) {
+                // 推送过程如果用户下线了，则不再推送
+                if (!imClient.isOnline(session.getUserId(), IMTerminalType.fromCode(session.getTerminal()))) {
+                    log.info("用户已下线，停止推送离线私聊消息,用户id:{}", session.getUserId());
+                    return;
+                }
                 PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
                 IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
                 sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));

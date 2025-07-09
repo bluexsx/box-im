@@ -158,13 +158,13 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             this.sendLoadingMessage(false, session);
             return;
         }
-
-        // 只能拉取最近3个月的,移动端只拉最近一个月
-        int months = session.getTerminal().equals(IMTerminalType.APP.code()) ? 1 : 3;
-        Date minDate = DateUtils.addMonths(new Date(), -months);
+        // 只拉最近一个月
+        Date minDate = DateUtils.addMonths(new Date(), -1);
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-        wrapper.gt(GroupMessage::getId, minId).gt(GroupMessage::getSendTime, minDate)
-            .in(GroupMessage::getGroupId, groupIds).orderByAsc(GroupMessage::getId);
+        wrapper.gt(GroupMessage::getId, minId);
+        wrapper.gt(GroupMessage::getSendTime, minDate);
+        wrapper.in(GroupMessage::getGroupId, groupIds);
+        wrapper.orderByAsc(GroupMessage::getId);
         List<GroupMessage> messages = this.list(wrapper);
         // 通过群聊对消息进行分组
         Map<Long, List<GroupMessage>> messageGroupMap =
@@ -173,9 +173,11 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         List<GroupMember> quitMembers = groupMemberService.findQuitInMonth(session.getUserId());
         for (GroupMember quitMember : quitMembers) {
             wrapper = Wrappers.lambdaQuery();
-            wrapper.gt(GroupMessage::getId, minId).between(GroupMessage::getSendTime, minDate, quitMember.getQuitTime())
-                .eq(GroupMessage::getGroupId, quitMember.getGroupId())
-                .ne(GroupMessage::getStatus, MessageStatus.RECALL.code()).orderByAsc(GroupMessage::getId);
+            wrapper.gt(GroupMessage::getId, minId);
+            wrapper.between(GroupMessage::getSendTime, minDate, quitMember.getQuitTime());
+            wrapper.eq(GroupMessage::getGroupId, quitMember.getGroupId());
+            wrapper.ne(GroupMessage::getStatus, MessageStatus.RECALL.code());
+            wrapper.orderByAsc(GroupMessage::getId);
             List<GroupMessage> groupMessages = this.list(wrapper);
             messageGroupMap.put(quitMember.getGroupId(), groupMessages);
             groupMemberMap.put(quitMember.getGroupId(), quitMember);
@@ -186,10 +188,10 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
             // 推送消息
             AtomicInteger sendCount = new AtomicInteger();
             messageGroupMap.forEach((groupId, groupMessages) -> {
-                // 第一次拉取时,一个群最多推送1w条消息，防止前端接收能力溢出导致卡顿
+                // 第一次拉取时,一个群最多推送3000条消息，防止前端接收能力溢出导致卡顿
                 List<GroupMessage> sendMessages = groupMessages;
-                if (minId <= 0 && groupMessages.size() > 10000) {
-                    sendMessages = groupMessages.subList(groupMessages.size() - 10000, groupMessages.size());
+                if (minId <= 0 && groupMessages.size() > 3000) {
+                    sendMessages = groupMessages.subList(groupMessages.size() - 3000, groupMessages.size());
                 }
                 // 填充消息状态
                 String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
@@ -197,6 +199,11 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 long readedMaxId = Objects.isNull(o) ? -1 : Long.parseLong(o.toString());
                 Map<Object, Object> maxIdMap = null;
                 for (GroupMessage m : sendMessages) {
+                    // 推送过程如果用户下线了，则不再推送
+                    if (!imClient.isOnline(session.getUserId(), IMTerminalType.fromCode(session.getTerminal()))) {
+                        log.info("用户已下线，停止推送离线群聊消息,用户id:{}", session.getUserId());
+                        return;
+                    }
                     // 排除加群之前的消息
                     GroupMember member = groupMemberMap.get(m.getGroupId());
                     if (DateUtil.compare(member.getCreatedTime(), m.getSendTime()) > 0) {
