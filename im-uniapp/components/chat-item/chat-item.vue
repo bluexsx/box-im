@@ -16,8 +16,7 @@
 				<view class="chat-at-text">{{ atText }}</view>
 				<view class="chat-send-name" v-if="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</view>
 				<view v-if="!isTextMessage" class="chat-content-text">{{chat.lastContent}}</view>
-				<rich-text v-else class="chat-content-text"
-					:nodes="$emo.transform(chat.lastContent,'emoji-small')"></rich-text>
+				<rich-text v-else class="chat-content-text" :nodes="nodesText"></rich-text>
 				<view v-if="chat.isDnd" class="icon iconfont icon-dnd"></view>
 				<uni-badge v-else-if="chat.unreadCount > 0" :max-num="99" :text="chat.unreadCount" />
 			</view>
@@ -84,6 +83,10 @@ export default {
 			let messageType = this.chat.messages[idx].type;
 			return messageType == this.$enums.MESSAGE_TYPE.TEXT;
 		},
+		nodesText() {
+			let text = this.$str.html2Escape(this.chat.lastContent);
+			return this.$emo.transform(text, 'emoji-small')
+		}
 	}
 }
 </script>

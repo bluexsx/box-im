@@ -236,7 +236,8 @@ export default {
 		},
 		nodesText() {
 			let color = this.msgInfo.selfSend ? 'white' : '';
-			let text = this.$url.replaceURLWithHTMLLinks(this.msgInfo.content, color)
+			let text = this.$str.html2Escape(this.msgInfo.content)
+			text = this.$url.replaceURLWithHTMLLinks(text, color)
 			return this.$emo.transform(text, 'emoji-normal')
 		}
 	}

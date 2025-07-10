@@ -299,7 +299,7 @@ export default {
 					let receiptText = this.isReceipt ? "【回执消息】" : "";
 					let atText = this.createAtText();
 					let msgInfo = {
-						content: receiptText + this.html2Escape(sendText) + atText,
+						content: receiptText + sendText + atText,
 						atUserIds: this.atUserIds,
 						receipt: this.isReceipt,
 						type: 0
@@ -734,16 +734,6 @@ export default {
 			let info = uni.getSystemInfoSync()
 			let px = info.windowWidth * rpx / 750;
 			return Math.floor(rpx);
-		},
-		html2Escape(strHtml) {
-			return strHtml.replace(/[<>&"]/g, function(c) {
-				return {
-					'<': '&lt;',
-					'>': '&gt;',
-					'&': '&amp;',
-					'"': '&quot;'
-				} [c];
-			});
 		},
 		sendMessageRequest(msgInfo) {
 			return new Promise((resolve, reject) => {
