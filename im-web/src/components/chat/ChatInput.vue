@@ -367,16 +367,6 @@ export default {
 			// 记录光标所在位置
 			this.updateRange();
 		},
-		html2Escape(strHtml) {
-			return strHtml.replace(/[<>&"]/g, function(c) {
-				return {
-					'<': '&lt;',
-					'>': '&gt;',
-					'&': '&amp;',
-					'"': '&quot;'
-				} [c];
-			});
-		},
 		submit() {
 			let nodes = this.$refs.content.childNodes;
 			let fullList = [];
@@ -389,7 +379,7 @@ export default {
 						continue;
 					}
 					if (node.nodeType === 3) {
-						tempText += this.html2Escape(node.textContent);
+						tempText += node.textContent;
 						continue;
 					}
 					let nodeName = node.nodeName.toLowerCase();

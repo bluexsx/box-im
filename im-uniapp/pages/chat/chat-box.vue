@@ -288,7 +288,9 @@ export default {
 							sendText += op.insert
 						)
 					})
-					if (!sendText.trim() && this.atUserIds.length == 0) {
+					// 去除最后的换行符
+					sendText = sendText.trim();
+					if (!sendText && this.atUserIds.length == 0) {
 						return uni.showToast({
 							title: "不能发送空白信息",
 							icon: "none"
@@ -297,7 +299,7 @@ export default {
 					let receiptText = this.isReceipt ? "【回执消息】" : "";
 					let atText = this.createAtText();
 					let msgInfo = {
-						content: receiptText + this.html2Escape(sendText) + atText,
+						content: receiptText + sendText + atText,
 						atUserIds: this.atUserIds,
 						receipt: this.isReceipt,
 						type: 0
@@ -307,9 +309,11 @@ export default {
 					this.isReceipt = false;
 					// 填充对方id
 					this.fillTargetId(msgInfo, this.chat.targetId);
+					// 防止发送期间用户切换会话导致串扰
+					const chat = this.chat;
 					this.sendMessageRequest(msgInfo).then((m) => {
 						m.selfSend = true;
-						this.chatStore.insertMessage(m, this.chat);
+						this.chatStore.insertMessage(m, chat);
 						// 会话置顶
 						this.moveChatToTop();
 					}).finally(() => {
@@ -610,7 +614,7 @@ export default {
 				query.select('.chat-wrap').boundingClientRect();
 				query.exec(data => {
 					this.scrollTop = data[0].height - scrollViewHeight;
-					if(this.scrollTop < 10){
+					if (this.scrollTop < 10) {
 						// 未渲染完成，重试一次
 						this.holdingScrollBar();
 					}
@@ -730,16 +734,6 @@ export default {
 			let info = uni.getSystemInfoSync()
 			let px = info.windowWidth * rpx / 750;
 			return Math.floor(rpx);
-		},
-		html2Escape(strHtml) {
-			return strHtml.replace(/[<>&"]/g, function(c) {
-				return {
-					'<': '&lt;',
-					'>': '&gt;',
-					'&': '&amp;',
-					'"': '&quot;'
-				} [c];
-			});
 		},
 		sendMessageRequest(msgInfo) {
 			return new Promise((resolve, reject) => {

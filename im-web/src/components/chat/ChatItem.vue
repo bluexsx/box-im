@@ -16,7 +16,7 @@
 			<div class="chat-content">
 				<div class="chat-at-text">{{ atText }}</div>
 				<div class="chat-send-name" v-show="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</div>
-				<div class="chat-content-text" v-html="$emo.transform(chat.lastContent, 'emoji-small')"></div>
+				<div class="chat-content-text" v-html="$emo.transform($str.html2Escape(chat.lastContent), 'emoji-small')"></div>
 				<div class="icon iconfont icon-dnd" v-if="chat.isDnd"></div>
 			</div>
 		</div>

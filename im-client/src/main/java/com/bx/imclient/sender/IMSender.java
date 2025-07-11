@@ -246,6 +246,11 @@ public class IMSender {
         return onlineMap;
     }
 
+    public Boolean isOnline(Long userId, IMTerminalType terminal) {
+        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.code().toString());
+        return redisMQTemplate.hasKey(key);
+    }
+
     public Boolean isOnline(Long userId) {
         String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), "*");
         return !Objects.requireNonNull(redisMQTemplate.keys(key)).isEmpty();
