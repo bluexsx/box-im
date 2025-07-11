@@ -296,7 +296,7 @@ export default {
 					font-size: $im-font-size;
 					text-align: left;
 					display: block;
-					word-break: break-all;
+					word-break: break-word;
 					white-space: pre-line;
 
 					&:after {

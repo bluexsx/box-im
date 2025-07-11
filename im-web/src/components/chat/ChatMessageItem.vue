@@ -263,7 +263,7 @@ export default {
 					font-size: var(--im-font-size);
 					text-align: left;
 					white-space: pre-wrap;
-					word-break: break-all;
+					word-break: break-word;
 
 					&:after {
 						content: "";
