@@ -14,6 +14,9 @@ public class GroupMessageVO {
     @Schema(description = "消息id")
     private Long id;
 
+    @Schema(description = "临时id")
+    private String tmpId;
+
     @Schema(description = "群聊id")
     private Long groupId;
 

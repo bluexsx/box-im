@@ -58,7 +58,7 @@
 							</view>
 						</long-press-menu>
 						<view v-if="sending&&isTextMessage" class="sending">
-							<loading size="40" icon-color="#656adf" :mask="false"></loading>
+							<loading :size="40" icon-color="#656adf" :mask="false"></loading>
 						</view>
 						<view v-else-if="sendFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></view>

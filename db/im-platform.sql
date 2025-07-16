@@ -31,6 +31,7 @@ create table `im_friend`(
 
 create table `im_private_message`(
     `id` bigint not null auto_increment primary key comment 'id',
+		`tmp_id` varchar(32)  comment '临时id,由前端生成',
     `send_id` bigint not null  comment '发送用户id',
     `recv_id` bigint not null  comment '接收用户id',
     `content` text   comment '发送内容',
@@ -44,6 +45,7 @@ create table `im_private_message`(
 
 create table `im_group`(
     `id` bigint not null auto_increment primary key comment 'id',
+		`tmp_id` varchar(32)  comment '临时id,由前端生成',
     `name` varchar(255) not null comment '群名字',
     `owner_id` bigint not null  comment '群主id',
     `head_image` varchar(255) default '' comment '群头像',
@@ -106,5 +108,5 @@ CREATE TABLE `im_file_info` (
   `upload_time` datetime DEFAULT CURRENT_TIMESTAMP comment '上传时间',
   `is_permanent` tinyint DEFAULT 0 comment '是否永久文件',
   `md5` VARCHAR(64) NOT NULL comment '文件md5',
-  UNIQUE KEY `idx_md5` (md5)
+   KEY `idx_md5` (md5)
 ) ENGINE = InnoDB CHARSET = utf8mb4 comment '文件';

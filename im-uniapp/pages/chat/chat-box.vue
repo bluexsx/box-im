@@ -167,6 +167,7 @@ export default {
 				return;
 			}
 			let msgInfo = {
+				tmpId: this.generateId(),
 				content: JSON.stringify(data),
 				type: this.$enums.MESSAGE_TYPE.AUDIO,
 				receipt: this.isReceipt
@@ -307,6 +308,7 @@ export default {
 					let receiptText = this.isReceipt ? "【回执消息】" : "";
 					let atText = this.createAtText();
 					let msgInfo = {
+						tmpId: this.generateId(),
 						content: receiptText + sendText + atText,
 						atUserIds: this.atUserIds,
 						receipt: this.isReceipt,
@@ -893,7 +895,6 @@ export default {
 		},
 		buildTmpMessage(msgInfo) {
 			let message = JSON.parse(JSON.stringify(msgInfo));
-			message.tmpId = this.generateId();
 			message.sendId = this.mine.id;
 			message.sendTime = new Date().getTime();
 			message.status = this.$enums.MESSAGE_STATUS.SENDING;
@@ -902,7 +903,7 @@ export default {
 				message.readedCount = 0;
 			}
 			return message;
-		},		
+		},
 		generateId() {
 			// 生成临时id 
 			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));

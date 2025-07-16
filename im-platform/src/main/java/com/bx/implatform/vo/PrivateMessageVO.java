@@ -14,6 +14,9 @@ public class PrivateMessageVO {
     @Schema(description = " 消息id")
     private Long id;
 
+    @Schema(description = "临时id")
+    private String tmpId;
+
     @Schema(description = " 发送者id")
     private Long sendId;
 

@@ -40,14 +40,6 @@ export default defineStore('chatStore', {
 			this.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			this.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
 			cacheChats = chatsData.chats || [];
-			// 防止消息一直处在发送中状态
-			cacheChats.forEach(chat => {
-				chat.messages.forEach(msg => {
-					if (msg.status == MESSAGE_STATUS.SENDING) {
-						msg.status = MESSAGE_STATUS.FAILED
-					}
-				})
-			})
 		},
 		openChat(chatInfo) {
 			let chats = this.findChats()
@@ -73,6 +65,7 @@ export default defineStore('chatStore', {
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
 					hotMinIdx: 0,
+					readedMessageIdx: 0,
 					messages: [],
 					atMe: false,
 					atAll: false,
@@ -103,15 +96,17 @@ export default defineStore('chatStore', {
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
 			if (!chat) return;
-			chat.messages.forEach((m) => {
+			for (let idx = chat.readedMessageIdx; idx < chat.messages.length; idx++) {
+				let m = chat.messages[idx];
 				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读
 					if (!pos.maxId || m.id <= pos.maxId) {
 						m.status = MESSAGE_STATUS.READED
+						chat.readedMessageIdx = idx;
 						chat.stored = false;
 					}
 				}
-			})
+			}
 			this.saveToStorage();
 		},
 		removeChat(idx) {
@@ -474,11 +469,19 @@ export default defineStore('chatStore', {
 								}
 								let coldChat = chats[i];
 								let hotChat = chats[i + 1];
+								// 防止消息一直处在发送中状态
+								hotChat && hotChat.messages.forEach(msg => {
+									if (msg.status == MESSAGE_STATUS.SENDING) {
+										msg.status = MESSAGE_STATUS.FAILED
+									}
+								})
 								// 冷热消息合并
 								let chat = Object.assign({}, coldChat, hotChat);
 								if (hotChat && coldChat) {
 									chat.messages = coldChat.messages.concat(hotChat.messages)
 								}
+								// 历史版本没有readedMessageIdx字段，做兼容一下
+								chat.readedMessageIdx = chat.readedMessageIdx || 0;
 								chatsData.chats.push(chat);
 							}
 							this.initChats(chatsData);

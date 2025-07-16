@@ -92,7 +92,6 @@ let heartCheck = {
 			websock.send(JSON.stringify(heartBeat))
 		}
 	},
-
 	reset: function () {
 		clearTimeout(this.timeoutObj);
 		this.timeoutObj = setTimeout(function () {

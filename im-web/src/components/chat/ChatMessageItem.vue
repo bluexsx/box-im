@@ -254,7 +254,7 @@ export default {
 				.message-content-wrapper {
 					position: relative;
 					display: flex;
-					align-items: end;
+					align-items: center;
 
 					.sending {
 						width: 25px;
@@ -270,7 +270,7 @@ export default {
 						color: #e45050;
 						font-size: 30px;
 						cursor: pointer;
-						margin: 0 20px;
+						margin: 0 3px;
 					}
 				}
 
