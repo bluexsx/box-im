@@ -14,51 +14,55 @@
 					<text>{{ showName }}</text>
 				</view>
 				<view class="bottom">
-					<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
-						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<!-- up-parse支持点击a标签,但是不支持显示emo表情，也不支持换行 -->
-							<up-parse v-if="$url.containUrl(msgInfo.content)&&!$emo.containEmoji(msgInfo.content)"
-								class="message-text" :showImgMenu="false" :content="nodesText"></up-parse>
-							<!-- rich-text支持显示emo表情以及消息换行，但是不支持点击a标签 -->
-							<rich-text v-else class="message-text" :nodes="nodesText"></rich-text>
-						</long-press-menu>
-					</view>
-					<view class="message-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
-						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<view class="image-box">
-								<image class="send-image" mode="heightFix" :src="JSON.parse(msgInfo.content).thumbUrl"
-									lazy-load="true" @click.stop="onShowFullImage()">
-								</image>
-								<loading v-if="loading"></loading>
-							</view>
-						</long-press-menu>
-						<text title="发送失败" v-if="loadFail" @click="onSendFail"
-							class="send-fail iconfont icon-warning-circle-fill"></text>
-					</view>
-					<view class="message-file" v-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
-						<long-press-menu :items="menuItems" @select="onSelectMenu">
-							<view class="file-box">
-								<view class="file-info">
-									<uni-link class="file-name" :text="data.name" showUnderLine="true" color="#007BFF"
-										:href="data.url"></uni-link>
-									<view class="file-size">{{ fileSize }}</view>
-								</view>
-								<view class="file-icon iconfont icon-file"></view>
-								<loading v-if="loading"></loading>
-							</view>
-						</long-press-menu>
-						<text title="发送失败" v-if="loadFail" @click="onSendFail"
-							class="send-fail iconfont icon-warning-circle-fill"></text>
-					</view>
-					<long-press-menu v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" :items="menuItems"
-						@select="onSelectMenu">
-						<view class="message-audio message-text" @click="onPlayAudio()">
-							<text class="iconfont icon-voice-play"></text>
-							<text class="chat-audio-text">{{ JSON.parse(msgInfo.content).duration + '"' }}</text>
-							<text v-if="audioPlayState == 'PAUSE'" class="iconfont icon-play"></text>
-							<text v-if="audioPlayState == 'PLAYING'" class="iconfont icon-pause"></text>
+					<view class="message-content-wrapper">
+						<view v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT">
+							<long-press-menu :items="menuItems" @select="onSelectMenu">
+								<!-- up-parse支持点击a标签,但是不支持显示emo表情，也不支持换行 -->
+								<up-parse v-if="$url.containUrl(msgInfo.content)&&!$emo.containEmoji(msgInfo.content)"
+									class="message-text" :showImgMenu="false" :content="nodesText"></up-parse>
+								<!-- rich-text支持显示emo表情以及消息换行，但是不支持点击a标签 -->
+								<rich-text v-else class="message-text" :nodes="nodesText"></rich-text>
+							</long-press-menu>
 						</view>
-					</long-press-menu>
+						<view class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
+							<long-press-menu :items="menuItems" @select="onSelectMenu">
+								<view class="image-box">
+									<image class="send-image" mode="heightFix"
+										:src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
+										@click.stop="onShowFullImage()">
+									</image>
+									<loading v-if="sending"></loading>
+								</view>
+							</long-press-menu>
+						</view>
+						<view class="message-file" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
+							<long-press-menu :items="menuItems" @select="onSelectMenu">
+								<view class="file-box">
+									<view class="file-info">
+										<uni-link class="file-name" :text="data.name" showUnderLine="true"
+											color="#007BFF" :href="data.url"></uni-link>
+										<view class="file-size">{{ fileSize }}</view>
+									</view>
+									<view class="file-icon iconfont icon-file"></view>
+									<loading v-if="sending"></loading>
+								</view>
+							</long-press-menu>
+						</view>
+						<long-press-menu v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" :items="menuItems"
+							@select="onSelectMenu">
+							<view class="message-audio message-text" @click="onPlayAudio()">
+								<text class="iconfont icon-voice-play"></text>
+								<text class="chat-audio-text">{{ JSON.parse(msgInfo.content).duration + '"' }}</text>
+								<text v-if="audioPlayState == 'PAUSE'" class="iconfont icon-play"></text>
+								<text v-if="audioPlayState == 'PLAYING'" class="iconfont icon-pause"></text>
+							</view>
+						</long-press-menu>
+						<view v-if="sending&&isTextMessage" class="sending">
+							<loading size="40" icon-color="#656adf" :mask="false"></loading>
+						</view>
+						<view v-else-if="sendFail" @click="onSendFail"
+							class="send-fail iconfont icon-warning-circle-fill"></view>
+					</view>
 					<long-press-menu v-if="isAction" :items="menuItems" @select="onSelectMenu">
 						<view class="chat-realtime message-text" @click="$emit('call')">
 							<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE"
@@ -68,11 +72,9 @@
 							<text>{{ msgInfo.content }}</text>
 						</view>
 					</long-press-menu>
-					<view class="message-status" v-if="!isAction">
-						<text class="chat-readed" v-if="msgInfo.selfSend && !msgInfo.groupId
-							&& msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</text>
-						<text class="chat-unread" v-if="msgInfo.selfSend && !msgInfo.groupId
-							&& msgInfo.status != $enums.MESSAGE_STATUS.READED">未读</text>
+					<view class="message-status" v-if="!isAction && msgInfo.selfSend && !msgInfo.groupId">
+						<text class="chat-readed" v-if="msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</text>
+						<text class="chat-unread" v-else>未读</text>
 					</view>
 					<view class="chat-receipt" v-if="msgInfo.receipt" @click="onShowReadedBox">
 						<text v-if="msgInfo.receiptOk" class="tool-icon iconfont icon-ok"></text>
@@ -118,7 +120,7 @@ export default {
 	methods: {
 		onSendFail() {
 			uni.showToast({
-				title: "该文件已发送失败，目前不支持自动重新发送，建议手动重新发送",
+				title: "该消息已发送失败，目前不支持自动重新发送，建议手动重新发送",
 				icon: "none"
 			})
 		},
@@ -177,11 +179,11 @@ export default {
 		}
 	},
 	computed: {
-		loading() {
-			return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
+		sending() {
+			return this.msgInfo.status == this.$enums.MESSAGE_STATUS.SENDING;
 		},
-		loadFail() {
-			return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "fail";
+		sendFail() {
+			return this.msgInfo.status == this.$enums.MESSAGE_STATUS.FAILED;
 		},
 		data() {
 			return JSON.parse(this.msgInfo.content)
@@ -226,6 +228,9 @@ export default {
 				});
 			}
 			return items;
+		},
+		isTextMessage() {
+			return this.msgInfo.type == this.$enums.MESSAGE_TYPE.TEXT
 		},
 		isAction() {
 			return this.$msgType.isAction(this.msgInfo.type);
@@ -285,116 +290,137 @@ export default {
 				padding-right: 80rpx;
 				margin-top: 5rpx;
 
-				.message-text {
+				.message-content-wrapper {
 					position: relative;
-					line-height: 1.6;
-					margin-top: 10rpx;
-					padding: 16rpx 24rpx;
-					background-color: $im-bg;
-					border-radius: 20rpx;
-					color: $im-text-color;
-					font-size: $im-font-size;
-					text-align: left;
-					display: block;
-					word-break: break-word;
-					white-space: pre-line;
-
-					&:after {
-						content: "";
-						position: absolute;
-						left: -20rpx;
-						top: 26rpx;
-						width: 6rpx;
-						height: 6rpx;
-						border-style: solid dashed dashed;
-						border-color: $im-bg transparent transparent;
-						overflow: hidden;
-						border-width: 18rpx;
-					}
-				}
-
-				.message-image {
 					display: flex;
-					flex-wrap: nowrap;
-					flex-direction: row;
 					align-items: center;
 
-					.image-box {
+					.sending {
 						position: relative;
+						margin: 0 6rpx;
 
-						.send-image {
-							min-width: 200rpx;
-							max-width: 420rpx;
-							height: 350rpx;
-							cursor: pointer;
-							border-radius: 4px;
-						}
-					}
-
-					.send-fail {
-						color: $im-color-danger;
-						font-size: $im-font-size;
-						cursor: pointer;
-						margin: 0 20px;
-					}
-				}
-
-				.message-file {
-					display: flex;
-					flex-wrap: nowrap;
-					flex-direction: row;
-					align-items: center;
-					cursor: pointer;
-
-					.file-box {
-						position: relative;
-						display: flex;
-						flex-wrap: nowrap;
-						align-items: center;
-						min-height: 60px;
-						border-radius: 4px;
-						padding: 10px 15px;
-						box-shadow: $im-box-shadow-dark;
-
-						.file-info {
-							flex: 1;
-							height: 100%;
-							text-align: left;
-							font-size: 14px;
-							width: 300rpx;
-
-							.file-name {
-								font-weight: 600;
-								margin-bottom: 15px;
-								word-break: break-all;
-							}
-						}
-
-						.file-icon {
-							font-size: 80rpx;
-							color: #d42e07;
+						.icon-loading {
+							color: $im-color-primary;
 						}
 					}
 
 					.send-fail {
 						color: #e60c0c;
 						font-size: 50rpx;
+						margin: 0 5rpx;
+					}
+
+					.message-text {
+						position: relative;
+						line-height: 1.6;
+						margin-top: 10rpx;
+						padding: 16rpx 24rpx;
+						background-color: $im-bg;
+						border-radius: 20rpx;
+						color: $im-text-color;
+						font-size: $im-font-size;
+						text-align: left;
+						display: block;
+						word-break: break-word;
+						white-space: pre-line;
+
+						&:after {
+							content: "";
+							position: absolute;
+							left: -20rpx;
+							top: 26rpx;
+							width: 6rpx;
+							height: 6rpx;
+							border-style: solid dashed dashed;
+							border-color: $im-bg transparent transparent;
+							overflow: hidden;
+							border-width: 18rpx;
+						}
+					}
+
+					.message-image {
+						display: flex;
+						flex-wrap: nowrap;
+						flex-direction: row;
+						align-items: center;
+
+						.image-box {
+							position: relative;
+
+							.send-image {
+								min-width: 200rpx;
+								max-width: 420rpx;
+								height: 350rpx;
+								cursor: pointer;
+								border-radius: 4px;
+							}
+						}
+
+						.send-fail {
+							color: $im-color-danger;
+							font-size: $im-font-size;
+							cursor: pointer;
+							margin: 0 20px;
+						}
+					}
+
+					.message-file {
+						display: flex;
+						flex-wrap: nowrap;
+						flex-direction: row;
+						align-items: center;
 						cursor: pointer;
-						margin: 0 20rpx;
+
+						.file-box {
+							position: relative;
+							display: flex;
+							flex-wrap: nowrap;
+							align-items: center;
+							min-height: 60px;
+							border-radius: 4px;
+							padding: 10px 15px;
+							box-shadow: $im-box-shadow-dark;
+
+							.file-info {
+								flex: 1;
+								height: 100%;
+								text-align: left;
+								font-size: 14px;
+								width: 300rpx;
+
+								.file-name {
+									font-weight: 600;
+									margin-bottom: 15px;
+									word-break: break-all;
+								}
+							}
+
+							.file-icon {
+								font-size: 80rpx;
+								color: #d42e07;
+							}
+						}
+
+						.send-fail {
+							color: #e60c0c;
+							font-size: 50rpx;
+							cursor: pointer;
+							margin: 0 20rpx;
+						}
 					}
-				}
 
-				.message-audio {
-					display: flex;
-					align-items: center;
+					.message-audio {
+						display: flex;
+						align-items: center;
 
-					.chat-audio-text {
-						padding-right: 8px;
-					}
+						.chat-audio-text {
+							padding-right: 8px;
+						}
 
-					.icon-voice-play {
-						font-size: 18px;
-						padding-right: 8px;
+						.icon-voice-play {
+							font-size: 18px;
+							padding-right: 8px;
+						}
 					}
 				}
 
@@ -454,6 +480,10 @@ export default {
 					padding-left: 80rpx;
 					padding-right: 0;
 
+					.message-content-wrapper {
+						flex-direction: row-reverse;
+					}
+
 					.message-text {
 						margin-left: 10px;
 						background-color: $im-color-primary-light-2;
@@ -464,14 +494,6 @@ export default {
 							right: -9px;
 							border-top-color: $im-color-primary-light-2;
 						}
-					}
-
-					.message-image {
-						flex-direction: row-reverse;
-					}
-
-					.message-file {
-						flex-direction: row-reverse;
 					}
 
 					.message-audio {

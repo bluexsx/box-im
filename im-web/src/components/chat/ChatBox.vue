@@ -159,15 +159,15 @@ export default {
 			msgInfo.content = JSON.stringify(data);
 			msgInfo.receipt = this.isReceipt;
 			this.sendMessageRequest(msgInfo).then((m) => {
-				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
+				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.chatStore.insertMessage(msgInfo, file.chat);
 			})
 		},
 		onImageFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
-			msgInfo.loadStatus = 'fail';
+			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onImageBefore(file) {
@@ -182,17 +182,15 @@ export default {
 				thumbUrl: url
 			}
 			let msgInfo = {
-				id: 0,
 				tmpId: this.generateId(),
 				fileId: file.uid,
 				sendId: this.mine.id,
 				content: JSON.stringify(data),
 				sendTime: new Date().getTime(),
 				selfSend: true,
-				type: 1,
+				type: this.$enums.MESSAGE_TYPE.IMAGE,
 				readedCount: 0,
-				loadStatus: "loading",
-				status: this.$enums.MESSAGE_STATUS.UNSEND
+				status: this.$enums.MESSAGE_STATUS.SENDING
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
@@ -216,8 +214,8 @@ export default {
 			msgInfo.content = JSON.stringify(data);
 			msgInfo.receipt = this.isReceipt
 			this.sendMessageRequest(msgInfo).then((m) => {
-				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
+				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
 				this.chatStore.insertMessage(msgInfo, file.chat);
@@ -225,7 +223,7 @@ export default {
 		},
 		onFileFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
-			msgInfo.loadStatus = 'fail';
+			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onFileBefore(file) {
@@ -241,16 +239,14 @@ export default {
 				url: url
 			}
 			let msgInfo = {
-				id: 0,
 				tmpId: this.generateId(),
 				sendId: this.mine.id,
 				content: JSON.stringify(data),
 				sendTime: new Date().getTime(),
 				selfSend: true,
-				type: 2,
-				loadStatus: "loading",
+				type: this.$enums.MESSAGE_TYPE.FILE,
 				readedCount: 0,
-				status: this.$enums.MESSAGE_STATUS.UNSEND
+				status: this.$enums.MESSAGE_STATUS.SENDING
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
@@ -366,14 +362,22 @@ export default {
 			}
 			let msgInfo = {
 				content: JSON.stringify(data),
-				type: 3,
+				type: this.$enums.MESSAGE_TYPE.AUDIO,
 				receipt: this.isReceipt
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
+			// 防止发送期间用户切换会话导致串扰
+			const chat = this.chat;
+			// 临时消息回显	
+			let tmpMessage = this.buildTmpMessage(msgInfo);
+			this.chatStore.insertMessage(tmpMessage, chat);
+			this.moveChatToTop();
 			this.sendMessageRequest(msgInfo).then(m => {
-				m.selfSend = true;
-				this.chatStore.insertMessage(m, this.chat);
+				// 更新消息
+				tmpMessage.id = m.id;
+				tmpMessage.status = m.status;
+				this.chatStore.insertMessage(tmpMessage, chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 保持输入框焦点
@@ -384,6 +388,9 @@ export default {
 				this.showRecord = false;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
+			}).catch(() => {
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.insertMessage(tmpMessage, this.chat);
 			})
 		},
 		fillTargetId(msgInfo, targetId) {
@@ -446,7 +453,7 @@ export default {
 				}
 				let msgInfo = {
 					content: sendText,
-					type: 0
+					type: this.$enums.MESSAGE_TYPE.TEXT
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
@@ -456,11 +463,23 @@ export default {
 					msgInfo.receipt = this.isReceipt;
 				}
 				this.lockMessage = true;
+				// 防止发送期间用户切换会话导致串扰
 				const chat = this.chat;
+				// 回显消息
+				let tmpMessage = this.buildTmpMessage(msgInfo);
+				this.chatStore.insertMessage(tmpMessage, chat);
+				this.moveChatToTop();
+				// 发送
 				this.sendMessageRequest(msgInfo).then((m) => {
-					m.selfSend = true;
-					this.chatStore.insertMessage(m, chat);
-					this.moveChatToTop();
+					// 更新消息
+					tmpMessage.id = m.id;
+					tmpMessage.status = m.status;
+					tmpMessage.content = m.content;
+					this.chatStore.insertMessage(tmpMessage, chat);
+				}).catch(() => {
+					// 更新消息
+					tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+					this.chatStore.insertMessage(tmpMessage, chat);
 				}).finally(() => {
 					this.scrollToBottom();
 					this.isReceipt = false;
@@ -649,6 +668,18 @@ export default {
 			}
 			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
+		buildTmpMessage(msgInfo) {
+			let message = JSON.parse(JSON.stringify(msgInfo));
+			message.tmpId = this.generateId();
+			message.sendId = this.mine.id;
+			message.sendTime = new Date().getTime();
+			message.status = this.$enums.MESSAGE_STATUS.SENDING;
+			message.selfSend = true;
+			if (this.isGroup) {
+				message.readedCount = 0;
+			}
+			return message;
+		},		
 		generateId() {
 			// 生成临时id
 			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));

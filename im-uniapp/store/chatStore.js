@@ -30,11 +30,11 @@ export default defineStore('chatStore', {
 			}
 			this.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			this.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
-			// 防止图片一直处在加载中状态
-			cacheChats.forEach((chat) => {
-				chat.messages.forEach((msg) => {
-					if (msg.loadStatus == "loading") {
-						msg.loadStatus = "fail"
+			// 防止消息一直处在发送中状态
+			cacheChats.forEach(chat => {
+				chat.messages.forEach(msg => {
+					if (msg.status == MESSAGE_STATUS.SENDING) {
+						msg.status = MESSAGE_STATUS.FAILED
 					}
 				})
 			})

@@ -40,11 +40,11 @@ export default defineStore('chatStore', {
 			this.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			this.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
 			cacheChats = chatsData.chats || [];
-			// 防止图片一直处在加载中状态
-			cacheChats.forEach((chat) => {
-				chat.messages.forEach((msg) => {
-					if (msg.loadStatus == "loading") {
-						msg.loadStatus = "fail"
+			// 防止消息一直处在发送中状态
+			cacheChats.forEach(chat => {
+				chat.messages.forEach(msg => {
+					if (msg.status == MESSAGE_STATUS.SENDING) {
+						msg.status = MESSAGE_STATUS.FAILED
 					}
 				})
 			})
@@ -396,43 +396,53 @@ export default defineStore('chatStore', {
 			if (this.isLoading()) {
 				return;
 			}
-			let userStore = useUserStore();
+			const userStore = useUserStore();
 			let userId = userStore.userInfo.id;
 			let key = "chats-" + userId;
 			let chatKeys = [];
-			// 按会话为单位存储，
-			this.chats.forEach((chat) => {
+			const promises = [];
+			// 按会话为单位存储
+			for (let idx in this.chats) {
+				let chat = this.chats[idx];
 				// 只存储有改动的会话
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
 					if (chat.delete) {
-						localForage.removeItem(chatKey);
+						let hotKey = chatKey + '-hot';
+						promises.push(localForage.removeItem(chatKey))
+						promises.push(localForage.removeItem(hotKey))
 					} else {
 						// 存储冷数据
 						if (withColdMessage) {
 							let coldChat = Object.assign({}, chat);
 							coldChat.messages = chat.messages.slice(0, chat.hotMinIdx);
-							localForage.setItem(chatKey, coldChat)
+							promises.push(localForage.setItem(chatKey, coldChat))
+
 						}
 						// 存储热消息
 						let hotKey = chatKey + '-hot';
 						let hotChat = Object.assign({}, chat);
 						hotChat.messages = chat.messages.slice(chat.hotMinIdx)
-						localForage.setItem(hotKey, hotChat)
+						promises.push(localForage.setItem(hotKey, hotChat))
 					}
 					chat.stored = true;
 				}
 				if (!chat.delete) {
 					chatKeys.push(chatKey);
 				}
-			})
+			}
 			// 会话核心信息
 			let chatsData = {
 				privateMsgMaxId: this.privateMsgMaxId,
 				groupMsgMaxId: this.groupMsgMaxId,
+				systemMsgMaxSeqNo: this.systemMsgMaxSeqNo,
 				chatKeys: chatKeys
 			}
-			localForage.setItem(key, chatsData)
+			Promise.all(promises).then(() => {
+				localForage.setItem(key, chatsData)
+			}).catch(() => {
+				console.log("本地消息缓存存储失败")
+			})
 			// 清理已删除的会话
 			this.chats = this.chats.filter(chat => !chat.delete)
 		},

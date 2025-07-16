@@ -16,7 +16,8 @@ export default {
 	data() {
 		return {
 			colors: ["#5daa31", "#c7515a", "#e03697", "#85029b",
-				"#c9b455", "#326eb6"]
+				"#c9b455", "#326eb6"
+			]
 		}
 	},
 	props: {
@@ -33,6 +34,10 @@ export default {
 		name: {
 			type: String,
 			default: null
+		},
+		radius: {
+			type: String,
+			default: "50%"
 		},
 		online: {
 			type: Boolean,
@@ -61,7 +66,7 @@ export default {
 					'minier': 48,
 					'lage': 108,
 					'lager': 120,
-				}[this.size]
+				} [this.size]
 			}
 		},
 		avatarImageStyle() {
@@ -77,7 +82,7 @@ export default {
 					`
 		},
 		textColor() {
-			if(!this.name){
+			if (!this.name) {
 				return '#fff';
 			}
 			let hash = 0;
