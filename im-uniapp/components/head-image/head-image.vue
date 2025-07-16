@@ -71,11 +71,15 @@ export default {
 		avatarTextStyle() {
 			return `width: ${this._size}rpx;
 					height:${this._size}rpx;
-					background-color:${this.name ? this.textColor : '#fff'};
-					font-size:${this._size * 0.5}rpx;
+					background: linear-gradient(145deg,#ffffff20 25%,#00000060),${this.textColor};
+					font-size:${this._size * 0.45}rpx;
+					border-radius: ${this.radius};
 					`
 		},
 		textColor() {
+			if(!this.name){
+				return '#fff';
+			}
 			let hash = 0;
 			for (var i = 0; i < this.name.length; i++) {
 				hash += this.name.charCodeAt(i);
