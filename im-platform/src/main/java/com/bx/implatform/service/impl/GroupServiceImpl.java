@@ -330,7 +330,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         GroupMessage message = new GroupMessage();
         message.setContent(content);
         message.setType(MessageType.TIP_TEXT.code());
-        message.setStatus(MessageStatus.UNSEND.code());
+        message.setStatus(MessageStatus.PENDING.code());
         message.setSendTime(new Date());
         message.setSendNickName(session.getNickName());
         message.setGroupId(groupId);

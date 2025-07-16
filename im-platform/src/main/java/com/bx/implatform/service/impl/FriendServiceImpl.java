@@ -233,7 +233,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         msg.setRecvId(friendId);
         msg.setContent("你们已成为好友，现在可以开始聊天了");
         msg.setSendTime(new Date());
-        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setStatus(MessageStatus.PENDING.code());
         msg.setType(MessageType.TIP_TEXT.code());
         privateMessageMapper.insert(msg);
         // 推给对方
@@ -257,7 +257,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         msg.setRecvId(friendId);
         msg.setSendTime(new Date());
         msg.setType(MessageType.TIP_TEXT.code());
-        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setStatus(MessageStatus.PENDING.code());
         msg.setContent("你们的好友关系已被解除");
         privateMessageMapper.insert(msg);
         // 推送

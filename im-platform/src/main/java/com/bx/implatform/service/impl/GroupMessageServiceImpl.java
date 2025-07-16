@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -123,7 +122,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         this.updateById(msg);
         // 生成一条撤回消息
         GroupMessage recallMsg = new GroupMessage();
-        recallMsg.setStatus(MessageStatus.UNSEND.code());
+        recallMsg.setStatus(MessageStatus.PENDING.code());
         recallMsg.setType(MessageType.RECALL.code());
         recallMsg.setGroupId(msg.getGroupId());
         recallMsg.setSendId(session.getUserId());
@@ -228,7 +227,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                     List<String> atIds = CommaTextUtils.asList(m.getAtUserIds());
                     vo.setAtUserIds(atIds.stream().map(Long::parseLong).collect(Collectors.toList()));
                     // 填充状态
-                    vo.setStatus(readedMaxId >= m.getId() ? MessageStatus.READED.code() : MessageStatus.UNSEND.code());
+                    vo.setStatus(readedMaxId >= m.getId() ? MessageStatus.READED.code() : MessageStatus.PENDING.code());
                     // 针对回执消息填充已读人数
                     if (m.getReceipt()) {
                         if (Objects.isNull(maxIdMap)) {
