@@ -65,9 +65,9 @@ let connect = (wsurl, token) => {
 	})
 
 	socketTask.onError((e) => {
-		console.log(e)
+		console.log("ws错误:",e)
+		close();
 		isConnect = false;
-		// APP 应用切出超过一定时间(约1分钟)会触发报错，此处回调给应用进行重连
 		closeCallBack && closeCallBack({ code: 1006 });
 	})
 }
