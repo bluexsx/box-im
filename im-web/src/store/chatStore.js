@@ -372,6 +372,16 @@ export default defineStore('chatStore', {
 			})
 			// 排序
 			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			/**
+			 * 由于部分浏览器不支持websql或indexdb，只能使用localstorage，而localstorage大小只有10m,可能会导致缓存空间溢出
+			 * 解决办法:如果是使用localstorage的浏览器，每个会话只保留1000条消息，防止溢出
+			 */
+			cacheChats.forEach(chat => {
+				if (localForage.driver().includes("localStorage") && chat.messages.length > 1000) {
+					let idx = chat.messages.length - 1000;
+					chat.messages = chat.messages.slice(idx);
+				}
+			})
 			// 记录热数据索引位置
 			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
