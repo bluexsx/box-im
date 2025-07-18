@@ -21,18 +21,19 @@
 				<div class="message-bottom" @contextmenu.prevent="showRightMenu($event)">
 					<div ref="chatMsgBox" class="message-content-wrapper">
 						<span class="message-text" v-if="isTextMessage" v-html="htmlText"></span>
-						<div class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
-							<div class="img-load-box" v-loading="sending" element-loading-text="发送中.."
+						<div class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE"
+							@click="showFullImageBox()">
+							<div v-loading="sending" element-loading-text="发送中.."
 								element-loading-background="rgba(0, 0, 0, 0.4)">
-								<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
-									@click="showFullImageBox()" loading="lazy" />
+								<img :style="imageStyle" :src="contentData.thumbUrl" loading="lazy" />
 							</div>
 						</div>
 						<div class="message-file" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
 							<div class="chat-file-box" v-loading="sending">
 								<div class="chat-file-info">
 									<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
-										:href="data.url" :download="data.name">{{ data.name }}</el-link>
+										:href="contentData.url" :download="contentData.name">{{ contentData.name
+										}}</el-link>
 									<div class="chat-file-size">{{ fileSize }}</div>
 								</div>
 								<div class="chat-file-icon">
@@ -44,7 +45,7 @@
 							@click="onPlayVoice()">
 							<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
 						</div>
-						<div title="发送中" v-if="sending && isTextMessage" class="sending" v-loading="'true'"></div>
+						<div title="发送中" v-if="sending" class="sending" v-loading="'true'"></div>
 						<div title="发送失败" v-else-if="sendFail" @click="onSendFail" class="send-fail el-icon-warning">
 						</div>
 					</div>
@@ -152,11 +153,11 @@ export default {
 		sendFail() {
 			return this.msgInfo.status == this.$enums.MESSAGE_STATUS.FAILED;
 		},
-		data() {
+		contentData() {
 			return JSON.parse(this.msgInfo.content)
 		},
 		fileSize() {
-			let size = this.data.size;
+			let size = this.contentData.size;
 			if (size > 1024 * 1024) {
 				return Math.round(size / 1024 / 1024) + "M";
 			}
@@ -199,6 +200,22 @@ export default {
 		},
 		isGroupMessage() {
 			return !!this.msgInfo.groupId;
+		},
+		imageStyle() {
+			// 计算图片的显示宽高，要求：任意边不能高于360px,不能低于60px,不能拉伸图片比例
+			let maxSize = this.configStore.fullScreen ? 360 : 240;
+			let minSize = 60;
+			let width = this.contentData.width;
+			let height = this.contentData.height;
+			if (width && height) {
+				let ratio = Math.min(width, height) / Math.max(width, height);
+				let w = Math.max(Math.min(width > height ? maxSize : ratio * maxSize, width), minSize);
+				let h = Math.max(Math.min(width > height ? ratio * maxSize : maxSize, height), minSize);
+				return `width: ${w}px;height:${h}px;object-fit: cover;`
+			} else {
+				// 兼容历史版本，历史数据没有记录宽高
+				return `max-width: ${maxSize}px;min-width:60px;max-height: ${maxSize}px;min-height:60px;`
+			}
 		}
 	}
 }
@@ -206,7 +223,7 @@ export default {
 
 <style lang="scss">
 .chat-message-item {
-	padding: 2px 10px;
+	padding: 3px 10px;
 	border-radius: 10px;
 
 	.message-tip {
@@ -254,7 +271,7 @@ export default {
 				.message-content-wrapper {
 					position: relative;
 					display: flex;
-					align-items: center;
+					align-items: end;
 
 					.sending {
 						width: 25px;
@@ -270,7 +287,7 @@ export default {
 						color: #e45050;
 						font-size: 30px;
 						cursor: pointer;
-						margin: 0 3px;
+						margin: 0 5px;
 					}
 				}
 
@@ -302,20 +319,10 @@ export default {
 				}
 
 				.message-image {
-					display: flex;
-					flex-wrap: nowrap;
-					flex-direction: row;
-					align-items: center;
-
-					.send-image {
-						min-width: 200px;
-						min-height: 150px;
-						max-width: 400px;
-						max-height: 300px;
-						border-radius: 8px;
-						cursor: pointer;
-					}
-
+					border-radius: 8px;
+					border: 3px solid var(--im-color-primary-light-8);
+					overflow: hidden;
+					cursor: pointer;
 				}
 
 				.message-file {
@@ -460,7 +467,6 @@ export default {
 					}
 
 					.message-text {
-						margin-left: 10px;
 						background-color: var(--im-color-primary-light-2);
 						color: #fff;
 

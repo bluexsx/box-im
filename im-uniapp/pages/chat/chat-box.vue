@@ -453,6 +453,16 @@ export default {
 			file.chat = this.chat;
 			// 滚到最低部
 			this.scrollToBottom();
+			// 更新图片宽高
+			let chat = this.chat;
+			this.getImageSize(file).then(size => {
+				msgInfo = JSON.parse(JSON.stringify(msgInfo))
+				data.width = size.width;
+				data.height = size.height;
+				msgInfo.content = JSON.stringify(data)
+				this.chatStore.insertMessage(msgInfo, chat);
+				this.scrollToBottom();
+			})
 			return true;
 		},
 		onUploadImageSuccess(file, res) {
@@ -903,6 +913,19 @@ export default {
 				message.readedCount = 0;
 			}
 			return message;
+		},
+		getImageSize(file) {
+			return new Promise((resolve) => {
+				uni.getImageInfo({
+					src: file.path,
+					success: (res) => {
+						resolve(res);
+					},
+					fail: (err) => {
+						console.error('获取图片信息失败', err);
+					}
+				});
+			});
 		},
 		generateId() {
 			// 生成临时id 

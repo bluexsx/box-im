@@ -203,6 +203,15 @@ export default {
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
+			// 更新图片尺寸
+			let chat = this.chat;
+			this.getImageSize(file).then(size => {
+				data.width = size.width;
+				data.height = size.height;
+				msgInfo.content = JSON.stringify(data)
+				this.chatStore.insertMessage(msgInfo, chat);
+				this.scrollToBottom();
+			})
 		},
 		onFileSuccess(url, file) {
 			let data = {
@@ -680,6 +689,25 @@ export default {
 				message.readedCount = 0;
 			}
 			return message;
+		},
+		getImageSize(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = function (event) {
+					const img = new Image();
+					img.onload = function () {
+						resolve({ width: img.width, height: img.height });
+					};
+					img.onerror = function () {
+						reject(new Error('无法加载图片'));
+					};
+					img.src = event.target.result;
+				};
+				reader.onerror = function () {
+					reject(new Error('无法读取文件'));
+				};
+				reader.readAsDataURL(file);
+			});
 		},
 		generateId() {
 			// 生成临时id

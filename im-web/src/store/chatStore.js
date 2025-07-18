@@ -154,7 +154,6 @@ export default defineStore('chatStore', {
 			}
 		},
 		insertMessage(msgInfo, chatInfo) {
-			let time = new Date().getTime()
 			let type = chatInfo.type;
 			// 记录消息的最大id
 			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
@@ -230,7 +229,6 @@ export default defineStore('chatStore', {
 			chat.messages.splice(insertPos, 0, msgInfo);
 			chat.stored = false;
 			this.saveToStorage();
-			console.log("耗时:", new Date().getTime() - time)
 		},
 		updateMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id

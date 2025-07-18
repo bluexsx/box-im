@@ -27,9 +27,8 @@
 						<view class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
 							<long-press-menu :items="menuItems" @select="onSelectMenu">
 								<view class="image-box">
-									<image class="send-image" mode="heightFix"
-										:src="JSON.parse(msgInfo.content).thumbUrl" lazy-load="true"
-										@click.stop="onShowFullImage()">
+									<image class="send-image" :style="imageStyle" mode="aspectFill"
+										:src="contentData.thumbUrl" lazy-load="true" @click.stop="onShowFullImage()">
 									</image>
 									<loading v-if="sending"></loading>
 								</view>
@@ -39,8 +38,8 @@
 							<long-press-menu :items="menuItems" @select="onSelectMenu">
 								<view class="file-box">
 									<view class="file-info">
-										<uni-link class="file-name" :text="data.name" showUnderLine="true"
-											color="#007BFF" :href="data.url"></uni-link>
+										<uni-link class="file-name" :text="contentData.name" showUnderLine="true"
+											color="#007BFF" :href="contentData.url"></uni-link>
 										<view class="file-size">{{ fileSize }}</view>
 									</view>
 									<view class="file-icon iconfont icon-file"></view>
@@ -52,7 +51,7 @@
 							@select="onSelectMenu">
 							<view class="message-audio message-text" @click="onPlayAudio()">
 								<text class="iconfont icon-voice-play"></text>
-								<text class="chat-audio-text">{{ JSON.parse(msgInfo.content).duration + '"' }}</text>
+								<text class="chat-audio-text">{{ contentData.duration + '"' }}</text>
 								<text v-if="audioPlayState == 'PAUSE'" class="iconfont icon-play"></text>
 								<text v-if="audioPlayState == 'PLAYING'" class="iconfont icon-pause"></text>
 							</view>
@@ -128,7 +127,7 @@ export default {
 			// 初始化音频播放器
 			if (!this.innerAudioContext) {
 				this.innerAudioContext = uni.createInnerAudioContext();
-				let url = JSON.parse(this.msgInfo.content).url;
+				let url = this.contentData.url;
 				this.innerAudioContext.src = url;
 				this.innerAudioContext.onEnded((e) => {
 					console.log('停止')
@@ -159,7 +158,7 @@ export default {
 			this.menu.show = false;
 		},
 		onShowFullImage() {
-			let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
+			let imageUrl = this.contentData.originUrl;
 			uni.previewImage({
 				urls: [imageUrl]
 			})
@@ -185,11 +184,11 @@ export default {
 		sendFail() {
 			return this.msgInfo.status == this.$enums.MESSAGE_STATUS.FAILED;
 		},
-		data() {
+		contentData() {
 			return JSON.parse(this.msgInfo.content)
 		},
 		fileSize() {
-			let size = this.data.size;
+			let size = this.contentData.size;
 			if (size > 1024 * 1024) {
 				return Math.round(size / 1024 / 1024) + "M";
 			}
@@ -244,6 +243,22 @@ export default {
 			let text = this.$str.html2Escape(this.msgInfo.content)
 			text = this.$url.replaceURLWithHTMLLinks(text, color)
 			return this.$emo.transform(text, 'emoji-normal')
+		},
+		imageStyle() {
+			console.log(uni.getSystemInfo())
+			let maxSize = uni.getSystemInfoSync().windowWidth * 0.6;
+			let minSize = uni.getSystemInfoSync().windowWidth * 0.2;
+			let width = this.contentData.width;
+			let height = this.contentData.height;
+			if (width && height) {
+				let ratio = Math.min(width, height) / Math.max(width, height);
+				let w = Math.max(width > height ? maxSize : ratio * maxSize, minSize);
+				let h = Math.max(width > height ? ratio * maxSize : maxSize, minSize);
+				return `width: ${w}px;height:${h}px;`
+			} else {
+				// 兼容历史版本，历史数据没有记录宽高
+				return `max-width: ${maxSize}px;min-width:100px;max-height: ${maxSize}px;min-height:100px;`
+			}
 		}
 	}
 }
@@ -348,11 +363,10 @@ export default {
 							position: relative;
 
 							.send-image {
-								min-width: 200rpx;
-								max-width: 420rpx;
-								height: 350rpx;
 								cursor: pointer;
-								border-radius: 4px;
+								border-radius: 10rpx;
+								background: $im-bg;
+								border: 6rpx solid $im-color-primary-light-5;
 							}
 						}
 

@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
@@ -101,6 +104,10 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片格式不合法");
             }
             UploadImageVO vo = new UploadImageVO();
+            // 获取图片长度和宽度
+            BufferedImage bufferedImage =  ImageIO.read(file.getInputStream());
+            vo.setWidth(bufferedImage.getWidth());
+            vo.setHeight(bufferedImage.getHeight());
             // 如果文件已存在，直接复用
             String md5 = DigestUtils.md5DigestAsHex(file.getInputStream());
             FileInfo fileInfo = findByMd5(md5, FileType.IMAGE.code());
