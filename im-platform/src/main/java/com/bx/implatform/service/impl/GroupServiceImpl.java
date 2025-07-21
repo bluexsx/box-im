@@ -10,6 +10,7 @@ import com.bx.imclient.IMClient;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.CommaTextUtils;
+import com.bx.implatform.annotation.RedisLock;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.GroupDndDTO;
@@ -251,6 +252,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }).collect(Collectors.toList());
     }
 
+    @RedisLock(prefixKey = RedisKey.IM_LOCK_GROUP_ENTER,key = "#dto.getGroupId()")
     @Override
     public void invite(GroupInviteDTO dto) {
         UserSession session = SessionContext.getSession();

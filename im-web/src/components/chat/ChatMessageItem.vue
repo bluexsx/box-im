@@ -271,7 +271,7 @@ export default {
 				.message-content-wrapper {
 					position: relative;
 					display: flex;
-					align-items: end;
+					align-items: flex-end;
 
 					.sending {
 						width: 25px;

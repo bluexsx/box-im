@@ -54,6 +54,17 @@ public final class RedisKey {
     public static final String IM_REPEAT_SUBMIT = "im:repeat:submit";
 
     /**
+     * 分布式锁-添加好友
+     */
+    public static final String IM_LOCK_FRIEND_ADD =  "im:lock:friend:add";
+
+    /**
+     * 分布式锁-进入群聊
+     */
+    public static final String IM_LOCK_GROUP_ENTER =  "im:lock:group:enter";
+
+
+    /**
      * 分布式锁-清理过期文件
      */
     public static final String IM_LOCK_FILE_TASK =  "im:lock:task:file";
