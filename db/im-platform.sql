@@ -45,7 +45,6 @@ create table `im_private_message`(
 
 create table `im_group`(
     `id` bigint not null auto_increment primary key comment 'id',
-		`tmp_id` varchar(32)  comment '临时id,由前端生成',
     `name` varchar(255) not null comment '群名字',
     `owner_id` bigint not null  comment '群主id',
     `head_image` varchar(255) default '' comment '群头像',
@@ -75,6 +74,7 @@ create table `im_group_member`(
 
 create table `im_group_message`(
     `id` bigint not null auto_increment primary key comment 'id',
+    `tmp_id` varchar(32)  comment '临时id,由前端生成',
     `group_id` bigint not null  comment '群id',
     `send_id` bigint not null  comment '发送用户id',
     `send_nick_name` varchar(255) DEFAULT ''  comment '发送用户昵称',
