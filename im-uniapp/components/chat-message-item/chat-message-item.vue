@@ -118,10 +118,7 @@ export default {
 	},
 	methods: {
 		onSendFail() {
-			uni.showToast({
-				title: "该消息已发送失败，目前不支持自动重新发送，建议手动重新发送",
-				icon: "none"
-			})
+			this.$emit("resend", this.msgInfo);
 		},
 		onPlayAudio() {
 			// 初始化音频播放器

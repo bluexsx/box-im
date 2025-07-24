@@ -13,7 +13,8 @@
 								<div v-for="(msgInfo, idx) in showMessages" :key="showMinIdx + idx">
 									<chat-message-item @call="onCall(msgInfo.type)" :mine="msgInfo.sendId == mine.id"
 										:headImage="headImage(msgInfo)" :showName="showName(msgInfo)" :msgInfo="msgInfo"
-										:groupMembers="groupMembers" @delete="deleteMessage" @recall="recallMessage">
+										:groupMembers="groupMembers" @resend="onResendMessage" @delete="deleteMessage"
+										@recall="recallMessage">
 									</chat-message-item>
 								</div>
 							</div>
@@ -198,8 +199,6 @@ export default {
 			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
-			// 滚动到底部
-			this.scrollToBottom();
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
@@ -263,8 +262,6 @@ export default {
 			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
-			// 滚动到底部
-			this.scrollToBottom();
 			// 借助file对象透传
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
@@ -492,7 +489,6 @@ export default {
 					tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
 					this.chatStore.insertMessage(tmpMessage, chat);
 				}).finally(() => {
-					this.scrollToBottom();
 					this.isReceipt = false;
 					resolve();
 				});
@@ -505,6 +501,35 @@ export default {
 					this.$refs.fileUpload.onFileUpload({ file });
 				}
 			})
+		},
+		onResendMessage(msgInfo) {
+			if (msgInfo.type != this.$enums.MESSAGE_TYPE.TEXT) {
+				this.$message.error("该消息不支持自动重新发送，建议手动重新发送")
+				return;
+			}
+			// 防止发送期间用户切换会话导致串扰
+			const chat = this.chat;
+			// 删除旧消息
+			this.chatStore.deleteMessage(msgInfo, chat);
+			// 重新推送
+			msgInfo.temId = this.generateId();
+			let tmpMessage = this.buildTmpMessage(msgInfo);
+			this.chatStore.insertMessage(tmpMessage, chat);
+			this.moveChatToTop();
+			// 发送
+			this.sendMessageRequest(msgInfo).then(m => {
+				// 更新消息
+				tmpMessage.id = m.id;
+				tmpMessage.status = m.status;
+				tmpMessage.content = m.content;
+				this.chatStore.insertMessage(tmpMessage, chat);
+			}).catch(() => {
+				// 更新消息
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.insertMessage(tmpMessage, chat);
+			}).finally(() => {
+				this.scrollToBottom();
+			});
 		},
 		deleteMessage(msgInfo) {
 			this.$confirm('确认删除消息?', '删除消息', {
@@ -797,12 +822,14 @@ export default {
 		messageSize: {
 			handler(newSize, oldSize) {
 				if (newSize > oldSize) {
-					if (this.isInBottom) {
-						// 拉至底部
-						this.scrollToBottom();
-					} else {
-						// 增加新消息提醒
-						this.newMessageSize++;
+					// 收到普通消息,则滚动至底部
+					let lastMessage = this.chat.messages[newSize - 1];
+					if (lastMessage && this.$msgType.isNormal(lastMessage.type)) {
+						if (this.isInBottom || lastMessage.selfSend) {
+							this.scrollToBottom();
+						} else {
+							this.newMessageSize++;
+						}
 					}
 				}
 			}

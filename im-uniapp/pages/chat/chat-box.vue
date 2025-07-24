@@ -9,10 +9,10 @@
 						<view v-for="(msgInfo, idx) in chat.messages" :key="idx">
 							<chat-message-item :ref="'message'+msgInfo.id" v-if="idx >= showMinIdx"
 								:headImage="headImage(msgInfo)" @call="onRtCall(msgInfo)" :showName="showName(msgInfo)"
-								@recall="onRecallMessage" @delete="onDeleteMessage" @copy="onCopyMessage"
-								@longPressHead="onLongPressHead(msgInfo)" @download="onDownloadFile"
-								@audioStateChange="onAudioStateChange" :id="'chat-item-' + idx" :msgInfo="msgInfo"
-								:groupMembers="groupMembers">
+								@resend="onResendMessage" @recall="onRecallMessage" @delete="onDeleteMessage"
+								@copy="onCopyMessage" @longPressHead="onLongPressHead(msgInfo)"
+								@download="onDownloadFile" @audioStateChange="onAudioStateChange"
+								:id="'chat-item-' + idx" :msgInfo="msgInfo" :groupMembers="groupMembers">
 							</chat-message-item>
 						</view>
 					</view>
@@ -338,10 +338,7 @@ export default {
 						tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 						tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
 						this.chatStore.insertMessage(tmpMessage, chat);
-					}).finally(() => {
-						// 滚动到底部
-						this.scrollToBottom();
-					});
+					})
 				}
 			})
 
@@ -451,8 +448,6 @@ export default {
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
-			// 滚到最低部
-			this.scrollToBottom();
 			// 更新图片宽高
 			let chat = this.chat;
 			this.getImageSize(file).then(size => {
@@ -511,8 +506,6 @@ export default {
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
-			// 滚到最低部
-			this.scrollToBottom();
 			return true;
 		},
 		onUploadFileSuccess(file, res) {
@@ -535,6 +528,37 @@ export default {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 			this.chatStore.insertMessage(msgInfo, file.chat);
+		},
+		onResendMessage(msgInfo) {
+			if (msgInfo.type != this.$enums.MESSAGE_TYPE.TEXT) {
+				uni.showToast({
+					title: "该消息不支持自动重新发送，建议手动重新发送",
+					icon: "none"
+				})
+				return;
+			}
+			// 防止发送期间用户切换会话导致串扰
+			const chat = this.chat;
+			// 删除旧消息
+			this.chatStore.deleteMessage(msgInfo, chat);
+			// 重新发送
+			msgInfo.temId = this.generateId();
+			let tmpMessage = this.buildTmpMessage(msgInfo);
+			this.chatStore.insertMessage(tmpMessage, chat);
+			this.moveChatToTop();
+			this.sendMessageRequest(msgInfo).then(m => {
+				// 更新消息
+				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
+				tmpMessage.id = m.id;
+				tmpMessage.status = m.status;
+				tmpMessage.content = m.content;
+				this.chatStore.insertMessage(tmpMessage, chat);
+			}).catch(() => {
+				// 更新消息
+				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.insertMessage(tmpMessage, chat);
+			})
 		},
 		onDeleteMessage(msgInfo) {
 			uni.showModal({
@@ -996,7 +1020,7 @@ export default {
 			if (newSize > oldSize && oldSize > 0) {
 				let lastMessage = this.chat.messages[newSize - 1];
 				if (this.$msgType.isNormal(lastMessage.type)) {
-					if (this.isInBottom) {
+					if (this.isInBottom || lastMessage.selfSend) {
 						// 收到消息,则滚动至底部
 						this.scrollToBottom();
 					} else {

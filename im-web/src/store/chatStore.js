@@ -242,24 +242,33 @@ export default defineStore('chatStore', {
 			}
 		},
 		deleteMessage(msgInfo, chatInfo) {
-			let chat = this.findChat(chatInfo);
 			let isColdMessage = false;
+			let chat = this.findChat(chatInfo);
+			let delIdx = -1;
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
-					chat.messages.splice(idx, 1);
-					isColdMessage = idx < chat.hotMinIdx;
+					delIdx = idx;
 					break;
 				}
 				// 正在发送中的消息可能没有id，只有临时id
 				if (chat.messages[idx].tmpId && chat.messages[idx].tmpId == msgInfo.tmpId) {
-					chat.messages.splice(idx, 1);
-					isColdMessage = idx < chat.hotMinIdx;
+					delIdx = idx;
 					break;
 				}
 			}
-			chat.stored = false;
-			this.saveToStorage(isColdMessage);
+			if (delIdx >= 0) {
+				chat.messages.splice(delIdx, 1);
+				if (delIdx < chat.hotMinIdx) {
+					isColdMessage = true;
+					chat.hotMinIdx--;
+				}
+				if (delIdx < chat.readedMessageIdx) {
+					chat.readedMessageIdx--;
+				}
+				chat.stored = false;
+				this.saveToStorage(isColdMessage);
+			}
 		},
 		recallMessage(msgInfo, chatInfo) {
 			let chat = this.findChat(chatInfo);

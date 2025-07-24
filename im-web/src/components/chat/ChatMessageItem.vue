@@ -119,7 +119,7 @@ export default {
 	},
 	methods: {
 		onSendFail() {
-			this.$message.error("该消息已发送失败，目前不支持自动重新发送，建议手动重新发送")
+			this.$emit("resend",this.msgInfo);
 		},
 		showFullImageBox() {
 			let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
