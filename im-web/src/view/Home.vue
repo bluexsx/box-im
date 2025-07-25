@@ -401,7 +401,7 @@ export default {
 			if (new Date().getTime() - this.lastPlayAudioTime > 1000) {
 				this.lastPlayAudioTime = new Date().getTime();
 				let audio = new Audio();
-				let url = require(`@/assets/audio/tip.wav`);
+				let url = require(`@/assets/audio/tip.mp3`);
 				audio.src = url;
 				audio.play();
 			}

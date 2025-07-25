@@ -17,7 +17,7 @@ export default {
 	methods: {
 		init() {
 			this.reconnecting = false;
-			this.configStore.setAppInit(false);
+			this.isExit = false;
 			// 加载数据
 			this.loadStore().then(() => {
 				// 初始化websocket
