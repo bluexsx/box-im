@@ -2,7 +2,7 @@
 	<div class="chat-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
 		<div class="chat-left">
 			<head-image :url="chat.headImage" :name="chat.showName" :size="42"
-				:id="chat.type == 'PRIVATE' ? chat.targetId : 0" :isShowUserInfo="false"></head-image>
+				:id="chat.type == 'PRIVATE' ? chat.targetId : 0" :isShowUserInfo="false" :online="online"></head-image>
 			<div v-show="!chat.isDnd && chat.unreadCount > 0" class="unread-text">{{ chat.unreadCount }}</div>
 		</div>
 		<div class="chat-right">
@@ -16,7 +16,8 @@
 			<div class="chat-content">
 				<div class="chat-at-text">{{ atText }}</div>
 				<div class="chat-send-name" v-show="isShowSendName">{{ chat.sendNickName + ':&nbsp;' }}</div>
-				<div class="chat-content-text" v-html="$emo.transform($str.html2Escape(chat.lastContent), 'emoji-small')"></div>
+				<div class="chat-content-text"
+					v-html="$emo.transform($str.html2Escape(chat.lastContent), 'emoji-small')"></div>
 				<div class="icon iconfont icon-dnd" v-if="chat.isDnd"></div>
 			</div>
 		</div>
@@ -102,6 +103,13 @@ export default {
 				color: '#F56C6C'
 			})
 			return items;
+		},
+		online() {
+			if (this.chat.type == 'PRIVATE') {
+				let friend = this.friendStore.findFriend(this.chat.targetId);
+				return friend && friend.online;
+			}
+			return false;
 		}
 	}
 }
