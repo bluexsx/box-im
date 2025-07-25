@@ -99,6 +99,7 @@ export default {
 				// 图片全屏
 				this.$refs.fullImage.open(url);
 			});
+			this.configStore.setAppInit(false)
 			this.loadStore().then(() => {
 				// ws初始化
 				this.$wsApi.connect(process.env.VUE_APP_WS_URL, sessionStorage.getItem("accessToken"));
@@ -109,6 +110,7 @@ export default {
 						// 加载离线消息
 						this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
 						this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+						this.configStore.setAppInit(true);
 					}
 				});
 				this.$wsApi.onMessage((cmd, msgInfo) => {
@@ -138,6 +140,7 @@ export default {
 					if (e.code != 3000) {
 						// 断线重连
 						this.reconnectWs();
+						this.configStore.setAppInit(false)
 					}
 				});
 			}).catch((e) => {
@@ -169,6 +172,7 @@ export default {
 				// 加载离线消息
 				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
 				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+				this.configStore.setAppInit(true)
 				this.$message.success("重新连接成功");
 			}).catch(() => {
 				this.$message.error("初始化失败");
@@ -387,6 +391,7 @@ export default {
 		},
 		onExit() {
 			this.unloadStore();
+			this.configStore.setAppInit(false);
 			this.$wsApi.close(3000);
 			sessionStorage.removeItem("accessToken");
 			location.href = "/";

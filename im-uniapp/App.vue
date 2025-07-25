@@ -9,7 +9,6 @@ import UNI_APP from '@/.env.js'
 export default {
 	data() {
 		return {
-			isInit: false, // 是否已经初始化
 			isExit: false, // 是否已退出
 			audioTip: null,
 			reconnecting: false // 正在重连标志
@@ -18,13 +17,12 @@ export default {
 	methods: {
 		init() {
 			this.reconnecting = false;
-			this.isExit = false;
+			this.configStore.setAppInit(false);
 			// 加载数据
 			this.loadStore().then(() => {
 				// 初始化websocket
 				this.initWebSocket();
-				this.isInit = true;
-			}).catch((e) => {
+			}).catch(e => {
 				console.log(e);
 				this.exit();
 			})
@@ -40,7 +38,7 @@ export default {
 					// 加载离线消息
 					this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
 					this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
-
+					this.configStore.setAppInit(true);
 				}
 			});
 			wsApi.onMessage((cmd, msgInfo) => {
@@ -66,7 +64,7 @@ export default {
 				console.log("ws断开", res);
 				// 重新连接
 				this.reconnectWs();
-
+				this.configStore.setAppInit(false);
 			})
 		},
 		loadStore() {
@@ -92,7 +90,11 @@ export default {
 				url: "/message/private/pullOfflineMessage?minId=" + minId,
 				method: 'GET'
 			}).catch(() => {
-				this.chatStore.setLoadingPrivateMsg(false)
+				uni.showToast({
+					title: "消息拉取失败,请重新登陆",
+					icon: 'none'
+				})
+				this.exit()
 			})
 		},
 		pullGroupOfflineMessage(minId) {
@@ -101,7 +103,11 @@ export default {
 				url: "/message/group/pullOfflineMessage?minId=" + minId,
 				method: 'GET'
 			}).catch(() => {
-				this.chatStore.setLoadingGroupMsg(false)
+				uni.showToast({
+					title: "消息拉取失败,请重新登陆",
+					icon: 'none'
+				})
+				this.exit()
 			})
 		},
 		handlePrivateMessage(msg) {
@@ -421,6 +427,7 @@ export default {
 				// 加载离线消息
 				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
 				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+				this.configStore.setAppInit(true);
 			}).catch((e) => {
 				console.log(e);
 				this.exit();

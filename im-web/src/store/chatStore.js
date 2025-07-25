@@ -3,6 +3,7 @@ import { MESSAGE_TYPE, MESSAGE_STATUS } from "../api/enums.js"
 import useFriendStore from './friendStore.js';
 import useGroupStore from './groupStore.js';
 import useUserStore from './userStore.js';
+import useConfigStore from './configStore.js';
 import localForage from 'localforage';
 
 /**
@@ -155,12 +156,15 @@ export default defineStore('chatStore', {
 		},
 		insertMessage(msgInfo, chatInfo) {
 			let type = chatInfo.type;
-			// 记录消息的最大id
-			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
-				this.privateMsgMaxId = msgInfo.id;
-			}
-			if (msgInfo.id && type == "GROUP" && msgInfo.id > this.groupMsgMaxId) {
-				this.groupMsgMaxId = msgInfo.id;
+			// 完成初始化之前不能修改消息最大id,否则可能导致拉不到离线消息
+			if (useConfigStore().appInit) {
+				// 记录消息的最大id
+				if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
+					this.privateMsgMaxId = msgInfo.id;
+				}
+				if (msgInfo.id && type == "GROUP" && msgInfo.id > this.groupMsgMaxId) {
+					this.groupMsgMaxId = msgInfo.id;
+				}
 			}
 			// 如果是已存在消息，则覆盖旧的消息数据
 			let chat = this.findChat(chatInfo);
