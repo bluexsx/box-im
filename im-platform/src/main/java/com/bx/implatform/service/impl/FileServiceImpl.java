@@ -106,8 +106,10 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
             UploadImageVO vo = new UploadImageVO();
             // 获取图片长度和宽度
             BufferedImage bufferedImage =  ImageIO.read(file.getInputStream());
-            vo.setWidth(bufferedImage.getWidth());
-            vo.setHeight(bufferedImage.getHeight());
+            if(!Objects.isNull(bufferedImage)){
+                vo.setWidth(bufferedImage.getWidth());
+                vo.setHeight(bufferedImage.getHeight());
+            }
             // 如果文件已存在，直接复用
             String md5 = DigestUtils.md5DigestAsHex(file.getInputStream());
             FileInfo fileInfo = findByMd5(md5, FileType.IMAGE.code());
