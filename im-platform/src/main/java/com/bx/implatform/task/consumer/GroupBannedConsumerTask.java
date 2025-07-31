@@ -52,7 +52,7 @@ public class GroupBannedConsumerTask extends RedisMQConsumer<GroupBanDTO> {
         msg.setContent(tip);
         msg.setSendId(Constant.SYS_USER_ID);
         msg.setSendTime(new Date());
-        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setStatus(MessageStatus.PENDING.code());
         msg.setSendNickName("系统管理员");
         msg.setType(MessageType.TIP_TEXT.code());
         groupMessageService.save(msg);

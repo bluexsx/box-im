@@ -3,6 +3,7 @@ import { MESSAGE_TYPE, MESSAGE_STATUS } from "../api/enums.js"
 import useFriendStore from './friendStore.js';
 import useGroupStore from './groupStore.js';
 import useUserStore from './userStore.js';
+import useConfigStore from './configStore.js';
 import localForage from 'localforage';
 
 /**
@@ -40,14 +41,6 @@ export default defineStore('chatStore', {
 			this.privateMsgMaxId = chatsData.privateMsgMaxId || 0;
 			this.groupMsgMaxId = chatsData.groupMsgMaxId || 0;
 			cacheChats = chatsData.chats || [];
-			// 防止图片一直处在加载中状态
-			cacheChats.forEach((chat) => {
-				chat.messages.forEach((msg) => {
-					if (msg.loadStatus == "loading") {
-						msg.loadStatus = "fail"
-					}
-				})
-			})
 		},
 		openChat(chatInfo) {
 			let chats = this.findChats()
@@ -73,6 +66,7 @@ export default defineStore('chatStore', {
 					lastSendTime: new Date().getTime(),
 					unreadCount: 0,
 					hotMinIdx: 0,
+					readedMessageIdx: 0,
 					messages: [],
 					atMe: false,
 					atAll: false,
@@ -103,15 +97,17 @@ export default defineStore('chatStore', {
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
 			if (!chat) return;
-			chat.messages.forEach((m) => {
+			for (let idx = chat.readedMessageIdx; idx < chat.messages.length; idx++) {
+				let m = chat.messages[idx];
 				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读
 					if (!pos.maxId || m.id <= pos.maxId) {
 						m.status = MESSAGE_STATUS.READED
+						chat.readedMessageIdx = idx;
 						chat.stored = false;
 					}
 				}
-			})
+			}
 			this.saveToStorage();
 		},
 		removeChat(idx) {
@@ -159,14 +155,16 @@ export default defineStore('chatStore', {
 			}
 		},
 		insertMessage(msgInfo, chatInfo) {
-			let time = new Date().getTime()
 			let type = chatInfo.type;
-			// 记录消息的最大id
-			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
-				this.privateMsgMaxId = msgInfo.id;
-			}
-			if (msgInfo.id && type == "GROUP" && msgInfo.id > this.groupMsgMaxId) {
-				this.groupMsgMaxId = msgInfo.id;
+			// 完成初始化之前不能修改消息最大id,否则可能导致拉不到离线消息
+			if (useConfigStore().appInit) {
+				// 记录消息的最大id
+				if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
+					this.privateMsgMaxId = msgInfo.id;
+				}
+				if (msgInfo.id && type == "GROUP" && msgInfo.id > this.groupMsgMaxId) {
+					this.groupMsgMaxId = msgInfo.id;
+				}
 			}
 			// 如果是已存在消息，则覆盖旧的消息数据
 			let chat = this.findChat(chatInfo);
@@ -235,7 +233,6 @@ export default defineStore('chatStore', {
 			chat.messages.splice(insertPos, 0, msgInfo);
 			chat.stored = false;
 			this.saveToStorage();
-			console.log("耗时:", new Date().getTime() - time)
 		},
 		updateMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id
@@ -249,24 +246,33 @@ export default defineStore('chatStore', {
 			}
 		},
 		deleteMessage(msgInfo, chatInfo) {
-			let chat = this.findChat(chatInfo);
 			let isColdMessage = false;
+			let chat = this.findChat(chatInfo);
+			let delIdx = -1;
 			for (let idx in chat.messages) {
 				// 已经发送成功的，根据id删除
 				if (chat.messages[idx].id && chat.messages[idx].id == msgInfo.id) {
-					chat.messages.splice(idx, 1);
-					isColdMessage = idx < chat.hotMinIdx;
+					delIdx = idx;
 					break;
 				}
 				// 正在发送中的消息可能没有id，只有临时id
 				if (chat.messages[idx].tmpId && chat.messages[idx].tmpId == msgInfo.tmpId) {
-					chat.messages.splice(idx, 1);
-					isColdMessage = idx < chat.hotMinIdx;
+					delIdx = idx;
 					break;
 				}
 			}
-			chat.stored = false;
-			this.saveToStorage(isColdMessage);
+			if (delIdx >= 0) {
+				chat.messages.splice(delIdx, 1);
+				if (delIdx < chat.hotMinIdx) {
+					isColdMessage = true;
+					chat.hotMinIdx--;
+				}
+				if (delIdx < chat.readedMessageIdx) {
+					chat.readedMessageIdx--;
+				}
+				chat.stored = false;
+				this.saveToStorage(isColdMessage);
+			}
 		},
 		recallMessage(msgInfo, chatInfo) {
 			let chat = this.findChat(chatInfo);
@@ -372,6 +378,16 @@ export default defineStore('chatStore', {
 			})
 			// 排序
 			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			/**
+			 * 由于部分浏览器不支持websql或indexdb，只能使用localstorage，而localstorage大小只有10m,可能会导致缓存空间溢出
+			 * 解决办法:如果是使用localstorage的浏览器，每个会话只保留1000条消息，防止溢出
+			 */
+			cacheChats.forEach(chat => {
+				if (localForage.driver().includes("localStorage") && chat.messages.length > 1000) {
+					let idx = chat.messages.length - 1000;
+					chat.messages = chat.messages.slice(idx);
+				}
+			})
 			// 记录热数据索引位置
 			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
@@ -386,43 +402,53 @@ export default defineStore('chatStore', {
 			if (this.isLoading()) {
 				return;
 			}
-			let userStore = useUserStore();
+			const userStore = useUserStore();
 			let userId = userStore.userInfo.id;
 			let key = "chats-" + userId;
 			let chatKeys = [];
-			// 按会话为单位存储，
-			this.chats.forEach((chat) => {
+			const promises = [];
+			// 按会话为单位存储
+			for (let idx in this.chats) {
+				let chat = this.chats[idx];
 				// 只存储有改动的会话
 				let chatKey = `${key}-${chat.type}-${chat.targetId}`
 				if (!chat.stored) {
 					if (chat.delete) {
-						localForage.removeItem(chatKey);
+						let hotKey = chatKey + '-hot';
+						promises.push(localForage.removeItem(chatKey))
+						promises.push(localForage.removeItem(hotKey))
 					} else {
 						// 存储冷数据
 						if (withColdMessage) {
 							let coldChat = Object.assign({}, chat);
 							coldChat.messages = chat.messages.slice(0, chat.hotMinIdx);
-							localForage.setItem(chatKey, coldChat)
+							promises.push(localForage.setItem(chatKey, coldChat))
+
 						}
 						// 存储热消息
 						let hotKey = chatKey + '-hot';
 						let hotChat = Object.assign({}, chat);
 						hotChat.messages = chat.messages.slice(chat.hotMinIdx)
-						localForage.setItem(hotKey, hotChat)
+						promises.push(localForage.setItem(hotKey, hotChat))
 					}
 					chat.stored = true;
 				}
 				if (!chat.delete) {
 					chatKeys.push(chatKey);
 				}
-			})
+			}
 			// 会话核心信息
 			let chatsData = {
 				privateMsgMaxId: this.privateMsgMaxId,
 				groupMsgMaxId: this.groupMsgMaxId,
+				systemMsgMaxSeqNo: this.systemMsgMaxSeqNo,
 				chatKeys: chatKeys
 			}
-			localForage.setItem(key, chatsData)
+			Promise.all(promises).then(() => {
+				localForage.setItem(key, chatsData)
+			}).catch(() => {
+				console.log("本地消息缓存存储失败")
+			})
 			// 清理已删除的会话
 			this.chats = this.chats.filter(chat => !chat.delete)
 		},
@@ -454,11 +480,19 @@ export default defineStore('chatStore', {
 								}
 								let coldChat = chats[i];
 								let hotChat = chats[i + 1];
+								// 防止消息一直处在发送中状态
+								hotChat && hotChat.messages.forEach(msg => {
+									if (msg.status == MESSAGE_STATUS.SENDING) {
+										msg.status = MESSAGE_STATUS.FAILED
+									}
+								})
 								// 冷热消息合并
 								let chat = Object.assign({}, coldChat, hotChat);
 								if (hotChat && coldChat) {
 									chat.messages = coldChat.messages.concat(hotChat.messages)
 								}
+								// 历史版本没有readedMessageIdx字段，做兼容一下
+								chat.readedMessageIdx = chat.readedMessageIdx || 0;
 								chatsData.chats.push(chat);
 							}
 							this.initChats(chatsData);

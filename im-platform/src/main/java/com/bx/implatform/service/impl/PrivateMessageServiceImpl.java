@@ -57,7 +57,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 保存消息
         PrivateMessage msg = BeanUtils.copyProperties(dto, PrivateMessage.class);
         msg.setSendId(session.getUserId());
-        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setStatus(MessageStatus.PENDING.code());
         msg.setSendTime(new Date());
         // 过滤内容中的敏感词
         if (MessageType.TEXT.code().equals(dto.getType())) {
@@ -97,7 +97,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 生成一条撤回消息
         PrivateMessage recallMsg = new PrivateMessage();
         recallMsg.setSendId(session.getUserId());
-        recallMsg.setStatus(MessageStatus.UNSEND.code());
+        recallMsg.setStatus(MessageStatus.PENDING.code());
         recallMsg.setSendTime(new Date());
         recallMsg.setRecvId(msg.getRecvId());
         recallMsg.setType(MessageType.RECALL.code());
@@ -205,7 +205,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         // 修改消息状态为已读
         LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
         updateWrapper.eq(PrivateMessage::getSendId, friendId).eq(PrivateMessage::getRecvId, session.getUserId())
-            .eq(PrivateMessage::getStatus, MessageStatus.SENDED.code())
+            .eq(PrivateMessage::getStatus, MessageStatus.DELIVERED.code())
             .set(PrivateMessage::getStatus, MessageStatus.READED.code());
         this.update(updateWrapper);
         log.info("消息已读，接收方id:{},发送方id:{}", session.getUserId(), friendId);

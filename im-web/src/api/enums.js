@@ -55,10 +55,12 @@ const TERMINAL_TYPE = {
 }
 
 const MESSAGE_STATUS = {
-	UNSEND: 0,
-	SENDED: 1,
-	RECALL: 2,
-	READED: 3
+	FAILED: -2, // 发送失败
+	SENDING: -1, // 发送中(消息没到服务器)
+	PENDING: 0, // 未送达(消息已到服务器，但对方没收到)
+	DELIVERED: 1, // 已送达(对方已收到，但是未读消息)
+	RECALL: 2, // 已撤回
+	READED: 3, // 消息已读
 }
 
 

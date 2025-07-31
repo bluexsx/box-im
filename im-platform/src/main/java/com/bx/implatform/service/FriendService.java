@@ -43,9 +43,10 @@ public interface FriendService extends IService<Friend> {
     /**
      * 添加好友，互相建立好友关系
      *
+     * @param userId 用户id
      * @param friendId 好友的用户id
      */
-    void addFriend(Long friendId);
+    void addFriend(Long userId,Long friendId);
 
     /**
      * 删除好友，双方都会解除好友关系

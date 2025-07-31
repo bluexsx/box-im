@@ -13,6 +13,9 @@ import java.util.List;
 @Schema(description = "群聊消息DTO")
 public class GroupMessageDTO {
 
+    @Schema(description = "临时id")
+    private String tmpId;
+
     @NotNull(message = "群聊id不可为空")
     @Schema(description = "群聊id")
     private Long groupId;

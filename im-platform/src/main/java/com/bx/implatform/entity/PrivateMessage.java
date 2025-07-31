@@ -23,6 +23,12 @@ public class PrivateMessage {
     private Long id;
 
     /**
+     * 临时id,由前端生成
+     * 作用:如果用户正在发送消息时掉线了，可以通过此字段获取该消息的实际发送状态
+     */
+    private String tmpId;
+
+    /**
      * 发送用户id
      */
     private Long sendId;

@@ -16,7 +16,8 @@ export default {
 	data() {
 		return {
 			colors: ["#5daa31", "#c7515a", "#e03697", "#85029b",
-				"#c9b455", "#326eb6"]
+				"#c9b455", "#326eb6"
+			]
 		}
 	},
 	props: {
@@ -33,6 +34,10 @@ export default {
 		name: {
 			type: String,
 			default: null
+		},
+		radius: {
+			type: String,
+			default: "50%"
 		},
 		online: {
 			type: Boolean,
@@ -61,7 +66,7 @@ export default {
 					'minier': 48,
 					'lage': 108,
 					'lager': 120,
-				}[this.size]
+				} [this.size]
 			}
 		},
 		avatarImageStyle() {
@@ -71,11 +76,15 @@ export default {
 		avatarTextStyle() {
 			return `width: ${this._size}rpx;
 					height:${this._size}rpx;
-					background-color:${this.name ? this.textColor : '#fff'};
-					font-size:${this._size * 0.5}rpx;
+					background: linear-gradient(145deg,#ffffff20 25%,#00000060),${this.textColor};
+					font-size:${this._size * 0.45}rpx;
+					border-radius: ${this.radius};
 					`
 		},
 		textColor() {
+			if (!this.name) {
+				return '#fff';
+			}
 			let hash = 0;
 			for (var i = 0; i < this.name.length; i++) {
 				hash += this.name.charCodeAt(i);

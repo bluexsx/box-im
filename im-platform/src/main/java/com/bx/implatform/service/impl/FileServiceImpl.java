@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
@@ -63,7 +66,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
             }
             // 如果文件已存在，直接复用
             String md5 = DigestUtils.md5DigestAsHex(file.getInputStream());
-            FileInfo fileInfo = findByMd5(md5);
+            FileInfo fileInfo = findByMd5(md5, FileType.FILE.code());
             if (!Objects.isNull(fileInfo)) {
                 // 更新上传时间
                 fileInfo.setUploadTime(new Date());
@@ -101,9 +104,15 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片格式不合法");
             }
             UploadImageVO vo = new UploadImageVO();
+            // 获取图片长度和宽度
+            BufferedImage bufferedImage =  ImageIO.read(file.getInputStream());
+            if(!Objects.isNull(bufferedImage)){
+                vo.setWidth(bufferedImage.getWidth());
+                vo.setHeight(bufferedImage.getHeight());
+            }
             // 如果文件已存在，直接复用
             String md5 = DigestUtils.md5DigestAsHex(file.getInputStream());
-            FileInfo fileInfo = findByMd5(md5);
+            FileInfo fileInfo = findByMd5(md5, FileType.IMAGE.code());
             if (!Objects.isNull(fileInfo)) {
                 // 更新上传时间和持久化标记
                 fileInfo.setIsPermanent(isPermanent || fileInfo.getIsPermanent());
@@ -131,7 +140,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 vo.setThumbUrl(generUrl(FileType.IMAGE, thumbFileName));
                 // 保存文件信息
                 saveImageFileInfo(file, md5, vo.getOriginUrl(), vo.getThumbUrl(), isPermanent);
-            }else{
+            } else {
                 // 小于50k，用原图充当缩略图
                 vo.setThumbUrl(generUrl(FileType.IMAGE, fileName));
                 // 保存文件信息,由于缩略图不允许删除，此时原图也不允许删除
@@ -157,9 +166,10 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
         };
     }
 
-    private FileInfo findByMd5(String md5) {
+    private FileInfo findByMd5(String md5, Integer fileType) {
         LambdaQueryWrapper<FileInfo> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(FileInfo::getMd5, md5);
+        wrapper.eq(FileInfo::getFileType, fileType);
         return getOne(wrapper);
     }
 

@@ -3,7 +3,7 @@
 		<!--rich-text中的表情包会屏蔽事件，所以这里用一个遮罩层捕获点击事件 -->
 		<view class="mask" @tap="showChatBox()"></view>
 		<view class="left">
-			<head-image :url="chat.headImage" :name="chat.showName"></head-image>
+			<head-image :url="chat.headImage" :name="chat.showName" :online="online"></head-image>
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">
@@ -45,7 +45,7 @@ export default {
 	methods: {
 		showChatBox() {
 			// 初始化期间进入会话会导致消息不刷新
-			if (!getApp().$vm.isInit || this.chatStore.isLoading()) {
+			if (!this.configStore.appInit || this.chatStore.isLoading()) {
 				uni.showToast({
 					title: "正在初始化页面,请稍后...",
 					icon: 'none'
@@ -79,6 +79,9 @@ export default {
 			return "";
 		},
 		isTextMessage() {
+			if (this.chat.messages.length == 0) {
+				return false;
+			}
 			let idx = this.chat.messages.length - 1;
 			let messageType = this.chat.messages[idx].type;
 			return messageType == this.$enums.MESSAGE_TYPE.TEXT;
@@ -86,6 +89,13 @@ export default {
 		nodesText() {
 			let text = this.$str.html2Escape(this.chat.lastContent);
 			return this.$emo.transform(text, 'emoji-small')
+		},
+		online() {
+			if (this.chat.type == 'PRIVATE') {
+				let friend = this.friendStore.findFriend(this.chat.targetId);
+				return friend && friend.online;
+			}
+			return false;
 		}
 	}
 }

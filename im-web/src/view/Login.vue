@@ -1,22 +1,22 @@
 <template>
 	<div class="login-view">
 		<div class="content">
-			<el-form class="form" :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="60px"
+			<el-form class="form" :model="loginForm" status-icon :rules="rules" ref="loginForm"
 				@keyup.enter.native="submitForm('loginForm')">
 				<div class="title">
 					<img class="logo" src="../../public/logo.png" />
 					<div>登录盒子IM</div>
 				</div>
-				<el-form-item label="终端" prop="userName" v-show="false">
+				<el-form-item prop="terminal" v-show="false">
 					<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="用户名" prop="userName">
-					<el-input type="userName" v-model="loginForm.userName" autocomplete="off"
-						placeholder="用户名"></el-input>
+				<el-form-item prop="userName">
+					<el-input type="userName" v-model="loginForm.userName" autocomplete="off" placeholder="用户名"
+						prefix-icon="el-icon-user"></el-input>
 				</el-form-item>
-				<el-form-item label="密码" prop="password">
-					<el-input type="password" v-model="loginForm.password" autocomplete="off"
-						placeholder="密码"></el-input>
+				<el-form-item prop="password">
+					<el-input type="password" v-model="loginForm.password" autocomplete="off" placeholder="密码"
+						prefix-icon="el-icon-lock"></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="submitForm('loginForm')">登录</el-button>

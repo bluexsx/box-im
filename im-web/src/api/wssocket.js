@@ -48,10 +48,11 @@ let connect = (wsurl, accessToken) => {
 		}
 
 		// 连接发生错误的回调方法
-		websock.onerror = function () {
-			console.log('WebSocket连接发生错误')
-			isConnect = false; //连接断开修改标识
-			reconnect(wsurl, accessToken);
+		websock.onerror = function (e) {
+			console.log('WebSocket连接发生错误:{}', e)
+			close(3000);
+			isConnect = false;
+			closeCallBack && closeCallBack(e);
 		}
 	} catch (e) {
 		console.log("尝试创建连接失败");
@@ -91,7 +92,6 @@ let heartCheck = {
 			websock.send(JSON.stringify(heartBeat))
 		}
 	},
-
 	reset: function () {
 		clearTimeout(this.timeoutObj);
 		this.timeoutObj = setTimeout(function () {

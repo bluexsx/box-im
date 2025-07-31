@@ -114,7 +114,7 @@ export default {
 			return this.chatStore.isLoading();
 		},
 		initializing() {
-			return !getApp().$vm.isInit;
+			return !this.configStore.appInit;
 		},
 		showChats() {
 			this.chatStore.chats.filter((chat) => !chat.delete && chat.showName && chat.showName.includes(this

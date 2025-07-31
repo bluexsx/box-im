@@ -1,6 +1,6 @@
 <template>
 	<view class="long-press-menu none-pointer-events">
-		<view @longpress.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
+		<view @longpress.prevent.stop="onLongPress($event)" @touchmove="onTouchMove" @touchend="onTouchEnd">
 			<slot></slot>
 		</view>
 		<view v-if="isShowMenu" class="menu-mask" @touchstart="onClose()" @contextmenu.prevent=""></view>
@@ -39,9 +39,9 @@ export default {
 					let style = "";
 					/* 因 非H5端不兼容 style 属性绑定 Object ，所以拼接字符 */
 					if (touches.clientY > (res.windowHeight / 2)) {
-						style = `bottom:${res.windowHeight - touches.clientY}px;`;
+						style = `bottom:${res.windowHeight - touches.clientY + 20}px;`;
 					} else {
-						style = `top:${touches.clientY}px;`;
+						style = `top:${touches.clientY + 20}px;`;
 					}
 					if (touches.clientX > (res.windowWidth / 2)) {
 						style += `right:${res.windowWidth - touches.clientX}px;`;
@@ -53,12 +53,18 @@ export default {
 					this.$nextTick(() => {
 						this.isShowMenu = true;
 					});
+					this.menuTouch = touches
 				}
 			})
 		},
-		onTouchMove() {
-			this.onClose();
+		onTouchMove(e) {
 			this.isTouchMove = true;
+			let touches = e.touches[0];
+			// 屏幕拖动大于50px时，取消菜单
+			if (Math.abs(touches.clientX - this.menuTouch.clientX) > 50 ||
+				Math.abs(touches.clientY - this.menuTouch.clientY) > 50) {
+				this.onClose();
+			}
 		},
 		onTouchEnd() {
 			this.isTouchMove = false;

@@ -13,7 +13,8 @@
 								<div v-for="(msgInfo, idx) in showMessages" :key="showMinIdx + idx">
 									<chat-message-item @call="onCall(msgInfo.type)" :mine="msgInfo.sendId == mine.id"
 										:headImage="headImage(msgInfo)" :showName="showName(msgInfo)" :msgInfo="msgInfo"
-										:groupMembers="groupMembers" @delete="deleteMessage" @recall="recallMessage">
+										:groupMembers="groupMembers" @resend="onResendMessage" @delete="deleteMessage"
+										@recall="recallMessage">
 									</chat-message-item>
 								</div>
 							</div>
@@ -159,15 +160,15 @@ export default {
 			msgInfo.content = JSON.stringify(data);
 			msgInfo.receipt = this.isReceipt;
 			this.sendMessageRequest(msgInfo).then((m) => {
-				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
+				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.chatStore.insertMessage(msgInfo, file.chat);
 			})
 		},
 		onImageFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
-			msgInfo.loadStatus = 'fail';
+			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onImageBefore(file) {
@@ -182,17 +183,15 @@ export default {
 				thumbUrl: url
 			}
 			let msgInfo = {
-				id: 0,
 				tmpId: this.generateId(),
 				fileId: file.uid,
 				sendId: this.mine.id,
 				content: JSON.stringify(data),
 				sendTime: new Date().getTime(),
 				selfSend: true,
-				type: 1,
+				type: this.$enums.MESSAGE_TYPE.IMAGE,
 				readedCount: 0,
-				loadStatus: "loading",
-				status: this.$enums.MESSAGE_STATUS.UNSEND
+				status: this.$enums.MESSAGE_STATUS.SENDING
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
@@ -200,11 +199,18 @@ export default {
 			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
-			// 滚动到底部
-			this.scrollToBottom();
 			// 借助file对象保存
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
+			// 更新图片尺寸
+			let chat = this.chat;
+			this.getImageSize(file).then(size => {
+				data.width = size.width;
+				data.height = size.height;
+				msgInfo.content = JSON.stringify(data)
+				this.chatStore.insertMessage(msgInfo, chat);
+				this.scrollToBottom();
+			})
 		},
 		onFileSuccess(url, file) {
 			let data = {
@@ -216,8 +222,8 @@ export default {
 			msgInfo.content = JSON.stringify(data);
 			msgInfo.receipt = this.isReceipt
 			this.sendMessageRequest(msgInfo).then((m) => {
-				msgInfo.loadStatus = 'ok';
 				msgInfo.id = m.id;
+				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
 				this.chatStore.insertMessage(msgInfo, file.chat);
@@ -225,7 +231,7 @@ export default {
 		},
 		onFileFail(e, file) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
-			msgInfo.loadStatus = 'fail';
+			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 			this.chatStore.insertMessage(msgInfo, file.chat);
 		},
 		onFileBefore(file) {
@@ -241,16 +247,14 @@ export default {
 				url: url
 			}
 			let msgInfo = {
-				id: 0,
 				tmpId: this.generateId(),
 				sendId: this.mine.id,
 				content: JSON.stringify(data),
 				sendTime: new Date().getTime(),
 				selfSend: true,
-				type: 2,
-				loadStatus: "loading",
+				type: this.$enums.MESSAGE_TYPE.FILE,
 				readedCount: 0,
-				status: this.$enums.MESSAGE_STATUS.UNSEND
+				status: this.$enums.MESSAGE_STATUS.SENDING
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
@@ -258,8 +262,6 @@ export default {
 			this.chatStore.insertMessage(msgInfo, this.chat);
 			// 会话置顶
 			this.moveChatToTop();
-			// 滚动到底部
-			this.scrollToBottom();
 			// 借助file对象透传
 			file.msgInfo = msgInfo;
 			file.chat = this.chat;
@@ -365,15 +367,24 @@ export default {
 				return;
 			}
 			let msgInfo = {
+				tmpId: this.generateId(),
 				content: JSON.stringify(data),
-				type: 3,
+				type: this.$enums.MESSAGE_TYPE.AUDIO,
 				receipt: this.isReceipt
 			}
 			// 填充对方id
 			this.fillTargetId(msgInfo, this.chat.targetId);
+			// 防止发送期间用户切换会话导致串扰
+			const chat = this.chat;
+			// 临时消息回显	
+			let tmpMessage = this.buildTmpMessage(msgInfo);
+			this.chatStore.insertMessage(tmpMessage, chat);
+			this.moveChatToTop();
 			this.sendMessageRequest(msgInfo).then(m => {
-				m.selfSend = true;
-				this.chatStore.insertMessage(m, this.chat);
+				// 更新消息
+				tmpMessage.id = m.id;
+				tmpMessage.status = m.status;
+				this.chatStore.insertMessage(tmpMessage, chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 保持输入框焦点
@@ -384,6 +395,9 @@ export default {
 				this.showRecord = false;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
+			}).catch(() => {
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.insertMessage(tmpMessage, this.chat);
 			})
 		},
 		fillTargetId(msgInfo, targetId) {
@@ -445,8 +459,9 @@ export default {
 					reject();
 				}
 				let msgInfo = {
+					tmpId: this.generateId(),
 					content: sendText,
-					type: 0
+					type: this.$enums.MESSAGE_TYPE.TEXT
 				}
 				// 填充对方id
 				this.fillTargetId(msgInfo, this.chat.targetId);
@@ -456,13 +471,24 @@ export default {
 					msgInfo.receipt = this.isReceipt;
 				}
 				this.lockMessage = true;
+				// 防止发送期间用户切换会话导致串扰
 				const chat = this.chat;
+				// 回显消息
+				let tmpMessage = this.buildTmpMessage(msgInfo);
+				this.chatStore.insertMessage(tmpMessage, chat);
+				this.moveChatToTop();
+				// 发送
 				this.sendMessageRequest(msgInfo).then((m) => {
-					m.selfSend = true;
-					this.chatStore.insertMessage(m, chat);
-					this.moveChatToTop();
+					// 更新消息
+					tmpMessage.id = m.id;
+					tmpMessage.status = m.status;
+					tmpMessage.content = m.content;
+					this.chatStore.insertMessage(tmpMessage, chat);
+				}).catch(() => {
+					// 更新消息
+					tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+					this.chatStore.insertMessage(tmpMessage, chat);
 				}).finally(() => {
-					this.scrollToBottom();
 					this.isReceipt = false;
 					resolve();
 				});
@@ -475,6 +501,35 @@ export default {
 					this.$refs.fileUpload.onFileUpload({ file });
 				}
 			})
+		},
+		onResendMessage(msgInfo) {
+			if (msgInfo.type != this.$enums.MESSAGE_TYPE.TEXT) {
+				this.$message.error("该消息不支持自动重新发送，建议手动重新发送")
+				return;
+			}
+			// 防止发送期间用户切换会话导致串扰
+			const chat = this.chat;
+			// 删除旧消息
+			this.chatStore.deleteMessage(msgInfo, chat);
+			// 重新推送
+			msgInfo.temId = this.generateId();
+			let tmpMessage = this.buildTmpMessage(msgInfo);
+			this.chatStore.insertMessage(tmpMessage, chat);
+			this.moveChatToTop();
+			// 发送
+			this.sendMessageRequest(msgInfo).then(m => {
+				// 更新消息
+				tmpMessage.id = m.id;
+				tmpMessage.status = m.status;
+				tmpMessage.content = m.content;
+				this.chatStore.insertMessage(tmpMessage, chat);
+			}).catch(() => {
+				// 更新消息
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.insertMessage(tmpMessage, chat);
+			}).finally(() => {
+				this.scrollToBottom();
+			});
 		},
 		deleteMessage(msgInfo) {
 			this.$confirm('确认删除消息?', '删除消息', {
@@ -649,6 +704,36 @@ export default {
 			}
 			this.chatStore.insertMessage(msgInfo, this.chat);
 		},
+		buildTmpMessage(msgInfo) {
+			let message = JSON.parse(JSON.stringify(msgInfo));
+			message.sendId = this.mine.id;
+			message.sendTime = new Date().getTime();
+			message.status = this.$enums.MESSAGE_STATUS.SENDING;
+			message.selfSend = true;
+			if (this.isGroup) {
+				message.readedCount = 0;
+			}
+			return message;
+		},
+		getImageSize(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = function (event) {
+					const img = new Image();
+					img.onload = function () {
+						resolve({ width: img.width, height: img.height });
+					};
+					img.onerror = function () {
+						reject(new Error('无法加载图片'));
+					};
+					img.src = event.target.result;
+				};
+				reader.onerror = function () {
+					reject(new Error('无法读取文件'));
+				};
+				reader.readAsDataURL(file);
+			});
+		},
 		generateId() {
 			// 生成临时id
 			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
@@ -737,12 +822,14 @@ export default {
 		messageSize: {
 			handler(newSize, oldSize) {
 				if (newSize > oldSize) {
-					if (this.isInBottom) {
-						// 拉至底部
-						this.scrollToBottom();
-					} else {
-						// 增加新消息提醒
-						this.newMessageSize++;
+					// 收到普通消息,则滚动至底部
+					let lastMessage = this.chat.messages[newSize - 1];
+					if (lastMessage && this.$msgType.isNormal(lastMessage.type)) {
+						if (this.isInBottom || lastMessage.selfSend) {
+							this.scrollToBottom();
+						} else {
+							this.newMessageSize++;
+						}
 					}
 				}
 			}

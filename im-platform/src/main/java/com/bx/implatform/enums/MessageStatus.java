@@ -6,13 +6,13 @@ import lombok.AllArgsConstructor;
 public enum MessageStatus {
 
     /**
-     * 文件
+     * 等待推送(未送达)
      */
-    UNSEND(0, "未送达"),
+    PENDING(0, "等待推送"),
     /**
-     * 文件
+     * 已送达(未读)
      */
-    SENDED(1, "送达"),
+    DELIVERED(1, "已送达"),
     /**
      * 撤回
      */

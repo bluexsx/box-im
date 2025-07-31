@@ -19,35 +19,35 @@
 					<span>{{ $date.toTimeText(msgInfo.sendTime) }}</span>
 				</div>
 				<div class="message-bottom" @contextmenu.prevent="showRightMenu($event)">
-					<div ref="chatMsgBox">
-						<span class="message-text" v-if="msgInfo.type == $enums.MESSAGE_TYPE.TEXT"
-							v-html="htmlText"></span>
-						<div class="message-image" v-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE">
-							<div class="img-load-box" v-loading="loading" element-loading-text="上传中.."
+					<div ref="chatMsgBox" class="message-content-wrapper">
+						<span class="message-text" v-if="isTextMessage" v-html="htmlText"></span>
+						<div class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE"
+							@click="showFullImageBox()">
+							<div v-loading="sending" element-loading-text="发送中.."
 								element-loading-background="rgba(0, 0, 0, 0.4)">
-								<img class="send-image" :src="JSON.parse(msgInfo.content).thumbUrl"
-									@click="showFullImageBox()" loading="lazy" />
+								<img :style="imageStyle" :src="contentData.thumbUrl" loading="lazy" />
 							</div>
-							<span title="发送失败" v-show="loadFail" @click="onSendFail"
-								class="send-fail el-icon-warning"></span>
 						</div>
-						<div class="message-file" v-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
-							<div class="chat-file-box" v-loading="loading">
+						<div class="message-file" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
+							<div class="chat-file-box" v-loading="sending">
 								<div class="chat-file-info">
 									<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
-										:href="data.url" :download="data.name">{{ data.name }}</el-link>
+										:href="contentData.url" :download="contentData.name">{{ contentData.name
+										}}</el-link>
 									<div class="chat-file-size">{{ fileSize }}</div>
 								</div>
 								<div class="chat-file-icon">
 									<span type="primary" class="el-icon-document"></span>
 								</div>
 							</div>
-							<span title="发送失败" v-show="loadFail" @click="onSendFail"
-								class="send-fail el-icon-warning"></span>
 						</div>
-					</div>
-					<div class="message-voice" v-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO" @click="onPlayVoice()">
-						<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
+						<div class="message-voice" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.AUDIO"
+							@click="onPlayVoice()">
+							<audio controls :src="JSON.parse(msgInfo.content).url"></audio>
+						</div>
+						<div title="发送中" v-if="sending" class="sending" v-loading="'true'"></div>
+						<div title="发送失败" v-else-if="sendFail" @click="onSendFail" class="send-fail el-icon-warning">
+						</div>
 					</div>
 					<div class="chat-action message-text" v-if="isAction">
 						<span v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE" title="重新呼叫"
@@ -56,11 +56,9 @@
 							@click="$emit('call')" class="iconfont icon-chat-video"></span>
 						<span>{{ msgInfo.content }}</span>
 					</div>
-					<div class="message-status" v-if="!isAction">
-						<span class="chat-readed" v-show="msgInfo.selfSend && !msgInfo.groupId
-							&& msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</span>
-						<span class="chat-unread" v-show="msgInfo.selfSend && !msgInfo.groupId
-							&& msgInfo.status != $enums.MESSAGE_STATUS.READED">未读</span>
+					<div class="message-status" v-if="!isAction && msgInfo.selfSend && !isGroupMessage">
+						<span class="chat-readed" v-if="msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</span>
+						<span class="chat-unread" v-else>未读</span>
 					</div>
 					<div class="chat-receipt" v-show="msgInfo.receipt" @click="onShowReadedBox">
 						<span v-if="msgInfo.receiptOk" class="icon iconfont icon-ok" title="全体已读"></span>
@@ -121,7 +119,7 @@ export default {
 	},
 	methods: {
 		onSendFail() {
-			this.$message.error("该文件已发送失败，目前不支持自动重新发送，建议手动重新发送")
+			this.$emit("resend",this.msgInfo);
 		},
 		showFullImageBox() {
 			let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
@@ -149,17 +147,17 @@ export default {
 		}
 	},
 	computed: {
-		loading() {
-			return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "loading";
+		sending() {
+			return this.msgInfo.status == this.$enums.MESSAGE_STATUS.SENDING;
 		},
-		loadFail() {
-			return this.msgInfo.loadStatus && this.msgInfo.loadStatus === "fail";
+		sendFail() {
+			return this.msgInfo.status == this.$enums.MESSAGE_STATUS.FAILED;
 		},
-		data() {
+		contentData() {
 			return JSON.parse(this.msgInfo.content)
 		},
 		fileSize() {
-			let size = this.data.size;
+			let size = this.contentData.size;
 			if (size > 1024 * 1024) {
 				return Math.round(size / 1024 / 1024) + "M";
 			}
@@ -184,6 +182,9 @@ export default {
 			}
 			return items;
 		},
+		isTextMessage() {
+			return this.msgInfo.type == this.$enums.MESSAGE_TYPE.TEXT
+		},
 		isAction() {
 			return this.$msgType.isAction(this.msgInfo.type);
 		},
@@ -196,13 +197,34 @@ export default {
 			let text = this.$str.html2Escape(this.msgInfo.content)
 			text = this.$url.replaceURLWithHTMLLinks(text, color)
 			return this.$emo.transform(text, 'emoji-normal')
+		},
+		isGroupMessage() {
+			return !!this.msgInfo.groupId;
+		},
+		imageStyle() {
+			// 计算图片的显示宽高，要求：任意边不能高于360px,不能低于60px,不能拉伸图片比例
+			let maxSize = this.configStore.fullScreen ? 360 : 240;
+			let minSize = 60;
+			let width = this.contentData.width;
+			let height = this.contentData.height;
+			if (width && height) {
+				let ratio = Math.min(width, height) / Math.max(width, height);
+				let w = Math.max(Math.min(width > height ? maxSize : ratio * maxSize, width), minSize);
+				let h = Math.max(Math.min(width > height ? ratio * maxSize : maxSize, height), minSize);
+				return `width: ${w}px;height:${h}px;object-fit: cover;`
+			} else {
+				// 兼容历史版本，历史数据没有记录宽高
+				return `max-width: ${maxSize}px;min-width:60px;max-height: ${maxSize}px;min-height:60px;`
+			}
 		}
 	}
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .chat-message-item {
+	padding: 3px 10px;
+	border-radius: 10px;
 
 	.message-tip {
 		line-height: 50px;
@@ -228,13 +250,6 @@ export default {
 		.content {
 			text-align: left;
 
-			.send-fail {
-				color: #e60c0c;
-				font-size: 30px;
-				cursor: pointer;
-				margin: 0 20px;
-			}
-
 			.message-top {
 				display: flex;
 				flex-wrap: nowrap;
@@ -252,18 +267,42 @@ export default {
 				padding-right: 300px;
 				padding-left: 5px;
 
+
+				.message-content-wrapper {
+					position: relative;
+					display: flex;
+					align-items: flex-end;
+
+					.sending {
+						width: 25px;
+						height: 25px;
+
+						.circular {
+							width: 25px;
+							height: 25px;
+						}
+					}
+
+					.send-fail {
+						color: #e45050;
+						font-size: 30px;
+						cursor: pointer;
+						margin: 0 5px;
+					}
+				}
+
 				.message-text {
+					flex: 1;
 					display: inline-block;
 					position: relative;
 					line-height: 26px;
-					//margin-top: 3px;
 					padding: 6px 10px;
 					background-color: var(--im-background);
 					border-radius: 10px;
 					font-size: var(--im-font-size);
 					text-align: left;
 					white-space: pre-wrap;
-					word-break: break-all;
+					word-break: break-word;
 
 					&:after {
 						content: "";
@@ -280,20 +319,10 @@ export default {
 				}
 
 				.message-image {
-					display: flex;
-					flex-wrap: nowrap;
-					flex-direction: row;
-					align-items: center;
-
-					.send-image {
-						min-width: 200px;
-						min-height: 150px;
-						max-width: 400px;
-						max-height: 300px;
-						border-radius: 8px;
-						cursor: pointer;
-					}
-
+					border-radius: 8px;
+					border: 3px solid var(--im-color-primary-light-8);
+					overflow: hidden;
+					cursor: pointer;
 				}
 
 				.message-file {
@@ -373,6 +402,7 @@ export default {
 				}
 
 				.message-status {
+					margin-top: 3px;
 					display: block;
 
 					.chat-readed {
@@ -432,8 +462,11 @@ export default {
 					padding-left: 180px;
 					padding-right: 5px;
 
+					.message-content-wrapper {
+						flex-direction: row-reverse;
+					}
+
 					.message-text {
-						margin-left: 10px;
 						background-color: var(--im-color-primary-light-2);
 						color: #fff;
 
@@ -442,14 +475,6 @@ export default {
 							right: -10px;
 							border-top-color: var(--im-color-primary-light-2);
 						}
-					}
-
-					.message-image {
-						flex-direction: row-reverse;
-					}
-
-					.message-file {
-						flex-direction: row-reverse;
 					}
 
 					.chat-action {

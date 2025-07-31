@@ -6,7 +6,6 @@
 </template>
 
 <script>
-
 export default {
 	data() {
 		return {}
@@ -16,6 +15,10 @@ export default {
 			type: Number,
 			default: 100
 		},
+		iconColor: {
+			type: String,
+			default: ''
+		},
 		mask: {
 			type: Boolean,
 			default: true
@@ -23,7 +26,13 @@ export default {
 	},
 	computed: {
 		icontStyle() {
-			return `font-size:${this.size}rpx`;
+			let style = `font-size:${this.size}rpx;`;
+			if(this.iconColor){
+				style += `color: ${this.iconColor};`
+			}else if(this.mask){
+				style += 'color: #eee;'
+			}
+			return style;	
 		},
 		loadingStyle() {
 			return this.mask ? "background: rgba(0, 0, 0, 0.3);" : "";

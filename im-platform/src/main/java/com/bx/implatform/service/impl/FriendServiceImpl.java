@@ -10,6 +10,7 @@ import com.bx.imclient.IMClient;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
+import com.bx.implatform.annotation.RedisLock;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.FriendDndDTO;
 import com.bx.implatform.entity.Friend;
@@ -75,10 +76,10 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         return friends.stream().map(this::conver).collect(Collectors.toList());
     }
 
+    @RedisLock(prefixKey = RedisKey.IM_LOCK_FRIEND_ADD, key = "#userId+':'+#friendId")
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void addFriend(Long friendId) {
-        long userId = SessionContext.getSession().getUserId();
+    public void addFriend(Long userId, Long friendId) {
         if (friendId.equals(userId)) {
             throw new GlobalException("不允许添加自己为好友");
         }
@@ -233,7 +234,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         msg.setRecvId(friendId);
         msg.setContent("你们已成为好友，现在可以开始聊天了");
         msg.setSendTime(new Date());
-        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setStatus(MessageStatus.PENDING.code());
         msg.setType(MessageType.TIP_TEXT.code());
         privateMessageMapper.insert(msg);
         // 推给对方
@@ -257,7 +258,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         msg.setRecvId(friendId);
         msg.setSendTime(new Date());
         msg.setType(MessageType.TIP_TEXT.code());
-        msg.setStatus(MessageStatus.UNSEND.code());
+        msg.setStatus(MessageStatus.PENDING.code());
         msg.setContent("你们的好友关系已被解除");
         privateMessageMapper.insert(msg);
         // 推送

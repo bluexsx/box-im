@@ -5,6 +5,7 @@ import com.bx.implatform.dto.FriendDndDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.FriendService;
+import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.vo.FriendVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +35,7 @@ public class FriendController {
     @PostMapping("/add")
     @Operation(summary = "添加好友", description = "双方建立好友关系")
     public Result addFriend(@NotNull(message = "好友id不可为空") @RequestParam Long friendId) {
-        friendService.addFriend(friendId);
+        friendService.addFriend(SessionContext.getSession().getUserId(),friendId);
         return ResultUtils.success();
     }
 

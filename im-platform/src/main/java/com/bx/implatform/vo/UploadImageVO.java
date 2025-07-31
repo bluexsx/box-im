@@ -12,4 +12,10 @@ public class UploadImageVO {
 
     @Schema(description = "缩略图")
     private String thumbUrl;
+
+    @Schema(description = "图片宽度")
+    private int width;
+
+    @Schema(description = "图片高度")
+    private int height;
 }

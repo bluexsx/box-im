@@ -51,12 +51,12 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         webrtcSession.setMode(mode);
         // 校验
         if (!imClient.isOnline(uid)) {
-            this.sendActMessage(webrtcSession, MessageStatus.UNSEND, "未接通");
+            this.sendActMessage(webrtcSession, MessageStatus.PENDING, "未接通");
             log.info("对方不在线,uid:{}", uid);
             throw new GlobalException("对方目前不在线");
         }
         if (userStateUtils.isBusy(uid)) {
-            this.sendActMessage(webrtcSession, MessageStatus.UNSEND, "未接通");
+            this.sendActMessage(webrtcSession, MessageStatus.PENDING, "未接通");
             log.info("对方正忙,uid:{}", uid);
             throw new GlobalException("对方正忙");
         }
@@ -171,7 +171,7 @@ public class WebrtcPrivateServiceImpl implements WebrtcPrivateService {
         // 通知对方取消会话
         imClient.sendPrivateMessage(sendMessage);
         // 生成通话消息
-        sendActMessage(webrtcSession, MessageStatus.UNSEND, "已取消");
+        sendActMessage(webrtcSession, MessageStatus.PENDING, "已取消");
     }
 
     @Override
