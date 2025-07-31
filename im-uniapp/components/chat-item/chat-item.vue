@@ -79,6 +79,9 @@ export default {
 			return "";
 		},
 		isTextMessage() {
+			if (this.chat.messages.length == 0) {
+				return false;
+			}
 			let idx = this.chat.messages.length - 1;
 			let messageType = this.chat.messages[idx].type;
 			return messageType == this.$enums.MESSAGE_TYPE.TEXT;

@@ -57,7 +57,7 @@ export default {
 				}
 			})
 		},
-		onTouchMove() {
+		onTouchMove(e) {
 			this.isTouchMove = true;
 			let touches = e.touches[0];
 			// 屏幕拖动大于50px时，取消菜单

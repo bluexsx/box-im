@@ -646,7 +646,9 @@ export default {
 				// #endif
 				// #ifdef H5
 				// 防止滚动条定格在顶部，不能一直往上滚，h5采用scroll-top定位
-				this.holdingScrollBar(this.scrollViewHeight);
+				if (uni.getSystemInfoSync().platform == 'ios') {
+					this.holdingScrollBar(this.scrollViewHeight);
+				}
 				// #endif
 				// 多展示20条信息
 				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
