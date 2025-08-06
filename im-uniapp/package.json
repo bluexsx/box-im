@@ -4,6 +4,7 @@
 		"scripts": {}
 	},
 	"dependencies": {
+		"default-passive-events": "^4.0.0",
 		"pinyin-pro": "^3.23.1",
 		"quill": "^1.3.7",
 		"quill-image-resize-mp": "^3.0.1",
