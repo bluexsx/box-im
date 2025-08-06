@@ -89,7 +89,7 @@ export default {
   },
   computed: {
     loading() {
-      return this.chatStore.loadingGroupMsg || this.chatStore.loadingPrivateMsg
+      return this.chatStore.loading;
     }
   }
 }

@@ -32,6 +32,14 @@ public interface GroupMessageService extends IService<GroupMessage> {
     void  pullOfflineMessage(Long minId);
 
     /**
+     * 拉取离线消息，只能拉取最近1个月的消息
+     *
+     * @param minId 消息起始id
+     */
+    List<GroupMessageVO> loadOffineMessage(Long minId);
+
+
+    /**
      * 消息已读,同步其他终端，清空未读数量
      *
      * @param groupId 群聊

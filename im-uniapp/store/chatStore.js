@@ -3,7 +3,6 @@ import { MESSAGE_TYPE, MESSAGE_STATUS } from '@/common/enums.js';
 import useFriendStore from './friendStore.js';
 import useGroupStore from './groupStore.js';
 import useUserStore from './userStore';
-import useConfigStore from './configStore.js';
 
 let cacheChats = [];
 export default defineStore('chatStore', {
@@ -12,8 +11,7 @@ export default defineStore('chatStore', {
 			chats: [],
 			privateMsgMaxId: 0,
 			groupMsgMaxId: 0,
-			loadingPrivateMsg: false,
-			loadingGroupMsg: false
+			loading: false
 		}
 	},
 	actions: {
@@ -140,7 +138,7 @@ export default defineStore('chatStore', {
 			}
 		},
 		moveTop(idx) {
-			if (this.isLoading()) {
+			if (this.loading) {
 				return;
 			}
 			let chats = this.curChats;
@@ -156,20 +154,18 @@ export default defineStore('chatStore', {
 		insertMessage(msgInfo, chatInfo) {
 			// 获取对方id或群id
 			let type = chatInfo.type;
-			// 完成初始化之前不能修改消息最大id,否则可能导致拉不到离线消息
-			if (useConfigStore().appInit) {
-				// 记录消息的最大id
-				if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
-					this.privateMsgMaxId = msgInfo.id;
-				}
-				if (msgInfo.id && type == "GROUP" && msgInfo.id > this.groupMsgMaxId) {
-					this.groupMsgMaxId = msgInfo.id;
-				}
+			// 记录消息的最大id
+			if (msgInfo.id && type == "PRIVATE" && msgInfo.id > this.privateMsgMaxId) {
+				this.privateMsgMaxId = msgInfo.id;
+			}
+			if (msgInfo.id && type == "GROUP" && msgInfo.id > this.groupMsgMaxId) {
+				this.groupMsgMaxId = msgInfo.id;
 			}
 			// 如果是已存在消息，则覆盖旧的消息数据
 			let chat = this.findChat(chatInfo);
 			let message = this.findMessage(chat, msgInfo);
 			if (message) {
+				console.log("message:",message)
 				Object.assign(message, msgInfo);
 				chat.stored = false;
 				this.saveToStorage();
@@ -218,24 +214,8 @@ export default defineStore('chatStore', {
 				});
 				chat.lastTimeTip = msgInfo.sendTime;
 			}
-			// 根据id顺序插入，防止消息乱序
-			let insertPos = chat.messages.length;
-			// 防止 图片、文件 在发送方 显示 在顶端  因为还没存库，id=0
-			if (msgInfo.id && msgInfo.id > 0) {
-				for (let idx in chat.messages) {
-					if (chat.messages[idx].id && msgInfo.id < chat.messages[idx].id) {
-						insertPos = idx;
-						console.log(`消息出现乱序,位置:${chat.messages.length},修正至:${insertPos}`);
-						break;
-					}
-				}
-			}
-			if (insertPos == chat.messages.length) {
-				// 这种赋值效率最高
-				chat.messages[insertPos] = msgInfo;
-			} else {
-				chat.messages.splice(insertPos, 0, msgInfo);
-			}
+			// 插入消息
+			chat.messages.push(msgInfo);
 			chat.stored = false;
 			this.saveToStorage();
 		},
@@ -345,17 +325,8 @@ export default defineStore('chatStore', {
 				this.saveToStorage();
 			}
 		},
-		setLoadingPrivateMsg(loading) {
-			this.loadingPrivateMsg = loading;
-			if (!this.isLoading()) {
-				this.refreshChats()
-			}
-		},
-		setLoadingGroupMsg(loading) {
-			this.loadingGroupMsg = loading;
-			if (!this.isLoading()) {
-				this.refreshChats()
-			}
+		setLoading(loading) {
+			this.loading = loading;
 		},
 		setDnd(chatInfo, isDnd) {
 			let chat = this.findChat(chatInfo);
@@ -406,7 +377,7 @@ export default defineStore('chatStore', {
 		},
 		saveToStorage(withColdMessage) {
 			// 加载中不保存，防止卡顿
-			if (this.isLoading()) {
+			if (this.loading) {
 				return;
 			}
 			const userStore = useUserStore();
@@ -493,11 +464,8 @@ export default defineStore('chatStore', {
 		}
 	},
 	getters: {
-		isLoading: (state) => () => {
-			return state.loadingPrivateMsg || state.loadingGroupMsg
-		},
 		curChats: (state) => {
-			if (cacheChats && state.isLoading()) {
+			if (cacheChats && state.loading) {
 				return cacheChats;
 			}
 			return state.chats;
@@ -529,7 +497,10 @@ export default defineStore('chatStore', {
 			if (!chat) {
 				return null;
 			}
-			for (let idx in chat.messages) {
+			for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
+				if (!chat.messages[idx].id && !chat.messages[idx].tmpId) {
+					continue;
+				}
 				// 通过id判断
 				if (msgInfo.id && chat.messages[idx].id == msgInfo.id) {
 					return chat.messages[idx];
@@ -539,7 +510,15 @@ export default defineStore('chatStore', {
 					chat.messages[idx].tmpId == msgInfo.tmpId) {
 					return chat.messages[idx];
 				}
+				// 如果id比要查询的消息小，说明没有这条消息
+				if (msgInfo.id && msgInfo.id > chat.messages[idx].id) {
+					break;
+				}
+				if (msgInfo.tmpId && msgInfo.tmpId > chat.messages[idx].tmpId) {
+					break;
+				}
 			}
+			return null;
 		}
 	}
 });

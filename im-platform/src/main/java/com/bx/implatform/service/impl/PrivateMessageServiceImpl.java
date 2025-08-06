@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -140,9 +141,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         UserSession session = SessionContext.getSession();
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近3个月的消息,移动端只拉取一个月消息
-        int months = session.getTerminal().equals(IMTerminalType.APP.code()) ? 1 : 3;
-        Date minDate = DateUtils.addMonths(new Date(), -months);
+        // 只能拉取最近1个月的消息
+        Date minDate = DateUtils.addMonths(new Date(), -1);
         wrapper.gt(PrivateMessage::getId, minId);
         wrapper.ge(PrivateMessage::getSendTime, minDate);
         wrapper.and(wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).or()
@@ -173,6 +173,36 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             this.sendLoadingMessage(false, session);
             log.info("拉取私聊消息，用户id:{},数量:{}", session.getUserId(), messages.size());
         });
+    }
+
+    @Override
+    public List<PrivateMessageVO> loadOfflineMessage(Long minId) {
+        UserSession session = SessionContext.getSession();
+        // 获取当前用户的消息
+        LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
+        // 只能拉取最近1个月的消息
+        Date minDate = DateUtils.addMonths(new Date(), -1);
+        wrapper.gt(PrivateMessage::getId, minId);
+        wrapper.ge(PrivateMessage::getSendTime, minDate);
+        wrapper.and(wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).or()
+            .eq(PrivateMessage::getRecvId, session.getUserId()));
+        wrapper.orderByAsc(PrivateMessage::getId);
+        List<PrivateMessage> messages = this.list(wrapper);
+        // 更新消息为送达状态
+        List<Long> messageIds =
+            messages.stream().filter(m -> m.getStatus().equals(MessageStatus.PENDING.code())).map(PrivateMessage::getId)
+                .collect(Collectors.toList());
+        if (!messageIds.isEmpty()) {
+            LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
+            updateWrapper.in(PrivateMessage::getId, messageIds);
+            updateWrapper.set(PrivateMessage::getStatus, MessageStatus.DELIVERED.code());
+            update(updateWrapper);
+        }
+        // 转换vo
+        List<PrivateMessageVO> vos = messages.stream().map(m -> BeanUtils.copyProperties(m, PrivateMessageVO.class))
+            .collect(Collectors.toList());
+        log.info("拉取私聊消息，用户id:{},数量:{},minId:{}", session.getUserId(), messages.size(), minId);
+        return vos;
     }
 
     @Transactional(rollbackFor = Exception.class)

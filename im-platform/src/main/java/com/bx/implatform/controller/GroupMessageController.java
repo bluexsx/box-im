@@ -35,11 +35,18 @@ public class GroupMessageController {
     }
 
     @GetMapping("/pullOfflineMessage")
-    @Operation(summary = "拉取离线消息", description = "拉取离线消息,消息将通过webscoket异步推送")
+    @Operation(summary = "拉取离线消息(已废弃)", description = "拉取离线消息,消息将通过webscoket异步推送")
     public Result pullOfflineMessage(@RequestParam Long minId) {
         groupMessageService.pullOfflineMessage(minId);
         return ResultUtils.success();
     }
+
+    @GetMapping(value = "/loadOfflineMessage")
+    @Operation(summary = "拉取离线消息", description = "拉取离线消息")
+    public Result<List<GroupMessageVO>> loadOfflineMessage(@RequestParam Long minId) {
+        return ResultUtils.success(groupMessageService.loadOffineMessage(minId));
+    }
+
 
     @PutMapping("/readed")
     @Operation(summary = "消息已读", description = "将群聊中的消息状态置为已读")

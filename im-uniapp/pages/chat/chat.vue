@@ -111,7 +111,7 @@ export default {
 			return count;
 		},
 		loading() {
-			return this.chatStore.isLoading();
+			return this.chatStore.loading;
 		},
 		initializing() {
 			return !this.configStore.appInit;

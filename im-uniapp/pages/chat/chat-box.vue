@@ -325,7 +325,6 @@ export default {
 					let tmpMessage = this.buildTmpMessage(msgInfo);
 					this.chatStore.insertMessage(tmpMessage, chat);
 					this.moveChatToTop();
-
 					this.sendMessageRequest(msgInfo).then((m) => {
 						// 更新消息
 						tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
@@ -542,7 +541,7 @@ export default {
 			// 删除旧消息
 			this.chatStore.deleteMessage(msgInfo, chat);
 			// 重新发送
-			msgInfo.temId = this.generateId();
+			msgInfo.tmpId = this.generateId();
 			let tmpMessage = this.buildTmpMessage(msgInfo);
 			this.chatStore.insertMessage(tmpMessage, chat);
 			this.moveChatToTop();
