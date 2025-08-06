@@ -63,8 +63,8 @@ export default {
 						// 如果正在拉取离线消息，先存入缓存区，等待消息拉取完成再处理，防止消息乱序
 						this.privateMessagesBuffer.push(msgInfo);
 					} else {
-						// 插入私聊消息
-						this.handlePrivateMessage(msgInfo);
+						// 插入群聊消息
+						this.handleGroupMessage(msgInfo);
 					}
 				} else if (cmd == 5) {
 					// 系统消息
@@ -222,7 +222,6 @@ export default {
 				// 插入消息
 				this.chatStore.insertMessage(msg, chatInfo);
 				// 播放提示音
-				this.chatStore.insertMessage(msg, chatInfo);
 				if (!friend.isDnd && !this.chatStore.loading &&
 					!msg.selfSend && msgType.isNormal(msg.type) &&
 					msg.status != enums.MESSAGE_STATUS.READED) {
