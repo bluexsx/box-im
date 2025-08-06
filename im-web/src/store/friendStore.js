@@ -33,14 +33,36 @@ export default defineStore('friendStore', {
 				this.friends.unshift(friend);
 			}
 		},
-		updateOnlineStatus(onlineData) {
-			let friend = this.findFriend(onlineData.userId);
-			if (onlineData.terminal == TERMINAL_TYPE.WEB) {
-				friend.onlineWeb = onlineData.online;
-			} else if (onlineData.terminal == TERMINAL_TYPE.APP) {
-				friend.onlineApp = onlineData.online;
+		setOnlineStatus(onlineTerminals) {
+			this.friends.forEach((f) => {
+				let userTerminal = onlineTerminals.find((o) => f.id == o.userId);
+				if (userTerminal) {
+					f.online = true;
+					f.onlineWeb = userTerminal.terminals.indexOf(TERMINAL_TYPE.WEB) >= 0
+					f.onlineApp = userTerminal.terminals.indexOf(TERMINAL_TYPE.APP) >= 0
+				} else {
+					f.online = false;
+					f.onlineWeb = false;
+					f.onlineApp = false;
+				}
+			});
+		},
+		refreshOnlineStatus() {
+			let userIds = this.friends.filter((f) => !f.deleted).map((f) => f.id);
+			if (userIds.length == 0) {
+				return;
 			}
-			friend.online = friend.onlineWeb || friend.onlineApp;
+			http({
+				url: '/user/terminal/online?userIds=' + userIds.join(','),
+				method: 'GET'
+			}).then((onlineTerminals) => {
+				this.setOnlineStatus(onlineTerminals);
+			})
+			// 30s后重新拉取
+			clearTimeout(this.timer);
+			this.timer = setTimeout(() => {
+				this.refreshOnlineStatus();
+			}, 30000)
 		},
 		setDnd(id, isDnd) {
 			let friend = this.findFriend(id);
@@ -58,6 +80,7 @@ export default defineStore('friendStore', {
 					method: 'GET'
 				}).then(async (friends) => {
 					this.setFriends(friends);
+					this.refreshOnlineStatus();
 					resolve();
 				}).catch(e => {
 					reject(e);
