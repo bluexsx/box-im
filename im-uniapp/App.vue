@@ -124,14 +124,14 @@ export default {
 			return this.$http({
 				url: "/message/private/loadOfflineMessage?minId=" + minId,
 				method: 'GET',
-				timeout: 300000
+				timeout: 60000
 			})
 		},
 		pullGroupOfflineMessage(minId) {
 			return this.$http({
 				url: "/message/group/loadOfflineMessage?minId=" + minId,
 				method: 'GET',
-				timeout: 300000
+				timeout: 60000
 			})
 		},
 		handlePrivateMessage(msg) {
