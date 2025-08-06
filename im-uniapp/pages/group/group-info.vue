@@ -122,7 +122,7 @@ export default {
 				type: 'GROUP',
 				targetId: this.group.id,
 				showName: this.group.showGroupName,
-				headImage: this.group.headImage,
+				headImage: this.group.headImageThumb,
 				isDnd: this.group.isDnd
 			};
 			this.chatStore.openChat(chat);

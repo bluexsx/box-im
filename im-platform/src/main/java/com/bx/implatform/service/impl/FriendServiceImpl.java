@@ -132,7 +132,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         friend.setUserId(userId);
         friend.setFriendId(friendId);
         User friendInfo = userMapper.selectById(friendId);
-        friend.setFriendHeadImage(friendInfo.getHeadImage());
+        friend.setFriendHeadImage(friendInfo.getHeadImageThumb());
         friend.setFriendNickName(friendInfo.getNickName());
         friend.setDeleted(false);
         this.saveOrUpdate(friend);

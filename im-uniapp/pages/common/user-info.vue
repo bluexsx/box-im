@@ -61,7 +61,7 @@ export default {
 				type: 'PRIVATE',
 				targetId: this.userInfo.id,
 				showName: this.userInfo.nickName,
-				headImage: this.userInfo.headImage,
+				headImage: this.userInfo.headImageThumb,
 			};
 			if (this.isFriend) {
 				chat.isDnd = this.friendInfo.isDnd;

@@ -118,7 +118,7 @@ export default {
 				let friend = {
 					id: user.id,
 					nickName: user.nickName,
-					headImage: user.headImage,
+					headImage: user.headImageThumb,
 					online: user.online
 				}
 				this.friendStore.addFriend(friend);
