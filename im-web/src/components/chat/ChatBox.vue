@@ -784,6 +784,9 @@ export default {
 		},
 		isPrivate() {
 			return this.chat.type == 'PRIVATE';
+		},
+		loading() {
+			return this.chatStore.loading;
 		}
 	},
 	watch: {
@@ -831,6 +834,14 @@ export default {
 							this.newMessageSize++;
 						}
 					}
+				}
+			}
+		},
+		loading: {
+			handler(newLoading, oldLoading) {
+				// 断线重连后，需要更新一下已读状态
+				if (!newLoading && this.isPrivate) {
+					this.loadReaded(this.chat.targetId)
 				}
 			}
 		}
