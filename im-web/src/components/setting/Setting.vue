@@ -87,7 +87,7 @@ export default {
 	},
 	computed: {
 		imageAction() {
-			return `/image/upload`;
+			return `/image/upload?thumbSize=20`;
 		}
 	},
 	watch: {

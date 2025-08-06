@@ -33,6 +33,10 @@ export default {
 			type: Boolean,
 			default: false
 		},
+		thumbSize: {
+			type: Number,
+			default: 50
+		},
 		onBefore: {
 			type: Function,
 			default: null
@@ -63,8 +67,9 @@ export default {
 			})
 		},
 		uploadImage(file) {
+			let action = `/image/upload?isPermanent=${this.isPermanent}&thumbSize=${this.thumbSize}`
 			uni.uploadFile({
-				url: UNI_APP.BASE_URL + '/image/upload?isPermanent=' + this.isPermanent,
+				url: UNI_APP.BASE_URL + action,
 				header: {
 					accessToken: uni.getStorageSync("loginInfo").accessToken
 				},

@@ -9,7 +9,7 @@ public interface FileService extends IService<FileInfo> {
 
     String uploadFile(MultipartFile file);
 
-    UploadImageVO uploadImage(MultipartFile file,Boolean isPermanent);
+    UploadImageVO uploadImage(MultipartFile file,Boolean isPermanent,Long thumbSize);
 
 
 }

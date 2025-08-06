@@ -92,7 +92,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
 
     @Transactional
     @Override
-    public UploadImageVO uploadImage(MultipartFile file, Boolean isPermanent) {
+    public UploadImageVO uploadImage(MultipartFile file, Boolean isPermanent,Long thumbSize) {
         try {
             Long userId = SessionContext.getSession().getUserId();
             // 大小校验
@@ -129,9 +129,9 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
             }
             vo.setOriginUrl(generUrl(FileType.IMAGE, fileName));
-            if (file.getSize() > 50 * 1024) {
+            if (file.getSize() > thumbSize * 1024) {
                 // 大于50K的文件需上传缩略图
-                byte[] imageByte = ImageUtil.compressForScale(file.getBytes(), 30);
+                byte[] imageByte = ImageUtil.compressForScale(file.getBytes(), thumbSize);
                 String thumbFileName = minioSerivce.upload(minioProps.getBucketName(), minioProps.getImagePath(),
                     file.getOriginalFilename(), imageByte, file.getContentType());
                 if (StringUtils.isEmpty(thumbFileName)) {

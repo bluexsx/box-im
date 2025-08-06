@@ -295,7 +295,7 @@ export default {
 			return this.activeGroup.ownerId == this.userStore.userInfo.id;
 		},
 		imageAction() {
-			return `/image/upload`;
+			return `/image/upload?thumbSize=20`;
 		},
 		groupMap() {
 			// 按首字母分组

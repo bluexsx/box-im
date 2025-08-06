@@ -55,8 +55,11 @@ export default {
 			}
 			let formData = new FormData()
 			formData.append('file', file.file)
+			let url = this.action;
+			url += this.action.includes("?") ? "&" : "?"
+			url += 'isPermanent=' + this.isPermanent;
 			this.$http({
-				url: this.action + '?isPermanent=' + this.isPermanent,
+				url: url,
 				data: formData,
 				method: 'post',
 				headers: {
