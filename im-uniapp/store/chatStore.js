@@ -165,7 +165,7 @@ export default defineStore('chatStore', {
 			let chat = this.findChat(chatInfo);
 			let message = this.findMessage(chat, msgInfo);
 			if (message) {
-				console.log("message:",message)
+				console.log("message:", message)
 				Object.assign(message, msgInfo);
 				chat.stored = false;
 				this.saveToStorage();
@@ -498,24 +498,25 @@ export default defineStore('chatStore', {
 				return null;
 			}
 			for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
-				if (!chat.messages[idx].id && !chat.messages[idx].tmpId) {
-					continue;
-				}
 				// 通过id判断
-				if (msgInfo.id && chat.messages[idx].id == msgInfo.id) {
-					return chat.messages[idx];
+				if (msgInfo.id && chat.messages[idx].id) {
+					if (msgInfo.id == chat.messages[idx].id) {
+						return chat.messages[idx];
+					}
+					// 如果id比要查询的消息小，说明没有这条消息
+					if (msgInfo.id > chat.messages[idx].id) {
+						break;
+					}
 				}
 				// 正在发送中的消息可能没有id,只有tmpId
-				if (msgInfo.tmpId && chat.messages[idx].tmpId &&
-					chat.messages[idx].tmpId == msgInfo.tmpId) {
-					return chat.messages[idx];
-				}
-				// 如果id比要查询的消息小，说明没有这条消息
-				if (msgInfo.id && msgInfo.id > chat.messages[idx].id) {
-					break;
-				}
-				if (msgInfo.tmpId && msgInfo.tmpId > chat.messages[idx].tmpId) {
-					break;
+				if (msgInfo.tmpId && chat.messages[idx].tmpId) {
+					if (msgInfo.tmpId == chat.messages[idx].tmpId) {
+						return chat.messages[idx];
+					}
+					// 如果id比要查询的消息小，说明没有这条消息
+					if (msgInfo.tmpId > chat.messages[idx].tmpId) {
+						break;
+					}
 				}
 			}
 			return null;

@@ -320,7 +320,7 @@ export default {
 
 				.message-image {
 					border-radius: 8px;
-					border: 3px solid var(--im-color-primary-light-8);
+					border: 2px solid var(--im-color-primary-light-9);
 					overflow: hidden;
 					cursor: pointer;
 				}

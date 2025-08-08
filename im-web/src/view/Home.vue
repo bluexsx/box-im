@@ -125,7 +125,6 @@ export default {
 								location.href = "/";
 							}
 						});
-
 					} else if (cmd == 3) {
 						if (!this.configStore.appInit || this.chatStore.loading) {
 							// 如果正在拉取离线消息，先放进缓存区，等待消息拉取完成再处理，防止消息乱序
