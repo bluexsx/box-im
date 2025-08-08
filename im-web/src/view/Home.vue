@@ -78,7 +78,9 @@ export default {
 			showSettingDialog: false,
 			lastPlayAudioTime: new Date().getTime() - 1000,
 			isFullscreen: true,
-			reconnecting: false
+			reconnecting: false,
+			privateMessagesBuffer: [],
+			groupMessagesBuffer: []
 		}
 	},
 	methods: {
@@ -108,8 +110,7 @@ export default {
 						this.onReconnectWs();
 					} else {
 						// 加载离线消息
-						this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
-						this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+						this.pullOfflineMessage();
 						this.configStore.setAppInit(true);
 					}
 				});
@@ -124,13 +125,22 @@ export default {
 								location.href = "/";
 							}
 						});
-
 					} else if (cmd == 3) {
-						// 插入私聊消息
-						this.handlePrivateMessage(msgInfo);
+						if (!this.configStore.appInit || this.chatStore.loading) {
+							// 如果正在拉取离线消息，先放进缓存区，等待消息拉取完成再处理，防止消息乱序
+							this.privateMessagesBuffer.push(msgInfo);
+						} else {
+							// 插入私聊消息
+							this.handlePrivateMessage(msgInfo);
+						}
 					} else if (cmd == 4) {
-						// 插入群聊消息
-						this.handleGroupMessage(msgInfo);
+						if (!this.configStore.appInit || this.chatStore.loading) {
+							// 如果正在拉取离线消息，先放进缓存区，等待消息拉取完成再处理，防止消息乱序
+							this.groupMessagesBuffer.push(msgInfo);
+						} else {
+							// 插入群聊消息
+							this.handleGroupMessage(msgInfo);
+						}
 					} else if (cmd == 5) {
 						// 处理系统消息
 						this.handleSystemMessage(msgInfo);
@@ -170,8 +180,7 @@ export default {
 			promises.push(this.groupStore.loadGroup());
 			Promise.all(promises).then(() => {
 				// 加载离线消息
-				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
-				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+				this.pullOfflineMessage();
 				this.configStore.setAppInit(true)
 				this.$message.success("重新连接成功");
 			}).catch(() => {
@@ -195,22 +204,41 @@ export default {
 			this.chatStore.clear();
 			this.userStore.clear();
 		},
+				pullOfflineMessage() {
+			this.chatStore.setLoading(true);
+			const promises = [];
+			promises.push(this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId));
+			promises.push(this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId));
+			Promise.all(promises).then(messages => {
+				// 处理离线消息
+				messages[0].forEach(m => this.handlePrivateMessage(m));
+				messages[1].forEach(m => this.handleGroupMessage(m));
+				// 处理缓冲区收到的实时消息
+				this.privateMessagesBuffer.forEach(m => this.handlePrivateMessage(m));
+				this.groupMessagesBuffer.forEach(m => this.handleGroupMessage(m));
+				// 清空缓冲区
+				this.privateMessagesBuffer = [];
+				this.groupMessagesBuffer = [];
+				// 关闭加载离线标记
+				this.chatStore.setLoading(false);
+				// 刷新会话
+				this.chatStore.refreshChats();
+			}).catch((e) => {
+				console.log(e)
+				this.$message.error("拉取离线消息失败");
+				this.onExit();
+			})
+		},
 		pullPrivateOfflineMessage(minId) {
-			this.chatStore.setLoadingPrivateMsg(true)
-			this.$http({
-				url: "/message/private/pullOfflineMessage?minId=" + minId,
+			return this.$http({
+				url: "/message/private/loadOfflineMessage?minId=" + minId,
 				method: 'GET'
-			}).catch(() => {
-				this.chatStore.setLoadingPrivateMsg(false)
 			})
 		},
 		pullGroupOfflineMessage(minId) {
-			this.chatStore.setLoadingGroupMsg(true)
-			this.$http({
-				url: "/message/group/pullOfflineMessage?minId=" + minId,
+			return this.$http({
+				url: "/message/group/loadOfflineMessage?minId=" + minId,
 				method: 'GET'
-			}).catch(() => {
-				this.chatStore.setLoadingGroupMsg(false)
 			})
 		},
 		handlePrivateMessage(msg) {
@@ -222,11 +250,6 @@ export default {
 			let chatInfo = {
 				type: 'PRIVATE',
 				targetId: friendId
-			}
-			// 消息加载标志
-			if (msg.type == this.$enums.MESSAGE_TYPE.LOADING) {
-				this.chatStore.setLoadingPrivateMsg(JSON.parse(msg.content))
-				return;
 			}
 			// 消息已读处理，清空已读数量
 			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
@@ -285,7 +308,7 @@ export default {
 			// 插入消息
 			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
-			if (!friend.isDnd && !this.chatStore.isLoading() && !msg.selfSend && this.$msgType.isNormal(msg.type) &&
+			if (!friend.isDnd && !this.chatStore.loading && !msg.selfSend && this.$msgType.isNormal(msg.type) &&
 				msg.status != this.$enums.MESSAGE_STATUS.READED) {
 				this.playAudioTip();
 			}
@@ -296,11 +319,6 @@ export default {
 			let chatInfo = {
 				type: 'GROUP',
 				targetId: msg.groupId
-			}
-			// 消息加载标志
-			if (msg.type == this.$enums.MESSAGE_TYPE.LOADING) {
-				this.chatStore.setLoadingGroupMsg(JSON.parse(msg.content))
-				return;
 			}
 			// 消息已读处理
 			if (msg.type == this.$enums.MESSAGE_TYPE.READED) {
@@ -367,7 +385,7 @@ export default {
 			// 插入消息
 			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
-			if (!group.isDnd && !this.chatStore.isLoading() &&
+			if (!group.isDnd && !this.chatStore.loading &&
 				!msg.selfSend && this.$msgType.isNormal(msg.type)
 				&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
 				this.playAudioTip();

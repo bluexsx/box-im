@@ -17,6 +17,7 @@ const request = (options) => {
 			method: options.method || 'GET',
 			header: header,
 			data: options.data || {},
+			timeout: options.timeout || 3000,
 			async success(res) {
 				if (res.data.code == 200) {
 					return resolve(res.data.data)

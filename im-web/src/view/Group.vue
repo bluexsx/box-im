@@ -240,7 +240,7 @@ export default {
 				type: 'GROUP',
 				targetId: this.activeGroup.id,
 				showName: this.activeGroup.showGroupName,
-				headImage: this.activeGroup.headImage,
+				headImage: this.activeGroup.headImageThumb,
 				isDnd: this.activeGroup.isDnd
 			};
 			this.chatStore.openChat(chat);
@@ -295,7 +295,7 @@ export default {
 			return this.activeGroup.ownerId == this.userStore.userInfo.id;
 		},
 		imageAction() {
-			return `/image/upload`;
+			return `/image/upload?thumbSize=20`;
 		},
 		groupMap() {
 			// 按首字母分组

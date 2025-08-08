@@ -45,7 +45,7 @@ export default {
 	methods: {
 		showChatBox() {
 			// 初始化期间进入会话会导致消息不刷新
-			if (!this.configStore.appInit || this.chatStore.isLoading()) {
+			if (!this.configStore.appInit || this.chatStore.loading) {
 				uni.showToast({
 					title: "正在初始化页面,请稍后...",
 					icon: 'none'

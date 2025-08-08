@@ -151,9 +151,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(!vo.getNickName().equals(sensitiveFilterUtil.filter(vo.getNickName()))){
             throw new GlobalException("昵称包含敏感字符");
         }
-        if(!vo.getSignature().equals(sensitiveFilterUtil.filter(vo.getSignature()))){
-            throw new GlobalException("签名内容包含敏感字符");
-        }
         if (!session.getUserId().equals(vo.getId())) {
             throw new GlobalException("不允许修改其他用户的信息");
         }

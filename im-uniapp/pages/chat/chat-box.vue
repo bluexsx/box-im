@@ -257,12 +257,12 @@ export default {
 			this.atUserIds = atUserIds;
 		},
 		onLongPressHead(msgInfo) {
-			if (!msgInfo.selfSend && this.chat.type == "GROUP" && this.atUserIds.indexOf(msgInfo.sendId) < 0) {
+			if (!msgInfo.selfSend && this.isGroup && this.atUserIds.indexOf(msgInfo.sendId) < 0) {
 				this.atUserIds.push(msgInfo.sendId);
 			}
 		},
 		headImage(msgInfo) {
-			if (this.chat.type == 'GROUP') {
+			if (this.isGroup) {
 				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
 				return member ? member.headImage : "";
 			} else {
@@ -270,7 +270,7 @@ export default {
 			}
 		},
 		showName(msgInfo) {
-			if (this.chat.type == 'GROUP') {
+			if (this.isGroup) {
 				let member = this.groupMembers.find((m) => m.userId == msgInfo.sendId);
 				return member ? member.showNickName : "";
 			} else {
@@ -325,7 +325,6 @@ export default {
 					let tmpMessage = this.buildTmpMessage(msgInfo);
 					this.chatStore.insertMessage(tmpMessage, chat);
 					this.moveChatToTop();
-
 					this.sendMessageRequest(msgInfo).then((m) => {
 						// 更新消息
 						tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
@@ -358,7 +357,7 @@ export default {
 			return atText;
 		},
 		fillTargetId(msgInfo, targetId) {
-			if (this.chat.type == "GROUP") {
+			if (this.isGroup) {
 				msgInfo.groupId = targetId;
 			} else {
 				msgInfo.recvId = targetId;
@@ -542,7 +541,7 @@ export default {
 			// 删除旧消息
 			this.chatStore.deleteMessage(msgInfo, chat);
 			// 重新发送
-			msgInfo.temId = this.generateId();
+			msgInfo.tmpId = this.generateId();
 			let tmpMessage = this.buildTmpMessage(msgInfo);
 			this.chatStore.insertMessage(tmpMessage, chat);
 			this.moveChatToTop();
@@ -676,7 +675,7 @@ export default {
 			}, 50)
 		},
 		onShowMore() {
-			if (this.chat.type == "GROUP") {
+			if (this.isGroup) {
 				uni.navigateTo({
 					url: "/pages/group/group-info?id=" + this.group.id
 				})
@@ -729,7 +728,7 @@ export default {
 		readedMessage() {
 			if (this.unreadCount > 0) {
 				let url = ""
-				if (this.chat.type == "GROUP") {
+				if (this.isGroup) {
 					url = `/message/group/readed?groupId=${this.chat.targetId}`
 				} else {
 					url = `/message/private/readed?friendId=${this.chat.targetId}`
@@ -920,7 +919,7 @@ export default {
 				sendTime: new Date().getTime(),
 				type: this.$enums.MESSAGE_TYPE.TIP_TEXT
 			}
-			if (this.chat.type == "PRIVATE") {
+			if (this.isPrivate) {
 				msgInfo.recvId = this.mine.id
 				msgInfo.content = "该用户已被管理员封禁,原因:" + this.userInfo.reason
 			} else {
@@ -970,7 +969,7 @@ export default {
 				return "";
 			}
 			let title = this.chat.showName;
-			if (this.chat.type == "GROUP") {
+			if (this.isGroup) {
 				let size = this.groupMembers.filter(m => !m.quit).length;
 				title += `(${size})`;
 			}
@@ -992,8 +991,8 @@ export default {
 			return this.chat.unreadCount;
 		},
 		isBanned() {
-			return (this.chat.type == "PRIVATE" && this.userInfo.isBanned) ||
-				(this.chat.type == "GROUP" && this.group.isBanned)
+			return (this.isPrivate && this.userInfo.isBanned) ||
+				(this.isGroup && this.group.isBanned)
 		},
 		atUserItems() {
 			let atUsers = [];
@@ -1014,6 +1013,15 @@ export default {
 		},
 		memberSize() {
 			return this.groupMembers.filter(m => !m.quit).length;
+		},
+		isGroup() {
+			return this.chat.type == 'GROUP';
+		},
+		isPrivate() {
+			return this.chat.type == 'PRIVATE';
+		},
+		loading() {
+			return this.chatStore.loading;
 		}
 	},
 	watch: {
@@ -1039,6 +1047,14 @@ export default {
 					this.readedMessage()
 				}
 			}
+		},
+		loading: {
+			handler(newLoading, oldLoading) {
+				// 断线重连后，需要更新一下已读状态
+				if (!newLoading && this.isPrivate) {
+					this.loadReaded(this.chat.targetId)
+				}
+			}
 		}
 	},
 	onLoad(options) {
@@ -1050,7 +1066,7 @@ export default {
 		// 消息已读
 		this.readedMessage()
 		// 加载好友或群聊信息
-		if (this.chat.type == "GROUP") {
+		if (this.isGroup) {
 			this.loadGroup(this.chat.targetId);
 		} else {
 			this.loadFriend(this.chat.targetId);

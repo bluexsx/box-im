@@ -25,8 +25,8 @@ public class FileController {
     @Operation(summary = "上传图片", description = "上传图片,上传后返回原图和缩略图的url")
     @PostMapping("/image/upload")
     public Result<UploadImageVO> uploadImage(@RequestParam("file") MultipartFile file,
-        @RequestParam(defaultValue = "true") Boolean isPermanent) {
-        return ResultUtils.success(fileService.uploadImage(file,isPermanent));
+        @RequestParam(defaultValue = "true") Boolean isPermanent, @RequestParam(defaultValue = "50") Long thumbSize) {
+        return ResultUtils.success(fileService.uploadImage(file, isPermanent,thumbSize));
     }
 
     @Operation(summary = "上传文件", description = "上传文件，上传后返回文件url")

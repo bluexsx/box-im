@@ -12,7 +12,7 @@
 			温馨提示：您现在还没有任何好友，快点击右上方'+'按钮添加好友吧~
 		</view>
 		<view class="friend-items" v-else>
-			<up-index-list :index-list="friendIdx">
+			<up-index-list :index-list="friendIdx" :sticky="false" :custom-nav-height="50">
 				<template v-for="(friends, i) in friendGroups">
 					<up-index-item>
 						<up-index-anchor :text="friendIdx[i] == '*' ? '在线' : friendIdx[i]"></up-index-anchor>
@@ -116,15 +116,6 @@ export default {
 
 	:deep(.u-index-anchor__text) {
 		color: $im-text-color !important;
-	}
-
-	:deep(.u-index-list__letter__item) {
-		width: 40rpx !important;
-		height: 40rpx !important;
-	}
-
-	:deep(.u-index-list__letter__item__index) {
-		font-size: $im-font-size-small !important;
 	}
 
 	.friend-tip {
