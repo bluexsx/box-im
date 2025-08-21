@@ -513,10 +513,6 @@ export default defineStore('chatStore', {
 					if (msgInfo.tmpId == chat.messages[idx].tmpId) {
 						return chat.messages[idx];
 					}
-					// 如果id比要查询的消息小，说明没有这条消息
-					if (msgInfo.tmpId > chat.messages[idx].tmpId) {
-						break;
-					}
 				}
 			}
 			return null;
