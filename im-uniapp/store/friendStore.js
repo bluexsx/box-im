@@ -5,36 +5,27 @@ import { TERMINAL_TYPE } from '../common/enums.js'
 export default defineStore('friendStore', {
 	state: () => {
 		return {
-			friends: [],
+			friendMap: new Map(),
 			timer: null
 		}
 	},
 	actions: {
 		setFriends(friends) {
-			friends.forEach((f) => {
-				f.online = false;
-				f.onlineWeb = false;
-				f.onlineApp = false;
-			})
-			this.friends = friends;
+			this.friendMap.clear();
+			friends.forEach(f => this.friendMap.set(f.id, f))
 		},
 		updateFriend(friend) {
 			let f = this.findFriend(friend.id);
-			let copy = JSON.parse(JSON.stringify(f));
-			Object.assign(f, friend);
-			f.online = copy.online;
-			f.onlineWeb = copy.onlineWeb;
-			f.onlineApp = copy.onlineApp;
+			friend.online = f.online;
+			friend.onlineWeb = f.onlineWeb;
+			friend.onlineApp = f.onlineApp;
+			this.friendMap.set(friend.id, friend)
 		},
 		removeFriend(id) {
-			this.friends.filter(f => f.id == id).forEach(f => f.deleted = true);
+			this.friendMap.get(id).deleted = true;
 		},
 		addFriend(friend) {
-			if (this.friends.some((f) => f.id == friend.id)) {
-				this.updateFriend(friend)
-			} else {
-				this.friends.unshift(friend);
-			}
+			this.friendMap.set(friend.id, friend)
 		},
 		setOnlineStatus(onlineTerminals) {
 			this.friends.forEach((f) => {
@@ -68,12 +59,11 @@ export default defineStore('friendStore', {
 			}, 30000)
 		},
 		setDnd(id, isDnd) {
-			let friend = this.findFriend(id);
-			friend.isDnd = isDnd;
+			this.friendMap.get(id).isDnd = isDnd;
 		},
 		clear() {
+			this.friendMap.clear();
 			clearTimeout(this.timer);
-			this.friends = [];
 			this.timer = null;
 		},
 		loadFriend() {
@@ -92,11 +82,15 @@ export default defineStore('friendStore', {
 		}
 	},
 	getters: {
-		isFriend: (state) => (userId) => {
-			return state.friends.filter((f) => !f.deleted).some((f) => f.id == userId);
+		friends: (state) => {
+			return Array.from(state.friendMap.values());
 		},
-		findFriend: (state) => (id) => {
-			return state.friends.find((f) => f.id == id);
+		findFriend: (state) => (userId) => {
+			return state.friendMap.get(userId);
+		},
+		isFriend: (state) => (userId) => {
+			let f = state.findFriend(userId)
+			return f && !f.deleted
 		}
 	}
 })
