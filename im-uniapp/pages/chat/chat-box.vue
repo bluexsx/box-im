@@ -676,9 +676,13 @@ export default {
 					if (this.scrollTop < 10) {
 						// 未渲染完成，重试一次
 						this.holdingScrollBar();
+					} else {
+						// 让页面再滚动一下，解决部分ios手机出现白屏问题
+						const delays = [100, 300, 1000];
+						delays.forEach(delay => setTimeout(() => this.scrollTop += 5, delay))
 					}
 				});
-			}, 50)
+			}, 10)
 		},
 		onShowMore() {
 			if (this.isGroup) {
