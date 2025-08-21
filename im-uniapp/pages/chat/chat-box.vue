@@ -866,12 +866,13 @@ export default {
 				return;
 			}
 			if (uni.getSystemInfoSync().platform == 'ios') {
-				// ios h5实现键盘监听
-				window.addEventListener('focusin', this.focusInListener);
-				window.addEventListener('focusout', this.focusOutListener);
 				// 监听键盘高度，ios13以上开始支持
 				if (window.visualViewport) {
 					window.visualViewport.addEventListener('resize', this.resizeListener);
+				} else {
+					// ios h5实现键盘监听
+					window.addEventListener('focusin', this.focusInListener);
+					window.addEventListener('focusout', this.focusOutListener);
 				}
 			} else {
 				// 安卓h5实现键盘监听
@@ -885,9 +886,12 @@ export default {
 		},
 		unListenKeyboard() {
 			// #ifdef H5
-			window.removeEventListener('resize', this.resizeListener);
 			window.removeEventListener('focusin', this.focusInListener);
 			window.removeEventListener('focusout', this.focusOutListener);
+			window.removeEventListener('resize', this.resizeListener);
+			if (window.visualViewport) {
+				window.visualViewport.removeEventListener('resize', this.resizeListener);
+			}
 			// #endif
 			// #ifndef H5
 			uni.offKeyboardHeightChange(this.keyBoardListener);
@@ -906,12 +910,14 @@ export default {
 			if (window.visualViewport && uni.getSystemInfoSync().platform == 'ios') {
 				keyboardHeight = this.initHeight - window.visualViewport.height;
 			}
-			console.log("resizeListener:", window.visualViewport.height)
-			this.isShowKeyBoard = keyboardHeight > 150;
-			if (this.isShowKeyBoard) {
+			let isShowKeyBoard = keyboardHeight > 150;
+			if (isShowKeyBoard) {
 				this.keyboardHeight = keyboardHeight;
 			}
-			setTimeout(() => this.reCalChatMainHeight(), 30);
+			if (this.isShowKeyBoard != isShowKeyBoard) {
+				this.isShowKeyBoard = isShowKeyBoard;
+				setTimeout(() => this.reCalChatMainHeight(), 30);
+			}
 		},
 		focusInListener() {
 			this.isShowKeyBoard = true;
