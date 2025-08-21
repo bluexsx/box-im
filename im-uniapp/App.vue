@@ -492,6 +492,9 @@ uni-page-head {
 }
 
 // #endif
+page {
+	background-color: $im-bg;
+}
 
 .tab-page {
 	position: relative;
@@ -502,9 +505,15 @@ uni-page-head {
 	top: $im-nav-bar-height;
 	// #endif
 
-	// #ifndef H5
+	// #ifdef APP-PLUS
 	height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
 	top: calc($im-nav-bar-height + var(--status-bar-height));
+	// #endif
+
+	// #ifdef MP-WEIXIN
+	height: calc(100vh - $im-nav-bar-height);
+	top: $im-nav-bar-height;
+
 	// #endif
 	color: $im-text-color;
 	background-color: $im-bg;
@@ -515,13 +524,20 @@ uni-page-head {
 .page {
 	position: relative;
 	// #ifdef H5
-	height: calc(100vh - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
+	height: calc(100vh - $im-nav-bar-height); // h5平台100vh是包含了底部高度，需要减去
 	top: $im-nav-bar-height;
 	// #endif
-	// #ifndef H5
+
+	// #ifdef APP-PLUS
 	height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
 	top: calc($im-nav-bar-height + var(--status-bar-height));
 	// #endif
+
+	// #ifdef MP-WEIXIN
+	height: calc(100vh - $im-nav-bar-height);
+	top: $im-nav-bar-height;
+	// #endif
+	
 	color: $im-text-color;
 	background-color: $im-bg;
 	font-size: $im-font-size;

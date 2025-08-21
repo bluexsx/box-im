@@ -56,21 +56,21 @@
 								<text v-if="audioPlayState == 'PLAYING'" class="iconfont icon-pause"></text>
 							</view>
 						</long-press-menu>
+						<long-press-menu v-if="isAction" :items="menuItems" @select="onSelectMenu">
+							<view class="chat-realtime message-text" @click="$emit('call')">
+								<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE"
+									class="iconfont icon-chat-voice"></text>
+								<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VIDEO"
+									class="iconfont icon-chat-video"></text>
+								<text>{{ msgInfo.content }}</text>
+							</view>
+						</long-press-menu>
 						<view v-if="sending&&isTextMessage" class="sending">
 							<loading :size="40" icon-color="#656adf" :mask="false"></loading>
 						</view>
 						<view v-else-if="sendFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></view>
 					</view>
-					<long-press-menu v-if="isAction" :items="menuItems" @select="onSelectMenu">
-						<view class="chat-realtime message-text" @click="$emit('call')">
-							<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE"
-								class="iconfont icon-chat-voice"></text>
-							<text v-if="msgInfo.type == $enums.MESSAGE_TYPE.ACT_RT_VIDEO"
-								class="iconfont icon-chat-video"></text>
-							<text>{{ msgInfo.content }}</text>
-						</view>
-					</long-press-menu>
 					<view class="message-status" v-if="!isAction && msgInfo.selfSend && !msgInfo.groupId">
 						<text class="chat-readed" v-if="msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</text>
 						<text class="chat-unread" v-else>未读</text>
