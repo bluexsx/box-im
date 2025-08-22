@@ -23,7 +23,6 @@ import switchBar from '@/components/bar/switch-bar'
 import * as recorder from './common/recorder-h5';
 import ImageResize from "quill-image-resize-mp";
 import Quill from "quill";
-import 'default-passive-events';
 // 以下组件用于兼容部分手机聊天边框无法输入的问题
 window.Quill = Quill;
 window.ImageResize = { default: ImageResize };
