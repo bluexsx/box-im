@@ -12,7 +12,7 @@
 			温馨提示：您现在还没有任何好友，快点击右上方'+'按钮添加好友吧~
 		</view>
 		<view class="friend-items" v-else>
-			<up-index-list :index-list="friendIdx" :sticky="false" :custom-nav-height="50">
+			<up-index-list :index-list="friendIdx" :sticky="false" :custom-nav-height="customNavHeight">
 				<template v-for="(friends, i) in friendGroups">
 					<up-index-item>
 						<up-index-anchor :text="friendIdx[i] == '*' ? '在线' : friendIdx[i]"></up-index-anchor>
@@ -97,6 +97,14 @@ export default {
 		},
 		hasFriends() {
 			return this.friendStore.friends.some(f => !f.deleted);
+		},
+		customNavHeight() {
+			let h = 50;
+			// #ifdef APP-PLUS
+			h += uni.getSystemInfoSync().statusBarHeight;
+			// #endif
+			console.log("customNavHeight:",h)
+			return h;
 		}
 	}
 }
