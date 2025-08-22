@@ -188,7 +188,7 @@ export default {
 				// 更新消息
 				tmpMessage.id = m.id;
 				tmpMessage.status = m.status;
-				this.chatStore.insertMessage(tmpMessage, chat);
+				this.chatStore.updateMessage(tmpMessage, chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 滚动到底部
@@ -335,12 +335,12 @@ export default {
 						tmpMessage.id = m.id;
 						tmpMessage.status = m.status;
 						tmpMessage.content = m.content;
-						this.chatStore.insertMessage(tmpMessage, chat);
+						this.chatStore.updateMessage(tmpMessage, chat);
 					}).catch(() => {
 						// 更新消息
 						tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 						tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-						this.chatStore.insertMessage(tmpMessage, chat);
+						this.chatStore.updateMessage(tmpMessage, chat);
 					})
 				}
 			})
@@ -460,7 +460,7 @@ export default {
 				data.width = size.width;
 				data.height = size.height;
 				msgInfo.content = JSON.stringify(data)
-				this.chatStore.insertMessage(msgInfo, chat);
+				this.chatStore.updateMessage(msgInfo, chat);
 				this.scrollToBottom();
 			})
 			return true;
@@ -473,13 +473,13 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo, file.chat);
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
-			this.chatStore.insertMessage(msgInfo, file.chat);
+			this.chatStore.updateMessage(msgInfo, file.chat);
 		},
 		onUploadFileBefore(file) {
 			// 检查是否被封禁
@@ -526,13 +526,13 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo, file.chat);
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadFileFail(file, res) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
-			this.chatStore.insertMessage(msgInfo, file.chat);
+			this.chatStore.updateMessage(msgInfo, file.chat);
 		},
 		onResendMessage(msgInfo) {
 			if (msgInfo.type != this.$enums.MESSAGE_TYPE.TEXT) {
@@ -557,12 +557,12 @@ export default {
 				tmpMessage.id = m.id;
 				tmpMessage.status = m.status;
 				tmpMessage.content = m.content;
-				this.chatStore.insertMessage(tmpMessage, chat);
+				this.chatStore.updateMessage(tmpMessage, chat);
 			}).catch(() => {
 				// 更新消息
 				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-				this.chatStore.insertMessage(tmpMessage, chat);
+				this.chatStore.updateMessage(tmpMessage, chat);
 			})
 		},
 		onDeleteMessage(msgInfo) {
