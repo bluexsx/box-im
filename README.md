@@ -30,7 +30,9 @@
 
 网页端：https://www.boxim.online
 
-移动安卓端：https://www.boxim.online/download/boxim.apk
+桌面端：https://lh.boxim.online/download/boxim.exe
+
+移动安卓端：https://lh.boxim.online/download/boxim.apk
 
 移动ios端: 已上架至app store,搜索"盒子IM",下载安装即可
 
