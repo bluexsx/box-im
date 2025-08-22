@@ -4,33 +4,28 @@ import http from '@/common/request';
 export default defineStore('groupStore', {
 	state: () => {
 		return {
-			groups: []
+			groupMap: new Map()
 		}
 	},
 	actions: {
 		setGroups(groups) {
-			this.groups = groups;
+			this.groupMap.clear();
+			groups.forEach(g => this.groupMap.set(g.id, g))
 		},
 		addGroup(group) {
-			if (this.groups.some((g) => g.id == group.id)) {
-				this.updateGroup(group);
-			} else {
-				this.groups.unshift(group);
-			}
+			this.groupMap.set(group.id, group);
 		},
 		removeGroup(id) {
-			this.groups.filter(g => g.id == id).forEach(g => g.quit = true);
+			this.groupMap.get(id).quit = true;
 		},
 		updateGroup(group) {
-			let g = this.findGroup(group.id);
-			Object.assign(g, group);
+			this.groupMap.set(group.id, group);
 		},
 		setDnd(id, isDnd) {
-			let group = this.findGroup(id);
-			group.isDnd = isDnd;
+			this.groupMap.get(id).isDnd = isDnd;
 		},
 		clear() {
-			this.groups = [];
+			this.groupMap.clear();
 		},
 		loadGroup() {
 			return new Promise((resolve, reject) => {
@@ -47,8 +42,15 @@ export default defineStore('groupStore', {
 		}
 	},
 	getters: {
+		groups: (state) => {
+			return Array.from(state.groupMap.values());
+		},
 		findGroup: (state) => (id) => {
-			return state.groups.find((g) => g.id == id);
+			return state.groupMap.get(id);
+		},
+		isGroup: (state) => (id) => {
+			let group = state.findGroup(id);
+			return group && !group.quit
 		}
 	}
 })

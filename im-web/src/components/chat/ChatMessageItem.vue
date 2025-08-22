@@ -23,10 +23,7 @@
 						<span class="message-text" v-if="isTextMessage" v-html="htmlText"></span>
 						<div class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE"
 							@click="showFullImageBox()">
-							<div v-loading="sending" element-loading-text="发送中.."
-								element-loading-background="rgba(0, 0, 0, 0.4)">
 								<img :style="imageStyle" :src="contentData.thumbUrl" loading="lazy" />
-							</div>
 						</div>
 						<div class="message-file" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
 							<div class="chat-file-box" v-loading="sending">

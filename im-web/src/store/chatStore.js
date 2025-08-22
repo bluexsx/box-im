@@ -294,7 +294,7 @@ export default defineStore('chatStore', {
 			let chat = this.findChatByFriend(friend.id);
 			// 更新会话中的群名和头像
 			if (chat && (chat.headImage != friend.headImage ||
-				chat.showName != friend.nickName)) {
+					chat.showName != friend.nickName)) {
 				chat.headImage = friend.headImage;
 				chat.showName = friend.nickName;
 				chat.stored = false;
@@ -305,7 +305,7 @@ export default defineStore('chatStore', {
 			let chat = this.findChatByFriend(user.id);
 			// 更新会话中的昵称和头像
 			if (chat && (chat.headImage != user.headImageThumb ||
-				chat.showName != user.nickName)) {
+					chat.showName != user.nickName)) {
 				chat.headImage = user.headImageThumb;
 				chat.showName = user.nickName;
 				chat.stored = false;
@@ -315,7 +315,7 @@ export default defineStore('chatStore', {
 		updateChatFromGroup(group) {
 			let chat = this.findChatByGroup(group.id);
 			if (chat && (chat.headImage != group.headImageThumb ||
-				chat.showName != group.showGroupName)) {
+					chat.showName != group.showGroupName)) {
 				// 更新会话中的群名称和头像
 				chat.headImage = group.headImageThumb;
 				chat.showName = group.showGroupName;
@@ -466,7 +466,8 @@ export default defineStore('chatStore', {
 								// 冷热消息合并
 								let chat = Object.assign({}, coldChat, hotChat);
 								if (hotChat && coldChat) {
-									chat.messages = coldChat.messages.concat(hotChat.messages)
+									chat.messages = coldChat.messages.concat(hotChat
+										.messages)
 								}
 								// 历史版本没有readedMessageIdx字段，做兼容一下
 								chat.readedMessageIdx = chat.readedMessageIdx || 0;
@@ -522,24 +523,27 @@ export default defineStore('chatStore', {
 			if (!chat) {
 				return null;
 			}
-			for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
-				// 通过id判断
-				if (msgInfo.id && chat.messages[idx].id) {
-					if (msgInfo.id == chat.messages[idx].id) {
-						return chat.messages[idx];
+			if (msgInfo.id) {
+				for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
+					let m = chat.messages[idx];
+					if (m.id && msgInfo.id == m.id) {
+						return m;
 					}
 					// 如果id比要查询的消息小，说明没有这条消息
-					if (msgInfo.id > chat.messages[idx].id) {
+					if (m.id && m.id < msgInfo.id) {
 						break;
 					}
 				}
-				// 正在发送中的消息可能没有id,只有tmpId
-				if (msgInfo.tmpId && chat.messages[idx].tmpId) {
-					if (msgInfo.tmpId == chat.messages[idx].tmpId) {
-						return chat.messages[idx];
+			}
+			// 正在发送中的消息可能没有id,只有tmpId
+			if (msgInfo.tmpId) {
+				for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
+					let m = chat.messages[idx];
+					if (m.tmpId && msgInfo.tmpId == m.tmpId) {
+						return m;
 					}
 					// 如果id比要查询的消息小，说明没有这条消息
-					if (msgInfo.tmpId > chat.messages[idx].tmpId) {
+					if (m.tmpId && m.tmpId < msgInfo.tmpId) {
 						break;
 					}
 				}

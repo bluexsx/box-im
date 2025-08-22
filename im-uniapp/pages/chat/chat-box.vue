@@ -50,52 +50,55 @@
 			</view>
 		</view>
 		<view class="chat-tab-bar">
-			<view v-if="chatTabBox == 'tools'" class="chat-tools" :style="{height: keyboardHeight+'px'}">
-				<view class="chat-tools-item">
-					<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
-						:onError="onUploadFileFail">
-						<view class="tool-icon iconfont icon-folder"></view>
-					</file-upload>
-					<view class="tool-name">文件</view>
+			<scroll-view v-if="chatTabBox == 'tools'" class="chat-tools" :style="{height: keyboardHeight+'px'}">
+				<view class="chat-tools-list">
+					<view class="chat-tools-item">
+						<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
+							:onError="onUploadFileFail">
+							<view class="tool-icon iconfont icon-folder"></view>
+						</file-upload>
+						<view class="tool-name">文件</view>
+					</view>
+					<view class="chat-tools-item">
+						<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
+							:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
+							<view class="tool-icon iconfont icon-picture"></view>
+						</image-upload>
+						<view class="tool-name">相册</view>
+					</view>
+					<view class="chat-tools-item">
+						<image-upload sourceType="camera" :onBefore="onUploadImageBefore"
+							:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
+							<view class="tool-icon iconfont icon-camera"></view>
+						</image-upload>
+						<view class="tool-name">拍摄</view>
+					</view>
+					<view class="chat-tools-item" @click="onRecorderInput()">
+						<view class="tool-icon iconfont icon-microphone"></view>
+						<view class="tool-name">语音消息</view>
+					</view>
+					<view v-if="chat.type == 'GROUP' && memberSize<=500" class="chat-tools-item"
+						@click="switchReceipt()">
+						<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
+						<view class="tool-name">回执消息</view>
+					</view>
+					<!-- #ifndef MP-WEIXIN -->
+					<!-- 音视频不支持小程序 -->
+					<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
+						<view class="tool-icon iconfont icon-video"></view>
+						<view class="tool-name">视频通话</view>
+					</view>
+					<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
+						<view class="tool-icon iconfont icon-call"></view>
+						<view class="tool-name">语音通话</view>
+					</view>
+					<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
+						<view class="tool-icon iconfont icon-call"></view>
+						<view class="tool-name">语音通话</view>
+					</view>
+					<!-- #endif -->
 				</view>
-				<view class="chat-tools-item">
-					<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
-						:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-picture"></view>
-					</image-upload>
-					<view class="tool-name">相册</view>
-				</view>
-				<view class="chat-tools-item">
-					<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
-						:onError="onUploadImageFail">
-						<view class="tool-icon iconfont icon-camera"></view>
-					</image-upload>
-					<view class="tool-name">拍摄</view>
-				</view>
-				<view class="chat-tools-item" @click="onRecorderInput()">
-					<view class="tool-icon iconfont icon-microphone"></view>
-					<view class="tool-name">语音消息</view>
-				</view>
-				<view v-if="chat.type == 'GROUP' && memberSize<=500" class="chat-tools-item" @click="switchReceipt()">
-					<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
-					<view class="tool-name">回执消息</view>
-				</view>
-				<!-- #ifndef MP-WEIXIN -->
-				<!-- 音视频不支持小程序 -->
-				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVideo()">
-					<view class="tool-icon iconfont icon-video"></view>
-					<view class="tool-name">视频通话</view>
-				</view>
-				<view v-if="chat.type == 'PRIVATE'" class="chat-tools-item" @click="onPriviteVoice()">
-					<view class="tool-icon iconfont icon-call"></view>
-					<view class="tool-name">语音通话</view>
-				</view>
-				<view v-if="chat.type == 'GROUP'" class="chat-tools-item" @click="onGroupVideo()">
-					<view class="tool-icon iconfont icon-call"></view>
-					<view class="tool-name">语音通话</view>
-				</view>
-				<!-- #endif -->
-			</view>
+			</scroll-view>
 			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
 				:style="{height: keyboardHeight+'px'}">
 				<view class="emotion-item-list">
@@ -133,6 +136,7 @@ export default {
 			showRecord: false,
 			chatMainHeight: 800, // 聊天窗口高度
 			keyboardHeight: 290, // 键盘高度
+			screenHeight: 1000, // 屏幕高度
 			windowHeight: 1000, // 窗口高度
 			initHeight: 1000, // h5初始高度
 			atUserIds: [],
@@ -184,7 +188,7 @@ export default {
 				// 更新消息
 				tmpMessage.id = m.id;
 				tmpMessage.status = m.status;
-				this.chatStore.insertMessage(tmpMessage, chat);
+				this.chatStore.updateMessage(tmpMessage, chat);
 				// 会话置顶
 				this.moveChatToTop();
 				// 滚动到底部
@@ -331,12 +335,12 @@ export default {
 						tmpMessage.id = m.id;
 						tmpMessage.status = m.status;
 						tmpMessage.content = m.content;
-						this.chatStore.insertMessage(tmpMessage, chat);
+						this.chatStore.updateMessage(tmpMessage, chat);
 					}).catch(() => {
 						// 更新消息
 						tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 						tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-						this.chatStore.insertMessage(tmpMessage, chat);
+						this.chatStore.updateMessage(tmpMessage, chat);
 					})
 				}
 			})
@@ -393,10 +397,12 @@ export default {
 			this.switchChatTabBox('tools')
 		},
 		switchChatTabBox(chatTabBox) {
-			this.chatTabBox = chatTabBox;
-			this.reCalChatMainHeight();
-			if (chatTabBox != 'tools' && this.$refs.fileUpload) {
-				this.$refs.fileUpload.hide()
+			if (this.chatTabBox != chatTabBox) {
+				this.chatTabBox = chatTabBox;
+				if (chatTabBox != 'tools' && this.$refs.fileUpload) {
+					this.$refs.fileUpload.hide()
+				}
+				setTimeout(() => this.reCalChatMainHeight(), 30);
 			}
 		},
 		selectEmoji(emoText) {
@@ -454,7 +460,7 @@ export default {
 				data.width = size.width;
 				data.height = size.height;
 				msgInfo.content = JSON.stringify(data)
-				this.chatStore.insertMessage(msgInfo, chat);
+				this.chatStore.updateMessage(msgInfo, chat);
 				this.scrollToBottom();
 			})
 			return true;
@@ -467,13 +473,13 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo, file.chat);
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
-			this.chatStore.insertMessage(msgInfo, file.chat);
+			this.chatStore.updateMessage(msgInfo, file.chat);
 		},
 		onUploadFileBefore(file) {
 			// 检查是否被封禁
@@ -520,13 +526,13 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
-				this.chatStore.insertMessage(msgInfo, file.chat);
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadFileFail(file, res) {
 			let msgInfo = JSON.parse(JSON.stringify(file.msgInfo));
 			msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
-			this.chatStore.insertMessage(msgInfo, file.chat);
+			this.chatStore.updateMessage(msgInfo, file.chat);
 		},
 		onResendMessage(msgInfo) {
 			if (msgInfo.type != this.$enums.MESSAGE_TYPE.TEXT) {
@@ -551,12 +557,12 @@ export default {
 				tmpMessage.id = m.id;
 				tmpMessage.status = m.status;
 				tmpMessage.content = m.content;
-				this.chatStore.insertMessage(tmpMessage, chat);
+				this.chatStore.updateMessage(tmpMessage, chat);
 			}).catch(() => {
 				// 更新消息
 				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-				this.chatStore.insertMessage(tmpMessage, chat);
+				this.chatStore.updateMessage(tmpMessage, chat);
 			})
 		},
 		onDeleteMessage(msgInfo) {
@@ -670,9 +676,13 @@ export default {
 					if (this.scrollTop < 10) {
 						// 未渲染完成，重试一次
 						this.holdingScrollBar();
+					} else {
+						// 让页面再滚动一下，解决部分ios手机出现白屏问题
+						const delays = [100, 300, 1000];
+						delays.forEach(delay => setTimeout(() => this.scrollTop += 5, delay))
 					}
 				});
-			}, 50)
+			}, 10)
 		},
 		onShowMore() {
 			if (this.isGroup) {
@@ -815,39 +825,42 @@ export default {
 			}
 		},
 		reCalChatMainHeight() {
-			setTimeout(() => {
-				let h = this.windowHeight;
-				// 减去标题栏高度
-				h -= 50;
-				// 减去键盘高度
-				if (this.isShowKeyBoard || this.chatTabBox != 'none') {
-					h -= this.keyboardHeight;
-					this.scrollToBottom();
-				}
-				// #ifndef H5
-				// h5需要减去状态栏高度
-				h -= uni.getSystemInfoSync().statusBarHeight;
-				// #endif
-				this.chatMainHeight = h;
-				if (this.isShowKeyBoard || this.chatTabBox != 'none') {
-					this.scrollToBottom();
-				}
-				// ios浏览器键盘把页面顶起后，页面长度不会变化，这里把页面拉到顶部适配一下
-				// #ifdef H5
-				if (uni.getSystemInfoSync().platform == 'ios') {
-					// 不同手机需要的延时时间不一致，采用分段延时的方式处理
-					const delays = [50, 100, 500];
-					delays.forEach((delay) => {
-						setTimeout(() => {
-							uni.pageScrollTo({
-								scrollTop: 0,
-								duration: 10
-							});
-						}, delay);
-					})
+			let sysInfo = uni.getSystemInfoSync();
+			let h = this.windowHeight;
+			// 减去标题栏高度
+			h -= 50;
+			// 减去键盘高度
+			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
+				// ios app的键盘高度不准，需要减去屏幕和窗口差
+				// #ifdef APP-PLUS
+				if (sysInfo.platform == 'ios') {
+					h += this.screenHeight - this.windowHeight;
 				}
 				// #endif
-			}, 30)
+				h -= this.keyboardHeight;
+				this.scrollToBottom();
+			}
+
+			// APP需要减去状态栏高度
+			// #ifdef APP-PLUS
+			h -= sysInfo.statusBarHeight;
+			// #endif
+			this.chatMainHeight = h;
+			// #ifndef APP
+			// ios浏览器键盘把页面顶起后，页面长度不会变化，这里把页面拉到顶部适配一下
+			if (uni.getSystemInfoSync().platform == 'ios') {
+				// 不同手机需要的延时时间不一致，采用分段延时的方式处理
+				const delays = [50, 100, 500];
+				delays.forEach((delay) => {
+					setTimeout(() => {
+						uni.pageScrollTo({
+							scrollTop: 0,
+							duration: 10
+						});
+					}, delay);
+				})
+			}
+			// #endif
 		},
 		listenKeyBoard() {
 			// #ifdef H5	
@@ -857,12 +870,13 @@ export default {
 				return;
 			}
 			if (uni.getSystemInfoSync().platform == 'ios') {
-				// ios h5实现键盘监听
-				window.addEventListener('focusin', this.focusInListener);
-				window.addEventListener('focusout', this.focusOutListener);
 				// 监听键盘高度，ios13以上开始支持
 				if (window.visualViewport) {
 					window.visualViewport.addEventListener('resize', this.resizeListener);
+				} else {
+					// ios h5实现键盘监听
+					window.addEventListener('focusin', this.focusInListener);
+					window.addEventListener('focusout', this.focusOutListener);
 				}
 			} else {
 				// 安卓h5实现键盘监听
@@ -876,9 +890,12 @@ export default {
 		},
 		unListenKeyboard() {
 			// #ifdef H5
-			window.removeEventListener('resize', this.resizeListener);
 			window.removeEventListener('focusin', this.focusInListener);
 			window.removeEventListener('focusout', this.focusOutListener);
+			window.removeEventListener('resize', this.resizeListener);
+			if (window.visualViewport) {
+				window.visualViewport.removeEventListener('resize', this.resizeListener);
+			}
 			// #endif
 			// #ifndef H5
 			uni.offKeyboardHeightChange(this.keyBoardListener);
@@ -889,7 +906,7 @@ export default {
 			if (this.isShowKeyBoard) {
 				this.keyboardHeight = res.height; // 获取并保存键盘高度
 			}
-			this.reCalChatMainHeight();
+			setTimeout(() => this.reCalChatMainHeight(), 30);
 		},
 		resizeListener() {
 			let keyboardHeight = this.initHeight - window.innerHeight;
@@ -897,20 +914,22 @@ export default {
 			if (window.visualViewport && uni.getSystemInfoSync().platform == 'ios') {
 				keyboardHeight = this.initHeight - window.visualViewport.height;
 			}
-			console.log("resizeListener:", window.visualViewport.height)
-			this.isShowKeyBoard = keyboardHeight > 150;
-			if (this.isShowKeyBoard) {
+			let isShowKeyBoard = keyboardHeight > 150;
+			if (isShowKeyBoard) {
 				this.keyboardHeight = keyboardHeight;
 			}
-			this.reCalChatMainHeight();
+			if (this.isShowKeyBoard != isShowKeyBoard) {
+				this.isShowKeyBoard = isShowKeyBoard;
+				setTimeout(() => this.reCalChatMainHeight(), 30);
+			}
 		},
 		focusInListener() {
 			this.isShowKeyBoard = true;
-			this.reCalChatMainHeight();
+			setTimeout(() => this.reCalChatMainHeight(), 30);
 		},
 		focusOutListener() {
 			this.isShowKeyBoard = false;
-			this.reCalChatMainHeight();
+			setTimeout(() => this.reCalChatMainHeight(), 30);
 		},
 		showBannedTip() {
 			let msgInfo = {
@@ -1082,7 +1101,11 @@ export default {
 		// 监听键盘高度
 		this.listenKeyBoard();
 		// 计算聊天窗口高度
+		this.windowHeight = uni.getSystemInfoSync().windowHeight;
+		this.screenHeight = uni.getSystemInfoSync().screenHeight;
+		this.reCalChatMainHeight();
 		this.$nextTick(() => {
+			// 上面获取的windowHeight可能不准，重新计算一次聊天窗口高度
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.reCalChatMainHeight();
 			this.scrollToBottom();
@@ -1132,10 +1155,10 @@ export default {
 	}
 
 	.chat-main-box {
-		// #ifdef H5
+		// #ifndef APP-PLUS
 		top: $im-nav-bar-height;
 		// #endif
-		// #ifndef H5
+		// #ifdef APP-PLUS
 		top: calc($im-nav-bar-height + var(--status-bar-height));
 		// #endif
 		position: fixed;
@@ -1206,7 +1229,7 @@ export default {
 			border-top: $im-border solid 1px;
 			background-color: $im-bg;
 			min-height: 80rpx;
-			margin-bottom: 14rpx;
+			padding-bottom: 14rpx;
 
 			.iconfont {
 				font-size: 60rpx;
@@ -1250,44 +1273,45 @@ export default {
 		background-color: $im-bg;
 
 		.chat-tools {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: top;
-			height: 310px;
 			padding: 40rpx;
 			box-sizing: border-box;
 
-			.chat-tools-item {
-				width: 25%;
-				padding: 16rpx;
-				box-sizing: border-box;
+			.chat-tools-list {
 				display: flex;
-				flex-direction: column;
-				align-items: center;
+				flex-wrap: wrap;
+				align-content: center;
 
-				.tool-icon {
-					padding: 26rpx;
-					font-size: 54rpx;
-					border-radius: 20%;
-					background-color: white;
-					color: $icon-color;
+				.chat-tools-item {
+					width: 25%;
+					padding: 16rpx;
+					box-sizing: border-box;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
 
-					&:active {
-						background-color: $im-bg-active;
+					.tool-icon {
+						padding: 26rpx;
+						font-size: 54rpx;
+						border-radius: 20%;
+						background-color: white;
+						color: $icon-color;
+
+						&:active {
+							background-color: $im-bg-active;
+						}
 					}
-				}
 
-				.tool-name {
-					height: 60rpx;
-					line-height: 60rpx;
-					font-size: 28rpx;
+					.tool-name {
+						height: 60rpx;
+						line-height: 60rpx;
+						font-size: 28rpx;
+					}
 				}
 			}
 		}
 
 		.chat-emotion {
-			height: 310px;
-			padding: 20rpx;
+			padding: 40rpx;
 			box-sizing: border-box;
 
 			.emotion-item-list {
