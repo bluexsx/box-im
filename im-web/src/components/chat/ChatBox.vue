@@ -512,7 +512,7 @@ export default {
 			// 删除旧消息
 			this.chatStore.deleteMessage(msgInfo, chat);
 			// 重新推送
-			msgInfo.temId = this.generateId();
+			msgInfo.tmpId = this.generateId();
 			let tmpMessage = this.buildTmpMessage(msgInfo);
 			this.chatStore.insertMessage(tmpMessage, chat);
 			this.moveChatToTop();
