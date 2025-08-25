@@ -116,8 +116,11 @@ export default {
 				this.chatStore.refreshChats();
 			}).catch((e) => {
 				console.log(e)
-				this.$message.error("拉取离线消息失败");
-				this.onExit();
+				uni.showToast({
+					title: "拉取离线消息失败",
+					icon: "none"
+				})
+				this.exit();
 			})
 		},
 		pullPrivateOfflineMessage(minId) {
