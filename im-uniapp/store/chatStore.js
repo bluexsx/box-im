@@ -358,7 +358,7 @@ export default defineStore('chatStore', {
 			/**
 			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，所以可能需要清理部分历史消息
 			 */
-			this.fliterMessage(cacheChats, 10000, 1000);
+			this.fliterMessage(cacheChats, 5000, 1000);
 			// #endif
 			// 记录热数据索引位置
 			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
