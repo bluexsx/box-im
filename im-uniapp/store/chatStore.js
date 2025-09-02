@@ -335,11 +335,11 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats() {
-			if (!cacheChats) return;
+			let chats = cacheChats || this.chats;
 			// 更新会话免打扰状态
 			const friendStore = useFriendStore();
 			const groupStore = useGroupStore();
-			cacheChats.forEach(chat => {
+			chats.forEach(chat => {
 				if (chat.type == 'PRIVATE') {
 					let friend = friendStore.findFriend(chat.targetId);
 					if (friend) {
@@ -353,17 +353,17 @@ export default defineStore('chatStore', {
 				}
 			})
 			// 排序
-			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			chats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
 			// #ifndef APP-PLUS
 			/**
 			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，所以可能需要清理部分历史消息
 			 */
-			this.fliterMessage(cacheChats, 5000, 1000);
+			this.fliterMessage(chats, 5000, 1000);
 			// #endif
 			// 记录热数据索引位置
-			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
+			chats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
-			this.chats = cacheChats;
+			this.chats = chats;
 			// 清空缓存,不再使用
 			cacheChats = null;
 			// 消息持久化
