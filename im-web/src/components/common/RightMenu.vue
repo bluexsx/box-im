@@ -26,9 +26,11 @@ export default {
 	},
 	methods: {
 		open(pos, items) {
-			this.pos = pos;
+			this.pos.x = pos.x;
+			this.pos.y = pos.y;
 			this.items = items;
 			this.show = true;
+			this.rejustPos();
 		},
 		close() {
 			this.show = false;
@@ -36,6 +38,16 @@ export default {
 		onSelectMenu(item) {
 			this.$emit("select", item);
 			this.close();
+		},
+		rejustPos() {
+			let menuH = this.items.length * 36;
+			let menuW = 100;
+			if (this.pos.y > window.innerHeight - menuH) {
+				this.pos.y = window.innerHeight - menuH;
+			}
+			if (this.pos.x > window.innerWidth - menuW) {
+				this.pos.x = window.innerWidth - menuW;
+			}
 		}
 	}
 }

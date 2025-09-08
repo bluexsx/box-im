@@ -18,7 +18,7 @@ public final class Constant {
     /**
      * 大群人数上限
      */
-    public static final Long MAX_LARGE_GROUP_MEMBER = 10000L;
+    public static final Long MAX_LARGE_GROUP_MEMBER = 3000L;
 
     /**
      * 普通群人数上限

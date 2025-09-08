@@ -1,5 +1,8 @@
 <template>
 	<div class="login-view">
+		<div class="decoration decoration-1"></div>
+		<div class="decoration decoration-2"></div>
+		<div class="decoration decoration-3"></div>
 		<div class="content">
 			<el-form class="form" :model="loginForm" status-icon :rules="rules" ref="loginForm"
 				@keyup.enter.native="submitForm('loginForm')">
@@ -121,10 +124,67 @@ export default {
 .login-view {
 	width: 100%;
 	height: 100%;
-	background: #E8F2FF;
-	background-size: cover;
 	box-sizing: border-box;
+	background: linear-gradient(135deg,
+			#87adeb 0%,
+			#8287ec 25%,
+			#87adeb 50%,
+			#898ee3 75%,
+			#87adeb 100%);
+	
+		/* 装饰性元素 */
+	.decoration {
+		position: absolute;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.2);
+	}
 
+	.decoration-1 {
+		width: 450px;
+		height: 450px;
+		background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, rgba(200, 220, 240, 0.4) 100%);
+		top: -250px;
+		right: -100px;
+		animation: float 16s infinite ease-in-out;
+	}
+
+	.decoration-2 {
+		width: 400px;
+		height: 400px;
+		background: linear-gradient(135deg, rgba(200, 220, 240, 0.4) 0%, rgba(255, 255, 255, 0.3) 100%);
+		bottom: -200px;
+		left: -100px;
+		animation: float 12s infinite ease-in-out;
+	}
+
+	.decoration-3 {
+		width: 300px;
+		height: 300px;
+		background: linear-gradient(45deg, rgba(161, 196, 253, 0.3) 0%, rgba(194, 233, 251, 0.4) 100%);
+		top: 50%;
+		right: 50px;
+		animation: float 8s infinite ease-in-out;
+	}
+
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0) translateX(0);
+		}
+
+		25% {
+			transform: translateY(-60px) translateX(30px);
+		}
+
+		50% {
+			transform: translateY(30px) translateX(-45px);
+		}
+
+		75% {
+			transform: translateY(-30px) translateX(-30px);
+		}
+	}
+		
 
 	.content {
 		position: relative;
@@ -134,15 +194,14 @@ export default {
 		padding: 10%;
 
 		.form {
-			height: 340px;
-			width: 400px;
+			width: 360px;
+			height: 380px;
 			padding: 30px;
-			background: white;
-			opacity: 0.9;
-			box-shadow: 0px 0px 1px #ccc;
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+			background: rgba(255, 255, 255, 0.85);
+			backdrop-filter: blur(8px);
 			border-radius: 3%;
 			overflow: hidden;
-			border: 1px solid #ccc;
 
 			.title {
 				display: flex;

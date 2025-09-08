@@ -335,11 +335,11 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats() {
-			if (!cacheChats) return;
+			let chats = cacheChats || this.chats;
 			// 更新会话免打扰状态
 			const friendStore = useFriendStore();
 			const groupStore = useGroupStore();
-			cacheChats.forEach(chat => {
+			chats.forEach(chat => {
 				if (chat.type == 'PRIVATE') {
 					let friend = friendStore.findFriend(chat.targetId);
 					if (friend) {
@@ -353,27 +353,36 @@ export default defineStore('chatStore', {
 				}
 			})
 			// 排序
-			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			chats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
 			// #ifndef APP-PLUS
 			/**
-			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，
-			 * 所以这里每个会话只保留1000条消息，防止溢出
+			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，所以可能需要清理部分历史消息
 			 */
-			cacheChats.forEach(chat => {
-				if (chat.messages.length > 1000) {
-					let idx = chat.messages.length - 1000;
-					chat.messages = chat.messages.slice(idx);
-				}
-			})
+			this.fliterMessage(chats, 5000, 1000);
 			// #endif
 			// 记录热数据索引位置
-			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
+			chats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
-			this.chats = cacheChats;
+			this.chats = chats;
 			// 清空缓存,不再使用
 			cacheChats = null;
 			// 消息持久化
 			this.saveToStorage(true);
+		},
+		fliterMessage(chats, maxTotalSize, maxPerChatSize) {
+			// 每个会话只保留maxPerChatSize条消息
+			let remainTotalSize = 0;
+			chats.forEach(chat => {
+				if (chat.messages.length > maxPerChatSize) {
+					let idx = chat.messages.length - maxPerChatSize;
+					chat.messages = chat.messages.slice(idx);
+				}
+				remainTotalSize += chat.messages.length;
+			})
+			// 保证消息总数不超过maxTotalSize条，否则继续清理
+			if (remainTotalSize > maxTotalSize) {
+				this.fliterMessage(chats, maxTotalSize, maxPerChatSize / 2);
+			}
 		},
 		saveToStorage(withColdMessage) {
 			// 加载中不保存，防止卡顿

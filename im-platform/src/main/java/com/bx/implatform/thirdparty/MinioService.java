@@ -1,6 +1,8 @@
 package com.bx.implatform.thirdparty;
 
+import cn.hutool.core.util.RandomUtil;
 import com.bx.implatform.util.DateTimeUtils;
+import com.bx.implatform.util.FileUtil;
 import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +40,7 @@ public class MinioService {
      */
     public void makeBucket(String bucketName) {
         try {
-            minioClient.makeBucket(MakeBucketArgs.builder()
-                    .bucket(bucketName)
-                    .build());
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         } catch (Exception e) {
             log.error("创建bucket失败,", e);
         }
@@ -52,18 +52,9 @@ public class MinioService {
     public void setBucketPublic(String bucketName) {
         try {
             // 设置公开
-            String sb = "{\"Version\":\"2012-10-17\"," +
-                    "\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":" +
-                    "{\"AWS\":[\"*\"]},\"Action\":[\"s3:ListBucket\",\"s3:ListBucketMultipartUploads\"," +
-                    "\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::" + bucketName +
-                    "\"]},{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:PutObject\",\"s3:AbortMultipartUpload\",\"s3:DeleteObject\",\"s3:GetObject\",\"s3:ListMultipartUploadParts\"],\"Resource\":[\"arn:aws:s3:::" +
-                    bucketName +
-                    "/*\"]}]}";
-            minioClient.setBucketPolicy(
-                    SetBucketPolicyArgs.builder()
-                            .bucket(bucketName)
-                            .config(sb)
-                            .build());
+            String sb =
+                "{\"Version\":\"2012-10-17\"," + "\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":" + "{\"AWS\":[\"*\"]},\"Action\":[\"s3:ListBucket\",\"s3:ListBucketMultipartUploads\"," + "\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::" + bucketName + "\"]},{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:PutObject\",\"s3:AbortMultipartUpload\",\"s3:DeleteObject\",\"s3:GetObject\",\"s3:ListMultipartUploadParts\"],\"Resource\":[\"arn:aws:s3:::" + bucketName + "/*\"]}]}";
+            minioClient.setBucketPolicy(SetBucketPolicyArgs.builder().bucket(bucketName).config(sb).build());
         } catch (Exception e) {
             log.error("创建bucket失败,", e);
         }
@@ -82,10 +73,10 @@ public class MinioService {
         if (StringUtils.isBlank(originalFilename)) {
             throw new RuntimeException();
         }
-        String fileName = System.currentTimeMillis() + "";
-        if (originalFilename.lastIndexOf(".") >= 0) {
-            fileName += originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
+        // 加入随机数,防止文件重名
+        String fileName = FileUtil.excludeExtension(originalFilename);
+        fileName += "_" + RandomUtil.randomString(4);
+        fileName += "." + FileUtil.getFileExtension(originalFilename);
         String objectName = DateTimeUtils.getFormatDate(new Date(), DateTimeUtils.PARTDATEFORMAT) + "/" + fileName;
         try {
             InputStream stream = new ByteArrayInputStream(file.getBytes());
@@ -111,13 +102,15 @@ public class MinioService {
      * @return objectName
      */
     public String upload(String bucketName, String path, String name, byte[] fileByte, String contentType) {
-
-        String fileName = System.currentTimeMillis() + name.substring(name.lastIndexOf("."));
+        // 加入随机数,防止文件重名
+        String fileName = FileUtil.excludeExtension(name);
+        fileName += "_" + RandomUtil.randomString(4);
+        fileName += "." + FileUtil.getFileExtension(name);
         String objectName = DateTimeUtils.getFormatDate(new Date(), DateTimeUtils.PARTDATEFORMAT) + "/" + fileName;
         try {
             InputStream stream = new ByteArrayInputStream(fileByte);
             PutObjectArgs objectArgs = PutObjectArgs.builder().bucket(bucketName).object(path + "/" + objectName)
-                    .stream(stream, fileByte.length, -1).contentType(contentType).build();
+                .stream(stream, fileByte.length, -1).contentType(contentType).build();
             //文件名称相同会覆盖
             minioClient.putObject(objectArgs);
         } catch (Exception e) {
@@ -126,7 +119,6 @@ public class MinioService {
         }
         return objectName;
     }
-
 
     /**
      * 删除
@@ -138,7 +130,8 @@ public class MinioService {
      */
     public boolean remove(String bucketName, String path, String fileName) {
         try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(path + "/"  + fileName).build());
+            minioClient.removeObject(
+                RemoveObjectArgs.builder().bucket(bucketName).object(path + "/" + fileName).build());
         } catch (Exception e) {
             log.error("删除文件失败,", e);
             return false;
@@ -156,7 +149,7 @@ public class MinioService {
      */
     public Boolean isExist(String bucketName, String path, String fileName) {
         try {
-            minioClient.statObject(StatObjectArgs.builder().bucket(bucketName).object(path + "/"  + fileName).build());
+            minioClient.statObject(StatObjectArgs.builder().bucket(bucketName).object(path + "/" + fileName).build());
         } catch (Exception e) {
             return false;
         }

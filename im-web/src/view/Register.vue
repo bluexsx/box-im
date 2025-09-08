@@ -1,37 +1,37 @@
 <template>
 	<el-container class="register-view">
-		<div>
-			<el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" label-width="80px"
-				class="content">
-				<div class="title">
-					<img class="logo" src="../../public/logo.png" />
-					<div>欢迎成为盒子IM的用户</div>
-				</div>
-				<el-form-item label="用户名" prop="userName">
-					<el-input type="userName" v-model="registerForm.userName" autocomplete="off" placeholder="用户名(登录使用)"
-						maxlength="20"></el-input>
-				</el-form-item>
-				<el-form-item label="昵称" prop="nickName">
-					<el-input type="nickName" v-model="registerForm.nickName" autocomplete="off" placeholder="昵称"
-						maxlength="20"></el-input>
-				</el-form-item>
-				<el-form-item label="密码" prop="password">
-					<el-input type="password" v-model="registerForm.password" autocomplete="off" placeholder="密码"
-						maxlength="20"></el-input>
-				</el-form-item>
-				<el-form-item label="确认密码" prop="confirmPassword">
-					<el-input type="password" v-model="registerForm.confirmPassword" autocomplete="off"
-						placeholder="确认密码" maxlength="20"></el-input>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="submitForm('registerForm')">注册</el-button>
-					<el-button @click="resetForm('registerForm')">清空</el-button>
-				</el-form-item>
-				<div class="to-login">
-					<router-link to="/login">已有账号,前往登录</router-link>
-				</div>
-			</el-form>
-		</div>
+		<div class="decoration decoration-1"></div>
+		<div class="decoration decoration-2"></div>
+		<div class="decoration decoration-3"></div>
+		<el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" label-width="80px" class="content">
+			<div class="title">
+				<img class="logo" src="../../public/logo.png" />
+				<div>欢迎成为盒子IM的用户</div>
+			</div>
+			<el-form-item label="用户名" prop="userName">
+				<el-input type="userName" v-model="registerForm.userName" autocomplete="off" placeholder="用户名(登录使用)"
+					maxlength="20"></el-input>
+			</el-form-item>
+			<el-form-item label="昵称" prop="nickName">
+				<el-input type="nickName" v-model="registerForm.nickName" autocomplete="off" placeholder="昵称"
+					maxlength="20"></el-input>
+			</el-form-item>
+			<el-form-item label="密码" prop="password">
+				<el-input type="password" v-model="registerForm.password" autocomplete="off" placeholder="密码"
+					maxlength="20"></el-input>
+			</el-form-item>
+			<el-form-item label="确认密码" prop="confirmPassword">
+				<el-input type="password" v-model="registerForm.confirmPassword" autocomplete="off" placeholder="确认密码"
+					maxlength="20"></el-input>
+			</el-form-item>
+			<el-form-item>
+				<el-button type="primary" @click="submitForm('registerForm')">注册</el-button>
+				<el-button @click="resetForm('registerForm')">清空</el-button>
+			</el-form-item>
+			<div class="to-login">
+				<router-link to="/login">已有账号,前往登录</router-link>
+			</div>
+		</el-form>
 		<icp></icp>
 	</el-container>
 </template>
@@ -131,18 +131,77 @@ export default {
 	align-items: center;
 	width: 100%;
 	height: 100%;
-	background: rgb(232, 242, 255);
+	background: linear-gradient(135deg,
+			#87adeb 0%,
+			#8287ec 25%,
+			#87adeb 50%,
+			#898ee3 75%,
+			#87adeb 100%);
+
+	/* 装饰性元素 */
+	.decoration {
+		position: absolute;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.decoration-1 {
+		width: 450px;
+		height: 450px;
+		background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, rgba(200, 220, 240, 0.4) 100%);
+		top: -250px;
+		right: -100px;
+		animation: float 16s infinite ease-in-out;
+	}
+
+	.decoration-2 {
+		width: 400px;
+		height: 400px;
+		background: linear-gradient(135deg, rgba(200, 220, 240, 0.4) 0%, rgba(255, 255, 255, 0.3) 100%);
+		bottom: -200px;
+		left: -100px;
+		animation: float 12s infinite ease-in-out;
+	}
+
+	.decoration-3 {
+		width: 300px;
+		height: 300px;
+		background: linear-gradient(45deg, rgba(161, 196, 253, 0.3) 0%, rgba(194, 233, 251, 0.5) 100%);
+		top: 50%;
+		right: 50px;
+		animation: float 8s infinite ease-in-out;
+	}
+
+	@keyframes float {
+
+		0%,
+		100% {
+			transform: translateY(0) translateX(0);
+		}
+
+		25% {
+			transform: translateY(-60px) translateX(30px);
+		}
+
+		50% {
+			transform: translateY(30px) translateX(-45px);
+		}
+
+		75% {
+			transform: translateY(-30px) translateX(-30px);
+		}
+	}
 
 	.content {
-		width: 500px;
+		width: 400px;
 		height: 450px;
 		padding: 20px;
-		background: white;
-		opacity: 0.9;
-		box-shadow: 0px 0px 1px #ccc;
 		border-radius: 3px;
 		overflow: hidden;
 		border-radius: 3%;
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		background: rgba(255, 255, 255, 0.85);
+		backdrop-filter: blur(8px);
 
 		.title {
 			display: flex;

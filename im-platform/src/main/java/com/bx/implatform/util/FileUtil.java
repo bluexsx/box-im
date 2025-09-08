@@ -14,6 +14,16 @@ public final class FileUtil {
     }
 
     /**
+     *  去除文件扩展名
+     *
+     * @param fileName 文件名
+     * @return
+     */
+    public static String excludeExtension(String fileName) {
+        return fileName.substring(0,fileName.lastIndexOf("."));
+    }
+
+    /**
      * 判断文件是否图片类型
      *
      * @param fileName 文件名

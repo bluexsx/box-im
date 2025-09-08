@@ -333,11 +333,11 @@ export default defineStore('chatStore', {
 			}
 		},
 		refreshChats() {
-			if (!cacheChats) return;
+			let chats = cacheChats || this.chats;
 			// 刷新免打扰状态
 			const friendStore = useFriendStore();
 			const groupStore = useGroupStore();
-			cacheChats.forEach(chat => {
+			chats.forEach(chat => {
 				if (chat.type == 'PRIVATE') {
 					let friend = friendStore.findFriend(chat.targetId);
 					if (friend) {
@@ -351,25 +351,37 @@ export default defineStore('chatStore', {
 				}
 			})
 			// 排序
-			cacheChats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
+			chats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
 			/**
 			 * 由于部分浏览器不支持websql或indexdb，只能使用localstorage，而localstorage大小只有10m,可能会导致缓存空间溢出
-			 * 解决办法:如果是使用localstorage的浏览器，每个会话只保留1000条消息，防止溢出
+			 * 解决办法:针对只能使用localstorage的浏览器，最多保留1w条消息,每个会话最多保留1000条消息
 			 */
-			cacheChats.forEach(chat => {
-				if (localForage.driver().includes("localStorage") && chat.messages.length > 1000) {
-					let idx = chat.messages.length - 1000;
-					chat.messages = chat.messages.slice(idx);
-				}
-			})
+			if (localForage.driver().includes("localStorage")) {
+				this.fliterMessage(chats, 10000, 1000)
+			}
 			// 记录热数据索引位置
-			cacheChats.forEach(chat => chat.hotMinIdx = chat.messages.length);
+			chats.forEach(chat => chat.hotMinIdx = chat.messages.length);
 			// 将消息一次性装载回来
-			this.chats = cacheChats;
+			this.chats = chats;
 			// 清空缓存
 			cacheChats = null;
 			// 持久化消息
 			this.saveToStorage(true);
+		},
+		fliterMessage(chats, maxTotalSize, maxPerChatSize) {
+			// 每个会话只保留maxPerChatSize条消息
+			let remainTotalSize = 0;
+			chats.forEach(chat => {
+				if (chat.messages.length > maxPerChatSize) {
+					let idx = chat.messages.length - maxPerChatSize;
+					chat.messages = chat.messages.slice(idx);
+				}
+				remainTotalSize += chat.messages.length;
+			})
+			// 保证消息总数不超过maxTotalSize条，否则继续清理
+			if (remainTotalSize > maxTotalSize) {
+				this.fliterMessage(chats, maxTotalSize, maxPerChatSize / 2);
+			}
 		},
 		saveToStorage(withColdMessage) {
 			// 加载中不保存，防止卡顿
