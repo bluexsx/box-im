@@ -14,7 +14,7 @@
 
 
 详细文档：https://www.yuque.com/u1475064/mufu2a
-
+官方论坛: https://bbs.boxim.online
 
 #### 近期更新
 发布3.0版本：
