@@ -1,6 +1,6 @@
 <template>
 	<div class="home-page" @click="closeUserInfo">
-		<div class="app-container" :class="{ fullscreen: isFullscreen }">
+		<div class="app-container" :class="{ fullscreen: configStore.fullScreen }">
 			<div class="navi-bar">
 				<div class="navi-bar-box">
 					<div class="top">
@@ -30,7 +30,7 @@
 					</div>
 
 					<div class="botoom">
-						<div class="bottom-item" @click="isFullscreen = !isFullscreen">
+						<div class="bottom-item" @click="onSwtichFullScreen">
 							<i class="el-icon-full-screen"></i>
 						</div>
 						<div class="bottom-item" @click="showSetting">
@@ -77,7 +77,6 @@ export default {
 		return {
 			showSettingDialog: false,
 			lastPlayAudioTime: new Date().getTime() - 1000,
-			isFullscreen: true,
 			reconnecting: false,
 			privateMessagesBuffer: [],
 			groupMessagesBuffer: []
@@ -204,7 +203,7 @@ export default {
 			this.chatStore.clear();
 			this.userStore.clear();
 		},
-				pullOfflineMessage() {
+		pullOfflineMessage() {
 			this.chatStore.setLoading(true);
 			const promises = [];
 			promises.push(this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId));
@@ -407,6 +406,9 @@ export default {
 		closeUserInfo() {
 			this.$refs.userInfo.close();
 		},
+		onSwtichFullScreen() {
+			this.configStore.setFullScreen(!this.configStore.fullScreen);
+		},
 		onExit() {
 			this.unloadStore();
 			this.configStore.setAppInit(false);
@@ -538,35 +540,38 @@ export default {
 		}
 
 		.menu {
-			height: 200px;
-			//margin-top: 10px;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
 			align-content: center;
+			flex-wrap: wrap;
+			margin-top: 20px;
 
 			.link {
 				text-decoration: none;
 			}
 
 			.router-link-active .menu-item {
-				color: #fff;
+				color: white;
 				background: var(--im-color-primary-light-2);
 			}
 
 			.link:not(.router-link-active) .menu-item:hover {
-				color: var(--im-color-primary-light-7);
+				background: var(--im-color-primary);
+				transform: scale(1.1);
 			}
 
 			.menu-item {
 				position: relative;
-				color: var(--im-color-primary-light-4);
+				color: #eee;
 				width: var(--width);
 				height: 46px;
+				width: 46px;
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				margin-bottom: 12px;
+				margin-top: 30px;
+				border-radius: 10px;
 
 				.icon {
 					font-size: var(--icon-font-size)

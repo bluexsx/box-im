@@ -1,6 +1,6 @@
 <template>
 	<el-container class="group-page">
-		<el-aside width="260px" class="aside">
+		<el-aside width="260px" class="aside" :class="{ fullscreen: configStore.fullScreen }">
 			<div class="header">
 				<el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
@@ -353,6 +353,15 @@ export default {
 		display: flex;
 		flex-direction: column;
 		background: var(--im-background);
+		border-right: 1px solid #eee;
+
+		&.fullscreen {
+			width: 260px !important;
+
+			@media (min-width: 1200px) {
+				width: 290px !important;
+			}
+		}
 
 		.header {
 			height: 50px;

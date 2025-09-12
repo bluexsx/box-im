@@ -74,9 +74,11 @@ export default {
 	height: 50px;
 	display: flex;
 	position: relative;
-	padding: 5px 10px;
 	align-items: center;
 	white-space: nowrap;
+	border-radius: 10px;
+	margin: 0 3px;
+	padding: 5px 8px;
 	cursor: pointer;
 
 	&:hover {

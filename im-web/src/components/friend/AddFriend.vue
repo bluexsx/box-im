@@ -21,7 +21,7 @@
 							<div>用户名:{{ user.userName }}</div>
 						</div>
 					</div>
-					<el-button type="success" size="mini" v-show="!isFriend(user.id)"
+					<el-button type="primary" size="mini" v-show="!isFriend(user.id)"
 						@click="onAddFriend(user)">添加</el-button>
 					<el-button type="info" size="mini" v-show="isFriend(user.id)" plain disabled>已添加</el-button>
 				</div>

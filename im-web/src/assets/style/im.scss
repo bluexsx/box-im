@@ -44,9 +44,9 @@
   --im-box-shadow-dark: 0px 16px 48px 16px rgba(0, 0, 0, .08), 0px 12px 32px rgba(0, 0, 0, .12), 0px 8px 16px -8px rgba(0, 0, 0, .16);
 
   // 背景色
-  --im-background: #F3F3F3;
-  --im-background-active: #F1F1F1;
-  --im-background-active-dark: #E9E9E9;
+  --im-background: white;
+  --im-background-active: #f4f4fc;
+  --im-background-active-dark: var(--im-color-primary-light-9);
 }
 
 html {
@@ -81,6 +81,12 @@ section {
 
 ::-webkit-scrollbar-track {
   border-radius: 4px;
+}
+
+.el-scrollbar__thumb {
+  border-radius: 4px;
+  background: var(--im-color-primary-light-9) !important;
+
 }
 
 .search-input {

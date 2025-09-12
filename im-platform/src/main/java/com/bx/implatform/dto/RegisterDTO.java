@@ -20,7 +20,6 @@ public class RegisterDTO {
     private String password;
 
     @Length(max = 20, message = "昵称不能大于20字符")
-    @NotEmpty(message = "用户昵称不可为空")
     @Schema(description = "用户昵称")
     private String nickName;
 

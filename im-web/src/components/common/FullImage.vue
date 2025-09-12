@@ -64,12 +64,23 @@ export default {
 	}
 
 	.close {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		position: fixed;
-		top: 10px;
-		right: 10px;
-		color: white;
-		font-size: 25px;
+		top: 20px;
+		right: 20px;
 		cursor: pointer;
+		background: #333;
+		border-radius: 50%;
+		padding: 10px;
+		opacity: 0.5;
+
+		i {
+			font-weight: bold;
+			font-size: 20px;
+			color: white;
+		}
 	}
 }
 </style>

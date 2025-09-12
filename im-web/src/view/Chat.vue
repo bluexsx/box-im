@@ -1,6 +1,6 @@
 <template>
   <el-container class="chat-page">
-    <el-aside width="260px" class="aside">
+    <el-aside width="260px" class="aside" :class="{ fullscreen: configStore.fullScreen }">
       <div class="header">
         <el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
           <i class="el-icon-search el-input__icon" slot="prefix"> </i>
@@ -100,13 +100,15 @@ export default {
   .aside {
     display: flex;
     flex-direction: column;
-    background: var(--im-background);
+    background: white;
+    border-right: 1px solid #eee;
 
-    .header {
-      height: 50px;
-      display: flex;
-      align-items: center;
-      padding: 0 8px;
+    &.fullscreen {
+      width: 260px !important;
+
+      @media (min-width: 1200px) {
+        width: 290px !important;
+      }
     }
 
     .chat-loading {

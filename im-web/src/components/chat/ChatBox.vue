@@ -883,7 +883,7 @@ export default {
 
 		.im-chat-main {
 			padding: 0;
-			background-color: #fff;
+			background-color: #f4f5f6;
 
 			.im-chat-box {
 				>ul {
