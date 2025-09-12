@@ -111,6 +111,13 @@ export default {
       }
     }
 
+    .header {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+    }
+
     .chat-loading {
       height: 50px;
       background-color: #eee;
