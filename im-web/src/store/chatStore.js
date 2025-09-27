@@ -551,6 +551,10 @@ export default defineStore('chatStore', {
 			if (msgInfo.tmpId) {
 				for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
 					let m = chat.messages[idx];
+					// 这里只查询临时消息，跳过正常消息
+					if (m.id) {
+						continue;
+					}
 					if (m.tmpId && msgInfo.tmpId == m.tmpId) {
 						return m;
 					}
