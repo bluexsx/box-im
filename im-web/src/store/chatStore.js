@@ -555,7 +555,7 @@ export default defineStore('chatStore', {
 						continue;
 					}
 					if (msgInfo.tmpId == m.tmpId) {
-						return idx;
+						return m;
 					}
 					// 如果id比要查询的消息小，说明没有这条消息
 					if (m.tmpId && m.tmpId < msgInfo.tmpId) {
