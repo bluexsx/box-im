@@ -9,7 +9,12 @@
 			</view>
 		</view>
 		<view class="friend-tip" v-if="!hasFriends">
-			温馨提示：您现在还没有任何好友，快点击右上方'+'按钮添加好友吧~
+			<view class="tip-icon">
+				<text class="iconfont icon-add-friend"></text>
+			</view>
+			<view class="tip-title">还没有好友</view>
+			<view class="tip-content">添加好友，开始精彩的聊天之旅</view>
+			<button type="primary" @click="onAddNewFriends">添加好友</button>
 		</view>
 		<view class="friend-items" v-else>
 			<up-index-list :index-list="friendIdx" :sticky="false" :custom-nav-height="customNavHeight">
@@ -103,7 +108,7 @@ export default {
 			// #ifdef APP-PLUS
 			h += uni.getSystemInfoSync().statusBarHeight;
 			// #endif
-			console.log("customNavHeight:",h)
+			console.log("customNavHeight:", h)
 			return h;
 		}
 	}
@@ -128,11 +133,49 @@ export default {
 
 	.friend-tip {
 		position: absolute;
-		top: 400rpx;
-		padding: 50rpx;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 60rpx 40rpx;
 		text-align: center;
-		line-height: 50rpx;
-		color: $im-text-color-lighter;
+		width: 80%;
+		max-width: 500rpx;
+
+		.tip-icon {
+			width: 120rpx;
+			height: 120rpx;
+			background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 40rpx;
+			box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+			border: 2rpx solid $im-bg-active;
+
+			.iconfont {
+				font-size: 56rpx;
+				color: #6c757d;
+				opacity: 0.8;
+			}
+		}
+
+		.tip-title {
+			font-size: $im-font-size-large;
+			color: $im-text-color;
+			font-weight: 500;
+			margin-bottom: 20rpx;
+		}
+
+		.tip-content {
+			font-size: $im-font-size-smaller;
+			color: $im-text-color-lighter;
+			line-height: 1.6;
+			margin-bottom: 50rpx;
+		}
 	}
 
 	.friend-items {

@@ -8,7 +8,12 @@
 			</view>
 		</view>
 		<view class="group-tip" v-if="!hasGroups">
-			温馨提示：您现在还没有加入任何群聊，点击右上方'+'按钮可以创建群聊哦~
+			<view class="tip-icon">
+				<text class="iconfont icon-create-group"></text>
+			</view>
+			<view class="tip-title">还没有群聊</view>
+			<view class="tip-content">创建或加入群聊，与朋友们一起畅聊吧</view>
+			<button type="primary" @click="onCreateNewGroup">创建群聊</button>
 		</view>
 		<view class="group-items" v-else>
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
@@ -55,12 +60,49 @@ export default {
 
 	.group-tip {
 		position: absolute;
-		top: 400rpx;
-		padding: 50rpx;
-		text-align: left;
-		line-height: 50rpx;
-		color: darkblue;
-		font-size: 30rpx;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 60rpx 40rpx;
+		text-align: center;
+		width: 80%;
+		max-width: 500rpx;
+
+		.tip-icon {
+			width: 120rpx;
+			height: 120rpx;
+			background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 40rpx;
+			box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+			border: 2rpx solid $im-bg-active;
+
+			.iconfont {
+				font-size: 56rpx;
+				color: #6c757d;
+				opacity: 0.8;
+			}
+		}
+
+		.tip-title {
+			font-size: $im-font-size-large;
+			color: $im-text-color;
+			font-weight: 500;
+			margin-bottom: 20rpx;
+		}
+
+		.tip-content {
+			font-size: $im-font-size-smaller;
+			color: $im-text-color-lighter;
+			line-height: 1.6;
+			margin-bottom: 50rpx;
+		}
 	}
 
 	.group-items {
