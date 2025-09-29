@@ -47,8 +47,12 @@ $im-box-shadow-lighter: 0px 0px 6px rgba(0, 0, 0, .12);
 $im-box-shadow-dark: 0px 1px 10px 2px rgba($color: #a5a4a4, $alpha: 0.5);
 
 // 背景
-$im-bg: #f7f7f7;
-$im-bg-active: #f1f1f1;
+$im-bg: #f8f9ff;
+$im-bg-linear: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+$im-bg-active: #f7f8fc;
+$im-bg-active-dark: $im-color-primary-light-9;
+$im-bg-input: #fafafa;
+
 
 // 标题
 $im-title-size: 26px; 

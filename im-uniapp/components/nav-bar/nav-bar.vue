@@ -73,8 +73,7 @@ export default {
 
 <style scoped lang="scss">
 .im-nav-bar {
-	background-color: #fff;
-	//background-color: $im-bg;
+	background: $im-bg-linear;
 	position: fixed;
 	top: 0;
 	width: 100%;

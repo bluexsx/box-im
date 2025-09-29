@@ -496,7 +496,7 @@ uni-page-head {
 
 // #endif
 page {
-	background-color: $im-bg;
+	background: $im-bg-linear;
 }
 
 .tab-page {
@@ -519,7 +519,7 @@ page {
 
 	// #endif
 	color: $im-text-color;
-	background-color: $im-bg;
+	background: $im-bg-linear;
 	font-size: $im-font-size;
 	font-family: $font-family;
 }
@@ -542,7 +542,7 @@ page {
 	// #endif
 	
 	color: $im-text-color;
-	background-color: $im-bg;
+	background: $im-bg-linear;
 	font-size: $im-font-size;
 	font-family: $font-family;
 }
