@@ -1,6 +1,6 @@
 <template>
   <el-container class="chat-page">
-    <el-aside width="260px" class="aside" :class="{ fullscreen: configStore.fullScreen }">
+    <resizable-aside :default-width="260" :min-width="200" :max-width="500" storage-key="chat-aside-width">
       <div class="header">
         <el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
           <i class="el-icon-search el-input__icon" slot="prefix"> </i>
@@ -16,7 +16,7 @@
             @dnd="onDnd(chat)" :active="chat === chatStore.activeChat"></chat-item>
         </div>
       </el-scrollbar>
-    </el-aside>
+    </resizable-aside>
     <el-container>
       <chat-box v-if="chatStore.activeChat" :chat="chatStore.activeChat"></chat-box>
     </el-container>
@@ -26,12 +26,14 @@
 <script>
 import ChatItem from "../components/chat/ChatItem.vue";
 import ChatBox from "../components/chat/ChatBox.vue";
+import ResizableAside from "../components/common/ResizableAside.vue";
 
 export default {
   name: "chat",
   components: {
     ChatItem,
-    ChatBox
+    ChatBox,
+    ResizableAside
   },
   data() {
     return {
@@ -97,44 +99,31 @@ export default {
 
 <style lang="scss" scoped>
 .chat-page {
-  .aside {
+  
+  .header {
+    height: 50px;
     display: flex;
-    flex-direction: column;
-    background: white;
-    border-right: 1px solid #eee;
+    align-items: center;
+    padding: 0 8px;
+  }
 
-    &.fullscreen {
-      width: 260px !important;
+  .chat-loading {
+    height: 50px;
+    background-color: #eee;
 
-      @media (min-width: 1200px) {
-        width: 290px !important;
-      }
+    .el-icon-loading {
+      font-size: 24px;
+      color: var(--im-text-color-light);
     }
 
-    .header {
-      height: 50px;
-      display: flex;
-      align-items: center;
-      padding: 0 8px;
-    }
-
-    .chat-loading {
-      height: 50px;
-      background-color: #eee;
-
-      .el-icon-loading {
-        font-size: 24px;
-        color: var(--im-text-color-light);
-      }
-
-      .el-loading-text {
-        color: var(--im-text-color-light);
-      }
-    }
-
-    .chat-items {
-      flex: 1;
+    .el-loading-text {
+      color: var(--im-text-color-light);
     }
   }
+
+  .chat-items {
+    flex: 1;
+  }
+
 }
 </style>

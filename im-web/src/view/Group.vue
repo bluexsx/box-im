@@ -1,6 +1,6 @@
 <template>
 	<el-container class="group-page">
-		<el-aside width="260px" class="aside" :class="{ fullscreen: configStore.fullScreen }">
+		<resizable-aside :default-width="260" :min-width="200" :max-width="500" storage-key="group-aside-width">
 			<div class="header">
 				<el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
@@ -18,7 +18,7 @@
 					<div v-if="i < groupValues.length - 1" class="divider"></div>
 				</div>
 			</el-scrollbar>
-		</el-aside>
+		</resizable-aside>
 		<el-container class="container">
 			<div class="header" v-show="activeGroup.id">{{ activeGroup.showGroupName }}({{ showMembers.length }})</div>
 			<div class="container-box" v-show="activeGroup.id">
@@ -101,6 +101,7 @@ import GroupMember from '../components/group/GroupMember.vue';
 import AddGroupMember from '../components/group/AddGroupMember.vue';
 import GroupMemberSelector from '../components/group/GroupMemberSelector.vue';
 import HeadImage from '../components/common/HeadImage.vue';
+import ResizableAside from "../components/common/ResizableAside.vue";
 import { pinyin } from 'pinyin-pro';
 
 export default {
@@ -111,7 +112,8 @@ export default {
 		FileUpload,
 		AddGroupMember,
 		GroupMemberSelector,
-		HeadImage
+		HeadImage,
+		ResizableAside
 	},
 	data() {
 		return {
@@ -349,43 +351,29 @@ export default {
 
 <style lang="scss" scoped>
 .group-page {
-	.aside {
+
+	.header {
+		height: 50px;
 		display: flex;
-		flex-direction: column;
-		background: var(--im-background);
-		border-right: 1px solid #eee;
+		align-items: center;
+		padding: 0 8px;
 
-		&.fullscreen {
-			width: 260px !important;
-
-			@media (min-width: 1200px) {
-				width: 290px !important;
-			}
+		.add-btn {
+			padding: 5px !important;
+			margin: 5px;
+			font-size: 16px;
+			border-radius: 50%;
 		}
+	}
 
-		.header {
-			height: 50px;
-			display: flex;
-			align-items: center;
-			padding: 0 8px;
+	.group-items {
+		flex: 1;
 
-			.add-btn {
-				padding: 5px !important;
-				margin: 5px;
-				font-size: 16px;
-				border-radius: 50%;
-			}
-		}
-
-		.group-items {
-			flex: 1;
-
-			.letter {
-				text-align: left;
-				font-size: var(--im-larger-size-larger);
-				padding: 5px 15px;
-				color: var(--im-text-color-light);
-			}
+		.letter {
+			text-align: left;
+			font-size: var(--im-larger-size-larger);
+			padding: 5px 15px;
+			color: var(--im-text-color-light);
 		}
 	}
 
