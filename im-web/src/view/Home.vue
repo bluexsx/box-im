@@ -148,8 +148,10 @@ export default {
 				this.$wsApi.onClose((e) => {
 					if (e.code != 3000) {
 						// 断线重连
-						this.reconnectWs();
-						this.configStore.setAppInit(false)
+						if (!this.reconnecting) {
+							this.reconnectWs();
+							this.configStore.setAppInit(false)
+						}
 					}
 				});
 			}).catch((e) => {
@@ -385,8 +387,8 @@ export default {
 			this.chatStore.insertMessage(msg, chatInfo);
 			// 播放提示音
 			if (!group.isDnd && !this.chatStore.loading &&
-				!msg.selfSend && this.$msgType.isNormal(msg.type)
-				&& msg.status != this.$enums.MESSAGE_STATUS.READED) {
+				!msg.selfSend && this.$msgType.isNormal(msg.type) &&
+				msg.status != this.$enums.MESSAGE_STATUS.READED) {
 				this.playAudioTip();
 			}
 		},
