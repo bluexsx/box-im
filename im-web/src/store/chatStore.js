@@ -547,11 +547,14 @@ export default defineStore('chatStore', {
 					}
 				}
 			}
-			// 正在发送中的消息可能没有id,只有tmpId
-			if (msgInfo.tmpId) {
+			// 正在发送中的临时消息可能没有id,只有tmpId
+			if (msgInfo.selfSend && msgInfo.tmpId) {
 				for (let idx = chat.messages.length - 1; idx >= 0; idx--) {
 					let m = chat.messages[idx];
-					if (m.tmpId && msgInfo.tmpId == m.tmpId) {
+					if (!m.selfSend || !m.tmpId) {
+						continue;
+					}
+					if (msgInfo.tmpId == m.tmpId) {
 						return m;
 					}
 					// 如果id比要查询的消息小，说明没有这条消息

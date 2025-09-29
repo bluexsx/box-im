@@ -104,9 +104,27 @@ $--font-family: Microsoft YaHei, 'Avenir', Helvetica, Arial, sans-serif;
   font-family: $--font-family;
 }
 
-.el-tag--mini {
-  height: 18px;
-  padding: 0 2px;
+
+.el-tag {
+  font-size: 10px;
+  height: 16px;
   line-height: 16px;
-  border-radius: 2px;
+  text-align: center;
+  border-radius: 5px;
+  border: 0;
+  margin-left: 3px;
+  padding: 0 3px !important;
+  color: white !important;
+
+  &.el-tag--primary {
+    background: var(--im-color-primary-light-4);
+  }
+
+  &.el-tag--warning {
+    background: var(--im-color-warning);
+  }
+
+  &.el-tag--danger {
+    background: var(--im-color-danger);
+  }
 }

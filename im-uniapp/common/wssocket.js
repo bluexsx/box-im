@@ -66,9 +66,7 @@ let connect = (wsurl, token) => {
 
 	socketTask.onError((e) => {
 		console.log("ws错误:",e)
-		close();
-		isConnect = false;
-		closeCallBack && closeCallBack({ code: 1006 });
+		close(1006);
 	})
 }
 
@@ -97,6 +95,9 @@ let close = (code) => {
 		complete: (res) => {
 			console.log("关闭websocket连接");
 			isConnect = false;
+			if (code != 3099) {
+				closeCallBack && closeCallBack(res);s
+			}
 		},
 		fail: (e) => {
 			console.log("关闭websocket连接失败", e);

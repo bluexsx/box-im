@@ -23,7 +23,7 @@
 						<span class="message-text" v-if="isTextMessage" v-html="htmlText"></span>
 						<div class="message-image" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.IMAGE"
 							@click="showFullImageBox()">
-								<img :style="imageStyle" :src="contentData.thumbUrl" loading="lazy" />
+							<img :style="imageStyle" :src="contentData.thumbUrl" loading="lazy" />
 						</div>
 						<div class="message-file" v-else-if="msgInfo.type == $enums.MESSAGE_TYPE.FILE">
 							<div class="chat-file-box" v-loading="sending">
@@ -116,7 +116,7 @@ export default {
 	},
 	methods: {
 		onSendFail() {
-			this.$emit("resend",this.msgInfo);
+			this.$emit("resend", this.msgInfo);
 		},
 		showFullImageBox() {
 			let imageUrl = JSON.parse(this.msgInfo.content).originUrl;
@@ -301,18 +301,6 @@ export default {
 					white-space: pre-wrap;
 					word-break: break-word;
 
-					&:after {
-						content: "";
-						position: absolute;
-						left: -10px;
-						top: 13px;
-						width: 0;
-						height: 0;
-						border-style: solid dashed dashed;
-						border-color: #eee transparent transparent;
-						overflow: hidden;
-						border-width: 10px;
-					}
 				}
 
 				.message-image {
@@ -320,6 +308,7 @@ export default {
 					border: 2px solid var(--im-color-primary-light-9);
 					overflow: hidden;
 					cursor: pointer;
+					background: var(--im-background);
 				}
 
 				.message-file {
@@ -329,6 +318,7 @@ export default {
 					align-items: center;
 					cursor: pointer;
 					margin-bottom: 2px;
+					background: var(--im-background);
 
 					.chat-file-box {
 						display: flex;
@@ -466,12 +456,6 @@ export default {
 					.message-text {
 						background-color: var(--im-color-primary-light-2);
 						color: #fff;
-
-						&:after {
-							left: auto;
-							right: -10px;
-							border-top-color: var(--im-color-primary-light-2);
-						}
 					}
 
 					.chat-action {

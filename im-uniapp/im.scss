@@ -1,10 +1,11 @@
 /** 原生button样式 **/
 uni-button {
 	font-size: $im-font-size !important;
+	border-radius: 40rpx !important;
 }
 uni-button[type='primary'] {
 	color: #fff !important;
-	background-color: $im-color-primary !important;
+	background: linear-gradient(135deg, $im-color-primary, lighten($im-color-primary, 15%)) !important;
 }
 
 uni-button[type='primary'][plain] {
@@ -15,13 +16,13 @@ uni-button[type='primary'][plain] {
 
 uni-button[type='warn'] {
 	color: #fff !important;
-	background-color: $im-color-danger !important;
+	background: linear-gradient(135deg, $im-color-danger, lighten($im-color-danger, 15%)) !important;
 }
 
 uni-button[type='warn'][plain] {
 	color: $im-color-danger !important;
 	border: 1px solid $im-color-danger !important;
-	background-color: transparent !important;
+	background: transparent !important;
 }
 
 uni-button[size='mini'] {
@@ -36,24 +37,24 @@ button {
 
 button[type='primary'] {
 	color: #fff !important;
-	background-color: $im-color-primary !important;
+	background: linear-gradient(135deg, $im-color-primary, lighten($im-color-primary, 15%)) !important;
 }
 
 button[type='primary'][plain] {
 	color: $im-color-primary !important;
-	border: 1px solid $im-color-primary;
-	background-color: transparent;
+	border: 2px solid $im-color-primary;
+	background: transparent;
 }
 
 button[type='warn'] {
 	color: #fff !important;
-	background-color: $im-color-danger !important;
+	background: linear-gradient(135deg, $im-color-danger, lighten($im-color-danger, 15%)) !important;
 }
 
 button[type='warn'][plain] {
 	color: $im-color-danger !important;
 	border: 1px solid $im-color-danger !important;
-	background-color: transparent !important;
+	background: transparent !important;
 }
 
 button[size='mini'] {
@@ -156,6 +157,7 @@ button[size='mini'] {
 .uni-input-input:disabled {
 	color: $im-text-color-light;
 }
+
 .uni-forms-item.is-direction-top .uni-forms-item__label {
 	padding: 0 !important;
 }
@@ -166,10 +168,15 @@ button[size='mini'] {
 	color: unset !important;
 	padding: 10px 0 !important;
 }
-.uni-tag-text--small{
-	font-size: 10px !important;
-	font-weight: bolder !important;
+
+.uni-tag{
+	transform: scale(0.9);
+	margin-left: 5rpx;
+	border-radius: 12rpx !important;
+	font-weight: 600 !important;
+	white-space: nowrap;
 }
+
 .uni-switch-input-checked {
 	background-color: $im-color-primary-light-1 !important;
 	border-color: $im-color-primary-light-1 !important;
@@ -191,13 +198,13 @@ button[size='mini'] {
 
 
 
+
 .nav-bar {
 	height: 100rpx;
 	padding: 0 20rpx;
 	display: flex;
 	align-items: center;
-	background-color: white;
-	border-bottom: 1px solid $im-border;
+	border-bottom: 1rpx solid $im-border;
 
 	.nav-search {
 		flex: 1;

@@ -9,7 +9,7 @@
 			<div class="chat-name">
 				<div class="chat-name-text">
 					<div>{{ chat.showName }}</div>
-					<el-tag v-if="chat.type == 'GROUP'" size="mini">群</el-tag>
+					<el-tag v-if="chat.type == 'GROUP'" type="primary" size="mini">群</el-tag>
 				</div>
 				<div class="chat-time-text">{{ showTime }}</div>
 			</div>
@@ -117,14 +117,16 @@ export default {
 
 <style lang="scss" scoped>
 .chat-item {
-	height: 50px;
+	height: 56px;
 	display: flex;
 	position: relative;
-	padding: 5px 10px;
+	margin: 0 3px;
+	padding: 5px 8px;
 	align-items: center;
 	background-color: var(--im-background);
 	white-space: nowrap;
 	cursor: pointer;
+	border-radius: 10px;
 
 	&:hover {
 		background-color: var(--im-background-active);
@@ -166,8 +168,8 @@ export default {
 
 		.chat-name {
 			display: flex;
-			line-height: 20px;
-			height: 20px;
+			line-height: 26px;
+			height: 26px;
 
 			.chat-name-text {
 				flex: 1;
@@ -176,14 +178,6 @@ export default {
 				font-size: var(--im-font-size);
 				white-space: nowrap;
 				overflow: hidden;
-
-				.el-tag {
-					min-width: 22px;
-					text-align: center;
-					border-radius: 10px;
-					border: 0;
-					height: 16px;
-				}
 			}
 
 			.chat-time-text {
@@ -198,7 +192,7 @@ export default {
 
 		.chat-content {
 			display: flex;
-			line-height: 22px;
+			line-height: 24px;
 
 			.chat-at-text {
 				color: #c70b0b;

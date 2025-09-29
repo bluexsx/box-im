@@ -74,8 +74,10 @@ export default {
 			wsApi.onClose((res) => {
 				console.log("ws断开", res);
 				// 重新连接
-				this.reconnectWs();
-				this.configStore.setAppInit(false);
+				if (!this.reconnecting) {
+					this.reconnectWs();
+					this.configStore.setAppInit(false);
+				}
 			})
 		},
 		loadStore() {
@@ -496,7 +498,7 @@ uni-page-head {
 
 // #endif
 page {
-	background-color: $im-bg;
+	background: $im-bg-linear;
 }
 
 .tab-page {
@@ -519,7 +521,7 @@ page {
 
 	// #endif
 	color: $im-text-color;
-	background-color: $im-bg;
+	background: $im-bg-linear;
 	font-size: $im-font-size;
 	font-family: $font-family;
 }
@@ -542,7 +544,7 @@ page {
 	// #endif
 	
 	color: $im-text-color;
-	background-color: $im-bg;
+	background: $im-bg-linear;
 	font-size: $im-font-size;
 	font-family: $font-family;
 }

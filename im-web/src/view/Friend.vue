@@ -1,6 +1,6 @@
 <template>
 	<el-container class="friend-page">
-		<el-aside width="260px" class="aside">
+		<resizable-aside :default-width="260" :min-width="200" :max-width="500" storage-key="friend-aside-width">
 			<div class="header">
 				<el-input class="search-text" size="small" placeholder="搜索" v-model="searchText">
 					<i class="el-icon-search el-input__icon" slot="prefix"> </i>
@@ -21,7 +21,7 @@
 					<div v-if="i < friendValues.length - 1" class="divider"></div>
 				</div>
 			</el-scrollbar>
-		</el-aside>
+		</resizable-aside>
 		<el-container class="container">
 			<div class="header" v-show="userInfo.id">
 				{{ userInfo.nickName }}
@@ -61,6 +61,7 @@
 import FriendItem from "../components/friend/FriendItem.vue";
 import AddFriend from "../components/friend/AddFriend.vue";
 import HeadImage from "../components/common/HeadImage.vue";
+import ResizableAside from "../components/common/ResizableAside.vue";
 import { pinyin } from 'pinyin-pro';
 
 export default {
@@ -68,8 +69,8 @@ export default {
 	components: {
 		FriendItem,
 		AddFriend,
-		HeadImage
-
+		HeadImage,
+		ResizableAside
 	},
 	data() {
 		return {
@@ -223,72 +224,67 @@ export default {
 
 <style lang="scss" scoped>
 .friend-page {
-	.aside {
+
+	.header {
+		height: 50px;
 		display: flex;
-		flex-direction: column;
-		background: var(--im-background);
+		align-items: center;
+		padding: 0 8px;
 
-		.header {
-			height: 50px;
-			display: flex;
-			align-items: center;
-			padding: 0 8px;
-
-			.add-btn {
-				padding: 5px !important;
-				margin: 5px;
-				font-size: 16px;
-				border-radius: 50%;
-			}
-		}
-
-		.friend-items {
-			flex: 1;
-
-			.letter {
-				text-align: left;
-				font-size: var(--im-larger-size-larger);
-				padding: 5px 15px;
-				color: var(--im-text-color-light);
-			}
+		.add-btn {
+			padding: 5px !important;
+			margin: 5px;
+			font-size: 16px;
+			border-radius: 50%;
 		}
 	}
 
-	.container {
+	.friend-items {
+		flex: 1;
+
+		.letter {
+			text-align: left;
+			font-size: var(--im-larger-size-larger);
+			padding: 5px 15px;
+			color: var(--im-text-color-light);
+		}
+	}
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+
+	.header {
+		height: 50px;
 		display: flex;
-		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 12px;
+		font-size: var(--im-font-size-larger);
+		border-bottom: var(--im-border);
+		box-sizing: border-box;
+	}
 
-		.header {
-			height: 50px;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			padding: 0 12px;
-			font-size: var(--im-font-size-larger);
-			border-bottom: var(--im-border);
-			box-sizing: border-box;
+	.friend-info {
+		display: flex;
+		padding: 50px 80px 20px 80px;
+		text-align: center;
+
+		.info-item {
+			margin-left: 20px;
+			background-color: #ffffff;
+			border: 1px #ddd solid;
 		}
 
-		.friend-info {
-			display: flex;
-			padding: 50px 80px 20px 80px;
-			text-align: center;
-
-			.info-item {
-				margin-left: 20px;
-				background-color: #ffffff;
-				border: 1px #ddd solid;
-			}
-
-			.description {
-				padding: 20px 20px 0 20px;
-			}
+		.description {
+			padding: 20px 20px 0 20px;
 		}
+	}
 
-		.btn-group {
-			text-align: left !important;
-			padding: 20px;
-		}
+	.btn-group {
+		text-align: left !important;
+		padding: 20px;
 	}
 }
 </style>

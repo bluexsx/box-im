@@ -45,14 +45,16 @@ export default {
     align-items: center;
     white-space: nowrap;
     box-sizing: border-box;
+    border-radius: 5px;
+    margin: 0 1px;
 
-    &:hover {
-        background-color: var(--im-background-active);
-    }
+	&:hover {
+		background-color: var(--im-background-active);
+	}
 
-    &.active {
-        background-color: #eeeeee;
-    }
+	&.active {
+		background-color: var(--im-background-active-dark);
+	}
 
     .member-name {
         flex: 1;

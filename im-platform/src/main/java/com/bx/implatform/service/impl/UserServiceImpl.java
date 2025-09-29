@@ -1,5 +1,6 @@
 package com.bx.implatform.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -109,6 +110,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public void register(RegisterDTO dto) {
+        // 昵称默认跟用户名保持一致
+        if(StrUtil.isEmpty(dto.getNickName())){
+            dto.setUserName(dto.getUserName());
+        }
         User user = this.findUserByUserName(dto.getUserName());
         if(!dto.getUserName().equals(sensitiveFilterUtil.filter(dto.getUserName()))){
             throw new GlobalException("用户名包含敏感字符");

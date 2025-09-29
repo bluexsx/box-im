@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4272106 */
-  src: url('iconfont.ttf?t=1750317465456') format('truetype');
+  src: url('iconfont.ttf?t=1759053579007') format('truetype');
 }
 
 .iconfont {
@@ -11,20 +11,92 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-chat:before {
+  content: "\e93e";
+}
+
+.icon-create-group:before {
+  content: "\e65b";
+}
+
+.icon-refresh:before {
+  content: "\e64c";
+}
+
+.icon-copy:before {
+  content: "\e604";
+}
+
+.icon-code:before {
+  content: "\e72c";
+}
+
+.icon-username:before {
+  content: "\e623";
+}
+
+.icon-pwd:before {
+  content: "\e60d";
+}
+
+.icon-pwd-hide:before {
+  content: "\e60c";
+}
+
+.icon-username2:before {
+  content: "\e647";
+}
+
+.icon-pwd-show:before {
+  content: "\e621";
+}
+
+.icon-teenager:before {
+  content: "\eba1";
+}
+
+.icon-warning-circle-empty:before {
+  content: "\e606";
+}
+
+.icon-loading2:before {
+  content: "\e6b6";
+}
+
+.icon-complaint:before {
+  content: "\e612";
+}
+
+.icon-about:before {
+  content: "\e637";
+}
+
+.icon-security:before {
+  content: "\e61d";
+}
+
+.icon-personal-info:before {
+  content: "\e62d";
+}
+
+.icon-success:before {
+  content: "\e649";
+}
+
+.icon-wait:before {
+  content: "\e701";
+}
+
+.icon-error:before {
+  content: "\e62b";
+}
+
 .icon-dnd:before {
   content: "\e693";
 }
 
-.icon-privacy-protocol:before {
-  content: "\e761";
-}
-
 .icon-create-group-2:before {
   content: "\e616";
-}
-
-.icon-create-group:before {
-  content: "\e650";
 }
 
 .icon-qrcode:before {
@@ -67,10 +139,6 @@
   content: "\e611";
 }
 
-.icon-username:before {
-  content: "\e60f";
-}
-
 .icon-chat-muted:before {
   content: "\e634";
 }
@@ -87,16 +155,8 @@
   content: "\e63c";
 }
 
-.icon-user-protocol:before {
-  content: "\e61a";
-}
-
 .icon-film:before {
   content: "\e66b";
-}
-
-.icon-chat:before {
-  content: "\e624";
 }
 
 .icon-delete:before {

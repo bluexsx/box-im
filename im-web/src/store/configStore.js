@@ -5,6 +5,7 @@ export default defineStore('configStore', {
 	state: () => {
 		return {
 			appInit: false,  // 应用是否完成初始化
+			fullScreen: true, // 当前是否全屏
 			webrtc: {}
 		}
 	},
@@ -14,6 +15,9 @@ export default defineStore('configStore', {
 		},
 		setAppInit(appInit) {
 			this.appInit = appInit;
+		},
+		setFullScreen(fullScreen) {
+			this.fullScreen = fullScreen;
 		},
 		loadConfig() {
 			return new Promise((resolve, reject) => {

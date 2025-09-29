@@ -18,7 +18,11 @@
 			</view>
 		</view>
 		<view class="chat-tip" v-if="!initializing && !loading && chatStore.chats.length == 0">
-			温馨提示：您现在还没有任何聊天消息，快跟您的好友发起聊天吧~
+			<view class="tip-icon">
+				<text class="iconfont icon-chat"></text>
+			</view>
+			<view class="tip-title">还没有聊天</view>
+			<view class="tip-content">添加好友或创建群聊，开始精彩的对话吧</view>
 		</view>
 		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true">
 			<view v-for="(chat, index) in chatStore.chats" :key="index">
@@ -140,11 +144,47 @@ export default {
 
 	.chat-tip {
 		position: absolute;
-		top: 400rpx;
-		padding: 50rpx;
-		line-height: 50rpx;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 40rpx;
 		text-align: center;
-		color: $im-text-color-lighter;
+		width: 80%;
+		
+		.tip-icon {
+			width: 120rpx;
+			height: 120rpx;
+			background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 40rpx;
+			box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+			border: 1rpx solid $im-bg-active;
+			
+			.iconfont {
+				font-size: 60rpx;
+				color: $im-text-color-lighter;
+			}
+		}
+
+		.tip-title {
+			font-size: $im-font-size-large;
+			color: $im-text-color;
+			font-weight: 500;
+			margin-bottom: 20rpx;
+		}
+
+		.tip-content {
+			font-size: $im-font-size-smaller;
+			color: $im-text-color-lighter;
+			line-height: 1.6;
+			margin-bottom: 50rpx;
+		}
 	}
 
 	.chat-loading {
