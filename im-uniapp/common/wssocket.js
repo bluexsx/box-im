@@ -15,12 +15,10 @@ let connect = (wsurl, token) => {
 	lastConnectTime = new Date();
 	socketTask = uni.connectSocket({
 		url: wsurl,
-		success: (res) => {
-			console.log("websocket连接成功");
-		},
+		success: (res) => {},
 		fail: (e) => {
 			console.log(e);
-			console.log("websocket连接失败，10s后重连");
+			console.log("WebSocket连接失败，10s后重连");
 			setTimeout(() => {
 				connect();
 			}, 10000)
@@ -28,7 +26,7 @@ let connect = (wsurl, token) => {
 	});
 
 	socketTask.onOpen((res) => {
-		console.log("WebSocket连接已打开");
+		console.log("WebSocket连接成功");
 		isConnect = true;
 		// 发送登录命令
 		let loginInfo = {
@@ -64,9 +62,11 @@ let connect = (wsurl, token) => {
 		closeCallBack && closeCallBack(res);
 	})
 
-	socketTask.onError((e) => {
-		console.log("ws错误:",e)
+	socketTask.onError(e => {
+		console.log("ws错误:", e)
 		close(1006);
+		isConnect = false;
+		closeCallBack && closeCallBack(e);
 	})
 }
 
@@ -93,11 +93,8 @@ let close = (code) => {
 	socketTask.close({
 		code: code,
 		complete: (res) => {
-			console.log("关闭websocket连接");
 			isConnect = false;
-			if (code != 3099) {
-				closeCallBack && closeCallBack(res);s
-			}
+			console.log("关闭websocket连接");
 		},
 		fail: (e) => {
 			console.log("关闭websocket连接失败", e);
@@ -108,8 +105,8 @@ let close = (code) => {
 
 // 心跳设置
 let heartCheck = {
-	timeout: 20000, // 每段时间发送一次心跳包 这里设置为20s
-	timeoutObj: null, // 延时发送消息对象（启动心跳新建这个对象，收到消息后重置对象）
+	timeout: 20000, //每段时间发送一次心跳包 这里设置为20s
+	timeoutObj: null, //延时发送消息对象（启动心跳新建这个对象，收到消息后重置对象）
 	start: function() {
 		if (isConnect) {
 			console.log('发送WebSocket心跳')

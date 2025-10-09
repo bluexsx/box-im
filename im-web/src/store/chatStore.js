@@ -360,7 +360,12 @@ export default defineStore('chatStore', {
 				this.fliterMessage(chats, 10000, 1000)
 			}
 			// 记录热数据索引位置
-			chats.forEach(chat => chat.hotMinIdx = chat.messages.length);
+			chats.forEach(chat => {
+				if(!chat.hotMinIdx || chat.hotMinIdx != chat.messages.length){
+					chat.hotMinIdx = chat.messages.length;
+					chat.stored = false;
+				}
+			});
 			// 将消息一次性装载回来
 			this.chats = chats;
 			// 清空缓存
