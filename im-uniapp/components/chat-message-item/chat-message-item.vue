@@ -11,7 +11,7 @@
 				:name="showName" size="small"></head-image>
 			<view class="content">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="top">
-					<text>{{ showName }}</text>
+					<text class="name">{{ showName }}</text>
 				</view>
 				<view class="bottom">
 					<view class="message-content-wrapper">
@@ -294,10 +294,17 @@ export default {
 			.top {
 				display: flex;
 				flex-wrap: nowrap;
-				color: $im-text-color-lighter;
-				font-size: $im-font-size-smaller;
-				line-height: $im-font-size-smaller;
-				height: $im-font-size-smaller;
+				align-items: center;
+
+				.name {
+					color: $im-text-color-lighter;
+					font-size: $im-font-size-smaller;
+					line-height: $im-font-size-smaller;
+					height: $im-font-size-smaller;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
 			}
 
 			.bottom {
