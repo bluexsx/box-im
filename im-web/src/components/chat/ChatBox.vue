@@ -164,6 +164,9 @@ export default {
 				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onImageFail(e, file) {
@@ -226,6 +229,9 @@ export default {
 				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
+				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},

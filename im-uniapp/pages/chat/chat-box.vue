@@ -186,6 +186,7 @@ export default {
 			this.moveChatToTop();
 			this.sendMessageRequest(msgInfo).then((m) => {
 				// 更新消息
+				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 				tmpMessage.id = m.id;
 				tmpMessage.status = m.status;
 				this.chatStore.updateMessage(tmpMessage, chat);
@@ -194,7 +195,10 @@ export default {
 				// 滚动到底部
 				this.scrollToBottom();
 				this.isReceipt = false;
-
+			}).catch(() => {
+				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.updateMessage(tmpMessage, chat);
 			})
 		},
 		onRtCall(msgInfo) {
@@ -474,6 +478,9 @@ export default {
 				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
@@ -526,6 +533,9 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
+				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},

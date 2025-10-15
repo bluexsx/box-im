@@ -65,7 +65,7 @@
 								<text>{{ msgInfo.content }}</text>
 							</view>
 						</long-press-menu>
-						<view v-if="sending&&isTextMessage" class="sending">
+						<view v-if="sending&&(isTextMessage||isAudioMessage)" class="sending">
 							<loading :size="40" icon-color="#656adf" :mask="false"></loading>
 						</view>
 						<view v-else-if="sendFail" @click="onSendFail"
@@ -227,6 +227,9 @@ export default {
 		},
 		isTextMessage() {
 			return this.msgInfo.type == this.$enums.MESSAGE_TYPE.TEXT
+		},
+		isAudioMessage() {
+			return this.msgInfo.type == this.$enums.MESSAGE_TYPE.AUDIO
 		},
 		isAction() {
 			return this.$msgType.isAction(this.msgInfo.type);
