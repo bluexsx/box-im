@@ -152,7 +152,8 @@ export default {
 			isInBottom: true, // 滚动条是否在底部
 			newMessageSize: 0, // 滚动条不在底部时新的消息数量
 			scrollTop: 0, // 用于ios h5定位滚动条
-			scrollViewHeight: 0 // 滚动条总长度
+			scrollViewHeight: 0, // 滚动条总长度
+			maxTmpId: 0 // 最后生成的临时id
 		}
 	},
 	methods: {
@@ -983,7 +984,13 @@ export default {
 		},
 		generateId() {
 			// 生成临时id 
-			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
+			const id = String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
+			// 必须保证id是递增
+			if (this.maxTmpId > id) {
+				return this.generateId();
+			}
+			this.maxTmpId = id;
+			return id;
 		}
 	},
 	computed: {
@@ -1108,6 +1115,8 @@ export default {
 		// 清空底部标志
 		this.isInBottom = true;
 		this.newMessageSize = 0;
+		// 清空消息临时id
+		this.maxTmpId = 0;
 		// 监听键盘高度
 		this.listenKeyBoard();
 		// 计算聊天窗口高度
