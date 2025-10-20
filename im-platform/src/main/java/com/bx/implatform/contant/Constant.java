@@ -16,6 +16,11 @@ public final class Constant {
     public static final Long MAX_FILE_SIZE = 20 * 1024 * 1024L;
 
     /**
+     * 最大文件名长度
+     */
+    public static final Long MAX_FILE_NAME_LENGTH = 128L;
+
+    /**
      * 大群人数上限
      */
     public static final Long MAX_LARGE_GROUP_MEMBER = 3000L;

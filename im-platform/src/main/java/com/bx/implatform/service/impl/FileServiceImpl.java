@@ -60,6 +60,8 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
     public String uploadFile(MultipartFile file) {
         try {
             Long userId = SessionContext.getSession().getUserId();
+            // 文件名长度校验
+            checkFileNameLength(file);
             // 大小校验
             if (file.getSize() > Constant.MAX_FILE_SIZE) {
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件大小不能超过20M");
@@ -95,6 +97,8 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
     public UploadImageVO uploadImage(MultipartFile file, Boolean isPermanent,Long thumbSize) {
         try {
             Long userId = SessionContext.getSession().getUserId();
+            // 文件名长度校验
+            checkFileNameLength(file);
             // 大小校验
             if (file.getSize() > Constant.MAX_IMAGE_SIZE) {
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片大小不能超过20M");
@@ -170,6 +174,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
         LambdaQueryWrapper<FileInfo> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(FileInfo::getMd5, md5);
         wrapper.eq(FileInfo::getFileType, fileType);
+        wrapper.last("limit 1");
         return getOne(wrapper);
     }
 
@@ -199,4 +204,9 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
         this.save(fileInfo);
     }
 
+    private void checkFileNameLength(MultipartFile file){
+        if(file.getOriginalFilename().length() > Constant.MAX_FILE_NAME_LENGTH){
+            throw new GlobalException("文件名长度不能超过" + Constant.MAX_FILE_NAME_LENGTH);
+        }
+    }
 }
