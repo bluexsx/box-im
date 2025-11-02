@@ -189,9 +189,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         wrapper.orderByAsc(PrivateMessage::getId);
         List<PrivateMessage> messages = this.list(wrapper);
         // 更新消息为送达状态
-        List<Long> messageIds =
-            messages.stream().filter(m -> m.getStatus().equals(MessageStatus.PENDING.code())).map(PrivateMessage::getId)
-                .collect(Collectors.toList());
+        List<Long> messageIds = messages.stream().filter(m -> m.getRecvId().equals(session.getUserId()))
+            .filter(m -> m.getStatus().equals(MessageStatus.PENDING.code())).map(PrivateMessage::getId)
+            .collect(Collectors.toList());
         if (!messageIds.isEmpty()) {
             LambdaUpdateWrapper<PrivateMessage> updateWrapper = Wrappers.lambdaUpdate();
             updateWrapper.in(PrivateMessage::getId, messageIds);

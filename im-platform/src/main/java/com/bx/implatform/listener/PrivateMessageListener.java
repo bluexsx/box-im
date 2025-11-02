@@ -26,19 +26,23 @@ public class PrivateMessageListener implements MessageListener<PrivateMessageVO>
     @Lazy
     @Autowired
     private PrivateMessageService privateMessageService;
+
     @Override
     public void process(List<IMSendResult<PrivateMessageVO>> results) {
         Set<Long> messageIds = new HashSet<>();
-        for(IMSendResult<PrivateMessageVO> result : results){
+        for (IMSendResult<PrivateMessageVO> result : results) {
             PrivateMessageVO messageInfo = result.getData();
             // 更新消息状态,这里只处理成功消息，失败的消息继续保持未读状态
             if (result.getCode().equals(IMSendCode.SUCCESS.code()) && !Objects.isNull(messageInfo.getId())) {
-                messageIds.add(messageInfo.getId());
-                log.info("消息送达，消息id:{}，发送者:{},接收者:{},终端:{}", messageInfo.getId(), result.getSender().getId(), result.getReceiver().getId(), result.getReceiver().getTerminal());
+                if (result.getReceiver().getId().equals(messageInfo.getRecvId())) {
+                    messageIds.add(messageInfo.getId());
+                    log.info("消息送达，消息id:{}，发送者:{},接收者:{},终端:{}", messageInfo.getId(),
+                        result.getSender().getId(), result.getReceiver().getId(), result.getReceiver().getTerminal());
+                }
             }
         }
         // 批量修改状态
-        if(CollUtil.isNotEmpty(messageIds)){
+        if (CollUtil.isNotEmpty(messageIds)) {
             UpdateWrapper<PrivateMessage> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().in(PrivateMessage::getId, messageIds)
                 .eq(PrivateMessage::getStatus, MessageStatus.PENDING.code())

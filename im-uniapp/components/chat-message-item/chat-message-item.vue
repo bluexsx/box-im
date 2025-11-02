@@ -11,7 +11,7 @@
 				:name="showName" size="small"></head-image>
 			<view class="content">
 				<view v-if="msgInfo.groupId && !msgInfo.selfSend" class="top">
-					<text>{{ showName }}</text>
+					<text class="name">{{ showName }}</text>
 				</view>
 				<view class="bottom">
 					<view class="message-content-wrapper">
@@ -65,7 +65,7 @@
 								<text>{{ msgInfo.content }}</text>
 							</view>
 						</long-press-menu>
-						<view v-if="sending&&isTextMessage" class="sending">
+						<view v-if="sending&&(isTextMessage||isAudioMessage)" class="sending">
 							<loading :size="40" icon-color="#656adf" :mask="false"></loading>
 						</view>
 						<view v-else-if="sendFail" @click="onSendFail"
@@ -228,6 +228,9 @@ export default {
 		isTextMessage() {
 			return this.msgInfo.type == this.$enums.MESSAGE_TYPE.TEXT
 		},
+		isAudioMessage() {
+			return this.msgInfo.type == this.$enums.MESSAGE_TYPE.AUDIO
+		},
 		isAction() {
 			return this.$msgType.isAction(this.msgInfo.type);
 		},
@@ -291,10 +294,17 @@ export default {
 			.top {
 				display: flex;
 				flex-wrap: nowrap;
-				color: $im-text-color-lighter;
-				font-size: $im-font-size-smaller;
-				line-height: $im-font-size-smaller;
-				height: $im-font-size-smaller;
+				align-items: center;
+
+				.name {
+					color: $im-text-color-lighter;
+					font-size: $im-font-size-smaller;
+					line-height: $im-font-size-smaller;
+					height: $im-font-size-smaller;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
 			}
 
 			.bottom {

@@ -152,7 +152,8 @@ export default {
 			isInBottom: true, // 滚动条是否在底部
 			newMessageSize: 0, // 滚动条不在底部时新的消息数量
 			scrollTop: 0, // 用于ios h5定位滚动条
-			scrollViewHeight: 0 // 滚动条总长度
+			scrollViewHeight: 0, // 滚动条总长度
+			maxTmpId: 0 // 最后生成的临时id
 		}
 	},
 	methods: {
@@ -186,6 +187,7 @@ export default {
 			this.moveChatToTop();
 			this.sendMessageRequest(msgInfo).then((m) => {
 				// 更新消息
+				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
 				tmpMessage.id = m.id;
 				tmpMessage.status = m.status;
 				this.chatStore.updateMessage(tmpMessage, chat);
@@ -194,7 +196,10 @@ export default {
 				// 滚动到底部
 				this.scrollToBottom();
 				this.isReceipt = false;
-
+			}).catch(() => {
+				tmpMessage = JSON.parse(JSON.stringify(tmpMessage));
+				tmpMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.updateMessage(tmpMessage, chat);
 			})
 		},
 		onRtCall(msgInfo) {
@@ -474,6 +479,9 @@ export default {
 				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
+				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
 		onUploadImageFail(file, err) {
@@ -526,6 +534,9 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
+				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
@@ -631,13 +642,21 @@ export default {
 			});
 		},
 		onClickToBottom() {
-			this.scrollToBottom();
-			// 有些设备滚到底部时会莫名触发滚动到顶部的事件
-			// 所以这里延迟100s保证能准确设置底部标志
+			/**
+			 * 有些ios设备在点击回到底部后页面会卡住，原因不详
+			 * 解决方式: 延迟300ms再滚动
+			 */
 			setTimeout(() => {
-				this.isInBottom = true;
-				this.newMessageSize = 0;
-			}, 100)
+				this.scrollToBottom();
+				/**
+				 * 有些设备滚到底部时会莫名触发滚动到顶部的事件
+				 * 解决方式: 延迟100ms保证能准确设置底部标志
+				 */
+				setTimeout(() => {
+					this.isInBottom = true;
+					this.newMessageSize = 0;
+				}, 100)
+			}, 300)
 		},
 		onScroll(e) {
 			// 记录当前滚动条高度
@@ -645,16 +664,14 @@ export default {
 		},
 		onScrollToTop() {
 			if (this.showMinIdx > 0) {
-				// #ifndef H5
-				// 防止滚动条定格在顶部，不能一直往上滚，app和小程序采用scroll-into-view定位
-				this.scrollToMsgIdx(this.showMinIdx);
-				// #endif
-				// #ifdef H5
-				// 防止滚动条定格在顶部，不能一直往上滚，h5采用scroll-top定位
+				// 防止滚动条定格在顶部，不能一直往上滚
 				if (uni.getSystemInfoSync().platform == 'ios') {
+					// ios采用scroll-top定位，否则可能会出现白屏
 					this.holdingScrollBar(this.scrollViewHeight);
+				} else {
+					// 安卓采用scroll-into-view定位
+					this.scrollToMsgIdx(this.showMinIdx);
 				}
-				// #endif
 				// 多展示20条信息
 				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
 			}
@@ -973,7 +990,13 @@ export default {
 		},
 		generateId() {
 			// 生成临时id 
-			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
+			const id = String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
+			// 必须保证id是递增
+			if (this.maxTmpId > id) {
+				return this.generateId();
+			}
+			this.maxTmpId = id;
+			return id;
 		}
 	},
 	computed: {
@@ -1098,6 +1121,8 @@ export default {
 		// 清空底部标志
 		this.isInBottom = true;
 		this.newMessageSize = 0;
+		// 清空消息临时id
+		this.maxTmpId = 0;
 		// 监听键盘高度
 		this.listenKeyBoard();
 		// 计算聊天窗口高度

@@ -132,7 +132,8 @@ export default {
 			reqQueue: [], // 等待发送的请求队列
 			isSending: false, // 是否正在发消息
 			isInBottom: false, // 滚动条是否在底部
-			newMessageSize: 0 // 滚动条不在底部时新的消息数量
+			newMessageSize: 0, // 滚动条不在底部时新的消息数量
+			maxTmpId: 0 // 最后生成的临时ID
 		}
 	},
 	methods: {
@@ -163,6 +164,9 @@ export default {
 				msgInfo.id = m.id;
 				msgInfo.status = m.status;
 				this.isReceipt = false;
+				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
@@ -226,6 +230,9 @@ export default {
 				msgInfo.status = m.status;
 				this.isReceipt = false;
 				this.refreshPlaceHolder();
+				this.chatStore.updateMessage(msgInfo, file.chat);
+			}).catch(() => {
+				msgInfo.status = this.$enums.MESSAGE_STATUS.FAILED;
 				this.chatStore.updateMessage(msgInfo, file.chat);
 			})
 		},
@@ -567,7 +574,7 @@ export default {
 				this.$http({
 					url: url,
 					method: 'put'
-				}).then(() => { })
+				}).then(() => {})
 				this.chatStore.resetUnreadCount(this.chat)
 			}
 		},
@@ -718,25 +725,31 @@ export default {
 		getImageSize(file) {
 			return new Promise((resolve, reject) => {
 				const reader = new FileReader();
-				reader.onload = function (event) {
+				reader.onload = function(event) {
 					const img = new Image();
-					img.onload = function () {
+					img.onload = function() {
 						resolve({ width: img.width, height: img.height });
 					};
-					img.onerror = function () {
+					img.onerror = function() {
 						reject(new Error('无法加载图片'));
 					};
 					img.src = event.target.result;
 				};
-				reader.onerror = function () {
+				reader.onerror = function() {
 					reject(new Error('无法读取文件'));
 				};
 				reader.readAsDataURL(file);
 			});
 		},
 		generateId() {
-			// 生成临时id
-			return String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
+			// 生成临时id 
+			const id = String(new Date().getTime()) + String(Math.floor(Math.random() * 1000));
+			// 必须保证id是递增
+			if (this.maxTmpId > id) {
+				return this.generateId();
+			}
+			this.maxTmpId = id;
+			return id;
 		}
 	},
 	computed: {
@@ -793,7 +806,7 @@ export default {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-					newChat.targetId != oldChat.targetId)) {
+						newChat.targetId != oldChat.targetId)) {
 					this.userInfo = {}
 					this.group = {};
 					this.groupMembers = [];
@@ -816,6 +829,8 @@ export default {
 					this.resetEditor();
 					// 复位回执消息
 					this.isReceipt = false;
+					// 清空消息临时id
+					this.maxTmpId = 0;
 					// 更新placeholder
 					this.refreshPlaceHolder();
 				}
