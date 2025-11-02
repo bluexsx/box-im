@@ -642,13 +642,21 @@ export default {
 			});
 		},
 		onClickToBottom() {
-			this.scrollToBottom();
-			// 有些设备滚到底部时会莫名触发滚动到顶部的事件
-			// 所以这里延迟100s保证能准确设置底部标志
+			/**
+			 * 有些ios设备在点击回到底部后页面会卡住，原因不详
+			 * 解决方式: 延迟300ms再滚动
+			 */
 			setTimeout(() => {
-				this.isInBottom = true;
-				this.newMessageSize = 0;
-			}, 100)
+				this.scrollToBottom();
+				/**
+				 * 有些设备滚到底部时会莫名触发滚动到顶部的事件
+				 * 解决方式: 延迟100ms保证能准确设置底部标志
+				 */
+				setTimeout(() => {
+					this.isInBottom = true;
+					this.newMessageSize = 0;
+				}, 100)
+			}, 300)
 		},
 		onScroll(e) {
 			// 记录当前滚动条高度
@@ -656,16 +664,14 @@ export default {
 		},
 		onScrollToTop() {
 			if (this.showMinIdx > 0) {
-				// #ifndef H5
-				// 防止滚动条定格在顶部，不能一直往上滚，app和小程序采用scroll-into-view定位
-				this.scrollToMsgIdx(this.showMinIdx);
-				// #endif
-				// #ifdef H5
-				// 防止滚动条定格在顶部，不能一直往上滚，h5采用scroll-top定位
+				// 防止滚动条定格在顶部，不能一直往上滚
 				if (uni.getSystemInfoSync().platform == 'ios') {
+					// ios采用scroll-top定位，否则可能会出现白屏
 					this.holdingScrollBar(this.scrollViewHeight);
+				} else {
+					// 安卓采用scroll-into-view定位
+					this.scrollToMsgIdx(this.showMinIdx);
 				}
-				// #endif
 				// 多展示20条信息
 				this.showMinIdx = this.showMinIdx > 20 ? this.showMinIdx - 20 : 0;
 			}
