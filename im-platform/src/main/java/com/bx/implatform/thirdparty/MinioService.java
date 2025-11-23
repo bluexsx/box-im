@@ -1,5 +1,6 @@
 package com.bx.implatform.thirdparty;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.bx.implatform.util.DateTimeUtils;
 import com.bx.implatform.util.FileUtil;
@@ -73,10 +74,8 @@ public class MinioService {
         if (StringUtils.isBlank(originalFilename)) {
             throw new RuntimeException();
         }
-        // 加入随机数,防止文件重名
-        String fileName = FileUtil.excludeExtension(originalFilename);
-        fileName += "_" + RandomUtil.randomString(4);
-        fileName += "." + FileUtil.getFileExtension(originalFilename);
+        // 文件名使用雪花算法生成，防止重名以及出现一些特殊字符
+        String fileName = IdUtil.getSnowflakeNextIdStr() + "." + FileUtil.getFileExtension(originalFilename);
         String objectName = DateTimeUtils.getFormatDate(new Date(), DateTimeUtils.PARTDATEFORMAT) + "/" + fileName;
         try {
             InputStream stream = new ByteArrayInputStream(file.getBytes());
@@ -102,10 +101,8 @@ public class MinioService {
      * @return objectName
      */
     public String upload(String bucketName, String path, String name, byte[] fileByte, String contentType) {
-        // 加入随机数,防止文件重名
-        String fileName = FileUtil.excludeExtension(name);
-        fileName += "_" + RandomUtil.randomString(4);
-        fileName += "." + FileUtil.getFileExtension(name);
+        // 文件名使用雪花算法生成，防止重名以及出现一些特殊字符
+        String fileName = IdUtil.getSnowflakeNextIdStr() + "." + FileUtil.getFileExtension(name);
         String objectName = DateTimeUtils.getFormatDate(new Date(), DateTimeUtils.PARTDATEFORMAT) + "/" + fileName;
         try {
             InputStream stream = new ByteArrayInputStream(fileByte);
