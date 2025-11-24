@@ -32,6 +32,8 @@
 
 移动ios端: 已上架至app store,搜索"盒子IM",下载安装即可
 
+小程序段: 已上架至微信小程序，搜索“盒子IM”进入即可
+
 移动H5端: https://www.boxim.online/h5/ ,或扫码：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
@@ -98,10 +100,6 @@ npm run serve
 将im-uniapp目录导入HBuilderX,点击菜单"运行"->"开发环境-h5"
 访问 http://localhost:5173
 
-#### 接入消息推送
-盒子IM对消息推送模块进行了剥离和封装， 如果您不关心盒子IM的业务功能，只需要一个可以将消息推送至前端的服务，则只需要启动im-server即可
-然后参考以下文档进行接入:   
-https://www.yuque.com/u1475064/mufu2a/vn5u10ephxh9sau8
 
 #### 界面截图
 私聊：
