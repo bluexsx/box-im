@@ -97,7 +97,7 @@ export default {
 				this.$emit("send", data);
 			}).catch((e) => {
 				uni.showToast({
-					title: e,
+					title: JSON.stringify(e),
 					icon: 'none'
 				})
 			})

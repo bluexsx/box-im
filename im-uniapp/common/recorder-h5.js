@@ -63,6 +63,8 @@ let upload = () => {
 				},
 				file: file,
 				name: 'file',
+				// 最新版本(4.85)的hbuilderx有bug,如果filePath为空会直接触发fail回调
+				filePath: 'x', 
 				success: (res) => {
 					let r = JSON.parse(res.data);
 					if (r.code != 200) {
