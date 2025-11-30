@@ -2,8 +2,8 @@
     "name" : "盒子IM",
     "appid" : "__UNI__69DD57A",
     "description" : "",
-    "versionName" : "3.4.0",
-    "versionCode" : 3400,
+    "versionName" : "3.10.0",
+    "versionCode" : 31000,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
