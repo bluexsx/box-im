@@ -125,7 +125,7 @@ export default {
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
-	background: linear-gradient(15deg, var(--im-color-primary-light-9) 0%, #87adeb 100%);
+	background: linear-gradient(15deg, var(--im-color-primary-light-9) 0%, var(--im-color-primary-light-4) 100%);
 	
 		/* 装饰性元素 */
 	.decoration {
@@ -135,8 +135,8 @@ export default {
 	}
 
 	.decoration-1 {
-		width: 250px;
-		height: 250px;
+		width: 150px;
+		height: 150px;
 		background: rgba(255, 255, 255, 0.2);
 		top: -150px;
 		right: 0px;
