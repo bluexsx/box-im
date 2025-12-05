@@ -848,12 +848,6 @@ export default {
 			h -= 50;
 			// 减去键盘高度
 			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
-				// ios app的键盘高度不准，需要减去屏幕和窗口差
-				// #ifdef APP-PLUS
-				if (sysInfo.platform == 'ios') {
-					h += this.screenHeight - this.windowHeight;
-				}
-				// #endif
 				h -= this.keyboardHeight;
 				this.scrollToBottom();
 			}
@@ -922,6 +916,13 @@ export default {
 			this.isShowKeyBoard = res.height > 0;
 			if (this.isShowKeyBoard) {
 				this.keyboardHeight = res.height; // 获取并保存键盘高度
+				// #ifdef APP-PLUS
+				// ios app的键盘高度不准，需要减去屏幕和窗口差
+				let sysInfo = uni.getSystemInfoSync();
+				if (sysInfo.platform == 'ios') {
+					this.keyboardHeight -= this.screenHeight - this.windowHeight;
+				}
+				// #endif
 			}
 			setTimeout(() => this.reCalChatMainHeight(), 30);
 		},

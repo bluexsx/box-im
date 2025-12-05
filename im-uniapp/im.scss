@@ -5,7 +5,7 @@ uni-button {
 }
 uni-button[type='primary'] {
 	color: #fff !important;
-	background: linear-gradient(135deg, $im-color-primary, lighten($im-color-primary, 15%)) !important;
+	background: $im-color-primary !important;
 }
 
 uni-button[type='primary'][plain] {
@@ -16,7 +16,7 @@ uni-button[type='primary'][plain] {
 
 uni-button[type='warn'] {
 	color: #fff !important;
-	background: linear-gradient(135deg, $im-color-danger, lighten($im-color-danger, 15%)) !important;
+	background: $im-color-danger !important;
 }
 
 uni-button[type='warn'][plain] {
@@ -37,7 +37,7 @@ button {
 
 button[type='primary'] {
 	color: #fff !important;
-	background: linear-gradient(135deg, $im-color-primary, lighten($im-color-primary, 15%)) !important;
+	background: $im-color-primary !important;
 }
 
 button[type='primary'][plain] {
@@ -48,7 +48,7 @@ button[type='primary'][plain] {
 
 button[type='warn'] {
 	color: #fff !important;
-	background: linear-gradient(135deg, $im-color-danger, lighten($im-color-danger, 15%)) !important;
+	background: $im-color-danger !important;
 }
 
 button[type='warn'][plain] {

@@ -46,7 +46,7 @@ export default {
 				range.deleteContents();
 			}
 			// 粘贴图片和文件时，这里没有数据
-			if (txt && typeof(txt) == 'string') {
+			if (txt && typeof (txt) == 'string') {
 				let textNode = document.createTextNode(txt);
 				range.insertNode(textNode)
 				range.collapse();
@@ -236,7 +236,7 @@ export default {
 		},
 		onBlur(e) {
 			if (!this.atIng) {
-				this.updateRange();
+				//this.updateRange();
 			}
 		},
 		onMousedown() {
@@ -268,7 +268,6 @@ export default {
 			blurRange.collapse()
 
 			this.selectElement(textNode);
-			this.updateRange();
 			this.isEmpty = false;
 		},
 		generateId() {
@@ -475,6 +474,7 @@ export default {
 		font-size: var(--im-font-size);
 		text-align: left;
 		overflow-y: auto;
+		white-space: pre-wrap;
 
 		// 单独一行时，无法在前面输入的bug
 		>div:before {

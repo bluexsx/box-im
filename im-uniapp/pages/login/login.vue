@@ -228,7 +228,6 @@ export default {
 		height: 100rpx;
 		border-radius: 50rpx;
 		border: none;
-		box-shadow: 0 8rpx 32rpx rgba($im-color-primary, 0.3);
 		transition: all 0.3s ease;
 		overflow: hidden;
 		position: relative;
@@ -236,7 +235,6 @@ export default {
 
 		&:active {
 			transform: translateY(2rpx);
-			box-shadow: 0 4rpx 16rpx rgba($im-color-primary, 0.4);
 
 			&::before {
 				left: 100%;

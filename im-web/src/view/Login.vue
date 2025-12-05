@@ -125,12 +125,7 @@ export default {
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
-	background: linear-gradient(135deg,
-			#87adeb 0%,
-			#8287ec 25%,
-			#87adeb 50%,
-			#898ee3 75%,
-			#87adeb 100%);
+	background: linear-gradient(15deg, var(--im-color-primary-light-9) 0%, var(--im-color-primary-light-4) 100%);
 	
 		/* 装饰性元素 */
 	.decoration {
@@ -140,27 +135,27 @@ export default {
 	}
 
 	.decoration-1 {
-		width: 450px;
-		height: 450px;
-		background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, rgba(200, 220, 240, 0.4) 100%);
-		top: -250px;
-		right: -100px;
+		width: 150px;
+		height: 150px;
+		background: rgba(255, 255, 255, 0.2);
+		top: -150px;
+		right: 0px;
 		animation: float 16s infinite ease-in-out;
 	}
 
 	.decoration-2 {
-		width: 400px;
-		height: 400px;
-		background: linear-gradient(135deg, rgba(200, 220, 240, 0.4) 0%, rgba(255, 255, 255, 0.3) 100%);
-		bottom: -200px;
-		left: -100px;
+		width: 200px;
+		height: 200px;
+		background: rgba(255, 255, 255, 0.18);
+		bottom: -100px;
+		left: -50px;
 		animation: float 12s infinite ease-in-out;
 	}
 
 	.decoration-3 {
-		width: 300px;
-		height: 300px;
-		background: linear-gradient(45deg, rgba(161, 196, 253, 0.3) 0%, rgba(194, 233, 251, 0.4) 100%);
+		width: 100px;
+		height: 100px;
+		background: rgba(255, 255, 255, 0.15);
 		top: 50%;
 		right: 50px;
 		animation: float 8s infinite ease-in-out;
@@ -197,9 +192,7 @@ export default {
 			width: 360px;
 			height: 380px;
 			padding: 30px;
-			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-			background: rgba(255, 255, 255, 0.85);
-			backdrop-filter: blur(8px);
+			background: rgba(255, 255, 255, 0.95);
 			border-radius: 3%;
 			overflow: hidden;
 
