@@ -298,6 +298,7 @@ export default {
           this.camera.openAudio().then((stream) => {
             this.localStream = stream;
             this.$refs.localVideo.srcObject = stream;
+            this.$refs.localVideo.muted = true;
             resolve(stream);
           }).catch((e) => {
             this.$message.error("打开麦克风失败")
