@@ -13,7 +13,7 @@
 1. 服务器支持集群化部署,具有良好的横向扩展能力
 
 
-详细文档：https://www.yuque.com/u1475064/mufu2a
+详细文档: https://www.yuque.com/u1475064/mufu2a  
 官方论坛: https://bbs.boxim.online
 
 #### 近期更新
@@ -26,15 +26,15 @@
 
 #### 在线体验
 
-网页端：https://www.boxim.online
+web端：https://www.boxim.online
 
-移动安卓端：已上架至各大主流手机应用市场以及腾讯应用宝，搜索"盒子IM",下载安装即可
+安卓app：已上架至各大主流手机应用市场以及腾讯应用宝，搜索"盒子IM",下载安装即可
 
-移动ios端: 已上架至app store,搜索"盒子IM",下载安装即可
+ios-app: 已上架至app store,搜索"盒子IM",下载安装即可
 
-小程序段: 已上架至微信小程序，搜索“盒子IM”进入即可
+小程序: 已上架至微信小程序，搜索“盒子IM”进入即可
 
-移动H5端: https://www.boxim.online/h5/ ,或扫码：
+h5: https://www.boxim.online/h5/ ,或扫码：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
@@ -48,10 +48,8 @@ https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29#SbvXq
 
 
 #### 付费服务
-商业版源码: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29  
-远程协助: https://www.yuque.com/u1475064/imk5n2/fettd57rvzc29s5r  
+商业版源码: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29
 环境搭建: https://www.yuque.com/u1475064/imk5n2/qgq5cvgmavallqnl
-
 
 #### 项目结构
 | 模块          | 功能                               |
@@ -126,7 +124,8 @@ npm run serve
 群1: 741174521(已满)  
 群2: 937470451(已满)  
 群3: 1012017031(已满）  
-群4: 765849133
+群4: 765849133(已满)
+群5: 1031899263
 
 欢迎进群与小伙们一起交流， **申请加群前请务必先star哦** 
 
