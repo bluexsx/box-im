@@ -445,7 +445,7 @@ export default {
 				this.onImageBefore(file);
 				let formData = new FormData()
 				formData.append('file', file)
-				this.$http.post("/image/upload", formData, {
+				this.$http.post("/image/upload?isPermanent=false", formData, {
 					headers: {
 						'Content-Type': 'multipart/form-data'
 					}
