@@ -20,7 +20,12 @@ public class RedisMQTemplate extends RedisTemplate<String, Object> {
         if (version.isEmpty()) {
             RedisConnection connection = RedisConnectionUtils.getConnection(getConnectionFactory());
             Properties properties = connection.info();
-            version = properties.getProperty("redis_version");
+            for (String key : properties.stringPropertyNames()) {
+                if (key.contains("redis_version")) {
+                    version = properties.getProperty(key);
+                    break;
+                }
+            }
             RedisConnectionUtils.releaseConnection(connection,getConnectionFactory());
         }
         return version;
