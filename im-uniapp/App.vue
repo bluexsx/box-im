@@ -443,8 +443,7 @@ export default {
 					icon: 'none'
 				})
 				// 加载离线消息
-				this.pullPrivateOfflineMessage(this.chatStore.privateMsgMaxId);
-				this.pullGroupOfflineMessage(this.chatStore.groupMsgMaxId);
+				this.pullOfflineMessage();
 				this.configStore.setAppInit(true);
 			}).catch((e) => {
 				console.log(e);
