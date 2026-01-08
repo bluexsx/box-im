@@ -1,9 +1,9 @@
 <template>
 	<div class="chat-input-area">
-		<div :class="['edit-chat-container', isEmpty ? '' : 'not-empty']" contenteditable="true"
-			@paste.prevent="onPaste" @keydown="onKeydown" @compositionstart="compositionFlag = true"
-			@compositionend="onCompositionEnd" @input="onEditorInput" @mousedown="onMousedown" ref="content"
-			@blur="onBlur">
+		<div :class="['edit-container', isEmpty ? '' : 'not-empty']" contenteditable="true" @paste.prevent="onPaste"
+			@keydown="onKeydown" @compositionstart="compositionFlag = true" @compositionend="onCompositionEnd"
+			@input="onEditorInput" @mousedown="onMousedown" ref="content" @keyup="onKeyup" @click="onClickInput">
+
 		</div>
 		<chat-at-box @select="onAtSelect" :search-text="atSearchText" ref="atBox" :ownerId="ownerId"
 			:members="groupMembers"></chat-at-box>
@@ -232,12 +232,12 @@ export default {
 					this.showAtBox(e)
 				}
 			}
-
 		},
-		onBlur(e) {
-			if (!this.atIng) {
-				//this.updateRange();
-			}
+		onClickInput() {
+			this.updateRange();
+		},
+		onKeyup() {
+			this.updateRange();
 		},
 		onMousedown() {
 			if (this.atIng) {
@@ -462,7 +462,7 @@ export default {
 	height: 100%;
 	position: relative;
 
-	.edit-chat-container {
+	.edit-container {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -536,12 +536,12 @@ export default {
 		}
 	}
 
-	.edit-chat-container>div:nth-of-type(1):after {
+	.edit-container>div:nth-of-type(1):after {
 		content: '请输入消息（按Ctrl+Enter键换行）';
 		color: gray;
 	}
 
-	.edit-chat-container.not-empty>div:nth-of-type(1):after {
+	.edit-container.not-empty>div:nth-of-type(1):after {
 		content: none;
 	}
 
