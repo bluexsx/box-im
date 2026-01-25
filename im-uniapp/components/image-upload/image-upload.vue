@@ -10,11 +10,7 @@ import UNI_APP from '@/.env.js'
 export default {
 	name: "image-upload",
 	data() {
-		return {
-			uploadHeaders: {
-				"accessToken": uni.getStorageSync('loginInfo').accessToken
-			}
-		}
+		return {}
 	},
 	props: {
 		maxCount: {
@@ -70,9 +66,6 @@ export default {
 			let action = `/image/upload?isPermanent=${this.isPermanent}&thumbSize=${this.thumbSize}`
 			uni.uploadFile({
 				url: UNI_APP.BASE_URL + action,
-				header: {
-					accessToken: uni.getStorageSync("loginInfo").accessToken
-				},
 				filePath: file.path, // 要上传文件资源的路径
 				name: 'file',
 				success: (res) => {
