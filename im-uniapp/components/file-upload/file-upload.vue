@@ -17,10 +17,7 @@ export default {
 			fileMap: new Map(),
 			option: {
 				url: UNI_APP.BASE_URL + '/file/upload',
-				name: 'file',
-				header: {
-					accessToken: uni.getStorageSync('loginInfo').accessToken
-				}
+				name: 'file'
 			}
 		}
 	},
@@ -59,17 +56,6 @@ export default {
 			if (res.code == 200) {
 				// 上传成功
 				this.onOk(file, res);
-			} else if (res.code == 401) {
-				// token已过期，重新获取token
-				this.refreshToken().then((res) => {
-					let newToken = res.data.accessToken;
-					this.option.header.accessToken = newToken;
-					this.$refs.lsjUpload.setData(this.option);
-					// 重新上传
-					this.$refs.lsjUpload.upload(file.name);
-				}).catch(() => {
-					this.onError(file, res);
-				})
 			} else {
 				// 上传失败
 				this.onError(file, res);
@@ -95,24 +81,6 @@ export default {
 			this.fileMap.delete(file.path);
 			this.$refs.lsjUpload.clear(file.name);
 			this.onError && this.onError(file, res);
-		},
-		refreshToken() {
-			return new Promise((resolve, reject) => {
-				let loginInfo = uni.getStorageSync('loginInfo')
-				uni.request({
-					method: 'PUT',
-					url: UNI_APP.BASE_URL + '/refreshToken',
-					header: {
-						refreshToken: loginInfo.refreshToken
-					},
-					success: (res) => {
-						resolve(res.data);
-					},
-					fail: (res) => {
-						reject(res);
-					}
-				})
-			})
 		}
 	}
 

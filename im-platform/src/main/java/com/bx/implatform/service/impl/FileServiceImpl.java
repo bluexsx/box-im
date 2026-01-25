@@ -12,7 +12,6 @@ import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FileInfoMapper;
 import com.bx.implatform.service.FileService;
-import com.bx.implatform.session.SessionContext;
 import com.bx.implatform.thirdparty.MinioService;
 import com.bx.implatform.util.FileUtil;
 import com.bx.implatform.util.ImageUtil;
@@ -59,7 +58,6 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
     @Override
     public String uploadFile(MultipartFile file) {
         try {
-            Long userId = SessionContext.getSession().getUserId();
             // 文件名长度校验
             checkFileNameLength(file);
             // 大小校验
@@ -84,7 +82,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
             String url = generUrl(FileType.FILE, fileName);
             // 保存文件
             saveFileInfo(file, md5, url);
-            log.info("文件文件成功，用户id:{},url:{}", userId, url);
+            log.info("文件文件成功,url:{}", url);
             return url;
         } catch (IOException e) {
             log.error("上传图片失败，{}", e.getMessage(), e);
@@ -96,7 +94,6 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
     @Override
     public UploadImageVO uploadImage(MultipartFile file, Boolean isPermanent,Long thumbSize) {
         try {
-            Long userId = SessionContext.getSession().getUserId();
             // 文件名长度校验
             checkFileNameLength(file);
             // 大小校验
@@ -150,7 +147,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 // 保存文件信息,由于缩略图不允许删除，此时原图也不允许删除
                 saveImageFileInfo(file, md5, vo.getOriginUrl(), vo.getThumbUrl(), true);
             }
-            log.info("文件图片成功，用户id:{},url:{}", userId, vo.getOriginUrl());
+            log.info("文件图片成功,url:{}", vo.getOriginUrl());
             return vo;
         } catch (IOException e) {
             log.error("上传图片失败，{}", e.getMessage(), e);

@@ -23,7 +23,6 @@
 - 框架和组件版本全面升级: jdk17、springboot3.3、node18等
 - 部分界面，功能、性能优化
 
-
 #### 在线体验
 
 web端：https://www.boxim.online
@@ -48,8 +47,7 @@ https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29#SbvXq
 
 
 #### 付费服务
-商业版源码: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29
-环境搭建: https://www.yuque.com/u1475064/imk5n2/qgq5cvgmavallqnl
+商业版源码授权: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29
 
 #### 项目结构
 | 模块          | 功能                               |
