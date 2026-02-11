@@ -34,13 +34,6 @@ public class PrivateMessageController {
         return ResultUtils.success( privateMessageService.recallMessage(id));
     }
 
-    @GetMapping("/pullOfflineMessage")
-    @Operation(summary = "拉取离线消息(已废弃)", description = "拉取离线消息,消息将通过webscoket异步推送")
-    public Result pullOfflineMessage(@RequestParam Long minId) {
-        privateMessageService.pullOfflineMessage(minId);
-        return ResultUtils.success();
-    }
-
     @GetMapping(value = "/loadOfflineMessage")
     @Operation(summary = "拉取离线消息", description = "拉取离线消息")
     public Result<List<PrivateMessageVO>> loadOfflineMessage(@RequestParam Long minId) {

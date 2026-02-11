@@ -24,12 +24,6 @@ public interface GroupMessageService extends IService<GroupMessage> {
      */
     GroupMessageVO recallMessage(Long id);
 
-    /**
-     * 拉取离线消息，只能拉取最近1个月的消息，最多拉取1000条
-     *
-     * @param minId 消息起始id
-     */
-    void  pullOfflineMessage(Long minId);
 
     /**
      * 拉取离线消息，只能拉取最近1个月的消息

@@ -7,10 +7,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
-import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMPrivateMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.ThreadPoolExecutorFactory;
+import com.bx.implatform.contant.Constant;
 import com.bx.implatform.dto.PrivateMessageDTO;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.enums.MessageStatus;
@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -137,51 +136,12 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     }
 
     @Override
-    public void pullOfflineMessage(Long minId) {
-        UserSession session = SessionContext.getSession();
-        // 获取当前用户的消息
-        LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近1个月的消息
-        Date minDate = DateUtils.addMonths(new Date(), -1);
-        wrapper.gt(PrivateMessage::getId, minId);
-        wrapper.ge(PrivateMessage::getSendTime, minDate);
-        wrapper.and(wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).or()
-            .eq(PrivateMessage::getRecvId, session.getUserId()));
-        wrapper.orderByAsc(PrivateMessage::getId);
-        List<PrivateMessage> messages = this.list(wrapper);
-        // 异步推送消息
-        EXECUTOR.execute(() -> {
-            // 开启加载中标志
-            this.sendLoadingMessage(true, session);
-            for (PrivateMessage m : messages) {
-                // 推送过程如果用户下线了，则不再推送
-                if (!imClient.isOnline(session.getUserId(), IMTerminalType.fromCode(session.getTerminal()))) {
-                    log.info("用户已下线，停止推送离线私聊消息,用户id:{}", session.getUserId());
-                    return;
-                }
-                PrivateMessageVO vo = BeanUtils.copyProperties(m, PrivateMessageVO.class);
-                IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
-                sendMessage.setSender(new IMUserInfo(m.getSendId(), IMTerminalType.WEB.code()));
-                sendMessage.setRecvId(session.getUserId());
-                sendMessage.setRecvTerminals(List.of(session.getTerminal()));
-                sendMessage.setSendToSelf(false);
-                sendMessage.setData(vo);
-                sendMessage.setSendResult(true);
-                imClient.sendPrivateMessage(sendMessage);
-            }
-            // 关闭加载中标志
-            this.sendLoadingMessage(false, session);
-            log.info("拉取私聊消息，用户id:{},数量:{}", session.getUserId(), messages.size());
-        });
-    }
-
-    @Override
     public List<PrivateMessageVO> loadOfflineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
         // 获取当前用户的消息
         LambdaQueryWrapper<PrivateMessage> wrapper = Wrappers.lambdaQuery();
-        // 只能拉取最近1个月的消息
-        Date minDate = DateUtils.addMonths(new Date(), -1);
+        // 只能拉取最近30天的消息
+        Date minDate = DateUtils.addDays(new Date(), Math.toIntExact(-Constant.MAX_OFFLINE_MESSAGE_DAYS));
         wrapper.gt(PrivateMessage::getId, minId);
         wrapper.ge(PrivateMessage::getSendTime, minDate);
         wrapper.and(wp -> wp.eq(PrivateMessage::getSendId, session.getUserId()).or()

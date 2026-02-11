@@ -9,7 +9,6 @@ import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.entity.GroupMember;
 import com.bx.implatform.mapper.GroupMemberMapper;
 import com.bx.implatform.service.GroupMemberService;
-import com.bx.implatform.util.DateTimeUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -42,7 +41,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         return this.getOne(wrapper);
     }
 
-
     @Override
     public List<GroupMember> findByUserId(Long userId) {
         LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
@@ -51,12 +49,12 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     }
 
     @Override
-    public List<GroupMember> findQuitInMonth(Long userId) {
-        Date monthTime = DateTimeUtils.addMonths(new Date(), -1);
-        LambdaQueryWrapper<GroupMember> memberWrapper = Wrappers.lambdaQuery();
-        memberWrapper.eq(GroupMember::getUserId, userId).eq(GroupMember::getQuit, true)
-            .ge(GroupMember::getQuitTime, monthTime);
-        return this.list(memberWrapper);
+    public List<GroupMember> findQuitMembers(Long userId, Date minQuitTime) {
+        LambdaQueryWrapper<GroupMember> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(GroupMember::getUserId, userId);
+        wrapper.eq(GroupMember::getQuit, true);
+        wrapper.ge(GroupMember::getQuitTime, minQuitTime);
+        return this.list(wrapper);
     }
 
     @Override
@@ -106,7 +104,6 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         wrapper.set(GroupMember::getQuitTime, new Date());
         this.update(wrapper);
     }
-
 
     @Override
     public Boolean isInGroup(Long groupId, List<Long> userIds) {
