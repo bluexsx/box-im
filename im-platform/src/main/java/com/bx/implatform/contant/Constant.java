@@ -30,4 +30,9 @@ public final class Constant {
      */
     public static final Long MAX_NORMAL_GROUP_MEMBER = 500L;
 
+    /**
+     * 离线消息最大拉取时间(天)
+     */
+    public static final Long MAX_OFFLINE_MESSAGE_DAYS = 30L;
+
 }

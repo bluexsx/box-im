@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
 import com.bx.imcommon.contant.IMConstant;
-import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.model.IMGroupMessage;
 import com.bx.imcommon.model.IMUserInfo;
 import com.bx.imcommon.util.CommaTextUtils;
@@ -153,8 +152,8 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         if (groupIds.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
-        // 只能拉取最近1个月的消息
-        Date minDate = DateUtils.addMonths(new Date(), -1);
+        // 只能拉取最近30天的消息
+        Date minDate = DateUtils.addDays(new Date(), Math.toIntExact(-Constant.MAX_OFFLINE_MESSAGE_DAYS));
         LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.gt(GroupMessage::getId, minId);
         wrapper.gt(GroupMessage::getSendTime, minDate);
@@ -162,8 +161,16 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         wrapper.orderByDesc(GroupMessage::getId);
         wrapper.last("limit 50000");
         List<GroupMessage> messages = this.list(wrapper);
-        // 退群前的消息
-        List<GroupMember> quitMembers = groupMemberService.findQuitInMonth(session.getUserId());
+        // 查询退群前的消息
+        Date minQuitTime = minDate;
+        if (minId > 0) {
+            // 如果某个群的退群时间大于起始消息的发送时间，那消息是不用推送的，过滤掉
+            GroupMessage message = this.getById(minId);
+            if (!Objects.isNull(message) && message.getSendTime().compareTo(minDate) > 0) {
+                minQuitTime = message.getSendTime();
+            }
+        }
+        List<GroupMember> quitMembers = groupMemberService.findQuitMembers(session.getUserId(), minQuitTime);
         for (GroupMember quitMember : quitMembers) {
             wrapper = Wrappers.lambdaQuery();
             wrapper.gt(GroupMessage::getId, minId);

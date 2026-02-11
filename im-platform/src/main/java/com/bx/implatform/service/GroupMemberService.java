@@ -1,9 +1,9 @@
 package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.entity.GroupMember;
 
+import java.util.Date;
 import java.util.List;
 
 public interface GroupMemberService extends IService<GroupMember> {
@@ -26,13 +26,15 @@ public interface GroupMemberService extends IService<GroupMember> {
      */
     List<GroupMember> findByUserId(Long userId);
 
+
     /**
-     * 根据用户id查询一个月内退的群
+     * 根据用户id查询某段时间内退的群
      *
-     * @param userId 用户id
+     * @param userId      用户id
+     * @param minQuitTime 退群时间
      * @return 成员列表
      */
-    List<GroupMember> findQuitInMonth(Long userId);
+    public List<GroupMember> findQuitMembers(Long userId, Date minQuitTime);
 
     /**
      * 根据群聊id查询群聊成员（包括已退出）

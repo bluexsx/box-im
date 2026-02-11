@@ -1,7 +1,6 @@
 package com.bx.implatform.thirdparty;
 
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.bx.implatform.util.DateTimeUtils;
 import com.bx.implatform.util.FileUtil;
 import io.minio.*;

@@ -35,6 +35,7 @@ import com.bx.implatform.vo.GroupVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -235,7 +236,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 查询当前用户的群id列表
         List<GroupMember> groupMembers = groupMemberService.findByUserId(session.getUserId());
         // 一个月内退的群可能存在退群前的离线消息,一并返回作为前端缓存
-        groupMembers.addAll(groupMemberService.findQuitInMonth(session.getUserId()));
+        Date minDate = DateUtils.addDays(new Date(), Math.toIntExact(-Constant.MAX_OFFLINE_MESSAGE_DAYS));
+        groupMembers.addAll(groupMemberService.findQuitMembers(session.getUserId(),minDate));
         if (groupMembers.isEmpty()) {
             return new LinkedList<>();
         }
