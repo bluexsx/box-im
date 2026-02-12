@@ -145,22 +145,22 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
     @Override
     public List<GroupMessageVO> loadOffineMessage(Long minId) {
         UserSession session = SessionContext.getSession();
+        List<GroupMessage> messages = new ArrayList<>();
         // 查询用户加入的群组
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         Map<Long, GroupMember> groupMemberMap = CollStreamUtil.toIdentityMap(members, GroupMember::getGroupId);
         Set<Long> groupIds = groupMemberMap.keySet();
-        if (groupIds.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
         // 只能拉取最近30天的消息
         Date minDate = DateUtils.addDays(new Date(), Math.toIntExact(-Constant.MAX_OFFLINE_MESSAGE_DAYS));
-        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-        wrapper.gt(GroupMessage::getId, minId);
-        wrapper.gt(GroupMessage::getSendTime, minDate);
-        wrapper.in(GroupMessage::getGroupId, groupIds);
-        wrapper.orderByDesc(GroupMessage::getId);
-        wrapper.last("limit 50000");
-        List<GroupMessage> messages = this.list(wrapper);
+        if(!groupIds.isEmpty()) {
+            LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
+            wrapper.gt(GroupMessage::getId, minId);
+            wrapper.gt(GroupMessage::getSendTime, minDate);
+            wrapper.in(GroupMessage::getGroupId, groupIds);
+            wrapper.orderByDesc(GroupMessage::getId);
+            wrapper.last("limit 50000");
+            messages = this.list(wrapper);
+        }
         // 查询退群前的消息
         Date minQuitTime = minDate;
         if (minId > 0) {
@@ -172,7 +172,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         List<GroupMember> quitMembers = groupMemberService.findQuitMembers(session.getUserId(), minQuitTime);
         for (GroupMember quitMember : quitMembers) {
-            wrapper = Wrappers.lambdaQuery();
+            LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
             wrapper.gt(GroupMessage::getId, minId);
             wrapper.between(GroupMessage::getSendTime, minDate, quitMember.getQuitTime());
             wrapper.eq(GroupMessage::getGroupId, quitMember.getGroupId());
