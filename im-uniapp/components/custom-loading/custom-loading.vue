@@ -7,6 +7,7 @@
 
 <script>
 export default {
+	name: 'custom-loading',
 	data() {
 		return {}
 	},
