@@ -2,14 +2,14 @@
 	<view class="tab-page">
 		<nav-bar search @search="onSearch()">消息</nav-bar>
 		<view v-if="loading" class="chat-loading">
-			<loading :size="50" :mask="false">
+			<custom-loading :size="50" :mask="false">
 				<view>消息接收中...</view>
-			</loading>
+			</custom-loading>
 		</view>
 		<view v-else-if="initializing" class="chat-loading">
-			<loading :size="50" :mask="false">
+			<custom-loading :size="50" :mask="false">
 				<view>正在初始化...</view>
-			</loading>
+			</custom-loading>
 		</view>
 		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">

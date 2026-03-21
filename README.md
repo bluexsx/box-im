@@ -47,7 +47,8 @@ https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29#SbvXq
 
 
 #### 付费服务
-商业版: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29
+商业版授权: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29
+付费代部署: https://www.yuque.com/u1475064/imk5n2/qgq5cvgmavallqnl
 
 #### 项目结构
 | 模块          | 功能                               |

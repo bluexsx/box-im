@@ -355,14 +355,20 @@ export default defineStore('chatStore', {
 			// 排序
 			chats.sort((chat1, chat2) => chat2.lastSendTime - chat1.lastSendTime);
 			// #ifndef APP-PLUS
-			/**
-			 * 由于h5和小程序的stroge只有5m,大约只能存储2w条消息，所以可能需要清理部分历史消息
-			 */
-			this.fliterMessage(chats, 5000, 1000);
+			// h5和小程序的stroge一般只有5m,大约只能存储1w条消息，所以可能需要清理部分历史消息
+			const storageInfo = uni.getStorageInfoSync();
+			console.log(`storage缓存: ${storageInfo.currentSize} KB`)
+			// 空间不足(大于3mb)时，清理这个设备登录过其他账户的消息
+			if (storageInfo && storageInfo.currentSize > 3000) {
+				console.log("storage空间不足,清理其他用户缓存..")
+				this.cleanOtherUserCache();
+			}
+			// 保证消息总数量不超过3000条，每个会话不超过500条
+			this.fliterMessage(chats, 3000, 500);
 			// #endif
 			// 记录热数据索引位置
 			chats.forEach(chat => {
-				if(!chat.hotMinIdx || chat.hotMinIdx != chat.messages.length){
+				if (!chat.hotMinIdx || chat.hotMinIdx != chat.messages.length) {
 					chat.hotMinIdx = chat.messages.length;
 					chat.stored = false;
 				}
@@ -388,6 +394,21 @@ export default defineStore('chatStore', {
 			if (remainTotalSize > maxTotalSize) {
 				this.fliterMessage(chats, maxTotalSize, maxPerChatSize / 2);
 			}
+			console.log("消息留存总数量:", remainTotalSize)
+			console.log("单会话消息数量:", maxPerChatSize)
+		},
+		cleanOtherUserCache() {
+			const userStore = useUserStore();
+			const userId = userStore.userInfo.id;
+			const prefix = "chats-app-" + userId;
+			const res = uni.getStorageInfoSync();
+			res.keys.forEach(key => {
+				// 清理其他用户的消息
+				if (key.startsWith("chats-app") && !key.startsWith(prefix)) {
+					uni.removeStorageSync(key);
+					console.log("清理key:", key)
+				}
+			})
 		},
 		saveToStorage(withColdMessage) {
 			// 加载中不保存，防止卡顿

@@ -30,7 +30,7 @@
 									<image class="send-image" :style="imageStyle" mode="aspectFill"
 										:src="contentData.thumbUrl" lazy-load="true" @click.stop="onShowFullImage()">
 									</image>
-									<loading v-if="sending"></loading>
+									<custom-loading v-if="sending"></custom-loading>
 								</view>
 							</long-press-menu>
 						</view>
@@ -43,7 +43,7 @@
 										<view class="file-size">{{ fileSize }}</view>
 									</view>
 									<view class="file-icon iconfont icon-file"></view>
-									<loading v-if="sending"></loading>
+									<custom-loading v-if="sending"></custom-loading>
 								</view>
 							</long-press-menu>
 						</view>
@@ -66,7 +66,7 @@
 							</view>
 						</long-press-menu>
 						<view v-if="sending&&(isTextMessage||isAudioMessage)" class="sending">
-							<loading :size="40" icon-color="#656adf" :mask="false"></loading>
+							<custom-loading :size="40" icon-color="#656adf" :mask="false"></custom-loading>
 						</view>
 						<view v-else-if="sendFail" @click="onSendFail"
 							class="send-fail iconfont icon-warning-circle-fill"></view>
