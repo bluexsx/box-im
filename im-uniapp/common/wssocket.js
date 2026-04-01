@@ -6,6 +6,7 @@ let isConnect = false; //连接标识 避免重复连接
 let rec = null;
 let lastConnectTime = new Date(); // 最后一次连接时间
 let socketTask = null;
+let devId = Math.floor(Math.random() * 1000000)
 
 let connect = (wsurl, token) => {
 	accessToken = token;
@@ -32,7 +33,8 @@ let connect = (wsurl, token) => {
 		let loginInfo = {
 			cmd: 0,
 			data: {
-				accessToken: accessToken
+				accessToken: accessToken,
+				devId: devId
 			}
 		};
 		socketTask.send({

@@ -23,12 +23,8 @@ public final class Constant {
     /**
      * 大群人数上限
      */
-    public static final Long MAX_LARGE_GROUP_MEMBER = 3000L;
+    public static final Long MAX_GROUP_MEMBER = 3000L;
 
-    /**
-     * 普通群人数上限
-     */
-    public static final Long MAX_NORMAL_GROUP_MEMBER = 500L;
 
     /**
      * 离线消息最大拉取时间(天)

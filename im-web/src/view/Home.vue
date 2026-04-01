@@ -294,6 +294,13 @@ export default {
 			if (this.$msgType.isNormal(msg.type) || this.$msgType.isTip(msg.type) || this.$msgType.isAction(msg.type)) {
 				let friend = this.loadFriendInfo(friendId);
 				this.insertPrivateMessage(friend, msg);
+				// 收到对方的消息，说明你的消息对方肯定已读
+				if (msg.id && !msg.selfSend) {
+					this.chatStore.readedMessage({
+						friendId: friendId,
+						maxId: msg.id
+					});
+				}
 			}
 		},
 		insertPrivateMessage(friend, msg) {
@@ -416,6 +423,7 @@ export default {
 			this.configStore.setAppInit(false);
 			this.$wsApi.close(3000);
 			sessionStorage.removeItem("accessToken");
+			localStorage.setItem("isAutoLogin", false)
 			location.href = "/";
 		},
 		playAudioTip() {
@@ -520,10 +528,12 @@ export default {
 
 	.navi-bar {
 		--icon-font-size: 22px;
-		--width: 60px;
+		--width: 70px;
 		width: var(--width);
-		background: var(--im-color-primary-light-1);
-		padding-top: 20px;
+		background: linear-gradient(180deg, var(--im-color-primary-light-1) 0%, var(--im-color-primary-light-2) 100%);
+		padding-top: 25px;
+		position: relative;
+		box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 
 		.navi-bar-box {
 			height: 100%;
@@ -532,13 +542,28 @@ export default {
 			justify-content: space-between;
 
 			.botoom {
-				margin-bottom: 30px;
+				margin-bottom: 25px;
 			}
 		}
 
 		.user-head-image {
 			display: flex;
 			justify-content: center;
+			margin-bottom: 10px;
+
+			// 头像容器样式，参考新版本
+			:deep(.head-image) {
+				border: 3px solid rgba(255, 255, 255, 0.2);
+				border-radius: 50%;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+				transition: all 0.3s ease;
+
+				&:hover {
+					border-color: rgba(255, 255, 255, 0.4);
+					transform: scale(1.05);
+					box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+				}
+			}
 		}
 
 		.menu {
@@ -547,50 +572,89 @@ export default {
 			justify-content: center;
 			align-content: center;
 			flex-wrap: wrap;
-			margin-top: 20px;
+			margin-top: 25px;
+			gap: 8px;
 
 			.link {
 				text-decoration: none;
+				display: flex;
+				justify-content: center;
 			}
 
 			.router-link-active .menu-item {
 				color: white;
-				background: var(--im-color-primary-light-2);
+				background: linear-gradient(135deg,
+						var(--im-color-primary-light-2) 0%,
+						var(--im-color-primary) 100%);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+				transform: translateX(2px);
+
+				&::before {
+					opacity: 1;
+					transform: scale(1);
+				}
 			}
 
 			.link:not(.router-link-active) .menu-item:hover {
-				background: var(--im-color-primary);
-				transform: scale(1.1);
+				background: linear-gradient(135deg,
+						var(--im-color-primary) 0%,
+						var(--im-color-primary-light-2) 100%);
+				transform: scale(1.08) translateX(2px);
+				box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+				color: white;
 			}
 
 			.menu-item {
 				position: relative;
-				color: #eee;
-				width: var(--width);
-				height: 46px;
-				width: 46px;
+				color: rgba(255, 255, 255, 0.8);
+				width: 50px;
+				height: 50px;
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				margin-top: 30px;
-				border-radius: 10px;
+				margin-top: 10px;
+				border-radius: 12px;
+				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+				cursor: pointer;
+
+				// 左侧选中指示条
+				&::before {
+					content: '';
+					position: absolute;
+					left: -5px;
+					width: 3px;
+					height: 20px;
+					background: white;
+					border-radius: 2px;
+					opacity: 0;
+					transition: all 0.3s ease;
+				}
 
 				.icon {
-					font-size: var(--icon-font-size)
+					font-size: var(--icon-font-size);
+					transition: all 0.3s ease;
 				}
 
 				.unread-text {
 					position: absolute;
-					background-color: var(--im-color-danger);
-					left: 28px;
-					top: 8px;
+					background: var(--im-color-danger);
+					left: 32px;
+					top: 3px;
 					color: white;
-					border-radius: 30px;
-					padding: 0 5px;
-					font-size: var(--im-font-size-smaller);
+					border-radius: 10px;
+					padding: 1px 6px;
+					font-size: 10px;
+					font-weight: 600;
 					text-align: center;
 					white-space: nowrap;
-					border: 1px solid #f1e5e5;
+					border: 1px solid rgba(255, 255, 255, 0.9);
+					box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+					min-width: 16px;
+					height: 16px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					z-index: 1;
 				}
 			}
 		}
@@ -599,19 +663,33 @@ export default {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			height: 50px;
+			height: 45px;
 			width: 100%;
 			cursor: pointer;
-			color: var(--im-color-primary-light-4);
+			color: rgba(255, 255, 255, 0.7);
 			font-size: var(--icon-font-size);
+			border-radius: 8px;
+			margin: 4px 0;
+			transition: all 0.3s ease;
+			position: relative;
 
 			.icon {
-				font-size: var(--icon-font-size)
+				font-size: var(--icon-font-size);
+				transition: all 0.3s ease;
 			}
 
 			&:hover {
-				font-weight: 600;
-				color: var(--im-color-primary-light-7);
+				color: white;
+				background: rgba(255, 255, 255, 0.1);
+				transform: scale(1.05);
+
+				.icon {
+					transform: scale(1.1);
+				}
+			}
+
+			&:active {
+				transform: scale(0.95);
 			}
 		}
 	}

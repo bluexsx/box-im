@@ -182,9 +182,18 @@ export default {
 				this.chatStore.setDnd(chatInfo, JSON.parse(msg.content));
 				return;
 			}
-			// 消息插入
-			let friend = this.loadFriendInfo(friendId);
-			this.insertPrivateMessage(friend, msg);
+			if (msgType.isNormal(msg.type) || msgType.isTip(msg.type) || msgType.isAction(msg.type)) {
+				// 消息插入
+				let friend = this.loadFriendInfo(friendId);
+				this.insertPrivateMessage(friend, msg);
+				// 收到对方的消息，说明你的消息对方肯定已读
+				if (msg.id && !msg.selfSend) {
+					this.chatStore.readedMessage({
+						friendId: friendId,
+						maxId: msg.id
+					});
+				}
+			}
 		},
 		insertPrivateMessage(friend, msg) {
 			// 单人视频信令
@@ -541,7 +550,7 @@ page {
 	height: calc(100vh - $im-nav-bar-height);
 	top: $im-nav-bar-height;
 	// #endif
-	
+
 	color: $im-text-color;
 	background: $im-bg-linear;
 	font-size: $im-font-size;

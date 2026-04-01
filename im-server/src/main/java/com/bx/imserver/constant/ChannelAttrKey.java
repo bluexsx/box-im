@@ -13,6 +13,13 @@ public final class ChannelAttrKey {
      * 终端类型
      */
     public static final String TERMINAL_TYPE = "TERMINAL_TYPE";
+
+
+    /**
+     *设备id
+     */
+    public static final String DEVICE_ID = "DEVICE_ID";
+
     /**
      * 心跳次数
      */

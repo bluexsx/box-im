@@ -1,5 +1,6 @@
 package com.bx.imserver.netty;
 
+import cn.hutool.core.util.StrUtil;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
 import com.bx.imcommon.model.IMSendInfo;
@@ -15,10 +16,10 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
+
 /**
- * WebSocket 长连接下 文本帧的处理器
- * 实现浏览器发送文本回写
- * 浏览器连接状态监控
+ * WebSocket 长连接下 文本帧的处理器 实现浏览器发送文本回写 浏览器连接状态监控
  */
 @Slf4j
 public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
@@ -66,13 +67,15 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
         AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
         Integer terminal = ctx.channel().attr(terminalAttr).get();
         ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId, terminal);
+        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
+        RedisMQTemplate redisTemplate = SpringContextHolder.getBean(RedisMQTemplate.class);
+        Object serverId = redisTemplate.opsForValue().get(key);
         // 判断一下，避免异地登录导致的误删
-        if (context != null && ctx.channel().id().equals(context.channel().id())) {
+        Boolean isSameServer = IMServerGroup.serverId.equals(Long.parseLong(StrUtil.toString(serverId)));
+        if (isSameServer && !Objects.isNull(context) && ctx.channel().id().equals(context.channel().id())) {
             // 移除channel
             UserChannelCtxMap.removeChannelCtx(userId, terminal);
             // 用户下线
-            RedisMQTemplate redisTemplate = SpringContextHolder.getBean(RedisMQTemplate.class);
-            String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
             redisTemplate.delete(key);
             log.info("断开连接,userId:{},终端类型:{},{}", userId, terminal, ctx.channel().id().asLongText());
         }
@@ -81,7 +84,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            IdleState state = ((IdleStateEvent) evt).state();
+            IdleState state = ((IdleStateEvent)evt).state();
             if (state == IdleState.READER_IDLE) {
                 // 在规定时间内没有收到客户端的上行数据, 主动断开连接
                 AttributeKey<Long> attr = AttributeKey.valueOf("USER_ID");

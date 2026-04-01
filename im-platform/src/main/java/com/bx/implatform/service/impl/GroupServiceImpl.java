@@ -266,8 +266,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 群聊人数校验
         List<GroupMember> members = groupMemberService.findByGroupId(dto.getGroupId());
         long size = members.stream().filter(m -> !m.getQuit()).count();
-        if (dto.getFriendIds().size() + size > Constant.MAX_LARGE_GROUP_MEMBER) {
-            throw new GlobalException("群聊人数不能大于" + Constant.MAX_LARGE_GROUP_MEMBER + "人");
+        if (dto.getFriendIds().size() + size > Constant.MAX_GROUP_MEMBER) {
+            throw new GlobalException("群聊人数不能大于" + Constant.MAX_GROUP_MEMBER + "人");
         }
         // 找出好友信息
         List<Friend> friends = friendsService.findByFriendIds(dto.getFriendIds());

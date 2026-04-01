@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class IMServerGroup implements CommandLineRunner {
 
-    public static volatile long serverId = 0;
+    public static volatile Long serverId = 0L;
 
     private final RedisMQTemplate redisMQTemplate;
 

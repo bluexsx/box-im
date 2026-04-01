@@ -16,7 +16,7 @@ public enum IMCmdType {
     /**
      * 强制下线
      */
-    FORCE_LOGUT(2, "强制下线"),
+    FORCE_LOGOUT(2, "强制下线"),
     /**
      * 私聊消息
      */

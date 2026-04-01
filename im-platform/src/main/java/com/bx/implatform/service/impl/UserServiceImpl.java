@@ -112,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void register(RegisterDTO dto) {
         // 昵称默认跟用户名保持一致
         if(StrUtil.isEmpty(dto.getNickName())){
-            dto.setUserName(dto.getUserName());
+            dto.setNickName(dto.getUserName());
         }
         User user = this.findUserByUserName(dto.getUserName());
         if(!dto.getUserName().equals(sensitiveFilterUtil.filter(dto.getUserName()))){

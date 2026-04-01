@@ -44,8 +44,8 @@ public class GroupMessageController {
 
     @PutMapping("/readed")
     @Operation(summary = "消息已读", description = "将群聊中的消息状态置为已读")
-    public Result readedMessage(@RequestParam Long groupId) {
-        groupMessageService.readedMessage(groupId);
+    public Result readedMessage(@RequestParam Long groupId,@RequestParam(required = false) Long messageId) {
+        groupMessageService.readedMessage(groupId,messageId);
         return ResultUtils.success();
     }
 

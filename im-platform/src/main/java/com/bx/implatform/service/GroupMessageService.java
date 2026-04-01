@@ -24,7 +24,6 @@ public interface GroupMessageService extends IService<GroupMessage> {
      */
     GroupMessageVO recallMessage(Long id);
 
-
     /**
      * 拉取离线消息，只能拉取最近1个月的消息
      *
@@ -32,21 +31,23 @@ public interface GroupMessageService extends IService<GroupMessage> {
      */
     List<GroupMessageVO> loadOffineMessage(Long minId);
 
-
     /**
      * 消息已读,同步其他终端，清空未读数量
      *
-     * @param groupId 群聊
+     * @param groupId   群聊
+     * @param messageId 消息id
      */
-    void readedMessage(Long groupId);
+    void readedMessage(Long groupId, Long messageId);
 
     /**
      * 查询群里消息已读用户id列表
-     * @param groupId 群里id
+     *
+     * @param groupId   群里id
      * @param messageId 消息id
      * @return 已读用户id集合
      */
-    List<Long> findReadedUsers(Long groupId,Long messageId);
+    List<Long> findReadedUsers(Long groupId, Long messageId);
+
     /**
      * 拉取历史聊天记录
      *

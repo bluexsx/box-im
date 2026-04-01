@@ -40,9 +40,8 @@
 										<i class="el-icon-wallet"></i>
 									</file-upload>
 								</div>
-								<div title="回执消息" v-show="isGroup && memberSize <= 500"
-									class="icon iconfont icon-receipt" :class="isReceipt ? 'chat-tool-active' : ''"
-									@click="onSwitchReceipt">
+								<div title="回执消息" v-show="isGroup" class="icon iconfont icon-receipt"
+									:class="isReceipt ? 'chat-tool-active' : ''" @click="onSwitchReceipt">
 								</div>
 								<div title="发送语音" class="el-icon-microphone" @click="showRecordBox()">
 								</div>
@@ -567,14 +566,14 @@ export default {
 		readedMessage() {
 			if (this.chat.unreadCount > 0) {
 				if (this.isGroup) {
-					var url = `/message/group/readed?groupId=${this.chat.targetId}`
+					var url = `/message/group/readed?groupId=${this.chat.targetId}&messageId=${this.maxMessageId}`
 				} else {
 					url = `/message/private/readed?friendId=${this.chat.targetId}`
 				}
 				this.$http({
 					url: url,
 					method: 'put'
-				}).then(() => {})
+				}).then(() => { })
 				this.chatStore.resetUnreadCount(this.chat)
 			}
 		},
@@ -725,17 +724,17 @@ export default {
 		getImageSize(file) {
 			return new Promise((resolve, reject) => {
 				const reader = new FileReader();
-				reader.onload = function(event) {
+				reader.onload = function (event) {
 					const img = new Image();
-					img.onload = function() {
+					img.onload = function () {
 						resolve({ width: img.width, height: img.height });
 					};
-					img.onerror = function() {
+					img.onerror = function () {
 						reject(new Error('无法加载图片'));
 					};
 					img.src = event.target.result;
 				};
-				reader.onerror = function() {
+				reader.onerror = function () {
 					reject(new Error('无法读取文件'));
 				};
 				reader.readAsDataURL(file);
@@ -800,13 +799,22 @@ export default {
 		},
 		loading() {
 			return this.chatStore.loading;
-		}
+		},
+		maxMessageId() {
+			for (let idx = this.chat.messages.length - 1; idx >= 0; idx--) {
+				const message = this.chat.messages[idx];
+				if (message.id) {
+					return message.id;
+				}
+			}
+			return 0;
+		},
 	},
 	watch: {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-						newChat.targetId != oldChat.targetId)) {
+					newChat.targetId != oldChat.targetId)) {
 					this.userInfo = {}
 					this.group = {};
 					this.groupMembers = [];
@@ -936,33 +944,44 @@ export default {
 				display: flex;
 				position: relative;
 				width: 100%;
-				height: 36px;
+				height: 44px;
 				text-align: left;
 				box-sizing: border-box;
-				border-top: var(--im-border);
-				padding: 4px 2px 2px 8px;
+				border-top: 2px solid #EBEEF5;
+				padding: 6px 8px;
+				align-items: center;
+				background: var(--im-background-active);
+				color: black;
+				gap: 8px;
+				opacity: 0.85;
 
+				// 统一所有按钮的样式，参考新版本
 				>div {
-					font-size: 22px;
+					font-size: 20px;
 					cursor: pointer;
-					line-height: 30px;
-					width: 30px;
-					height: 30px;
+					width: 32px;
+					height: 32px;
+					line-height: 32px;
 					text-align: center;
-					border-radius: 2px;
-					margin-right: 8px;
-					color: #999;
-					transition: 0.3s;
+					border-radius: 6px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					position: relative;
+					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 					&.chat-tool-active {
-						font-weight: 600;
 						color: var(--im-color-primary);
-						background-color: #ddd;
+						background: var(--im-background-active-dark);
+						transform: scale(1.02);
 					}
-				}
 
-				>div:hover {
-					color: #333;
+					&:hover {
+						color: var(--im-color-primary);
+						background: var(--im-background-active);
+						transform: translateY(-1px);
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+					}
 				}
 			}
 
