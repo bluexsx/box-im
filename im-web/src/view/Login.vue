@@ -1,32 +1,37 @@
 <template>
 	<div class="login-view">
-		<div class="decoration decoration-1"></div>
-		<div class="decoration decoration-2"></div>
-		<div class="decoration decoration-3"></div>
+		<div class="auth-bg">
+			<div class="auth-bg__base"></div>
+			<div class="auth-bg__glows"></div>
+			<div class="auth-bg__panels"></div>
+			<div class="auth-bg__dots"></div>
+		</div>
 		<div class="content">
 			<el-form class="form" :model="loginForm" status-icon :rules="rules" ref="loginForm"
 				@keyup.enter.native="submitForm('loginForm')">
-				<div class="title">
-					<img class="logo" src="../../public/logo.png" />
-					<div>登录盒子IM</div>
+				<div class="form-header">
+					<h1 class="form-welcome">欢迎登录</h1>
+					<p class="form-welcome-subtitle">一站式即时通讯解决方案</p>
 				</div>
-				<el-form-item prop="terminal" v-show="false">
-					<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
-				</el-form-item>
-				<el-form-item prop="userName">
-					<el-input type="userName" v-model="loginForm.userName" autocomplete="off" placeholder="用户名"
-						prefix-icon="el-icon-user"></el-input>
-				</el-form-item>
-				<el-form-item prop="password">
-					<el-input type="password" v-model="loginForm.password" autocomplete="off" placeholder="密码"
-						prefix-icon="el-icon-lock"></el-input>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="submitForm('loginForm')">登录</el-button>
-					<el-button @click="resetForm('loginForm')">清空</el-button>
-				</el-form-item>
-				<div class="register">
-					<router-link to="/register">没有账号,前往注册</router-link>
+				<div class="form-body">
+					<el-form-item prop="terminal" v-show="false">
+						<el-input type="terminal" v-model="loginForm.terminal" autocomplete="off"></el-input>
+					</el-form-item>
+					<el-form-item prop="userName">
+						<el-input type="userName" v-model="loginForm.userName" autocomplete="off" placeholder="用户名"
+							prefix-icon="el-icon-user"></el-input>
+					</el-form-item>
+					<el-form-item prop="password">
+						<el-input type="password" v-model="loginForm.password" autocomplete="off" placeholder="密码"
+							prefix-icon="el-icon-lock"></el-input>
+					</el-form-item>
+					<el-form-item class="nav-tool-bar">
+						<el-checkbox v-model="isAutoLogin">自动登录</el-checkbox>
+					</el-form-item>
+					<el-button class="submit-btn" type="primary" @click="submitForm('loginForm')">登录</el-button>
+				</div>
+				<div class="footer-links">
+					<router-link class="link" to="/register">没有账号，前往注册</router-link>
 				</div>
 			</el-form>
 		</div>
@@ -61,6 +66,7 @@ export default {
 				userName: '',
 				password: ''
 			},
+			isAutoLogin: true,
 			rules: {
 				userName: [{
 					validator: checkUsername,
@@ -86,6 +92,10 @@ export default {
 							// 保存密码到cookie(不安全)
 							this.setCookie('username', this.loginForm.userName);
 							this.setCookie('password', this.loginForm.password);
+							// 保存登录信息到本地，兼容新版逻辑
+							localStorage.setItem('isAutoLogin', this.isAutoLogin);
+							localStorage.setItem('username', this.loginForm.userName);
+							localStorage.setItem('password', this.loginForm.password);
 							// 保存token
 							sessionStorage.setItem("accessToken", data.accessToken);
 							sessionStorage.setItem("refreshToken", data.refreshToken);
@@ -95,9 +105,6 @@ export default {
 
 				}
 			});
-		},
-		resetForm(formName) {
-			this.$refs[formName].resetFields();
 		},
 		getCookie(name) {
 			let reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
@@ -113,114 +120,208 @@ export default {
 
 	},
 	mounted() {
+		// 兼容旧版本 cookie 数据
 		this.loginForm.userName = this.getCookie("username");
-		// cookie存密码并不安全，暂时是为了方便
 		this.loginForm.password = this.getCookie("password");
+		// 加载本地自动登录配置
+		if (localStorage.getItem("isAutoLogin") != null) {
+			this.isAutoLogin = JSON.parse(localStorage.getItem("isAutoLogin"));
+			this.loginForm.userName = localStorage.getItem("username") || this.loginForm.userName;
+			this.loginForm.password = localStorage.getItem("password") || this.loginForm.password;
+			if (this.isAutoLogin && this.loginForm.userName && this.loginForm.password) {
+				this.submitForm('loginForm');
+			}
+		}
 	}
 }
 </script>
 
 <style scoped lang="scss">
 .login-view {
+	position: relative;
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
-	background: linear-gradient(15deg, var(--im-color-primary-light-9) 0%, var(--im-color-primary-light-4) 100%);
-	
-		/* 装饰性元素 */
-	.decoration {
+	display: flex;
+	background: #fff;
+	overflow: hidden;
+
+	.auth-bg {
 		position: absolute;
-		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.2);
+		inset: 0;
+		pointer-events: none;
 	}
 
-	.decoration-1 {
-		width: 150px;
-		height: 150px;
-		background: rgba(255, 255, 255, 0.2);
-		top: -150px;
-		right: 0px;
-		animation: float 16s infinite ease-in-out;
+	.auth-bg__base,
+	.auth-bg__glows,
+	.auth-bg__panels,
+	.auth-bg__dots {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
 	}
 
-	.decoration-2 {
-		width: 200px;
-		height: 200px;
-		background: rgba(255, 255, 255, 0.18);
-		bottom: -100px;
-		left: -50px;
-		animation: float 12s infinite ease-in-out;
+	.auth-bg__base {
+		background: linear-gradient(135deg,
+				#d4e2f8 0%,
+				#dce8fa 25%,
+				#e6eefb 50%,
+				#eef2fc 75%,
+				#f8f9fd 100%);
 	}
 
-	.decoration-3 {
-		width: 100px;
-		height: 100px;
-		background: rgba(255, 255, 255, 0.15);
-		top: 50%;
-		right: 50px;
-		animation: float 8s infinite ease-in-out;
+	.auth-bg__glows {
+		background-image:
+			radial-gradient(ellipse 70% 50% at 85% 15%, rgba(220, 235, 255, 0.6) 0%, transparent 55%),
+			radial-gradient(ellipse 60% 45% at 10% 75%, rgba(230, 240, 255, 0.5) 0%, transparent 50%),
+			radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 45%);
 	}
 
-	@keyframes float {
-		0%,
-		100% {
-			transform: translateY(0) translateX(0);
-		}
-
-		25% {
-			transform: translateY(-60px) translateX(30px);
-		}
-
-		50% {
-			transform: translateY(30px) translateX(-45px);
-		}
-
-		75% {
-			transform: translateY(-30px) translateX(-30px);
-		}
+	.auth-bg__dots {
+		opacity: 0.4;
+		background-image: radial-gradient(circle, rgba(200, 218, 248, 0.35) 1px, transparent 1px);
+		background-size: 24px 24px;
 	}
-		
+
+	.auth-bg__panels {
+		opacity: 0.5;
+		background-image:
+			repeating-linear-gradient(115deg,
+				transparent 0,
+				transparent 60px,
+				rgba(190, 210, 245, 0.12) 60px,
+				rgba(190, 210, 245, 0.12) 65px),
+			repeating-linear-gradient(25deg,
+				transparent 0,
+				transparent 90px,
+				rgba(200, 218, 248, 0.08) 90px,
+				rgba(200, 218, 248, 0.08) 95px);
+	}
 
 	.content {
 		position: relative;
 		display: flex;
-		justify-content: space-around;
+		justify-content: center;
 		align-items: center;
-		padding: 10%;
+		width: 100%;
+		z-index: 1;
+	}
 
-		.form {
-			width: 360px;
-			height: 380px;
-			padding: 30px;
-			background: rgba(255, 255, 255, 0.95);
-			border-radius: 3%;
-			overflow: hidden;
+	.form {
+		width: 380px;
+		height: 460px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 32px 36px;
+		background: rgba(255, 255, 255, 0.88);
+		backdrop-filter: blur(24px);
+		-webkit-backdrop-filter: blur(24px);
+		border-radius: 28px;
+		border: 1px solid rgba(255, 255, 255, 0.95);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+		overflow: visible;
+	}
 
-			.title {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				line-height: 50px;
-				margin: 30px 0 40px 0;
-				font-size: 22px;
-				font-weight: 600;
-				letter-spacing: 2px;
-				text-transform: uppercase;
-				text-align: center;
+	.form-header {
+		flex-shrink: 0;
+		text-align: left;
+	}
 
-				.logo {
-					width: 30px;
-					height: 30px;
-					margin-right: 10px;
-				}
+	.form-welcome {
+		margin: 0 0 6px;
+		font-size: 26px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		line-height: 1.3;
+		color: var(--im-color-primary);
+	}
+
+	.form-welcome-subtitle {
+		margin: 0;
+		font-size: var(--im-font-size);
+		color: var(--im-text-color-light);
+		line-height: 1.5;
+	}
+
+	.form-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-height: 0;
+	}
+
+	.form-body ::v-deep .el-form-item {
+		margin-bottom: 20px;
+
+		.el-input__inner {
+			height: 52px;
+			border-radius: 50px;
+			border: 1px solid rgba(0, 0, 0, 0.06);
+			background: #fff;
+			transition: border-color 0.2s ease, box-shadow 0.2s ease;
+			padding-left: 48px;
+			font-size: var(--im-font-size-large);
+
+			&:focus {
+				border-color: rgba(0, 0, 0, 0.1);
+				box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8);
 			}
 
-			.register {
-				display: flex;
-				flex-direction: row-reverse;
-				line-height: 40px;
-				text-align: left;
-				padding-left: 20px;
+			&::placeholder {
+				color: var(--im-text-color-lighter);
+				font-size: var(--im-font-size);
+			}
+		}
+
+		.el-input__prefix {
+			left: 18px;
+		}
+
+		.el-input__prefix .el-input__icon {
+			color: var(--im-color-primary-light-3);
+			font-size: 18px;
+		}
+
+		.el-input__suffix {
+			display: none;
+		}
+	}
+
+	.submit-btn {
+		width: 100%;
+		height: 52px;
+		margin-top: 20px;
+		border-radius: 50px;
+		border: none;
+		color: #fff;
+		font-size: var(--im-font-size-larger);
+		font-weight: 600;
+		letter-spacing: 2px;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+		&:hover {
+			transform: translateY(-1px);
+		}
+	}
+
+	.footer-links {
+		flex-shrink: 0;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		margin-top: 20px;
+		padding: 0 4px;
+
+		.link {
+			text-decoration: none;
+			color: var(--im-text-color-light);
+			font-size: var(--im-font-size-small);
+			transition: color 0.2s ease;
+
+			&:hover {
+				color: var(--im-color-primary);
 			}
 		}
 	}

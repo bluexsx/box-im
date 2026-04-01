@@ -40,9 +40,8 @@
 										<i class="el-icon-wallet"></i>
 									</file-upload>
 								</div>
-								<div title="回执消息" v-show="isGroup"
-									class="icon iconfont icon-receipt" :class="isReceipt ? 'chat-tool-active' : ''"
-									@click="onSwitchReceipt">
+								<div title="回执消息" v-show="isGroup" class="icon iconfont icon-receipt"
+									:class="isReceipt ? 'chat-tool-active' : ''" @click="onSwitchReceipt">
 								</div>
 								<div title="发送语音" class="el-icon-microphone" @click="showRecordBox()">
 								</div>
@@ -945,33 +944,44 @@ export default {
 				display: flex;
 				position: relative;
 				width: 100%;
-				height: 36px;
+				height: 44px;
 				text-align: left;
 				box-sizing: border-box;
-				border-top: var(--im-border);
-				padding: 4px 2px 2px 8px;
+				border-top: 2px solid #EBEEF5;
+				padding: 6px 8px;
+				align-items: center;
+				background: var(--im-background-active);
+				color: black;
+				gap: 8px;
+				opacity: 0.85;
 
+				// 统一所有按钮的样式，参考新版本
 				>div {
-					font-size: 22px;
+					font-size: 20px;
 					cursor: pointer;
-					line-height: 30px;
-					width: 30px;
-					height: 30px;
+					width: 32px;
+					height: 32px;
+					line-height: 32px;
 					text-align: center;
-					border-radius: 2px;
-					margin-right: 8px;
-					color: #999;
-					transition: 0.3s;
+					border-radius: 6px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					position: relative;
+					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 					&.chat-tool-active {
-						font-weight: 600;
 						color: var(--im-color-primary);
-						background-color: #ddd;
+						background: var(--im-background-active-dark);
+						transform: scale(1.02);
 					}
-				}
 
-				>div:hover {
-					color: #333;
+					&:hover {
+						color: var(--im-color-primary);
+						background: var(--im-background-active);
+						transform: translateY(-1px);
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+					}
 				}
 			}
 
