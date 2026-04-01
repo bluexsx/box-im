@@ -37,4 +37,10 @@ public final class IMRedisKey {
      */
     public static final String IM_RESULT_GROUP_QUEUE = "im:result:group";
 
+    /**
+     * 强制用户退出队列
+     */
+    public static final String IM_USER_FORCE_LOGOUT_QUEUE = "im:user:force_logout";
+
+
 }

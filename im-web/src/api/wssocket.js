@@ -4,6 +4,7 @@ let isConnect = false; //连接标识 避免重复连接
 let connectCallBack = null;
 let messageCallBack = null;
 let closeCallBack = null
+let devId = Math.floor(Math.random() * 1000000)
 
 
 let connect = (wsurl, accessToken) => {
@@ -41,7 +42,8 @@ let connect = (wsurl, accessToken) => {
 			let loginInfo = {
 				cmd: 0,
 				data: {
-					accessToken: accessToken
+					accessToken: accessToken,
+					devId: devId
 				}
 			};
 			websock.send(JSON.stringify(loginInfo));

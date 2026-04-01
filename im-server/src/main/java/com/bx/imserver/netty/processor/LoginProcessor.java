@@ -1,10 +1,12 @@
 package com.bx.imserver.netty.processor;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.bx.imcommon.contant.IMConstant;
 import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMCmdType;
+import com.bx.imcommon.model.IMForceLogoutInfo;
 import com.bx.imcommon.model.IMLoginInfo;
 import com.bx.imcommon.model.IMSendInfo;
 import com.bx.imcommon.model.IMSessionInfo;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -45,14 +48,34 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         Long userId = sessionInfo.getUserId();
         Integer terminal = sessionInfo.getTerminal();
         log.info("用户登录，userId:{}", userId);
-        ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId, terminal);
-        if (context != null && !ctx.channel().id().equals(context.channel().id())) {
-            // 不允许多地登录,强制下线
-            IMSendInfo<Object> sendInfo = new IMSendInfo<>();
-            sendInfo.setCmd(IMCmdType.FORCE_LOGUT.code());
-            sendInfo.setData("您已在其他地方登录，将被强制下线");
-            context.channel().writeAndFlush(sendInfo);
-            log.info("异地登录，强制下线,userId:{}", userId);
+        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
+        Object serverId = redisMQTemplate.opsForValue().get(key);
+        if (!Objects.isNull(serverId)) {
+            // 用户已在线，强制使其下线
+            if (IMServerGroup.serverId.equals(Long.parseLong(serverId.toString()))) {
+                // 两次连的是同一个服务器
+                ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId, terminal);
+                if (context != null && !ctx.channel().id().equals(context.channel().id())) {
+                    AttributeKey<String> devIdAttr = AttributeKey.valueOf(ChannelAttrKey.DEVICE_ID);
+                    String devId = context.channel().attr(devIdAttr).get();
+                    if (StrUtil.isEmpty(loginInfo.getDevId()) || !loginInfo.getDevId().equals(devId)) {
+                        // 不允许多地登录,强制下线
+                        IMSendInfo<Object> sendInfo = new IMSendInfo<>();
+                        sendInfo.setCmd(IMCmdType.FORCE_LOGOUT.code());
+                        sendInfo.setData("您已在其他地方登录，将被强制下线");
+                        context.channel().writeAndFlush(sendInfo);
+                        log.info("异地登录，强制下线,userId:{},终端:{}", userId, terminal);
+                    }
+                }
+            } else {
+                // 连的是不同的服务器，投递下线命令到上次连的服务器
+                IMForceLogoutInfo logoutInfo = new IMForceLogoutInfo();
+                logoutInfo.setUserId(userId);
+                logoutInfo.setTerminal(terminal);
+                logoutInfo.setDevId(loginInfo.getDevId());
+                String queueKey = StrUtil.join(":", IMRedisKey.IM_USER_FORCE_LOGOUT_QUEUE, serverId);
+                redisMQTemplate.opsForList().rightPush(queueKey, logoutInfo);
+            }
         }
         // 绑定用户和channel
         UserChannelCtxMap.addChannelCtx(userId, terminal, ctx);
@@ -66,7 +89,6 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         AttributeKey<Long> heartBeatAttr = AttributeKey.valueOf(ChannelAttrKey.HEARTBEAT_TIMES);
         ctx.channel().attr(heartBeatAttr).set(0L);
         // 在redis上记录每个user的channelId，15秒没有心跳，则自动过期
-        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
         redisMQTemplate.opsForValue().set(key, IMServerGroup.serverId, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         // 响应ws
         IMSendInfo<Object> sendInfo = new IMSendInfo<>();
