@@ -86,8 +86,9 @@ export default defineStore('chatStore', {
 		},
 		readedMessage(pos) {
 			let chat = this.findChatByFriend(pos.friendId);
-			if (!chat) return;
-			for (let idx = chat.readedMessageIdx; idx < chat.messages.length; idx++) {
+			// 已读回执没有做可靠性投递，通过回溯100条的方式去修正
+			let idx = Math.max(0, chat.readedMessageIdx - 100);
+			for (; idx < chat.messages.length; idx++) {
 				let m = chat.messages[idx];
 				if (m.id && m.selfSend && m.status < MESSAGE_STATUS.RECALL) {
 					// pos.maxId为空表示整个会话已读

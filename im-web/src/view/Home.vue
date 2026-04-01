@@ -294,6 +294,13 @@ export default {
 			if (this.$msgType.isNormal(msg.type) || this.$msgType.isTip(msg.type) || this.$msgType.isAction(msg.type)) {
 				let friend = this.loadFriendInfo(friendId);
 				this.insertPrivateMessage(friend, msg);
+				// 收到对方的消息，说明你的消息对方肯定已读
+				if (msg.id && !msg.selfSend) {
+					this.chatStore.readedMessage({
+						friendId: friendId,
+						maxId: msg.id
+					});
+				}
 			}
 		},
 		insertPrivateMessage(friend, msg) {
