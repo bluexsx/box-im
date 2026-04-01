@@ -77,7 +77,7 @@
 						<view class="tool-icon iconfont icon-microphone"></view>
 						<view class="tool-name">语音消息</view>
 					</view>
-					<view v-if="chat.type == 'GROUP' && memberSize<=500" class="chat-tools-item"
+					<view v-if="chat.type == 'GROUP'" class="chat-tools-item"
 						@click="switchReceipt()">
 						<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
 						<view class="tool-name">回执消息</view>
@@ -756,7 +756,7 @@ export default {
 			if (this.unreadCount > 0) {
 				let url = ""
 				if (this.isGroup) {
-					url = `/message/group/readed?groupId=${this.chat.targetId}`
+					url = `/message/group/readed?groupId=${this.chat.targetId}&messageId=${this.maxMessageId}`
 				} else {
 					url = `/message/private/readed?friendId=${this.chat.targetId}`
 				}
@@ -1065,7 +1065,16 @@ export default {
 		},
 		loading() {
 			return this.chatStore.loading;
-		}
+		},
+		maxMessageId() {
+			for (let idx = this.chat.messages.length - 1; idx >= 0; idx--) {
+				const message = this.chat.messages[idx];
+				if (message.id) {
+					return message.id;
+				}
+			}
+			return 0;
+		},
 	},
 	watch: {
 		messageSize: function(newSize, oldSize) {

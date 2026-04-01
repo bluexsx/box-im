@@ -75,7 +75,7 @@
 						<text class="chat-readed" v-if="msgInfo.status == $enums.MESSAGE_STATUS.READED">已读</text>
 						<text class="chat-unread" v-else>未读</text>
 					</view>
-					<view class="chat-receipt" v-if="msgInfo.receipt" @click="onShowReadedBox">
+					<view class="chat-receipt" v-if="msgInfo.receipt&&msgInfo.selfSend"" @click=" onShowReadedBox">
 						<text v-if="msgInfo.receiptOk" class="tool-icon iconfont icon-ok"></text>
 						<text v-else>{{ msgInfo.readedCount }}人已读</text>
 					</view>

@@ -59,6 +59,9 @@ export default {
 			this.loadReadedUser();
 		},
 		loadReadedUser() {
+			if (!this.msgInfo.id) {
+				return;
+			}
 			this.readedMembers = [];
 			this.unreadMembers = [];
 			this.$http({

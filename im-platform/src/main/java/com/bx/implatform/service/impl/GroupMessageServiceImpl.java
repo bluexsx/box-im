@@ -66,11 +66,6 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 群聊成员列表
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(group.getId());
-        if (dto.getReceipt() && userIds.size() > Constant.MAX_NORMAL_GROUP_MEMBER) {
-            // 大群的回执消息过于消耗资源，不允许发送
-            throw new GlobalException(
-                String.format("当前群聊大于%s人,不支持发送回执消息", Constant.MAX_NORMAL_GROUP_MEMBER));
-        }
         // 不用发给自己
         userIds = userIds.stream().filter(id -> !session.getUserId().equals(id)).collect(Collectors.toList());
         // 保存消息
@@ -152,7 +147,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         Set<Long> groupIds = groupMemberMap.keySet();
         // 只能拉取最近30天的消息
         Date minDate = DateUtils.addDays(new Date(), Math.toIntExact(-Constant.MAX_OFFLINE_MESSAGE_DAYS));
-        if(!groupIds.isEmpty()) {
+        if (!groupIds.isEmpty()) {
             LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
             wrapper.gt(GroupMessage::getId, minId);
             wrapper.gt(GroupMessage::getSendTime, minDate);
@@ -215,7 +210,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 // 填充状态
                 vo.setStatus(readedMaxId >= m.getId() ? MessageStatus.READED.code() : MessageStatus.PENDING.code());
                 // 针对回执消息填充已读人数
-                if (m.getReceipt()) {
+                if (m.getReceipt() && m.getSendId().equals(session.getUserId())) {
                     if (Objects.isNull(maxIdMap)) {
                         maxIdMap = redisTemplate.opsForHash().entries(key);
                     }
@@ -229,17 +224,19 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         return vos.stream().sorted(Comparator.comparing(GroupMessageVO::getId)).collect(Collectors.toList());
     }
 
-
     @Override
-    public void readedMessage(Long groupId) {
+    public void readedMessage(Long groupId, Long messageId) {
         UserSession session = SessionContext.getSession();
-        // 取出最后的消息id
-        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(GroupMessage::getGroupId, groupId).orderByDesc(GroupMessage::getId).last("limit 1")
-            .select(GroupMessage::getId);
-        GroupMessage message = this.getOne(wrapper);
-        if (Objects.isNull(message)) {
-            return;
+        // 如果前端没有传消息id,取出最后一条消息id
+        if (Objects.isNull(messageId)) {
+            LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
+            wrapper.eq(GroupMessage::getGroupId, groupId).orderByDesc(GroupMessage::getId).last("limit 1")
+                .select(GroupMessage::getId);
+            GroupMessage message = this.getOne(wrapper);
+            if (Objects.isNull(message)) {
+                return;
+            }
+            messageId = message.getId();
         }
         // 推送消息给自己的其他终端,同步清空会话列表中的未读数量
         GroupMessageVO msgInfo = new GroupMessageVO();
@@ -256,19 +253,27 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         // 已读消息key
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
         // 原来的已读消息位置
-        Object maxReadedId = redisTemplate.opsForHash().get(key, session.getUserId().toString());
+        Object val = redisTemplate.opsForHash().get(key, session.getUserId().toString());
+        Long maxReadedId = Objects.isNull(val) ? 0 : Long.parseLong(val.toString());
+        if (messageId.compareTo(maxReadedId) <= 0) {
+            return;
+        }
         // 记录已读消息位置
-        redisTemplate.opsForHash().put(key, session.getUserId().toString(), message.getId());
+        redisTemplate.opsForHash().put(key, session.getUserId().toString(), messageId);
         // 推送消息回执，刷新已读人数显示
-        wrapper = Wrappers.lambdaQuery();
+        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(GroupMessage::getGroupId, groupId);
         wrapper.gt(!Objects.isNull(maxReadedId), GroupMessage::getId, maxReadedId);
-        wrapper.le(!Objects.isNull(maxReadedId), GroupMessage::getId, message.getId());
+        wrapper.le(!Objects.isNull(maxReadedId), GroupMessage::getId, messageId);
         wrapper.ne(GroupMessage::getStatus, MessageStatus.RECALL.code());
         wrapper.eq(GroupMessage::getReceipt, true);
+        wrapper.last("limit 10");
         List<GroupMessage> receiptMessages = this.list(wrapper);
+        List<Long> userIds = null;
         if (CollectionUtil.isNotEmpty(receiptMessages)) {
-            List<Long> userIds = groupMemberService.findUserIdsByGroupId(groupId);
+            if (Objects.isNull(userIds)) {
+                userIds = groupMemberService.findUserIdsByGroupId(groupId);
+            }
             Map<Object, Object> maxIdMap = redisTemplate.opsForHash().entries(key);
             for (GroupMessage receiptMessage : receiptMessages) {
                 Integer readedCount =
@@ -278,6 +283,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                     receiptMessage.setReceiptOk(true);
                     this.updateById(receiptMessage);
                 }
+                // 推送给回执消息发送方，更新已读人数
                 msgInfo = new GroupMessageVO();
                 msgInfo.setId(receiptMessage.getId());
                 msgInfo.setGroupId(groupId);
@@ -286,7 +292,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
                 msgInfo.setType(MessageType.RECEIPT.code());
                 sendMessage = new IMGroupMessage<>();
                 sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
-                sendMessage.setRecvIds(userIds);
+                sendMessage.setRecvIds(List.of(receiptMessage.getSendId()));
                 sendMessage.setData(msgInfo);
                 sendMessage.setSendToSelf(false);
                 sendMessage.setSendResult(false);

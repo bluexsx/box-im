@@ -86,6 +86,9 @@ export default {
 			this.loadReadedUser()
 		},
 		loadReadedUser() {
+			if (!this.msgInfo.id) {
+				return;
+			}
 			this.readedMembers = [];
 			this.unreadMembers = [];
 			this.$http({
@@ -105,17 +108,17 @@ export default {
 						this.unreadMembers.push(member);
 					}
 				})
-                // 更新已读人数
-                let msgInfo = {
-                    id: this.msgInfo.id,
-                    groupId: this.msgInfo.groupId,
-                    readedCount: this.readedMembers.length
-                }
-                let chatInfo = {
-                    type: 'GROUP',
-                    targetId: this.msgInfo.groupId
-                }
-                this.chatStore.updateMessage(msgInfo, chatInfo)
+				// 更新已读人数
+				let msgInfo = {
+					id: this.msgInfo.id,
+					groupId: this.msgInfo.groupId,
+					readedCount: this.readedMembers.length
+				}
+				let chatInfo = {
+					type: 'GROUP',
+					targetId: this.msgInfo.groupId
+				}
+				this.chatStore.updateMessage(msgInfo, chatInfo)
 			})
 		}
 	}

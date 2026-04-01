@@ -40,7 +40,7 @@
 										<i class="el-icon-wallet"></i>
 									</file-upload>
 								</div>
-								<div title="回执消息" v-show="isGroup && memberSize <= 500"
+								<div title="回执消息" v-show="isGroup"
 									class="icon iconfont icon-receipt" :class="isReceipt ? 'chat-tool-active' : ''"
 									@click="onSwitchReceipt">
 								</div>
@@ -567,14 +567,14 @@ export default {
 		readedMessage() {
 			if (this.chat.unreadCount > 0) {
 				if (this.isGroup) {
-					var url = `/message/group/readed?groupId=${this.chat.targetId}`
+					var url = `/message/group/readed?groupId=${this.chat.targetId}&messageId=${this.maxMessageId}`
 				} else {
 					url = `/message/private/readed?friendId=${this.chat.targetId}`
 				}
 				this.$http({
 					url: url,
 					method: 'put'
-				}).then(() => {})
+				}).then(() => { })
 				this.chatStore.resetUnreadCount(this.chat)
 			}
 		},
@@ -725,17 +725,17 @@ export default {
 		getImageSize(file) {
 			return new Promise((resolve, reject) => {
 				const reader = new FileReader();
-				reader.onload = function(event) {
+				reader.onload = function (event) {
 					const img = new Image();
-					img.onload = function() {
+					img.onload = function () {
 						resolve({ width: img.width, height: img.height });
 					};
-					img.onerror = function() {
+					img.onerror = function () {
 						reject(new Error('无法加载图片'));
 					};
 					img.src = event.target.result;
 				};
-				reader.onerror = function() {
+				reader.onerror = function () {
 					reject(new Error('无法读取文件'));
 				};
 				reader.readAsDataURL(file);
@@ -800,13 +800,22 @@ export default {
 		},
 		loading() {
 			return this.chatStore.loading;
-		}
+		},
+		maxMessageId() {
+			for (let idx = this.chat.messages.length - 1; idx >= 0; idx--) {
+				const message = this.chat.messages[idx];
+				if (message.id) {
+					return message.id;
+				}
+			}
+			return 0;
+		},
 	},
 	watch: {
 		chat: {
 			handler(newChat, oldChat) {
 				if (newChat.targetId > 0 && (!oldChat || newChat.type != oldChat.type ||
-						newChat.targetId != oldChat.targetId)) {
+					newChat.targetId != oldChat.targetId)) {
 					this.userInfo = {}
 					this.group = {};
 					this.groupMembers = [];
