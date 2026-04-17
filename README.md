@@ -25,9 +25,9 @@
 
 #### 在线体验
 
-web端：https://www.boxim.online
+web端: https://www.boxim.online
 
-安卓app：下载地址:https://www.boxim.online/download/boxim.apk
+安卓app: https://www.boxim.online/download/boxim.apk
 
 ios-app: 已上架至app store,搜索"盒子IM",下载安装即可
 
