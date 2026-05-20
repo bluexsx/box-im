@@ -114,7 +114,9 @@ export default {
 				readedCount: this.readedMembers.length
 			}
 			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, this.message.groupId)
-			this.chatStore.updateMessage(convKey, message)
+			if (this.chatStore.isActive(convKey)) {
+				this.chatStore.updateMessage(convKey, message)
+			}
 		}
 	},
 	computed: {

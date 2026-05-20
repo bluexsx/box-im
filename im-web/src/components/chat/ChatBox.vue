@@ -459,14 +459,15 @@ export default {
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				let url = `/message/${this.chatTypeText()}/recall/${message.id}`
+			    const convKey = this.conversation.key;
+				const url = `/message/${this.chatTypeText()}/recall/${message.id}`
 				this.$http({
 					url: url,
 					method: 'delete'
 				}).then((m) => {
 					this.$message.success("消息已撤回");
 					m.selfSend = true;
-					this.chatStore.recallMessage(this.conversation.key, m);
+					this.chatStore.recallMessage(convKey, m);
 				})
 			});
 		},

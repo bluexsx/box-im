@@ -14,7 +14,7 @@
 
 
 
-详细文档: https://www.yuque.com/u1475064/mufu2a
+详细文档: https://www.yuque.com/u1475064/mufu2a   
 后台管理: https://gitee.com/bluexsx/box-im-admin
 
 #### 近期更新

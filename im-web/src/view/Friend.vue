@@ -115,22 +115,22 @@ export default {
 			})
 		},
 		onAddFriend(user) {
+			const friend = {
+				id: user.id,
+				nickName: user.nickName,
+				headImage: user.headImageThumb,
+				online: user.online,
+				deleted: false,
+				version: 0
+			}
 			this.$http({
 				url: "/friend/add",
 				method: "post",
 				params: {
-					friendId: user.id
+					friendId: friend.id
 				}
 			}).then(() => {
 				this.$message.success("添加成功，对方已成为您的好友");
-				const friend = {
-					id: user.id,
-					nickName: user.nickName,
-					headImage: user.headImageThumb,
-					online: user.online,
-					deleted: false,
-					version: 0
-				}
 				this.friendStore.addFriend(friend);
 			})
 		},
