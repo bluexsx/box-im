@@ -72,18 +72,18 @@ export default {
 			})
 		},
 		onAddFriend() {
+			const friend = {
+				id: this.userInfo.id,
+				nickName: this.userInfo.nickName,
+				headImage: this.userInfo.headImageThumb,
+				online: this.userInfo.online,
+				deleted: false,
+				version: 0
+			}
 			this.$http({
-				url: "/friend/add?friendId=" + this.userInfo.id,
+				url: "/friend/add?friendId=" + friend.id,
 				method: "POST"
 			}).then((data) => {
-				const friend = {
-					id: this.userInfo.id,
-					nickName: this.userInfo.nickName,
-					headImage: this.userInfo.headImageThumb,
-					online: this.userInfo.online,
-					deleted: false,
-					version: 0
-				}
 				this.friendStore.addFriend(friend);
 				uni.showToast({
 					title: '对方已成为您的好友',
@@ -125,13 +125,14 @@ export default {
 				confirmText: '确认',
 				success: async () => {
 					// 删除会话
+					const key = this.convKey;
 					const data = { chatId: this.userInfo.id }
 					await this.$http({
 						url: `/message/private/deleteChat`,
 						method: 'delete',
 						data: data
 					});
-					this.chatStore.cleanMessage(this.convKey);
+					this.chatStore.cleanMessage(key);
 					uni.showToast({
 						title: `您清空了'${this.userInfo.nickName}'的聊天记录`,
 						icon: 'none'

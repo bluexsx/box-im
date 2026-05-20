@@ -77,7 +77,9 @@ export default {
 			// 更新已读人数
 			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, this.message.groupId)
 			this.message.readedCount = this.readedMembers.length;
-			this.chatStore.updateMessage(convKey, this.message)
+			if (this.chatStore.isActive(convKey)) {
+				this.chatStore.updateMessage(convKey, this.message)
+			}
 		},
 		onClickItem(e) {
 			this.current = e.currentIndex;

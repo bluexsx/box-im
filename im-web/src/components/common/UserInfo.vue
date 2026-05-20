@@ -79,21 +79,21 @@ export default {
 			this.show = false;
 		},
 		onAddFriend() {
+			const friend = {
+				id: this.user.id,
+				nickName: this.user.nickName,
+				headImage: this.user.headImageThumb,
+				online: this.user.online,
+				deleted: false
+			}
 			this.$http({
 				url: "/friend/add",
 				method: "post",
 				params: {
-					friendId: this.user.id
+					friendId: friend.id
 				}
 			}).then(() => {
 				this.$message.success("添加成功，对方已成为您的好友");
-				let friend = {
-					id: this.user.id,
-					nickName: this.user.nickName,
-					headImage: this.user.headImageThumb,
-					online: this.user.online,
-					deleted: false
-				}
 				this.friendStore.addFriend(friend);
 			})
 		},

@@ -3,16 +3,15 @@
 		<nav-bar back>添加好友</nav-bar>
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar v-model="searchText" radius="100" :focus="true" @confirm="onSearch()"
-					@cancel="onCancel()" placeholder="用户名/昵称"></uni-search-bar>
+				<uni-search-bar v-model="searchText" radius="100" :focus="true" @confirm="onSearch()" @cancel="onCancel()"
+					placeholder="用户名/昵称"></uni-search-bar>
 			</view>
 		</view>
 		<view class="user-items">
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(user) in users" :key="user.id" v-show="user.id != userStore.userInfo.id">
 					<view class="user-item">
-						<head-image :id="user.id" :name="user.nickName" :online="user.online"
-							:url="user.headImage"></head-image>
+						<head-image :id="user.id" :name="user.nickName" :online="user.online" :url="user.headImage"></head-image>
 						<view class="user-info">
 							<view class="nick-name">
 								<view>{{ user.nickName }}</view>
@@ -53,17 +52,17 @@ export default {
 			})
 		},
 		onAddFriend(user) {
+			const friend = {
+				id: user.id,
+				nickName: user.nickName,
+				headImage: user.headImageThumb,
+				online: user.online,
+				delete: false
+			}
 			this.$http({
-				url: "/friend/add?friendId=" + user.id,
+				url: "/friend/add?friendId=" + friend.id,
 				method: "POST"
 			}).then((data) => {
-				let friend = {
-					id: user.id,
-					nickName: user.nickName,
-					headImage: user.headImageThumb,
-					online: user.online,
-					delete: false
-				}
 				this.friendStore.addFriend(friend);
 				uni.showToast({
 					title: "添加成功，对方已成为您的好友",
@@ -81,6 +80,7 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style scoped lang="scss">
@@ -141,6 +141,6 @@ export default {
 			height: 100%;
 		}
 	}
-
 }
+
 </style>

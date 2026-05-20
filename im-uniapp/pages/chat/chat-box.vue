@@ -554,13 +554,14 @@ export default {
 				title: '撤回消息',
 				content: '确认撤回消息?',
 				success: () => {
+					const convKey = this.conversation.key
 					const url = `/message/${this.chatTypeText()}/recall/${message.id}`
 					this.$http({
 						url: url,
 						method: 'DELETE'
 					}).then((m) => {
 						m.selfSend = true;
-						this.chatStore.recallMessage(this.conversation.key, m);
+						this.chatStore.recallMessage(convKey, m);
 					})
 				}
 			})
