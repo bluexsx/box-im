@@ -3,11 +3,13 @@ import VueRouter from 'vue-router'
 import Login from '../view/Login'
 import Register from '../view/Register'
 import Home from '../view/Home'
+import { isLoggedIn } from '../api/auth'
+
 // 安装路由
 Vue.use(VueRouter);
 
 // 配置导出路由
-export default new VueRouter({
+const router = new VueRouter({
   routes: [{
     path: "/",
     redirect: "/login"
@@ -47,3 +49,16 @@ export default new VueRouter({
   ]
 
 });
+
+const whiteList = ['/login', '/login/demo', '/register', '/password/reset'];
+
+router.beforeEach((to, from, next) => {
+  if (whiteList.includes(to.path) || isLoggedIn()) {
+    next();
+  } else {
+    next('/login');
+  }
+});
+
+
+export default router;

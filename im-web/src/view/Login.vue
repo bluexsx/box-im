@@ -106,28 +106,24 @@ export default {
 				});
 			});
 		},
-		tryTokenAutoLogin() {
-			if (!auth.isAutoLoginEnabled()) {
-				return;
-			}
+		autoLogin() {
+			console.log("this.isAutoLogin:",this.isAutoLogin)
 			this.submitting = true;
-			auth.refreshLogin(this.$http).then(() => {
+			auth.refreshLogin().then(() => {
 				this.$router.push("/home/chat");
 			}).catch(() => {
 				auth.clearLoginSession(true);
-				this.isAutoLogin = false;
 			}).finally(() => {
 				this.submitting = false;
 			});
 		}
 	},
 	mounted() {
-		auth.removeLegacyPassword();
-		if (localStorage.getItem("isAutoLogin") != null) {
-			this.isAutoLogin = auth.isAutoLoginEnabled();
-		}
+		this.isAutoLogin = auth.isAutoLoginEnabled();
 		this.loginForm.userName = auth.getSavedUsername();
-		this.tryTokenAutoLogin();
+		if (this.isAutoLogin) {
+			this.autoLogin();
+		}
 	}
 }
 </script>

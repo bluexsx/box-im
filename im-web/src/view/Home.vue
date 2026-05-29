@@ -623,6 +623,7 @@ export default {
 			this.configStore.setFullScreen(!this.configStore.fullScreen);
 		},
 		onExit() {
+			console.log("onExit")
 			this.unloadStore();
 			this.$wsApi.close(3000);
 			clearLoginSession(true);
