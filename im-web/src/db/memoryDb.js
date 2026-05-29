@@ -83,8 +83,8 @@ class ImMemoryDB extends DB {
 		this._convMessageMap(message.convKey).set(message.localId, message);
 	}
 
-	async findMessageById(messageId) {
-		return this.messageMap.values().find(m => m.id == messageId);
+	async findMessageById(convKey, messageId) {
+		return this._convMessages(convKey).find(m => m.id == messageId);
 	}
 
 	async findMessageByLocalId(localId) {

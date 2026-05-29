@@ -502,7 +502,7 @@ export default {
 			if (this.conversation.lastAtMessageId < 0) {
 				return;
 			}
-			const atMessage = await this.$db.findMessageById(this.conversation.lastAtMessageId);
+			const atMessage = await this.$db.findMessageById(this.conversation.key, this.conversation.lastAtMessageId);
 			if (!atMessage) {
 				this.$message.error('无法定位原消息');
 				return;

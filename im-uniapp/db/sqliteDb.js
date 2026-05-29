@@ -168,9 +168,9 @@ class ImSqliteDB extends DB {
 		`);
 	}
 
-	async findMessageById(messageId) {
+	async findMessageById(convKey, messageId) {
 		const rows = await this._selectSql(
-			`SELECT data FROM messages WHERE "id" = ${this._number(messageId)} LIMIT 1`);
+			`SELECT data FROM messages WHERE "convKey" = ${this._text(convKey)} AND "id" = ${this._number(messageId)} LIMIT 1`);
 		return rows.length ? JSON.parse(rows[0].data) : undefined;
 	}
 
