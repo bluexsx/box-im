@@ -199,7 +199,7 @@ export default {
 					const recallMessageTip = JSON.parse(m.content).tip || '';
 					let recallMessage = messageMap.get(recallMessageId);
 					if (!recallMessage) {
-						recallMessage = await this.$db.findMessageById(recallMessageId);
+						recallMessage = await this.$db.findMessageById(convKey, recallMessageId);
 						if (!recallMessage) {
 							continue;
 						}
@@ -301,7 +301,7 @@ export default {
 					const recallMessageTip = JSON.parse(m.content).tip || '';
 					let recallMessage = messageMap.get(recallMessageId);
 					if (!recallMessage) {
-						recallMessage = await this.$db.findMessageById(recallMessageId);
+						recallMessage = await this.$db.findMessageById(convKey, recallMessageId);
 						if (!recallMessage) {
 							continue;
 						}

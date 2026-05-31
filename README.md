@@ -3,7 +3,7 @@
 ![MIT协议](https://img.shields.io/badge/license-MIT-red)
 [![star](https://gitee.com/bluexsx/box-im/badge/star.svg)](https://gitee.com/bluexsx/box-im) 
 [![star](https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub)](https://github.com/bluexsx/box-im) 
-<a href="#加入交流群"><img src="https://img.shields.io/badge/QQ交流群-green.svg?style=plasticr"></a>
+<a href="#加入交流群"><img src="https://img.shields.io/badge/交流群-green.svg?style=plasticr"></a>
 
 1. 盒子IM是一个仿微信实现的网页版聊天软件，不依赖任何第三方收费组件。
 1. 支持私聊、群聊、离线消息、发送语音、图片、文件、已读未读、群@等功能
@@ -24,8 +24,7 @@
 - 好友在线状态由定时轮训改为实时推送
 
 #### 在线体验
-
-web端: https://www.boxim.online
+web端: https://www.boximchat.com
 
 安卓app: https://rs.boxim.online/download/boxim.apk
 
@@ -33,7 +32,7 @@ ios-app: 已上架至app store,搜索"盒子IM",下载安装即可
 
 小程序: 已上架至微信小程序，搜索“盒子IM”进入即可
 
-h5: https://www.boxim.online/h5/ ,或扫码：
+h5: https://www.boximchat.com/h5/ ,或扫码：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
@@ -45,6 +44,9 @@ h5: https://www.boxim.online/h5/ ,或扫码：
 3.演示环境部署的是商业版本,与开源版本功能存在一定差异，具体请参考:  
 https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29#SbvXq
 
+#### 性能测试
+压测模拟器: https://gitee.com/bluexsx/box-im-simulator  
+性能测试文档: https://www.yuque.com/u1475064/mufu2a/yhcxi9i6yqbkmm54
 
 #### 付费服务
 商业版: https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29  

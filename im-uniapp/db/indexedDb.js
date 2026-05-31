@@ -85,8 +85,12 @@ class ImIndexedDB extends DB {
 		return await this.db.messages.put(message);
 	}
 
-	async findMessageById(messageId) {
-		return await this.db.messages.where('id').equals(messageId).first();
+	async findMessageById(convKey, messageId) {
+		return await this.db.messages
+			.where('convKey')
+			.equals(convKey)
+			.filter(m => m.id == messageId)
+			.first();
 	}
 
 	async findMessageByLocalId(localId) {

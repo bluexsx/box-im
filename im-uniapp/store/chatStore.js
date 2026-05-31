@@ -481,7 +481,7 @@ export default defineStore('chatStore', {
 			// 要撤回的消息id
 			const recallMessageId = JSON.parse(message.content).id;
 			const recallMessageTip = JSON.parse(message.content).tip;
-			const recallMessage = await getDB().findMessageById(recallMessageId);
+			const recallMessage = await getDB().findMessageById(convKey, recallMessageId);
 			if (!recallMessage) {
 				return;
 			}

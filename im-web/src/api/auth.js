@@ -1,11 +1,9 @@
+import http from './httpRequest.js'
+
 const AUTO_LOGIN_KEY = 'isAutoLogin';
 const USERNAME_KEY = 'username';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 
-/** 清除旧版明文密码缓存 */
-export const removeLegacyPassword = () => {
-	localStorage.removeItem('password');
-};
 
 export const getSavedUsername = () => {
 	return localStorage.getItem(USERNAME_KEY) || '';
@@ -14,13 +12,17 @@ export const getSavedUsername = () => {
 export const isAutoLoginEnabled = () => {
 	const value = localStorage.getItem(AUTO_LOGIN_KEY);
 	if (value == null) {
-		return false;
+		return true;
 	}
 	return JSON.parse(value);
 };
 
 export const getPersistedRefreshToken = () => {
 	return localStorage.getItem(REFRESH_TOKEN_KEY) || '';
+};
+
+export const isLoggedIn = () => {
+	return !!sessionStorage.getItem('accessToken');
 };
 
 export const getRefreshToken = () => {
@@ -44,7 +46,6 @@ export const saveLoginSession = (data, { autoLogin, userName }) => {
 	} else {
 		localStorage.removeItem(REFRESH_TOKEN_KEY);
 	}
-	removeLegacyPassword();
 };
 
 /** 刷新 token 后同步更新存储 */
@@ -72,7 +73,7 @@ export const clearLoginSession = (clearAutoLogin = true) => {
 /**
  * 使用本地 refreshToken 自动登录
  */
-export const refreshLogin = (http) => {
+export const refreshLogin = () => {
 	const refreshToken = getPersistedRefreshToken();
 	if (!refreshToken) {
 		return Promise.reject(new Error('no refresh token'));

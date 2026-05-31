@@ -24,10 +24,10 @@ create table `im_friend`
     `friend_id`         bigint       not null comment '好友id',
     `friend_nick_name`  varchar(255) not null comment '好友昵称',
     `friend_head_image` varchar(255) default '' comment '好友头像',
-    `is_dnd`            tinyint comment '免打扰标识(do not disturb)  0:关闭   1:开启',
-    `deleted`           tinyint comment '删除标识  0：正常   1：已删除',
+    `is_dnd`            tinyint      default 0 comment '免打扰标识(do not disturb)  0:关闭   1:开启',
+    `deleted`           tinyint      default 0 comment '删除标识  0：正常   1：已删除',
     `created_time`      datetime     default current_timestamp comment '创建时间',
-    `version`           BIGINT       DEFAULT 0 comment '版本号',
+    `version`           BIGINT       default 0 comment '版本号',
     UNIQUE KEY `idx_user_friend_id` (`user_id`, `friend_id`),
     key                 `idx_friend_id` (`friend_id`)
 ) engine = innodb charset = utf8mb4 comment '好友';
