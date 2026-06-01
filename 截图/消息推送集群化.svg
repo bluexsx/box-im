@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .title { font: 700 28px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 400 14px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #64748B; }
+      .label { font: 600 16px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #0F172A; }
+      .small { font: 400 13px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #475569; }
+      .tiny { font: 400 11px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #64748B; }
+      .step { font: 600 10px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #64748B; }
+      .flowLabel { font: 400 12px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #475569; }
+      .code { font: 500 12px Consolas, "Microsoft YaHei", monospace; fill: #334155; }
+      .service { fill: #DBEAFE; stroke: #2563EB; stroke-width: 2; filter: url(#shadow); }
+      .redis { fill: #F5F3FF; stroke: #A78BFA; stroke-width: 2; filter: url(#shadow); }
+      .server { fill: #FEF3C7; stroke: #F59E0B; stroke-width: 1.5; }
+      .note { fill: #FFF7ED; stroke: #FDBA74; stroke-width: 1.2; }
+      .line { stroke: #CBD5E1; stroke-width: 1.2; marker-end: url(#arrow); fill: none; }
+      .blueLine { stroke: #94A3B8; stroke-width: 1.4; marker-end: url(#arrow); fill: none; }
+      .dash { stroke: #CBD5E1; stroke-width: 1.2; stroke-dasharray: 5 5; marker-end: url(#arrow); fill: none; }
+      .stepBadge { fill: #F8FAFC; stroke: #CBD5E1; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" fill="#F8FAFC"/>
+
+  <circle cx="78" cy="270" r="28" fill="#FFFFFF" stroke="#64748B" stroke-width="2"/>
+  <path d="M37 354C41 318 58 300 78 300C98 300 115 318 119 354" stroke="#64748B" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="78" y="386" text-anchor="middle" class="label">&#x5F20;&#x4E09;</text>
+  <text x="78" y="407" text-anchor="middle" class="small">id: 1</text>
+
+  <rect x="38" y="116" width="150" height="86" rx="12" class="note"/>
+  <text x="58" y="145" class="code">sendId: 1</text>
+  <text x="58" y="166" class="code">recvId: 2</text>
+  <text x="58" y="187" class="code">content: &quot;&#x4F60;&#x597D;&#x5440;&quot;</text>
+
+  <rect x="256" y="178" width="180" height="142" rx="18" class="service"/>
+  <text x="346" y="244" text-anchor="middle" class="label">im-platform</text>
+  <text x="346" y="270" text-anchor="middle" class="small">&#x6D88;&#x606F;&#x63A5;&#x5165; / &#x8DEF;&#x7531;</text>
+
+  <ellipse cx="346" cy="428" rx="72" ry="18" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+  <rect x="274" y="428" width="144" height="62" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+  <ellipse cx="346" cy="490" rx="72" ry="18" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+  <text x="346" y="467" text-anchor="middle" class="label">MySQL</text>
+  <text x="346" y="488" text-anchor="middle" class="tiny">&#x6D88;&#x606F;&#x6301;&#x4E45;&#x5316;</text>
+
+  <rect x="520" y="118" width="270" height="410" rx="18" class="redis"/>
+  <text x="655" y="151" text-anchor="middle" class="label">Redis</text>
+  <text x="655" y="174" text-anchor="middle" class="small">&#x961F;&#x5217; + &#x5728;&#x7EBF;&#x6620;&#x5C04;</text>
+
+  <rect x="548" y="202" width="214" height="54" fill="#EDE9FE" stroke="#A78BFA" rx="8"/>
+  <text x="562" y="225" class="code">im:message:private:1</text>
+  <rect x="562" y="234" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="591" y="234" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="620" y="234" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="649" y="234" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="678" y="234" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="707" y="234" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+
+  <rect x="548" y="276" width="214" height="54" fill="#EDE9FE" stroke="#A78BFA" rx="8"/>
+  <text x="562" y="299" class="code">im:message:private:2</text>
+  <rect x="562" y="308" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="591" y="308" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="620" y="308" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="649" y="308" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="678" y="308" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="707" y="308" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+
+  <rect x="548" y="350" width="214" height="54" fill="#EDE9FE" stroke="#A78BFA" rx="8"/>
+  <text x="562" y="373" class="code">im:message:private:3</text>
+  <rect x="562" y="382" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="591" y="382" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="620" y="382" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="649" y="382" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="678" y="382" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+  <rect x="707" y="382" width="25" height="14" fill="#DDD6FE" stroke="#A78BFA"/>
+
+  <rect x="548" y="450" width="214" height="44" fill="#BFDBFE" stroke="#2563EB" rx="8"/>
+  <text x="564" y="477" class="code">im:user:server:id2 = 1</text>
+
+  <rect x="862" y="152" width="214" height="298" rx="18" class="service"/>
+  <text x="969" y="187" text-anchor="middle" class="label">im-server &#x96C6;&#x7FA4;</text>
+  <text x="969" y="209" text-anchor="middle" class="small">&#x6309;&#x8282;&#x70B9;&#x6D88;&#x8D39;&#x6D88;&#x606F;&#x961F;&#x5217;</text>
+  <rect x="895" y="236" width="148" height="48" rx="10" class="server"/>
+  <text x="969" y="266" text-anchor="middle" class="label">im-server-1</text>
+  <rect x="895" y="308" width="148" height="48" rx="10" class="server"/>
+  <text x="969" y="338" text-anchor="middle" class="label">im-server-2</text>
+  <rect x="895" y="380" width="148" height="48" rx="10" class="server"/>
+  <text x="969" y="410" text-anchor="middle" class="label">im-server-3</text>
+
+  <circle cx="1194" cy="270" r="28" fill="#FFFFFF" stroke="#64748B" stroke-width="2"/>
+  <path d="M1153 354C1157 318 1174 300 1194 300C1214 300 1231 318 1235 354" stroke="#64748B" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="1194" y="386" text-anchor="middle" class="label">&#x674E;&#x56DB;</text>
+  <text x="1194" y="407" text-anchor="middle" class="small">id: 2</text>
+
+  <rect x="1100" y="116" width="150" height="86" rx="12" class="note"/>
+  <text x="1120" y="145" class="code">sendId: 1</text>
+  <text x="1120" y="166" class="code">recvId: 2</text>
+  <text x="1120" y="187" class="code">content: &quot;&#x4F60;&#x597D;&#x5440;&quot;</text>
+
+  <path d="M126 270H252" class="blueLine"/>
+  <text x="148" y="251" class="flowLabel">/send/message</text>
+  <circle cx="210" cy="270" r="10" class="stepBadge"/>
+  <text x="210" y="274" text-anchor="middle" class="step">1</text>
+
+  <path d="M346 320V410" class="blueLine"/>
+  <text x="360" y="358" class="flowLabel">&#x6D88;&#x606F;&#x5165;&#x5E93;</text>
+  <circle cx="346" cy="365" r="10" class="stepBadge"/>
+  <text x="346" y="369" text-anchor="middle" class="step">2</text>
+
+  <circle cx="486" cy="394" r="10" class="stepBadge"/>
+  <text x="486" y="398" text-anchor="middle" class="step">3</text>
+  <path d="M436 302C486 338 516 414 548 472" class="blueLine"/>
+  <text x="430" y="376" class="flowLabel">&#x67E5;&#x8BE2;&#x63A5;&#x6536;&#x65B9;&#x6240;&#x5728;&#x8282;&#x70B9;</text>
+
+  <path d="M520 474C482 470 456 444 438 404" class="dash"/>
+  <text x="444" y="460" class="tiny">&#x5728;&#x7EBF;&#x6620;&#x5C04;&#x8FD4;&#x56DE; serverId=1</text>
+
+  <path d="M436 229H548" class="blueLine"/>
+  <text x="450" y="211" class="flowLabel">&#x6295;&#x9012;&#x5230;&#x76EE;&#x6807;&#x8282;&#x70B9;&#x961F;&#x5217;</text>
+  <circle cx="494" cy="229" r="10" class="stepBadge"/>
+  <text x="494" y="233" text-anchor="middle" class="step">4</text>
+
+  <circle cx="826" cy="229" r="10" class="stepBadge"/>
+  <text x="826" y="233" text-anchor="middle" class="step">5</text>
+  <path d="M762 229L895 260" class="blueLine"/>
+  <text x="795" y="213" class="flowLabel">pull</text>
+  <path d="M762 303L895 332" class="line"/>
+  <text x="795" y="287" class="flowLabel">pull</text>
+  <path d="M762 377L895 404" class="line"/>
+  <text x="795" y="361" class="flowLabel">pull</text>
+
+  <circle cx="1100" cy="270" r="10" class="stepBadge"/>
+  <text x="1100" y="274" text-anchor="middle" class="step">6</text>
+  <path d="M1043 270C1080 270 1108 270 1166 270" class="blueLine"/>
+  <text x="1060" y="251" class="flowLabel">ws &#x63A8;&#x9001;</text>
+</svg>
