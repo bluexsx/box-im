@@ -4,8 +4,7 @@
 		<nav-bar add search @add="onAddNewFriends" @search="showSearch = !showSearch">好友</nav-bar>
 		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
-				<uni-search-bar v-model="searchText" radius="100" cancelButton="none"
-					placeholder="点击搜索好友"></uni-search-bar>
+				<uni-search-bar v-model="searchText" radius="100" cancelButton="none" placeholder="点击搜索好友"></uni-search-bar>
 			</view>
 		</view>
 		<view class="friend-tip" v-if="!hasFriends">
@@ -17,11 +16,16 @@
 			<button type="primary" @click="onAddNewFriends">添加好友</button>
 		</view>
 		<view class="friend-items" v-else>
-			<up-index-list :index-list="friendIdx" :sticky="false" :custom-nav-height="customNavHeight">
+			<view v-if="!isReady" class="friend-loading">
+				<custom-loading :size="50" :mask="false">
+					<view>正在加载...</view>
+				</custom-loading> 
+			</view>
+			<up-index-list v-else :index-list="friendIdx" :sticky="false" :custom-nav-height="customNavHeight">
 				<template v-for="(friends, i) in friendGroups">
 					<up-index-item>
 						<up-index-anchor :text="friendIdx[i] == '*' ? '在线' : friendIdx[i]"></up-index-anchor>
-						<view v-for="(friend, idx) in friends" :key="idx">
+						<view v-for="(friend, idx) in friends" :key="friend.id">
 							<friend-item :friend="friend"></friend-item>
 						</view>
 					</up-index-item>
@@ -33,12 +37,12 @@
 
 <script>
 import { pinyin } from 'pinyin-pro';
-
 export default {
 	data() {
 		return {
 			showSearch: false,
-			searchText: ''
+			searchText: '',
+			isReady: false
 		}
 	},
 	methods: {
@@ -64,7 +68,7 @@ export default {
 		friendGroupMap() {
 			// 按首字母分组
 			let groupMap = new Map();
-			this.friendStore.friends.forEach((f) => {
+			this.friends.forEach((f) => {
 				if (f.deleted || (this.searchText && !f.nickName.includes(this.searchText))) {
 					return;
 				}
@@ -100,6 +104,9 @@ export default {
 		friendGroups() {
 			return Array.from(this.friendGroupMap.values());
 		},
+		friends() {
+			return this.friendStore.friends.filter(f => !f.deleted);
+		},
 		hasFriends() {
 			return this.friendStore.friends.some(f => !f.deleted);
 		},
@@ -110,8 +117,14 @@ export default {
 			// #endif
 			return h;
 		}
+	},
+	onLoad() {
+		// 好友数量大于100时，增加加载提示
+		this.isReady = this.friends.length < 100;
+		setTimeout(() => this.isReady = true, 30)
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
@@ -182,6 +195,13 @@ export default {
 		padding: 0;
 		overflow: hidden;
 		position: relative;
+
+		.friend-loading {
+			display: block;
+			width: 100%;
+			min-height: 200rpx;
+			color: $im-text-color-lighter;
+		}
 
 		.scroll-bar {
 			height: 100%;

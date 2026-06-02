@@ -29,5 +29,20 @@ jwt:
     expireIn: 604800 #7天
     secret: IKDiqVmn0VFU
 
+# 登录拦截器放行的 URL
+auth-interceptor:
+  exclude-paths:
+    - /login
+    - /logout
+    - /register
+    - /refreshToken
+    - /*/upload
+    - /swagger/**
+    - /v3/api-docs/**
+    - /swagger-resources/**
+    - /swagger-ui.html
+    - /swagger-ui/**
+    - /doc.html
+
 
 
