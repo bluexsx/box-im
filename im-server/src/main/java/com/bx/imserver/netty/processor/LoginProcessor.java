@@ -46,7 +46,7 @@ public class LoginProcessor extends AbstractMessageProcessor<IMLoginInfo> {
         Long userId = sessionInfo.getUserId();
         Integer terminal = sessionInfo.getTerminal();
         log.info("用户登录，userId:{}", userId);
-        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
+        String key = IMRedisKey.userServerIdKey(userId, terminal);
         Object serverId = redisMQTemplate.opsForValue().get(key);
         if (!Objects.isNull(serverId)) {
             // 用户已在线，强制使其下线
