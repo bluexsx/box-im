@@ -30,10 +30,10 @@ public class IMSender {
 
     public <T> void sendSystemMessage(IMSystemMessage<T> message) {
         // 根据群聊每个成员所连的IM-server，进行分组
-        Map<String, IMUserInfo> sendMap = new HashMap<>();
+        Map<String, IMUserInfo> sendMap = new LinkedHashMap<>();
         for (Integer terminal : message.getRecvTerminals()) {
             message.getRecvIds().forEach(id -> {
-                String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
+                String key = IMRedisKey.userServerIdKey(id, terminal);
                 sendMap.put(key, new IMUserInfo(id, terminal));
             });
         }
@@ -98,7 +98,7 @@ public class IMSender {
         if (!CollUtil.isEmpty(recvIds) && !CollUtil.isEmpty(recvTerminals)) {
             for (Integer terminal : recvTerminals) {
                 for (Long id : recvIds) {
-                    String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
+                    String key = IMRedisKey.userServerIdKey(id, terminal);
                     recvKeyToUser.put(key, new IMUserInfo(id, terminal));
                 }
             }
@@ -114,7 +114,7 @@ public class IMSender {
                 if (terminal.equals(sender.getTerminal())) {
                     continue;
                 }
-                selfKeys.add(String.join(":", IMRedisKey.IM_USER_SERVER_ID, senderId.toString(), terminal.toString()));
+                selfKeys.add(IMRedisKey.userServerIdKey(senderId, terminal));
                 selfOtherTerminals.add(terminal);
             }
         }
@@ -179,7 +179,7 @@ public class IMSender {
         if (!CollUtil.isEmpty(recvIds) && !CollUtil.isEmpty(recvTerminals)) {
             for (Integer terminal : recvTerminals) {
                 for (Long id : recvIds) {
-                    String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
+                    String key = IMRedisKey.userServerIdKey(id, terminal);
                     recvKeyToUser.put(key, new IMUserInfo(id, terminal));
                 }
             }
@@ -195,7 +195,7 @@ public class IMSender {
                 if (terminal.equals(sender.getTerminal())) {
                     continue;
                 }
-                selfKeys.add(String.join(":", IMRedisKey.IM_USER_SERVER_ID, senderId.toString(), terminal.toString()));
+                selfKeys.add(IMRedisKey.userServerIdKey(senderId, terminal));
                 selfOtherTerminals.add(terminal);
             }
         }
@@ -256,10 +256,10 @@ public class IMSender {
             return Collections.emptyMap();
         }
         // 把所有用户的key都存起来
-        Map<String, IMUserInfo> userMap = new HashMap<>();
+        Map<String, IMUserInfo> userMap = new LinkedHashMap<>();
         for (Long id : userIds) {
             for (Integer terminal : IMTerminalType.codes()) {
-                String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, id.toString(), terminal.toString());
+                String key = IMRedisKey.userServerIdKey(id, terminal);
                 userMap.put(key, new IMUserInfo(id, terminal));
             }
         }
@@ -291,13 +291,17 @@ public class IMSender {
     }
 
     public Boolean isOnline(Long userId, IMTerminalType terminal) {
-        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.code().toString());
+        String key = IMRedisKey.userServerIdKey(userId, terminal.code());
         return redisMQTemplate.hasKey(key);
     }
 
     public Boolean isOnline(Long userId) {
-        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), "*");
-        return !Objects.requireNonNull(redisMQTemplate.keys(key)).isEmpty();
+        List<String> keys = new ArrayList<>(IMTerminalType.codes().size());
+        for (Integer terminal : IMTerminalType.codes()) {
+            keys.add(IMRedisKey.userServerIdKey(userId, terminal));
+        }
+        Long count = redisMQTemplate.countExistingKeys(keys);
+        return count != null && count > 0;
     }
 
     public List<Long> getOnlineUser(List<Long> userIds) {

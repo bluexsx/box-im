@@ -70,7 +70,7 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
         AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
         Integer terminal = ctx.channel().attr(terminalAttr).get();
         ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId, terminal);
-        String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
+        String key = IMRedisKey.userServerIdKey(userId, terminal);
         RedisMQTemplate redisTemplate = SpringContextHolder.getBean(RedisMQTemplate.class);
         Object serverId = redisTemplate.opsForValue().get(key);
         // 判断一下，避免异地登录导致的误删

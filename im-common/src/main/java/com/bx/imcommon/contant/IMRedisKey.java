@@ -11,6 +11,14 @@ public final class IMRedisKey {
      * 用户ID所连接的IM-server的ID
      */
     public static final String  IM_USER_SERVER_ID = "im:user:server_id";
+
+    /**
+     * 同用户多终端共 slot，保证单用户查询在线不会分发到多个节点，提升性能
+     */
+    public static String userServerIdKey(Long userId, Integer terminal) {
+        return String.join(":", IM_USER_SERVER_ID, "{" + userId + "}", terminal.toString());
+    }
+
     /**
      * 系统消息队列
      */

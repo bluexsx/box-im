@@ -40,7 +40,7 @@ public class HeartbeatProcessor extends AbstractMessageProcessor<IMHeartbeatInfo
             Long userId = ctx.channel().attr(userIdAttr).get();
             AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
             Integer terminal = ctx.channel().attr(terminalAttr).get();
-            String key = String.join(":", IMRedisKey.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
+            String key = IMRedisKey.userServerIdKey(userId, terminal);
             redisMQTemplate.expire(key, IMConstant.ONLINE_TIMEOUT_SECOND, TimeUnit.SECONDS);
         }
         AttributeKey<Long> userIdAttr = AttributeKey.valueOf(ChannelAttrKey.USER_ID);
