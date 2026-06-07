@@ -8,7 +8,11 @@
 		}
 	},
 	"pages": [{
-			"path": "pages/chat/chat"
+			"path": "pages/chat/chat",
+			"app-plus": {
+				"disableScroll": true,
+				"bounce": "none"
+			}
 		}, {
 			"path": "pages/login/login"
 		},
@@ -35,7 +39,9 @@
 				},
 				"app-plus": {
 					// adjustPan窗体高度不变，但窗体上推、adjustResize屏幕高度=webview窗体高度+软键盘高度
-					"softinputMode": "adjustResize"
+					"softinputMode": "adjustResize",
+					"disableScroll": true,
+					"bounce": "none"
 				}
 			}
 		},
