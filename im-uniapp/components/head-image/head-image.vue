@@ -29,7 +29,8 @@ export default {
 			default: 'default'
 		},
 		url: {
-			type: String
+			type: String,
+			default: ''
 		},
 		name: {
 			type: String,

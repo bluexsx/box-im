@@ -253,6 +253,7 @@ export default defineStore('chatStore', {
 			const minSeqNo = Math.max(1, conv.minSeqNo, this.minSeqNo - size);
 			const maxSeqNo = this.minSeqNo - 1;
 			if (maxSeqNo < minSeqNo) {
+				this.hasMoreLastMessage = false;
 				return;
 			}
 			let messages = await getDB().findPageMessage(convKey, minSeqNo, maxSeqNo);
