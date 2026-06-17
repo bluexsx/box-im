@@ -256,6 +256,7 @@ export default defineStore('chatStore', {
 				this.hasMoreLastMessage = false;
 				return;
 			}
+			this.loadingMessage = true;
 			let messages = await getDB().findPageMessage(convKey, minSeqNo, maxSeqNo);
 			messages = await this.reloadSendingMessage(convKey, messages);
 			messages = await this.reloadMissMessage(convKey, minSeqNo, maxSeqNo, messages);
@@ -273,7 +274,7 @@ export default defineStore('chatStore', {
 			}
 			// 防止用户删除了过多消息导致滚动条不出来
 			if (this.messages.length < 20) {
-				await this.loadLastPageMessage(convKey, 20);
+				await this.loadLastPageMessage(convKey, 30);
 				return;
 			}
 			if (scrollLocalId) {
@@ -314,7 +315,7 @@ export default defineStore('chatStore', {
 			this.loadingMessage = false;
 			// 防止用户删除了过多消息导致滚动条不出来
 			if (this.messages.length < 20) {
-				await this.loadNextPageMessage(convKey, 20);
+				await this.loadNextPageMessage(convKey, 30);
 			}
 		},
 		// 定位消息
@@ -341,8 +342,8 @@ export default defineStore('chatStore', {
 			this.loadingMessage = false;
 			// 防止用户删除了过多消息导致滚动条不出来
 			if (this.messages.length < 20) {
-				await this.loadLastPageMessage(convKey, 10);
-				await this.loadNextPageMessage(convKey, 10);
+				await this.loadLastPageMessage(convKey, 20);
+				await this.loadNextPageMessage(convKey, 20);
 			}
 		},
 		// 拉取正在发送中的消息
