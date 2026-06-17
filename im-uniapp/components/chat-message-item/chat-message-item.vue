@@ -79,11 +79,11 @@ export default {
 	props: {
 		headImage: {
 			type: String,
-			required: true
+			default: ''
 		},
 		showName: {
 			type: String,
-			required: true
+			default: ''
 		},
 		conversation: {
 			type: Object,

@@ -251,17 +251,18 @@ export default defineStore('chatStore', {
 			const minSeqNo = Math.max(1, conv.minSeqNo, this.minSeqNo - size);
 			const maxSeqNo = this.minSeqNo - 1;
 			if (maxSeqNo < minSeqNo) {
+				this.hasMoreLastMessage = false;
 				return;
 			}
 			this.loadingMessage = true;
 			let messages = await getDB().findPageMessage(convKey, minSeqNo, maxSeqNo);
 			messages = await this.reloadSendingMessage(convKey, messages);
 			messages = await this.reloadMissMessage(convKey, minSeqNo, maxSeqNo, messages);
+			this.refreshAtMessage(convKey, messages);
+			this.hasMoreLastMessage = minSeqNo > 1 && messages.length > 0;
 			messages = this.filterInvalidMessage(convKey, messages);
 			messages = this.appendTimeTipMessage(convKey, messages);
 			this.messages.unshift(...messages);
-			this.refreshAtMessage(convKey, messages);
-			this.hasMoreLastMessage = minSeqNo > 1 && messages.length > 0;
 			this.minSeqNo = minSeqNo;
 			this.loadingMessage = false;
 			// 如果上方已无可拉取的消息，标记最小消息序号，避免下次重复拉取
@@ -270,7 +271,7 @@ export default defineStore('chatStore', {
 			}
 			// 防止用户删除了过多消息导致滚动条不出来
 			if (this.messages.length < 20) {
-				await this.loadLastPageMessage(convKey, 20);
+				await this.loadLastPageMessage(convKey, 30);
 			}
 		},
 		// 拉取下一页消息
@@ -289,16 +290,16 @@ export default defineStore('chatStore', {
 			let messages = await getDB().findPageMessage(convKey, minSeqNo, maxSeqNo);
 			messages = await this.reloadSendingMessage(convKey, messages);
 			messages = await this.reloadMissMessage(convKey, minSeqNo, maxSeqNo, messages);
+			this.refreshAtMessage(convKey, messages);
+			this.hasMoreNextMessage = maxSeqNo < conv.maxSeqNo && messages.length > 0;
 			messages = this.filterInvalidMessage(convKey, messages);
 			messages = this.appendTimeTipMessage(convKey, messages);
 			this.messages.push(...messages);
-			this.refreshAtMessage(convKey, messages);
-			this.hasMoreNextMessage = maxSeqNo < conv.maxSeqNo && messages.length > 0;
 			this.maxSeqNo = maxSeqNo;
 			this.loadingMessage = false;
 			// 防止用户删除了过多消息导致滚动条不出来
 			if (this.messages.length < 20) {
-				await this.loadNextPageMessage(convKey, 20);
+				await this.loadNextPageMessage(convKey, 30);
 			}
 		},
 		// 定位消息
@@ -313,20 +314,20 @@ export default defineStore('chatStore', {
 			this.loadingMessage = true;
 			let messages = await getDB().findPageMessage(convKey, minSeqNo, maxSeqNo);
 			messages = await this.reloadSendingMessage(convKey, messages);
+			this.refreshAtMessage(convKey, this.messages);
+			this.hasMoreLastMessage = minSeqNo > 1 && messages.length > 0;
+			this.hasMoreNextMessage = maxSeqNo < conv.maxSeqNo && messages.length > 0;			
 			messages = await this.reloadMissMessage(convKey, minSeqNo, maxSeqNo, messages);
 			messages = this.filterInvalidMessage(convKey, messages);
 			messages = this.appendTimeTipMessage(convKey, messages);
 			this.messages = messages;
-			this.refreshAtMessage(convKey, this.messages);
-			this.hasMoreLastMessage = minSeqNo > 1 && messages.length > 0;
-			this.hasMoreNextMessage = maxSeqNo < conv.maxSeqNo && messages.length > 0;
 			this.maxSeqNo = maxSeqNo;
 			this.minSeqNo = minSeqNo;
 			this.loadingMessage = false;
 			// 防止用户删除了过多消息导致滚动条不出来
 			if (this.messages.length < 20) {
-				await this.loadLastPageMessage(convKey, 10);
-				await this.loadNextPageMessage(convKey, 10);
+				await this.loadLastPageMessage(convKey, 20);
+				await this.loadNextPageMessage(convKey, 20);
 			}
 		},
 		// 拉取正在发送中的消息

@@ -1,12 +1,12 @@
 <template>
 	<view class="page chat-box" id="chatBox">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
-		<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
-			<view class="chat-message" @click="switchChatTabBox('none')">
-				<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
-					@scrolltolower="onScrollToBottom" :scroll-into-view="'m-' + chatStore.scrollMessageLocalId">
-					<view v-if="conversation" class="chat-wrap">
-						<long-press-menu ref="messageMenu" @select="onSelectMessageMenu">
+		<long-press-menu ref="messageMenu" @select="onSelectMessageMenu">
+			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
+				<view class="chat-message" @click="switchChatTabBox('none')">
+					<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
+						@scrolltolower="onScrollToBottom" :scroll-into-view="'m-' + chatStore.scrollMessageLocalId">
+						<view v-if="conversation" class="chat-wrap">
 							<view v-for="m in messages" :key="m.localId">
 								<chat-message-item :ref="m.localId" :id="'m-' +m.localId" :active="m.localId == activeMessageLocalId"
 									:headImage="headImage(m)" :showName="showName(m)" @call="onRtCall(m)" @resend="onResendMessage"
@@ -14,105 +14,105 @@
 									:conversation="conversation" :message="m" @longPressMenu="onShowMessageMenu">
 								</chat-message-item>
 							</view>
-						</long-press-menu>
-					</view>
-				</scroll-view>
-				<view v-if="conversation.atMe || conversation.atAll" class="locate-tip" @click="scrollToAtMessage">
-					有人@我
-				</view>
-				<view v-else-if="!chatStore.isInBottom" class="locate-tip" @click="onClickToBottom">
-					{{ chatStore.newMessageSize > 0 ? chatStore.newMessageSize+'条新消息' :'回到底部' }}
-				</view>
-			</view>
-			<view v-if="atUserIds.length > 0" class="chat-at-bar" @click="openAtBox()">
-				<view class="iconfont icon-at">&nbsp;</view>
-				<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
-					<view class="chat-at-items">
-						<view v-for="m in atUserItems" class="chat-at-item" :key="m.userId">
-							<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
 						</view>
+					</scroll-view>
+					<view v-if="conversation.atMe || conversation.atAll" class="locate-tip" @click="scrollToAtMessage">
+						有人@我
+					</view>
+					<view v-else-if="!chatStore.isInBottom" class="locate-tip" @click="onClickToBottom">
+						{{ chatStore.newMessageSize > 0 ? chatStore.newMessageSize+'条新消息' :'回到底部' }}
+					</view>
+				</view>
+				<view v-if="atUserIds.length > 0" class="chat-at-bar" @click="openAtBox()">
+					<view class="iconfont icon-at">&nbsp;</view>
+					<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
+						<view class="chat-at-items">
+							<view v-for="m in atUserItems" class="chat-at-item" :key="m.userId">
+								<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
+							</view>
+						</view>
+					</scroll-view>
+				</view>
+				<view class="send-bar">
+					<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
+					<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
+					<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
+					<view v-else class="send-text">
+						<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''" :read-only="isReadOnly"
+							@focus="onEditorFocus" @ready="onEditorReady" @input="onTextInput">
+						</editor>
+					</view>
+					<view v-if="isGroup" class="iconfont icon-at" @click="openAtBox()"></view>
+					<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
+					<view v-if="isEmpty" class="iconfont icon-add" @click="onShowToolsChatTab()">
+					</view>
+					<button v-if="!isEmpty || atUserIds.length" class="btn-send" type="primary"
+						@touchend.prevent="sendTextMessage()" size="mini">发送</button>
+					<view class="chat-editer-mask" v-if="notAllowInputTip">
+						<text class="icon iconfont icon-warning-circle-empty"></text>
+						<text>{{ notAllowInputTip }}</text>
+					</view>
+				</view>
+			</view>
+			<view class="chat-tab-bar">
+				<scroll-view v-if="chatTabBox == 'tools'" class="chat-tools" :style="{height: keyboardHeight+'px'}">
+					<view class="chat-tools-list">
+						<view class="chat-tools-item">
+							<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
+								:onError="onUploadFileFail">
+								<view class="tool-icon iconfont icon-folder"></view>
+							</file-upload>
+							<view class="tool-name">文件</view>
+						</view>
+						<view class="chat-tools-item">
+							<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
+								:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
+								<view class="tool-icon iconfont icon-picture"></view>
+							</image-upload>
+							<view class="tool-name">相册</view>
+						</view>
+						<view class="chat-tools-item">
+							<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
+								:onError="onUploadImageFail">
+								<view class="tool-icon iconfont icon-camera"></view>
+							</image-upload>
+							<view class="tool-name">拍摄</view>
+						</view>
+						<view class="chat-tools-item" @click="onRecorderInput()">
+							<view class="tool-icon iconfont icon-microphone"></view>
+							<view class="tool-name">语音消息</view>
+						</view>
+						<view v-if="isGroup" class="chat-tools-item" @click="switchReceipt()">
+							<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
+							<view class="tool-name">回执消息</view>
+						</view>
+						<!-- #ifndef MP-WEIXIN -->
+						<!-- 音视频不支持小程序 -->
+						<view v-if="isPrivate" class="chat-tools-item" @click="onPriviteVideo()">
+							<view class="tool-icon iconfont icon-video"></view>
+							<view class="tool-name">视频通话</view>
+						</view>
+						<view v-if="isPrivate" class="chat-tools-item" @click="onPriviteVoice()">
+							<view class="tool-icon iconfont icon-call"></view>
+							<view class="tool-name">语音通话</view>
+						</view>
+						<view v-if="isGroup" class="chat-tools-item" @click="onGroupVideo()">
+							<view class="tool-icon iconfont icon-call"></view>
+							<view class="tool-name">语音通话</view>
+						</view>
+						<!-- #endif -->
+					</view>
+				</scroll-view>
+				<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
+					:style="{height: keyboardHeight+'px'}">
+					<view class="emotion-item-list">
+						<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
+							v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
+							lazy-load="true"></image>
 					</view>
 				</scroll-view>
 			</view>
-			<view class="send-bar">
-				<view v-if="!showRecord" class="iconfont icon-voice-circle" @click="onRecorderInput()"></view>
-				<view v-else class="iconfont icon-keyboard" @click="onKeyboardInput()"></view>
-				<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
-				<view v-else class="send-text">
-					<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''" :read-only="isReadOnly"
-						@focus="onEditorFocus" @ready="onEditorReady" @input="onTextInput">
-					</editor>
-				</view>
-				<view v-if="isGroup" class="iconfont icon-at" @click="openAtBox()"></view>
-				<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
-				<view v-if="isEmpty" class="iconfont icon-add" @click="onShowToolsChatTab()">
-				</view>
-				<button v-if="!isEmpty || atUserIds.length" class="btn-send" type="primary"
-					@touchend.prevent="sendTextMessage()" size="mini">发送</button>
-				<view class="chat-editer-mask" v-if="notAllowInputTip">
-					<text class="icon iconfont icon-warning-circle-empty"></text>
-					<text>{{ notAllowInputTip }}</text>
-				</view>
-			</view>
-		</view>
-		<view class="chat-tab-bar">
-			<scroll-view v-if="chatTabBox == 'tools'" class="chat-tools" :style="{height: keyboardHeight+'px'}">
-				<view class="chat-tools-list">
-					<view class="chat-tools-item">
-						<file-upload ref="fileUpload" :onBefore="onUploadFileBefore" :onSuccess="onUploadFileSuccess"
-							:onError="onUploadFileFail">
-							<view class="tool-icon iconfont icon-folder"></view>
-						</file-upload>
-						<view class="tool-name">文件</view>
-					</view>
-					<view class="chat-tools-item">
-						<image-upload :maxCount="9" sourceType="album" :onBefore="onUploadImageBefore"
-							:onSuccess="onUploadImageSuccess" :onError="onUploadImageFail">
-							<view class="tool-icon iconfont icon-picture"></view>
-						</image-upload>
-						<view class="tool-name">相册</view>
-					</view>
-					<view class="chat-tools-item">
-						<image-upload sourceType="camera" :onBefore="onUploadImageBefore" :onSuccess="onUploadImageSuccess"
-							:onError="onUploadImageFail">
-							<view class="tool-icon iconfont icon-camera"></view>
-						</image-upload>
-						<view class="tool-name">拍摄</view>
-					</view>
-					<view class="chat-tools-item" @click="onRecorderInput()">
-						<view class="tool-icon iconfont icon-microphone"></view>
-						<view class="tool-name">语音消息</view>
-					</view>
-					<view v-if="isGroup" class="chat-tools-item" @click="switchReceipt()">
-						<view class="tool-icon iconfont icon-receipt" :class="isReceipt ? 'active' : ''"></view>
-						<view class="tool-name">回执消息</view>
-					</view>
-					<!-- #ifndef MP-WEIXIN -->
-					<!-- 音视频不支持小程序 -->
-					<view v-if="isPrivate" class="chat-tools-item" @click="onPriviteVideo()">
-						<view class="tool-icon iconfont icon-video"></view>
-						<view class="tool-name">视频通话</view>
-					</view>
-					<view v-if="isPrivate" class="chat-tools-item" @click="onPriviteVoice()">
-						<view class="tool-icon iconfont icon-call"></view>
-						<view class="tool-name">语音通话</view>
-					</view>
-					<view v-if="isGroup" class="chat-tools-item" @click="onGroupVideo()">
-						<view class="tool-icon iconfont icon-call"></view>
-						<view class="tool-name">语音通话</view>
-					</view>
-					<!-- #endif -->
-				</view>
-			</scroll-view>
-			<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
-				:style="{height: keyboardHeight+'px'}">
-				<view class="emotion-item-list">
-					<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
-						v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
-						lazy-load="true"></image>
-				</view>
-			</scroll-view>
-		</view>
+		</long-press-menu>
 		<!-- @用户时选择成员 -->
 		<chat-at-box ref="atBox" :ownerId="group.ownerId" :members="groupMembers" @complete="onAtComplete"></chat-at-box>
 		<!-- 群语音通话时选择成员 -->

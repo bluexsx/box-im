@@ -1,8 +1,11 @@
 import DB from "./db.js";
 
 const DB_NAME_PREFIX = 'im-app-';
+const MAX_MESSAGES_PER_CONV = 50;
+
 /**
  * storage版会话与消息存储，API 与 Dexie 版 indexDb 一致
+ * 每个会话消息独立存储，key = dbName + '-' + convKey，最多保留50条
  */
 class ImStorageDB extends DB {
 	constructor() {
@@ -27,6 +30,7 @@ class ImStorageDB extends DB {
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
 		this.userId = null;
+		this.dbName = '';
 	}
 
 	async loadAllConversations() {
@@ -35,15 +39,8 @@ class ImStorageDB extends DB {
 
 	async deleteConversationByKey(convKey) {
 		this.conversationMap.delete(convKey);
-		const convMessages = this.convMessageMap.get(convKey);
-		if (!convMessages) {
-			return;
-		}
-		for (const localId of convMessages.keys()) {
-			this.messageMap.delete(localId);
-		}
-		this.convMessageMap.delete(convKey);
-		this._saveToStorage();
+		this._removeConvMessages(convKey);
+		this._saveConversations();
 	}
 
 	async findConversationByKey(key) {
@@ -52,20 +49,20 @@ class ImStorageDB extends DB {
 
 	async saveConversation(conversation) {
 		this.conversationMap.set(conversation.key, conversation);
-		this._saveToStorage();
+		this._saveConversations();
 	}
 
 	async saveConversationAndMessage(conversations, messages) {
+		for (const m of messages) {
+			const convMessages = this._convMessageMap(m.convKey);
+			convMessages.set(m.localId, m)
+		}
 		for (const c of conversations) {
 			this.conversationMap.set(c.key, c);
+			this._saveConvMessages(c.key);
 		}
-		for (const m of messages) {
-			this.messageMap.set(m.localId, m);
-			this._convMessageMap(m.convKey).set(m.localId, m);
-		}
-		this._saveToStorage();
+		this._saveConversations();
 	}
-
 
 	async deleteMessageByLocalId(localId) {
 		const message = this.messageMap.get(localId);
@@ -80,26 +77,24 @@ class ImStorageDB extends DB {
 		convMessages.delete(localId);
 		if (!convMessages.size) {
 			this.convMessageMap.delete(message.convKey);
+			uni.removeStorageSync(this._convStorageKey(message.convKey));
+		} else {
+			this._saveConvMessages(message.convKey);
 		}
 	}
 
 	async deleteMessageByConvKey(convKey) {
-		const convMessages = this.convMessageMap.get(convKey);
-		if (!convMessages) {
-			return;
-		}
-		for (const localId of convMessages.keys()) {
-			this.messageMap.delete(localId);
-		}
-		this.convMessageMap.delete(convKey);
+		this._removeConvMessages(convKey);
 	}
 
 	async saveMessage(message) {
+		const convMessages = this._convMessageMap(message.convKey);
+		convMessages.set(message.localId, message);
 		this.messageMap.set(message.localId, message);
-		this._convMessageMap(message.convKey).set(message.localId, message);
+		this._saveConvMessages(message.convKey);
 	}
 
-	async findMessageById(convKey, messageId) {
+	async findMessageById(messageId, convKey) {
 		return this._convMessages(convKey).find(m => m.id == messageId);
 	}
 
@@ -142,17 +137,73 @@ class ImStorageDB extends DB {
 
 	async findLastSyncGroupsTime(friends) { return 0; }
 
+	_convStorageKey(convKey) {
+		return this.dbName + '-' + convKey;
+	}
+
 	_loadFromStorage() {
 		const conversations = uni.getStorageSync(this.dbName) || [];
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
-		conversations.forEach(conv => this.conversationMap.set(conv.key, conv))
+		conversations.forEach(conv => {
+			this.conversationMap.set(conv.key, conv);
+			const messages = uni.getStorageSync(this._convStorageKey(conv.key)) || [];
+			if (!messages.length) {
+				return;
+			}
+			const convMessages = new Map();
+			messages.forEach(m => {
+				convMessages.set(m.localId, m);
+				this.messageMap.set(m.localId, m);
+			});
+			this.convMessageMap.set(conv.key, convMessages);
+		});
+	}
+
+	_saveConversations() {
+		uni.setStorageSync(this.dbName, Array.from(this.conversationMap.values()));
+	}
+
+	_sortMessages(messages) {
+		return messages.sort((a, b) => {
+			if (a.seqNo !== b.seqNo) {
+				return a.seqNo - b.seqNo;
+			}
+			return a.sendTime - b.sendTime;
+		});
+	}
+
+	_trimToLast(messages) {
+		const sorted = this._sortMessages([...messages]);
+		if (sorted.length <= MAX_MESSAGES_PER_CONV) {
+			return sorted;
+		}
+		return sorted.slice(-MAX_MESSAGES_PER_CONV);
+	}
+
+	_saveConvMessages(convKey) {
+		const messages = this._convMessages(convKey)
+		const trimMessages= this._trimToLast(messages);
+		const storageKey = this._convStorageKey(convKey);
+		if (trimMessages.length) {
+			uni.setStorageSync(storageKey, trimMessages);
+		} else {
+			uni.removeStorageSync(storageKey);
+		}
 	}
 
 
-	_saveToStorage() {
-		uni.setStorageSync(this.dbName, Array.from(this.conversationMap.values()));
+	_removeConvMessages(convKey) {
+		const convMessages = this.convMessageMap.get(convKey);
+		if (!convMessages) {
+			return;
+		}
+		for (const localId of convMessages.keys()) {
+			this.messageMap.delete(localId);
+		}
+		this.convMessageMap.delete(convKey);
+		uni.removeStorageSync(this._convStorageKey(convKey));
 	}
 
 	_convMessageMap(convKey) {
