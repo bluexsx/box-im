@@ -1,4 +1,4 @@
-import DB from "./db.js";
+import DB, { RECENT_EMOJI_MAX } from "./db.js";
 
 /**
  * 内存版会话与消息存储，API 与 Dexie 版 indexDb 一致
@@ -9,6 +9,7 @@ class ImMemoryDB extends DB {
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
+		this.recentEmojiList = [];
 	}
 
 	open(userId) {
@@ -16,12 +17,14 @@ class ImMemoryDB extends DB {
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
+		this.recentEmojiList = [];
 	}
 
 	close() {
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
+		this.recentEmojiList = [];
 		this.userId = null;
 	}
 
@@ -125,6 +128,17 @@ class ImMemoryDB extends DB {
 	async syncAllGroups(groups) { }
 
 	async findLastSyncGroupsTime(groups) { return 0; }
+
+	async findRecentEmojis(limit = RECENT_EMOJI_MAX) {
+		return this.recentEmojiList.slice(0, limit);
+	}
+
+	async addRecentEmoji(text) {
+		this.recentEmojiList = [
+			text,
+			...this.recentEmojiList.filter(item => item !== text)
+		].slice(0, RECENT_EMOJI_MAX);
+	}
 
 	_convMessageMap(convKey) {
 		let convMessages = this.convMessageMap.get(convKey);

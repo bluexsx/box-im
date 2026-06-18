@@ -1,4 +1,4 @@
-import DB from "./db.js";
+import DB, { RECENT_EMOJI_MAX } from "./db.js";
 
 const DB_NAME_PREFIX = 'im-app-';
 
@@ -48,6 +48,12 @@ class ImSqliteDB extends DB {
 			CREATE TABLE IF NOT EXISTS groups (
 				"id" INTEGER PRIMARY KEY,
 				"data" TEXT NOT NULL
+			)
+		`);
+		await this._executeSql(`
+			CREATE TABLE IF NOT EXISTS recent_emojis (
+				"text" TEXT PRIMARY KEY,
+				"usedAt" INTEGER NOT NULL
 			)
 		`);
 		await this._executeSql('CREATE INDEX IF NOT EXISTS idx_messages_id ON messages(id)');
@@ -285,6 +291,34 @@ class ImSqliteDB extends DB {
 		const rows = await this._selectSql(
 			`SELECT val FROM config WHERE "key" = 'lastSyncGroupTime' LIMIT 1`);
 		return rows.length ? Number(rows[0].val) : 0;
+	}
+
+	async findRecentEmojis(limit = RECENT_EMOJI_MAX) {
+		const rows = await this._selectSql(`
+			SELECT "text" FROM recent_emojis
+			ORDER BY "usedAt" DESC
+			LIMIT ${limit}
+		`);
+		return rows.map((row) => row.text);
+	}
+
+	async addRecentEmoji(text) {
+		await this._executeSql(`
+			INSERT OR REPLACE INTO recent_emojis("text", "usedAt")
+			VALUES(${this._text(text)}, ${Date.now()})
+		`);
+		const countRows = await this._selectSql('SELECT COUNT(*) AS cnt FROM recent_emojis');
+		const count = Number(countRows[0]?.cnt || 0);
+		if (count > RECENT_EMOJI_MAX) {
+			const oldRows = await this._selectSql(`
+				SELECT "text" FROM recent_emojis
+				ORDER BY "usedAt" ASC
+				LIMIT ${count - RECENT_EMOJI_MAX}
+			`);
+			for (const row of oldRows) {
+				await this._executeSql(`DELETE FROM recent_emojis WHERE "text" = ${this._text(row.text)}`);
+			}
+		}
 	}
 
 	_openDatabase() {

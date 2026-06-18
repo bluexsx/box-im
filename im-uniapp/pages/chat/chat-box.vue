@@ -105,10 +105,21 @@
 				</scroll-view>
 				<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
 					:style="{height: keyboardHeight+'px'}">
-					<view class="emotion-item-list">
-						<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
-							v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
-							lazy-load="true"></image>
+					<view v-if="recentEmojiList.length" class="emotion-group">
+						<view class="emotion-group-title">最近使用</view>
+						<view class="emotion-item-list">
+							<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
+								v-for="(emoText, index) in recentEmojiList" :key="'recent-' + emoText + '-' + index"
+								@click="selectEmoji(emoText)" mode="aspectFit" lazy-load="true"></image>
+						</view>
+					</view>
+					<view class="emotion-group">
+						<view v-if="recentEmojiList.length" class="emotion-group-title">全部表情</view>
+						<view class="emotion-item-list">
+							<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
+								v-for="(emoText, i) in $emo.emoTextList" :key="'default-' + i" @click="selectEmoji(emoText)"
+								mode="aspectFit" lazy-load="true"></image>
+						</view>
 					</view>
 				</scroll-view>
 			</view>
@@ -154,6 +165,7 @@ export default {
 			isReadOnly: false, // 编辑器是否只读
 			playingAudio: null, // 当前正在播放的录音消息
 			activeMessageLocalId: '', // 选中消息,
+			recentEmojiList: []
 		}
 	},
 	methods: {
@@ -383,13 +395,22 @@ export default {
 		switchChatTabBox(chatTabBox) {
 			if (this.chatTabBox != chatTabBox) {
 				this.chatTabBox = chatTabBox;
+				if (chatTabBox === 'emo') {
+					this.loadRecentEmojis();
+				}
 				if (chatTabBox != 'tools' && this.$refs.fileUpload) {
 					this.$refs.fileUpload.hide()
 				}
 				setTimeout(() => this.reCalChatMainHeight(), 30);
 			}
 		},
+		loadRecentEmojis() {
+			return this.$db.findRecentEmojis().then((list) => {
+				this.recentEmojiList = list;
+			});
+		},
 		selectEmoji(emoText) {
+			this.$db.addRecentEmoji(emoText);
 			let path = this.$emo.textToPath(emoText)
 			// 先把键盘禁用了，否则会重新弹出键盘
 			this.isReadOnly = true;
@@ -1330,19 +1351,35 @@ export default {
 		}
 
 		.chat-emotion {
-			padding: 40rpx;
+			padding: 16rpx 24rpx;
 			box-sizing: border-box;
 
+			.emotion-group {
+				&:not(:last-child) {
+					margin-bottom: 16rpx;
+				}
+
+				.emotion-group-title {
+					font-size: 22rpx;
+					color: $im-text-color-lighter;
+					margin-bottom: 10rpx;
+					padding: 0 4rpx;
+					text-align: left;
+				}
+			}
+
 			.emotion-item-list {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: space-between;
-				align-content: center;
+				display: grid;
+				grid-template-columns: repeat(8, 1fr);
+				gap: 12rpx 16rpx;
 
 				.emotion-item {
+					display: flex;
+					justify-content: center;
+					align-items: center;
 					text-align: center;
-					cursor: pointer;
-					padding: 5px;
+					padding: 2rpx 0;
+					box-sizing: border-box;
 				}
 			}
 		}
