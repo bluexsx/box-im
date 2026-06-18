@@ -306,7 +306,7 @@ export default {
 					e.delta.ops.forEach((op) => {
 						if (op.insert.image) {
 							// emo表情
-							sendText += `#${op.attributes.alt};`
+							sendText += this.$emo.formatEmoji(op.attributes.alt);
 						} else(
 							// 文字
 							sendText += op.insert
@@ -1309,6 +1309,7 @@ export default {
 
 	.chat-tab-bar {
 		position: fixed;
+		width: 100%;
 		bottom: 0;
 		background-color: $im-bg;
 

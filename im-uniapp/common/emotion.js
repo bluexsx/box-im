@@ -1,6 +1,5 @@
 import UNI_APP from '@/.env.js'
 
-
 const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心', '笑哭', '拍手', '惊喜', '打气',
 	'大哭', '流泪', '饥饿', '难受', '健身', '示爱', '色色', '眨眼', '暴怒', '惊恐',
 	'思考', '头晕', '大吐', '酷笑', '翻滚', '享受', '鼻涕', '快乐', '雀跃', '微笑',
@@ -9,16 +8,22 @@ const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心',
 	"摇头", "偷瞄", "庆祝", "疾跑", "打滚", "惊吓", "起跳"
 ];
 
-const regex = /\#[\u4E00-\u9FA5]{1,3}\;/gi;
+const EMOJI_REGEX = /\[[\u4E00-\u9FA5]{1,3}\]/gi;
+
+const formatEmoji = (word) => `[${word}]`;
+
+const parseEmojiWord = (emoText) => {
+	const match = String(emoText).match(/^\[([\u4E00-\u9FA5]{1,3})\]$/);
+	return match ? match[1] : emoText;
+};
 
 let containEmoji = (content) => {
-	return regex.test(content)
+	return EMOJI_REGEX.test(content)
 }
 
 let transform = (content, extClass) => {
-	return content.replace(regex, (emoText)=>{
-		// 将匹配结果替换表情图片
-		let word = emoText.replace(/\#|\;/gi, '');
+	return content.replace(EMOJI_REGEX, (emoText) => {
+		let word = parseEmojiWord(emoText);
 		let idx = emoTextList.indexOf(word);
 		if (idx == -1) {
 			return emoText;
@@ -30,7 +35,7 @@ let transform = (content, extClass) => {
 }
 
 let textToPath = (emoText) => {
-	let word = emoText.replace(/\#|\;/gi, '');
+	let word = parseEmojiWord(emoText);
 	let idx = emoTextList.indexOf(word);
 	return UNI_APP.EMO_URL + idx + ".gif";
 }
@@ -38,6 +43,9 @@ let textToPath = (emoText) => {
 export default {
 	containEmoji,
 	emoTextList,
+	EMOJI_REGEX,
+	formatEmoji,
+	parseEmojiWord,
 	transform,
 	textToPath
 }

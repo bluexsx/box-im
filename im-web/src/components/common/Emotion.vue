@@ -42,7 +42,7 @@ export default {
 	methods: {
 		onClickEmo(emoText) {
 			this.$db.addRecentEmoji(emoText);
-			let emotion = `#${emoText};`
+			let emotion = this.$emo.formatEmoji(emoText);
 			this.$emit('emotion', emotion)
 		},
 		open(pos) {

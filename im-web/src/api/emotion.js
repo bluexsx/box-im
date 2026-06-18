@@ -6,14 +6,22 @@ const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心',
 	"摇头", "偷瞄", "庆祝", "疾跑", "打滚", "惊吓", "起跳"
 ];
 
+const EMOJI_REGEX = /\[[\u4E00-\u9FA5]{1,3}\]/gi;
+
+const formatEmoji = (word) => `[${word}]`;
+
+const parseEmojiWord = (emoText) => {
+	const match = String(emoText).match(/^\[([\u4E00-\u9FA5]{1,3})\]$/);
+	return match ? match[1] : emoText;
+};
 
 let transform = (content, extClass) => {
-	return content.replace(/\#[\u4E00-\u9FA5]{1,3}\;/gi, (text) => textToImg(text, extClass));
+	return content.replace(EMOJI_REGEX, (text) => textToImg(text, extClass));
 }
 
 // 将匹配结果替换表情图片
 let textToImg = (emoText, extClass) => {
-	let word = emoText.replace(/\#|\;/gi, '');
+	let word = parseEmojiWord(emoText);
 	let idx = emoTextList.indexOf(word);
 	if (idx == -1) {
 		return emoText;
@@ -23,7 +31,7 @@ let textToImg = (emoText, extClass) => {
 }
 
 let textToUrl = (emoText) => {
-	let word = emoText.replace(/\#|\;/gi, '');
+	let word = parseEmojiWord(emoText);
 	let idx = emoTextList.indexOf(word);
 	if (idx == -1) {
 		return "";
@@ -34,6 +42,9 @@ let textToUrl = (emoText) => {
 
 export default {
 	emoTextList,
+	EMOJI_REGEX,
+	formatEmoji,
+	parseEmojiWord,
 	transform,
 	textToImg,
 	textToUrl
