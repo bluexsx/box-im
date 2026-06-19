@@ -1,12 +1,13 @@
 <template>
 	<view class="page chat-box" id="chatBox">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
+		<!-- 消息菜单放在最外层，防止被工具箱遮挡 -->
 		<long-press-menu ref="messageMenu" @select="onSelectMessageMenu">
-			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
-				<view class="chat-message" @click="switchChatTabBox('none')">
+			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}" >
+				<view class="chat-message" @click="switchChatTabBox('none')"  @touchstart="onTouchChat">
 					<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 						@scrolltolower="onScrollToBottom" :scroll-into-view="'m-' + chatStore.scrollMessageLocalId">
-						<view v-if="conversation" class="chat-wrap">
+						<view v-if="conversation" class="chat-wrap" @touchmove="onTouchMove">
 							<view v-for="m in messages" :key="m.localId">
 								<chat-message-item :ref="m.localId" :id="'m-' +m.localId" :active="m.localId == activeMessageLocalId"
 									:headImage="headImage(m)" :showName="showName(m)" @call="onRtCall(m)" @resend="onResendMessage"
@@ -105,10 +106,21 @@
 				</scroll-view>
 				<scroll-view v-if="chatTabBox === 'emo'" class="chat-emotion" scroll-y="true"
 					:style="{height: keyboardHeight+'px'}">
-					<view class="emotion-item-list">
-						<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
-							v-for="(emoText, i) in $emo.emoTextList" :key="i" @click="selectEmoji(emoText)" mode="aspectFit"
-							lazy-load="true"></image>
+					<view v-if="recentEmojiList.length" class="emotion-group">
+						<view class="emotion-group-title">最近使用</view>
+						<view class="emotion-item-list">
+							<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
+								v-for="(emoText, index) in recentEmojiList" :key="'recent-' + emoText + '-' + index"
+								@click="selectEmoji(emoText)" mode="aspectFit" lazy-load="true"></image>
+						</view>
+					</view>
+					<view class="emotion-group">
+						<view v-if="recentEmojiList.length" class="emotion-group-title">全部表情</view>
+						<view class="emotion-item-list">
+							<image class="emotion-item emoji-large" :title="emoText" :src="$emo.textToPath(emoText)"
+								v-for="(emoText, i) in $emo.emoTextList" :key="'default-' + i" @click="selectEmoji(emoText)"
+								mode="aspectFit" lazy-load="true"></image>
+						</view>
 					</view>
 				</scroll-view>
 			</view>
@@ -154,6 +166,7 @@ export default {
 			isReadOnly: false, // 编辑器是否只读
 			playingAudio: null, // 当前正在播放的录音消息
 			activeMessageLocalId: '', // 选中消息,
+			recentEmojiList: []
 		}
 	},
 	methods: {
@@ -262,6 +275,10 @@ export default {
 			this.activeMessageLocalId = '';
 			this.lockScrollEvent = false;
 		},
+		onTouchMove(e) {
+			// 由于菜单在scoll-view外面，事件会被scoll-view，这里手动调用事件
+			this.$refs.messageMenu.onTouchMove(e);
+		},
 		setLockScrollEvent(duration) {
 			this.lockScrollEvent = true;
 			setTimeout(() => this.lockScrollEvent = false, duration)
@@ -294,7 +311,7 @@ export default {
 					e.delta.ops.forEach((op) => {
 						if (op.insert.image) {
 							// emo表情
-							sendText += `#${op.attributes.alt};`
+							sendText += this.$emo.formatEmoji(op.attributes.alt);
 						} else(
 							// 文字
 							sendText += op.insert
@@ -383,13 +400,22 @@ export default {
 		switchChatTabBox(chatTabBox) {
 			if (this.chatTabBox != chatTabBox) {
 				this.chatTabBox = chatTabBox;
+				if (chatTabBox === 'emo') {
+					this.loadRecentEmojis();
+				}
 				if (chatTabBox != 'tools' && this.$refs.fileUpload) {
 					this.$refs.fileUpload.hide()
 				}
 				setTimeout(() => this.reCalChatMainHeight(), 30);
 			}
 		},
+		loadRecentEmojis() {
+			return this.$db.findRecentEmojis().then((list) => {
+				this.recentEmojiList = list;
+			});
+		},
 		selectEmoji(emoText) {
+			this.$db.addRecentEmoji(emoText);
 			let path = this.$emo.textToPath(emoText)
 			// 先把键盘禁用了，否则会重新弹出键盘
 			this.isReadOnly = true;
@@ -1288,6 +1314,7 @@ export default {
 
 	.chat-tab-bar {
 		position: fixed;
+		width: 100%;
 		bottom: 0;
 		background-color: $im-bg;
 
@@ -1330,19 +1357,35 @@ export default {
 		}
 
 		.chat-emotion {
-			padding: 40rpx;
+			padding: 16rpx 24rpx;
 			box-sizing: border-box;
 
+			.emotion-group {
+				&:not(:last-child) {
+					margin-bottom: 16rpx;
+				}
+
+				.emotion-group-title {
+					font-size: 22rpx;
+					color: $im-text-color-lighter;
+					margin-bottom: 10rpx;
+					padding: 0 4rpx;
+					text-align: left;
+				}
+			}
+
 			.emotion-item-list {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: space-between;
-				align-content: center;
+				display: grid;
+				grid-template-columns: repeat(8, 1fr);
+				gap: 12rpx 16rpx;
 
 				.emotion-item {
+					display: flex;
+					justify-content: center;
+					align-items: center;
 					text-align: center;
-					cursor: pointer;
-					padding: 5px;
+					padding: 2rpx 0;
+					box-sizing: border-box;
 				}
 			}
 		}

@@ -1,22 +1,97 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="zh-CN">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 		<link rel="icon" href="favicon.ico">
-		<title>语音通话</title>
+		<title>群聊通话</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+			body {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 32px 24px;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+				font-size: 15px;
+				line-height: 1.6;
+				color: #333;
+				background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+			}
+			.card {
+				width: 100%;
+				max-width: 340px;
+				padding: 36px 28px 32px;
+				text-align: center;
+				background: #fff;
+				border: 1px solid #ededed;
+				border-radius: 16px;
+				box-shadow: 0 8px 24px rgba(88, 127, 240, 0.08);
+			}
+			.icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 64px;
+				height: 64px;
+				margin: 0 auto 20px;
+				font-size: 28px;
+				background: linear-gradient(135deg, #eef1ff 0%, #f5f7ff 100%);
+				border-radius: 50%;
+			}
+			.title {
+				margin-bottom: 12px;
+				font-size: 18px;
+				font-weight: 600;
+				color: #000;
+			}
+			.desc {
+				color: #6a6a6a;
+				font-size: 14px;
+			}
+			.divider {
+				width: 40px;
+				height: 3px;
+				margin: 24px auto;
+				background: linear-gradient(90deg, #587ff0, #8aa4ff);
+				border-radius: 2px;
+			}
+			.hint {
+				margin-bottom: 20px;
+				color: #909399;
+				font-size: 13px;
+			}
+			.link-btn {
+				display: inline-block;
+				min-width: 180px;
+				padding: 11px 20px;
+				color: #fff;
+				font-size: 14px;
+				text-decoration: none;
+				background: #587ff0;
+				border-radius: 22px;
+				box-shadow: 0 4px 12px rgba(88, 127, 240, 0.25);
+			}
+		</style>
 	</head>
 	<body>
-		<div style="padding-top:10px; text-align: center;font-size: 16px;">
-			音视频通话功能属于付费功能，如有需要请联系作者购买商业版源码...
-		</div>
-		<div style="padding-top:50px; text-align: center;font-size: 16px;">
-			点击下方文档了解详细信息:
-		</div>
-		<div style="padding-top:10px; text-align: center;font-size: 16px;">
-			<a href="https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29" target="_blank">
-				盒子IM商业版付费说明
+		<div class="card">
+			<div class="icon">📞</div>
+			<h1 class="title">群聊通话</h1>
+			<p class="desc">音视频通话功能属于付费功能，如有需要请联系我们购买商业版源码。</p>
+			<div class="divider"></div>
+			<p class="hint">点击下方按钮了解详细信息</p>
+			<a class="link-btn" href="https://www.yuque.com/u1475064/imk5n2/qtezcg32q1d0dr29" target="_blank">
+				商业版付费说明
 			</a>
 		</div>
 	</body>

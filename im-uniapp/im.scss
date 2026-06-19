@@ -67,6 +67,16 @@ button[size='mini'] {
 	background-color: $im-color-primary-dark-1 !important;
 }
 
+/** 输入框光标颜色（H5 / App-vue；小程序依基础库可能部分生效） **/
+input,
+textarea,
+editor,
+.uni-input-input,
+.uni-textarea-textarea,
+.uni-easyinput__content-input {
+	caret-color:  $im-color-primary;
+}
+
 /** uni-ui input激活后边框、图标颜色 **/
 .uni-easyinput__content.is-focused:not(.is-input-error-border) {
 	border-color: $im-color-primary-light-2 !important;

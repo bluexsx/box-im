@@ -1,4 +1,4 @@
-import DB from "./db.js";
+import DB, { RECENT_EMOJI_MAX } from "./db.js";
 
 const DB_NAME_PREFIX = 'im-app-';
 const MAX_MESSAGES_PER_CONV = 50;
@@ -13,6 +13,7 @@ class ImStorageDB extends DB {
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
+		this.recentEmojiList = [];
 		this.dbName = '';
 	}
 
@@ -21,14 +22,17 @@ class ImStorageDB extends DB {
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
+		this.recentEmojiList = [];
 		this.dbName = DB_NAME_PREFIX + userId;
 		this._loadFromStorage();
+		this._loadRecentEmojisFromStorage();
 	}
 
 	async close() {
 		this.conversationMap = new Map();
 		this.messageMap = new Map();
 		this.convMessageMap = new Map();
+		this.recentEmojiList = [];
 		this.userId = null;
 		this.dbName = '';
 	}
@@ -136,6 +140,36 @@ class ImStorageDB extends DB {
 	async syncAllGroups(friends) {}
 
 	async findLastSyncGroupsTime(friends) { return 0; }
+
+	async findRecentEmojis(limit = RECENT_EMOJI_MAX) {
+		if (!this.userId) {
+			return [];
+		}
+		return this.recentEmojiList.slice(0, limit);
+	}
+
+	async addRecentEmoji(text) {
+		if (!this.userId) {
+			return;
+		}
+		this.recentEmojiList = [
+			text,
+			...this.recentEmojiList.filter(item => item !== text)
+		].slice(0, RECENT_EMOJI_MAX);
+		this._saveRecentEmojis();
+	}
+
+	_recentEmojiStorageKey() {
+		return this.dbName + '-recentEmojis';
+	}
+
+	_loadRecentEmojisFromStorage() {
+		this.recentEmojiList = uni.getStorageSync(this._recentEmojiStorageKey()) || [];
+	}
+
+	_saveRecentEmojis() {
+		uni.setStorageSync(this._recentEmojiStorageKey(), this.recentEmojiList);
+	}
 
 	_convStorageKey(convKey) {
 		return this.dbName + '-' + convKey;

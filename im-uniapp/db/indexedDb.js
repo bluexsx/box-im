@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import DB from "./db.js";
+import DB, { RECENT_EMOJI_MAX } from "./db.js";
 
 const DB_NAME_PREFIX = 'im-app-';
 
@@ -11,7 +11,7 @@ class ImIndexedDB extends DB {
 
 	open(userId) {
 		this.db = new Dexie(DB_NAME_PREFIX + userId);
-		this.db.version(4).stores({
+		this.db.version(5).stores({
 			// 配置表
 			config: 'key',
 			// 会话信息
@@ -21,7 +21,9 @@ class ImIndexedDB extends DB {
 			// 好友表
 			friends: 'id',
 			// 群表
-			groups: 'id'
+			groups: 'id',
+			// 最近使用的默认表情
+			recentEmojis: 'text,usedAt'
 		});
 	}
 
@@ -158,6 +160,27 @@ class ImIndexedDB extends DB {
 	async findLastSyncGroupsTime(groups) {
 		const config = await this.db.config.where('key').equals('lastSyncGroupTime').first();
 		return config ? config.val : 0;
+	}
+
+	async findRecentEmojis(limit = RECENT_EMOJI_MAX) {
+		const list = await this.db.recentEmojis
+			.orderBy('usedAt')
+			.reverse()
+			.limit(limit)
+			.toArray();
+		return list.map(item => item.text);
+	}
+
+	async addRecentEmoji(text) {
+		await this.db.recentEmojis.put({ text, usedAt: Date.now() });
+		const count = await this.db.recentEmojis.count();
+		if (count > RECENT_EMOJI_MAX) {
+			const oldItems = await this.db.recentEmojis
+				.orderBy('usedAt')
+				.limit(count - RECENT_EMOJI_MAX)
+				.toArray();
+			await this.db.recentEmojis.bulkDelete(oldItems.map(item => item.text));
+		}
 	}
 }
 
