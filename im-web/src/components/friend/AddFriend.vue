@@ -85,6 +85,7 @@ export default {
 					version: 0
 				}
 				this.friendStore.addFriend(friend);
+				this.$nextTick(() => this.$forceUpdate());
 			})
 		},
 		isFriend(userId) {

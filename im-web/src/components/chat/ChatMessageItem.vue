@@ -424,7 +424,7 @@ export default {
 
 					.icon-ok {
 						font-size: 20px;
-						color: var(--im-color-sucess);
+						color: var(--im-color-success);
 					}
 				}
 

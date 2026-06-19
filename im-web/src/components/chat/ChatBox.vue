@@ -52,7 +52,7 @@
 								<div title="语音通话" v-show="isPrivate" class="el-icon-phone-outline"
 									@click="showPrivateVideo('voice')">
 								</div>
-								<div title="语音通话" v-show="isGroup" class="el-icon-phone-outline"
+								<div title="多人通话" v-show="isGroup" class="el-icon-video-camera"
 									@click="onGroupVideo()">
 								</div>
 								<div title="视频通话" v-show="isPrivate" class="el-icon-video-camera"
