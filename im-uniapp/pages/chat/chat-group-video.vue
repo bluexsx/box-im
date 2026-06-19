@@ -7,22 +7,9 @@ import UNI_APP from '@/.env.js'
 export default {
 	data() {
 		return {
-			url: "",
+			url: "/hybrid/html/rtc-group/index.html",
 			wv: '',
 		}
-	},
-	methods: {
-		initUrl() {
-			this.url = "/hybrid/html/rtc-group/index.html?";
-			this.url += "baseUrl=" + UNI_APP.BASE_URL;
-		},
-	},
-	onBackPress() {
-		this.sendMessageToWebView("NAV_BACK", {})
-	},
-	onLoad(options) {
-		// 构建url
-		this.initUrl();
 	}
 }
 </script>

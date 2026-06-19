@@ -1,12 +1,13 @@
 <template>
 	<view class="page chat-box" id="chatBox">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
+		<!-- 消息菜单放在最外层，防止被工具箱遮挡 -->
 		<long-press-menu ref="messageMenu" @select="onSelectMessageMenu">
-			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
-				<view class="chat-message" @click="switchChatTabBox('none')">
+			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}" >
+				<view class="chat-message" @click="switchChatTabBox('none')"  @touchstart="onTouchChat">
 					<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 						@scrolltolower="onScrollToBottom" :scroll-into-view="'m-' + chatStore.scrollMessageLocalId">
-						<view v-if="conversation" class="chat-wrap">
+						<view v-if="conversation" class="chat-wrap" @touchmove="onTouchMove">
 							<view v-for="m in messages" :key="m.localId">
 								<chat-message-item :ref="m.localId" :id="'m-' +m.localId" :active="m.localId == activeMessageLocalId"
 									:headImage="headImage(m)" :showName="showName(m)" @call="onRtCall(m)" @resend="onResendMessage"
@@ -273,6 +274,10 @@ export default {
 		onTouchChat() {
 			this.activeMessageLocalId = '';
 			this.lockScrollEvent = false;
+		},
+		onTouchMove(e) {
+			// 由于菜单在scoll-view外面，事件会被scoll-view，这里手动调用事件
+			this.$refs.messageMenu.onTouchMove(e);
 		},
 		setLockScrollEvent(duration) {
 			this.lockScrollEvent = true;
