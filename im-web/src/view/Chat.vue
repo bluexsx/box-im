@@ -88,7 +88,7 @@ export default {
         this.setGroupDnd(conv, conv.targetId, !conv.isDnd)
       }
     },
-    setFriendDnd(chat, friendId, isDnd) {
+    setFriendDnd(conv, friendId, isDnd) {
       const formData = {
         friendId: friendId,
         isDnd: isDnd
@@ -99,10 +99,10 @@ export default {
         data: formData
       }).then(() => {
         this.friendStore.setDnd(friendId, isDnd)
-        this.chatStore.setDnd(chat, isDnd)
+        this.chatStore.setDnd(conv.key, isDnd)
       })
     },
-    setGroupDnd(chat, groupId, isDnd) {
+    setGroupDnd(conv, groupId, isDnd) {
       const formData = {
         groupId: groupId,
         isDnd: isDnd
@@ -113,7 +113,7 @@ export default {
         data: formData
       }).then(() => {
         this.groupStore.setDnd(groupId, isDnd)
-        this.chatStore.setDnd(chat, isDnd)
+        this.chatStore.setDnd(conv.key, isDnd)
       })
     },
     isShow(conv) {
