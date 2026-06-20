@@ -9,9 +9,13 @@
 	},
 	"pages": [{
 			"path": "pages/chat/chat",
-			"app-plus": {
-				"disableScroll": true,
-				"bounce": "none"
+			"style": {
+				"mp-weixin": {
+					"disableScroll": true
+				},
+				"app-plus": {
+					"bounce": "none"
+				}
 			}
 		}, {
 			"path": "pages/login/login"
@@ -36,13 +40,12 @@
 			"style": {
 				"mp-weixin": {
 					"disableScroll": true
+				},
+				"app-plus": {
+					// adjustPan窗体高度不变，但窗体上推、adjustResize屏幕高度=webview窗体高度+软键盘高度
+					"softinputMode": "adjustResize",
+					"bounce": "none"
 				}
-			},
-			"app-plus": {
-				// adjustPan窗体高度不变，但窗体上推、adjustResize屏幕高度=webview窗体高度+软键盘高度
-				"softinputMode": "adjustResize",
-				"disableScroll": true,
-				"bounce": "none"
 			}
 		},
 		{
