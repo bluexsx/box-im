@@ -15,7 +15,7 @@
 										@call="onCall(m.type)" :mine="m.sendId == mine.id" :headImage="headImage(m)"
 										:showName="showName(m)" :group="group" :conversation="conversation" :message="m"
 										:groupMemberMap="groupMemberMap" @resend="onResendMessage"
-										@delete="deleteMessage" @recall="recallMessage">
+										@copy="onCopyMessage" @delete="deleteMessage" @recall="recallMessage">
 									</chat-message-item>
 								</div>
 							</div>
@@ -416,6 +416,17 @@ export default {
 			let check = this.$refs.fileUpload.beforeUpload(file);
 			if (check) {
 				this.$refs.fileUpload.onFileUpload({ file });
+			}
+		},
+		onCopyMessage(message) {
+			if (navigator.clipboard && window.isSecureContext) {
+				navigator.clipboard.writeText(message.content).then(() => {
+					this.$message.success('复制成功');
+				}).catch(() => {
+					this.$message.error('复制失败');
+				});
+			} else {
+				this.$message.error('复制失败');
 			}
 		},
 		async onResendMessage(message) {
