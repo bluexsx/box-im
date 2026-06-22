@@ -38,6 +38,50 @@ export default {
 		}
 	},
 	methods: {
+		// 将粘贴文本中的表情编码 [xxx] 转为表情图片插入
+		insertPastedTextWithEmoji(range, txt) {
+			const emojiPattern = new RegExp(this.$emo.EMOJI_REGEX.source, 'g');
+			const parts = [];
+			let lastIndex = 0;
+			let match;
+			while ((match = emojiPattern.exec(txt)) !== null) {
+				if (match.index > lastIndex) {
+					parts.push({ type: 'text', content: txt.substring(lastIndex, match.index) });
+				}
+				const code = match[0];
+				const word = this.$emo.parseEmojiWord(code);
+				if (this.$emo.emoTextList.indexOf(word) !== -1) {
+					parts.push({ type: 'emoji', code });
+				} else {
+					parts.push({ type: 'text', content: code });
+				}
+				lastIndex = match.index + code.length;
+			}
+			if (lastIndex < txt.length) {
+				parts.push({ type: 'text', content: txt.substring(lastIndex) });
+			}
+			if (parts.length === 0) {
+				parts.push({ type: 'text', content: txt });
+			}
+			for (let i = 0; i < parts.length; i++) {
+				const part = parts[i];
+				let node;
+				if (part.type === 'text') {
+					node = document.createTextNode(part.content);
+				} else {
+					node = document.createElement('img');
+					node.className = 'emoji-normal no-text';
+					node.dataset.emojiCode = part.code;
+					node.src = this.$emo.textToUrl(part.code);
+				}
+				range.insertNode(node);
+				if (i < parts.length - 1) {
+					range.setStartAfter(node);
+					range.setEndAfter(node);
+				}
+			}
+			range.collapse(false);
+		},
 		onPaste(e) {
 			this.isEmpty = false;
 			let txt = e.clipboardData.getData('Text')
@@ -47,9 +91,7 @@ export default {
 			}
 			// 粘贴图片和文件时，这里没有数据
 			if (txt && typeof (txt) == 'string') {
-				let textNode = document.createTextNode(txt);
-				range.insertNode(textNode)
-				range.collapse();
+				this.insertPastedTextWithEmoji(range, txt);
 				return;
 			}
 			let items = (e.clipboardData || window.clipboardData).items
@@ -263,7 +305,7 @@ export default {
 			blurRange.insertNode(emojiElement);
 			blurRange.collapse()
 
-			let textNode = document.createTextNode('\u00A0');
+			let textNode = document.createTextNode('\u200B');
 			blurRange.insertNode(textNode)
 			blurRange.collapse()
 
@@ -438,7 +480,7 @@ export default {
 				}
 			}
 			each(nodes)
-			let text = tempText.trim();
+			let text = tempText.replace(/\u200B/g, '').trim();
 			if (text !== '') {
 				fullList.push({
 					type: 'text',

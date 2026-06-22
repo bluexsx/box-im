@@ -1,11 +1,10 @@
 import UNI_APP from '@/.env.js'
 
-const emoTextList = ['憨笑', '媚眼', '开心', '坏笑', '可怜', '爱心', '笑哭', '拍手', '惊喜', '打气',
-	'大哭', '流泪', '饥饿', '难受', '健身', '示爱', '色色', '眨眼', '暴怒', '惊恐',
-	'思考', '头晕', '大吐', '酷笑', '翻滚', '享受', '鼻涕', '快乐', '雀跃', '微笑',
-	'贪婪', '红心', '粉心', '星星', '大火', '眼睛', '音符', "叹号", "问号", "绿叶",
-	"燃烧", "喇叭", "警告", "信封", "房子", "礼物", "点赞", "举手", "拍手", "点头",
-	"摇头", "偷瞄", "庆祝", "疾跑", "打滚", "惊吓", "起跳"
+const emoTextList = ['呲牙', '吃瓜', '色色', '可怜', '飞吻', '大哭', '流泪', '好赞', '偷笑', '书呆', '笑哭',
+	'头晕', '捂脸', '开心', '崇拜', '拜托', '害羞', '捂嘴', '思考', '星星眼',
+	'坏笑', '白眼', '双赞', '叹气', '紧张', '焦虑', '暴怒', '疑惑', '得意', '怀疑',
+	'犯困', '惊讶', '欢呼', '无语', '裂开', '偷看', '挠头', '眨眼', '奋斗', '悄悄话', '好的',
+	'点赞', '鼓掌', '挥手', '加油', '耶', '比心', 'OK', '指向', '摇滚', '差评'
 ];
 
 const EMOJI_REGEX = /\[[\u4E00-\u9FA5]{1,3}\]/gi;
@@ -37,7 +36,14 @@ let transform = (content, extClass) => {
 let textToPath = (emoText) => {
 	let word = parseEmojiWord(emoText);
 	let idx = emoTextList.indexOf(word);
-	return UNI_APP.EMO_URL + idx + ".gif";
+	if (idx == -1) {
+		return "";
+	}
+	return UNI_APP.EMO_URL + idx + ".png";
+}
+
+const filterRecentEmojis = (list) => {
+	return (list || []).filter(text => emoTextList.includes(text));
 }
 
 export default {
@@ -46,6 +52,7 @@ export default {
 	EMOJI_REGEX,
 	formatEmoji,
 	parseEmojiWord,
+	filterRecentEmojis,
 	transform,
 	textToPath
 }
