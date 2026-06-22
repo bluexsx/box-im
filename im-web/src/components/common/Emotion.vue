@@ -7,8 +7,8 @@
 						<div class="emotion-group-title">最近使用</div>
 						<div class="emotion-items">
 							<div class="emotion-item" v-for="(emoText, i) in recentEmojiList"
-								:key="'recent-' + emoText + '-' + i" @click="onClickEmo(emoText)"
-								v-html="$emo.textToImg(emoText, 'emoji-large')">
+								:key="'recent-' + emoText + '-' + i" :title="emoText" @click="onClickEmo(emoText)">
+								<img :src="emojiUrl(emoText)" :alt="emoText" :title="emoText" class="emoji-large">
 							</div>
 						</div>
 					</div>
@@ -16,7 +16,8 @@
 						<div v-if="recentEmojiList.length" class="emotion-group-title">全部表情</div>
 						<div class="emotion-items">
 							<div class="emotion-item" v-for="(emoText, i) in $emo.emoTextList" :key="'default-' + i"
-								@click="onClickEmo(emoText)" v-html="$emo.textToImg(emoText, 'emoji-large')">
+								:title="emoText" @click="onClickEmo(emoText)">
+								<img :src="emojiUrl(emoText)" :alt="emoText" :title="emoText" class="emoji-large">
 							</div>
 						</div>
 					</div>
@@ -42,8 +43,10 @@ export default {
 	methods: {
 		onClickEmo(emoText) {
 			this.$db.addRecentEmoji(emoText);
+			this.loadRecentEmojis();
 			let emotion = this.$emo.formatEmoji(emoText);
-			this.$emit('emotion', emotion)
+			this.$emit('emotion', emotion);
+			this.close();
 		},
 		open(pos) {
 			this.pos = pos;
@@ -55,8 +58,11 @@ export default {
 		},
 		loadRecentEmojis() {
 			return this.$db.findRecentEmojis().then((list) => {
-				this.recentEmojiList = list;
+				this.recentEmojiList = this.$emo.filterRecentEmojis(list);
 			});
+		},
+		emojiUrl(emoText) {
+			return this.$emo.textToUrl(this.$emo.formatEmoji(emoText));
 		}
 	},
 	computed: {
@@ -64,7 +70,7 @@ export default {
 			return this.pos.x - 22;
 		},
 		y() {
-			return this.pos.y - 254;
+			return this.pos.y - 284;
 		}
 	}
 }
@@ -72,18 +78,19 @@ export default {
 <style scoped lang="scss">
 .emotion-box {
 	position: fixed;
-	width: 400px;
+	width: 480px;
 	box-sizing: border-box;
 	padding: 8px;
 	background-color: #fff;
-	box-shadow: var(--im-box-shadow);
+	box-shadow: var(--im-box-shadow-lighter);
+	border-radius: 6px;
 
 	.emotion-scroll {
-		height: 240px;
+		height: 270px;
 	}
 
 	.emotion-content {
-		padding: 8px 10px;
+		padding: 8px 4px;
 	}
 
 	.emotion-group {
@@ -102,7 +109,8 @@ export default {
 
 	.emotion-items {
 		display: grid;
-		grid-template-columns: repeat(8, 1fr);
+		grid-template-columns: repeat(10, 1fr);
+		padding: 4px 4px 0;
 		gap: 5px;
 
 		.emotion-item {
@@ -111,7 +119,7 @@ export default {
 			align-items: center;
 			text-align: center;
 			cursor: pointer;
-			padding: 2px;
+			margin: 5px;
 		}
 	}
 }

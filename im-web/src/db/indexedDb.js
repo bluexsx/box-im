@@ -10,19 +10,21 @@ class ImIndexedDB extends DB {
 	}
 
 	open(userId) {
+		super.open(userId);
 		this.db = new Dexie(DB_NAME_PREFIX + userId);
-		this.db.version(5).stores({
-			// 配置表
+		this.db.version(4).stores({
 			config: 'key',
-			// 会话信息
 			conversations: 'key',
-			// 消息表
 			messages: 'localId,id,[convKey+seqNo+sendTime]',
-			// 好友表
 			friends: 'id',
-			// 群表
+			groups: 'id'
+		});
+		this.db.version(5).stores({
+			config: 'key',
+			conversations: 'key',
+			messages: 'localId,id,[convKey+seqNo+sendTime]',
+			friends: 'id',
 			groups: 'id',
-			// 最近使用的默认表情
 			recentEmojis: 'text,usedAt'
 		});
 	}

@@ -191,8 +191,9 @@ export default {
 
 		.chat-content {
 			display: flex;
-			line-height: 24px;
-			height: 24px;
+			line-height: 20px;
+			height: 20px;
+			martin-top: 3px;
 
 			.chat-at-text {
 				color: #c70b0b;

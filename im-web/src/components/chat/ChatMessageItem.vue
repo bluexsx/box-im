@@ -173,6 +173,12 @@ export default {
 		},
 		menuItems() {
 			let items = [];
+			if (this.isTextMessage) {
+				items.push({
+					key: 'COPY',
+					name: '复制'
+				});
+			}
 			items.push({
 				key: 'DELETE',
 				name: '删除',

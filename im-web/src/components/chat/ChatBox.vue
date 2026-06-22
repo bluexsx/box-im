@@ -15,7 +15,7 @@
 										@call="onCall(m.type)" :mine="m.sendId == mine.id" :headImage="headImage(m)"
 										:showName="showName(m)" :group="group" :conversation="conversation" :message="m"
 										:groupMemberMap="groupMemberMap" @resend="onResendMessage"
-										@delete="deleteMessage" @recall="recallMessage">
+										@copy="onCopyMessage" @delete="deleteMessage" @recall="recallMessage">
 									</chat-message-item>
 								</div>
 							</div>
@@ -418,6 +418,17 @@ export default {
 				this.$refs.fileUpload.onFileUpload({ file });
 			}
 		},
+		onCopyMessage(message) {
+			if (navigator.clipboard && window.isSecureContext) {
+				navigator.clipboard.writeText(message.content).then(() => {
+					this.$message.success('复制成功');
+				}).catch(() => {
+					this.$message.error('复制失败');
+				});
+			} else {
+				this.$message.error('复制失败');
+			}
+		},
 		async onResendMessage(message) {
 			if (message.type != this.$enums.MESSAGE_TYPE.TEXT) {
 				this.$message.error('该消息不支持自动重新发送，建议手动重新发送')
@@ -778,6 +789,8 @@ export default {
 					this.readedMessage();
 					// 重置输入框
 					this.resetEditor();
+					// 关闭表情窗口
+					this.$refs.emoBox.close();
 					// 复位回执消息
 					this.isReceipt = false;
 				}

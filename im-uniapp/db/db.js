@@ -1,5 +1,5 @@
 
-const RECENT_EMOJI_MAX = 8;
+const RECENT_EMOJI_MAX = 7;
 
 class BaseDB {
 

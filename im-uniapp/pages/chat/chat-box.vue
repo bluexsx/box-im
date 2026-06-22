@@ -3,8 +3,8 @@
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
 		<!-- 消息菜单放在最外层，防止被工具箱遮挡 -->
 		<long-press-menu ref="messageMenu" @select="onSelectMessageMenu">
-			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}" >
-				<view class="chat-message" @click="switchChatTabBox('none')"  @touchstart="onTouchChat">
+			<view class="chat-main-box" :style="{height: chatMainHeight+'px'}">
+				<view class="chat-message" @click="switchChatTabBox('none')" @touchstart="onTouchChat">
 					<scroll-view class="scroll-box" scroll-y="true" upper-threshold="200" @scrolltoupper="onScrollToTop"
 						@scrolltolower="onScrollToBottom" :scroll-into-view="'m-' + chatStore.scrollMessageLocalId">
 						<view v-if="conversation" class="chat-wrap" @touchmove="onTouchMove">
@@ -411,11 +411,12 @@ export default {
 		},
 		loadRecentEmojis() {
 			return this.$db.findRecentEmojis().then((list) => {
-				this.recentEmojiList = list;
+				this.recentEmojiList = this.$emo.filterRecentEmojis(list);
 			});
 		},
 		selectEmoji(emoText) {
 			this.$db.addRecentEmoji(emoText);
+			this.loadRecentEmojis();
 			let path = this.$emo.textToPath(emoText)
 			// 先把键盘禁用了，否则会重新弹出键盘
 			this.isReadOnly = true;
@@ -1376,7 +1377,8 @@ export default {
 
 			.emotion-item-list {
 				display: grid;
-				grid-template-columns: repeat(8, 1fr);
+				place-items: center;
+				grid-template-columns: repeat(7, 1fr);
 				gap: 12rpx 16rpx;
 
 				.emotion-item {
@@ -1385,6 +1387,7 @@ export default {
 					align-items: center;
 					text-align: center;
 					padding: 2rpx 0;
+					margin: 5rpx 0;
 					box-sizing: border-box;
 				}
 			}
