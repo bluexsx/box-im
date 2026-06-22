@@ -155,6 +155,7 @@ export default {
 			color: $im-text-color-lighter;
 			padding-top: 8rpx;
 			align-items: center;
+			line-height: 36rpx;
 
 			.chat-at-text {
 				color: $im-color-danger;

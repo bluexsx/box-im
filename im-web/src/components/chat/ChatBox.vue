@@ -789,6 +789,8 @@ export default {
 					this.readedMessage();
 					// 重置输入框
 					this.resetEditor();
+					// 关闭表情窗口
+					this.$refs.emoBox.close();
 					// 复位回执消息
 					this.isReceipt = false;
 				}
