@@ -1143,6 +1143,10 @@ export default {
 			uni.navigateBack();
 			return;
 		}
+		// #ifdef APP-PLUS
+		const webview = this.$scope.$getAppWebview()
+		webview.setSoftinputTemporary({ mode: 'adjustResize' })
+		// #endif
 		if (!chatStore.isActive(this.conversation.key)) {
 			// 防止聊天页面被切换后消息错乱
 			chatStore.setActive(this.conversation.key);
