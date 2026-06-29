@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { chatStore } from '@/store/stores.js'
 export default {
 	name: "chat-group-readed",
 	data() {
@@ -77,8 +78,8 @@ export default {
 			// 更新已读人数
 			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, this.message.groupId)
 			this.message.readedCount = this.readedMembers.length;
-			if (this.chatStore.isActive(convKey)) {
-				this.chatStore.updateMessage(convKey, this.message)
+			if (chatStore.isActive(convKey)) {
+				chatStore.updateMessage(convKey, this.message)
 			}
 		},
 		onClickItem(e) {

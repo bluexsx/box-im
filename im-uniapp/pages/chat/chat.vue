@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { chatStore, friendStore, groupStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
@@ -44,7 +46,7 @@ export default {
 	methods: {
 		onScrollToBottom() {
 			// 多显示一页数据
-			if (this.showMaxIdx < this.chatStore.chats.length) {
+			if (this.showMaxIdx < chatStore.chats.length) {
 				this.showMaxIdx += 30
 			}
 		},
@@ -87,7 +89,7 @@ export default {
 							data: data
 						});
 					}
-					await this.chatStore.remove(conv.key);
+					await chatStore.remove(conv.key);
 				}
 			});
 		},
@@ -108,8 +110,8 @@ export default {
 				method: 'put',
 				data: formData
 			}).then(() => {
-				this.friendStore.setDnd(friendId, isDnd)
-				this.chatStore.setDnd(conv.key, isDnd)
+				friendStore.setDnd(friendId, isDnd)
+				chatStore.setDnd(conv.key, isDnd)
 			})
 		},
 		setGroupDnd(conv, groupId, isDnd) {
@@ -122,12 +124,12 @@ export default {
 				method: 'put',
 				data: formData
 			}).then(() => {
-				this.groupStore.setDnd(groupId, isDnd)
-				this.chatStore.setDnd(conv.key, isDnd)
+				groupStore.setDnd(groupId, isDnd)
+				chatStore.setDnd(conv.key, isDnd)
 			})
 		},
 		onTop(conv) {
-			this.chatStore.setTop(conv.key, !conv.isTop)
+			chatStore.setTop(conv.key, !conv.isTop)
 		},
 		isShow(conv) {
 			return !this.searchText || conv.showName.includes(this.searchText)
@@ -182,11 +184,11 @@ export default {
 	},
 	computed: {
 		unreadCount() {
-			if (!this.chatStore) {
+			if (!chatStore) {
 				return 0;
 			}
 			let unreadCount = 0;
-			const conversations = this.chatStore.conversations;
+			const conversations = chatStore.conversations;
 			conversations.forEach((conv) => {
 				if (!conv.isDnd) {
 					unreadCount += conv.unreadCount
@@ -195,13 +197,13 @@ export default {
 			return unreadCount;
 		},
 		loading() {
-			return this.chatStore && this.chatStore.loading;
+			return chatStore && chatStore.loading;
 		},
 		showConversations() {
-			if (!this.chatStore) {
+			if (!chatStore) {
 				return [];
 			}
-			return this.chatStore.conversations.filter(conv => this.isShow(conv));
+			return chatStore.conversations.filter(conv => this.isShow(conv));
 		},
 	},
 	watch: {

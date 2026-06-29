@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import { userStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
@@ -56,7 +58,7 @@ export default {
 				method: "PUT",
 				data: this.userInfo
 			}).then(() => {
-				this.userStore.setUserInfo(this.userInfo);
+				userStore.setUserInfo(this.userInfo);
 				uni.showToast({
 					title: "修改成功",
 					icon: 'none'
@@ -69,7 +71,7 @@ export default {
 	},
 	onLoad() {
 		// 深拷贝一份数据
-		let mine = this.userStore.userInfo;
+		let mine = userStore.userInfo;
 		this.userInfo = JSON.parse(JSON.stringify(mine));
 	}
 }

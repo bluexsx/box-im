@@ -36,6 +36,8 @@
 </template>
 
 <script>
+import { friendStore } from '@/store/stores.js'
+
 import { pinyin } from 'pinyin-pro';
 export default {
 	data() {
@@ -105,10 +107,10 @@ export default {
 			return Array.from(this.friendGroupMap.values());
 		},
 		friends() {
-			return this.friendStore.friends.filter(f => !f.deleted);
+			return friendStore.friends.filter(f => !f.deleted);
 		},
 		hasFriends() {
-			return this.friendStore.friends.some(f => !f.deleted);
+			return friendStore.friends.some(f => !f.deleted);
 		},
 		customNavHeight() {
 			let h = 50;

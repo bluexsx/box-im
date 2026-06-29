@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import { userStore } from '@/store/stores.js'
+
 export default {
 	name: "chat-at-box",
 	props: {
@@ -54,7 +56,7 @@ export default {
 	methods: {
 		init(atUserIds) {
 			this.showMembers = [];
-			let userId = this.userStore.userInfo.id;
+			let userId = userStore.userInfo.id;
 			if (this.ownerId == userId) {
 				this.showMembers.push({
 					userId: -1,

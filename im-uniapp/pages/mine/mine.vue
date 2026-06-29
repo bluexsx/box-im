@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import { userStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {}
@@ -63,7 +65,7 @@ export default {
 	},
 	computed: {
 		userInfo() {
-			return this.userStore.userInfo;
+			return userStore.userInfo;
 		}
 	}
 }

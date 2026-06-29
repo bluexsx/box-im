@@ -32,9 +32,11 @@
 </template>
 
 <script>
+import { friendStore, userStore } from '@/store/stores.js'
 export default {
 	data() {
 		return {
+			userStore,
 			searchText: "",
 			users: []
 		}
@@ -63,7 +65,7 @@ export default {
 				url: "/friend/add?friendId=" + friend.id,
 				method: "POST"
 			}).then((data) => {
-				this.friendStore.addFriend(friend);
+				friendStore.addFriend(friend);
 				uni.showToast({
 					title: "添加成功，对方已成为您的好友",
 					icon: "none"
@@ -76,7 +78,7 @@ export default {
 			})
 		},
 		isFriend(userId) {
-			return this.friendStore.isFriend(userId);
+			return friendStore.isFriend(userId);
 		}
 	}
 }

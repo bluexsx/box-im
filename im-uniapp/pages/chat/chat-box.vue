@@ -1,5 +1,5 @@
 <template>
-	<view class="page chat-box" id="chatBox">
+	<view v-if="isPageReady" class="page chat-box" id="chatBox">
 		<nav-bar back more @more="onShowMore">{{ title }}</nav-bar>
 		<!-- 消息菜单放在最外层，防止被工具箱遮挡 -->
 		<long-press-menu ref="messageMenu" @select="onSelectMessageMenu">
@@ -139,10 +139,13 @@
 </template>
 
 <script>
+import { chatStore, friendStore, groupStore, configStore, userStore } from '@/store/stores.js'
 import UNI_APP from '@/.env.js';
 export default {
 	data() {
 		return {
+			configStore,
+			chatStore,
 			conversation: {},
 			userInfo: {},
 			groupId: null,
@@ -352,8 +355,8 @@ export default {
 		},
 		async insertMessage(message) {
 			await this.resetMessages();
-			await this.chatStore.insertMessage(this.conversation.key, message);
-			await this.chatStore.moveTop(this.conversation.key);
+			await chatStore.insertMessage(this.conversation.key, message);
+			await chatStore.moveTop(this.conversation.key);
 			this.scrollToBottom();
 		},
 		createAtText() {
@@ -378,16 +381,16 @@ export default {
 			}
 		},
 		async scrollToBottom() {
-			const length = this.chatStore.messages.length;
+			const length = chatStore.messages.length;
 			if (length == 0) return;
-			const lastMessage = this.chatStore.messages[length - 1];
+			const lastMessage = chatStore.messages[length - 1];
 			this.scrollToMessage(lastMessage.localId);
-			this.chatStore.setIsInBottom(true);
+			chatStore.setIsInBottom(true);
 		},
 		scrollToMessage(localId) {
 			// 手动定位时，禁止滚动事件触发，避免干扰
 			this.setLockScrollEvent(500);
-			this.chatStore.scrollToMessage(localId)
+			chatStore.scrollToMessage(localId)
 		},
 		onShowEmoChatTab() {
 			this.showRecord = false;
@@ -461,7 +464,7 @@ export default {
 			data.width = size.width;
 			data.height = size.height;
 			localMessage.content = JSON.stringify(data)
-			await this.chatStore.updateMessage(this.conversation.key, localMessage);
+			await chatStore.updateMessage(this.conversation.key, localMessage);
 			this.scrollToBottom();
 			return true;
 		},
@@ -473,7 +476,7 @@ export default {
 		async onUploadImageFail(file, err) {
 			const localMessage = file.localMessage;
 			localMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-			await this.chatStore.updateMessage(this.conversation.key, localMessage);
+			await chatStore.updateMessage(this.conversation.key, localMessage);
 		},
 		async onUploadFileBefore(file) {
 			const data = {
@@ -513,7 +516,7 @@ export default {
 		async onUploadFileFail(file, res) {
 			const localMessage = file.localMessage;
 			localMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-			await this.chatStore.updateMessage(this.conversation.key, localMessage);
+			await chatStore.updateMessage(this.conversation.key, localMessage);
 		},
 		async onResendMessage(message) {
 			if (message.type != this.$enums.MESSAGE_TYPE.TEXT) {
@@ -524,7 +527,7 @@ export default {
 				return;
 			}
 			// 删除旧消息
-			await this.chatStore.deleteMessage(this.conversation.key, message);
+			await chatStore.deleteMessage(this.conversation.key, message);
 			// 重新推送
 			const sendMessage = JSON.parse(JSON.stringify(message));
 			sendMessage.localId = this.$nextSnowflakeId();
@@ -572,7 +575,7 @@ export default {
 							data: data
 						});
 					}
-					this.chatStore.deleteMessage(convKey, message);
+					chatStore.deleteMessage(convKey, message);
 				}
 			})
 		},
@@ -588,7 +591,7 @@ export default {
 						method: 'DELETE'
 					}).then((m) => {
 						m.selfSend = true;
-						this.chatStore.recallMessage(convKey, m);
+						chatStore.recallMessage(convKey, m);
 					})
 				}
 			})
@@ -616,13 +619,13 @@ export default {
 				})
 				return;
 			}
-			await this.chatStore.locateToMessage(this.conversation.key, locateMessage)
+			await chatStore.locateToMessage(this.conversation.key, locateMessage)
 			// 定位消息
 			this.scrollToMessage(localId);
 			// 选中消息
 			this.activeMessageLocalId = localId;
 			// 设置底部标记
-			this.chatStore.setIsInBottom(!this.chatStore.hasMoreNextMessage);
+			chatStore.setIsInBottom(!chatStore.hasMoreNextMessage);
 		},
 		onDownloadFile(message) {
 			const url = JSON.parse(message.content).url;
@@ -652,10 +655,10 @@ export default {
 		},
 		async onScrollToTop(e) {
 			// app端：当用户从一个聊天页面跳转到另一个聊天页面时，会触发旧页面的顶部事件，原因不详
-			if (this.lockScrollEvent || !this.chatStore.isActive(this.conversation.key)) {
+			if (this.lockScrollEvent || !chatStore.isActive(this.conversation.key)) {
 				return;
 			}
-			if (!this.chatStore.hasMoreLastMessage) {
+			if (!chatStore.hasMoreLastMessage) {
 				uni.showToast({
 					title: "没有更多消息了",
 					icon: 'none'
@@ -663,22 +666,22 @@ export default {
 				return;
 			}
 			// 多展示30条信息
-			await this.chatStore.loadLastPageMessage(this.conversation.key, 30);
+			await chatStore.loadLastPageMessage(this.conversation.key, 30);
 			// 清除底部标志
-			this.chatStore.setIsInBottom(false);
+			chatStore.setIsInBottom(false);
 			// 锁定500ms,防止重复触发
 			this.setLockScrollEvent(500);
 		},
 		async onScrollToBottom(e) {
-			if (this.lockScrollEvent || !this.chatStore.isActive(this.conversation.key)) {
+			if (this.lockScrollEvent || !chatStore.isActive(this.conversation.key)) {
 				return;
 			}
-			if (this.chatStore.hasMoreNextMessage) {
+			if (chatStore.hasMoreNextMessage) {
 				// 向下翻页
-				await this.chatStore.loadNextPageMessage(this.conversation.key, 30);
+				await chatStore.loadNextPageMessage(this.conversation.key, 30);
 			}
 			// 设置底部标志
-			this.chatStore.setIsInBottom(!this.chatStore.hasMoreNextMessage);
+			chatStore.setIsInBottom(!chatStore.hasMoreNextMessage);
 			// 锁定500ms,防止重复触发
 			this.setLockScrollEvent(500)
 		},
@@ -730,12 +733,12 @@ export default {
 				return;
 			}
 			await this.locateMessage(atMessage.localId);
-			await this.chatStore.resetAtMessage(this.conversation.key);
+			await chatStore.resetAtMessage(this.conversation.key);
 		},
 		async readedMessage() {
 			if (this.conversation.unreadCount > 0) {
 				const convKey = this.conversation.key;
-				this.chatStore.resetUnreadCount(convKey);
+				chatStore.resetUnreadCount(convKey);
 				const tid = this.conversation.targetId;
 				let url = "";
 				if (this.isGroup) {
@@ -755,14 +758,14 @@ export default {
 				url: `/message/private/maxReadedId?friendId=${fId}`,
 				method: 'get'
 			})
-			this.chatStore.readedMessage(convKey, messageId);
+			chatStore.readedMessage(convKey, messageId);
 		},
 		async loadGroup(groupId) {
 			this.groupId = groupId;
 			const group = await this.$http({ url: `/group/find/${groupId}` })
-			await this.chatStore.updateFromGroup(group);
-			this.groupStore.updateGroup(group);
-			this.groupStore.refreshMember(groupId);
+			await chatStore.updateFromGroup(group);
+			groupStore.updateGroup(group);
+			groupStore.refreshMember(groupId);
 		},
 		async updateFriendInfo() {
 			if (this.isFriend) {
@@ -770,10 +773,10 @@ export default {
 				const friend = JSON.parse(JSON.stringify(this.friend));
 				friend.headImage = this.userInfo.headImageThumb;
 				friend.nickName = this.userInfo.nickName;
-				await this.chatStore.updateFromFriend(friend);
-				this.friendStore.updateFriend(friend);
+				await chatStore.updateFromFriend(friend);
+				friendStore.updateFriend(friend);
 			} else {
-				await this.chatStore.updateFromUser(this.userInfo);
+				await chatStore.updateFromUser(this.userInfo);
 			}
 		},
 		async loadFriend(friendId) {
@@ -796,13 +799,13 @@ export default {
 				// 深拷贝一份消息，否则界面不会刷新
 				localMessage = JSON.parse(JSON.stringify(localMessage))
 				localMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
-				await this.chatStore.updateMessage(conv.key, localMessage);
+				await chatStore.updateMessage(conv.key, localMessage);
 			})
 			if (m) {
 				// 更新本地消息
 				m.selfSend = true;
 				m.convKey = conv.key;
-				await this.chatStore.updateMessage(conv.key, m);
+				await chatStore.updateMessage(conv.key, m);
 			}
 		},
 		sendMessageRequest(conv, message) {
@@ -834,8 +837,8 @@ export default {
 		},
 		async resetMessages() {
 			// 下方如果没有消息，没有必要重置，反而会造成页面闪烁
-			if (this.chatStore.hasMoreNextMessage) {
-				await this.chatStore.resetMessages(this.conversation.key);
+			if (chatStore.hasMoreNextMessage) {
+				await chatStore.resetMessages(this.conversation.key);
 			}
 		},
 		reCalChatMainHeight() {
@@ -982,17 +985,20 @@ export default {
 		}
 	},
 	computed: {
+		isPageReady() {
+			return !!(this.conversation && this.conversation.key);
+		},
 		mine() {
-			return this.userStore.userInfo;
+			return userStore.userInfo;
 		},
 		isFriend() {
-			return this.friendStore.isFriend(this.userInfo.id);
+			return friendStore.isFriend(this.userInfo.id);
 		},
 		friend() {
-			return this.friendStore.findFriend(this.userInfo.id);
+			return friendStore.findFriend(this.userInfo.id);
 		},
 		group() {
-			return this.groupStore.findGroup(this.groupId) || {}
+			return groupStore.findGroup(this.groupId) || {}
 		},
 		groupMembers() {
 			return this.group.members || []
@@ -1010,7 +1016,7 @@ export default {
 			return title;
 		},
 		messages() {
-			return this.chatStore.messages;
+			return chatStore.messages;
 		},
 		unreadCount() {
 			if (!this.conversation || !this.conversation.unreadCount) {
@@ -1042,7 +1048,7 @@ export default {
 			return this.conversation && this.conversation.type == this.$enums.CONVERSATION_TYPE.PRIVATE;
 		},
 		loading() {
-			return this.chatStore.loading;
+			return chatStore.loading;
 		},
 		maxMessageId() {
 			return this.conversation.maxMessageId;
@@ -1071,8 +1077,8 @@ export default {
 					this.loadReaded(this.conversation.targetId)
 				}
 				// 如果用户所在的会话拉到了新的离线消息，需重置会话内的消息，否则新消息会不显示
-				if (this.chatStore.hasMoreLastMessage) {
-					await this.chatStore.resetMessages(this.conversation.key)
+				if (chatStore.hasMoreLastMessage) {
+					await chatStore.resetMessages(this.conversation.key)
 					this.scrollToBottom();
 				}
 			}
@@ -1080,8 +1086,8 @@ export default {
 	},
 	onLoad(options) {
 		// 聊天数据
-		this.chatStore.setActive(options.convKey);
-		this.conversation = this.chatStore.activeConversation;
+		chatStore.setActive(options.convKey);
+		this.conversation = chatStore.activeConversation;
 		this.scrollMessageLocalId = '';
 		// 加载好友或群聊信息 
 		if (this.isGroup) {
@@ -1093,7 +1099,7 @@ export default {
 		// 消息已读
 		this.readedMessage()
 		// 清空未读
-		this.chatStore.resetUnreadCount(this.conversation.key);
+		chatStore.resetUnreadCount(this.conversation.key);
 		// 复位回执消息
 		this.isReceipt = false;
 		// 监听键盘高度
@@ -1107,7 +1113,7 @@ export default {
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.reCalChatMainHeight();
 			// 消息拉到底部
-			await this.chatStore.resetMessages(this.conversation.key)
+			await chatStore.resetMessages(this.conversation.key)
 			this.scrollToBottom();
 			// 有时页面渲染得慢，会导致无法正常滚到底部，这里再滚一次
 			setTimeout(() => this.scrollToBottom(), 100);
@@ -1125,17 +1131,26 @@ export default {
 			// 收到新消息,则滚动至底部
 			if (this.$msgType.isNormal(message.type) || this.$msgType.isAction(message.type)) {
 				// 新消息来时，如果用户本来就在底部不远位置，则直接拉到底部
-				if (this.chatStore.isInBottom || message.selfSend) {
+				if (chatStore.isInBottom || message.selfSend) {
 					this.scrollToBottom();
 				}
 			}
 		});
 	},
 	async onShow() {
-		if (this.conversation && !this.chatStore.isActive(this.conversation.key)) {
+		// 防止热更新时出现白屏
+		if (!this.isPageReady) {
+			uni.navigateBack();
+			return;
+		}
+		// #ifdef APP-PLUS
+		const webview = this.$scope.$getAppWebview()
+		webview.setSoftinputTemporary({ mode: 'adjustResize' })
+		// #endif
+		if (!chatStore.isActive(this.conversation.key)) {
 			// 防止聊天页面被切换后消息错乱
-			this.chatStore.setActive(this.conversation.key);
-			await this.chatStore.resetMessages(this.conversation.key)
+			chatStore.setActive(this.conversation.key);
+			await chatStore.resetMessages(this.conversation.key)
 			this.scrollToBottom();
 		}
 	},

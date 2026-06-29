@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { userStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
@@ -40,7 +42,7 @@ export default {
 		},
 		onOk() {
 			let users = this.rtcInfo.userInfos;
-			let mine = this.userStore.userInfo;
+			let mine = userStore.userInfo;
 			// 加入自己的信息
 			if (!users.find((user) => user.id == mine.id)) {
 				users.push({

@@ -24,9 +24,12 @@
 </template>
 
 <script>
+import { userStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
+			userStore,
 			isModify: false,
 			searchText: "",
 			group: {},
@@ -56,12 +59,12 @@ export default {
 			})
 		},
 		isSelf(userId) {
-			return this.userStore.userInfo.id == userId
+			return userStore.userInfo.id == userId
 		}
 	},
 	computed: {
 		isOwner() {
-			return this.userStore.userInfo.id == this.group.ownerId;
+			return userStore.userInfo.id == this.group.ownerId;
 		},
 		showMembers() {
 			return this.members.filter(m => !m.quit && m.showNickName.includes(this.searchText))
