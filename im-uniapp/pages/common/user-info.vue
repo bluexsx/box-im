@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import { chatStore, friendStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
@@ -65,8 +67,8 @@ export default {
 				headImage: this.userInfo.headImageThumb,
 				isDnd: this.friendInfo.isDnd
 			};
-			await this.chatStore.openChat(chatInfo);
-			await this.chatStore.moveTop(this.convKey)
+			await chatStore.openChat(chatInfo);
+			await chatStore.moveTop(this.convKey)
 			uni.navigateTo({
 				url: "/pages/chat/chat-box?convKey=" + this.convKey
 			})
@@ -84,7 +86,7 @@ export default {
 				url: "/friend/add?friendId=" + friend.id,
 				method: "POST"
 			}).then((data) => {
-				this.friendStore.addFriend(friend);
+				friendStore.addFriend(friend);
 				uni.showToast({
 					title: '对方已成为您的好友',
 					icon: 'none'
@@ -102,7 +104,7 @@ export default {
 						url: `/friend/delete/${userInfo.id}`,
 						method: 'delete'
 					})
-					this.friendStore.removeFriend(userInfo.id);
+					friendStore.removeFriend(userInfo.id);
 					// 删除会话
 					const data = { chatId: userInfo.id }
 					await this.$http({
@@ -110,7 +112,7 @@ export default {
 						method: 'delete',
 						data: data
 					});
-					this.chatStore.remove(convKey);
+					chatStore.remove(convKey);
 					uni.showToast({
 						title: `与 '${userInfo.nickName}'的好友关系已解除`,
 						icon: 'none'
@@ -132,7 +134,7 @@ export default {
 						method: 'delete',
 						data: data
 					});
-					this.chatStore.cleanMessage(key);
+					chatStore.cleanMessage(key);
 					uni.showToast({
 						title: `您清空了'${this.userInfo.nickName}'的聊天记录`,
 						icon: 'none'
@@ -153,8 +155,8 @@ export default {
 				method: 'PUT',
 				data: formData
 			}).then(() => {
-				this.friendStore.setDnd(friendId, isDnd);
-				this.chatStore.setDnd(convKey, isDnd);
+				friendStore.setDnd(friendId, isDnd);
+				chatStore.setDnd(convKey, isDnd);
 			})
 		},
 		updateFriendInfo() {
@@ -163,9 +165,9 @@ export default {
 			friend.headImage = this.userInfo.headImageThumb;
 			friend.nickName = this.userInfo.nickName;
 			// 更新好友列表中的昵称和头像
-			this.friendStore.updateFriend(friend);
+			friendStore.updateFriend(friend);
 			// 更新会话中的头像和昵称
-			this.chatStore.updateFromFriend(friend);
+			chatStore.updateFromFriend(friend);
 		},
 		loadUserInfo(id) {
 			this.$http({
@@ -183,13 +185,13 @@ export default {
 			return this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.PRIVATE, this.userInfo.id);
 		},
 		isFriend() {
-			return this.friendStore.isFriend(this.userInfo.id);
+			return friendStore.isFriend(this.userInfo.id);
 		},
 		friendInfo() {
-			return this.friendStore.findFriend(this.userInfo.id);
+			return friendStore.findFriend(this.userInfo.id);
 		},
 		isExistHistory() {
-			return this.chatStore.conversationMap.has(this.convKey);
+			return chatStore.conversationMap.has(this.convKey);
 		}
 	},
 	onLoad(options) {

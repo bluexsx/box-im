@@ -5,6 +5,7 @@ import * as messageUtil from '@/common/messageUtil.js';
 import { getDB } from '@/db/index.js';
 import nextSnowflakeId from '@/common/snowflake.js';
 import http from '@/common/request.js'
+import pinia from './index.js'
 import useUserStore from './userStore.js';
 import useFriendStore from './friendStore.js';
 import useGroupStore from './groupStore.js';
@@ -133,7 +134,7 @@ export default defineStore('chatStore', {
 			}
 			// 是否有人@我
 			if (!m.selfSend && m.atUserIds && m.status != MESSAGE_STATUS.READED) {
-				const userId = useUserStore().userInfo.id;
+				const userId = useUserStore(pinia).userInfo.id;
 				if (m.atUserIds.indexOf(userId) >= 0) {
 					conv.atMe = true;
 					conv.lastAtMessageId = m.id;
@@ -375,7 +376,7 @@ export default defineStore('chatStore', {
 					}
 				});
 			}
-			const userId = useUserStore().userInfo.id;
+			const userId = useUserStore(pinia).userInfo.id;
 			messages.forEach(m => {
 				m.convKey = convKey;
 				m.selfSend = m.sendId == userId;
@@ -404,7 +405,7 @@ export default defineStore('chatStore', {
 			if (conv.maxSeqNo <= 0 || !this.existMissMessage(localMessages, minSeqNo, maxSeqNo)) {
 				return localMessages;
 			}
-			const userId = useUserStore().userInfo.id;
+			const userId = useUserStore(pinia).userInfo.id;
 			// 从服务器重新拉取这一页数据
 			let messages = [];
 			if (conv.type == CONVERSATION_TYPE.PRIVATE) {
@@ -654,8 +655,8 @@ export default defineStore('chatStore', {
 		},
 		refreshDnd() {
 			// 更新会话置顶和免打扰状态
-			const friendStore = useFriendStore();
-			const groupStore = useGroupStore();
+			const friendStore = useFriendStore(pinia);
+			const groupStore = useGroupStore(pinia);
 			this.conversations.forEach(conv => {
 				if (conv.type == CONVERSATION_TYPE.PRIVATE) {
 					const friend = friendStore.findFriend(conv.targetId);

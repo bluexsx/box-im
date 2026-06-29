@@ -36,9 +36,12 @@
 </template>
 
 <script>
+import { chatStore, groupStore, userStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
+			userStore,
 			group: {},
 			rules: {
 				name: {
@@ -70,7 +73,7 @@ export default {
 				method: "PUT",
 				data: this.group
 			}).then((group) => {
-				this.groupStore.updateGroup(group);
+				groupStore.updateGroup(group);
 				uni.showToast({
 					title: "修改群聊信息成功",
 					icon: 'none'
@@ -90,7 +93,7 @@ export default {
 				method: 'POST',
 				data: this.group
 			}).then((group) => {
-				this.groupStore.addGroup(group);
+				groupStore.addGroup(group);
 				uni.showToast({
 					title: `群聊创建成功，快邀请小伙伴进群吧`,
 					icon: 'none',
@@ -111,25 +114,25 @@ export default {
 			}).then((group) => {
 				this.group = group;
 				// 更新聊天页面的群聊信息
-				this.chatStore.updateFromGroup(group);
+				chatStore.updateFromGroup(group);
 				// 更新聊天列表的群聊信息
-				this.groupStore.updateGroup(group);
+				groupStore.updateGroup(group);
 
 			});
 		},
 		initNewGroup() {
-			let userInfo = this.userStore.userInfo;
+			let userInfo = userStore.userInfo;
 			this.group = {
 				name: `${userInfo.userName}创建的群聊`,
 				headImage: userInfo.headImage,
 				headImageThumb: userInfo.headImageThumb,
-				ownerId: this.userStore.userInfo.id
+				ownerId: userStore.userInfo.id
 			}
 		}
 	},
 	computed: {
 		isOwner() {
-			return this.userStore.userInfo.id == this.group.ownerId
+			return userStore.userInfo.id == this.group.ownerId
 		}
 	},
 	onLoad(options) {

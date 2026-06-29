@@ -24,6 +24,8 @@
 </template>
 
 <script>
+import { friendStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
@@ -77,7 +79,7 @@ export default {
 		},
 		initFriendItems() {
 			this.friendItems = [];
-			let friends = this.friendStore.friends;
+			let friends = friendStore.friends;
 			friends.filter(f => !f.deleted).forEach((f => {
 				let item = {
 					id: f.id,

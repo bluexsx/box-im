@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import { chatStore, groupStore, userStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
@@ -125,8 +127,8 @@ export default {
 				headImage: this.group.headImageThumb,
 				isDnd: this.group.isDnd
 			};
-			await this.chatStore.openChat(chatInfo);
-			await this.chatStore.moveTop(this.convKey)
+			await chatStore.openChat(chatInfo);
+			await chatStore.moveTop(this.convKey)
 			uni.navigateTo({
 				url: "/pages/chat/chat-box?convKey=" + this.convKey
 			})
@@ -143,14 +145,14 @@ export default {
 						url: `/group/quit/${groupId}`,
 						method: 'DELETE'
 					})
-					await this.groupStore.removeGroup(groupId);
+					await groupStore.removeGroup(groupId);
 					const data = { chatId: groupId }
 					await this.$http({
 						url: `/message/group/deleteChat`,
 						method: 'delete',
 						data: data
 					});
-					await this.chatStore.remove(convKey);
+					await chatStore.remove(convKey);
 					uni.showToast({
 						title: `您退出了群聊'${groupName}'`,
 						icon: "none"
@@ -171,7 +173,7 @@ export default {
 						url: `/group/delete/${groupId}`,
 						method: 'delete'
 					})
-					await this.groupStore.removeGroup(groupId);
+					await groupStore.removeGroup(groupId);
 					uni.showToast({
 						title: `您解散了群聊'${groupName}'`,
 						icon: "none"
@@ -193,8 +195,8 @@ export default {
 				method: 'put',
 				data: formData
 			}).then(() => {
-				this.groupStore.setDnd(groupId, isDnd);
-				this.chatStore.setDnd(convKey, isDnd)
+				groupStore.setDnd(groupId, isDnd);
+				chatStore.setDnd(convKey, isDnd)
 			})
 		},
 		onCleanMessage() {
@@ -213,7 +215,7 @@ export default {
 						method: 'delete',
 						data: data
 					});
-					await this.chatStore.cleanMessage(convKey);
+					await chatStore.cleanMessage(convKey);
 					uni.showToast({
 						title: `您清空了'${groupName}'的聊天记录`,
 						icon: 'none'
@@ -228,16 +230,16 @@ export default {
 			}).then((group) => {
 				this.group = group;
 				// 更新聊天页面的群聊信息
-				this.chatStore.updateFromGroup(group);
+				chatStore.updateFromGroup(group);
 				// 更新聊天列表的群聊信息
-				this.groupStore.updateGroup(group);
+				groupStore.updateGroup(group);
 			}).catch((e) => {
 				console.log(e)
 				uni.navigateBack();
 			});
 		},
 		loadGroupMembers() {
-			this.groupStore.refreshMember(this.groupId);
+			groupStore.refreshMember(this.groupId);
 		}
 	},
 	computed: {
@@ -245,20 +247,20 @@ export default {
 			return this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, this.groupId);
 		},
 		isExistHistory() {
-			return this.chatStore.conversationMap.has(this.convKey);
+			return chatStore.conversationMap.has(this.convKey);
 		},
 		ownerName() {
 			const member = this.groupMembers.find((m) => m.userId == this.group.ownerId);
 			return member && member.showNickName;
 		},
 		isOwner() {
-			return this.group.ownerId == this.userStore.userInfo.id;
+			return this.group.ownerId == userStore.userInfo.id;
 		},
 		showMaxIdx() {
 			return this.isOwner ? 8 : 9;
 		},
 		groupMembers() {
-			const group = this.groupStore.findGroup(this.groupId)
+			const group = groupStore.findGroup(this.groupId)
 			return group.members.filter(m => !m.quit);
 		}
 	},

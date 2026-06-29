@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { friendStore } from '@/store/stores.js'
+
 export default {
 	name: "chatItem",
 	data() {
@@ -66,7 +68,7 @@ export default {
 		},
 		online() {
 			if (this.isPrivate) {
-				const friend = this.friendStore.findFriend(this.conversation.targetId);
+				const friend = friendStore.findFriend(this.conversation.targetId);
 				return friend && friend.online;
 			}
 			return false;

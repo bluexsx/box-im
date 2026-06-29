@@ -1,5 +1,5 @@
 <script>
-import App from './App'
+import { chatStore, friendStore, groupStore, configStore, userStore } from '@/store/stores.js'
 import http from './common/request';
 import * as msgType from './common/messageType';
 import * as enums from './common/enums';
@@ -51,7 +51,7 @@ export default {
 					})
 					this.exit();
 				} else if (cmd == 3) {
-					if (this.chatStore.loading) {
+					if (chatStore.loading) {
 						// 如果正在拉取离线消息，先存入缓存区，等待消息拉取完成再处理，防止消息乱序
 						this.privateMessagesBuffer.push(msgInfo);
 					} else {
@@ -59,7 +59,7 @@ export default {
 						this.handlePrivateMessage(msgInfo);
 					}
 				} else if (cmd == 4) {
-					if (this.chatStore.loading) {
+					if (chatStore.loading) {
 						// 如果正在拉取离线消息，先存入缓存区，等待消息拉取完成再处理，防止消息乱序
 						this.privateMessagesBuffer.push(msgInfo);
 					} else {
@@ -80,29 +80,29 @@ export default {
 			})
 		},
 		async loadStore() {
-			await this.userStore.loadUser()
+			await userStore.loadUser()
 			// 初始化数据库
-			await this.$db.open(this.userStore.userInfo.id);
+			await this.$db.open(userStore.userInfo.id);
 			const promises = [];
-			promises.push(this.friendStore.loadFriend());
-			promises.push(this.groupStore.loadGroup());
-			promises.push(this.chatStore.loadConversations());
-			promises.push(this.configStore.loadConfig());
+			promises.push(friendStore.loadFriend());
+			promises.push(groupStore.loadGroup());
+			promises.push(chatStore.loadConversations());
+			promises.push(configStore.loadConfig());
 			return Promise.all(promises);
 		},
 		unloadStore() {
-			this.friendStore.clear();
-			this.groupStore.clear();
-			this.chatStore.clear();
-			this.configStore.clear();
-			this.userStore.clear();
+			friendStore.clear();
+			groupStore.clear();
+			chatStore.clear();
+			configStore.clear();
+			userStore.clear();
 		},
 		pullOfflineMessage() {
 			let t1 = new Date().getTime();
-			this.chatStore.setLoading(true);
+			chatStore.setLoading(true);
 			const promises = [];
-			const maxPrivateMessageId = this.chatStore.findMaxMessageId(this.$enums.CONVERSATION_TYPE.PRIVATE);
-			const maxGroupMessageId = this.chatStore.findMaxMessageId(this.$enums.CONVERSATION_TYPE.GROUP);
+			const maxPrivateMessageId = chatStore.findMaxMessageId(this.$enums.CONVERSATION_TYPE.PRIVATE);
+			const maxGroupMessageId = chatStore.findMaxMessageId(this.$enums.CONVERSATION_TYPE.GROUP);
 			promises.push(this.pullPrivateOfflineMessage(maxPrivateMessageId));
 			promises.push(this.pullGroupOfflineMessage(maxGroupMessageId));
 			Promise.all(promises).then(async (messages) => {
@@ -121,7 +121,7 @@ export default {
 				this.privateMessagesBuffer = [];
 				this.groupMessagesBuffer = [];
 				// 关闭加载离线标记
-				this.chatStore.setLoading(false);
+				chatStore.setLoading(false);
 				// 打印耗时
 				let t3 = new Date().getTime();
 				let size = messages[0].length + messages[1].length;
@@ -220,7 +220,7 @@ export default {
 			// 批量保存会话和消息
 			const conversations = Array.from(conversationMap.values());
 			await this.$db.saveConversationAndMessage(conversations, messages.concat(tmpMessages));
-			this.chatStore.append(conversations);
+			chatStore.append(conversations);
 		},
 		async handleGroupOfflineMessage(messages) {
 			if (!messages || !messages.length) {
@@ -323,7 +323,7 @@ export default {
 			}
 			const conversations = Array.from(conversationMap.values());
 			await this.$db.saveConversationAndMessage(conversations, messages.concat(tmpMessages));
-			this.chatStore.append(conversations);
+			chatStore.append(conversations);
 		},
 		pullPrivateOfflineMessage(minId) {
 			return this.$http({
@@ -341,45 +341,45 @@ export default {
 		},
 		async handlePrivateMessage(m) {
 			// 标记这条消息是不是自己发的
-			m.selfSend = m.sendId == this.userStore.userInfo.id;
+			m.selfSend = m.sendId == userStore.userInfo.id;
 			// 好友id
 			const friendId = m.selfSend ? m.recvId : m.sendId;
 			// 会话信息
 			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.PRIVATE, friendId);
 			// 消息已读处理，清空已读数量
 			if (m.type == this.$enums.MESSAGE_TYPE.READED) {
-				await this.chatStore.resetUnreadCount(convKey)
+				await chatStore.resetUnreadCount(convKey)
 				return;
 			}
 			// 消息回执处理,改消息状态为已读
 			if (m.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
-				await this.chatStore.readedMessage(convKey)
+				await chatStore.readedMessage(convKey)
 				return;
 			}
 			// 消息撤回
 			if (m.type == this.$enums.MESSAGE_TYPE.RECALL) {
-				await this.chatStore.recallMessage(convKey, m)
+				await chatStore.recallMessage(convKey, m)
 				return;
 			}
 			// 新增好友
 			if (m.type == enums.MESSAGE_TYPE.FRIEND_NEW) {
-				this.friendStore.addFriend(JSON.parse(m.content));
+				friendStore.addFriend(JSON.parse(m.content));
 				return;
 			}
 			// 删除好友
 			if (m.type == enums.MESSAGE_TYPE.FRIEND_DEL) {
-				this.friendStore.removeFriend(friendId);
+				friendStore.removeFriend(friendId);
 				return;
 			}
 			// 好友在线状态更新
 			if (m.type == enums.MESSAGE_TYPE.FRIEND_ONLINE) {
-				this.friendStore.updateOnlineStatus(JSON.parse(m.content));
+				friendStore.updateOnlineStatus(JSON.parse(m.content));
 				return;
 			}
 			// 对好友设置免打扰
 			if (m.type == this.$enums.MESSAGE_TYPE.FRIEND_DND) {
-				this.friendStore.setDnd(friendId, JSON.parse(m.content));
-				await this.chatStore.setDnd(convKey, JSON.parse(m.content));
+				friendStore.setDnd(friendId, JSON.parse(m.content));
+				await chatStore.setDnd(convKey, JSON.parse(m.content));
 				return;
 			}
 			// 消息插入
@@ -400,14 +400,14 @@ export default {
 				isTop: friend.isTop
 			};
 			// 打开会话
-			await this.chatStore.openChat(chatInfo);
+			await chatStore.openChat(chatInfo);
 			// 插入消息
-			await this.chatStore.insertMessage(convKey, m);
+			await chatStore.insertMessage(convKey, m);
 			// 通知chat-box组件
-			if (this.chatStore.isActive(convKey)) {
+			if (chatStore.isActive(convKey)) {
 				uni.$emit("newMessage", m);
 			}
-			if (!friend.isDnd && !this.chatStore.loading &&
+			if (!friend.isDnd && !chatStore.loading &&
 				!m.selfSend && msgType.isNormal(m.type) && m.status != enums.MESSAGE_STATUS.READED) {
 				// 播放提示音
 				this.playAudioTip();
@@ -420,7 +420,7 @@ export default {
 			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, m.groupId);
 			// 发送用户昵称优先显示好友备注的名字
 			if (m.sendId && m.sendNickName) {
-				const f = this.friendStore.findFriend(m.sendId);
+				const f = friendStore.findFriend(m.sendId);
 				if (f && !f.deleted && f.remarkNickName) {
 					m.sendNickName = f.remarkNickName;
 				}
@@ -428,29 +428,29 @@ export default {
 			// 消息已读处理
 			if (m.type == this.$enums.MESSAGE_TYPE.READED) {
 				// 我已读对方的消息，清空已读数量
-				await this.chatStore.resetUnreadCount(convKey)
-				await this.chatStore.resetAtMessage(convKey)
+				await chatStore.resetUnreadCount(convKey)
+				await chatStore.resetAtMessage(convKey)
 				return;
 			}
 			// 消息撤回
 			if (m.type == this.$enums.MESSAGE_TYPE.RECALL) {
-				await this.chatStore.recallMessage(convKey, m)
+				await chatStore.recallMessage(convKey, m)
 				return;
 			}
 			// 新增群
 			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_NEW) {
-				this.groupStore.addGroup(JSON.parse(m.content));
+				groupStore.addGroup(JSON.parse(m.content));
 				return;
 			}
 			// 删除群
 			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_DEL) {
-				this.groupStore.removeGroup(m.groupId);
+				groupStore.removeGroup(m.groupId);
 				return;
 			}
 			// 对群设置免打扰
 			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_DND) {
-				this.groupStore.setDnd(m.groupId, JSON.parse(m.content));
-				this.chatStore.setDnd(chatInfo, JSON.parse(m.content));
+				groupStore.setDnd(m.groupId, JSON.parse(m.content));
+				chatStore.setDnd(chatInfo, JSON.parse(m.content));
 				return;
 			}
 			// 插入群聊消息
@@ -470,15 +470,15 @@ export default {
 				isTop: group.isTop
 			};
 			// 打开会话
-			await this.chatStore.openChat(chatInfo);
+			await chatStore.openChat(chatInfo);
 			// 插入消息
-			await this.chatStore.insertMessage(convKey, m);
+			await chatStore.insertMessage(convKey, m);
 			// 通知chat-box组件
-			if (this.chatStore.isActive(convKey)) {
+			if (chatStore.isActive(convKey)) {
 				uni.$emit("newMessage", m);
 			}
 			// 提示音和消息提醒
-			if (!group.isDnd && !this.chatStore.loading &&
+			if (!group.isDnd && !chatStore.loading &&
 				!m.selfSend && this.$msgType.isNormal(m.type) &&
 				m.status != this.$enums.MESSAGE_STATUS.READED) {
 				// 播放提示音
@@ -506,15 +506,15 @@ export default {
 				isDnd: group.isDnd
 			};
 			// 打开会话
-			await this.chatStore.openChat(chatInfo);
+			await chatStore.openChat(chatInfo);
 			// 插入消息
-			await this.chatStore.insertMessage(convKey, m);
+			await chatStore.insertMessage(convKey, m);
 			// 通知chat-box组件
-			if (this.chatStore.isActive(convKey)) {
+			if (chatStore.isActive(convKey)) {
 				uni.$emit("newMessage", m);
 			}
 			// 提示音和消息提醒
-			if (!group.isDnd && !this.chatStore.loading &&
+			if (!group.isDnd && !chatStore.loading &&
 				!m.selfSend && this.$msgType.isNormal(m.type) &&
 				m.status != this.$enums.MESSAGE_STATUS.READED) {
 				// 播放提示音
@@ -522,7 +522,7 @@ export default {
 			}
 		},
 		loadFriendInfo(id, callback) {
-			let friend = this.friendStore.findFriend(id);
+			let friend = friendStore.findFriend(id);
 			if (!friend) {
 				console.log("未知用户:", id)
 				friend = {
@@ -534,7 +534,7 @@ export default {
 			return friend;
 		},
 		loadGroupInfo(id) {
-			let group = this.groupStore.findGroup(id);
+			let group = groupStore.findGroup(id);
 			if (!group) {
 				group = {
 					id: id,
@@ -557,7 +557,7 @@ export default {
 		playAudioTip() {
 			// 播放间隔必须大于1s
 			const interval = new Date().getTime() - this.lastPlayAudioTime;
-			if (this.userStore.userInfo.isAudioTip && interval > 1000) {
+			if (userStore.userInfo.isAudioTip && interval > 1000) {
 				if (!this.audioTip) {
 					this.audioTip = uni.createInnerAudioContext();
 					this.audioTip.src = "/static/audio/tip.mp3";
@@ -594,7 +594,7 @@ export default {
 			// 记录标志
 			this.reconnecting = true;
 			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			this.userStore.loadUser().then((userInfo) => {
+			userStore.loadUser().then((userInfo) => {
 				uni.showToast({
 					title: '连接已断开，尝试重新连接...',
 					icon: 'none'
@@ -613,8 +613,8 @@ export default {
 			this.reconnecting = false;
 			// 重新加载好友和群聊
 			const promises = [];
-			promises.push(this.friendStore.loadFriend());
-			promises.push(this.groupStore.loadGroup());
+			promises.push(friendStore.loadFriend());
+			promises.push(groupStore.loadGroup());
 			Promise.all(promises).then(() => {
 				uni.showToast({
 					title: "已重新连接",
@@ -638,12 +638,11 @@ export default {
 	},
 	computed: {
 		mine() {
-			return this.userStore.userInfo;
+			return userStore.userInfo;
 		}
 	},
 	async onLaunch() {
 		await this.$mountDb();
-		this.$mountStore();
 		// 延迟1s，避免用户看到页面跳转
 		this.closeSplashscreen(1000);
 		// 登录状态校验

@@ -27,9 +27,12 @@
 </template>
 
 <script>
+import { groupStore } from '@/store/stores.js'
+
 export default {
 	data() {
 		return {
+			groupStore,
 			showSearch: false,
 			searchText: ""
 		}
@@ -46,7 +49,7 @@ export default {
 	},
 	computed: {
 		hasGroups() {
-			return this.groupStore.groups.some((g) => !g.quit);
+			return groupStore.groups.some((g) => !g.quit);
 		}
 	}
 }
