@@ -235,21 +235,21 @@ editor,
 }
 
 .emoji-large {
-	width: 64rpx !important;
-	height: 64rpx !important;
-	vertical-align: bottom !important;
+	width: 60rpx !important;
+	height: 60rpx !important;
+	vertical-align: -10rpx !important;
 }
 
 .emoji-normal {
-	width: 50rpx !important;
-	height: 50rpx !important;
-	vertical-align: bottom !important;
+	width: 40rpx !important;
+	height: 40rpx !important;
+	vertical-align: -8rpx  !important;
 }
 
 .emoji-small {
-	width: 36rpx !important;
-	height: 36rpx !important;
-	vertical-align: bottom !important;
+	width: 32rpx !important;
+	height: 32rpx !important;
+	vertical-align: -6rpx  !important;
 }
 
 .none-pointer-events {

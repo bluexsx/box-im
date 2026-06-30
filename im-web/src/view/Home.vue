@@ -450,9 +450,10 @@ export default {
 				await this.chatStore.resetUnreadCount(convKey)
 				return;
 			}
-			// 消息回执处理,改消息状态为已读
+			// 消息回执处理,更新对方已读位置
 			if (m.type == this.$enums.MESSAGE_TYPE.RECEIPT) {
-				await this.chatStore.readedMessage(convKey)
+				const messageId = JSON.parse(m.content).id;
+				await this.chatStore.readedMessage(convKey, messageId)
 				return;
 			}
 			// 消息撤回
