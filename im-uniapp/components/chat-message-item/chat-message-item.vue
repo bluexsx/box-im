@@ -60,7 +60,7 @@
 						<view v-else-if="sendFail" @click="onSendFail" class="send-fail iconfont icon-warning-circle-fill"></view>
 					</view>
 					<view class="message-status" v-if="!isAction && message.selfSend && !message.groupId">
-						<text class="chat-readed" v-if="message.status == $enums.MESSAGE_STATUS.READED">已读</text>
+						<text class="chat-readed" v-if="isReaded">已读</text>
 						<text class="chat-unread" v-else>未读</text>
 					</view>
 					<view class="chat-receipt" v-if="message.receipt&&message.selfSend" @click="$emit('receipt')">
