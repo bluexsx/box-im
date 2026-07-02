@@ -912,7 +912,7 @@ export default {
 				align-items: center;
 				background: var(--im-background-active);
 				color: black;
-				gap: 8px;
+				gap: 12px;
 				opacity: 0.85;
 
 				// 统一所有按钮的样式，参考新版本

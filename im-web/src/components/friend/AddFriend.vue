@@ -58,7 +58,7 @@ export default {
 				return;
 			}
 			this.$http({
-				url: "/user/findByName",
+				url: "/user/search",
 				method: "get",
 				params: {
 					name: this.searchText
