@@ -47,7 +47,7 @@ export default {
 		},
 		onSearch() {
 			this.$http({
-				url: "/user/findByName?name=" + this.searchText,
+				url: "/user/search?name=" + this.searchText,
 				method: "GET"
 			}).then((data) => {
 				this.users = data;

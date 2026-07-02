@@ -62,7 +62,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         UserSession session = SessionContext.getSession();
         User user = userService.getById(session.getUserId());
         // 保存群组数据
-        Group group = BeanUtils.copyProperties(vo, Group.class);
+        Group group = new Group();
+        group.setHeadImage(vo.getHeadImage());
+        group.setHeadImageThumb(vo.getHeadImageThumb());
+        group.setName(vo.getName());
+        group.setNotice(vo.getNotice());
         group.setOwnerId(user.getId());
         this.save(group);
         // 把群主加入群
@@ -100,7 +104,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         groupMemberService.updateById(member);
         // 群主有权修改群基本信息
         if (group.getOwnerId().equals(session.getUserId())) {
-            group = BeanUtils.copyProperties(vo, Group.class);
+            group.setHeadImage(vo.getHeadImage());
+            group.setHeadImageThumb(vo.getHeadImageThumb());
+            group.setName(vo.getName());
+            group.setNotice(vo.getNotice());
             this.updateById(group);
         }
         log.info("修改群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());

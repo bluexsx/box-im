@@ -56,10 +56,10 @@ public class UserController {
         return ResultUtils.success();
     }
 
-    @GetMapping("/findByName")
+    @GetMapping("/search")
     @Operation(summary = "查找用户", description = "根据用户名或昵称查找用户")
-    public Result<List<UserVO>> findByName(@RequestParam String name) {
-        return ResultUtils.success(userService.findUserByName(name));
+    public Result<List<UserVO>> search(@RequestParam String name) {
+        return ResultUtils.success(userService.search(name));
     }
 }
 

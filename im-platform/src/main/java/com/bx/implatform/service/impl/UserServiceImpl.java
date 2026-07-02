@@ -198,7 +198,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public List<UserVO> findUserByName(String name) {
+    public List<UserVO> search(String name) {
         LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.like(User::getUserName, name).or().like(User::getNickName, name).last("limit 20");
         List<User> users = this.list(queryWrapper);

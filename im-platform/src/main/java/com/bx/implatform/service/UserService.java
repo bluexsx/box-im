@@ -72,7 +72,7 @@ public interface UserService extends IService<User> {
      * @param name 用户名或昵称
      * @return 用户列表
      */
-    List<UserVO> findUserByName(String name);
+    List<UserVO> search(String name);
 
     /**
      * 获取用户在线的终端类型
