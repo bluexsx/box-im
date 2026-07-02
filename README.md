@@ -26,7 +26,7 @@
 #### 在线体验
 web端: https://www.boximchat.com
 
-安卓app: https://rs.boxim.online/download/boxim.apk
+安卓app: https://www.boximchat.com/download/boxim.apk
 
 ios-app: 已上架至app store,搜索"盒子IM",下载安装即可
 
@@ -36,7 +36,7 @@ h5: https://www.boximchat.com/h5/ ,或扫码：
 
 ![输入图片说明](%E6%88%AA%E5%9B%BE/h5%E4%BA%8C%E7%BB%B4%E7%A0%81.png)
 
-体验账号：张三/Aa321321 李四/Aa321321
+体验账号：张三/Aa888999 李四/Aa888999
 
 说明:  
 1.**请勿利用测试账号辱骂他人、发布低俗内容**  
