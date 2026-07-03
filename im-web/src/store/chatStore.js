@@ -556,7 +556,7 @@ export default defineStore('chatStore', {
 			// 没传messageId就是整个会话已读
 			messageId = messageId || conv.maxMessageId;
 			if (conv && conv.maxReadedId < messageId) {
-				conv.maxReadedId = messageId;
+				conv.maxReadedId = Math.min(conv.maxMessageId, messageId);
 				await getDB().saveConversation(conv);
 			}
 		},
