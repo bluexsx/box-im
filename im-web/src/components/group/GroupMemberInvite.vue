@@ -1,6 +1,6 @@
 <template>
-	<el-dialog v-dialogDrag title="邀请好友" :visible.sync="show" width="620px" :before-close="close">
-		<div class="add-group-member">
+	<el-dialog v-dialogDrag :title="dialogTitle" :visible.sync="show" width="620px" :before-close="close">
+		<div class="group-member-invite">
 			<div class="left-box">
 				<div class="search">
 					<el-input placeholder="搜索好友" v-model="searchText" size="small">
@@ -19,7 +19,7 @@
 			</div>
 			<div class="arrow el-icon-d-arrow-right"></div>
 			<div class="right-box">
-				<div class="tip"> 已勾选{{ checkCount }}位好友</div>
+				<div class="tip">已勾选{{ checkCount }}位好友</div>
 				<el-scrollbar style="height:400px;">
 					<div v-for="friend in friends" :key="friend.id">
 						<friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :active="false"
@@ -31,7 +31,8 @@
 		</div>
 		<span slot="footer" class="dialog-footer">
 			<el-button @click="close()">取 消</el-button>
-			<el-button type="primary" @click="onOk()">确 定</el-button>
+			<el-button type="primary" :disabled="checkCount === 0 || loading" :loading="loading" @click="onOk()">完
+				成</el-button>
 		</span>
 	</el-dialog>
 </template>
@@ -40,35 +41,51 @@
 import FriendItem from '../friend/FriendItem.vue';
 
 export default {
-	name: "addGroupMember",
+	name: "groupMemberInvite",
 	components: {
 		FriendItem
 	},
 	data() {
 		return {
 			show: false,
+			loading: false,
+			mode: 'invite',
 			searchText: "",
-			friends: []
+			friends: [],
+			maxSelectSize: 50
 		}
 	},
 	methods: {
+		openCreate() {
+			this.mode = 'create';
+			this.initDialog();
+		},
 		open() {
+			this.mode = 'invite';
+			this.initDialog();
+		},
+		initDialog() {
 			this.show = true;
+			this.loading = false;
+			this.searchText = "";
 			this.friends = [];
 			this.friendStore.friends.forEach((f) => {
 				if (f.deleted) {
 					return;
 				}
-				let friend = JSON.parse(JSON.stringify(f))
-				let m = this.members.filter((m) => !m.quit)
-					.find((m) => m.userId == f.id);
-				if (m) {
-					// 好友已经在群里
-					friend.disabled = true;
-					friend.isCheck = true
-				} else {
+				let friend = JSON.parse(JSON.stringify(f));
+				if (this.isCreate) {
 					friend.disabled = false;
 					friend.isCheck = false;
+				} else {
+					let m = this.members.filter((m) => !m.quit).find((m) => m.userId == f.id);
+					if (m) {
+						friend.disabled = true;
+						friend.isCheck = true;
+					} else {
+						friend.disabled = false;
+						friend.isCheck = false;
+					}
 				}
 				this.friends.push(friend);
 			})
@@ -77,6 +94,31 @@ export default {
 			this.show = false;
 		},
 		onOk() {
+			if (this.isCreate) {
+				this.onCreateGroup();
+			} else {
+				this.onInviteFriends();
+			}
+		},
+		onCreateGroup() {
+			const userIds = this.friends.filter(f => f.isCheck).map(f => f.id);
+			if (userIds.length === 0) {
+				this.$message.warning('请至少选择1位好友');
+				return;
+			}
+			this.loading = true;
+			this.$http({
+				url: "/group/new",
+				method: 'post',
+				data: { userIds }
+			}).then((group) => {
+				this.$emit("success", group);
+				this.close();
+			}).finally(() => {
+				this.loading = false;
+			})
+		},
+		onInviteFriends() {
 			let inviteVO = {
 				groupId: this.groupId,
 				friendIds: []
@@ -87,6 +129,7 @@ export default {
 				}
 			})
 			if (inviteVO.friendIds.length > 0) {
+				this.loading = true;
 				this.$http({
 					url: "/group/invite",
 					method: 'post',
@@ -94,7 +137,9 @@ export default {
 				}).then(() => {
 					this.$message.success("邀请成功");
 					this.$emit("reload");
-					this.close()
+					this.close();
+				}).finally(() => {
+					this.loading = false;
 				})
 			}
 		},
@@ -102,9 +147,14 @@ export default {
 			friend.isCheck = false;
 		},
 		onSwitchCheck(friend) {
-			if (!friend.disabled) {
-				friend.isCheck = !friend.isCheck
+			if (friend.disabled) {
+				return;
 			}
+			if (!friend.isCheck && this.checkCount >= this.maxSelectSize) {
+				this.$message.warning(`最多只能选择${this.maxSelectSize}位好友`);
+				return;
+			}
+			friend.isCheck = !friend.isCheck;
 		}
 	},
 	props: {
@@ -112,10 +162,17 @@ export default {
 			type: Number
 		},
 		members: {
-			type: Array
+			type: Array,
+			default: () => []
 		}
 	},
 	computed: {
+		isCreate() {
+			return this.mode === 'create';
+		},
+		dialogTitle() {
+			return this.isCreate ? '发起群聊' : '邀请好友进群';
+		},
 		checkCount() {
 			return this.friends.filter((f) => f.isCheck && !f.disabled).length;
 		}
@@ -124,7 +181,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.add-group-member {
+.group-member-invite {
 	display: flex;
 
 	.left-box {

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
+import com.bx.implatform.dto.GroupNewDTO;
 import com.bx.implatform.entity.Group;
 import com.bx.implatform.vo.GroupMemberVO;
 import com.bx.implatform.vo.GroupVO;
@@ -12,13 +13,14 @@ import java.util.List;
 
 public interface GroupService extends IService<Group> {
 
+
     /**
-     * 创建新群聊
+     * 创建群聊
      *
-     * @param vo 群聊信息
+     * @param dto 好友用户id列表
      * @return 群聊信息
      **/
-    GroupVO createGroup(GroupVO vo);
+    GroupVO newGroup(GroupNewDTO dto);
 
     /**
      * 修改群聊信息

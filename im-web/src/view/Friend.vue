@@ -238,16 +238,26 @@ export default {
 .friend-page {
 
 	.header {
-		height: 50px;
+		height: 60px;
 		display: flex;
 		align-items: center;
-		padding: 0 8px;
+		padding: 0 12px;
 
 		.add-btn {
-			padding: 5px !important;
+			padding: 8px;
 			margin: 5px;
 			font-size: 16px;
 			border-radius: 50%;
+			background: var(--im-background-active);
+			color: var(--im-color-primary);
+			transition: all 0.3s ease;
+			font-weight: 600;
+			border: var(--im-border);
+
+			&:hover {
+				background: var(--im-background-active-dark);
+				transform: scale(1.1);
+			}
 		}
 	}
 

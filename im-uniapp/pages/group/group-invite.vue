@@ -1,9 +1,9 @@
 <template>
 	<view class="page group-invite">
-		<nav-bar back>邀请</nav-bar>
+		<nav-bar :title="pageTitle" back></nav-bar>
 		<view class="nav-bar">
 			<view class="nav-search">
-				<uni-search-bar v-model="searchText" radius="100" cancelButton="none"
+				<uni-search-bar v-model="searchText" radius="100" cancelButton="none" clearButton="none"
 					placeholder="输入好友昵称搜索"></uni-search-bar>
 			</view>
 		</view>
@@ -17,97 +17,135 @@
 			</virtual-scroller>
 		</view>
 		<view class="btn-bar">
-			<button class="btn" type="primary" :disabled="inviteSize == 0"
-				@click="onInviteFriends()">邀请({{ inviteSize }}) </button>
+			<button class="btn" type="primary" :disabled="checkedSize == 0 || loading" :loading="loading"
+				@click="onSubmit()">完成</button>
 		</view>
 	</view>
 </template>
 
 <script>
-import { friendStore } from '@/store/stores.js'
+import { chatStore, friendStore, groupStore } from '@/store/stores.js'
 
 export default {
 	data() {
 		return {
+			mode: 'invite',
 			groupId: null,
 			searchText: "",
+			loading: false,
 			groupMembers: [],
-			friendItems: []
+			friendItems: [],
+			maxSelectSize: 50
 		}
 	},
 	methods: {
+		onSubmit() {
+			if (this.isCreate) {
+				this.onCreateGroup();
+			} else {
+				this.onInviteFriends();
+			}
+		},
+		onCreateGroup() {
+			const userIds = this.friendItems.filter(f => f.checked).map(f => f.id);
+			if (userIds.length === 0) {
+				uni.showToast({
+					title: '请至少选择1位好友',
+					icon: 'none'
+				});
+				return;
+			}
+			this.loading = true;
+			this.$http({
+				url: "/group/new",
+				method: 'POST',
+				data: { userIds }
+			}).then(async (group) => {
+				groupStore.addGroup(group);
+				await groupStore.refreshMember(group.id);
+				const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, group.id);
+				const chatInfo = {
+					type: this.$enums.CONVERSATION_TYPE.GROUP,
+					targetId: group.id,
+					showName: group.showGroupName,
+					headImage: group.headImageThumb,
+					isDnd: group.isDnd
+				};
+				await chatStore.openChat(chatInfo);
+				await chatStore.moveTop(convKey);
+				uni.redirectTo({
+					url: `/pages/chat/chat-box?convKey=${convKey}`
+				});
+			}).finally(() => {
+				this.loading = false;
+			});
+		},
 		onInviteFriends() {
 			let inviteVo = {
 				groupId: this.groupId,
 				friendIds: []
 			}
-			this.friendItems.forEach((f) => {
+			this.friendItems.forEach(f => {
 				if (f.checked && !f.disabled) {
 					inviteVo.friendIds.push(f.id);
 				}
 			})
 			if (inviteVo.friendIds.length > 0) {
+				this.loading = true;
 				this.$http({
 					url: "/group/invite",
 					method: 'POST',
 					data: inviteVo
 				}).then(() => {
+					groupStore.refreshMember(this.groupId)
 					uni.showToast({
-						title: "邀请成功",
+						title: '邀请成功',
 						icon: 'none'
 					})
-					setTimeout(() => {
-						// 回退并刷新
-						let pages = getCurrentPages();
-						let prevPage = pages[pages.length - 2];
-						prevPage.$vm.loadGroupMembers();
-						uni.navigateBack();
-					}, 1000);
-
+					setTimeout(() => uni.navigateBack(), 1000);
+				}).finally(() => {
+					this.loading = false;
 				})
 			}
 		},
-		onShowUserInfo(userId) {
-			uni.navigateTo({
-				url: "/pages/common/user-info?id=" + userId
-			})
-		},
 		onSwitchChecked(friend) {
-			if (!friend.disabled) {
-				friend.checked = !friend.checked;
+			if (friend.disabled) {
+				return;
 			}
+			if (!friend.checked && this.checkedSize >= this.maxSelectSize) {
+				uni.showToast({
+					title: `最多只能选择${this.maxSelectSize}位好友`,
+					icon: 'none'
+				});
+				return;
+			}
+			friend.checked = !friend.checked;
 		},
 		initFriendItems() {
 			this.friendItems = [];
-			let friends = friendStore.friends;
-			friends.filter(f => !f.deleted).forEach((f => {
-				let item = {
-					id: f.id,
-					headImage: f.headImage,
-					nickName: f.nickName,
-					online: f.online
+			friendStore.friends.filter(f => !f.deleted).forEach(f => {
+				let item = JSON.parse(JSON.stringify(f));
+				if (this.isCreate) {
+					item.checked = false;
+				} else {
+					item.disabled = this.isGroupMember(f.id);
+					item.checked = item.disabled;
 				}
-				item.disabled = this.isGroupMember(f.id);
-				item.checked = item.disabled;
 				this.friendItems.push(item);
-			}))
-		},
-		loadGroupMembers(id) {
-			this.$http({
-				url: `/group/members/${id}`,
-				method: "GET"
-			}).then((members) => {
-				this.groupMembers = members.filter(m => !m.quit);
-				this.initFriendItems();
 			})
 		},
-
 		isGroupMember(id) {
 			return this.groupMembers.some(m => m.userId == id);
 		}
 	},
 	computed: {
-		inviteSize() {
+		isCreate() {
+			return this.mode === 'create';
+		},
+		pageTitle() {
+			return this.isCreate ? '发起群聊' : '邀请好友进群';
+		},
+		checkedSize() {
 			return this.friendItems.filter(f => !f.disabled && f.checked).length;
 		},
 		showFriends() {
@@ -115,8 +153,15 @@ export default {
 		}
 	},
 	onLoad(options) {
-		this.groupId = options.id;
-		this.loadGroupMembers(options.id);
+		this.mode = options.mode === 'create' ? 'create' : 'invite';
+		if (this.isCreate) {
+			this.initFriendItems();
+			return;
+		}
+		this.groupId = parseInt(options.id);
+		let group = groupStore.findGroup(this.groupId);
+		this.groupMembers = group.members.filter(m => !m.quit);
+		this.initFriendItems();
 	}
 }
 </script>
@@ -131,41 +176,8 @@ export default {
 		position: relative;
 		flex: 1;
 		overflow: hidden;
-
-		.friend-item {
-			height: 120rpx;
-			display: flex;
-			margin-bottom: 1rpx;
-			position: relative;
-			padding: 0 30rpx;
-			align-items: center;
-			background-color: white;
-			white-space: nowrap;
-
-			&.disabled {
-				background-color: $im-bg-active !important;
-			}
-
-			&.checked {
-				background-color: $im-color-primary-light-9;
-			}
-
-			.friend-name {
-				flex: 1;
-				padding-left: 20rpx;
-				font-size: 30rpx;
-				font-weight: 600;
-				line-height: 60rpx;
-				white-space: nowrap;
-				overflow: hidden;
-			}
-		}
-
-		.scroll-bar {
-			height: 100%;
-		}
 	}
-	
+
 	.btn-bar {
 		position: fixed;
 		bottom: 0;

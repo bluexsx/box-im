@@ -15,6 +15,7 @@ import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
+import com.bx.implatform.dto.GroupNewDTO;
 import com.bx.implatform.entity.*;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
@@ -57,33 +58,76 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Autowired
     private GroupMessageService groupMessageService;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public GroupVO createGroup(GroupVO vo) {
+    public GroupVO newGroup(GroupNewDTO dto) {
         UserSession session = SessionContext.getSession();
         User user = userService.getById(session.getUserId());
-        // 保存群组数据
+        List<Long> userIds = dto.getUserIds().stream().distinct()
+            .filter(id -> !id.equals(session.getUserId())).collect(Collectors.toList());
+        if (userIds.isEmpty()) {
+            throw new GlobalException("请至少选择1位好友");
+        }
+        if (userIds.size() + 1 > Constant.MAX_GROUP_MEMBER) {
+            throw new GlobalException("群聊人数不能大于" + Constant.MAX_GROUP_MEMBER + "人");
+        }
+        List<Friend> friends = friendsService.findByFriendIds(userIds);
+        if (userIds.size() != friends.size()) {
+            throw new GlobalException("部分用户不是您的好友，邀请失败");
+        }
+        Map<Long, Friend> friendMap = friends.stream().collect(Collectors.toMap(Friend::getFriendId, f -> f));
         Group group = new Group();
-        group.setHeadImage(vo.getHeadImage());
-        group.setHeadImageThumb(vo.getHeadImageThumb());
-        group.setName(vo.getName());
-        group.setNotice(vo.getNotice());
+        group.setName(buildGroupName(user.getNickName(), userIds, friendMap));
         group.setOwnerId(user.getId());
         this.save(group);
-        // 把群主加入群
-        GroupMember member = new GroupMember();
-        member.setGroupId(group.getId());
-        member.setUserId(user.getId());
-        member.setHeadImage(user.getHeadImageThumb());
-        member.setUserNickName(user.getNickName());
-        member.setRemarkNickName(vo.getRemarkNickName());
-        member.setRemarkGroupName(vo.getRemarkGroupName());
-        groupMemberService.save(member);
-        GroupVO groupVo = findById(group.getId());
-        // 推送同步消息给自己的其他终端
-        sendAddGroupMessage(groupVo, Lists.newArrayList(), true);
-        // 返回
-        log.info("创建群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
-        return groupVo;
+        GroupMember ownerMember = new GroupMember();
+        ownerMember.setGroupId(group.getId());
+        ownerMember.setUserId(user.getId());
+        ownerMember.setUserNickName(user.getNickName());
+        ownerMember.setHeadImage(user.getHeadImageThumb());
+        groupMemberService.save(ownerMember);
+        List<GroupMember> invitedMembers = userIds.stream().map(id -> {
+            Friend friend = friendMap.get(id);
+            GroupMember groupMember = new GroupMember();
+            groupMember.setGroupId(group.getId());
+            groupMember.setUserId(friend.getFriendId());
+            groupMember.setUserNickName(friend.getFriendNickName());
+            groupMember.setHeadImage(friend.getFriendHeadImage());
+            groupMember.setCreatedTime(new Date());
+            groupMember.setQuit(false);
+            return groupMember;
+        }).collect(Collectors.toList());
+        if (!invitedMembers.isEmpty()) {
+            groupMemberService.saveOrUpdateBatch(group.getId(), invitedMembers);
+        }
+        GroupVO ownerVo = findById(group.getId());
+        sendAddGroupMessage(ownerVo, Lists.newArrayList(), true);
+        for (GroupMember groupMember : invitedMembers) {
+            GroupVO groupVo = convert(group, groupMember);
+            sendAddGroupMessage(groupVo, List.of(groupMember.getUserId()), false);
+        }
+        List<Long> allUserIds = groupMemberService.findUserIdsByGroupId(group.getId());
+        String memberNames = invitedMembers.stream().map(GroupMember::getShowNickName).collect(Collectors.joining(","));
+        String content = String.format(" %s 邀请 %s 加入了群聊", session.getNickName(), memberNames);
+        this.sendTipMessage(group.getId(), allUserIds, content);
+        log.info("选择好友创建群聊，群聊id:{},群聊名称:{},成员用户id:{}", group.getId(), group.getName(), userIds);
+        return ownerVo;
+    }
+
+    private String buildGroupName(String ownerNickName, List<Long> userIds, Map<Long, Friend> friendMap) {
+        List<String> names = new ArrayList<>();
+        names.add(ownerNickName);
+        for (Long userId : userIds) {
+            Friend friend = friendMap.get(userId);
+            if (!Objects.isNull(friend)) {
+                names.add(friend.getFriendNickName());
+            }
+        }
+        String groupName = String.join("、", names);
+        if (groupName.length() > 32) {
+            return groupName.substring(0, 31) + "…";
+        }
+        return groupName;
     }
 
     @CacheEvict(key = "#vo.getId()")
