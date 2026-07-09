@@ -234,14 +234,20 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .friend-page {
 
 	.header {
 		height: 60px;
+		flex-shrink: 0;
 		display: flex;
 		align-items: center;
 		padding: 0 12px;
+		box-sizing: border-box;
+
+		.search-text {
+			flex: 1;
+		}
 
 		.add-btn {
 			padding: 8px;
@@ -256,7 +262,7 @@ export default {
 
 			&:hover {
 				background: var(--im-background-active-dark);
-				transform: scale(1.1);
+				transform: scale(1.05);
 			}
 		}
 	}
@@ -273,7 +279,7 @@ export default {
 	}
 }
 
-.container {
+.friend-page .container {
 	display: flex;
 	flex-direction: column;
 
