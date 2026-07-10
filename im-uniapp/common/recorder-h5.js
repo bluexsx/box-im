@@ -35,6 +35,7 @@ let start = () => {
 }
 
 let close = () => {
+	duration = (new Date().getTime() - startTime) / 1000;
 	stream.getTracks().forEach((track) => {
 		track.stop()
 	})
@@ -48,11 +49,10 @@ let upload = () => {
 			chunks.push(e.data)
 		}
 		rc.onstop = () => {
-			if(!chunks[0].size){
+			if (!chunks[0].size) {
 				chunks = [];
-				return; 
+				return;
 			}
-			duration = (new Date().getTime() - startTime) / 1000;
 			const newbolb = new Blob(chunks, { 'type': 'audio/mpeg' });
 			const name = new Date().getDate() + '.mp3';
 			const file = new File([newbolb], name)
@@ -79,6 +79,7 @@ let upload = () => {
 					}
 				},
 				fail: (e) => {
+					console.log(e)
 					reject(e);
 				}
 			})
