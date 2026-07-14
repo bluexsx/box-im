@@ -35,28 +35,18 @@
 </template>
 
 <script>
-	// #ifdef APP-NVUE
-	// nvue通过weex的dom模块引入字体，相关文档地址如下：
-	// https://weex.apache.org/zh/docs/modules/dom.html#addrule
-	const fontUrl = 'https://at.alicdn.com/t/font_2225171_8kdcwk4po24.ttf'
-	const domModule = weex.requireModule('dom')
-	domModule.addRule('fontFace', {
-		'fontFamily': "uicon-iconfont",
-		'src': `url('${fontUrl}')`
-	})
-	// #endif
-
 	// 引入图标名称，已经对应的unicode
-	import icons from './icons'
+	import icons from './icons';
 	import { props } from './props';
+	import config from '../../libs/config/config';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
 	import { addUnit, addStyle } from '../../libs/function/index';
-	import config from '../../libs/config/config';
+	import fontUtil from './util';
 	/**
 	 * icon 图标
 	 * @description 基于字体的图标集，包含了大多数常见场景的图标。
-	 * @tutorial https://ijry.github.io/uview-plus/components/icon.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/icon.html
 	 * @property {String}			name			图标名称，见示例图标集
 	 * @property {String}			color			图标颜色,可接受主题色 （默认 color['u-content-color'] ）
 	 * @property {String | Number}	size			图标字体大小，单位px （默认 '16px' ）
@@ -81,9 +71,13 @@
 	 */
 	export default {
 		name: 'u-icon',
+		beforeCreate() {
+			if (!fontUtil.params.loaded) {
+				fontUtil.loadFont();
+			}
+    	},
 		data() {
 			return {
-
 			}
 		},
 		emits: ['click'],
@@ -92,7 +86,7 @@
 			uClasses() {
 				let classes = []
 				classes.push(this.customPrefix + '-' + this.name)
-				// uView的自定义图标类名为u-iconfont
+				// uview-plus内置图标类名为u-iconfont
 				if (this.customPrefix == 'uicon') {
 					classes.push('u-iconfont')
 				} else {
@@ -117,6 +111,9 @@
 					// 某些特殊情况需要设置一个到顶部的距离，才能更好的垂直居中
 					top: addUnit(this.top)
 				}
+				if (this.customPrefix !== 'uicon') {
+					style.fontFamily = this.customPrefix
+				}
 				// 非主题色值时，才当作颜色值
 				if (this.color && !config.type.includes(this.color)) style.color = this.color
 
@@ -136,7 +133,9 @@
 			// 通过图标名，查找对应的图标
 			icon() {
 				// 使用自定义图标的时候页面上会把name属性也展示出来，所以在这里处理一下
-				if (this.customPrefix !== "uicon") return "";
+				if (this.customPrefix !== "uicon") {
+					return config.customIcons[this.name] || this.name;
+				}
 				// 如果内置的图标中找不到对应的图标，就直接返回name值，因为用户可能传入的是unicode代码
 				return icons['uicon-' + this.name] || this.name
 			}
@@ -145,7 +144,7 @@
 			addStyle,
 			addUnit,
 			clickHandler(e) {
-				this.$emit('click', this.index)
+				this.$emit('click', this.index, e)
 				// 是否阻止事件冒泡
 				this.stop && this.preventEvent(e)
 			}
@@ -154,8 +153,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
-
 	// 变量定义
 	$u-icon-primary: $u-primary !default;
 	$u-icon-success: $u-success !default;
@@ -164,13 +161,12 @@
 	$u-icon-error: $u-error !default;
 	$u-icon-label-line-height:1 !default;
 
-	/* #ifndef APP-NVUE */
-	// 非nvue下加载字体
+	/* #ifdef APP || MP-QQ || MP-TOUTIAO || MP-BAIDU || MP-KUAISHOU || MP-XHS */
+	// 2025/04/09在App/微信/支付宝/鸿蒙元服务已改用uni.loadFontFace加载字体
 	@font-face {
 		font-family: 'uicon-iconfont';
 		src: url('https://at.alicdn.com/t/font_2225171_8kdcwk4po24.ttf') format('truetype');
 	}
-
 	/* #endif */
 
 	.u-icon {

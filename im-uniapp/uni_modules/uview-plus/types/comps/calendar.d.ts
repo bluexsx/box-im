@@ -125,6 +125,26 @@ declare interface CalendarProps {
    */
   allowSameDay?: boolean
   /**
+   * 区间模式下确认返回值格式，`all`返回区间内所有日期，`boundary`仅返回起止日期
+   * @default "all"
+   */
+  rangeResultMode?: 'all' | 'boundary'
+  /**
+   * 是否开启时分秒选择
+   * @default false
+   */
+  enableTime?: boolean
+  /**
+   * 时间精度：`hour`仅时、`minute`时分、`second`时分秒
+   * @default "minute"
+   */
+  timePrecision?: 'hour' | 'minute' | 'second'
+  /**
+   * 默认时间，支持 `HH` / `HH:mm` / `HH:mm:ss`
+   * @default ""
+   */
+  defaultTime?: string
+  /**
    * 圆角值，默认无圆角
    * @default 0
    */
@@ -134,6 +154,15 @@ declare interface CalendarProps {
    * @default 3
    */
   monthNum?: string | number
+  /**
+   * 是否显示今天按钮
+   * @default true
+   */
+  showToday?: boolean
+  /**
+   * 今天日期的独立高亮颜色，默认跟随主题色
+   */
+  todayColor?: string
   /**
    * 日期选择完成后触发，若`show-confirm`为`true`，则点击确认按钮后触发
    */

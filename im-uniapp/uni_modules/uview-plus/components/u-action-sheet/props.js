@@ -1,3 +1,11 @@
+/*
+ * @Author       : LQ
+ * @Description  :
+ * @version      : 3.0
+ * @LastAuthor   : jry
+ * @lastTime     : 2025-08-16 10:52:35
+ * @FilePath     : /uview-plus/libs/config/props/props.js
+ */
 import { defineMixin } from '../../libs/vue'
 import defProps from '../../libs/config/props.js'
 
@@ -22,6 +30,16 @@ export const props = defineMixin({
         actions: {
             type: Array,
             default: () => defProps.actionSheet.actions
+        },
+        // 选项名称key
+        nameKey: {
+            type: String,
+            default: () => defProps.actionSheet.nameKey
+        },
+        // 选项子名称key
+        subnameKey: {
+            type: String,
+            default: () => defProps.actionSheet.subnameKey
         },
         // 取消按钮的文字，不为空时显示按钮
         cancelText: {
@@ -52,6 +70,11 @@ export const props = defineMixin({
         round: {
             type: [Boolean, String, Number],
             default: () => defProps.actionSheet.round
-        }
+        },
+        // 选项区域最大高度
+        wrapMaxHeight: {
+            type: [String],
+            default: () => defProps.actionSheet.wrapMaxHeight
+        },
     }
 })

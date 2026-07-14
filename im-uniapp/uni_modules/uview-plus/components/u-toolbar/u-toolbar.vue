@@ -5,32 +5,45 @@
 		v-if="show"
 	>
 		<view
-			class="u-toolbar__cancel__wrapper"
-			hover-class="u-hover-class"
+			class="u-toolbar__left"
 		>
-			<text
-				class="u-toolbar__wrapper__cancel"
-				@tap="cancel"
-				:style="{
-					color: cancelColor
-				}"
-			>{{ cancelText }}</text>
+			<view
+				class="u-toolbar__cancel__wrapper"
+				hover-class="u-hover-class"
+			>
+				<text
+					class="u-toolbar__wrapper__cancel"
+					@tap="cancel"
+					:style="{
+						color: cancelColor
+					}"
+				>{{ cancelText }}</text>
+			</view>
 		</view>
 		<text
 			class="u-toolbar__title u-line-1"
 			v-if="title"
 		>{{ title }}</text>
 		<view
-			class="u-toolbar__confirm__wrapper"
-			hover-class="u-hover-class"
+			class="u-toolbar__right"
 		>
-			<text
-				class="u-toolbar__wrapper__confirm"
-				@tap="confirm"
-				:style="{
-				color: confirmColor
-			}"
-			>{{ confirmText }}</text>
+			<view
+				v-if="!rightSlot"
+				class="u-toolbar__confirm__wrapper"
+				hover-class="u-hover-class"
+			>
+				<text
+					class="u-toolbar__wrapper__confirm"
+					@tap="confirm"
+					:style="{
+					color: confirmColor
+				}"
+				>{{ confirmText }}</text>
+			</view>
+			<template v-else>
+				<slot name="right">
+				</slot>
+			</template>
 		</view>
 	</view>
 </template>
@@ -42,7 +55,7 @@
 	/**
 	 * Toolbar 工具条
 	 * @description 
-	 * @tutorial https://ijry.github.io/uview-plus/components/toolbar.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/toolbar.html
 	 * @property {Boolean}	show			是否展示工具条（默认 true ）
 	 * @property {String}	cancelText		取消按钮的文字（默认 '取消' ）
 	 * @property {String}	confirmText		确认按钮的文字（默认 '确认' ）
@@ -56,6 +69,9 @@
 		name: 'u-toolbar',
 		mixins: [mpMixin, mixin, props],
 		emits: ["confirm", "cancel"],
+		created() {
+			// console.log(this.$slots)
+		},
 		methods: {
 			// 点击取消按钮
 			cancel() {
@@ -70,7 +86,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-toolbar {
 		height: 42px;
@@ -90,11 +105,16 @@
 			color: $u-main-color;
 			padding: 0 60rpx;
 			font-size: 16px;
+			font-weight: bold;
 			flex: 1;
 			text-align: center;
 		}
 
 		&__wrapper {
+			&__left,
+			&__right {
+				@include flex;
+			}
 			&__confirm {
 				color: $u-primary;
 				font-size: 15px;

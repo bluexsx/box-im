@@ -11,8 +11,8 @@
 		    :class="iconClasses"
 		    :style="[iconWrapStyle]"
 		>
-			<slot name="icon">
-				<u-icon
+			<slot name="icon" :elIconSize="elIconSize" :elIconColor="elIconColor">
+				<up-icon
 				    class="u-radio__icon-wrap__icon"
 				    name="checkbox-mark"
 				    :size="elIconSize"
@@ -20,15 +20,18 @@
 				/>
 			</slot>
 		</view>
-		<text
-			class="u-radio__text"
-		    @tap.stop="labelClickHandler"
-		    :style="{
-				color: elDisabled ? elInactiveColor : elLabelColor,
-				fontSize: elLabelSize,
-				lineHeight: elLabelSize
-			}"
-		>{{label}}</text>
+		<view class="u-radio__label-wrap cursor-pointer" @tap.stop="labelClickHandler">
+			<slot name="label" :label="label" :elDisabled="elDisabled">
+				<text
+					class="u-radio__text"
+					:style="{
+						color: elDisabled ? elInactiveColor : elLabelColor,
+						fontSize: elLabelSize,
+						lineHeight: elLabelSize
+					}"
+				>{{label}}</text>
+			</slot>
+		</view>
 	</view>
 </template>
 
@@ -40,7 +43,7 @@
 	/**
 	 * radio 单选框
 	 * @description 单选框用于有一个选择，用户只能选择其中一个的场景。搭配u-radio-group使用
-	 * @tutorial https://ijry.github.io/uview-plus/components/radio.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/radio.html
 	 * @property {String | Number}	name			radio的名称
 	 * @property {String}			shape			形状，square为方形，circle为圆型
 	 * @property {Boolean}			disabled		是否禁用
@@ -104,16 +107,16 @@
 			},
 			// 组件选中激活时的颜色
 			elActiveColor() {
-				return this.activeColor ? this.activeColor : (this.parentData.activeColor ? this.parentData.activeColor : '#2979ff');
+				return this.activeColor ? this.activeColor : (this.parentData.activeColor ? this.parentData.activeColor : this.upThemeVar('--up-primary', '#2979ff'));
 			},
 			// 组件选未中激活时的颜色
 			elInactiveColor() {
 				return this.inactiveColor ? this.inactiveColor : (this.parentData.inactiveColor ? this.parentData.inactiveColor :
-					'#c8c9cc');
+					this.upThemeVar('--up-border-color', '#c8c9cc'));
 			},
 			// label的颜色
 			elLabelColor() {
-				return this.labelColor ? this.labelColor : (this.parentData.labelColor ? this.parentData.labelColor : '#606266')
+				return this.labelColor ? this.labelColor : (this.parentData.labelColor ? this.parentData.labelColor : this.upThemeVar('--up-content-color', '#606266'))
 			},
 			// 组件的形状
 			elShape() {
@@ -126,7 +129,7 @@
 			},
 			elIconColor() {
 				const iconColor = this.iconColor ? this.iconColor : (this.parentData.iconColor ? this.parentData.iconColor :
-					'#ffffff');
+					this.upThemeVar('--up-card-bg-color', '#ffffff'));
 				// 图标的颜色
 				if (this.elDisabled) {
 					// disabled状态下，已勾选的radio图标改为elInactiveColor
@@ -154,7 +157,7 @@
 			iconWrapStyle() {
 				// radio的整体样式
 				const style = {}
-				style.backgroundColor = this.checked && !this.elDisabled ? this.elActiveColor : '#ffffff'
+				style.backgroundColor = this.checked && !this.elDisabled ? this.elActiveColor : this.upThemeVar('--up-card-bg-color', '#ffffff')
 				style.borderColor = this.checked && !this.elDisabled ? this.elActiveColor : this.elInactiveColor
 				style.width = addUnit(this.elSize)
 				style.height = addUnit(this.elSize)
@@ -243,7 +246,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 	$u-radio-wrap-margin-right:6px !default;
 	$u-radio-wrap-font-size:20px !default;
 	$u-radio-wrap-border-width:1px !default;
@@ -254,7 +256,7 @@
 	$u-radio-checked-color:#fff !default;
 	$u-radio-checked-background-color:red !default;
 	$u-radio-checked-border-color: #2979ff !default;
-	$u-radio-disabled-background-color:#ebedf0 !default;
+	$u-radio-disabled-background-color:var(--up-bg-color, #ebedf0) !default;
 	$u-radio-disabled--checked-color:#c8c9cc !default;
 	$u-radio-label-margin-left: 5px !default;
 	$u-radio-label-margin-right:12px !default;

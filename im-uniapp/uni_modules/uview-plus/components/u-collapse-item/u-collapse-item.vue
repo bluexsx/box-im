@@ -11,6 +11,8 @@
 			@click="clickHandler"
 			:arrowDirection="expanded ? 'up' : 'down'"
 			:disabled="disabled"
+			:customClass="cellCustomClass"
+			:customStyle="cellCustomStyle"
 		>
 			<!-- 微信小程序不支持，因为微信中不支持 <slot name="title" #title />的写法 -->
 			<template #title>
@@ -22,7 +24,7 @@
 			</template>
 			<template #icon>
 				<slot name="icon">
-					<u-icon v-if="!$slots.icon && icon" :size="22" :name="icon"></u-icon>
+					<up-icon v-if="!$slots.icon && icon" :size="22" :name="icon"></up-icon>
 				</slot>
 			</template>
 			<template #value>
@@ -33,9 +35,11 @@
 				</slot>
 			</template>
 			<template #right-icon>
-				<u-icon v-if="!$slots['right-icon']" :size="16" name="arrow-right"></u-icon>
-				<slot name="right-icon">
-				</slot>
+				<template v-if="showRight">
+					<up-icon v-if="!$slots['right-icon']" :size="16" name="arrow-right"></up-icon>
+					<slot name="right-icon">
+					</slot>
+				</template>
 			</template>
 		</u-cell>
 		<view
@@ -67,7 +71,7 @@
 	/**
 	 * collapseItem 折叠面板Item
 	 * @description 通过折叠面板收纳内容区域（搭配u-collapse使用）
-	 * @tutorial https://ijry.github.io/uview-plus/components/collapse.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/collapse.html
 	 * @property {String}			title 		标题
 	 * @property {String}			value 		标题右侧内容
 	 * @property {String}			label 		标题下方的描述信息
@@ -197,7 +201,7 @@
 			// 查询内容高度
 			queryRect() {
 				// #ifndef APP-NVUE
-				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://ijry.github.io/uview-plus/js/getRect.html
+				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://uview-plus.jiangruyi.com/js/getRect.html
 				// 组件内部一般用this.$uGetRect，对外的为uni.$u.getRect，二者功能一致，名称不同
 				return new Promise(resolve => {
 					this.$uGetRect(`#${this.elId}`).then(size => {
@@ -221,7 +225,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-collapse-item {
 

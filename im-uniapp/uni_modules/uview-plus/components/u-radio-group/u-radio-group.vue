@@ -2,6 +2,7 @@
 	<view
 	    class="u-radio-group"
 	    :class="bemClass"
+			:style="radioGroupStyle"
 	>
 		<slot></slot>
 	</view>
@@ -11,11 +12,12 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
+	import { addUnit, addStyle, deepMerge } from '../../libs/function/index';
 
 	/**
 	 * radioRroup 单选框父组件
 	 * @description 单选框用于有一个选择，用户只能选择其中一个的场景。搭配u-radio使用
-	 * @tutorial https://ijry.github.io/uview-plus/components/radio.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/radio.html
 	 * @property {String | Number | Boolean}	value 			绑定的值
 	 * @property {Boolean}						disabled		是否禁用所有radio（默认 false ）
 	 * @property {String}						shape			外观形状，shape-方形，circle-圆形(默认 circle )
@@ -32,7 +34,8 @@
 	 * @property {String | Number}				iconSize		图标的大小，单位px （默认 12 ）
 	 * @property {Boolean}						borderBottom	placement为row时，是否显示下边框 （默认 false ）
 	 * @property {String}						iconPlacement	图标与文字的对齐方式 （默认 'left' ）
-     * @property {Object}						customStyle		组件的样式，对象形式
+	 * @property {Object}						gap				item 之间的间距
+   * @property {Object}						customStyle		组件的样式，对象形式
 	 * @event {Function} change 任一个radio状态发生变化时触发
 	 * @example <u-radio-group v-model="value"></u-radio-group>
 	 */
@@ -60,6 +63,12 @@
 				// this.bem为一个computed变量，在mixin中
 				return this.bem('radio-group', ['placement'])
 			},
+			radioGroupStyle() {
+				const style = {
+					gap: addUnit(this.gap)
+				};
+				return deepMerge(style, addStyle(this.customStyle));
+			}
 		},
 		watch: {
 			// 当父组件需要子组件需要共享的参数发生了变化，手动通知子组件
@@ -109,7 +118,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-radio-group {
 		flex: 1;

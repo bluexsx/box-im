@@ -50,14 +50,14 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { addUnit, addStyle, deepMerge, sleep, sys } from '../../libs/function/index';
+	import { addUnit, addStyle, deepMerge, sleep, getWindowInfo } from '../../libs/function/index';
 	// #ifdef APP-NVUE
 	const dom = uni.requireNativePlugin('dom')
 	// #endif
 	/**
 	 * List 列表
 	 * @description 该组件为高性能列表组件
-	 * @tutorial https://ijry.github.io/uview-plus/components/list.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/list.html
 	 * @property {Boolean}			showScrollbar		控制是否出现滚动条，仅nvue有效 （默认 false ）
 	 * @property {String ｜ Number}	lowerThreshold		距底部多少时触发scrolltolower事件 （默认 50 ）
 	 * @property {String ｜ Number}	upperThreshold		距顶部多少时触发scrolltoupper事件，非nvue有效 （默认 0 ）
@@ -90,7 +90,7 @@
 				innerScrollTop: 0,
 				// vue下，scroll-view在上拉加载时的偏移值
 				offset: 0,
-				sys: sys()
+				sys: getWindowInfo()
 			}
 		},
 		computed: {
@@ -114,7 +114,7 @@
 			this.anchors = []
 		},
 		mounted() {},
-		emits: ["scroll", "scrolltolower", "scrolltoupper",
+		emits: ["scroll", "scrolltolower", "scroll-to-lower", "scrolltoupper", "scroll-to-upper",
 			"refresherpulling", "refresherrefresh", "refresherrestore", "refresherabort"],
 		methods: {
 			updateOffsetFromChild(top) {
@@ -129,7 +129,7 @@
 				scrollTop = e.detail.scrollTop
 				// #endif
 				this.innerScrollTop = scrollTop
-				this.$emit('scroll', Math.abs(scrollTop))
+				this.$emit('scroll', scrollTop)
 			},
 			scrollIntoViewById(id) {
 				// #ifdef APP-NVUE
@@ -145,6 +145,8 @@
 			scrolltolower(e) {
 				sleep(30).then(() => {
 					this.$emit('scrolltolower')
+					// 支付宝小程序奇怪无法触发scrolltolowerhttps://github.com/ijry/uview-plus/issues/422
+					this.$emit('scroll-to-lower')
 				})
 			},
 			// #ifndef APP-NVUE
@@ -152,6 +154,7 @@
 			scrolltoupper(e) {
 				sleep(30).then(() => {
 					this.$emit('scrolltoupper')
+					this.$emit('scroll-to-upper')
 					// 这一句很重要，能绝对保证在性功能障碍的webview，滚动条到顶时，取消偏移值，让页面置顶
 					this.offset = 0
 				})
@@ -174,7 +177,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-list {
 		@include flex(column);

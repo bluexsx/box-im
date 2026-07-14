@@ -81,6 +81,31 @@ export const props = defineMixin({
         confirmButtonShape: {
             type: String,
             default: () => defProps.modal.confirmButtonShape
+        },
+        // 弹窗动画过度时间
+        duration: {
+            type: [Number],
+            default: defProps.modal.duration
+        },
+        // 文案对齐方式
+        contentTextAlign: {
+            type: String,
+            default: () => defProps.modal.contentTextAlign
+        },
+        // 异步确定时如果点击了取消时候的提示文案
+        asyncCloseTip: {
+            type: String,
+            default: () => defProps.modal.asyncCloseTip
+        },
+        // 是否异步关闭，只对取消按钮有效
+        asyncCancelClose: {
+            type: Boolean,
+            default: () => defProps.modal.asyncCancelClose
+        },
+        // 内容样式
+        contentStyle: {
+            type: Object,
+            default: () => defProps.modal.contentStyle
         }
     }
 })

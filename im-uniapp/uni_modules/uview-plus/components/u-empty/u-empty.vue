@@ -4,13 +4,13 @@
 	    :style="[emptyStyle]"
 	    v-if="show"
 	>
-		<u-icon
+		<up-icon
 		    v-if="!isSrc"
 		    :name="mode === 'message' ? 'chat' : `empty-${mode}`"
 		    :size="iconSize"
 		    :color="iconColor"
 		    margin-top="14"
-		></u-icon>
+		></up-icon>
 		<image
 		    v-else
 		    :style="{
@@ -35,10 +35,11 @@
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
 	import { addUnit, addStyle, deepMerge } from '../../libs/function/index';
+	import { t } from '../../libs/i18n'
 	/**
 	 * empty 内容为空
 	 * @description 该组件用于需要加载内容，但是加载的第一页数据就为空，提示一个"没有内容"的场景， 我们精心挑选了十几个场景的图标，方便您使用。
-	 * @tutorial https://ijry.github.io/uview-plus/components/empty.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/empty.html
 	 * @property {String}			icon		内置图标名称，或图片路径，建议绝对路径
 	 * @property {String}			text		提示文字
 	 * @property {String}			textColor	文字颜色 (默认 '#c0c4cc' )
@@ -62,21 +63,21 @@
 		data() {
 			return {
 				icons: {
-					car: '购物车为空',
-					page: '页面不存在',
-					search: '没有搜索结果',
-					address: '没有收货地址',
-					wifi: '没有WiFi',
-					order: '订单为空',
-					coupon: '没有优惠券',
-					favor: '暂无收藏',
-					permission: '无权限',
-					history: '无历史记录',
-					news: '无新闻列表',
-					message: '消息列表为空',
-					list: '列表为空',
-					data: '数据为空',
-					comment: '暂无评论',
+					car: t("up.empty.car"),
+					page: t("up.empty.page"),
+					search: t("up.empty.search"),
+					address: t("up.empty.address"),
+					wifi: t("up.empty.wifi"),
+					order: t("up.empty.order"),
+					coupon: t("up.empty.coupon"),
+					favor: t("up.empty.favor"),
+					permission: t("up.empty.permission"),
+					history: t("up.empty.history"),
+					news: t("up.empty.news"),
+					message: t("up.empty.message"),
+					list: t("up.empty.list"),
+					data: t("up.empty.data"),
+					comment: t("up.empty.comment"),
 				}
 			}
 		},
@@ -107,7 +108,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import '../../libs/css/components.scss';
 	$u-empty-text-margin-top:20rpx !default;
 	$u-empty-slot-margin-top:20rpx !default;
 

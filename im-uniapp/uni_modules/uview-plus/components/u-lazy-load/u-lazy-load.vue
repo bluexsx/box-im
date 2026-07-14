@@ -19,7 +19,8 @@
 <script>
     import {
         addUnit,
-        guid
+        guid,
+        rpx2px
     } from '../../libs/function/index.js';
     /**
      * lazyLoad 懒加载
@@ -97,7 +98,7 @@
             // 图片高度，单位rpx
             height: {
                 type: [Number, String],
-                default: '450'
+                default: '200'
             }
         },
         data() {
@@ -114,7 +115,7 @@
             // 将threshold从rpx转为px
             getThreshold() {
                 // 先取绝对值，因为threshold可能是负数，最后根据this.threshold是正数或者负数，重新还原
-                let thresholdPx = uni.upx2px(Math.abs(this.threshold));
+                let thresholdPx = rpx2px(Math.abs(this.threshold));
                 return this.threshold < 0 ? -thresholdPx : thresholdPx;
             },
             // 计算图片的高度，可能为auto，带%，或者直接数值
@@ -207,45 +208,54 @@
                 });
             })
             // mounted的时候，不一定挂载了这个元素，延时30ms，否则会报错或者不报错，但是也没有效果
+           
             setTimeout(() => {
+                // #ifndef APP-NVUE
                 // 这里是组件内获取布局状态，不能用uni.createIntersectionObserver，而必须用this.createIntersectionObserver
                 // this.disconnectObserver('contentObserver');
+                // nvue 里不支持
                 const contentObserver = uni.createIntersectionObserver(this);
                 // 要理解这里怎么计算的，请看这个：
                 // https://blog.csdn.net/qq_25324335/article/details/83687695
                 contentObserver.relativeToViewport({
                     bottom: this.getThreshold,
                 }).observe('.u-lazy-item-' + this.elIndex, (res) => {
-                    console.log('relativeToViewport', res)
+                    // console.log('relativeToViewport', res)
                     if (res.intersectionRatio > 0) {
                         // 懒加载状态改变
                         this.isShow = true;
+                        // 图片为空时显示错误
+                        if (!this.image) {
+                            this.loadError();
+                        }
                         // 如果图片已经加载，去掉监听，减少性能的消耗
                         this.disconnectObserver('contentObserver');
                     }
                 })
                 this.contentObserver = contentObserver;
+                // #endif
+                // #ifdef APP-NVUE
+                this.isShow = true;
+                // #endif
             }, 30)
         }
     }
 </script>
 
 <style scoped lang="scss">
-    @import "../../libs/css/components.scss";
-
     .u-wrap {
         background-color: #eee;
         overflow: hidden;
     }
 
     .u-lazy-item {
-        width: 100%;
         // 骗系统开启硬件加速
         transform: transition3d(0, 0, 0);
+        /* #ifndef APP-NVUE */
         // 防止图片加载“闪一下”
         will-change: transform;
-        /* #ifndef APP-NVUE */
         display: block;
+        width: 100%;
         /* #endif */
     }
 </style>

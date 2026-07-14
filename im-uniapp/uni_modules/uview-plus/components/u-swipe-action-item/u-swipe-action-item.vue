@@ -10,19 +10,19 @@
 						alignItems: item.style && item.style.borderRadius ? 'center' : 'stretch'
 					}]" @tap="buttonClickHandler(item, index)">
 					<view class="u-swipe-action-item__right__button__wrapper" :style="[{
-							backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD',
+							backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : defaultButtonBgColor,
 							borderRadius: item.style && item.style.borderRadius ? item.style.borderRadius : '0',
 							padding: item.style && item.style.borderRadius ? '0' : '0 15px',
 						}, item.style]">
-						<u-icon v-if="item.icon" :name="item.icon"
-							:color="item.style && item.style.color ? item.style.color : '#ffffff'"
+						<up-icon v-if="item.icon" :name="item.icon"
+							:color="item.style && item.style.color ? item.style.color : defaultButtonColor"
 							:size="item.iconSize ? addUnit(item.iconSize) : item.style && item.style.fontSize ? getPx(item.style.fontSize) * 1.2 : 17"
 							:customStyle="{
 								marginRight: item.text ? '2px' : 0
-							}"></u-icon>
+							}"></up-icon>
 						<text v-if="item.text" class="u-swipe-action-item__right__button__wrapper__text u-line-1"
 							:style="[{
-								color: item.style && item.style.color ? item.style.color : '#ffffff',
+								color: item.style && item.style.color ? item.style.color : defaultButtonColor,
 								fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px',
 								lineHeight: item.style && item.style.fontSize ? item.style.fontSize : '16px',
 							}]">{{ item.text }}</text>
@@ -76,7 +76,7 @@
 	/**
 	 * SwipeActionItem 滑动单元格子组件
 	 * @description 该组件一般用于左滑唤出操作菜单的场景，用的最多的是左滑删除操作
-	 * @tutorial https://ijry.github.io/uview-plus/components/swipeAction.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/swipeAction.html
 	 * @property {Boolean}			show			控制打开或者关闭（默认 false ）
 	 * @property {String | Number}	index			标识符，如果是v-for，可用index索引
 	 * @property {Boolean}			disabled		是否禁用（默认 false ）
@@ -90,8 +90,7 @@
 	 */
 	export default {
 		name: 'u-swipe-action-item',
-		emits: ['click'],
-		
+		emits: ['click', 'update:show'],
 		mixins: [
 			mpMixin,
 			mixin,
@@ -101,7 +100,7 @@
 			// #ifdef APP-NVUE
 			nvue,
 			// #endif
-			// #ifdef APP-VUE || MP-WEIXIN || H5 || MP-QQ || H5
+			// #ifdef APP-VUE || MP-WEIXIN || MP-QQ || H5
 			wxs,
 			// #endif
 			// #ifdef MP-ALIPAY || MP-BAIDU || MP-TOUTIAO
@@ -118,7 +117,7 @@
 					autoClose: true,
 				},
 				// 当前状态，open-打开，close-关闭
-				status: 'close',
+				status: '',
 				sliderStyle: {}
 			}
 		},
@@ -127,16 +126,40 @@
 			// #ifndef APP-NVUE
 			wxsInit(newValue, oldValue) {
 				this.queryRect()
-			}
+			},
 			// #endif
+			status(newValue) {
+				if (newValue === 'open') {
+					this.$emit('update:show', true)
+					this.parent && this.parent.setOpendItem(this)
+				} else {
+					this.$emit('update:show', false)
+				}
+			},
+			show(newValue) {
+				if (newValue) {
+					this.status = 'open'
+				} else {
+					this.status = 'close'
+				}
+			}
 		},
 		computed: {
 			wxsInit() {
 				return [this.disabled, this.autoClose, this.threshold, this.options, this.duration]
+			},
+			defaultButtonBgColor() {
+				return this.upThemeVar('--up-swipe-action-button-bg-color', this.upThemeIsDark ? '#4b5563' : '#C7C6CD')
+			},
+			defaultButtonColor() {
+				return this.upThemeVar('--up-swipe-action-button-color', '#ffffff')
 			}
 		},
 		mounted() {
 			this.init()
+		},
+		beforeUmount() {
+			this.closeHandler()
 		},
 		methods: {
 			addUnit,
@@ -170,17 +193,20 @@
 			// #endif
 			// 按钮被点击
 			buttonClickHandler(item, index) {
-				this.$emit('click', {
+				let ret = this.$emit('click', {
 					index,
 					name: this.name
+				}, () => {
 				})
+				if (this.closeOnClick) {
+					this.closeHandler()
+				}
 			}
 		},
 	}
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-swipe-action-item {
 		position: relative;
@@ -191,7 +217,7 @@
 
 		&__content {
             transform: translateX(0px); // 修复某些情况下默认右侧按钮是展开的问题
-			background-color: #FFFFFF;
+			background-color: var(--up-card-bg-color, #FFFFFF);
 			z-index: 10;
 		}
 
@@ -217,7 +243,7 @@
 					&__text {
 						@include flex;
 						align-items: center;
-						color: #FFFFFF;
+						color: var(--up-swipe-action-button-color, #FFFFFF);
 						font-size: 15px;
 						text-align: center;
 						justify-content: center;

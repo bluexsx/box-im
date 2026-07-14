@@ -11,7 +11,7 @@
 		}"
 		:closeOnClickOverlay="closeOnClickOverlay"
 		:safeAreaInsetBottom="false"
-		:duration="400"
+		:duration="duration"
 		@click="clickHandler"
 	>
 		<view
@@ -20,18 +20,18 @@
 				width: addUnit(width),
 			}"
 		>
-			<text
+			<view
 				class="u-modal__title"
 				v-if="title"
-			>{{ title }}</text>
+			>{{ title }}</view>
 			<view
 				class="u-modal__content"
-				:style="{
-					paddingTop: `${title ? 12 : 25}px`
-				}"
+				:style="contentStyleCpu"
 			>
 				<slot>
-					<text class="u-modal__content__text">{{ content }}</text>
+					<text class="u-modal__content__text" :style="{textAlign: contentTextAlign}">
+						{{ content }}
+					</text>
 				</slot>
 			</view>
 			<view
@@ -87,6 +87,9 @@
 				</view>
 			</template>
 		</view>
+		<template #bottom>
+			<slot name="popupBottom"></slot>
+		</template>
 	</u-popup>
 </template>
 
@@ -98,7 +101,7 @@
 	/**
 	 * Modal 模态框
 	 * @description 弹出模态框，常用于消息提示、消息确认、在当前页面内完成特定的交互操作。
-	 * @tutorial https://ijry.github.io/uview-plus/components/modul.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/modul.html
 	 * @property {Boolean}			show				是否显示模态框，请赋值给show （默认 false ）
 	 * @property {String}			title				标题内容
 	 * @property {String}			content				模态框内容，如传入slot内容，则此参数无效
@@ -115,10 +118,11 @@
 	 * @property {String | Number}	negativeTop			往上偏移的值，给一个负的margin-top，往上偏移，避免和键盘重合的情况，单位任意，数值则默认为px单位 （默认 0 ）
 	 * @property {String | Number}	width				modal宽度，不支持百分比，可以数值，px，rpx单位 （默认 '650rpx' ）
 	 * @property {String}			confirmButtonShape	确认按钮的样式,如设置，将不会显示取消按钮
+	 * @property {Number}			duration			弹窗动画过度时间 （默认 400 ）
 	 * @event {Function} confirm	点击确认按钮时触发
 	 * @event {Function} cancel		点击取消按钮时触发
 	 * @event {Function} close		点击遮罩关闭出发，closeOnClickOverlay为true有效
-	 * @example <u-loadmore :status="status" icon-type="iconType" load-text="loadText" />
+	 * @example <u-modal :show="show" />
 	 */
 	export default {
 		name: 'u-modal',
@@ -135,7 +139,14 @@
 				if (n && this.loading) this.loading = false
 			}
 		},
-		emits: ["confirm", "cancel", "close"],
+		emits: ["confirm", "cancel", "close", "update:show", 'cancelOnAsync'],
+		computed: {
+			contentStyleCpu() {
+				let style = this.contentStyle;
+				style.paddingTop = `${this.title ? 12 : 25}px`
+				return style;
+			}
+		},
 		methods: {
 			addUnit,
 			// 点击确定按钮
@@ -143,11 +154,28 @@
 				// 如果配置了异步关闭，将按钮值为loading状态
 				if (this.asyncClose) {
 					this.loading = true;
+				} else {
+					this.$emit('update:show', false)
 				}
 				this.$emit('confirm')
 			},
 			// 点击取消按钮
 			cancelHandler() {
+				// 如果点击了确定按钮，确定按钮正在请求接口执行异步操作，那么限制不能取消。
+				if (this.asyncClose && this.loading) {
+					if (this.asyncCloseTip) {
+						uni.showToast({
+							title: this.asyncCloseTip,
+							icon: 'none'
+						});
+					}
+					this.$emit('cancelOnAsync')
+				} else {
+					// 如果配置了取消时异步关闭
+					if (!this.asyncCancelClose) {
+						this.$emit('update:show', false)
+					}
+				}
 				this.$emit('cancel')
 			},
 			// 点击遮罩
@@ -157,6 +185,7 @@
 			// 透明遮罩的子元素做了.stop处理，所以点击内容区，也不会导致误触发
 			clickHandler() {
 				if (this.closeOnClickOverlay) {
+					this.$emit('update:show', false)
 					this.$emit('close')
 				}
 			}
@@ -165,7 +194,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 	$u-modal-border-radius: 6px;
 
 	.u-modal {
@@ -174,7 +202,10 @@
 		overflow: hidden;
 
 		&__title {
-			display: block;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
 			font-size: 16px;
 			font-weight: bold;
 			color: $u-content-color;

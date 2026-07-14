@@ -33,7 +33,7 @@
 	/**
 	 * gridItem 提示
 	 * @description 宫格组件一般用于同时展示多个同类项目的场景，可以给宫格的项目设置徽标组件(badge)，或者图标等，也可以扩展为左右滑动的轮播形式。搭配u-grid使用
-	 * @tutorial https://ijry.github.io/uview-plus/components/grid.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/grid.html
 	 * @property {String | Number}	name		宫格的name ( 默认 null )
 	 * @property {String}			bgColor		宫格的背景颜色 （默认 'transparent' ）
 	 * @property {Object}			customStyle	自定义样式，对象形式
@@ -52,9 +52,6 @@
 				// #ifdef APP-NVUE
 				width: 0, // nvue下才这么计算，vue下放到computed中，否则会因为延时造成闪烁
 				// #endif
-				// #ifdef MP-TOUTIAO
-				width: '100%',
-				// #endif
 				classes: [], // 类名集合，用于判断是否显示右边和下边框
 			};
 		},
@@ -69,21 +66,16 @@
 		},
 		// #endif
 		computed: {
-			// #ifndef APP-NVUE || MP-TOUTIAO
-			// vue下放到computed中，否则会因为延时造成闪烁
-			width() {
-				if (this.parentData.col > 0) {
-					return 100 / Number(this.parentData.col) + '%'
-				} else {
-					return 0;
-				}
-			},
-			// #endif
 			itemStyle() {
 				const style = {
-					background: this.bgColor,
-					width: this.width
+					background: this.bgColor
 				}
+				// #ifdef APP-NVUE
+				style['width'] = this.width
+				// #endif
+				// #ifndef APP-NVUE
+				style['width'] = '100%'
+				// #endif
 				return deepMerge(style, addStyle(this.customStyle))
 			}
 		},
@@ -172,12 +164,7 @@
 				}
 			}
 		},
-		// #ifdef VUE2
-		beforeDestroy() {
-		// #endif
-		// #ifdef VUE3
 		beforeUnmount() {
-		// #endif
 			// 移除事件监听，释放性能
 			uni.$off('$uGridItem')
 		}
@@ -185,7 +172,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
       $u-grid-item-hover-class-opcatiy:.5 !default;
       $u-grid-item-margin-top:1rpx !default;
       $u-grid-item-border-right-width:0.5px !default;

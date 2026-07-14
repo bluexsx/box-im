@@ -16,7 +16,7 @@
 	/**
 	 * grid 宫格布局
 	 * @description 宫格组件一般用于同时展示多个同类项目的场景，可以给宫格的项目设置徽标组件(badge)，或者图标等，也可以扩展为左右滑动的轮播形式。
-	 * @tutorial https://ijry.github.io/uview-plus/components/grid.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/grid.html
 	 * @property {String | Number}	col			宫格的列数（默认 3 ）
 	 * @property {Boolean}			border		是否显示宫格的边框（默认 false ）
 	 * @property {String}			align		宫格对齐方式，表现为数量少的时候，靠左，居中，还是靠右 （默认 'left' ）
@@ -89,10 +89,9 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
      $u-grid-width:100% !default;
 	.u-grid {
-		/* #ifdef MP */
+		/* #ifdef APP-NVUE */
 		width: $u-grid-width;
 		position: relative;
 		box-sizing: border-box;
@@ -105,9 +104,10 @@
 		align-items: center;
 		// 在uni-app中应尽量避免使用flex布局以外的方式,因为nvue/uvue等方案都支持flex布局
 		// 这里使用grid布局使用为目前20240409uni-app在抖音小程序开启virtualHost时有bug，存在事件失效问题。
-		/* #ifdef MP-TOUTIAO */
-		display: grid;
-		grid-template-columns: repeat(v-bind(col), 1fr);
+		/* #ifndef APP-NVUE */
+		display: grid !important;
+		grid-gap: v-bind(gap);
+		grid-template-columns: repeat(v-bind(col), minmax(0, 1fr));
 		/* #endif */
 	}
 </style>

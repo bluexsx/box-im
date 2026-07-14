@@ -7,32 +7,34 @@
 				<view class="u-cell__left-icon-wrap" v-if="$slots.icon || icon">
 					<slot name="icon" v-if="$slots.icon">
 					</slot>
-					<u-icon v-else :name="icon"
+					<up-icon v-else :name="icon"
 						:custom-style="iconStyle"
-						:size="size === 'large' ? 22 : 18"></u-icon>
+						:size="size === 'large' ? 22 : 18"></up-icon>
 				</view>
 				<view class="u-cell__title">
                     <!-- 将slot与默认内容用if/else分开主要是因为微信小程序不支持slot嵌套传递，这样才能解决collapse组件的slot不失效问题，label暂时未用到。 -->
 					<slot name="title" v-if="$slots.title || !title">
 					</slot>
-                    <text v-else class="u-cell__title-text" :style="[titleTextStyle]"
-                        :class="[disabled && 'u-cell--disabled', size === 'large' && 'u-cell__title-text--large']">{{ title }}</text>
+                    <text v-else class="u-cell__title-text" :style="[titleTextStyle, cellTitleDynamicStyle]"
+                        :class="[required && 'u-cell--required', disabled && 'u-cell--disabled', size === 'large' && 'u-cell__title-text--large']">{{ title }}</text>
 					<slot name="label">
 						<text class="u-cell__label" v-if="label"
+							:style="[cellLabelDynamicStyle]"
 							:class="[disabled && 'u-cell--disabled', size === 'large' && 'u-cell__label--large']">{{ label }}</text>
 					</slot>
 				</view>
 			</view>
 			<slot name="value">
 				<text class="u-cell__value"
+					:style="[cellValueDynamicStyle]"
 					:class="[disabled && 'u-cell--disabled', size === 'large' && 'u-cell__value--large']"
 					v-if="!testEmpty(value)">{{ value }}</text>
 			</slot>
 			<view class="u-cell__right-icon-wrap" v-if="$slots['right-icon'] || isLink"
 				:class="[`u-cell__right-icon-wrap--${arrowDirection}`]">
-				<u-icon v-if="rightIcon && !$slots['right-icon']" :name="rightIcon"
-					:custom-style="rightIconStyle" :color="disabled ? '#c8c9cc' : 'info'"
-					:size="size === 'large' ? 18 : 16"></u-icon>
+				<up-icon v-if="rightIcon && !$slots['right-icon']" :name="rightIcon"
+					:custom-style="rightIconStyle" :color="disabled ? cellDisabledColor : 'info'"
+					:size="size === 'large' ? 18 : 16"></up-icon>
 				<slot v-else name="right-icon">
 				</slot>
 			</view>
@@ -91,6 +93,24 @@
 		computed: {
 			titleTextStyle() {
 				return addStyle(this.titleStyle)
+			},
+			cellDisabledColor() {
+				return this.upThemeVar('--up-disabled-color', '#c8c9cc')
+			},
+			cellTitleDynamicStyle() {
+				return {
+					color: this.upThemeVar('--up-main-color', '#303133')
+				}
+			},
+			cellLabelDynamicStyle() {
+				return {
+					color: this.upThemeVar('--up-tips-color', '#909399')
+				}
+			},
+			cellValueDynamicStyle() {
+				return {
+					color: this.upThemeVar('--up-content-color', '#606266')
+				}
 			}
 		},
 		emits: ['click'],
@@ -113,7 +133,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	$u-cell-padding: 13px 15px !default;
 	$u-cell-font-size: 15px !default;
@@ -128,8 +147,8 @@
 	$u-cell-label-line-height: 18px !default;
 	$u-cell-value-font-size: 14px !default;
 	$u-cell-value-color: $u-content-color !default;
-	$u-cell-clickable-color: $u-bg-color !default;
-	$u-cell-disabled-color: #c8c9cc !default;
+	$u-cell-clickable-color: var(--up-hover-bg-color, #f1f1f1) !default;
+	$u-cell-disabled-color: $u-disabled-color !default;
 	$u-cell-padding-top-large: 13px !default;
 	$u-cell-padding-bottom-large: 13px !default;
 	$u-cell-value-font-size-large: 15px !default;
@@ -229,6 +248,25 @@
 			&--large {
 				font-size: $u-cell-value-font-size-large;
 			}
+		}
+
+		&--required {
+			/* #ifndef APP-NVUE */
+			overflow: visible;
+			/* #endif */
+			@include flex;
+			align-items: center;
+		}
+
+		&--required:before {
+			position: absolute;
+			/* #ifndef APP-NVUE */
+			content: '*';
+			/* #endif */
+			left: -8px;
+			margin-top: 4rpx;
+			font-size: 14px;
+			color: $u-error;
 		}
 
 		&--clickable {

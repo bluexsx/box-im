@@ -8,9 +8,7 @@
 	    :safeAreaInsetBottom="safeAreaInsetBottom"
 	    @close="popupClose"
 	    :zIndex="zIndex"
-	    :customStyle="{
-			backgroundColor: 'rgb(214, 218, 220)'
-		}"
+	    :customStyle="popupStyle"
 	>
 		<view class="u-keyboard">
 			<slot />
@@ -75,7 +73,7 @@
 	/**
 	 * keyboard 键盘
 	 * @description 此为uViw自定义的键盘面板，内含了数字键盘，车牌号键，身份证号键盘3中模式，都有可以打乱按键顺序的选项。
-	 * @tutorial https://ijry.github.io/uview-plus/components/keyboard.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/keyboard.html
 	 * @property {String}			mode				键盘类型，见官网基本使用的说明 （默认 'number' ）
 	 * @property {Boolean}			dotDisabled			是否显示"."按键，只在mode=number时有效 （默认 false ）
 	 * @property {Boolean}			tooltip				是否显示键盘顶部工具条 （默认 true ）
@@ -106,6 +104,13 @@
 			}
 		},
 		mixins: [mpMixin, mixin, props],
+		computed: {
+			popupStyle() {
+				return {
+					backgroundColor: this.upThemeVar('--up-bg-color', this.upThemeIsDark ? '#2c2c2e' : 'rgb(214, 218, 220)')
+				}
+			}
+		},
 		emits: ["change", "close", "confirm", "cancel", "backspace"],
 		methods: {
 			change(e) {
@@ -132,18 +137,17 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-keyboard {
 
 		&__tooltip {
 			@include flex;
 			justify-content: space-between;
-			background-color: #FFFFFF;
+			background-color: var(--up-card-bg-color, #ffffff);
 			padding: 14px 12px;
 
 			&__item {
-				color: #333333;
+				color: var(--up-main-color, #303133);
 				flex: 1;
 				text-align: center;
 				font-size: 15px;
@@ -156,7 +160,7 @@
 
 			&__cancel {
 				text-align: left;
-				color: #888888;
+				color: var(--up-tips-color, #909399);
 			}
 
 			&__tips {

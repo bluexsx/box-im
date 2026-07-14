@@ -1,10 +1,10 @@
 <template>
 	<view
 		class="u-sticky"
-		:id="elId"
 		:style="[style]"
 	>
 		<view
+		:id="elId"
 			:style="[stickyContent]"
 			class="u-sticky__content"
 		>
@@ -17,12 +17,12 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { addUnit, addStyle, deepMerge, getPx, guid, sys, os } from '../../libs/function/index';
+	import { addUnit, addStyle, deepMerge, getPx, guid, getDeviceInfo, os } from '../../libs/function/index';
 	import zIndex from '../../libs/config/zIndex';
 	/**
 	 * sticky 吸顶
 	 * @description 该组件与CSS中position: sticky属性实现的效果一致，当组件达到预设的到顶部距离时， 就会固定在指定位置，组件位置大于预设的顶部距离时，会重新按照正常的布局排列。
-	 * @tutorial https://ijry.github.io/uview-plus/components/sticky.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/sticky.html
 	 * @property {String ｜ Number}	offsetTop		吸顶时与顶部的距离，单位px（默认 0 ）
 	 * @property {String ｜ Number}	customNavHeight	自定义导航栏的高度 （h5 默认44  其他默认 0 ）
 	 * @property {Boolean}			disabled		是否开启吸顶功能 （默认 false ）
@@ -90,6 +90,11 @@
 		mounted() {
 			this.init()
 		},
+		watch: {
+			offsetTop(nval) {
+				this.getStickyTop()
+			}
+		},
 		methods: {
 			init() {
 				this.getStickyTop()
@@ -114,7 +119,7 @@
 			observeContent() {
 				// 先断掉之前的观察
 				this.disconnectObserver('contentObserver')
-				const contentObserver = uni.createIntersectionObserver({
+				const contentObserver = uni.createIntersectionObserver(this,{
 					// 检测的区间范围
 					thresholds: [0.95, 0.98, 1]
 				})
@@ -150,7 +155,7 @@
 				// #endif
 
 				// 如果安卓版本高于8.0，依然认为是支持css sticky的(因为安卓7在某些机型，可能不支持sticky)
-				if (os() === 'android' && Number(sys().system) > 8) {
+				if (os() === 'android' && Number(getDeviceInfo().system) > 8) {
 					this.cssSticky = true
 				}
 
@@ -200,12 +205,7 @@
 				// #endif
 			}
 		},
-		// #ifdef VUE2
-		beforeDestroy() {
-		// #endif
-		// #ifdef VUE3
 		beforeUnmount() {
-		// #endif
 			this.disconnectObserver('contentObserver')
 		}
 	}

@@ -1,5 +1,14 @@
+/*
+ * @Author       : jry
+ * @Description  :
+ * @version      : 3.0
+ * @LastAuthor   : jry
+ * @lastTime     : 2025-08-16 16:35:24
+ * @FilePath     : /uview-plus/components/u-album/props.js
+ */
 import { defineMixin } from '../../libs/vue'
 import defProps from '../../libs/config/props.js'
+
 export const props = defineMixin({
     props: {
         // 图片地址，Array<String>|Array<Object>形式
@@ -56,6 +65,31 @@ export const props = defineMixin({
         showMore: {
             type: Boolean,
             default: () => defProps.album.showMore
+        },
+        // 图片形状，circle-圆形，square-方形
+        shape: {
+            type: String,
+            default: () => defProps.image.shape
+        },
+        // 圆角，单位任意
+        radius: {
+            type: [String, Number],
+            default: () => defProps.image.radius
+        },
+        // 自适应换行
+        autoWrap: {
+            type: Boolean,
+            default: () => defProps.album.autoWrap
+        },
+        // 单位
+        unit: {
+            type: [String],
+            default: () => defProps.album.unit
+        },
+        // 阻止点击冒泡
+        stop: {
+            type: Boolean,
+            default: () => defProps.album.stop
         }
     }
 })

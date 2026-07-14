@@ -12,31 +12,31 @@
 		<view
 		    class="u-no-network"
 		>
-			<u-icon
+			<up-icon
 			    :name="image"
 			    size="150"
 			    imgMode="widthFit"
 			    class="u-no-network__error-icon"
-			></u-icon>
+			></up-icon>
 			<text class="u-no-network__tips">{{tips}}</text>
 			<!-- 只有APP平台，才能跳转设置页，因为需要调用plus环境 -->
 			<!-- #ifdef APP-PLUS -->
 			<view class="u-no-network__app">
-				<text class="u-no-network__app__setting">请检查网络，或前往</text>
+				<text class="u-no-network__app__setting">{{ t("up.noNetwork.pleaseCheck") }}</text>
 				<text
 				    class="u-no-network__app__to-setting"
 				    @tap="openSettings"
-				>设置</text>
+				>{{ t("up.common.settings") }}</text>
 			</view>
 			<!-- #endif -->
 			<view class="u-no-network__retry">
-				<u-button
+				<up-button
 				    size="mini"
-				    text="重试"
+				    :text="t('up.common.retry')"
 				    type="primary"
 					plain
 				    @click="retry"
-				></u-button>
+				></up-button>
 			</view>
 		</view>
 	</u-overlay>
@@ -46,16 +46,17 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { toast } from '../../libs/function/index';
+	import { toast, getDeviceInfo } from '../../libs/function/index';
+	import { t } from '../../libs/i18n'
 	/**
 	 * noNetwork 无网络提示
 	 * @description 该组件无需任何配置，引入即可，内部自动处理所有功能和事件。
-	 * @tutorial https://ijry.github.io/uview-plus/components/noNetwork.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/noNetwork.html
 	 * @property {String}			tips 	没有网络时的提示语 （默认：'哎呀，网络信号丢失' ）
 	 * @property {String | Number}	zIndex	组件的z-index值 
 	 * @property {String}			image	无网络的图片提示，可用的src地址或base64图片 
 	 * @event {Function}			retry	用户点击页面的"重试"按钮时触发
-	 * @example <u-no-network></u-no-network>
+	 * @example <up-no-network></u-no-network>
 	 */
 	export default {
 		name: "u-no-network",
@@ -67,7 +68,8 @@
 			}
 		},
 		mounted() {
-			this.isIOS = (uni.getSystemInfoSync().platform === 'ios')
+			this.isIOS = (getDeviceInfo().platform === 'ios')
+			// HarmonyOS Next 平台使用时需要添加权限 ohos.permission.GET_NETWORK_INFO
 			uni.onNetworkStatusChange((res) => {
 				this.isConnected = res.isConnected
 				this.networkType = res.networkType
@@ -82,11 +84,15 @@
 					} else {
 						this.isConnected = true
 					}
+				},
+				fail: (res) => {
+					console.log(res)
 				}
 			})
 		},
 		emits: ["disconnected", "connected"],
 		methods: {
+			t,
 			retry() {
 				// 重新检查网络
 				uni.getNetworkType({
@@ -94,10 +100,10 @@
 						this.networkType = res.networkType
 						this.emitEvent(this.networkType)
 						if (res.networkType == 'none') {
-							toast('无网络连接')
+							toast(t("up.noNetwork.disconnect"))
 							this.isConnected = false
 						} else {
-							toast('网络已连接')
+							toast(t("up.noNetwork.connect"))
 							this.isConnected = true
 						}
 					}
@@ -184,7 +190,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-no-network {
 		@include flex(column);

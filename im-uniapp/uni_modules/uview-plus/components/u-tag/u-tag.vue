@@ -24,36 +24,50 @@
 							:src="icon"
 							:style="[imgStyle]"
 						></image>
-						<u-icon
+						<up-icon
 							v-else
 							:color="elIconColor"
 							:name="icon"
 							:size="iconSize"
-						></u-icon>
+						></up-icon>
 					</view>
 				</slot>
-				<text
-					class="u-tag__text"
-					:style="[textColor]"
-					:class="[`u-tag__text--${type}`, plain && `u-tag__text--${type}--plain`, `u-tag__text--${size}`]"
-				>
-					<slot>
-						{{ text }}
+				<view class="u-tag__content">
+					<slot name="content">
 					</slot>
-				</text>
+					<template v-if="!$slots.content">
+						<text
+							v-if="!$slots.default && !$slots.$default"
+							class="u-tag__text"
+							:style="[textColor]"
+							:class="[`u-tag__text--${type}`, plain && `u-tag__text--${type}--plain`, `u-tag__text--${size}`]"
+						>
+							{{ text }}
+						</text>
+						<text
+							v-else
+							class="u-tag__text"
+							:style="[textColor]"
+							:class="[`u-tag__text--${type}`, plain && `u-tag__text--${type}--plain`, `u-tag__text--${size}`]"
+						>
+							<slot>
+							</slot>
+						</text>
+					</template>
+				</view>
 			</view>
 			<view
 				class="u-tag__close"
 				:class="[`u-tag__close--${size}`]"
 				v-if="closable"
 				@tap.stop="closeHandler"
-				:style="{backgroundColor: closeColor}"
+				:style="{backgroundColor: resolvedCloseColor}"
 			>
-				<u-icon
+				<up-icon
 					name="close"
 					:size="closeSize"
 					color="#ffffff"
-				></u-icon>
+				></up-icon>
 			</view>
 		</view>
 	</u-transition>
@@ -64,10 +78,11 @@
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
 	import test from '../../libs/function/test';
+	import { addUnit, genLightColor } from '../../libs/function/index';
 	/**
 	 * Tag 标签
 	 * @description tag组件一般用于标记和选择，我们提供了更加丰富的表现形式，能够较全面的涵盖您的使用场景
-	 * @tutorial https://ijry.github.io/uview-plus/components/tag.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/tag.html
 	 * @property {String}			type		标签类型info、primary、success、warning、error （默认 'primary' ）
 	 * @property {Boolean | String}	disabled	不可用（默认 false ）
 	 * @property {String}			size		标签的大小，large，medium，mini （默认 'medium' ）
@@ -107,6 +122,19 @@
 				if(this.borderColor) {
 					style.borderColor = this.borderColor
 				}
+				if (this.height) {
+					style.height = addUnit(this.height)
+					style.lineHeight = addUnit(this.height)
+				}
+				if (this.padding) {
+					style.padding = this.padding
+				}
+				if (this.borderRadius) {
+					style.borderRadius = addUnit(this.borderRadius)
+				}
+				if (this.autoBgColor > 0 && this.color) {
+					style.backgroundColor = this.getBagColor(this.color)
+				}
 				return style
 			},
 			// nvue下，文本颜色无法继承父元素
@@ -114,6 +142,9 @@
 				const style = {}
 				if (this.color) {
 					style.color = this.color
+				}
+				if (this.textSize) {
+					style.textSize = addUnit(this.textSize)
 				}
 				return style
 			},
@@ -137,6 +168,12 @@
 			// 图标颜色
 			elIconColor() {
 				return this.iconColor ? this.iconColor : this.plain ? this.type : '#ffffff'
+			},
+			resolvedCloseColor() {
+				if (this.upHasProp('closeColor') || this.closeColor !== '#C6C7CB') {
+					return this.closeColor
+				}
+				return this.upThemeVar('--up-tag-close-bg-color', this.$u.color.disabledColor || '#c8c9cc')
 			}
 		},
 		emits: ["click", "close"],
@@ -149,16 +186,23 @@
 			// 点击标签
 			clickHandler() {
 				this.$emit('click', this.name)
+			},
+			// 根据颜色计算浅色作为背景
+			getBagColor(darkColor) {
+				return genLightColor(darkColor, this.autoBgColor)
 			}
 		}
 	}
 </script>
 
+<style lang="scss">
+	@import "./theme-vars.scss";
+</style>
+
 <style
 	lang="scss"
 	scoped
 >
-	@import "../../libs/css/components.scss";
 
 	.u-tag-wrapper {
 		position: relative;
@@ -228,7 +272,7 @@
 		}
 
 		&--primary--plain--fill {
-			background-color: #ecf5ff;
+			background-color: $u-primary-light;
 		}
 
 		&__text--primary {
@@ -251,7 +295,7 @@
 		}
 
 		&--error--plain--fill {
-			background-color: #fef0f0;
+			background-color: $u-error-light;
 		}
 
 		&__text--error {
@@ -274,7 +318,7 @@
 		}
 
 		&--warning--plain--fill {
-			background-color: #fdf6ec;
+			background-color: $u-warning-light;
 		}
 
 		&__text--warning {
@@ -297,7 +341,7 @@
 		}
 
 		&--success--plain--fill {
-			background-color: #f5fff0;
+			background-color: $u-success-light;
 		}
 
 		&__text--success {
@@ -320,7 +364,7 @@
 		}
 
 		&--info--plain--fill {
-			background-color: #f4f4f5;
+			background-color: $u-info-light;
 		}
 
 		&__text--info {
@@ -337,7 +381,7 @@
 			top: 10px;
 			right: 10px;
 			border-radius: 100px;
-			background-color: #C6C7CB;
+			background-color: $u-disabled-color;
 			@include flex(row);
 			align-items: center;
 			justify-content: center;

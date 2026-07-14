@@ -56,11 +56,11 @@
 					hover-class="u-hover-class"
 					:hover-stay-time="200"
 				>
-					<u-icon
+					<up-icon
 						size="28"
 						name="backspace"
-						color="#303133"
-					></u-icon>
+						:color="upThemeVar('--up-main-color', '#303133')"
+					></up-icon>
 				</view>
 			</view>
 		</view>
@@ -74,7 +74,7 @@
 	import { randomArray, sleep } from '../../libs/function/index';
 	/**
 	 * keyboard 键盘组件
-	 * @description 此为uView自定义的键盘面板，内含了数字键盘，车牌号键，身份证号键盘3种模式，都有可以打乱按键顺序的选项。
+	 * @description 此为uview-plus自定义的键盘面板，内含了数字键盘，车牌号键，身份证号键盘3种模式，都有可以打乱按键顺序的选项。
 	 * @tutorial https://uview-plus.jiangruyi.com/components/keyboard.html
 	 * @property {Boolean} random 是否打乱键盘的顺序
 	 * @event {Function} change 点击键盘触发
@@ -82,7 +82,7 @@
 	 * @example <u-keyboard ref="uKeyboard" mode="car" v-model="show"></u-keyboard>
 	 */
 	export default {
-		name: "u-keyboard",
+		name: "u-car-keyboard",
 		mixins: [mpMixin, mixin, props],
 		data() {
 			return {
@@ -222,26 +222,25 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
-	$u-car-keyboard-background-color: rgb(224, 228, 230) !default;
+	$u-car-keyboard-background-color: var(--up-bg-color, rgb(224, 228, 230)) !default;
 	$u-car-keyboard-padding:6px 0 6px !default;
 	$u-car-keyboard-button-inner-width:64rpx !default;
-	$u-car-keyboard-button-inner-background-color:#FFFFFF !default;
+	$u-car-keyboard-button-inner-background-color:var(--up-card-bg-color, #ffffff) !default;
 	$u-car-keyboard-button-height:80rpx !default;
 	$u-car-keyboard-button-inner-box-shadow:0 1px 0px #999992 !default;
 	$u-car-keyboard-button-border-radius:4px !default;
 	$u-car-keyboard-button-inner-margin:8rpx 5rpx !default;
 	$u-car-keyboard-button-text-font-size:16px !default;
-	$u-car-keyboard-button-text-color:$u-main-color !default;
+	$u-car-keyboard-button-text-color:var(--up-main-color, #303133) !default;
 	$u-car-keyboard-center-inner-margin: 0 4rpx !default;
 	$u-car-keyboard-special-button-width:134rpx !default;
 	$u-car-keyboard-lang-font-size:16px !default;
-	$u-car-keyboard-lang-color:$u-main-color !default;
+	$u-car-keyboard-lang-color:var(--up-main-color, #303133) !default;
 	$u-car-keyboard-active-color:$u-primary !default;
 	$u-car-keyboard-line-font-size:15px !default;
-	$u-car-keyboard-line-color:$u-main-color !default;
+	$u-car-keyboard-line-color:var(--up-main-color, #303133) !default;
 	$u-car-keyboard-line-margin:0 1px !default;
-	$u-car-keyboard-u-hover-class-background-color:#BBBCC6 !default;
+	$u-car-keyboard-u-hover-class-background-color:var(--up-border-color, #BBBCC6) !default;
 
 	.u-keyboard {
 		@include flex(column);

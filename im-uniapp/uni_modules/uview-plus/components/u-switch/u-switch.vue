@@ -26,10 +26,10 @@
 			    mode="circle"
 			    timingFunction='linear'
 			    <!-- #ifdef VUE3 -->
-				:color="modelValue ? activeColor : '#AAABAD'"
+				:color="modelValue ? resolvedActiveColor : resolvedLoadingInactiveColor"
 				<!-- #endif -->
 				<!-- #ifdef VUE2 -->
-				:color="value ? activeColor : '#AAABAD'"
+				:color="value ? resolvedActiveColor : resolvedLoadingInactiveColor"
 				<!-- #endif -->
 			    :size="size * 0.6"
 			/>
@@ -41,22 +41,25 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
+	import defProps from '../../libs/config/props.js';
 	import { addStyle, addUnit, error } from '../../libs/function/index';
 	/**
 	 * switch 开关选择器
 	 * @description 选择开关一般用于只有两个选择，且只能选其一的场景。
-	 * @tutorial https://ijry.github.io/uview-plus/components/switch.html
-	 * @property {Boolean}						loading			是否处于加载中（默认 false ）
-	 * @property {Boolean}						disabled		是否禁用（默认 false ）
-	 * @property {String | Number}				size			开关尺寸，单位px （默认 25 ）
-	 * @property {String}						activeColor		打开时的背景色 （默认 '#2979ff' ）
-	 * @property {String} 						inactiveColor	关闭时的背景色 （默认 '#ffffff' ）
-	 * @property {Boolean | String | Number}	value			通过v-model双向绑定的值 （默认 false ）
-	 * @property {Boolean | String | Number}	activeValue		打开选择器时通过change事件发出的值 （默认 true ）
-	 * @property {Boolean | String | Number}	inactiveValue	关闭选择器时通过change事件发出的值 （默认 false ）
-	 * @property {Boolean}						asyncChange		是否开启异步变更，开启后需要手动控制输入值 （默认 false ）
-	 * @property {String | Number}				space			圆点与外边框的距离 （默认 0 ）
-	 * @property {Object}						customStyle		定义需要用到的外部样式
+	 * @tutorial https://uview-plus.jiangruyi.com/components/switch.html
+	 * @property {Boolean}						loading				是否处于加载中（默认 false ）
+	 * @property {Boolean}						disabled			是否禁用（默认 false ）
+	 * @property {String | Number}				size				开关尺寸，单位px （默认 25 ）
+	 * @property {String}						activeColor			打开时的背景色 （默认 '#2979ff' ）
+	 * @property {String} 						inactiveColor		关闭时的背景色 （默认 '#ffffff' ）
+	 * @property {String}						dotActiveColor		打开时圆点的颜色 （默认 '#ffffff' ）
+	 * @property {String} 						dotInactiveColor	关闭时圆点的颜色 （默认 '#ffffff' ）
+	 * @property {Boolean | String | Number}	value				通过v-model双向绑定的值 （默认 false ）
+	 * @property {Boolean | String | Number}	activeValue			打开选择器时通过change事件发出的值 （默认 true ）
+	 * @property {Boolean | String | Number}	inactiveValue		关闭选择器时通过change事件发出的值 （默认 false ）
+	 * @property {Boolean}						asyncChange			是否开启异步变更，开启后需要手动控制输入值 （默认 false ）
+	 * @property {String | Number}				space				圆点与外边框的距离 （默认 0 ）
+	 * @property {Object}						customStyle			定义需要用到的外部样式
 	 *
 	 * @event {Function} change 在switch打开或关闭时触发
 	 * @example <u-switch v-model="checked" active-color="red" inactive-color="#eee"></u-switch>
@@ -86,11 +89,6 @@
 			}
 			// #endif
 		},
-		data() {
-			return {
-				bgColor: '#ffffff'
-			}
-		},
 		computed: {
 			isActive(){
 				// #ifdef VUE3
@@ -99,6 +97,33 @@
         		// #ifdef VUE2
 				return this.value === this.activeValue;
 				// #endif
+			},
+			resolvedActiveColor() {
+				if (this.upHasProp('activeColor') || this.activeColor !== defProps.switch.activeColor) {
+					return this.activeColor
+				}
+				return this.upThemeVar('--up-switch-active-color', this.$u.color.primary || '#3c9cff')
+			},
+			resolvedInactiveColor() {
+				if (this.upHasProp('inactiveColor') || this.inactiveColor !== defProps.switch.inactiveColor) {
+					return this.inactiveColor
+				}
+				return this.upThemeVar('--up-switch-inactive-color', this.upThemeIsDark ? '#3a3a3c' : '#ffffff')
+			},
+			resolvedDotActiveColor() {
+				if (this.upHasProp('dotActiveColor') || this.dotActiveColor !== defProps.switch.dotActiveColor) {
+					return this.dotActiveColor
+				}
+				return this.upThemeVar('--up-switch-dot-active-color', '#ffffff')
+			},
+			resolvedDotInactiveColor() {
+				if (this.upHasProp('dotInactiveColor') || this.dotInactiveColor !== defProps.switch.dotInactiveColor) {
+					return this.dotInactiveColor
+				}
+				return this.upThemeVar('--up-switch-dot-inactive-color', this.upThemeIsDark ? '#d1d5db' : '#ffffff')
+			},
+			resolvedLoadingInactiveColor() {
+				return this.upThemeVar('--up-switch-loading-inactive-color', this.upThemeIsDark ? '#9ca3af' : '#aaabad')
 			},
 			switchStyle() {
 				let style = {}
@@ -110,8 +135,10 @@
 				// 这里不能简单的设置为非激活的颜色，否则打开状态时，会有边框，所以需要透明
 				if(this.customInactiveColor) {
 					style.borderColor = 'rgba(0, 0, 0, 0)'
+				} else {
+					style.borderColor = this.upThemeVar('--up-switch-border-color', this.upThemeIsDark ? '#4b5563' : 'rgba(0, 0, 0, 0.12)')
 				}
-				style.backgroundColor = this.isActive ? this.activeColor : this.inactiveColor
+				style.backgroundColor = this.isActive ? this.resolvedActiveColor : this.resolvedInactiveColor
 				return style;
 			},
 			nodeStyle() {
@@ -121,6 +148,7 @@
 				style.height = addUnit(this.size - this.space)
 				const translateX = this.isActive ? addUnit(this.space) : addUnit(this.size);
 				style.transform = `translateX(-${translateX})`
+				style.backgroundColor = this.isActive ? this.resolvedDotActiveColor : this.resolvedDotInactiveColor
 				return style
 			},
 			bgStyle() {
@@ -128,14 +156,14 @@
 				// 这里配置一个多余的元素在HTML中，是为了让switch切换时，有更良好的背景色扩充体验(见实际效果)
 				style.width = addUnit(Number(this.size) * 2 - this.size / 2)
 				style.height = addUnit(this.size)
-				style.backgroundColor = this.inactiveColor
+				style.backgroundColor = this.resolvedInactiveColor
 				// 打开时，让此元素收缩，否则反之
 				style.transform = `scale(${this.isActive ? 0 : 1})`
 				return style
 			},
 			customInactiveColor() {
 				// 之所以需要判断是否自定义了“非激活”颜色，是为了让node圆点离外边框更宽一点的距离
-				return this.inactiveColor !== '#fff' && this.inactiveColor !== '#ffffff'
+				return this.upHasProp('inactiveColor') || this.inactiveColor !== defProps.switch.inactiveColor
 			}
 		},
 		// #ifdef VUE3
@@ -164,8 +192,11 @@
 	};
 </script>
 
+<style lang="scss">
+	@import "./theme-vars.scss";
+</style>
+
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-switch {
 		@include flex(row);
@@ -173,11 +204,11 @@
 		box-sizing: border-box;
 		/* #endif */
 		position: relative;
-		background-color: #fff;
+		background-color: $u-bg-color;
 		border-width: 1px;
 		border-radius: 100px;
 		transition: background-color 0.4s;
-		border-color: rgba(0, 0, 0, 0.12);
+		border-color: $u-border-color;
 		border-style: solid;
 		justify-content: flex-end;
 		align-items: center;
@@ -190,10 +221,9 @@
 			align-items: center;
 			justify-content: center;
 			border-radius: 100px;
-			background-color: #fff;
-			border-radius: 100px;
+			background-color: $u-bg-color;
 			box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.25);
-			transition-property: transform;
+			transition-property: transform, background-color;
 			transition-duration: 0.4s;
 			transition-timing-function: cubic-bezier(0.3, 1.05, 0.4, 1.05);
 		}
@@ -201,7 +231,7 @@
 		&__bg {
 			position: absolute;
 			border-radius: 100px;
-			background-color: #FFFFFF;
+			background-color: $u-bg-color;
 			transition-property: transform;
 			transition-duration: 0.4s;
 			border-top-left-radius: 0;

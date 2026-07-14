@@ -10,9 +10,27 @@ export const props = defineMixin({
             type: Boolean,
             default: false
         },
+        inputProps: {
+            type: Object,
+            default: () => {
+                return {}
+            }
+        },
+        inputBorder: {
+            type: String,
+            default: () => defProps.input.inputBorder
+        },
+        disabled: {
+            type: Boolean,
+            default: () => defProps.picker.disabled
+        },
+		disabledColor:{
+			type: String,
+			default: () => defProps.picker.disabledColor
+		},
         placeholder: {
             type: String,
-            default: () => '请选择'
+            default: () => defProps.picker.placeholder
         },
         // 是否展示picker弹窗
         show: {
@@ -79,6 +97,11 @@ export const props = defineMixin({
             type: String,
             default: () => defProps.picker.keyName
         },
+		// 选项对象中，需要获取的属性值键名
+		valueName: {
+		    type: String,
+		    default: () => defProps.picker.valueName
+		},
         // 是否允许点击遮罩关闭选择器
         closeOnClickOverlay: {
             type: Boolean,
@@ -93,6 +116,51 @@ export const props = defineMixin({
 		immediateChange: {
 			type: Boolean,
 			default: () => defProps.picker.immediateChange
+		},
+        // 工具栏右侧插槽是否开启
+        toolbarRightSlot: {
+			type: Boolean,
+			default: false
+		},
+		// 层级
+		zIndex: {
+		    type: [String, Number],
+		    default: () => defProps.picker.zIndex
+		},
+        // 弹窗背景色，设置为transparent可去除白色背景
+        bgColor: {
+            type: String,
+            default: () => defProps.picker.bgColor
+        },
+        // 是否显示圆角
+        round: {
+            type: [Boolean, String, Number],
+            default: () => defProps.picker.round
+        },
+        // 动画时长，单位ms
+        duration: {
+            type: [String, Number],
+            default: () => defProps.picker.duration
+        },
+        // 遮罩的透明度，0-1之间
+        overlayOpacity: {
+            type: [Number, String],
+            default: () => defProps.picker.overlayOpacity
+        },
+        // 是否页面内展示
+        pageInline:{
+			type: Boolean,
+			default: () => defProps.picker.pageInline
+		},
+		// 蒙层样式样式
+		maskClass: {
+			type: String,
+			defualt: ''
+		},
+		// 蒙层样式样式
+		maskStyle: {
+			type: String,
+			defualt: ''
 		}
     }
 })

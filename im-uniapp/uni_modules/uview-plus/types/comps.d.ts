@@ -1,4 +1,4 @@
-declare module '@vue/runtime-core' {
+declare module 'vue' {
   export interface GlobalComponents {
     // 基础组件
     ['up-icon']: typeof import('./comps/icon')['Icon']
@@ -18,13 +18,13 @@ declare module '@vue/runtime-core' {
     ['up-form']: typeof import('./comps/form')['Form']
     ['up-form-item']: typeof import('./comps/formItem')['FormItem']
     ['up-calendar']: typeof import('./comps/calendar')['Calendar']
+    ['up-calendar-strip']: typeof import('./comps/calendarStrip')['CalendarStrip']
     ['up-keyboard']: typeof import('./comps/keyboard')['Keyboard']
     ['up-picker']: typeof import('./comps/picker')['Picker']
     ['up-datetime-picker']: typeof import('./comps/datetimePicker')['DatetimePicker']
     ['up-rate']: typeof import('./comps/rate')['Rate']
     ['up-search']: typeof import('./comps/search')['Search']
     ['up-number-box']: typeof import('./comps/numberBox')['NumberBox']
-    ['up-upload']: typeof import('./comps/upload')['Upload']
     ['up-code']: typeof import('./comps/code')['Code']
     ['up-input']: typeof import('./comps/input')['Input']
     ['up-textarea']: typeof import('./comps/textarea')['Textarea']
@@ -45,6 +45,7 @@ declare module '@vue/runtime-core' {
 
     // 反馈组件
     ['up-tooltip']: typeof import('./comps/tooltip')['Tooltip']
+    ['up-guide']: typeof import('./comps/guide')['Guide']
     ['up-action-sheet']: typeof import('./comps/actionSheet')['ActionSheet']
     ['up-alert']: typeof import('./comps/alert')['Alert']
     ['up-toast']: typeof import('./comps/toast')['Toast']
@@ -86,13 +87,15 @@ declare module '@vue/runtime-core' {
     // 其他组件
     ['up-parse']: typeof import('./comps/parse')['Parse']
     ['up-code-input']: typeof import('./comps/codeInput')['CodeInput']
-    ['up-load-more']: typeof import('./comps/loadMore')['LoadMore']
+    ['up-loadmore']: typeof import('./comps/loadMore')['LoadMore']
     ['up-read-more']: typeof import('./comps/readMore')['ReadMore']
     ['up-gap']: typeof import('./comps/gap')['Gap']
     ['up-avatar']: typeof import('./comps/avatar')['Avatar']
     ['up-avatar-group']: typeof import('./comps/avatarGroup')['AvatarGroup']
     ['up-link']: typeof import('./comps/link')['Link']
     ['up-transition']: typeof import('./comps/transition')['Transition']
+    ['up-status-bar']: typeof import('./comps/statusBar')['StatusBar']
+    ['up-safe-bottom']: typeof import('./comps/safeBottom')['SafeBottom']
   }
 }
 

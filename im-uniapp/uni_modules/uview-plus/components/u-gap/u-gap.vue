@@ -10,7 +10,7 @@
 	/**
 	 * gap 间隔槽
 	 * @description 该组件一般用于内容块之间的用一个灰色块隔开的场景，方便用户风格统一，减少工作量
-	 * @tutorial https://ijry.github.io/uview-plus/components/gap.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/gap.html
 	 * @property {String}			bgColor			背景颜色 （默认 'transparent' ）
 	 * @property {String | Number}	height			分割槽高度，单位px （默认 20 ）
 	 * @property {String | Number}	marginTop		与前一个组件的距离，单位px（ 默认 0 ）
@@ -24,8 +24,12 @@
 		mixins: [mpMixin, mixin, props],
 		computed: {
 			gapStyle() {
+				const defaultBg = this.upThemeIsDark ? '#111111' : 'transparent'
+				const resolvedBg = (this.bgColor && this.bgColor !== 'transparent')
+					? this.bgColor
+					: this.upThemeVar('--up-gap-bg-color', defaultBg)
 				const style = {
-					backgroundColor: this.bgColor,
+					backgroundColor: resolvedBg,
 					height: addUnit(this.height),
 					marginTop: addUnit(this.marginTop),
 					marginBottom: addUnit(this.marginBottom),
@@ -37,5 +41,4 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 </style>

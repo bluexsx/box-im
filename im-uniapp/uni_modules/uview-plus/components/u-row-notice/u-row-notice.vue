@@ -8,11 +8,11 @@
 				class="u-notice__left-icon"
 				v-if="icon"
 			>
-				<u-icon
+				<up-icon
 					:name="icon"
 					:color="color"
 					size="19"
-				></u-icon>
+				></up-icon>
 			</view>
 		</slot>
 		<view
@@ -35,19 +35,19 @@
 			class="u-notice__right-icon"
 			v-if="['link', 'closable'].includes(mode)"
 		>
-			<u-icon
+			<up-icon
 				v-if="mode === 'link'"
 				name="arrow-right"
 				:size="17"
 				:color="color"
-			></u-icon>
-			<u-icon
+			></up-icon>
+			<up-icon
 				v-if="mode === 'closable'"
 				@click="close"
 				name="close"
 				:size="16"
 				:color="color"
-			></u-icon>
+			></up-icon>
 		</view>
 	</view>
 </template>
@@ -64,7 +64,7 @@
 	/**
 	 * RowNotice 滚动通知中的水平滚动模式
 	 * @description 水平滚动
-	 * @tutorial https://ijry.github.io/uview-plus/components/noticeBar.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/noticeBar.html
 	 * @property {String | Number}	text			显示的内容，字符串
 	 * @property {String}			icon			是否显示左侧的音量图标 (默认 'volume' )
 	 * @property {String}			mode			通告模式，link-显示右箭头，closable-显示右侧关闭图标
@@ -275,21 +275,13 @@
 				this.$emit('close')
 			}
 		},
-		// #ifdef APP-NVUE
-		// #ifdef VUE2
-		beforeDestroy() {
-		// #endif
-		// #ifdef VUE3
 		beforeUnmount() {
-		// #endif
 			this.stopAnimation = true
-		},
-		// #endif
+		}
 	};
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-notice {
 		@include flex;
@@ -324,7 +316,7 @@
 				animation: u-loop-animation 10s linear infinite both;
 				/* #endif */
 				@include flex(row);
-				line-height: 100%;
+				// line-height: 100%;
 			}
 		}
 
