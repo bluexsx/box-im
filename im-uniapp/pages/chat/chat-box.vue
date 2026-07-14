@@ -96,8 +96,8 @@
 							<view class="tool-name">语音通话</view>
 						</view>
 						<view v-if="isGroup" class="chat-tools-item" @click="onGroupVideo()">
-							<view class="tool-icon iconfont icon-call"></view>
-							<view class="tool-name">语音通话</view>
+							<view class="tool-icon iconfont icon-video"></view>
+							<view class="tool-name">多人通话</view>
 						</view>
 						<!-- #endif -->
 					</view>
