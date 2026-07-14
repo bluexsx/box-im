@@ -2,8 +2,8 @@
     "name" : "盒子IM",
     "appid" : "__UNI__69DD57A",
     "description" : "",
-    "versionName" : "4.0.0",
-    "versionCode" : 40000,
+    "versionName" : "4.0.2",
+    "versionCode" : 40002,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -130,6 +130,19 @@
         "title" : "盒子IM",
         "router" : {
             "base" : "/h5/"
+        }
+    },
+    "app-harmony" : {
+        "distribute" : {
+            "bundleName" : "com.boxim.chat",
+            "modules" : {},
+            "icons" : {
+                "foreground" : "unpackage/res/icons/192x192.png",
+                "background" : "unpackage/res/icons/192x192.png"
+            },
+            "splashScreens" : {
+                "startWindowIcon" : "static/logo/logo.png"
+            }
         }
     }
 }

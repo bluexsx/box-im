@@ -1,0 +1,24 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "盒子IM"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "盒子IM"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "$string:app_name"
+    },
+    {
+      "name": "permission_microphone",
+      "value": "用于发送语音消息和语音通话"
+    },
+    {
+      "name": "permission_camera",
+      "value": "用于拍照、录像和视频通话"
+    }
+  ]
+}

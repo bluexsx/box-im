@@ -1,4 +1,5 @@
 import DB, { RECENT_EMOJI_MAX } from "./db.js";
+import * as sqliteDriver from './sqliteDriver.js';
 
 const DB_NAME_PREFIX = 'im-app-';
 
@@ -66,13 +67,7 @@ class ImSqliteDB extends DB {
 		if (!this._isOpenDatabase()) {
 			return;
 		}
-		await new Promise((resolve) => {
-			plus.sqlite.closeDatabase({
-				name: this.dbName,
-				success: () => resolve(),
-				fail: () => resolve()
-			});
-		});
+		await sqliteDriver.closeDatabase(this.dbName);
 	}
 
 	async loadAllConversations() {
@@ -322,43 +317,19 @@ class ImSqliteDB extends DB {
 	}
 
 	_openDatabase() {
-		return new Promise((resolve, reject) => {
-			plus.sqlite.openDatabase({
-				name: this.dbName,
-				path: this.dbPath,
-				success: () => resolve(),
-				fail: (error) => reject(error)
-			});
-		});
+		return sqliteDriver.openDatabase(this.dbName, this.dbPath);
 	}
 
 	_isOpenDatabase() {
-		return plus.sqlite.isOpenDatabase({
-			name: this.dbName,
-			path: this.dbPath
-		});
+		return sqliteDriver.isOpenDatabase(this.dbName, this.dbPath);
 	}
 
 	_selectSql(sql) {
-		return new Promise((resolve, reject) => {
-			plus.sqlite.selectSql({
-				name: this.dbName,
-				sql: sql,
-				success: (rows) => resolve(rows || []),
-				fail: (error) => reject(error)
-			});
-		});
+		return sqliteDriver.selectSql(this.dbName, sql);
 	}
 
 	_executeSql(sql) {
-		return new Promise((resolve, reject) => {
-			plus.sqlite.executeSql({
-				name: this.dbName,
-				sql: sql,
-				success: () => resolve(),
-				fail: (error) => reject(error)
-			});
-		});
+		return sqliteDriver.executeSql(this.dbName, sql);
 	}
 
 	_begin() {

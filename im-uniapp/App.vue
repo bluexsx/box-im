@@ -673,34 +673,25 @@ export default {
 @import "@/im.scss";
 @import url('./static/icon/iconfont.css');
 
-// #ifdef H5 
-uni-page-head {
-	display: none; // h5浏览器本身就有标题
-}
-
-// #endif
 page {
 	background: $im-bg-linear;
 }
 
 .tab-page {
-	position: relative;
+	position: relative; 
 	display: flex;
 	flex-direction: column;
 	// #ifdef H5
 	height: calc(100vh - 50px - $im-nav-bar-height); // h5平台100vh是包含了底部高度，需要减去
 	top: $im-nav-bar-height;
 	// #endif
-
-	// #ifdef APP-PLUS
+	// #ifdef APP
 	height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
 	top: calc($im-nav-bar-height + var(--status-bar-height));
 	// #endif
-
 	// #ifdef MP-WEIXIN
 	height: calc(100vh - $im-nav-bar-height);
 	top: $im-nav-bar-height;
-
 	// #endif
 	color: $im-text-color;
 	background: $im-bg-linear;
@@ -714,20 +705,18 @@ page {
 	height: calc(100vh - $im-nav-bar-height); // h5平台100vh是包含了底部高度，需要减去
 	top: $im-nav-bar-height;
 	// #endif
-
-	// #ifdef APP-PLUS
+	// #ifdef APP
 	height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
 	top: calc($im-nav-bar-height + var(--status-bar-height));
 	// #endif
-
 	// #ifdef MP-WEIXIN
 	height: calc(100vh - $im-nav-bar-height);
 	top: $im-nav-bar-height;
 	// #endif
-
 	color: $im-text-color;
 	background: $im-bg-linear;
 	font-size: $im-font-size;
 	font-family: $font-family;
 }
+
 </style>

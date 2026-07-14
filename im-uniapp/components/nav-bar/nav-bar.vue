@@ -1,6 +1,6 @@
 <template>
 	<view class="im-nav-bar">
-		<!-- #ifdef APP-PLUS -->
+		<!-- #ifdef APP -->
 		<view style="height: var(--status-bar-height)"></view>
 		<!-- #endif -->
 		<view class="im-nav-bar-content">

@@ -406,9 +406,6 @@ export default {
 				if (chatTabBox === 'emo') {
 					this.loadRecentEmojis();
 				}
-				if (chatTabBox != 'tools' && this.$refs.fileUpload) {
-					this.$refs.fileUpload.hide()
-				}
 				setTimeout(() => this.reCalChatMainHeight(), 30);
 			}
 		},
@@ -844,14 +841,16 @@ export default {
 		reCalChatMainHeight() {
 			let sysInfo = uni.getSystemInfoSync();
 			let h = this.windowHeight;
+			// #ifndef APP-HARMONY
 			// 减去标题栏高度
 			h -= 50;
+			// #endif
 			// 减去键盘高度
 			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
 				h -= this.keyboardHeight;
 			}
 			// APP需要减去状态栏高度
-			// #ifdef APP-PLUS
+			// #ifdef APP
 			h -= sysInfo.statusBarHeight;
 			// #endif
 			this.chatMainHeight = h;
@@ -1193,10 +1192,10 @@ export default {
 	}
 
 	.chat-main-box {
-		// #ifndef APP-PLUS
+		// #ifndef APP
 		top: $im-nav-bar-height;
 		// #endif
-		// #ifdef APP-PLUS
+		// #ifdef APP
 		top: calc($im-nav-bar-height + var(--status-bar-height));
 		// #endif
 		position: fixed;
