@@ -1,0 +1,32 @@
+import { PermissionRequestResult } from '../interface.uts'
+
+export function requestPermissions(permissions: string[]): Promise<PermissionRequestResult> {
+	return new Promise((resolve) => {
+		let settled = false
+		UTSHarmony.requestSystemPermission(
+			permissions,
+			(allRight: boolean) => {
+				if (settled) {
+					return
+				}
+				if (allRight) {
+					settled = true
+					resolve({
+						granted: true,
+						doNotAskAgain: false
+					})
+				}
+			},
+			(doNotAskAgain: boolean) => {
+				if (settled) {
+					return
+				}
+				settled = true
+				resolve({
+					granted: false,
+					doNotAskAgain: doNotAskAgain
+				})
+			}
+		)
+	})
+}

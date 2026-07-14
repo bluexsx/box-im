@@ -1,0 +1,39 @@
+{
+  "id": "harmony-permission",
+  "displayName": "harmony-permission",
+  "version": "1.0.0",
+  "description": "鸿蒙系统权限申请 UTS 封装",
+  "keywords": ["permission", "harmony"],
+  "engines": {
+    "HBuilderX": "^4.31",
+    "uni-app": "^4.07"
+  },
+  "dcloudext": {
+    "type": "uts",
+    "declaration": {
+      "ads": "无",
+      "data": "插件不采集任何数据",
+      "permissions": "无"
+    }
+  },
+  "uni_modules": {
+    "dependencies": [],
+    "encrypt": [],
+    "platforms": {
+      "client": {
+        "uni-app": {
+          "vue": {
+            "vue2": "-",
+            "vue3": "√"
+          },
+          "app": {
+            "vue": "-",
+            "android": "-",
+            "ios": "-",
+            "harmony": "√"
+          }
+        }
+      }
+    }
+  }
+}

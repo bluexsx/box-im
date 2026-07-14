@@ -1,0 +1,39 @@
+{
+  "id": "harmony-sqlite",
+  "displayName": "harmony-sqlite",
+  "version": "1.0.0",
+  "description": "鸿蒙端 SQLite 封装，基于 relationalStore，API 对齐 plus.sqlite 常用能力",
+  "keywords": ["sqlite", "harmony", "relationalStore"],
+  "engines": {
+    "HBuilderX": "^4.31",
+    "uni-app": "^4.07"
+  },
+  "dcloudext": {
+    "type": "uts",
+    "declaration": {
+      "ads": "无",
+      "data": "插件不采集任何数据，仅本地数据库存储",
+      "permissions": "无"
+    }
+  },
+  "uni_modules": {
+    "dependencies": [],
+    "encrypt": [],
+    "platforms": {
+      "client": {
+        "uni-app": {
+          "vue": {
+            "vue2": "-",
+            "vue3": "√"
+          },
+          "app": {
+            "vue": "-",
+            "android": "-",
+            "ios": "-",
+            "harmony": "√"
+          }
+        }
+      }
+    }
+  }
+}

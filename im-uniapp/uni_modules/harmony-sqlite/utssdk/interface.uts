@@ -1,0 +1,5 @@
+export function openDatabase(name: string): Promise<void>
+export function isOpenDatabase(name: string): boolean
+export function closeDatabase(name: string): Promise<void>
+export function executeSql(name: string, sql: string): Promise<void>
+export function selectSql(name: string, sql: string): Promise<UTSJSONObject[]>
