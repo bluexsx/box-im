@@ -1,6 +1,0 @@
-export type PermissionRequestResult = {
-	granted: boolean
-	doNotAskAgain: boolean
-}
-
-export type RequestPermissions = (permissions: string[]) => Promise<PermissionRequestResult>
