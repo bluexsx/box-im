@@ -45,10 +45,8 @@
 					</view>
 					<view v-if="isGroup" class="iconfont icon-at" @click="openAtBox()"></view>
 					<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
-					<view v-if="isEmpty" class="iconfont icon-add" @click="onShowToolsChatTab()">
-					</view>
-					<button v-if="!isEmpty || atUserIds.length" class="btn-send" type="primary"
-						@touchend.prevent="sendTextMessage()" size="mini">发送</button>
+					<view v-if="isEmpty&&!atUserIds.length" class="iconfont icon-add" @click="onShowToolsChatTab()"></view>
+					<button v-else class="btn-send" type="primary" @touchend.prevent="sendTextMessage()" size="mini">发送</button>
 					<view class="chat-editer-mask" v-if="notAllowInputTip">
 						<text class="icon iconfont icon-warning-circle-empty"></text>
 						<text>{{ notAllowInputTip }}</text>

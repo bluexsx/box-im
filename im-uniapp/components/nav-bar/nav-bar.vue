@@ -78,7 +78,6 @@ export default {
 	top: 0;
 	width: 100%;
 	color: $im-text-color;
-	border-bottom: 1px solid $im-border-light;
 	font-size: $im-font-size-large;
 	z-index: 99;
 
@@ -89,7 +88,15 @@ export default {
 		box-sizing: border-box;
 		height: $im-nav-bar-height;
 
-		.title {}
+		.title {
+			max-width: 500rpx;
+			padding: 0 12rpx;
+			box-sizing: border-box;
+			text-align: center;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 
 		.back {
 			position: absolute;
