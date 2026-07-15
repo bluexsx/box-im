@@ -1,5 +1,9 @@
 <template>
-	<div class="chat-input-area">
+	<div class="chat-input-area" :class="{ 'is-dragover': isDragOver }" @dragenter.prevent="onDragEnter"
+		@dragover.prevent="onDragOver" @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
+		<div class="drag-mask" v-show="isDragOver">
+			<span>松开鼠标以添加文件</span>
+		</div>
 		<div :class="['edit-container', isEmpty ? '' : 'not-empty']" contenteditable="true" @paste.prevent="onPaste"
 			@keydown="onKeydown" @compositionstart="compositionFlag = true" @compositionend="onCompositionEnd"
 			@input="onEditorInput" @mousedown="onMousedown" ref="content" @keyup="onKeyup" @click="onClickInput">
@@ -34,7 +38,9 @@ export default {
 			atIng: false,
 			isEmpty: true,
 			changeStored: true,
-			blurRange: null
+			blurRange: null,
+			isDragOver: false,
+			dragCounter: 0
 		}
 	},
 	methods: {
@@ -97,40 +103,106 @@ export default {
 			let items = (e.clipboardData || window.clipboardData).items
 			if (items.length) {
 				for (let i = 0; i < items.length; i++) {
-					if (items[i].type.indexOf('image') !== -1) {
-						let file = items[i].getAsFile();
-						let imagePush = {
-							fileId: this.generateId(),
-							file: file,
-							url: URL.createObjectURL(file)
-						};
-						this.imageList[imagePush.fileId] = (imagePush);
-						let line = this.newLine();
-						let imageElement = document.createElement('img');
-						imageElement.className = 'chat-image no-text';
-						imageElement.src = imagePush.url;
-						imageElement.dataset.imgId = imagePush.fileId;
-						line.appendChild(imageElement);
-						let after = document.createTextNode('\u00A0');
-						line.appendChild(after);
-						this.selectElement(after, 1);
-					} else {
-						let asFile = items[i].getAsFile();
-						if (!asFile) {
-							continue;
-						}
-						let filePush = { fileId: this.generateId(), file: asFile };
-						this.fileList[filePush.fileId] = (filePush)
-						let line = this.newLine();
-						let fileElement = this.createFile(filePush);
-						line.appendChild(fileElement);
-						let after = document.createTextNode('\u00A0');
-						line.appendChild(after);
-						this.selectElement(after, 1);
+					let asFile = items[i].getAsFile();
+					if (!asFile) {
+						continue;
 					}
+					this.insertMediaFile(asFile);
 				}
 			}
 			range.collapse();
+		},
+		onDragEnter(e) {
+			if (!this.hasDragFiles(e)) {
+				return;
+			}
+			this.dragCounter++;
+			this.isDragOver = true;
+		},
+		onDragOver(e) {
+			if (!this.hasDragFiles(e)) {
+				return;
+			}
+			this.isDragOver = true;
+		},
+		onDragLeave() {
+			this.dragCounter = Math.max(0, this.dragCounter - 1);
+			if (this.dragCounter === 0) {
+				this.isDragOver = false;
+			}
+		},
+		onDrop(e) {
+			this.dragCounter = 0;
+			this.isDragOver = false;
+			const files = e.dataTransfer && e.dataTransfer.files;
+			if (!files || !files.length) {
+				return;
+			}
+			this.focus();
+			this.$nextTick(() => {
+				const selection = window.getSelection();
+				if (!selection.rangeCount) {
+					if (this.blurRange) {
+						selection.addRange(this.blurRange);
+					} else {
+						this.moveCursorToEnd();
+					}
+				}
+				for (let i = 0; i < files.length; i++) {
+					this.insertMediaFile(files[i]);
+				}
+			});
+		},
+		hasDragFiles(e) {
+			const types = e.dataTransfer && e.dataTransfer.types;
+			if (!types) {
+				return false;
+			}
+			return Array.from(types).includes('Files');
+		},
+		insertMediaFile(file) {
+			if (!file) {
+				return;
+			}
+			this.isEmpty = false;
+			this.changeStored = false;
+			if (file.type && file.type.indexOf('image') !== -1) {
+				let imagePush = {
+					fileId: this.generateId(),
+					file: file,
+					url: URL.createObjectURL(file)
+				};
+				this.imageList[imagePush.fileId] = imagePush;
+				let line = this.newLine();
+				let imageElement = document.createElement('img');
+				imageElement.className = 'chat-image no-text';
+				imageElement.src = imagePush.url;
+				imageElement.dataset.imgId = imagePush.fileId;
+				line.appendChild(imageElement);
+				let after = document.createTextNode('\u00A0');
+				line.appendChild(after);
+				this.selectElement(after, 1);
+			} else {
+				let filePush = { fileId: this.generateId(), file: file };
+				this.fileList[filePush.fileId] = filePush;
+				let line = this.newLine();
+				let fileElement = this.createFile(filePush);
+				line.appendChild(fileElement);
+				let after = document.createTextNode('\u00A0');
+				line.appendChild(after);
+				this.selectElement(after, 1);
+			}
+		},
+		moveCursorToEnd() {
+			const content = this.$refs.content;
+			const range = document.createRange();
+			const selection = window.getSelection();
+			range.selectNodeContents(content);
+			range.collapse(false);
+			selection.removeAllRanges();
+			selection.addRange(range);
+			this.focus();
+			this.updateRange();
 		},
 		selectElement(element, endOffset) {
 			let selection = window.getSelection();
@@ -503,6 +575,35 @@ export default {
 	width: 100%;
 	height: 100%;
 	position: relative;
+
+	&.is-dragover {
+		.edit-container {
+			outline: 2px dashed #587ff0;
+			outline-offset: -2px;
+			background: rgba(88, 127, 240, 0.06);
+		}
+
+		.edit-container>div:nth-of-type(1):after {
+			content: none;
+		}
+	}
+
+	.drag-mask {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 10;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+		color: #587ff0;
+		font-size: var(--im-font-size);
+		font-weight: 600;
+		background: rgba(88, 127, 240, 0.08);
+	}
 
 	.edit-container {
 		position: absolute;
