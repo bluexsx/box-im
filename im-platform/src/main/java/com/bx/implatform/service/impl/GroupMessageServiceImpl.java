@@ -165,12 +165,13 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         // 查询用户加入的群组
         List<GroupMember> members = groupMemberService.findByUserId(session.getUserId());
         Set<Long> groupIds = members.stream().map(GroupMember::getGroupId).collect(Collectors.toSet());
-        // 只能拉取最近30天的消息
+        // 只能拉取最近N天的消息：
         Date minDate = DateUtils.addDays(new Date(), Math.toIntExact(-Constant.MAX_OFFLINE_MESSAGE_DAYS));
+        // 先把时间窗口映射为 id 下界（窗口外最后一条 id），主查询走主键范围
+        Long finalMinId = Math.max(minId, findOfflineTimeWindowBoundId(minDate));
         if (!groupIds.isEmpty()) {
             LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
-            wrapper.gt(GroupMessage::getId, minId);
-            wrapper.gt(GroupMessage::getSendTime, minDate);
+            wrapper.gt(finalMinId > 0, GroupMessage::getId, finalMinId);
             wrapper.in(GroupMessage::getGroupId, groupIds);
             wrapper.orderByDesc(GroupMessage::getId);
             wrapper.last("limit " + Constant.MAX_OFFLINE_MESSAGE_SIZE);
@@ -178,7 +179,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         }
         // 保证每个会话至少会拉到一条消息
         if (messages.size() >= Constant.MAX_OFFLINE_MESSAGE_SIZE) {
-            messages = appendLastMessageInConversation(groupIds, messages, minId);
+            messages = appendLastMessageInConversation(groupIds, messages, finalMinId);
         }
         // 查询退群前的消息
         Date minQuitTime = minDate;
@@ -193,7 +194,7 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
         List<GroupMember> quitMembers = groupMemberService.findQuitMembers(session.getUserId(), minQuitTime);
         quitMembers.parallelStream().forEach(quitMember -> {
             LambdaQueryWrapper<GroupMessage> quitWrapper = Wrappers.lambdaQuery();
-            quitWrapper.gt(GroupMessage::getId, minId);
+            quitWrapper.gt(finalMinId > 0, GroupMessage::getId, finalMinId);
             quitWrapper.between(GroupMessage::getSendTime, minDate, quitMember.getQuitTime());
             quitWrapper.eq(GroupMessage::getGroupId, quitMember.getGroupId());
             quitWrapper.orderByDesc(GroupMessage::getId);
@@ -516,6 +517,29 @@ public class GroupMessageServiceImpl extends ServiceImpl<GroupMessageMapper, Gro
 
     private String buildMaxMessageIdKey(Long groupId) {
         return StrUtil.join(":", RedisKey.IM_GROUP_MESSAGE_MAX_ID, groupId);
+    }
+
+    /**
+     * 查询离线时间窗口外的最后一条消息 id，作为 id > bound 的下界。
+     */
+    private Long findOfflineTimeWindowBoundId(Date minDate) {
+        String key = RedisKey.IM_GROUP_OFFLINE_TIME_MIN_ID;
+        Object cached = redisTemplate.opsForValue().get(key);
+        if (!Objects.isNull(cached)) {
+            return Long.parseLong(cached.toString());
+        }
+        LambdaQueryWrapper<GroupMessage> wrapper = Wrappers.lambdaQuery();
+        wrapper.select(GroupMessage::getId);
+        wrapper.le(GroupMessage::getSendTime, minDate);
+        wrapper.orderByDesc(GroupMessage::getSendTime);
+        wrapper.orderByDesc(GroupMessage::getId);
+        wrapper.last("limit 1");
+        GroupMessage message = this.getOne(wrapper);
+        if (Objects.isNull(message)) {
+            return 0L;
+        }
+        redisTemplate.opsForValue().set(key, message.getId(), 30, TimeUnit.MINUTES);
+        return message.getId();
     }
 
     List<GroupMessage> appendLastMessageInConversation(Set<Long> groupIds, List<GroupMessage> messages, Long minId) {

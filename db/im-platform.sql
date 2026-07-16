@@ -96,7 +96,8 @@ create table `im_group_message`
     `type`           tinyint not null comment '消息类型 0:文字 1:图片 2:文件 3:语音 4:视频 21:提示',
     `status`         tinyint      default 0 comment '状态 0:未发出  2:撤回 ',
     `send_time`      datetime(3) default current_timestamp(3) comment '发送时间',
-    key              `idx_group_id_seq_no` (`group_id`,`seq_no`)
+    key              `idx_group_id_seq_no` (`group_id`,`seq_no`),
+    key              `idx_send_time` (`send_time`)
 ) engine = innodb charset = utf8mb4 comment '群消息';
 
 create table `im_sensitive_word`

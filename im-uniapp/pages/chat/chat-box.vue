@@ -839,10 +839,13 @@ export default {
 		reCalChatMainHeight() {
 			let sysInfo = uni.getSystemInfoSync();
 			let h = this.windowHeight;
-			// #ifndef APP-HARMONY
 			// 减去标题栏高度
 			h -= 50;
-			// #endif
+			// #ifdef APP-HARMONY
+			// 鸿蒙app如果是从tab页跳转过来，windowHeight会自动扣掉底部tab的高度，这里加回来
+			if (this.screenHeight - this.windowHeight > 50) {
+				h += 50;
+			}
 			// 减去键盘高度
 			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
 				h -= this.keyboardHeight;

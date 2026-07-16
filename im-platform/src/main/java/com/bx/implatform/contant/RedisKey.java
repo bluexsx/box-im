@@ -33,6 +33,11 @@ public final class RedisKey {
     public static final String IM_PRIVATE_MESSAGE_MAX_SEQ = "im:message:private:max_seq";
 
     /**
+     * 群聊离线消息时间窗口对应的 id 下界（窗口外最后一条消息 id）
+     */
+    public static final String IM_GROUP_OFFLINE_TIME_MIN_ID = "im:message:group:offline:time_bound_id";
+
+    /**
      * 群聊会话消息最大id
      */
     public static final String IM_GROUP_MESSAGE_MAX_SEQ = "im:message:group:max_seq";
