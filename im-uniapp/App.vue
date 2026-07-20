@@ -283,8 +283,9 @@ export default {
 					m.status != this.$enums.MESSAGE_STATUS.RECALL && m.type != this.$enums.MESSAGE_TYPE.TIP_TEXT) {
 					conversation.unreadCount++;
 				}
-				// 是否有人@我
-				if (!m.selfSend && m.atUserIds && m.status != this.$enums.MESSAGE_STATUS.READED) {
+				// 是否有人@我（已读、已撤回的消息不再设置）
+				if (!m.selfSend && m.atUserIds && m.status != this.$enums.MESSAGE_STATUS.READED
+					&& m.status != this.$enums.MESSAGE_STATUS.RECALL) {
 					const userId = this.mine.id;
 					if (m.atUserIds.indexOf(userId) >= 0) {
 						conversation.atMe = true;
@@ -306,6 +307,12 @@ export default {
 							continue;
 						}
 						tmpMessages.push(recallMessage);
+					}
+					// 撤回的若是@我消息，清除标记
+					if (conversation.lastAtMessageId == recallMessageId) {
+						conversation.atMe = false;
+						conversation.atAll = false;
+						conversation.lastAtMessageId = -1;
 					}
 					// 改造成一条提示消息
 					recallMessage.status = this.$enums.MESSAGE_STATUS.PENDING;
