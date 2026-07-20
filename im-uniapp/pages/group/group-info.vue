@@ -8,7 +8,7 @@
 						<head-image :id="member.userId" :name="member.showNickName" :url="member.headImage" size="small"
 							:online="member.online"></head-image>
 						<view class="member-name">
-							<text>{{ member.showNickName }}</text>
+							{{ member.showNickName }}
 						</view>
 					</view>
 				</view>
@@ -301,6 +301,7 @@ export default {
 					overflow: hidden;
 					text-align: center;
 					white-space: nowrap;
+					text-overflow: ellipsis;
 					padding-top: 8rpx;
 					font-size: $im-font-size-smaller;
 				}
