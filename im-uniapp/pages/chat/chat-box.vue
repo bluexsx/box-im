@@ -44,7 +44,7 @@
 						</editor>
 					</view>
 					<view v-if="isGroup" class="iconfont icon-at" @click="openAtBox()"></view>
-					<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
+					<view class="iconfont icon-emoji" @click="onShowEmoChatTab()"></view>
 					<view v-if="isEmpty&&!atUserIds.length" class="iconfont icon-add" @click="onShowToolsChatTab()"></view>
 					<button v-else class="btn-send" type="primary" @touchend.prevent="sendTextMessage()" size="mini">发送</button>
 					<view class="chat-editer-mask" v-if="notAllowInputTip">
