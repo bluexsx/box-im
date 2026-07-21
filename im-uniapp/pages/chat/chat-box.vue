@@ -40,7 +40,7 @@
 					<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
 					<view v-else class="send-text">
 						<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''" :read-only="isReadOnly"
-							@focus="onEditorFocus" @ready="onEditorReady" @input="onTextInput">
+							@focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady" @input="onTextInput">
 						</editor>
 					</view>
 					<view v-if="isGroup" class="iconfont icon-at" @click="openAtBox()"></view>
@@ -152,7 +152,7 @@ export default {
 			chatTabBox: 'none',
 			showRecord: false,
 			chatMainHeight: 800, // 聊天窗口高度
-			keyboardHeight: 290, // 键盘高度
+			keyboardHeight: 310, // 键盘高度
 			screenHeight: 1000, // 屏幕高度
 			windowHeight: 1000, // 窗口高度
 			initHeight: 1000, // h5初始高度
@@ -704,10 +704,30 @@ export default {
 			})
 		},
 		async onEditorFocus(e) {
+			this.switchChatTabBox('none')
+			// 鸿蒙小程序 editor 弹键盘时 onKeyboardHeightChange 常不触发，用 focus 兜底抬高输入区
+			if (this.isWxHarmonyOS() && !this.isShowKeyBoard) {
+				this.isShowKeyBoard = true;
+				this.reCalChatMainHeight();
+			}
 			await this.resetMessages();
 			this.scrollToBottom()
-			this.switchChatTabBox('none')
 			setTimeout(() => this.scrollToBottom(), 100);
+		},
+		onEditorBlur() {
+			// 鸿蒙小程序 editor 弹键盘时 onKeyboardHeightChange 常不触发，用 focus 兜底抬高输入区
+			if (this.isWxHarmonyOS() && this.isShowKeyBoard) {
+				this.isShowKeyBoard = false;
+				this.reCalChatMainHeight();
+			}
+		},
+		isWxHarmonyOS() {
+			// #ifdef MP-WEIXIN
+			const sys = uni.getSystemInfoSync();
+			const osName = (sys.osName || '').toLowerCase();
+			return osName.includes('harmony');
+			// #endif
+			return false;
 		},
 		onAudioStateChange(state, message) {
 			const playingAudio = this.$refs[message.localId][0]
@@ -846,6 +866,7 @@ export default {
 			if (this.screenHeight - this.windowHeight > 50) {
 				h += 50;
 			}
+			// #endif
 			// 减去键盘高度
 			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
 				h -= this.keyboardHeight;
