@@ -169,6 +169,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
         // 群聊用户id
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(groupId);
+        // 先发解散提示，再退群，保证离线可拉取到提示语
+        String content = String.format("'%s'解散了群聊", session.getNickName());
+        this.sendTipMessage(groupId, userIds, content);
         // 逻辑删除群数据
         group.setDissolve(true);
         this.updateById(group);
@@ -177,9 +180,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 清理已读缓存
         String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
         redisTemplate.delete(key);
-        // 推送解散群聊提示
-        String content = String.format("'%s'解散了群聊", session.getNickName());
-        this.sendTipMessage(groupId, userIds, content);
         // 推送同步消息
         this.sendDelGroupMessage(groupId, userIds);
         log.info("删除群聊，群聊id:{},群聊名称:{}", group.getId(), group.getName());
@@ -192,16 +192,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if (group.getOwnerId().equals(userId)) {
             throw new GlobalException("您是群主，不可退出群聊");
         }
-        // 删除群聊成员
-        groupMemberService.removeByGroupAndUserId(groupId, userId);
-        // 清理已读缓存
-        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, groupId);
-        redisTemplate.opsForHash().delete(key, userId.toString());
-        // 推送退出群聊提示
         GroupMember member = groupMemberService.findByGroupAndUserId(groupId, userId);
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(groupId);
+        // 先发退出提示，再退群，保证离线可拉取到提示语
         String content = String.format("%s 退出了群聊", member.getShowNickName());
         this.sendTipMessage(groupId, userIds, content);
+        groupMemberService.removeByGroupAndUserId(groupId, userId);
         // 推送同步消息
         this.sendDelGroupMessage(groupId, List.of(userId));
         log.info("退出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), userId);
@@ -221,16 +217,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             throw new GlobalException("不允许移除自己");
         }
         List<Long> userIds = groupMemberService.findUserIdsByGroupId(dto.getGroupId());
-        // 删除群聊成员
-        groupMemberService.removeByGroupAndUserIds(dto.getGroupId(), dto.getUserIds());
-        // 清理已读缓存
-        String key = StrUtil.join(":", RedisKey.IM_GROUP_READED_POSITION, dto.getGroupId());
-        dto.getUserIds().forEach(id -> redisTemplate.opsForHash().delete(key, id.toString()));
-        // 推送踢出群聊提示
         List<GroupMember> members = groupMemberService.findByGroupAndUserIds(dto.getGroupId(), dto.getUserIds());
         List<String> names = members.stream().map(GroupMember::getShowNickName).collect(Collectors.toList());
         String content = StrUtil.join(",", names) + " 被移出群聊";
+        // 先发踢出提示，再退群，保证离线可拉取到提示语
         this.sendTipMessage(dto.getGroupId(), userIds, content);
+        groupMemberService.removeByGroupAndUserIds(dto.getGroupId(), dto.getUserIds());
         // 推送同步消息
         this.sendDelGroupMessage(dto.getGroupId(), dto.getUserIds());
         log.info("踢出群聊，群聊id:{},群聊名称:{},用户id:{}", group.getId(), group.getName(), dto.getUserIds());
