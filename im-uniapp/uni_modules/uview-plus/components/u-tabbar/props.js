@@ -18,6 +18,11 @@ export const props = defineMixin({
             type: Boolean,
             default: () => defProps.tabbar.border
         },
+        // 上方边框颜色
+        borderColor: {
+            type: String,
+            default: () => defProps.tabbar.borderColor
+        },
         // 元素层级z-index
         zIndex: {
             type: [String, Number],
@@ -42,6 +47,46 @@ export const props = defineMixin({
         placeholder: {
             type: Boolean,
             default: () => defProps.tabbar.placeholder
+        },
+        // 背景色
+        backgroundColor: {
+            type: String,
+            default: () => defProps.tabbar.backgroundColor
+        },
+        // 风格类型
+        styleType: {
+            type: String,
+            default: () => defProps.tabbar.styleType
+        },
+        // 激活动画类型
+        animationType: {
+            type: String,
+            default: () => defProps.tabbar.animationType
+        },
+        // 选中项背景色
+        activeBackgroundColor: {
+            type: String,
+            default: () => defProps.tabbar.activeBackgroundColor
+        },
+        // 未选中项背景色
+        inactiveBackgroundColor: {
+            type: String,
+            default: () => defProps.tabbar.inactiveBackgroundColor
+        },
+        // item 形状
+        itemShape: {
+            type: String,
+            default: () => defProps.tabbar.itemShape
+        },
+        // 图标缩放比例
+        iconScale: {
+            type: [String, Number],
+            default: () => defProps.tabbar.iconScale
+        },
+        // 文本显示模式
+        textMode: {
+            type: String,
+            default: () => defProps.tabbar.textMode
         }
     }
 })

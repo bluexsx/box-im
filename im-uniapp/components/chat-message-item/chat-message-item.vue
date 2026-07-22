@@ -364,12 +364,15 @@ export default {
 
 						.image-box {
 							position: relative;
+							border-radius: 16rpx;
+							overflow: hidden;
+							background: $im-bg;
+							box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 
 							.send-image {
+								display: block;
 								cursor: pointer;
-								border-radius: 10rpx;
-								background: $im-bg;
-								border: 6rpx solid $im-color-primary-light-5;
+								vertical-align: top;
 							}
 						}
 

@@ -19,14 +19,14 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { sys } from '../../libs/function/index';
+	import { getWindowInfo } from '../../libs/function/index';
 	// #ifdef APP-NVUE
 	const dom = uni.requireNativePlugin('dom')
 	// #endif
 	/**
 	 * List 列表
 	 * @description 该组件为高性能列表组件
-	 * @tutorial https://ijry.github.io/uview-plus/components/list.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/list.html
 	 * @property {String | Number}	anchor	用于滚动到指定item
 	 * @example <u-list-ite v-for="(item, index) in indexList" :key="index" ></u-list-item>
 	 */
@@ -39,7 +39,7 @@
 				rect: {},
 				index: 0,
 				show: true,
-				sys: sys()
+				sys: getWindowInfo()
 			}
 		},
 		computed: {
@@ -113,7 +113,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-list-item {}
 </style>

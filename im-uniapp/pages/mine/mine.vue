@@ -23,7 +23,7 @@
 						</view>
 					</view>
 				</view>
-				<uni-icons class="info-arrow" type="right" size="16"></uni-icons>
+				<nav-arrow class="info-arrow"></nav-arrow>
 			</view>
 		</uni-card>
 		<bar-group>
@@ -131,7 +131,6 @@ export default {
 
 		.info-arrow {
 			width: 50rpx;
-			font-size: 30rpx;
 			position: relative;
 			left: 30rpx;
 		}

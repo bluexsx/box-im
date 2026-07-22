@@ -2,10 +2,11 @@
 	<u-transition
 		mode="fade"
 		:show="show"
+		:style="transStyle"
 		:duration="fade ? 1000 : 0"
 	>
 		<view
-			class="u-image"
+			class="u-image box-border"
 			@tap="onClick"
 			:style="[wrapStyle, backgroundStyle]"
 		>
@@ -19,9 +20,9 @@
 				:lazy-load="lazyLoad"
 				class="u-image__image"
 				:style="{
-					borderRadius: shape == 'circle' ? '10000px' : addUnit(radius),
 					width: addUnit(width),
-					height: addUnit(height)
+					height: addUnit(height),
+					borderRadius: shape == 'circle' ? '10000px' : addUnit(radius)
 				}"
 			></image>
 			<view
@@ -35,11 +36,9 @@
 				}"
 			>
 				<slot name="loading">
-					<u-icon
+					<up-icon
 						:name="loadingIcon"
-						:width="width"
-						:height="height"
-					></u-icon>
+					></up-icon>
 				</slot>
 			</view>
 			<view
@@ -47,16 +46,15 @@
 				class="u-image__error"
 				:style="{
 					borderRadius: shape == 'circle' ? '50%' : addUnit(radius),
+					backgroundColor: this.bgColor,
 					width: addUnit(width),
 					height: addUnit(height)
 				}"
 			>
 				<slot name="error">
-					<u-icon
+					<up-icon
 						:name="errorIcon"
-						:width="width"
-						:height="height"
-					></u-icon>
+					></up-icon>
 				</slot>
 			</view>
 		</view>
@@ -120,7 +118,6 @@
 					if (!n) {
 						// 如果传入null或者''，或者false，或者undefined，标记为错误状态
 						this.isError = true
-						
 					} else {
 						this.isError = false;
 						this.loading = true;
@@ -129,11 +126,46 @@
 			}
 		},
 		computed: {
+			transStyle() {
+				let style = {};
+				// 通过调用addUnit()方法，如果有单位，如百分比，px单位等，直接返回，如果是纯粹的数值，则加上rpx单位
+				// #ifdef APP-NVUE
+				style.width = addUnit(this.width);
+				style.height = addUnit(this.height);
+				// #endif
+				// #ifndef APP-NVUE
+				if (this.loading || this.isError || this.width == '100%' || this.mode != 'heightFix') {
+					style.width = addUnit(this.width);
+				} else {
+					style.width = 'fit-content';
+				}
+				if (this.loading || this.isError || this.height == '100%' || this.mode != 'widthFix') {
+					style.height = addUnit(this.height);
+				} else {
+					style.height = 'fit-content';
+				}
+				// #endif
+				return style;
+			},
 			wrapStyle() {
 				let style = {};
 				// 通过调用addUnit()方法，如果有单位，如百分比，px单位等，直接返回，如果是纯粹的数值，则加上rpx单位
+				// #ifdef APP-NVUE
 				style.width = addUnit(this.width);
 				style.height = addUnit(this.height);
+				// #endif
+				// #ifndef APP-NVUE
+				if (this.loading || this.isError || this.width == '100%' || this.mode != 'heightFix') {
+					style.width = addUnit(this.width);
+				} else {
+					style.width = 'fit-content';
+				}
+				if (this.loading || this.isError || this.height == '100%' || this.mode != 'widthFix') {
+					style.height = addUnit(this.height);
+				} else {
+					style.height = 'fit-content';
+				}
+				// #endif
 				// 如果是显示圆形，设置一个很多的半径值即可
 				style.borderRadius = this.shape == 'circle' ? '10000px' : addUnit(this.radius)
 				// 如果设置圆角，必须要有hidden，否则可能圆角无效
@@ -156,8 +188,8 @@
 		methods: {
 			addUnit,
 			// 点击图片
-			onClick() {
-				this.$emit('click')
+			onClick(e) {
+				this.$emit('click', e)
 			},
 			// 图片加载失败
 			onErrorHandler(err) {
@@ -191,17 +223,15 @@
 			// 移除图片的背景色
 			removeBgColor() {
 				// 淡入动画过渡完成后，将背景设置为透明色，否则png图片会看到灰色的背景
-				this.backgroundStyle = {
-					backgroundColor: 'transparent'
-				};
+				// this.backgroundStyle = {
+				// 	backgroundColor: this.bgColor || '#ffffff'
+				// };
 			}
 		}
 	};
 </script>
 
 <style lang="scss" scoped>
-	@import '../../libs/css/components.scss';
-
 	$u-image-error-top:0px !default;
 	$u-image-error-left:0px !default;
 	$u-image-error-width:100% !default;

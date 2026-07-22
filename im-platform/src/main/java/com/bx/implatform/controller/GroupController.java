@@ -4,6 +4,7 @@ import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
+import com.bx.implatform.dto.GroupNewDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.GroupService;
@@ -27,10 +28,10 @@ public class GroupController {
     private final GroupService groupService;
 
     @RepeatSubmit
-    @Operation(summary = "创建群聊", description = "创建群聊")
-    @PostMapping("/create")
-    public Result<GroupVO> createGroup(@Valid @RequestBody GroupVO vo) {
-        return ResultUtils.success(groupService.createGroup(vo));
+    @Operation(summary = "发起群聊", description = "选择好友发起群聊")
+    @PostMapping("/new")
+    public Result<GroupVO> newGroup(@Valid @RequestBody GroupNewDTO dto) {
+        return ResultUtils.success(groupService.newGroup(dto));
     }
 
     @RepeatSubmit

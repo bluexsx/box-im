@@ -22,8 +22,9 @@
 		<!-- #ifdef MP-WEIXIN || APP-VUE || H5 || MP-QQ -->
 		<!-- 以上平台，支持wxs -->
 		<scroll-view
-			class="u-scroll-list__scroll-view"
+			class="u-scroll-list__scroll-view scroll-view-native"
 			scroll-x
+			enable-flex
 			@scroll="wxs.scroll"
 			@scrolltoupper="wxs.scrolltoupper"
 			@scrolltolower="wxs.scrolltolower"
@@ -38,7 +39,7 @@
 			<!-- #ifndef APP-NVUE || MP-WEIXIN || H5 || APP-VUE || MP-QQ -->
 			<!-- 非以上平台，只能使用普通js实现 -->
 			<scroll-view
-				class="u-scroll-list__scroll-view"
+				class="u-scroll-list__scroll-view scroll-view-js"
 				scroll-x
 				@scroll="scrollHandler"
 				@scrolltoupper="scrolltoupperHandler"
@@ -82,7 +83,7 @@
 /**
  * scrollList 横向滚动列表
  * @description 该组件一般用于同时展示多个商品、分类的场景，也可以完成左右滑动的列表。
- * @tutorial https://ijry.github.io/uview-plus/components/scrollList.html
+ * @tutorial https://uview-plus.jiangruyi.com/components/scrollList.html
  * @property {String | Number}	indicatorWidth			指示器的整体宽度 (默认 50 )
  * @property {String | Number}	indicatorBarWidth		滑块的宽度 (默认 20 )
  * @property {Boolean}			indicator				是否显示面板指示器 (默认 true )
@@ -197,13 +198,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../libs/css/components.scss";
-
 .u-scroll-list {
 	padding-bottom: 10px;
 
 	&__scroll-view {
 		@include flex;
+		// 缺少会在enable-flex模式下高度异常
+		align-items: flex-start;
 
 		&__content {
 			@include flex;

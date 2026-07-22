@@ -3,9 +3,9 @@
         <textarea
             class="u-textarea__field"
             :value="innerValue"
-            :style="{ height: addUnit(height) }"
+            :style="fieldStyle"
             :placeholder="placeholder"
-            :placeholder-style="addStyle(placeholderStyle, 'string')"
+            :placeholder-style="placeholderStyleInner"
             :placeholder-class="placeholderClass"
             :disabled="disabled"
             :focus="focus"
@@ -32,9 +32,7 @@
 		<!-- #ifndef MP-ALIPAY -->
         <text
             class="u-textarea__count"
-            :style="{
-                'background-color': disabled ? 'transparent' : '#fff',
-            }"
+            :style="countStyle"
             v-if="count"
             >{{ innerValue.length }}/{{ maxlength }}</text
         >
@@ -50,7 +48,7 @@ import { addStyle, addUnit, deepMerge, formValidate, os } from '../../libs/funct
 /**
  * Textarea 文本域
  * @description 文本域此组件满足了可能出现的表单信息补充，编辑等实际逻辑的功能，内置了字数校验等
- * @tutorial https://ijry.github.io/uview-plus/components/textarea.html
+ * @tutorial https://uview-plus.jiangruyi.com/components/textarea.html
  *
  * @property {String | Number} 		value					输入框的内容
  * @property {String | Number}		placeholder				输入框为空时占位符
@@ -146,23 +144,69 @@ export default {
         // #endif
 	},
     computed: {
+        placeholderStyleInner() {
+            if (this.placeholderStyle) {
+                return addStyle(this.placeholderStyle, typeof this.placeholderStyle === 'string' ? 'string' : 'object')
+            }
+            return `color: ${this.upThemeVar('--up-tips-color', this.$u?.color?.tipsColor || '#909399')}`
+        },
+        countStyle() {
+            if (this.disabled) return { backgroundColor: 'transparent' }
+            return {
+                backgroundColor: this.upThemeVar('--up-card-bg-color', '#ffffff'),
+                color: this.upThemeVar('--up-tips-color', '#909193')
+            }
+        },
+		fieldStyle() {
+			const style = {
+                height: addUnit(this.height),
+                backgroundColor: 'transparent',
+                color: this.upThemeVar('--up-content-color', '#606266'),
+                caretColor: this.upThemeVar('--up-main-color', '#303133')
+            };
+			if (this.autoHeight) {
+				style['height'] = 'auto';
+				style['minHeight'] = addUnit(this.height);
+			}
+			return style;
+		},
         // 组件的类名
         textareaClass() {
             let classes = [],
                 { border, disabled } = this;
             border === "surround" &&
-                (classes = classes.concat(["u-border", "u-textarea--radius"]));
+                (classes = classes.concat(["u-textarea--radius"]));
             border === "bottom" &&
                 (classes = classes.concat([
-                    "u-border-bottom",
                     "u-textarea--no-radius",
                 ]));
             disabled && classes.push("u-textarea--disabled");
             return classes.join(" ");
         },
+        textareaBorderColor() {
+            const lightBorder = this.upThemeVar('--up-border-color', '#dadbde');
+            return this.upThemeVar(
+                '--up-input-border-color',
+                this.upThemeIsDark ? 'rgba(255, 255, 255, 0.08)' : lightBorder
+            );
+        },
         // 组件的样式
         textareaStyle() {
             const style = {};
+            style.backgroundColor = this.disabled
+                ? this.upThemeVar('--up-bg-color', '#f5f7fa')
+                : this.upThemeVar('--up-card-bg-color', '#ffffff');
+            style.color = this.upThemeVar('--up-content-color', '#606266');
+            if (this.border === "surround") {
+                style.borderWidth = "0.5px";
+                style.borderStyle = "solid";
+                style.borderColor = this.textareaBorderColor;
+            }
+            if (this.border === "bottom") {
+                style.borderBottomWidth = "0.5px";
+                style.borderBottomStyle = "solid";
+                style.borderBottomColor = this.textareaBorderColor;
+            }
             // #ifdef APP-NVUE
             // 由于textarea在安卓nvue上的差异性，需要额外再调整其内边距
             if (os() === "android") {
@@ -236,11 +280,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../libs/css/components.scss";
-
 .u-textarea {
     border-radius: 4px;
-    background-color: #fff;
+    background-color: var(--up-card-bg-color, #fff);
     position: relative;
     @include flex;
     flex: 1;
@@ -255,14 +297,33 @@ export default {
     }
 
     &--disabled {
-        background-color: #f5f7fa;
+        background-color: var(--up-bg-color, #f5f7fa);
     }
 
     &__field {
         flex: 1;
         font-size: 15px;
         color: $u-content-color;
+        background-color: transparent;
+        border: none;
+        outline: none;
 		width: 100%;
+        /* #ifdef H5 */
+        :deep(.uni-textarea-wrapper),
+        :deep(.uni-textarea-textarea) {
+            background-color: transparent;
+        }
+
+        :deep(.uni-textarea-textarea) {
+            color: inherit;
+            border: none;
+            outline: none;
+        }
+
+        :deep(.uni-textarea-placeholder) {
+            color: var(--up-tips-color, #909193);
+        }
+        /* #endif */
     }
 
     &__count {
@@ -271,7 +332,7 @@ export default {
         bottom: 2px;
         font-size: 12px;
         color: $u-tips-color;
-        background-color: #ffffff;
+        background-color: var(--up-card-bg-color, #ffffff);
         padding: 1px 4px;
     }
 }

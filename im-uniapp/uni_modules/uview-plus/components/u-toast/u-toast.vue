@@ -2,6 +2,7 @@
 	<view class="u-toast">
 		<u-overlay
 			:show="isShow"
+			:zIndex="tmpConfig.zIndex"
 			:custom-style="overlayStyle"
 		>
 			<view
@@ -16,13 +17,13 @@
 					inactiveColor="rgb(120, 120, 120)"
 					size="25"
 				></u-loading-icon>
-				<u-icon
+				<up-icon
 					v-else-if="tmpConfig.type !== 'defalut' && iconName"
 					:name="iconName"
 					size="17"
 					:color="tmpConfig.type"
 					:customStyle="iconStyle"
-				></u-icon>
+				></up-icon>
 				<u-gap
 					v-if="tmpConfig.type === 'loading' || tmpConfig.loading"
 					height="12"
@@ -41,20 +42,20 @@
 <script>
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { os, sys, deepMerge, type2icon } from '../../libs/function/index';
+	import { os, getWindowInfo, deepMerge, type2icon } from '../../libs/function/index';
 	import color from '../../libs/config/color';
 	import { hexToRgb } from '../../libs/function/colorGradient';
 	/**
 	 * toast 消息提示
 	 * @description 此组件表现形式类似uni的uni.showToastAPI，但也有不同的地方。
-	 * @tutorial https://ijry.github.io/uview-plus/components/toast.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/toast.html
 	 * @property {String | Number}	zIndex		toast展示时的zIndex值 (默认 10090 )
 	 * @property {Boolean}			loading		是否加载中 （默认 false ）
 	 * @property {String | Number}	message		显示的文字内容
 	 * @property {String}			icon		图标，或者绝对路径的图片
 	 * @property {String}			type		主题类型 （默认 default）
 	 * @property {Boolean}			show		是否显示该组件 （默认 false）
-	 * @property {Boolean}			overlay		是否显示透明遮罩，防止点击穿透 （默认 false ）
+	 * @property {Boolean}			overlay		是否显示透明遮罩，防止点击穿透 （默认 true ）
 	 * @property {String}			position	位置 （默认 'center' ）
 	 * @property {Object}			params		跳转的参数 
 	 * @property {String | Number}  duration	展示时间，单位ms （默认 2000 ）
@@ -76,11 +77,12 @@
 				config: {
 					message: '', // 显示文本
 					type: '', // 主题类型，primary，success，error，warning，black
+					zIndex: 10090, // 层级
 					duration: 2000, // 显示的时间，毫秒
 					icon: true, // 显示的图标
 					position: 'center', // toast出现的位置
 					complete: null, // 执行完后的回调函数
-					overlay: false, // 是否防止触摸穿透
+					overlay: true, // 是否防止触摸穿透
 					loading: false, // 是否加载中状态
 				},
 				tmpConfig: {}, // 将用户配置和内置配置合并后的临时配置变量
@@ -92,10 +94,14 @@
 				if(!this.tmpConfig.icon || this.tmpConfig.icon == 'none') {
 					return '';
 				}
-				if (['error', 'warning', 'success', 'primary'].includes(this.tmpConfig.type)) {
-					return type2icon(this.tmpConfig.type)
+				if (this.tmpConfig.icon === true) {
+					if (['error', 'warning', 'success', 'primary'].includes(this.tmpConfig.type)) {
+						return type2icon(this.tmpConfig.type)
+					} else {
+						return ''
+					}
 				} else {
-					return ''
+					return this.tmpConfig.icon
 				}
 			},
 			overlayStyle() {
@@ -106,6 +112,10 @@
 				}
 				// 将遮罩设置为100%透明度，避免出现灰色背景
 				style.backgroundColor = 'rgba(0, 0, 0, 0)'
+				// overlay=false时不阻止点击穿透
+				if (!this.tmpConfig.overlay) {
+					style.pointerEvents = 'none'
+				}
 				return style
 			},
 			iconStyle() {
@@ -131,7 +141,7 @@
 			},
 			// 内容盒子的样式
 			contentStyle() {
-				const windowHeight = sys().windowHeight, style = {}
+				const windowHeight = getWindowInfo().windowHeight, style = {}
 				let value = 0
 				// 根据top和bottom，对Y轴进行窗体高度的百分比偏移
 				if(this.tmpConfig.position === 'top') {
@@ -160,12 +170,15 @@
 				// 清除定时器
 				this.clearTimer()
 				this.isShow = true
-				this.timer = setTimeout(() => {
-					// 倒计时结束，清除定时器，隐藏toast组件
-					this.clearTimer()
-					// 判断是否存在callback方法，如果存在就执行
-					typeof(this.tmpConfig.complete) === 'function' && this.tmpConfig.complete()
-				}, this.tmpConfig.duration)
+				// -1时不自动关闭
+				if (this.tmpConfig.duration !== -1) {
+					this.timer = setTimeout(() => {
+						// 倒计时结束，清除定时器，隐藏toast组件
+						this.clearTimer()
+						// 判断是否存在callback方法，如果存在就执行
+						typeof(this.tmpConfig.complete) === 'function' && this.tmpConfig.complete()
+					}, this.tmpConfig.duration)
+				}
 			},
 			// 隐藏toast组件，由父组件通过this.$refs.xxx.hide()形式调用
 			hide() {
@@ -178,19 +191,13 @@
 				this.timer = null
 			}
 		},
-		// #ifdef VUE2
-		beforeDestroy() {
-		// #endif
-		// #ifdef VUE3
 		beforeUnmount() {
-		// #endif
 			this.clearTimer()
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	$u-toast-color:#fff !default;
 	$u-toast-border-radius:4px !default;
@@ -200,22 +207,22 @@
 	$u-toast-loading-border-padding: 20px 20px !default;
 	$u-toast-content-text-color:#fff !default;
 	$u-toast-content-text-font-size:15px !default;
-	$u-toast-u-icon:10rpx !default;
+	$u-toast-up-icon:10rpx !default;
 	$u-toast-u-type-primary-color:$u-primary !default;
-	$u-toast-u-type-primary-background-color:#ecf5ff !default;
-	$u-toast-u-type-primary-border-color:rgb(215, 234, 254) !default;
+	$u-toast-u-type-primary-background-color:$u-primary-light !default;
+	$u-toast-u-type-primary-border-color:$u-primary-disabled !default;
 	$u-toast-u-type-primary-border-width:1px !default;
 	$u-toast-u-type-success-color: $u-success !default;
-	$u-toast-u-type-success-background-color: #dbf1e1 !default;
-	$u-toast-u-type-success-border-color: #BEF5C8 !default;
+	$u-toast-u-type-success-background-color: $u-success-light !default;
+	$u-toast-u-type-success-border-color: $u-success-disabled !default;
 	$u-toast-u-type-success-border-width: 1px !default;
 	$u-toast-u-type-error-color:$u-error !default;
-	$u-toast-u-type-error-background-color:#fef0f0 !default;
-	$u-toast-u-type-error-border-color:#fde2e2 !default;
+	$u-toast-u-type-error-background-color:$u-error-light !default;
+	$u-toast-u-type-error-border-color:$u-error-disabled !default;
 	$u-toast-u-type-error-border-width: 1px !default;
 	$u-toast-u-type-warning-color:$u-warning !default;
-	$u-toast-u-type-warning-background-color:#fdf6ec !default;
-	$u-toast-u-type-warning-border-color:#faecd8 !default;
+	$u-toast-u-type-warning-background-color:$u-warning-light !default;
+	$u-toast-u-type-warning-border-color:$u-warning-disabled !default;
 	$u-toast-u-type-warning-border-width: 1px !default;
 	$u-toast-u-type-default-color:#fff !default;
 	$u-toast-u-type-default-background-color:#585858 !default;

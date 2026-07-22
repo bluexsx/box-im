@@ -14,11 +14,13 @@
 		    v-if="dot"
 		    class="u-divider__dot"
 		>●</text>
-		<text
-		    v-else-if="text"
-		    class="u-divider__text"
-		    :style="[textStyle]"
-		>{{text}}</text>
+		<slot>
+			<text
+				v-if="!dot && text"
+				class="u-divider__text"
+				:style="[textStyle]"
+			>{{text}}</text>
+		</slot>
 		<u-line
 		    :color="lineColor"
 		    :customStyle="rightLineStyle"
@@ -36,7 +38,7 @@
 	/**
 	 * divider 分割线
 	 * @description 区隔内容的分割线，一般用于页面底部"没有更多"的提示。
-	 * @tutorial https://ijry.github.io/uview-plus/components/divider.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/divider.html
 	 * @property {Boolean}			dashed			是否虚线 （默认 false ）
 	 * @property {Boolean}			hairline		是否细线 （默认  true ）
 	 * @property {Boolean}			dot				是否以点替代文字，优先于text字段起作用 （默认 false ）
@@ -95,7 +97,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import '../../libs/css/components.scss';
 	$u-divider-margin:15px 0 !default;
 	$u-divider-text-margin:0 15px !default;
 	$u-divider-dot-font-size:12px !default;

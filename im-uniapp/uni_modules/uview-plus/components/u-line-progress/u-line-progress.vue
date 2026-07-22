@@ -34,7 +34,7 @@
 	/**
 	 * lineProgress 线型进度条
 	 * @description 展示操作或任务的当前进度，比如上传文件，是一个线形的进度条。
-	 * @tutorial https://ijry.github.io/uview-plus/components/lineProgress.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/lineProgress.html
 	 * @property {String}			activeColor		激活部分的颜色 ( 默认 '#19be6b' )
 	 * @property {String}			inactiveColor	背景色 ( 默认 '#ececec' )
 	 * @property {String | Number}	percentage		进度百分比，数值 ( 默认 0 )
@@ -62,6 +62,11 @@
 				style.width = this.lineWidth
 				style.backgroundColor = this.activeColor
 				style.height = addUnit(this.height)
+				if (this.fromRight) {
+					style.right = 0;
+				} else {
+					style.left = 0;
+				}
 				return style
 			},
 			innserPercentage() {
@@ -108,7 +113,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-line-progress {
 		align-items: stretch;
@@ -127,7 +131,6 @@
 		&__line {
 			position: absolute;
 			top: 0;
-			left: 0;
 			bottom: 0;
 			align-items: center;
 			@include flex(row);

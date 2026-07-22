@@ -3,6 +3,8 @@ import UNI_APP from '@/.env.js';
 const rc = uni.getRecorderManager();
 // 录音开始时间
 let startTime = null;
+// 录音时长
+let duration = 0;
 let checkIsEnable = ()=>{
 	return true;
 }
@@ -11,6 +13,7 @@ let start = () => {
 	return new Promise((resolve, reject) => {
 		rc.onStart(() => {
 			startTime = new Date();
+			duration = 0;
 			resolve()
 		});
 		rc.onError((e) => {
@@ -24,6 +27,7 @@ let start = () => {
 }
 
 let close = () => {
+	duration = (new Date().getTime() - startTime) / 1000;
 	rc.stop();
 }
 
@@ -42,8 +46,6 @@ let upload = () => {
 					if (r.code != 200) {
 						reject(r.message);
 					} else {
-						const duration = (new Date().getTime() - startTime.getTime()) /
-							1000
 						const data = {
 							duration: Math.round(duration),
 							url: r.data

@@ -12,7 +12,7 @@
 
 <script>
 /**
- * mp-html v2.4.1
+ * mp-html v2.5.1
  * @description 富文本组件
  * @tutorial https://github.com/jin-yufeng/mp-html
  * @property {String} container-style 容器的样式
@@ -32,8 +32,8 @@
  * @property {Boolean | Number} use-anchor 是否使用锚点链接
  * @event {Function} load dom 结构加载完毕时触发
  * @event {Function} ready 所有图片加载完毕时触发
- * @event {Function} imgTap 图片被点击时触发
- * @event {Function} linkTap 链接被点击时触发
+ * @event {Function} imgtap 图片被点击时触发
+ * @event {Function} linktap 链接被点击时触发
  * @event {Function} play 音视频播放时触发
  * @event {Function} error 媒体加载出错时触发
  */
@@ -46,7 +46,7 @@ const plugins = []
 const dom = weex.requireModule('dom')
 // #endif
 export default {
-	name: 'u-parse',
+	name: 'up-parse',
 	data() {
 		return {
 			nodes: [],
@@ -103,7 +103,7 @@ export default {
 		useAnchor: [Boolean, Number]
 	},
 	// #ifdef VUE3
-	emits: ['load', 'ready', 'imgTap', 'linkTap', 'play', 'error'],
+	emits: ['load', 'ready', 'imgtap', 'linktap', 'play', 'error'],
 	// #endif
 	// #ifndef APP-PLUS-NVUE
 	components: {
@@ -126,16 +126,45 @@ export default {
 			this.setContent(this.content)
 		}
 	},
-	// #ifdef VUE2
-	// beforeDestroy()
-	// #endif
-	// #ifdef VUE3
-	beforeUnmount()
-	// #endif
-	{
+	beforeUnmount() {
 		this._hook('onDetached')
 	},
 	methods: {
+		/**
+		 * @description 规范化链接地址
+		 * @param {any} href
+		 * @return {String}
+		 */
+		normalizeHref(href) {
+			return typeof href === 'string' ? href.trim() : ''
+		},
+
+		/**
+		 * @description 判断是否为外部链接
+		 * @param {String} href
+		 * @return {Boolean}
+		 */
+		isExternalLink(href) {
+			return href.split('?')[0].includes('://')
+		},
+
+		/**
+		 * @description 打开外部链接
+		 * @param {String} href
+		 */
+		openExternalLink(href) {
+			// #ifdef APP-PLUS
+			try {
+				plus.runtime.openWeb(href)
+			} catch (e) { }
+			// #endif
+			// #ifdef APP-HARMONY
+			try {
+				plus.runtime.openURL(href)
+			} catch (e) { }
+			// #endif
+		},
+
 		/**
 		 * @description 将锚点跳转的范围限定在一个 scroll-view 内
 		 * @param {Object} page scroll-view 所在页面的示例
@@ -416,7 +445,7 @@ export default {
 					break
 				// 图片点击
 				case 'onImgTap':
-					this.$emit('imgTap', message.attrs)
+					this.$emit('imgtap', message.attrs)
 					if (this.previewImg) {
 						uni.previewImage({
 							current: parseInt(message.attrs.i),
@@ -426,8 +455,8 @@ export default {
 					break
 				// 链接点击
 				case 'onLinkTap': {
-					const href = message.attrs.href
-					this.$emit('linkTap', message.attrs)
+					const href = this.normalizeHref(message.attrs.href)
+					this.$emit('linktap', message.attrs)
 					if (href) {
 						// 锚点跳转
 						if (href[0] === '#') {
@@ -436,10 +465,10 @@ export default {
 									offset: message.offset
 								})
 							}
-						} else if (href.includes('://')) {
+						} else if (this.isExternalLink(href)) {
 							// 打开外链
 							if (this.copyLink) {
-								plus.runtime.openWeb(href)
+								this.openExternalLink(href)
 							}
 						} else {
 							uni.navigateTo({

@@ -11,7 +11,7 @@
 	/**
 	 * Code 验证码输入框
 	 * @description 考虑到用户实际发送验证码的场景，可能是一个按钮，也可能是一段文字，提示语各有不同，所以本组件 不提供界面显示，只提供提示语，由用户将提示语嵌入到具体的场景
-	 * @tutorial https://ijry.github.io/uview-plus/components/code.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/code.html
 	 * @property {String | Number}	seconds			倒计时所需的秒数（默认 60 ）
 	 * @property {String}			startText		开始前的提示语，见官网说明（默认 '获取验证码' ）
 	 * @property {String}			changeText		倒计时期间的提示语，必须带有字母"x"，见官网说明（默认 'X秒重新获取' ）
@@ -107,7 +107,7 @@
 				if(!this.keepRunning || !this.timer) return
 				// 记录当前的时间戳，为了下次进入页面，如果还在倒计时内的话，继续倒计时
 				// 倒计时尚未结束，结果大于0；倒计时已经开始，就会小于初始值，如果等于初始值，说明没有开始倒计时，无需处理
-				if(this.secNum > 0 && this.secNum < this.seconds) {
+				if(this.secNum > 0 && this.secNum <= this.seconds) {
 					// 获取当前时间戳(+ new Date()为特殊写法)，除以1000变成秒，再去除小数部分
 					let nowTimestamp = Math.floor((+ new Date()) / 1000)
 					// 将本该结束时候的时间戳保存起来 => 当前时间戳 + 剩余的秒数
@@ -119,12 +119,7 @@
 			}
 		},
 		// 组件销毁的时候，清除定时器，否则定时器会继续存在，系统不会自动清除
-		// #ifdef VUE2
-		beforeDestroy() {
-		// #endif
-		// #ifdef VUE3
 		beforeUnmount() {
-		// #endif
 			this.setTimeToStorage()
 			clearTimeout(this.timer)
 			this.timer = null
@@ -133,5 +128,4 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 </style>

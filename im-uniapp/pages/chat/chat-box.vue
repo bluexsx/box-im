@@ -40,15 +40,13 @@
 					<chat-record v-if="showRecord" class="chat-record" @send="onSendRecord"></chat-record>
 					<view v-else class="send-text">
 						<editor id="editor" class="send-text-area" :placeholder="isReceipt ? '[回执消息]' : ''" :read-only="isReadOnly"
-							@focus="onEditorFocus" @ready="onEditorReady" @input="onTextInput">
+							@focus="onEditorFocus" @blur="onEditorBlur" @ready="onEditorReady" @input="onTextInput">
 						</editor>
 					</view>
 					<view v-if="isGroup" class="iconfont icon-at" @click="openAtBox()"></view>
-					<view class="iconfont icon-icon_emoji" @click="onShowEmoChatTab()"></view>
-					<view v-if="isEmpty" class="iconfont icon-add" @click="onShowToolsChatTab()">
-					</view>
-					<button v-if="!isEmpty || atUserIds.length" class="btn-send" type="primary"
-						@touchend.prevent="sendTextMessage()" size="mini">发送</button>
+					<view class="iconfont icon-emoji" @click="onShowEmoChatTab()"></view>
+					<view v-if="isEmpty&&!atUserIds.length" class="iconfont icon-add" @click="onShowToolsChatTab()"></view>
+					<button v-else class="btn-send" type="primary" @touchend.prevent="sendTextMessage()" size="mini">发送</button>
 					<view class="chat-editer-mask" v-if="notAllowInputTip">
 						<text class="icon iconfont icon-warning-circle-empty"></text>
 						<text>{{ notAllowInputTip }}</text>
@@ -98,8 +96,8 @@
 							<view class="tool-name">语音通话</view>
 						</view>
 						<view v-if="isGroup" class="chat-tools-item" @click="onGroupVideo()">
-							<view class="tool-icon iconfont icon-call"></view>
-							<view class="tool-name">语音通话</view>
+							<view class="tool-icon iconfont icon-video"></view>
+							<view class="tool-name">多人通话</view>
 						</view>
 						<!-- #endif -->
 					</view>
@@ -154,7 +152,7 @@ export default {
 			chatTabBox: 'none',
 			showRecord: false,
 			chatMainHeight: 800, // 聊天窗口高度
-			keyboardHeight: 290, // 键盘高度
+			keyboardHeight: 310, // 键盘高度
 			screenHeight: 1000, // 屏幕高度
 			windowHeight: 1000, // 窗口高度
 			initHeight: 1000, // h5初始高度
@@ -405,9 +403,6 @@ export default {
 				this.chatTabBox = chatTabBox;
 				if (chatTabBox === 'emo') {
 					this.loadRecentEmojis();
-				}
-				if (chatTabBox != 'tools' && this.$refs.fileUpload) {
-					this.$refs.fileUpload.hide()
 				}
 				setTimeout(() => this.reCalChatMainHeight(), 30);
 			}
@@ -709,10 +704,30 @@ export default {
 			})
 		},
 		async onEditorFocus(e) {
+			this.switchChatTabBox('none')
+			// 鸿蒙小程序 editor 弹键盘时 onKeyboardHeightChange 常不触发，用 focus 兜底抬高输入区
+			if (this.isWxHarmonyOS() && !this.isShowKeyBoard) {
+				this.isShowKeyBoard = true;
+				this.reCalChatMainHeight();
+			}
 			await this.resetMessages();
 			this.scrollToBottom()
-			this.switchChatTabBox('none')
 			setTimeout(() => this.scrollToBottom(), 100);
+		},
+		onEditorBlur() {
+			// 鸿蒙小程序 editor 弹键盘时 onKeyboardHeightChange 常不触发，用 focus 兜底抬高输入区
+			if (this.isWxHarmonyOS() && this.isShowKeyBoard) {
+				this.isShowKeyBoard = false;
+				this.reCalChatMainHeight();
+			}
+		},
+		isWxHarmonyOS() {
+			// #ifdef MP-WEIXIN
+			const sys = uni.getSystemInfoSync();
+			const osName = (sys.osName || '').toLowerCase();
+			return osName.includes('harmony');
+			// #endif
+			return false;
 		},
 		onAudioStateChange(state, message) {
 			const playingAudio = this.$refs[message.localId][0]
@@ -846,12 +861,18 @@ export default {
 			let h = this.windowHeight;
 			// 减去标题栏高度
 			h -= 50;
+			// #ifdef APP-HARMONY
+			// 鸿蒙app如果是从tab页跳转过来，windowHeight会自动扣掉底部tab的高度，这里加回来
+			if (this.screenHeight - this.windowHeight > 50) {
+				h += 50;
+			}
+			// #endif
 			// 减去键盘高度
 			if (this.isShowKeyBoard || this.chatTabBox != 'none') {
 				h -= this.keyboardHeight;
 			}
 			// APP需要减去状态栏高度
-			// #ifdef APP-PLUS
+			// #ifdef APP
 			h -= sysInfo.statusBarHeight;
 			// #endif
 			this.chatMainHeight = h;
@@ -1193,10 +1214,10 @@ export default {
 	}
 
 	.chat-main-box {
-		// #ifndef APP-PLUS
+		// #ifndef APP
 		top: $im-nav-bar-height;
 		// #endif
-		// #ifdef APP-PLUS
+		// #ifdef APP
 		top: calc($im-nav-bar-height + var(--status-bar-height));
 		// #endif
 		position: fixed;

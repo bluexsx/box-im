@@ -86,7 +86,7 @@ export default {
 				return;
 			}
 			// 大于1秒才发送
-			if (this.druation <= 1) {
+			if (this.druation < 1) {
 				uni.showToast({
 					title: "说话时间太短",
 					icon: 'none'

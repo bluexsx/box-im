@@ -11,8 +11,8 @@
 		    :class="iconClasses"
 		    :style="[iconWrapStyle]"
 		>
-			<slot name="icon">
-				<u-icon
+			<slot name="icon" :elIconSize="elIconSize" :elIconColor="elIconColor">
+				<up-icon
 				    class="u-checkbox__icon-wrap__icon"
 				    name="checkbox-mark"
 				    :size="elIconSize"
@@ -20,16 +20,17 @@
 				/>
 			</slot>
 		</view>
-		<slot name="label" :label="label" :elDisabled="elDisabled">
-			<text
-				@tap.stop="labelClickHandler"
-				:style="{
-					color: elDisabled ? elInactiveColor : elLabelColor,
-					fontSize: elLabelSize,
-					lineHeight: elLabelSize
-				}"
-			>{{label}}</text>
-		</slot>
+		<view class="u-checkbox__label-wrap cursor-pointer" @tap.stop="labelClickHandler">
+			<slot name="label" :label="label" :elDisabled="elDisabled">
+				<text
+					:style="{
+						color: elDisabled ? elInactiveColor : elLabelColor,
+						fontSize: elLabelSize,
+						lineHeight: elLabelSize
+					}"
+				>{{label}}</text>
+			</slot>
+		</view>
 	</view>
 </template>
 
@@ -91,7 +92,7 @@
 			}
 		},
 		computed: {
-			// 是否禁用，如果父组件u-raios-group禁用的话，将会忽略子组件的配置
+			// 是否禁用，如果父组件u-radios-group禁用的话，将会忽略子组件的配置
 			elDisabled() {
 				return this.disabled !== '' ? this.disabled : this.parentData.disabled !== null ? this.parentData.disabled : false;
 			},
@@ -110,16 +111,16 @@
 			},
 			// 组件选中激活时的颜色
 			elActiveColor() {
-				return this.activeColor ? this.activeColor : (this.parentData.activeColor ? this.parentData.activeColor : '#2979ff');
+				return this.activeColor ? this.activeColor : (this.parentData.activeColor ? this.parentData.activeColor : this.upThemeVar('--up-primary', '#2979ff'));
 			},
 			// 组件选未中激活时的颜色
 			elInactiveColor() {
 				return this.inactiveColor ? this.inactiveColor : (this.parentData.inactiveColor ? this.parentData.inactiveColor :
-					'#c8c9cc');
+					this.upThemeVar('--up-border-color', '#c8c9cc'));
 			},
 			// label的颜色
 			elLabelColor() {
-				return this.labelColor ? this.labelColor : (this.parentData.labelColor ? this.parentData.labelColor : '#606266')
+				return this.labelColor ? this.labelColor : (this.parentData.labelColor ? this.parentData.labelColor : this.upThemeVar('--up-content-color', '#606266'))
 			},
 			// 组件的形状
 			elShape() {
@@ -132,7 +133,7 @@
 			},
 			elIconColor() {
 				const iconColor = this.iconColor ? this.iconColor : (this.parentData.iconColor ? this.parentData.iconColor :
-					'#ffffff');
+					this.upThemeVar('--up-card-bg-color', '#ffffff'));
 				// 图标的颜色
 				if (this.elDisabled) {
 					// disabled状态下，已勾选的checkbox图标改为elInactiveColor
@@ -160,7 +161,7 @@
 			iconWrapStyle() {
 				// checkbox的整体样式
 				const style = {}
-				style.backgroundColor = this.isChecked && !this.elDisabled ? this.elActiveColor : '#ffffff'
+				style.backgroundColor = this.isChecked && !this.elDisabled ? this.elActiveColor : this.upThemeVar('--up-card-bg-color', '#ffffff')
 				style.borderColor = this.isChecked && !this.elDisabled ? this.elActiveColor : this.elInactiveColor
 				style.width = addUnit(this.elSize)
 				style.height = addUnit(this.elSize)
@@ -176,7 +177,7 @@
 				const style = {}
 				if (!this.usedAlone) {
 					if (this.parentData.borderBottom && this.parentData.placement === 'row') {
-						error('检测到您将borderBottom设置为true，需要同时将u-checkbox-group的placement设置为column才有效')
+						error('检测到您将borderBottom设置为true，需要同时将up-checkbox-group的placement设置为column才有效')
 					}
 					// 当父组件设置了显示下边框并且排列形式为纵向时，给内容和边框之间加上一定间隔
 					if (this.parentData.borderBottom && this.parentData.placement === 'column') {
@@ -189,30 +190,35 @@
 		mounted() {
 			this.init()
 		},
-		emits: ["change"],
+		emits: ["change", "update:checked"],
 		methods: {
 			init() {
 				if (!this.usedAlone) {
 					// 支付宝小程序不支持provide/inject，所以使用这个方法获取整个父组件，在created定义，避免循环引用
 					this.updateParentData()
 					if (!this.parent) {
-						error('u-checkbox必须搭配u-checkbox-group组件使用')
+						error('up-checkbox必须搭配up-checkbox-group组件使用')
 					}
-				}
-				// #ifdef VUE2
-				const value = this.parentData.value
-				// #endif
-				// #ifdef VUE3
-				const value = this.parentData.modelValue
-				// #endif
-				// 设置初始化时，是否默认选中的状态，父组件u-checkbox-group的value可能是array，所以额外判断
-				if (this.checked) {
-					this.isChecked = true
-				} else if (!this.usedAlone && test.array(value)) {
-					// 查找数组是是否存在this.name元素值
-					this.isChecked = value.some(item => {
-						return item === this.name
-					})
+					let value = '';
+					// #ifdef VUE2
+					value = this.parentData.value
+					// #endif
+					// #ifdef VUE3
+					value = this.parentData.modelValue
+					// #endif
+					// 设置初始化时，是否默认选中的状态，父组件u-checkbox-group的value可能是array，所以额外判断
+					if (this.checked) {
+						this.isChecked = true
+					} else if (!this.usedAlone && test.array(value)) {
+						// 查找数组是是否存在this.name元素值
+						this.isChecked = value.some(item => {
+							return item === this.name
+						})
+					}
+				} else {
+					if (this.checked) {
+						this.isChecked = true
+					}
 				}
 			},
 			updateParentData() {
@@ -243,7 +249,13 @@
 				}
 			},
 			emitEvent() {
-				this.$emit('change', this.isChecked)
+				this.$emit('change', this.isChecked, {
+					name: this.name
+				})
+				// 双向绑定
+				if (this.usedAlone) {
+					this.$emit('update:checked', this.isChecked)
+				}
 				// 尝试调用u-form的验证方法，进行一定延迟，否则微信小程序更新可能会不及时
 				this.$nextTick(() => {
 					formValidate(this, 'change')
@@ -262,15 +274,16 @@
 			}
 		},
 		watch:{
-			checked(){
-				this.isChecked = this.checked
+			checked(newValue, oldValue){
+				if (newValue !== this.isChecked) {
+					this.isChecked = newValue
+				}
 			}
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 	$u-checkbox-icon-wrap-margin-right:6px !default;
 	$u-checkbox-icon-wrap-font-size:6px !default;
 	$u-checkbox-icon-wrap-border-width:1px !default;
@@ -281,7 +294,7 @@
 	$u-checkbox-icon-wrap-checked-color:#fff !default;
 	$u-checkbox-icon-wrap-checked-background-color:red !default;
 	$u-checkbox-icon-wrap-checked-border-color:#2979ff !default;
-	$u-checkbox-icon-wrap-disabled-background-color:#ebedf0 !default;
+	$u-checkbox-icon-wrap-disabled-background-color:var(--up-bg-color, #ebedf0) !default;
 	$u-checkbox-icon-wrap-disabled-checked-color:#c8c9cc !default;
 	$u-checkbox-label-margin-left:5px !default;
 	$u-checkbox-label-margin-right:12px !default;

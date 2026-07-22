@@ -126,8 +126,9 @@ export default defineStore('chatStore', {
 				m.status != MESSAGE_STATUS.RECALL && m.type != MESSAGE_TYPE.TIP_TEXT) {
 				conv.unreadCount++;
 			}
-			// 是否有人@我
-			if (!m.selfSend && m.atUserIds && m.status != MESSAGE_STATUS.READED) {
+			// 是否有人@我（已读、已撤回的消息不再设置）
+			if (!m.selfSend && m.atUserIds && m.status != MESSAGE_STATUS.READED
+				&& m.status != MESSAGE_STATUS.RECALL) {
 				const userId = useUserStore().userInfo.id;
 				if (m.atUserIds.indexOf(userId) >= 0) {
 					conv.atMe = true;
@@ -477,6 +478,12 @@ export default defineStore('chatStore', {
 			recallMessage.content = recallMessageTip;
 			recallMessage.type = MESSAGE_TYPE.TIP_TEXT
 			batchMessages.push(recallMessage);
+			// 撤回的若是@我消息，清除标记
+			if (conv.lastAtMessageId == recallMessageId) {
+				conv.atMe = false;
+				conv.atAll = false;
+				conv.lastAtMessageId = -1;
+			}
 			// 会话列表
 			conv.lastContent = messageUtil.previewContent(recallMessage);
 			conv.lastSendTime = message.sendTime;
@@ -556,7 +563,7 @@ export default defineStore('chatStore', {
 			// 没传messageId就是整个会话已读
 			messageId = messageId || conv.maxMessageId;
 			if (conv && conv.maxReadedId < messageId) {
-				conv.maxReadedId = messageId;
+				conv.maxReadedId = Math.min(conv.maxMessageId, messageId);
 				await getDB().saveConversation(conv);
 			}
 		},

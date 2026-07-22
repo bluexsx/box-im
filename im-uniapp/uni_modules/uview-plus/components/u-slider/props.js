@@ -1,5 +1,6 @@
 import { defineMixin } from '../../libs/vue'
 import defProps from '../../libs/config/props.js'
+
 export const props = defineMixin({
     props: {
         // 最小可选值
@@ -17,20 +18,30 @@ export const props = defineMixin({
             type: [Number, String],
             default: () => defProps.slider.step
         },
-		// #ifdef VUE3
-		// 当前取值
-		modelValue: {
-			type: [String, Number],
-			default: () => defProps.slider.value
-		},
-		// #endif
-		// #ifdef VUE2
-		// 当前取值
-		value: {
-			type: [String, Number],
-			default: () => defProps.slider.value
-		},
-		// #endif
+        // #ifdef VUE3
+        // 当前取值
+        modelValue: {
+            type: [String, Number],
+            default: () => defProps.slider.value
+        },
+        // #endif
+        // #ifdef VUE2
+        // 当前取值
+        value: {
+            type: [String, Number],
+            default: () => defProps.slider.value
+        },
+        // #endif
+        // 是否区间模式
+        isRange: {
+            type: Boolean,
+            default: false
+        },
+        // 双滑块时值
+        rangeValue: {
+            type: [Array],
+            default: [0, 0]
+        },
         // 滑块右侧已选择部分的背景色
         activeColor: {
             type: String,
@@ -51,15 +62,49 @@ export const props = defineMixin({
             type: String,
             default: () => defProps.slider.blockColor
         },
-		// 禁用状态
-		disabled: {
-			type: Boolean,
-			default: () => defProps.slider.disabled
-		},
+        // 用户对滑块的自定义颜色
+        blockStyle: {
+            type: Object,
+            default: () => defProps.slider.blockStyle
+        },
+        // 禁用状态
+        disabled: {
+            type: Boolean,
+            default: () => defProps.slider.disabled
+        },
         // 是否显示当前的选择值
         showValue: {
             type: Boolean,
             default: () => defProps.slider.showValue
+        },
+        // 是否渲染uni-app框架内置组件
+        useNative: {
+            type: Boolean,
+            default: () => defProps.slider.useNative
+        },
+        // 滑块厚度
+        height: {
+            type: String,
+            default: () => defProps.slider.height
+        },
+        innerStyle: {
+            type: Object,
+            default: () => defProps.slider.innerStyle
+        },
+        // 是否垂直方向
+        vertical: {
+            type: Boolean,
+            default: defProps.slider.vertical
+        },
+        // 滑块粗细，为了支持垂直模式下统一粗细参数，用size代替height。
+        size: {
+            type: [Number, String],
+            default: () => defProps.slider.size
+        },
+        // 滑块长度，水平和垂直模式的长度。
+        length: {
+            type: [Number, String],
+            default: 'auto'
         }
     }
 })

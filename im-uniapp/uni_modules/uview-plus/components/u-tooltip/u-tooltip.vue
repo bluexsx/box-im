@@ -9,27 +9,30 @@
 			@click="overlayClickHandler"
 		></u-overlay>
 		<view class="u-tooltip__wrapper">
-			<text
-				class="u-tooltip__wrapper__text"
-				:id="textId"
-				:ref="textId"
-				:userSelect="false"
-				:selectable="false"
-				@longpress.stop="longpressHandler"
-				:style="{
-					color: color,
-					backgroundColor: bgColor && showTooltip && tooltipTop !== -10000 ? bgColor : 'transparent'
-				}"
-			>{{ text }}</text>
+			<view class="u-tooltip__trigger" :id="textId"
+				:ref="textId" @click.stop="clickHander"
+				@longpress.stop="longpressHandler">
+				<slot name="trigger"></slot>
+				<text v-if="!$slots['trigger']"
+					class="u-tooltip__wrapper__text"
+					:userSelect="false"
+					:selectable="false"
+					:style="{
+						color: color,
+						fontSize: $u.addUnit(size),
+						backgroundColor: bgColor && showTooltip && tooltipTop !== -10000 ? bgColor : 'transparent'
+					}"
+				>{{ text }}</text>
+			</view>
 			<u-transition
 				mode="fade"
 				:show="showTooltip"
 				duration="300"
 				:customStyle="{
 					position: 'absolute', 
-					top: addUnit(tooltipTop),
+					top: addUnit(tooltipTop, 'px'),
 					zIndex: zIndex,
-					...tooltipStyle
+					...tooltipStyleCpu
 				}"
 			>
 				<view
@@ -44,44 +47,52 @@
 						:style="[indicatorStyle, {
 							width: addUnit(indicatorWidth),
 							height: addUnit(indicatorWidth),
+							backgroundColor: popupBgColor
 						}]"
 					>
 						<!-- 由于nvue不支持三角形绘制，这里就做一个四方形，再旋转45deg，得到露出的一个三角 -->
 					</view>
-					<view class="u-tooltip__wrapper__popup__list">
-						<view
-							v-if="showCopy"
-							class="u-tooltip__wrapper__popup__list__btn"
-							hover-class="u-tooltip__wrapper__popup__list__btn--hover"
-							@tap="setClipboardData"
-						>
-							<text
-								class="u-tooltip__wrapper__popup__list__btn__text"
-							>复制</text>
-						</view>
-						<u-line
-							direction="column"
-							color="#8d8e90"
-							v-if="showCopy && buttons.length > 0"
-							length="18"
-						></u-line>
-						<block v-for="(item , index) in buttons" :key="index">
+					<view class="u-tooltip__wrapper__popup__list" :style="{
+						backgroundColor: popupBgColor,
+						color: color
+					}">
+						<slot name="content"></slot>
+						<template v-if="!$slots['content']">
 							<view
+								v-if="showCopy"
 								class="u-tooltip__wrapper__popup__list__btn"
 								hover-class="u-tooltip__wrapper__popup__list__btn--hover"
+								:style="{backgroundColor: popupBgColor}"
+								@tap="setClipboardData"
 							>
 								<text
 									class="u-tooltip__wrapper__popup__list__btn__text"
-									@tap="btnClickHandler(index)"
-								>{{ item }}</text>
+								>复制</text>
 							</view>
 							<u-line
 								direction="column"
 								color="#8d8e90"
-								v-if="index < buttons.length - 1"
+								v-if="showCopy && buttons.length > 0"
 								length="18"
 							></u-line>
-						</block>
+							<block v-for="(item , index) in buttons" :key="index">
+								<view
+									class="u-tooltip__wrapper__popup__list__btn"
+									hover-class="u-tooltip__wrapper__popup__list__btn--hover"
+								>
+									<text
+										class="u-tooltip__wrapper__popup__list__btn__text"
+										@tap="btnClickHandler(index)"
+									>{{ item }}</text>
+								</view>
+								<u-line
+									direction="column"
+									color="#8d8e90"
+									v-if="index < buttons.length - 1"
+									length="18"
+								></u-line>
+							</block>
+						</template>
 					</view>
 				</view>
 			</u-transition>
@@ -93,25 +104,26 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { addStyle, addUnit, getPx, guid, toast, sleep, sys } from '../../libs/function/index';
+	import { addStyle, addUnit, getPx, guid, toast, sleep, getWindowInfo } from '../../libs/function/index';
 	// #ifdef APP-NVUE 
 	const dom = uni.requireNativePlugin('dom')
 	// #endif
 	/**
 	 * Tooltip 
 	 * @description 
-	 * @tutorial https://ijry.github.io/uview-plus/components/tooltip.html
-	 * @property {String | Number}	text		需要显示的提示文字
-	 * @property {String | Number}	copyText	点击复制按钮时，复制的文本，为空则使用text值
-	 * @property {String | Number}	size		文本大小（默认 14 ）
-	 * @property {String}			color		字体颜色（默认 '#606266' ）
-	 * @property {String}			bgColor		弹出提示框时，文本的背景色（默认 'transparent' ）
-	 * @property {String}			direction	弹出提示的方向，top-上方，bottom-下方（默认 'top' ）
-	 * @property {String | Number}	zIndex		弹出提示的z-index，nvue无效（默认 10071 ）
-	 * @property {Boolean}			showCopy	是否显示复制按钮（默认 true ）
-	 * @property {Array}			buttons		扩展的按钮组
-	 * @property {Boolean}			overlay		是否显示透明遮罩以防止触摸穿透（默认 true ）
-	 * @property {Object}			customStyle	定义需要用到的外部样式
+	 * @tutorial https://uview-plus.jiangruyi.com/components/tooltip.html
+	 * @property {String | Number}	text		 需要显示的提示文字
+	 * @property {String | Number}	copyText	 点击复制按钮时，复制的文本，为空则使用text值
+	 * @property {String | Number}	size		 文本大小（默认 14 ）
+	 * @property {String}			color		 字体颜色（默认 '#606266' ）
+	 * @property {String}			bgColor		 弹出提示框时，文本的背景色（默认 'transparent' ）
+	 * @property {String}			popupBgColor 弹出提示框的背景色
+	 * @property {String}			direction	 弹出提示的方向，top-上方，bottom-下方（默认 'top' ）
+	 * @property {String | Number}	zIndex		 弹出提示的z-index，nvue无效（默认 10071 ）
+	 * @property {Boolean}			showCopy	 是否显示复制按钮（默认 true ）
+	 * @property {Array}			buttons		 扩展的按钮组
+	 * @property {Boolean}			overlay		 是否显示透明遮罩以防止触摸穿透（默认 true ）
+	 * @property {Object}			customStyle	 定义需要用到的外部样式
 	 * 
 	 * @event {Function} 
 	 * @example 
@@ -134,7 +146,7 @@
 					left: 0
 				},
 				// 文本的位置信息
-				textInfo: {
+				triggerInfo: {
 					width: 0,
 					left: 0
 				},
@@ -144,11 +156,23 @@
 				screenGap: 12,
 				// 三角形指示器的宽高，由于对元素进行了角度旋转，精确计算指示器位置时，需要用到其尺寸信息
 				indicatorWidth: 14,
+				tooltipStyle: {},
+				calcReacted: false
 			}
 		},
 		watch: {
-			propsChange() {
-				this.getElRect()
+			async propsChange() {
+				await this.getElRect()
+				// this.getTooltipStyle();
+			},
+			show(val) {
+				if (this.triggerMode === 'manual') {
+					if (val) {
+						this.open()
+					} else {
+						this.close()
+					}
+				}
 			}
 		},
 		computed: {
@@ -158,66 +182,109 @@
 				return [this.text, this.buttons]
 			},
 			// 计算气泡和指示器的位置信息
-			tooltipStyle() {
-				const style = {
-						transform: `translateY(${this.direction === 'top' ? '-100%' : '100%'})`,
-					},
-					sysInfo = sys()
-				if (this.tooltipInfo.width / 2 > this.textInfo.left + this.textInfo.width / 2 - this.screenGap) {
-					this.indicatorStyle = {}
-					style.left = `-${addUnit(this.textInfo.left - this.screenGap)}`
-					this.indicatorStyle.left = addUnit(this.textInfo.width / 2 - getPx(style.left) - this.indicatorWidth /
-						2)
-				} else if (this.tooltipInfo.width / 2 > sysInfo.windowWidth - this.textInfo.right + this.textInfo.width / 2 -
-					this.screenGap) {
-					this.indicatorStyle = {}
-					style.right = `-${addUnit(sysInfo.windowWidth - this.textInfo.right - this.screenGap)}`
-					this.indicatorStyle.right = addUnit(this.textInfo.width / 2 - getPx(style.right) - this
-						.indicatorWidth / 2)
-				} else {
-					const left = Math.abs(this.textInfo.width / 2 - this.tooltipInfo.width / 2)
-					style.left = this.textInfo.width > this.tooltipInfo.width ? addUnit(left) : -addUnit(left)
-					this.indicatorStyle = {}
+			tooltipStyleCpu() {
+				if (!this.calcReacted) {
+					return {}
 				}
-				if (this.direction === 'top') {
-					style.marginTop = '-10px'
-					this.indicatorStyle.bottom = '-4px'
-				} else {
-					style.marginBottom = '-10px'
-					this.indicatorStyle.top = '-4px'
+				const style = {},
+					sysInfo = getWindowInfo()
+				if (this.direction === 'left') {
+					// 右侧显示逻辑
+					style.transform = ``
+					// 垂直居中对齐
+					style.top = '-' + addUnit((this.triggerInfo.height - this.tooltipInfo.height) / 2, 'px')
+					style.right = addUnit(this.triggerInfo.width + this.indicatorWidth, 'px')
+					this.indicatorStyle = {}
+					this.indicatorStyle.right = '-4px'
+					this.indicatorStyle.top = addUnit((this.tooltipInfo.height - this.indicatorWidth) / 2, 'px')
+				} else if (this.direction === 'right') {
+					// 右侧显示逻辑
+					style.transform = ``
+					// 垂直居中对齐
+					style.top = '-' + addUnit((this.triggerInfo.height - this.tooltipInfo.height) / 2, 'px')
+					style.left = addUnit(this.triggerInfo.width + this.indicatorWidth, 'px')
+					this.indicatorStyle = {}
+					this.indicatorStyle.left = '-4px'
+					this.indicatorStyle.top = addUnit((this.triggerInfo.height - this.indicatorWidth) / 2, 'px')
+				} else if (this.direction === 'top' || this.direction === 'bottom') { 
+					style.transform = `translateY(${this.direction === 'top' ? '-100%' : '100%'})`
+					if (this.tooltipInfo.width / 2 > this.triggerInfo.left + this.triggerInfo.width / 2 - this.screenGap) {
+						this.indicatorStyle = {}
+						style.left = `-${addUnit(this.triggerInfo.left - this.screenGap)}`
+						this.indicatorStyle.left = addUnit(this.triggerInfo.width / 2 - getPx(style.left) - this.indicatorWidth /
+							2, 'px')
+					} else if (this.tooltipInfo.width / 2 > sysInfo.windowWidth - this.triggerInfo.right + this.triggerInfo.width / 2 -
+						this.screenGap) {
+						this.indicatorStyle = {}
+						style.right = `-${addUnit(sysInfo.windowWidth - this.triggerInfo.right - this.screenGap)}`
+						this.indicatorStyle.right = addUnit(this.triggerInfo.width / 2 - getPx(style.right) - this
+							.indicatorWidth / 2)
+					} else {
+						const left = Math.abs(this.triggerInfo.width / 2 - this.tooltipInfo.width / 2)
+						style.left = this.triggerInfo.width > this.tooltipInfo.width ? addUnit(left) : -addUnit(left)
+						this.indicatorStyle = {}
+					}
+					if (this.direction === 'top') {
+						style.marginTop = '-10px'
+						this.indicatorStyle.bottom = '-4px'
+					} else {
+						style.marginBottom = '-10px'
+						this.indicatorStyle.top = '-4px'
+					}
 				}
-				return style
+				let styleMerge = {...style, ...this.forcePosition}
+				this.tooltipStyle = styleMerge
+				return styleMerge
 			}
 		},
 		mounted() {
 			this.init()
 		},
-		emits: ["click"],
+		emits: ["click", "open", "close"],
 		methods: {
 			addStyle,
 			addUnit,
-			init() {
-				this.getElRect()
+			async init() {
+				await this.getElRect()
+				// this.getTooltipStyle();
+			},
+			// 点击触发事件
+			async clickHander() {
+				if (this.triggerMode == 'click') {
+					this.open()
+				}
 			},
 			// 长按触发事件
 			async longpressHandler() {
+				if (this.triggerMode == 'longpress') {
+					this.open()
+				}
+			},
+			// 打开tooltip
+			open() {
 				this.tooltipTop = 0
 				this.showTooltip = true
+				this.$emit('open')
+			},
+			// 关闭tooltip
+			close() {
+				this.showTooltip = false
+				this.$emit('close')
 			},
 			// 点击透明遮罩
 			overlayClickHandler() {
-				this.showTooltip = false
+				this.close()
 			},
 			// 点击弹出按钮
 			btnClickHandler(index) {
-				this.showTooltip = false
+				this.close()
 				// 如果需要展示复制按钮，此处index需要加1，因为复制按钮在第一个位置
 				this.$emit('click', this.showCopy ? index + 1 : index)
 			},
 			// 查询内容高度
 			queryRect(ref) {
 				// #ifndef APP-NVUE
-				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://ijry.github.io/uview-plus/js/getRect.html
+				// $uGetRect为uview-plus自带的节点查询简化方法，详见文档介绍：https://uview-plus.jiangruyi.com/js/getRect.html
 				// 组件内部一般用this.$uGetRect，对外的为uni.$u.getRect，二者功能一致，名称不同
 				return new Promise(resolve => {
 					this.$uGetRect(`#${ref}`).then(size => {
@@ -238,24 +305,26 @@
 			},
 			// 元素尺寸
 			getElRect() {
-				// 调用之前，先将指示器调整到屏幕外，方便获取尺寸
-				this.showTooltip = true
-				this.tooltipTop = -10000
-				sleep(500).then(() => {
-					this.queryRect(this.tooltipId).then(size => {
-						this.tooltipInfo = size
+				return new Promise(async(resolve) => {
+					// 调用之前，先将指示器调整到屏幕外，方便获取尺寸
+					this.showTooltip = true
+					this.tooltipTop = -10000
+					sleep(500).then(async () => {
+						this.tooltipInfo = await this.queryRect(this.tooltipId)
 						// 获取气泡尺寸之后，将其隐藏，为了让下次切换气泡显示与隐藏时，有淡入淡出的效果
 						this.showTooltip = false
-					})
-					this.queryRect(this.textId).then(size => {
-						this.textInfo = size
+						this.triggerInfo = await this.queryRect(this.textId)
+						sleep(500).then(() => {
+							this.calcReacted = true
+						})
+						resolve()
 					})
 				})
 			},
 			// 复制文本到粘贴板
 			setClipboardData() {
 				// 关闭组件
-				this.showTooltip = false
+				this.close()
 				this.$emit('click', 0)
 				uni.setClipboardData({
 					// 优先使用copyText字段，如果没有，则默认使用text字段当做复制的内容
@@ -265,9 +334,6 @@
 					},
 					fail: () => {
 						this.showToast && toast('复制失败')
-					},
-					complete: () => {
-						this.showTooltip = false
 					}
 				})
 			}
@@ -276,7 +342,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-tooltip {
 		position: relative;
@@ -299,6 +364,7 @@
 
 				&__list {
 					background-color: #060607;
+					color: #FFFFFF;
 					position: relative;
 					flex: 1;
 					border-radius: 5px;

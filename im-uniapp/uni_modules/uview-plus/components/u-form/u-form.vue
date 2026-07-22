@@ -16,7 +16,7 @@
 	/**
 	 * Form 表单
 	 * @description 此组件一般用于表单场景，可以配置Input输入框，Select弹出框，进行表单验证等。
-	 * @tutorial https://ijry.github.io/uview-plus/components/form.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/form.html
 	 * @property {Object}						model			当前form的需要验证字段的集合
 	 * @property {Object | Function | Array}	rules			验证规则
 	 * @property {String}						errorType		错误的提示方式，见上方说明 ( 默认 message )
@@ -25,10 +25,10 @@
 	 * @property {String | Number}				labelWidth		提示文字的宽度，单位px  ( 默认 45 ）
 	 * @property {String}						labelAlign		lable字体的对齐方式   ( 默认 ‘left' ）
 	 * @property {Object}						labelStyle		lable的样式，对象形式
-	 * @example <up-formlabelPosition="left" :model="model1" :rules="rules" ref="form1"></up-form>
+	 * @example <up-form labelPosition="left" :model="model1" :rules="rules" ref="form1"></up-form>
 	 */
 	export default {
-		name: "u-form",
+		name: "up-form",
 		mixins: [mpMixin, mixin, props],
 		provide() {
 			return {
@@ -121,12 +121,12 @@
 				this.children.map((child) => {
 					// 如果u-form-item的prop在props数组中，则清除对应的校验结果信息
 					if (props[0] === undefined || props.includes(child.prop)) {
-						child.message = null;
+						child.message = '';
 					}
 				});
 			},
 			// 对部分表单字段进行校验
-			async validateField(value, callback, event = null) {
+			async validateField(value, callback, event = null,options) {
 				// $nextTick是必须的，否则model的变更，可能会延后于此方法的执行
 				this.$nextTick(() => {
 					// 校验错误信息，返回给回调方法，用于存放所有form-item的错误信息
@@ -134,58 +134,97 @@
 					// 如果为字符串，转为数组
 					value = [].concat(value);
 					// 历遍children所有子form-item
-					this.children.map((child) => {
-						// 用于存放form-item的错误信息
-						const childErrors = [];
-						if (value.includes(child.prop)) {
-							// 获取对应的属性，通过类似'a.b.c'的形式
-							const propertyVal = getProperty(
-								this.model,
-								child.prop
-							);
-							// 属性链数组
-							const propertyChain = child.prop.split(".");
-							const propertyName =
-								propertyChain[propertyChain.length - 1];
+					let promises = this.children.map(child => {
+						return new Promise((resolve, reject) => {
+							// 用于存放form-item的错误信息
+							const childErrors = [];
+							if (value.includes(child.prop)) {
+								// 获取对应的属性，通过类似'a.b.c'的形式
+								const propertyVal = getProperty(
+									this.model,
+									child.prop
+								);
+								// 属性链数组
+								const propertyChain = child.prop.split(".");
+								const propertyName =
+									propertyChain[propertyChain.length - 1];
 
-							const rule = this.formRules[child.rule || child.prop];
-							// 如果不存在对应的规则，直接返回，否则校验器会报错
-							if (!rule) return;
-							// rule规则可为数组形式，也可为对象形式，此处拼接成为数组
-							const rules = [].concat(rule);
+								let rule = []
+								if (child.itemRules && child.itemRules.length > 0) {
+									rule = child.itemRules
+								} else {
+									rule = this.formRules[child.prop];
+								}
+								// 如果不存在对应的规则，直接返回，否则校验器会报错
+								if (!rule) {
+									resolve()
+									return;
+								}
+								// rule规则可为数组形式，也可为对象形式，此处拼接成为数组
+								const rules = [].concat(rule);
 
-							// 对rules数组进行校验
-							for (let i = 0; i < rules.length; i++) {
-								const ruleItem = rules[i];
-								// 将u-form-item的触发器转为数组形式
-								const trigger = [].concat(ruleItem?.trigger);
-								// 如果是有传入触发事件，但是此form-item却没有配置此触发器的话，不执行校验操作
-								if (event && !trigger.includes(event)) continue;
-								// 实例化校验对象，传入构造规则
-								const validator = new Schema({
-									[propertyName]: ruleItem,
-								});
-								validator.validate({
+								// 对rules数组进行校验
+								if (!rules.length) {
+									resolve()
+								}
+								for (let i = 0; i < rules.length; i++) {
+									const ruleItem = rules[i];
+									// 将u-form-item的触发器转为数组形式
+									const trigger = [].concat(ruleItem?.trigger);
+									// 如果是有传入触发事件，但是此form-item却没有配置此触发器的话，不执行校验操作
+									if (event && !trigger.includes(event)) {
+										resolve()
+										continue;
+									}
+									// 实例化校验对象，传入构造规则
+									const validator = new Schema({
+										[propertyName]: ruleItem,
+									});
+									validator.validate({
 										[propertyName]: propertyVal,
 									},
-									(errors, fields) => {
-										if (test.array(errors)) {
-											errorsRes.push(...errors);
-											childErrors.push(...errors);
+										(errors, fields) => {
+											if (test.array(errors)) {
+												errors.forEach(element => {
+													element.prop = child.prop;
+												});
+												errorsRes.push(...errors);
+												childErrors.push(...errors);
+											}
+											//没有配置，或者配置了showErrorMsg为true时候，才修改子组件message，默认没有配置
+											if(!options||options?.showErrorMsg==true){
+												child.message =
+													childErrors[0]?.message ? childErrors[0].message : '';
+											}
+											if (i == (rules.length - 1)) {
+												resolve(errorsRes)
+											}
 										}
-										child.message =
-											childErrors[0]?.message ? childErrors[0].message : null;
-									}
-								);
+									)
+								}
+							} else {
+								resolve({})
 							}
-						}
+						});
 					});
-					// 执行回调函数
-					typeof callback === "function" && callback(errorsRes);
+
+					// 使用Promise.all来等待所有Promise完成  
+					Promise.all(promises)
+						.then(results => {
+							// 执行回调函数
+							typeof callback === "function" && callback(errorsRes);
+						})
+						.catch(error => {
+							console.error('An error occurred:', error);
+						});
 				});
 			},
-			// 校验全部数据
-			validate(callback) {
+			/**
+			 * 校验全部数据
+			 * @param {Object} options
+			 * @param {Boolean} options.showErrorMsg -是否显示校验信息，
+			 */
+			validate(options) {
 				// 开发环境才提示，生产环境不会提示
 				if (process.env.NODE_ENV === 'development' && Object.keys(this.formRules).length === 0) {
 					error('未设置rules，请看文档说明！如果已经设置，请刷新页面。');
@@ -198,6 +237,7 @@
 						const formItemProps = this.children.map(
 							(item) => item.prop
 						);
+						// console.log(formItemProps)
 						this.validateField(formItemProps, (errors) => {
 							if(errors.length) {
 								// 如果错误提示方式为toast，则进行提示
@@ -206,7 +246,7 @@
 							} else {
 								resolve(true)
 							}
-						});
+						},null,options);
 					});
 				});
 			},

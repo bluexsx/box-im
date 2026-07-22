@@ -9,7 +9,7 @@
 					<image :src="group.headImageThumb" class="group-image"></image>
 				</image-upload>
 				<head-image v-else class="group-image" :name="group.showGroupName" :url="group.headImageThumb"
-					:size="120"></head-image>
+					:size="120" @click="onShowFullImage()"></head-image>
 			</view>
 			<view class="form-item">
 				<view class="label">群聊名称</view>
@@ -25,13 +25,13 @@
 				<input class="input" maxlength="20" v-model="group.remarkNickName"
 					:placeholder="userStore.userInfo.nickName" />
 			</view>
-			<view class="form-item">
+			<view class="form-item notice-item">
 				<view class="label">群公告</view>
 				<textarea class="notice" :class="isOwner?'':'disable'" maxlength="512" :disabled="!isOwner"
-					v-model="group.notice" :placeholder="isOwner?'请输入群公告':''"></textarea>
+					v-model="group.notice" auto-height :placeholder="isOwner?'请输入群公告':''"></textarea>
 			</view>
 		</view>
-		<button class="bottom-btn" type="primary" @click="submit()">提交</button>
+		<button class="bottom-btn" type="primary" @click="modifyGroup()">提交</button>
 	</view>
 </template>
 
@@ -42,30 +42,21 @@ export default {
 	data() {
 		return {
 			userStore,
-			group: {},
-			rules: {
-				name: {
-					rules: [{
-						required: true,
-						errorMessage: '请输入群聊名称',
-					}]
-				}
-
-			}
+			group: {}
 		}
 	},
-
 	methods: {
-		submit() {
-			if (this.group.id) {
-				this.modifyGroup();
-			} else {
-				this.createNewGroup();
-			}
-		},
 		onUnloadImageSuccess(file, res) {
 			this.group.headImage = res.data.originUrl;
 			this.group.headImageThumb = res.data.thumbUrl;
+		},
+		onShowFullImage() {
+			let imageUrl = this.group.headImage;
+			if (imageUrl) {
+				uni.previewImage({
+					urls: [imageUrl]
+				})
+			}
 		},
 		modifyGroup() {
 			this.$http({
@@ -84,27 +75,6 @@ export default {
 					prevPage.$vm.loadGroupInfo();
 					uni.navigateBack();
 				}, 1000);
-
-			})
-		},
-		createNewGroup() {
-			this.$http({
-				url: "/group/create",
-				method: 'POST',
-				data: this.group
-			}).then((group) => {
-				groupStore.addGroup(group);
-				uni.showToast({
-					title: `群聊创建成功，快邀请小伙伴进群吧`,
-					icon: 'none',
-					duration: 1500
-				});
-				setTimeout(() => {
-					uni.navigateTo({
-						url: "/pages/group/group-info?id=" + group.id
-					});
-				}, 1500)
-
 			})
 		},
 		loadGroupInfo(id) {
@@ -113,21 +83,9 @@ export default {
 				method: 'GET'
 			}).then((group) => {
 				this.group = group;
-				// 更新聊天页面的群聊信息
 				chatStore.updateFromGroup(group);
-				// 更新聊天列表的群聊信息
 				groupStore.updateGroup(group);
-
 			});
-		},
-		initNewGroup() {
-			let userInfo = userStore.userInfo;
-			this.group = {
-				name: `${userInfo.userName}创建的群聊`,
-				headImage: userInfo.headImage,
-				headImageThumb: userInfo.headImageThumb,
-				ownerId: userStore.userInfo.id
-			}
 		}
 	},
 	computed: {
@@ -136,21 +94,17 @@ export default {
 		}
 	},
 	onLoad(options) {
-		if (options.id) {
-			// 修改群聊
-			this.loadGroupInfo(options.id);
-		} else {
-			// 创建群聊
-			this.initNewGroup();
+		if (!options.id) {
+			uni.navigateBack();
+			return;
 		}
-
+		this.loadGroupInfo(options.id);
 	}
 }
 </script>
 
 <style lang="scss" scoped>
 .group-edit {
-
 	.form {
 		margin-top: 20rpx;
 
@@ -186,7 +140,9 @@ export default {
 			.notice {
 				flex: 1;
 				font-size: $im-font-size-small;
-				max-height: 200rpx;
+				min-height: 320rpx;
+				max-height: 800rpx;
+				height: 320rpx;
 				padding: 14rpx 0;
 			}
 
@@ -195,6 +151,22 @@ export default {
 				height: 120rpx;
 				border-radius: 50%;
 				border: 1px solid #ccc;
+			}
+		}
+
+		.notice-item {
+			flex-direction: column;
+			align-items: stretch;
+			padding-top: 16rpx;
+			padding-bottom: 16rpx;
+
+			.label {
+				width: 100%;
+				line-height: 56rpx;
+			}
+
+			.notice {
+				width: 100%;
 			}
 		}
 	}

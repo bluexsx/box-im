@@ -2,7 +2,7 @@
 	<view class="arrow-bar">
 		<text class="icon iconfont" :class="icon" :style="{color: textColor}"></text>
 		<text class="title">{{ title }}</text>
-		<uni-icons class="arrow" type="right" size="16"></uni-icons>
+		<nav-arrow class="arrow"></nav-arrow>
 	</view>
 </template>
 
@@ -45,8 +45,8 @@ export default {
 	color: $im-text-color;
 	margin-top: 5rpx;
 	background-color: white;
-	line-height: 90rpx;
 	display: flex;
+	align-items: center;
 	
 	.icon {
 		margin-left: 40rpx;

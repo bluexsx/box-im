@@ -4,10 +4,21 @@
 		    class="u-tabbar__content"
 		    ref="u-tabbar__content"
 		    @touchmove.stop.prevent="noop"
-		    :class="[border && 'u-border-top', fixed && 'u-tabbar--fixed']"
+		    :class="[
+				border && 'u-border-top',
+				fixed && 'u-tabbar--fixed',
+				`u-tabbar--${styleType}`,
+				textMode === 'active' && 'u-tabbar--text-active'
+			]"
 		    :style="[tabbarStyle]"
 		>
-			<view class="u-tabbar__content__item-wrapper">
+			<view
+				class="u-tabbar__content__item-wrapper"
+				:class="[
+					`u-tabbar__content__item-wrapper--${styleType}`,
+					itemShape !== 'default' && `u-tabbar__content__item-wrapper--shape-${itemShape}`
+				]"
+			>
 				<slot />
 			</view>
 			<u-safe-bottom v-if="safeAreaInsetBottom"></u-safe-bottom>
@@ -33,7 +44,7 @@
 	/**
 	 * Tabbar 底部导航栏
 	 * @description 此组件提供了自定义tabbar的能力。
-	 * @tutorial https://ijry.github.io/uview-plus/components/tabbar.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/tabbar.html
 	 * @property {String | Number}	value				当前匹配项的name
 	 * @property {Boolean}			safeAreaInsetBottom	是否为iPhoneX留出底部安全距离（默认 true ）
 	 * @property {Boolean}			border				是否显示上方边框（默认 true ）
@@ -42,6 +53,7 @@
 	 * @property {String}			inactiveColor		未选中标签的颜色（默认 '#7d7e80' ）
 	 * @property {Boolean}			fixed				是否固定在底部（默认 true ）
 	 * @property {Boolean}			placeholder			fixed定位固定在底部时，是否生成一个等高元素防止塌陷（默认 true ）
+	 * @property {String}			backgroundColor		背景色（默认 '#ffffff' ）
 	 * @property {Object}			customStyle			定义需要用到的外部样式
 	 * 
 	 * @example <u-tabbar :value="value2" :placeholder="false" @change="name => value2 = name" :fixed="false" :safeAreaInsetBottom="false"><u-tabbar-item text="首页" icon="home" dot ></u-tabbar-item></u-tabbar>
@@ -57,14 +69,37 @@
 		computed: {
 			tabbarStyle() {
 				const style = {
-					zIndex: this.zIndex
+					zIndex: this.zIndex,
+					backgroundColor: this.backgroundColor || this.upThemeVar('--up-card-bg-color', this.upThemeIsDark ? '#1c1c1e' : '#ffffff'),
+					'--up-tabbar-active-bg': this.activeBackgroundColor || 'transparent',
+					'--up-tabbar-inactive-bg': this.inactiveBackgroundColor || 'transparent',
+					'--up-tabbar-icon-scale': `${this.iconScale}`
+				}
+				if (this.borderColor) {
+					style.borderColor = this.borderColor + ' !important'
+				} else {
+					style.borderColor = this.upThemeVar('--up-border-color', '#dadbde')
+				}
+				if (['pill', 'card', 'glow', 'convex'].includes(this.styleType)) {
+					style.padding = '8rpx 12rpx 12rpx'
 				}
 				// 合并来自父组件的customStyle样式
 				return deepMerge(style, addStyle(this.customStyle))
 			},
 			// 监听多个参数的变化，通过在computed执行对应的操作
 			updateChild() {
-				return [this.value, this.activeColor, this.inactiveColor]
+				return [
+					this.value,
+					this.activeColor,
+					this.inactiveColor,
+					this.styleType,
+					this.animationType,
+					this.activeBackgroundColor,
+					this.inactiveBackgroundColor,
+					this.itemShape,
+					this.iconScale,
+					this.textMode
+				]
 			},
 			updatePlaceholder() {
 				return [this.fixed, this.placeholder]
@@ -117,7 +152,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-tabbar {
 		@include flex(column);
@@ -126,13 +160,63 @@
 		
 		&__content {
 			@include flex(column);
-			background-color: #fff;
+			background-color: var(--up-card-bg-color, #fff);
 			
 			&__item-wrapper {
 				height: 50px;
 				@include flex(row);
 				justify-content: space-around;
+
+				&--pill,
+				&--card,
+				&--glow,
+				&--convex {
+					gap: 8rpx;
+				}
+
+				&--pill {
+					height: 50px;
+				}
+
+				&--shape-round {
+					border-radius: 999px;
+				}
+
+				&--shape-square {
+					border-radius: 16rpx;
+				}
 			}
+		}
+
+		&--default,
+		&--minimal,
+		&--underline,
+		&--dot {
+			padding: 0;
+		}
+
+		&--pill,
+		&--glow {
+			border-radius: 72rpx;
+			background: #ffffff;
+			margin-left: 24rpx;
+			margin-right: 24rpx;
+		}
+
+		&--card {
+			border-radius: 24rpx;
+			box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.06);
+		}
+
+		&--lift {
+			overflow: visible;
+		}
+
+		&--convex {
+			overflow: visible;
+			border-radius: 32rpx 32rpx 0 0;
+			background: #ffffff;
+			box-shadow: 0 -2rpx 18rpx rgba(148, 163, 184, 0.08);
 		}
 
 		&--fixed {

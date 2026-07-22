@@ -1,36 +1,31 @@
 <template>
-	<view class="u-tabs" :class="[customClass]">
+	<view class="u-tabs" :class="[customClass, shapeModeClass]">
 		<view class="u-tabs__wrapper">
 			<slot name="left" />
 			<view class="u-tabs__wrapper__scroll-view-wrapper">
-				<scroll-view
-					:scroll-x="scrollable"
-					:scroll-left="scrollLeft"
-					scroll-with-animation
-					class="u-tabs__wrapper__scroll-view"
-					:show-scrollbar="false"
-					ref="u-tabs__wrapper__scroll-view"
-				>
-					<view
-						class="u-tabs__wrapper__nav"
-						ref="u-tabs__wrapper__nav"
-					>
-						<view
-							class="u-tabs__wrapper__nav__item"
-							v-for="(item, index) in list"
-							:key="index"
-							@tap="clickHandler(item, index)"
+				<scroll-view :scroll-x="scrollable" :scroll-left="scrollLeft" scroll-with-animation
+					class="u-tabs__wrapper__scroll-view" :show-scrollbar="false" ref="u-tabs__wrapper__scroll-view">
+					<view class="u-tabs__wrapper__nav" ref="u-tabs__wrapper__nav">
+						<view class="u-tabs__wrapper__nav__item" v-for="(item, index) in tabList" :key="index"
+							@tap="clickHandler(item, index)" @longpress="longPressHandler(item,index)"
 							:ref="`u-tabs__wrapper__nav__item-${index}`"
-							:style="[addStyle(itemStyle), {flex: scrollable ? '' : 1}]"
-							:class="[`u-tabs__wrapper__nav__item-${index}`, item.disabled && 'u-tabs__wrapper__nav__item--disabled']"
-						>
-							<text
-								:class="[item.disabled && 'u-tabs__wrapper__nav__item__text--disabled']"
+							:style="[itemComputedStyle, {flex: scrollable ? '' : 1}]" :class="[`u-tabs__wrapper__nav__item-${index}`,
+								shapeMode && `u-tabs__wrapper__nav__item--${shapeMode}`,
+								item.disabled && 'u-tabs__wrapper__nav__item--disabled',
+								innerCurrent == index ? 'u-tabs__wrapper__nav__item-active' : '']">
+							<slot v-if="$slots.icon" name="icon" :item="item" :keyName="keyName" :index="index" />
+							<template v-else>
+								<view class="u-tabs__wrapper__nav__item__prefix-icon" v-if="item.icon">
+									<up-icon :name="item.icon" :customStyle="addStyle(iconStyle)"></up-icon>
+								</view>
+							</template>
+							<slot v-if="$slots.content" name="content" :item="item" :keyName="keyName" :index="index" />
+							<slot v-else-if="!$slots.content && ($slots.default || $slots.$default)" :item="item"
+								:keyName="keyName" :index="index" />
+							<text v-else :class="[item.disabled && 'u-tabs__wrapper__nav__item__text--disabled']"
 								class="u-tabs__wrapper__nav__item__text"
-								:style="[textStyle(index)]"
-							>{{ item[keyName] }}</text>
-							<u-badge
-								:show="!!(item.badge && (item.badge.show || item.badge.isDot || item.badge.value))"
+								:style="[textStyle(index)]">{{ item[keyName] }}</text>
+							<u-badge :show="!!(item.badge && (item.badge.show || item.badge.isDot || item.badge.value))"
 								:isDot="item.badge && item.badge.isDot || propsBadge.isDot"
 								:value="item.badge && item.badge.value || propsBadge.value"
 								:max="item.badge && item.badge.max || propsBadge.max"
@@ -41,35 +36,35 @@
 								:shape="item.badge && item.badge.shape || propsBadge.shape"
 								:numberType="item.badge && item.badge.numberType || propsBadge.numberType"
 								:inverted="item.badge && item.badge.inverted || propsBadge.inverted"
-								customStyle="margin-left: 4px;"
-							></u-badge>
+								customStyle="margin-left: 4px;"></u-badge>
+							<view
+								v-if="shapeMode === 'card' && innerCurrent == index && index < tabList.length - 1"
+								class="u-tabs__wrapper__nav__item__card-corner"></view>
+							<view
+								v-if="shapeMode === 'pill-arrow' && innerCurrent == index"
+								class="u-tabs__wrapper__nav__item__active-arrow"></view>
 						</view>
 						<!-- #ifdef APP-NVUE -->
-						<view
-							class="u-tabs__wrapper__nav__line"
-							ref="u-tabs__wrapper__nav__line"
-							:style="[{
+						<view class="u-tabs__wrapper__nav__line" ref="u-tabs__wrapper__nav__line" :style="[{
 								width: addUnit(lineWidth),
 								height: addUnit(lineHeight),
 								background: lineColor,
 								backgroundSize: lineBgSize,
-							}]"
-						>
+								display: showLine ? 'block' : 'none'
+							}]">
 						</view>
 						<!-- #endif -->
 						<!-- #ifndef APP-NVUE -->
-						<view
-							class="u-tabs__wrapper__nav__line"
-							ref="u-tabs__wrapper__nav__line"
+						<view class="u-tabs__wrapper__nav__line" ref="u-tabs__wrapper__nav__line"
 							:style="[{
 								width: addUnit(lineWidth),
 								transform: `translate(${lineOffsetLeft}px)`,
-								transitionDuration: `${firstTime ? 0 : duration}ms`,
+								transitionDuration: `${duration}ms`,
 								height: addUnit(lineHeight),
 								background: lineColor,
 								backgroundSize: lineBgSize,
-							}]"
-						>
+								display: showLine ? 'block': 'none'
+							}]">
 						</view>
 						<!-- #endif -->
 					</view>
@@ -85,31 +80,48 @@
 	const animation = uni.requireNativePlugin('animation')
 	const dom = uni.requireNativePlugin('dom')
 	// #endif
-	import { props } from './props';
-	import { mpMixin } from '../../libs/mixin/mpMixin';
-	import { mixin } from '../../libs/mixin/mixin';
+	import {
+		props
+	} from './props';
+	import {
+		mpMixin
+	} from '../../libs/mixin/mpMixin';
+	import {
+		mixin
+	} from '../../libs/mixin/mixin';
 	import defProps from '../../libs/config/props.js'
-	import { addUnit, addStyle, deepMerge, getPx, sleep, sys } from '../../libs/function/index';
+	import {
+		addUnit,
+		addStyle,
+		deepMerge,
+		deepClone,
+		getPx,
+		sleep,
+		getWindowInfo
+	} from '../../libs/function/index';
 	/**
 	 * Tabs 标签
 	 * @description tabs标签组件，在标签多的时候，可以配置为左右滑动，标签少的时候，可以禁止滑动。 该组件的一个特点是配置为滚动模式时，激活的tab会自动移动到组件的中间位置。
-	 * @tutorial https://ijry.github.io/uview-plus/components/tabs.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/tabs.html
 	 * @property {String | Number}	duration			滑块移动一次所需的时间，单位秒（默认 200 ）
 	 * @property {String | Number}	swierWidth			swiper的宽度（默认 '750rpx' ）
 	 * @property {String}	keyName	 从`list`元素对象中读取的键名（默认 'name' ）
+	 * @property {String}	shapeMode 标签形态模式，可选capsule/card/pill-arrow/tag（默认 '' ）
 	 * @event {Function(index)} change 标签改变时触发 index: 点击了第几个tab，索引从0开始
 	 * @event {Function(index)} click 点击标签时触发 index: 点击了第几个tab，索引从0开始
-	 * @example <u-tabs :list="list" :is-scroll="false" :current="current" @change="change"></u-tabs>
+	 * @event {Function(index)} longPress 长按标签时触发 index: 点击了第几个tab，索引从0开始
+	 * @example <u-tabs :list="list" :is-scroll="false" :current="current" @change="change" @longPress="longPress"></u-tabs>
 	 */
 	export default {
 		name: 'u-tabs',
 		mixins: [mpMixin, mixin, props],
 		data() {
 			return {
-				firstTime: true,
+				tabList: [],
 				scrollLeft: 0,
 				scrollViewWidth: 0,
 				lineOffsetLeft: 0,
+				lineShow: false,
 				tabsRect: {
 					left: 0
 				},
@@ -120,10 +132,14 @@
 		watch: {
 			current: {
 				immediate: true,
-				handler (newValue, oldValue) {
+				handler(newValue, oldValue) {
 					// 内外部值不相等时，才尝试移动滑块
 					if (newValue !== this.innerCurrent) {
-						this.innerCurrent = newValue
+						if (typeof newValue == 'string') {
+							this.innerCurrent = parseInt(newValue)
+						} else {
+							this.innerCurrent = newValue
+						}
 						this.$nextTick(() => {
 							this.resize()
 						})
@@ -131,21 +147,71 @@
 				}
 			},
 			// list变化时，重新渲染list各项信息
-			list() {
-				this.$nextTick(() => {
-					this.resize()
-				})
+			list: {
+				handler(newValue, oldValue) {
+					// 重新拷贝一份list用于增加其他额外信息处理后导致重复监听的死循环
+					this.tabList = deepClone(newValue);
+					this.$nextTick(() => {
+						this.resize()
+					})
+				},
+				immediate: true,
+				deep: true,
 			}
 		},
 		computed: {
+			shapeModeClass() {
+				return this.shapeMode ? `u-tabs--shape-${this.shapeMode}` : ''
+			},
+			showLine() {
+				return this.lineShow && !['capsule', 'pill-arrow', 'tag'].includes(this.shapeMode)
+			},
+			itemComputedStyle() {
+				const style = addStyle(this.itemStyle) || {}
+				if (this.upHasProp('itemStyle')) {
+					return style
+				}
+				const defaultModeHeights = {
+					capsule: '30px',
+					card: '34px',
+					'pill-arrow': '32px',
+					tag: '28px'
+				}
+				const height = defaultModeHeights[this.shapeMode]
+				if (!height) {
+					return style
+				}
+				return deepMerge(style, {
+					height
+				})
+			},
 			textStyle() {
 				return index => {
 					const style = {}
 					// 取当期是否激活的样式
-					const customeStyle = index === this.innerCurrent ? addStyle(this.activeStyle) : addStyle(this.inactiveStyle)
+					const customeStyle = (index == this.innerCurrent) ?
+						addStyle(this.activeStyle) :
+						addStyle(this.inactiveStyle)
+					const isActive = index == this.innerCurrent
+					const defaultActiveColor = defProps.tabs?.activeStyle?.color || '#303133'
+					const defaultInactiveColor = defProps.tabs?.inactiveStyle?.color || '#606266'
+					const isActiveStyleOverridden = this.upHasProp('activeStyle')
+						|| (customeStyle && customeStyle.color && customeStyle.color !== defaultActiveColor)
+					const isInactiveStyleOverridden = this.upHasProp('inactiveStyle')
+						|| (customeStyle && customeStyle.color && customeStyle.color !== defaultInactiveColor)
+					if (isActive && ['pill-arrow', 'tag'].includes(this.shapeMode) && !isActiveStyleOverridden) {
+						style.color = '#ffffff'
+					} else if (isActive && !isActiveStyleOverridden) {
+						style.color = this.upThemeVar('--up-main-color', this.$u.color.mainColor || defaultActiveColor)
+					}
+					if (!isActive && ['pill-arrow', 'tag'].includes(this.shapeMode) && !isInactiveStyleOverridden) {
+						style.color = '#606266'
+					} else if (!isActive && !isInactiveStyleOverridden) {
+						style.color = this.upThemeVar('--up-content-color', this.$u.color.contentColor || defaultInactiveColor)
+					}
 					// 如果当前菜单被禁用，则加上对应颜色，需要在此做处理，是因为nvue下，无法在style样式中通过!import覆盖标签的内联样式
-					if (this.list[index].disabled) {
-						style.color = '#c8c9cc'
+					if (this.tabList[index].disabled) {
+						style.color = this.upThemeVar('--up-disabled-color', this.$u.color.disabledColor || '#c8c9cc')
 					}
 					return deepMerge(customeStyle, style)
 				}
@@ -156,35 +222,37 @@
 		},
 		async mounted() {
 			this.init()
+			this.windowResizeCallback = (res) => {
+				this.init()
+			}
+			uni.onWindowResize(this.windowResizeCallback)
 		},
-		emits: ['click', 'change'],
+		beforeUnmount() {
+			uni.offWindowResize(this.windowResizeCallback)
+		},
+		emits: ['click', 'longPress', 'change', 'update:current'],
 		methods: {
 			addStyle,
 			addUnit,
 			setLineLeft() {
-				const tabItem = this.list[this.innerCurrent];
+				const tabItem = this.tabList[this.innerCurrent];
 				if (!tabItem) {
 					return;
 				}
 				// 获取滑块该移动的位置
-				let lineOffsetLeft = this.list
+				let lineOffsetLeft = this.tabList
 					.slice(0, this.innerCurrent)
 					.reduce((total, curr) => total + curr.rect.width, 0);
-                // 获取下划线的数值px表示法
+				// 获取下划线的数值px表示法
 				const lineWidth = getPx(this.lineWidth);
 				this.lineOffsetLeft = lineOffsetLeft + (tabItem.rect.width - lineWidth) / 2
 				// #ifdef APP-NVUE
 				// 第一次移动滑块，无需过渡时间
-				this.animation(this.lineOffsetLeft, this.firstTime ? 0 : parseInt(this.duration))
+				this.animation(this.lineOffsetLeft, parseInt(this.duration))
 				// #endif
 
-				// 如果是第一次执行此方法，让滑块在初始化时，瞬间滑动到第一个tab item的中间
-				// 这里需要一个定时器，因为在非nvue下，是直接通过style绑定过渡时间，需要等其过渡完成后，再设置为false(非第一次移动滑块)
-				if (this.firstTime) {
-					setTimeout(() => {
-						this.firstTime = false
-					}, 10);
-				}
+				// 如果是第一次执行此方法，滑块默认不显示，在加载完成后进行显示
+				if (!this.lineShow) this.lineShow = true;
 			},
 			// nvue下设置滑块的位置
 			animation(x, duration = 0) {
@@ -207,12 +275,24 @@
 				}, index)
 				// 如果disabled状态，返回
 				if (item.disabled) return
+				// 如果点击当前不触发change
+				if (this.innerCurrent == index) return
 				this.innerCurrent = index
-				this.resize()
+				this.$nextTick(() => {
+					this.resize()
+				})
+				this.$emit('update:current', index)
 				this.$emit('change', {
 					...item,
 					index
 				}, index)
+			},
+			// 长按事件
+			longPressHandler(item, index) {
+				this.$emit('longPress', {
+					...item,
+					index
+				})
 			},
 			init() {
 				sleep().then(() => {
@@ -221,15 +301,18 @@
 			},
 			setScrollLeft() {
 				// 当前活动tab的布局信息，有tab菜单的width和left(为元素左边界到父元素左边界的距离)等信息
-				const tabRect = this.list[this.innerCurrent]
+				if (this.innerCurrent < 0) {
+					this.innerCurrent = 0;
+				}
+				const tabRect = this.tabList[this.innerCurrent]
 				// 累加得到当前item到左边的距离
-				const offsetLeft = this.list
+				const offsetLeft = this.tabList
 					.slice(0, this.innerCurrent)
 					.reduce((total, curr) => {
 						return total + curr.rect.width
 					}, 0)
 				// 此处为屏幕宽度
-				const windowWidth = sys().windowWidth
+				const windowWidth = getWindowInfo().windowWidth
 				// 将活动的tabs-item移动到屏幕正中间，实际上是对scroll-view的移动
 				let scrollLeft = offsetLeft - (this.tabsRect.width - tabRect.rect.width) / 2 - (windowWidth - this.tabsRect
 					.right) / 2 + this.tabsRect.left / 2
@@ -240,17 +323,24 @@
 			// 获取所有标签的尺寸
 			resize() {
 				// 如果不存在list，则不处理
-				if(this.list.length === 0) {
+				if (this.tabList.length === 0) {
 					return
 				}
 				Promise.all([this.getTabsRect(), this.getAllItemRect()]).then(([tabsRect, itemRect = []]) => {
+					// 兼容在swiper组件中使用
+					if (tabsRect.left > tabsRect.width) {
+						tabsRect.right = tabsRect.right - Math.floor(tabsRect.left / tabsRect.width) * tabsRect
+							.width
+						tabsRect.left = tabsRect.left % tabsRect.width
+					}
+					// console.log(tabsRect)
 					this.tabsRect = tabsRect
 					this.scrollViewWidth = 0
 					itemRect.map((item, index) => {
 						// 计算scroll-view的宽度，这里
 						this.scrollViewWidth += item.width
 						// 另外计算每一个item的中心点X轴坐标
-						this.list[index].rect = item
+						this.tabList[index].rect = item
 					})
 					// 获取了tabs的尺寸之后，设置滑块的位置
 					this.setLineLeft()
@@ -266,15 +356,15 @@
 			// 获取所有标签的尺寸
 			getAllItemRect() {
 				return new Promise(resolve => {
-					const promiseAllArr = this.list.map((item, index) => this.queryRect(
-						`u-tabs__wrapper__nav__item-${index}`, true))
-					Promise.all(promiseAllArr).then(sizes => resolve(sizes))
+					const promiseAllArr = this.tabList.map((item, index) => this.queryRect(
+						`u-tabs__wrapper__nav__item-${index}`, true));
+					Promise.all(promiseAllArr).then(sizes => resolve(sizes));
 				})
 			},
 			// 获取各个标签的尺寸
 			queryRect(el, item) {
 				// #ifndef APP-NVUE
-				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://ijry.github.io/uview-plus/js/getRect.html
+				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://uview-plus.jiangruyi.com/js/getRect.html
 				// 组件内部一般用this.$uGetRect，对外的为uni.$u.getRect，二者功能一致，名称不同
 				return new Promise(resolve => {
 					this.$uGetRect(`.${el}`).then(size => {
@@ -298,8 +388,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
-
 	.u-tabs {
 
 		&__wrapper {
@@ -325,12 +413,15 @@
 				&__item {
 					padding: 0 11px;
 					@include flex;
+					position: relative;
 					align-items: center;
 					justify-content: center;
+					/* #ifdef H5 */
 					cursor: pointer;
+					/* #endif */
 
 					&--disabled {
-						/* #ifndef APP-NVUE */
+						/* #ifdef H5 */
 						cursor: not-allowed;
 						/* #endif */
 					}
@@ -338,11 +429,35 @@
 					&__text {
 						font-size: 15px;
 						color: $u-content-color;
-                        white-space: nowrap !important;
+						white-space: nowrap !important;
 
 						&--disabled {
 							color: $u-disabled-color !important;
 						}
+					}
+
+					&__card-corner {
+						position: absolute;
+						top: 0;
+						right: -10px;
+						width: 20px;
+						height: 100%;
+						background-color: inherit;
+						transform: skewX(25deg);
+						border-top-right-radius: 10px;
+						z-index: 1;
+					}
+
+					&__active-arrow {
+						position: absolute;
+						left: 50%;
+						bottom: -6px;
+						width: 0;
+						height: 0;
+						border-left: 6px solid transparent;
+						border-right: 6px solid transparent;
+						border-top: 6px solid #ff3b30;
+						transform: translateX(-50%);
 					}
 				}
 
@@ -356,6 +471,83 @@
 					transition-property: transform;
 					transition-duration: 300ms;
 				}
+			}
+		}
+
+		&--shape-capsule {
+			.u-tabs__wrapper__scroll-view-wrapper {
+				padding: 3px;
+				border-radius: 999px;
+				background-color: #edf0f5;
+			}
+
+			.u-tabs__wrapper__nav__item {
+				min-height: 30px;
+				padding: 0 14px;
+				border-radius: 999px;
+				transition: background-color 0.2s;
+			}
+
+			.u-tabs__wrapper__nav__item-active {
+				background-color: #ffffff;
+			}
+		}
+
+		&--shape-card {
+			.u-tabs__wrapper__scroll-view-wrapper {
+				padding: 0;
+				border-radius: 10px;
+				background-color: #9ccde5;
+				box-shadow: inset 0 0 0 1px rgba(96, 98, 102, 0.06);
+			}
+
+			.u-tabs__wrapper__nav__item {
+				min-height: 34px;
+				padding: 0;
+				border-radius: 10px 10px 0 0;
+				transition: background-color 0.2s;
+			}
+
+			.u-tabs__wrapper__nav__item-active {
+				background-color: #f6f8fb;
+				box-shadow: inset 0 0 0 1px rgba(96, 98, 102, 0.06);
+				z-index: 2;
+			}
+		}
+
+		&--shape-pill-arrow {
+			.u-tabs__wrapper__nav {
+				padding-bottom: 6px;
+			}
+
+			.u-tabs__wrapper__nav__item {
+				min-height: 32px;
+				padding: 0 12px;
+				border-radius: 8px;
+				background-color: #e8e8e8;
+				margin-right: 8px;
+			}
+
+			.u-tabs__wrapper__nav__item-active {
+				background: linear-gradient(90deg, #ff6c57 0%, #ff3b30 100%);
+			}
+		}
+
+		&--shape-tag {
+			.u-tabs__wrapper__nav {
+				padding: 2px 0;
+			}
+
+			.u-tabs__wrapper__nav__item {
+				min-height: 28px;
+				padding: 0 14px;
+				border-radius: 999px;
+				background-color: #f3f4f6;
+				margin-right: 8px;
+			}
+
+			.u-tabs__wrapper__nav__item-active {
+				background-color: #2a6bf6;
 			}
 		}
 	}

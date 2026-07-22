@@ -1,0 +1,152 @@
+import relationalStore from '@ohos.data.relationalStore'
+import { BusinessError } from '@ohos.base'
+
+type DbStore = relationalStore.RdbStore
+
+const storeMap = new Map<string, DbStore>()
+
+function dbFileName(name: string): string {
+	if (name.endsWith('.db')) {
+		return name
+	}
+	return name + '.db'
+}
+
+function getStore(name: string): DbStore | null {
+	const store = storeMap.get(name)
+	if (store != null) {
+		return store
+	}
+	return null
+}
+
+function readCellValue(resultSet: relationalStore.ResultSet, index: number): string | null {
+	if (resultSet.isColumnNull(index)) {
+		return null
+	}
+	// getColumnType 在新版 API 中为异步 Promise，这里统一用 getString，JS 侧再按需 Number() 转换
+	return resultSet.getString(index)
+}
+
+function convertResultSet(resultSet: relationalStore.ResultSet): UTSJSONObject[] {
+	const rows: UTSJSONObject[] = []
+	const columnNames = resultSet.columnNames
+	while (resultSet.goToNextRow()) {
+		const row: UTSJSONObject = {}
+		for (let i = 0; i < columnNames.length; i++) {
+			const columnName = columnNames[i]
+			const columnIndex = resultSet.getColumnIndex(columnName)
+			row[columnName] = readCellValue(resultSet, columnIndex)
+		}
+		rows.push(row)
+	}
+	resultSet.close()
+	return rows
+}
+
+function normalizeSql(sql: string): string {
+	return sql.trim().toUpperCase()
+}
+
+function executeTransactionCommand(store: DbStore, sql: string): boolean {
+	const command = normalizeSql(sql)
+	if (command === 'BEGIN') {
+		store.beginTransaction()
+		return true
+	}
+	if (command === 'COMMIT') {
+		store.commit()
+		return true
+	}
+	if (command === 'ROLLBACK') {
+		store.rollBack()
+		return true
+	}
+	return false
+}
+
+export function openDatabase(name: string): Promise<void> {
+	return new Promise((resolve, reject) => {
+		if (storeMap.has(name)) {
+			resolve()
+			return
+		}
+		const context = UTSHarmony.getUIAbilityContext()
+		const config: relationalStore.StoreConfig = {
+			name: dbFileName(name),
+			securityLevel: relationalStore.SecurityLevel.S1,
+			isReadOnly: false
+		}
+		relationalStore.getRdbStore(context, config).then((store: DbStore) => {
+			storeMap.set(name, store)
+			resolve()
+		}).catch((err: BusinessError) => {
+			console.error('harmony-sqlite openDatabase failed', JSON.stringify(err))
+			reject(err)
+		})
+	})
+}
+
+export function isOpenDatabase(name: string): boolean {
+	return storeMap.has(name)
+}
+
+export function closeDatabase(name: string): Promise<void> {
+	return new Promise((resolve) => {
+		const store = getStore(name)
+		if (store == null) {
+			resolve()
+			return
+		}
+		store.close().then(() => {
+			storeMap.delete(name)
+			resolve()
+		}).catch((err: BusinessError) => {
+			console.error('harmony-sqlite closeDatabase failed', JSON.stringify(err))
+			storeMap.delete(name)
+			resolve()
+		})
+	})
+}
+
+export function executeSql(name: string, sql: string): Promise<void> {
+	return new Promise((resolve, reject) => {
+		const store = getStore(name)
+		if (store == null) {
+			reject(new Error('database not open: ' + name))
+			return
+		}
+		try {
+			if (executeTransactionCommand(store, sql)) {
+				resolve()
+				return
+			}
+		} catch (err) {
+			console.error('harmony-sqlite transaction command failed', sql, JSON.stringify(err))
+			reject(err)
+			return
+		}
+		store.executeSql(sql).then(() => {
+			resolve()
+		}).catch((err: BusinessError) => {
+			console.error('harmony-sqlite executeSql failed', sql, JSON.stringify(err))
+			reject(err)
+		})
+	})
+}
+
+export function selectSql(name: string, sql: string): Promise<UTSJSONObject[]> {
+	return new Promise((resolve, reject) => {
+		const store = getStore(name)
+		if (store == null) {
+			reject(new Error('database not open: ' + name))
+			return
+		}
+		store.querySql(sql).then((resultSet: relationalStore.ResultSet) => {
+			resolve(convertResultSet(resultSet))
+		}).catch((err: BusinessError) => {
+			console.error('harmony-sqlite selectSql failed', sql, JSON.stringify(err))
+			reject(err)
+		})
+	})
+}

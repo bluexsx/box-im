@@ -2,7 +2,7 @@
 	<view class="u-calendar-month-wrapper" ref="u-calendar-month-wrapper">
 		<view v-for="(item, index) in months" :key="index" :class="[`u-calendar-month-${index}`]"
 			:ref="`u-calendar-month-${index}`" :id="`month-${index}`">
-			<text v-if="index !== 0" class="u-calendar-month__title">{{ item.year }}年{{ item.month }}月</text>
+			<text v-if="index !== 0" class="u-calendar-month__title">{{ monthTitle(item) }}</text>
 			<view class="u-calendar-month__days">
 				<view v-if="showMark" class="u-calendar-month__days__month-mark-wrapper">
 					<text class="u-calendar-month__days__month-mark-wrapper__text">{{ item.month }}</text>
@@ -12,11 +12,11 @@
 					:class="[item1.selected && 'u-calendar-month__days__day__select--selected']">
 					<view class="u-calendar-month__days__day__select" :style="[daySelectStyle(index, index1, item1)]">
 						<text class="u-calendar-month__days__day__select__info"
-							:class="[item1.disabled && 'u-calendar-month__days__day__select__info--disabled']"
+							:class="[(item1.disabled || isForbid(item1) ) ? 'u-calendar-month__days__day__select__info--disabled' : '']"
 							:style="[textStyle(item1)]">{{ item1.day }}</text>
 						<text v-if="getBottomInfo(index, index1, item1)"
 							class="u-calendar-month__days__day__select__buttom-info"
-							:class="[item1.disabled && 'u-calendar-month__days__day__select__buttom-info--disabled']"
+							:class="[(item1.disabled || isForbid(item1) ) ? 'u-calendar-month__days__day__select__buttom-info--disabled' : '']"
 							:style="[textStyle(item1)]">{{ getBottomInfo(index, index1, item1) }}</text>
 						<text v-if="item1.dot" class="u-calendar-month__days__day__select__dot"></text>
 					</view>
@@ -33,11 +33,12 @@
 	// #endif
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { addUnit, deepClone, toast, sleep } from '../../libs/function/index';
+	import { addUnit, deepClone, toast, sleep, getWindowInfo } from '../../libs/function/index';
 	import { colorGradient } from '../../libs/function/colorGradient';
 	import test from '../../libs/function/test';
 	import defProps from '../../libs/config/props';
-	import dayjs from 'dayjs/esm/index'
+	import dayjs from '../u-datetime-picker/dayjs.esm.min.js';
+	import { t } from '../../libs/i18n'
 	export default {
 		name: 'u-calendar-month',
 		mixins: [mpMixin, mixin],
@@ -126,6 +127,24 @@
 			allowSameDay: {
 				type: Boolean,
 				default: false
+			},
+			forbidDays: {
+				type: Array,
+				default: () => []
+			},
+			forbidDaysToast: {
+				type: String,
+				default: ''
+			},
+			// 今天日期，用于独立高亮
+			todayDate: {
+				type: String,
+				default: ''
+			},
+			// 今天日期的独立高亮颜色
+			todayColor: {
+				type: String,
+				default: ''
 			}
 		},
 		data() {
@@ -154,20 +173,27 @@
 				return (index1, index2, item) => {
 					const style = {}
 					let week = item.week
+					// 隐藏挂载场景下节点宽度可能拿到0，兜底使用窗口宽度避免首日偏移归零
+					const wrapperWidth = this.width > 0 ? this.width : (getWindowInfo().windowWidth || 0)
 					// 不进行四舍五入的形式保留2位小数
-					const dayWidth = Number(parseFloat(this.width / 7).toFixed(3).slice(0, -1))
+					const dayWidth = Number(parseFloat(wrapperWidth / 7).toFixed(3).slice(0, -1))
 					// 得出每个日期的宽度
 					// #ifdef APP-NVUE
-					style.width = addUnit(dayWidth)
+					style.width = addUnit(dayWidth, 'px')
 					// #endif
-					style.height = addUnit(this.rowHeight)
+					style.height = addUnit(this.rowHeight, 'px')
 					if (index2 === 0) {
 						// 获取当前为星期几，如果为0，则为星期天，减一为每月第一天时，需要向左偏移的item个数
 						week = (week === 0 ? 7 : week) - 1
-						style.marginLeft = addUnit(week * dayWidth)
+						// #ifdef APP-NVUE
+						style.marginLeft = addUnit(week * dayWidth, 'px')
+						// #endif
+						// #ifndef APP-NVUE
+						style.marginLeft = `${(week / 7) * 100}%`
+						// #endif
 					}
 					if (this.mode === 'range') {
-						// 之所以需要这么写，是因为DCloud公司的iOS客户端的开发者能力有限导致的bug
+						// 之所以需要这么写，是因为DCloud公司的iOS客户端导致的bug
 						style.paddingLeft = 0
 						style.paddingRight = 0
 						style.paddingBottom = 0
@@ -183,6 +209,10 @@
 					// 判断date是否在selected数组中，因为月份可能会需要补0，所以使用dateSame判断，而不用数组的includes判断
 					if (this.selected.some(item => this.dateSame(item, date))) {
 						style.backgroundColor = this.color
+					}
+					if (this.todayDate && this.dateSame(date, this.todayDate)) {
+						style.border = `1px solid ${this.resolvedTodayColor}`
+						style.boxSizing = 'border-box'
 					}
 					if (this.mode === 'single') {
 						if (date === this.selected[0]) {
@@ -208,12 +238,13 @@
 							// 处于第一和最后一个之间的日期，背景色设置为浅色，通过将对应颜色进行等分，再取其尾部的颜色值
 							if (dayjs(date).isAfter(dayjs(this.selected[0])) && dayjs(date).isBefore(dayjs(this
 									.selected[len]))) {
-								style.backgroundColor = colorGradient(this.color, '#ffffff', 100)[90]
+								const rangeEndColor = this.upThemeVar('--up-card-bg-color', this.upThemeIsDark ? '#1c1c1e' : '#ffffff')
+								style.backgroundColor = colorGradient(this.color, rangeEndColor, 100)[90]
 								// 增加一个透明度，让范围区间的背景色也能看到底部的mark水印字符
-								style.opacity = 0.7
+								style.opacity = this.upThemeIsDark ? 0.85 : 0.7
 							}
 						} else if (this.selected.length === 1) {
-							// 之所以需要这么写，是因为DCloud公司的iOS客户端的开发者能力有限导致的bug
+							// 之所以需要这么写，是因为uni-app的iOS客户端的bug
 							// 进行还原操作，否则在nvue的iOS，uni-app有bug，会导致诡异的表现
 							style.borderTopLeftRadius = '3px'
 							style.borderBottomLeftRadius = '3px'
@@ -228,6 +259,9 @@
 					}
 					return style
 				}
+			},
+			resolvedTodayColor() {
+				return this.todayColor || this.color
 			},
 			// 某个日期是否被选中
 			textStyle() {
@@ -245,6 +279,9 @@
 								.selected[len]))) {
 							style.color = this.color
 						}
+					}
+					if (this.todayDate && this.dateSame(date, this.todayDate) && !this.isSelectedDate(date)) {
+						style.color = this.resolvedTodayColor
 					}
 					return style
 				}
@@ -284,6 +321,7 @@
 		mounted() {
 			this.init()
 		},
+		emits: ['monthSelected', 'updateMonthTop'],
 		methods: {
 			init() {
 				// 初始化默认选中
@@ -297,20 +335,39 @@
 					})
 				})
 			},
+			monthTitle(item) {
+				if (uni.getLocale() == 'zh-Hans' || uni.getLocale() == 'zh-Hant') {
+					return item.year + '年' + (item.month < 10 ? '0' + item.month : item.month) + '月'
+				} else {
+					return (item.month < 10 ? '0' + item.month : item.month) + '/' + item.year
+				}
+			},
+			isForbid(item) {
+				let date = dayjs(item.date).format("YYYY-MM-DD")
+				if (this.mode !== 'range' && this.forbidDays.includes(date)) {
+					return true
+				}
+				return false
+			},
 			// 判断两个日期是否相等
 			dateSame(date1, date2) {
 				return dayjs(date1).isSame(dayjs(date2))
+			},
+			isSelectedDate(date) {
+				return this.selected.some(item => this.dateSame(item, date))
 			},
 			// 获取月份数据区域的宽度，因为nvue不支持百分比，所以无法通过css设置每个日期item的宽度
 			getWrapperWidth() {
 				// #ifdef APP-NVUE
 				dom.getComponentRect(this.$refs['u-calendar-month-wrapper'], res => {
-					this.width = res.size.width
+					const width = res && res.size ? Number(res.size.width) : 0
+					this.width = width > 0 ? width : (getWindowInfo().windowWidth || 0)
 				})
 				// #endif
 				// #ifndef APP-NVUE
 				this.$uGetRect('.u-calendar-month-wrapper').then(size => {
-					this.width = size.width
+					const width = size ? Number(size.width) : 0
+					this.width = width > 0 ? width : (getWindowInfo().windowWidth || 0)
 				})
 				// #endif
 			},
@@ -335,7 +392,7 @@
 			// 获取每个月份区域的尺寸
 			getMonthRectByPromise(el) {
 				// #ifndef APP-NVUE
-				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://ijry.github.io/uview-plus/js/getRect.html
+				// $uGetRect为uView自带的节点查询简化方法，详见文档介绍：https://uview-plus.jiangruyi.com/js/getRect.html
 				// 组件内部一般用this.$uGetRect，对外的为uni.$u.getRect，二者功能一致，名称不同
 				return new Promise(resolve => {
 					this.$uGetRect(`.${el}`).then(size => {
@@ -362,6 +419,12 @@
 				this.item = item
 				const date = dayjs(item.date).format("YYYY-MM-DD")
 				if (item.disabled) return
+				if (this.isForbid(item)) {
+					uni.showToast({
+						title: this.forbidDaysToast
+					})
+					return
+				}
 				// 对上一次选择的日期数组进行深度克隆
 				let selected = deepClone(this.selected)
 				if (this.mode === 'single') {
@@ -393,7 +456,7 @@
 								if(this.rangePrompt) {
 									toast(this.rangePrompt)
 								} else {
-									toast(`选择天数不能超过 ${this.maxRange} 天`)
+									toast(t("up.calendar.daysExceed", { days: this.maxRange }))
 								}
 								return
 							}
@@ -453,13 +516,24 @@
 			setSelected(selected, event = true) {
 				this.selected = selected
 				event && this.$emit('monthSelected', this.selected,'tap')
+			},
+			selectDate(date) {
+				const targetDate = dayjs(date).format("YYYY-MM-DD")
+				for (let monthIndex = 0; monthIndex < this.months.length; monthIndex++) {
+					const dayIndex = this.months[monthIndex].date.findIndex(item => {
+						return this.dateSame(item.date, targetDate)
+					})
+					if (dayIndex !== -1) {
+						this.clickHandler(monthIndex, dayIndex, this.months[monthIndex].date[dayIndex])
+						return
+					}
+				}
 			}
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-calendar-month-wrapper {
 		margin-top: 4px;
@@ -468,10 +542,12 @@
 	.u-calendar-month {
 
 		&__title {
+			display: flex;
+			flex-direction: column;
 			font-size: 14px;
 			line-height: 42px;
 			height: 42px;
-			color: $u-main-color;
+			color: var(--up-main-color, $u-main-color);
 			text-align: center;
 			font-weight: bold;
 		}
@@ -493,7 +569,7 @@
 
 				&__text {
 					font-size: 155px;
-					color: rgba(231, 232, 234, 0.83);
+					color: var(--up-calendar-month-mark-color, rgba(231, 232, 234, 0.83));
 				}
 			}
 
@@ -524,7 +600,7 @@
 					}
 
 					&__buttom-info {
-						color: $u-content-color;
+						color: var(--up-content-color, $u-content-color);
 						text-align: center;
 						position: absolute;
 						bottom: 5px;
@@ -538,20 +614,21 @@
 						}
 
 						&--disabled {
-							color: #cacbcd;
+							color: var(--up-disabled-color, #cacbcd);
 						}
 					}
 
 					&__info {
 						text-align: center;
 						font-size: 16px;
+						color: var(--up-main-color, $u-main-color);
 
 						&--selected {
 							color: #ffffff;
 						}
 
 						&--disabled {
-							color: #cacbcd;
+							color: var(--up-disabled-color, #cacbcd);
 						}
 					}
 
@@ -582,4 +659,5 @@
 			}
 		}
 	}
+
 </style>

@@ -62,7 +62,7 @@
 	/**
 	 * Skeleton 骨架屏
 	 * @description 骨架屏一般用于页面在请求远程数据尚未完成时，页面用灰色块预显示本来的页面结构，给用户更好的体验。
-	 * @tutorial https://ijry.github.io/uview-plus/components/skeleton.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/skeleton.html
 	 * @property {Boolean}					loading		是否显示骨架占位图，设置为false将会展示子组件内容 (默认 true )
 	 * @property {Boolean}					animate		是否开启动画效果 (默认 true )
 	 * @property {String | Number}			rows		段落占位图行数 (默认 0 )
@@ -187,14 +187,18 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	@mixin background {
 		/* #ifdef APP-NVUE */
-		background-color: #F1F2F4;
+		background-color: var(--up-skeleton-bg-color, var(--up-fill-color, #2f3135));
 		/* #endif */
 		/* #ifndef APP-NVUE */
-		background: linear-gradient(90deg, #F1F2F4 25%, #e6e6e6 37%, #F1F2F4 50%);
+		background: linear-gradient(
+			90deg,
+			var(--up-skeleton-bg-color, var(--up-fill-color, #2f3135)) 25%,
+			var(--up-skeleton-shimmer-color, rgba(255, 255, 255, 0.12)) 37%,
+			var(--up-skeleton-bg-color, var(--up-fill-color, #2f3135)) 50%
+		);
 		background-size: 400% 100%;
 		/* #endif */
 	}

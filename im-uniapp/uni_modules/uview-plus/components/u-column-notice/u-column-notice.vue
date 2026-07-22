@@ -8,11 +8,11 @@
 				class="u-notice__left-icon"
 				v-if="icon"
 			>
-				<u-icon
+				<up-icon
 					:name="icon"
 					:color="color"
 					size="19"
-				></u-icon>
+				></up-icon>
 			</view>
 		</slot>
 		<swiper
@@ -28,6 +28,7 @@
 				v-for="(item, index) in text"
 				:key="index"
 				class="u-notice__swiper__item"
+				:style="{'justifyContent': justifyContent}"
 			>
 				<text
 					class="u-notice__swiper__item__text u-line-1"
@@ -39,19 +40,19 @@
 			class="u-notice__right-icon"
 			v-if="['link', 'closable'].includes(mode)"
 		>
-			<u-icon
+			<up-icon
 				v-if="mode === 'link'"
 				name="arrow-right"
 				:size="17"
 				:color="color"
-			></u-icon>
-			<u-icon
+			></up-icon>
+			<up-icon
 				v-if="mode === 'closable'"
 				name="close"
 				:size="16"
 				:color="color"
 				@click="close"
-			></u-icon>
+			></up-icon>
 		</view>
 	</view>
 </template>
@@ -65,7 +66,7 @@
 	/**
 	 * ColumnNotice 滚动通知中的垂直滚动 内部组件
 	 * @description 该组件用于滚动通告场景，是其中的垂直滚动方式
-	 * @tutorial https://ijry.github.io/uview-plus/components/noticeBar.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/noticeBar.html
 	 * @property {Array}			text 			显示的内容，字符串
 	 * @property {String}			icon 			是否显示左侧的音量图标 （ 默认 'volume' ）
 	 * @property {String}			mode 			通告模式，link-显示右箭头，closable-显示右侧关闭图标
@@ -127,7 +128,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-notice {
 		@include flex;

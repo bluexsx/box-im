@@ -28,7 +28,7 @@
 	/**
 	 * dropdown-item 下拉菜单
 	 * @description 该组件一般用于向下展开菜单，同时可切换多个选项卡的场景
-	 * @tutorial https://ijry.github.io/uview-plus/components/dropdown.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/dropdown.html
 	 * @property {String | Number} v-model 双向绑定选项卡选择值
 	 * @property {String} title 菜单项标题
 	 * @property {Array[Object]} options 选项数据，如果传入了默认slot，此参数无效
@@ -76,8 +76,8 @@
 				if (parent) {
 					this.parent = parent;
 					// 将子组件的激活颜色配置为父组件设置的激活和未激活时的颜色
-					this.activeColor = parent.activeColor;
-					this.inactiveColor = parent.inactiveColor;
+					this.activeColor = parent.resolvedActiveColor || parent.activeColor;
+					this.inactiveColor = parent.resolvedInactiveColor || parent.inactiveColor;
 					// 将本组件的this，放入到父组件的children数组中，让父组件可以操作本(子)组件的方法和属性
 					// push进去前，显判断是否已经存在了本实例，因为在子组件内部数据变化时，会通过父组件重新初始化子组件
 					let exist = parent.children.find(val => {
@@ -114,8 +114,7 @@
 </script>
 
 <style scoped lang="scss">
-	@import "../../libs/css/components.scss";
     .u-dropdown-item__scroll {
-        background: #ffffff;
+        background: var(--up-card-bg-color, #ffffff);
     }
 </style>

@@ -8,24 +8,24 @@
 			<view class="u-dropdown__menu__item" v-for="(item, index) in menuList" :key="index" @tap.stop="menuClick(index)">
 				<view class="u-flex u-flex-row">
 					<text class="u-dropdown__menu__item__text" :style="{
-						color: item.disabled ? '#c0c4cc' : (index === current || highlightIndex == index) ? activeColor : inactiveColor,
+						color: item.disabled ? menuDisabledColor : (index === current || highlightIndexList.includes(index)) ? resolvedActiveColor : resolvedInactiveColor,
 						fontSize: addUnit(titleSize)
 					}">{{item.title}}</text>
 					<view class="u-dropdown__menu__item__arrow" :class="{
 						'u-dropdown__menu__item__arrow--rotate': index === current
 					}">
-						<u-icon :custom-style="{display: 'flex'}" :name="menuIcon" :size="addUnit(menuIconSize)" :color="index === current || highlightIndex == index ? activeColor : '#c0c4cc'"></u-icon>
+						<up-icon :custom-style="{display: 'flex'}" :name="menuIcon" :size="addUnit(menuIconSize)" :color="index === current || highlightIndexList.includes(index) ? resolvedActiveColor : menuDisabledColor"></up-icon>
 					</view>
 				</view>
 			</view>
 		</view>
 		<view class="u-dropdown__content" :style="[contentStyle, {
-			transition: `opacity ${duration / 1000}s linear`,
-			top: addUnit(height),
-			height: contentHeight + 'px'
+			transition: `opacity ${duration / 1000}s, z-index ${duration / 1000}s linear`,
+			top: addUnit(height)
 		}]"
 		 @tap="maskClick" @touchmove.stop.prevent>
-			<view @tap.stop.prevent class="u-dropdown__content__popup" :style="[popupStyle]">
+			<view @tap.stop.prevent class="u-dropdown__content__popup" :style="[popupStyle, {
+			}]">
 				<slot></slot>
 			</view>
 			<view class="u-dropdown__content__mask"></view>
@@ -37,11 +37,11 @@
     import { props } from './props';
     import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { addUnit, sys} from '../../libs/function/index';
+	import { addUnit, getWindowInfo} from '../../libs/function/index';
 	/**
 	 * dropdown 下拉菜单
 	 * @description 该组件一般用于向下展开菜单，同时可切换多个选项卡的场景
-	 * @tutorial https://ijry.github.io/uview-plus/components/dropdown.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/dropdown.html
 	 * @property {String} active-color 标题和选项卡选中的颜色（默认#2979ff）
 	 * @property {String} inactive-color 标题和选项卡未选中的颜色（默认#606266）
 	 * @property {Boolean} close-on-click-mask 点击遮罩是否关闭菜单（默认true）
@@ -71,12 +71,25 @@
 					zIndex: -1,
 					opacity: 0
 				},
-				// 让某个菜单保持高亮的状态
-				highlightIndex: 99999,
+				// 让某些菜单保持高亮的状态
+				highlightIndexList: [],
 				contentHeight: 0
 			}
 		},
 		computed: {
+			resolvedActiveColor() {
+				return this.activeColor === '#2979ff'
+					? this.upThemeVar('--up-primary', '#2979ff')
+					: this.activeColor
+			},
+			resolvedInactiveColor() {
+				return this.inactiveColor === '#606266'
+					? this.upThemeVar('--up-content-color', '#606266')
+					: this.inactiveColor
+			},
+			menuDisabledColor() {
+				return this.upThemeVar('--up-disabled-color', '#c0c4cc')
+			},
 			// 下拉出来部分的样式
 			popupStyle() {
 				let style = {};
@@ -129,6 +142,7 @@
 				// 展开时，设置下拉内容的样式
 				this.contentStyle = {
 					zIndex: 11,
+					height: this.contentHeight + 'px'
 				}
 				// 标记展开状态以及当前展开项的索引
 				this.active = true;
@@ -147,10 +161,11 @@
 				this.active = false;
 				this.current = 99999;
 				// 下拉内容的样式进行调整，不透明度设置为0
-				this.contentStyle = {
-					zIndex: -1,
-					opacity: 0
-				}
+				this.contentStyle.zIndex = -1;
+				this.contentStyle.opacity = 0;
+				setTimeout(() => {
+					this.contentStyle.height = 0;
+				}, this.duration)
 			},
 			// 点击遮罩
 			maskClick() {
@@ -158,16 +173,20 @@
 				if (!this.closeOnClickMask) return;
 				this.close();
 			},
-			// 外部手动设置某个菜单高亮
-			highlight(index = undefined) {
-				this.highlightIndex = index !== undefined ? index : 99999;
+			// 外部手动设置某些菜单高亮
+			highlight(indexParams = undefined) {
+                if (Array.isArray(indexParams)) {
+                    this.highlightIndexList = [...indexParams];
+                    return;
+                }
+				this.highlightIndexList = indexParams !== undefined ? [indexParams] : [];
 			},
 			// 获取下拉菜单内容的高度
 			getContentHeight() {
 				// 这里的原理为，因为dropdown组件是相对定位的，它的下拉出来的内容，必须给定一个高度
 				// 才能让遮罩占满菜单一下，直到屏幕底部的高度
-				// sys()为uview-plus封装的获取设备信息的方法
-				let windowHeight = sys().windowHeight;
+				// getWindowInfo()为uview-plus封装的获取设备信息的方法
+				let windowHeight = getWindowInfo().windowHeight;
 				this.$uGetRect('.u-dropdown__menu').then(res => {
 					// 这里获取的是dropdown的尺寸，在H5上，uniapp获取尺寸是有bug的(以前提出修复过，后来又出现了此bug，目前hx2.8.11版本)
 					// H5端bug表现为元素尺寸的top值为导航栏底部到到元素的上边沿的距离，但是元素的bottom值确是导航栏顶部到元素底部的距离
@@ -181,7 +200,6 @@
 </script>
 
 <style scoped lang="scss">
-	@import "../../libs/css/components.scss";
 
 	.u-dropdown {
 		flex: 1;
@@ -244,7 +262,7 @@
 			&__popup {
 				position: relative;
 				z-index: 10;
-				transition: all 0.3s;
+				transition: transform 0.3s;
 				transform: translate3D(0, -100%, 0);
 				overflow: hidden;
 			}

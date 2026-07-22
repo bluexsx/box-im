@@ -283,8 +283,9 @@ export default {
 					m.status != this.$enums.MESSAGE_STATUS.RECALL && m.type != this.$enums.MESSAGE_TYPE.TIP_TEXT) {
 					conversation.unreadCount++;
 				}
-				// 是否有人@我
-				if (!m.selfSend && m.atUserIds && m.status != this.$enums.MESSAGE_STATUS.READED) {
+				// 是否有人@我（已读、已撤回的消息不再设置）
+				if (!m.selfSend && m.atUserIds && m.status != this.$enums.MESSAGE_STATUS.READED
+					&& m.status != this.$enums.MESSAGE_STATUS.RECALL) {
 					const userId = this.mine.id;
 					if (m.atUserIds.indexOf(userId) >= 0) {
 						conversation.atMe = true;
@@ -306,6 +307,12 @@ export default {
 							continue;
 						}
 						tmpMessages.push(recallMessage);
+					}
+					// 撤回的若是@我消息，清除标记
+					if (conversation.lastAtMessageId == recallMessageId) {
+						conversation.atMe = false;
+						conversation.atAll = false;
+						conversation.lastAtMessageId = -1;
 					}
 					// 改造成一条提示消息
 					recallMessage.status = this.$enums.MESSAGE_STATUS.PENDING;
@@ -673,34 +680,25 @@ export default {
 @import "@/im.scss";
 @import url('./static/icon/iconfont.css');
 
-// #ifdef H5 
-uni-page-head {
-	display: none; // h5浏览器本身就有标题
-}
-
-// #endif
 page {
 	background: $im-bg-linear;
 }
 
 .tab-page {
-	position: relative;
+	position: relative; 
 	display: flex;
 	flex-direction: column;
 	// #ifdef H5
 	height: calc(100vh - 50px - $im-nav-bar-height); // h5平台100vh是包含了底部高度，需要减去
 	top: $im-nav-bar-height;
 	// #endif
-
-	// #ifdef APP-PLUS
+	// #ifdef APP
 	height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
 	top: calc($im-nav-bar-height + var(--status-bar-height));
 	// #endif
-
 	// #ifdef MP-WEIXIN
 	height: calc(100vh - $im-nav-bar-height);
 	top: $im-nav-bar-height;
-
 	// #endif
 	color: $im-text-color;
 	background: $im-bg-linear;
@@ -714,20 +712,18 @@ page {
 	height: calc(100vh - $im-nav-bar-height); // h5平台100vh是包含了底部高度，需要减去
 	top: $im-nav-bar-height;
 	// #endif
-
-	// #ifdef APP-PLUS
+	// #ifdef APP
 	height: calc(100vh - var(--status-bar-height) - $im-nav-bar-height); // app平台还要减去顶部手机状态栏高度
 	top: calc($im-nav-bar-height + var(--status-bar-height));
 	// #endif
-
 	// #ifdef MP-WEIXIN
 	height: calc(100vh - $im-nav-bar-height);
 	top: $im-nav-bar-height;
 	// #endif
-
 	color: $im-text-color;
 	background: $im-bg-linear;
 	font-size: $im-font-size;
 	font-family: $font-family;
 }
+
 </style>

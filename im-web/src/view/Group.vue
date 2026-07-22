@@ -73,8 +73,6 @@
 								<i class="el-icon-plus"></i>
 							</div>
 							<div class="tool-text">邀请</div>
-							<add-group-member ref="addGroupMember" :groupId="activeGroup.id" :members="groupMembers"
-								@reload="reloadMembers"></add-group-member>
 						</div>
 						<div class="member-tools" v-if="isOwner">
 							<div class="tool-btn" title="选择成员移出群聊" @click="onRemoveMember()">
@@ -91,6 +89,8 @@
 				</el-scrollbar>
 			</div>
 		</el-container>
+		<group-member-invite ref="groupMemberInvite" :groupId="activeGroup.id" :members="groupMembers"
+			@reload="reloadMembers" @success="onCreateGroupSuccess"></group-member-invite>
 	</el-container>
 </template>
 
@@ -99,7 +99,7 @@
 import GroupItem from '../components/group/GroupItem';
 import FileUpload from '../components/common/FileUpload';
 import GroupMember from '../components/group/GroupMember.vue';
-import AddGroupMember from '../components/group/AddGroupMember.vue';
+import GroupMemberInvite from '../components/group/GroupMemberInvite.vue';
 import GroupMemberSelector from '../components/group/GroupMemberSelector.vue';
 import HeadImage from '../components/common/HeadImage.vue';
 import ResizableAside from "../components/common/ResizableAside.vue";
@@ -111,7 +111,7 @@ export default {
 		GroupItem,
 		GroupMember,
 		FileUpload,
-		AddGroupMember,
+		GroupMemberInvite,
 		GroupMemberSelector,
 		HeadImage,
 		ResizableAside
@@ -121,7 +121,6 @@ export default {
 			searchText: "",
 			maxSize: 5 * 1024 * 1024,
 			activeGroup: {},
-			showAddGroupMember: false,
 			showMaxIdx: 150,
 			rules: {
 				name: [{
@@ -134,25 +133,12 @@ export default {
 	},
 	methods: {
 		onCreateGroup() {
-			this.$prompt('请输入群聊名称', '创建群聊', {
-				confirmButtonText: '确定',
-				cancelButtonText: '取消',
-				inputPattern: /\S/,
-				inputErrorMessage: '请输入群聊名称'
-			}).then(o => {
-				let data = {
-					name: o.value
-				}
-				this.$http({
-					url: `/group/create?groupName=${o.value}`,
-					method: 'post',
-					data: data
-				}).then((group) => {
-					this.groupStore.addGroup(group);
-					this.onActiveItem(group)
-					this.$message.success('创建成功');
-				})
-			})
+			this.$refs.groupMemberInvite.openCreate();
+		},
+		async onCreateGroupSuccess(group) {
+			await this.groupStore.addGroup(group);
+			await this.groupStore.refreshMember(group.id);
+			await this.onSendMessage(group);
 		},
 		onActiveItem(group) {
 			this.showMaxIdx = 150;
@@ -162,7 +148,7 @@ export default {
 			this.reloadMembers();
 		},
 		onInviteMember() {
-			this.$refs.addGroupMember.open();
+			this.$refs.groupMemberInvite.open();
 		},
 		onRemoveMember() {
 			// 群主不显示
@@ -357,20 +343,36 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .group-page {
 
 	.header {
-		height: 50px;
+		height: 60px;
+		flex-shrink: 0;
 		display: flex;
 		align-items: center;
-		padding: 0 8px;
+		padding: 0 12px;
+		box-sizing: border-box;
+
+		.search-text {
+			flex: 1;
+		}
 
 		.add-btn {
-			padding: 5px !important;
+			padding: 8px;
 			margin: 5px;
 			font-size: 16px;
 			border-radius: 50%;
+			background: var(--im-background-active);
+			color: var(--im-color-primary);
+			transition: all 0.3s ease;
+			font-weight: 600;
+			border: var(--im-border);
+
+			&:hover {
+				background: var(--im-background-active-dark);
+				transform: scale(1.05);
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@
 [![star](https://img.shields.io/github/stars/bluexsx/box-im.svg?style=flat&logo=GitHub)](https://github.com/bluexsx/box-im) 
 <a href="#加入交流群"><img src="https://img.shields.io/badge/交流群-green.svg?style=plasticr"></a>
 
-1. 盒子IM是一个仿微信实现的网页版聊天软件，不依赖任何第三方收费组件。
+1. 盒子IM是一个类似微信效果的聊天系统，不依赖任何第三方收费组件。
 1. 支持私聊、群聊、离线消息、发送语音、图片、文件、已读未读、群@等功能
 1. 支持音视频通话，基于原生webrtc实现,不依赖收费第三方sdk
 1. uniapp端兼容app、h5、微信小程序,可与web端同时在线，支持消息同步
@@ -18,10 +18,8 @@
 后台管理: https://gitee.com/bluexsx/box-im-admin
 
 #### 近期更新
-- 本地消息重构，采用本地数据库(indexedDb、sqlite)管理本地消息
-- 离线消息优化，当离线消息大于1万条时，自动降级为按需分页拉取,降低拉取压力
-- 好友、群聊、群成员信息存储至本地数据库，每次登录仅做增量拉取
-- 好友在线状态由定时轮训改为实时推送
+- 全面兼容鸿蒙app
+
 
 #### 在线体验
 web端: https://www.boximchat.com

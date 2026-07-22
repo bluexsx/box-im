@@ -3,13 +3,13 @@
 		class="u-notice-bar"
 		v-if="show"
 		:style="[{
-			backgroundColor: bgColor
+			backgroundColor: resolvedBgColor
 		}, addStyle(customStyle)]"
 	>
 		<template v-if="direction === 'column' || (direction === 'row' && step)">
 			<u-column-notice
-				:color="color"
-				:bgColor="bgColor"
+				:color="resolvedColor"
+				:bgColor="resolvedBgColor"
 				:text="text"
 				:mode="mode"
 				:step="step"
@@ -17,14 +17,15 @@
 				:disable-touch="disableTouch"
 				:fontSize="fontSize"
 				:duration="duration"
+				:justifyContent="justifyContent"
 				@close="close"
 				@click="click"
 			></u-column-notice>
 		</template>
 		<template v-else>
 			<u-row-notice
-				:color="color"
-				:bgColor="bgColor"
+				:color="resolvedColor"
+				:bgColor="resolvedBgColor"
 				:text="text"
 				:mode="mode"
 				:fontSize="fontSize"
@@ -42,11 +43,12 @@
 	import { props } from './props';
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
+	import defProps from '../../libs/config/props.js';
 	import { addStyle } from '../../libs/function/index';
 	/**
 	 * noticeBar 滚动通知
 	 * @description 该组件用于滚动通告场景，有多种模式可供选择
-	 * @tutorial https://ijry.github.io/uview-plus/components/noticeBar.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/noticeBar.html
 	 * @property {Array | String}	text			显示的内容，数组
 	 * @property {String}			direction		通告滚动模式，row-横向滚动，column-竖向滚动 ( 默认 'row' )
 	 * @property {Boolean}			step			direction = row时，是否使用步进形式滚动  ( 默认 false )
@@ -74,6 +76,20 @@
 				show: true
 			}
 		},
+		computed: {
+			resolvedColor() {
+				if (this.upHasProp('color') || this.color !== defProps.noticeBar.color) {
+					return this.color
+				}
+				return this.upThemeVar('--up-notice-bar-color', this.$u.color.warning || '#f9ae3d')
+			},
+			resolvedBgColor() {
+				if (this.upHasProp('bgColor') || this.bgColor !== defProps.noticeBar.bgColor) {
+					return this.bgColor
+				}
+				return this.upThemeVar('--up-notice-bar-bg-color', this.$u.color.warningLight || '#fdf6ec')
+			}
+		},
 		emits: ["click", "close"],
 		methods: {
 			addStyle,
@@ -94,8 +110,11 @@
 	};
 </script>
 
+<style lang="scss">
+	@import "./theme-vars.scss";
+</style>
+
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-notice-bar {
 		overflow: hidden;

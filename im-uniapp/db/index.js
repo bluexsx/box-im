@@ -11,7 +11,7 @@ export async function initDB() {
 	if (dbInstance) {
 		return dbInstance;
 	}
-	// #ifdef APP-PLUS
+	// #ifdef APP
 	dbInstance = new ImSqliteDB();
 	console.log("本地数据库:", "SQLite")
 	return dbInstance

@@ -123,7 +123,7 @@ export default {
 		display: flex;
 		flex-direction: column;
 		margin-top: 120rpx;
-		// #ifdef APP-PLUS
+		// #ifdef APP
 		margin-top: calc(120rpx + var(--status-bar-height));
 		// #endif
 		padding: 0 60rpx;

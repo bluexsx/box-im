@@ -1,5 +1,7 @@
 <template>
-	<web-view class="page chat-group-video" id="chat-video-wv" :src="url"></web-view>
+	<view class="chat-group-video">
+		<web-view fullscreen="false" id="chat-video-wv" :src="url"></web-view>
+	</view>
 </template>
 
 <script>
@@ -12,9 +14,10 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
-.chat-group-video {
-}
+.chat-group-video {}
+
 </style>

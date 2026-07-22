@@ -30,14 +30,15 @@ export default {
 
 <style scope lang="scss">
 .group-item {
-	height: 90rpx;
+	height: 120rpx;
 	display: flex;
-	margin-bottom: 2rpx;
 	position: relative;
-	padding: 18rpx 20rpx;
+	padding: 10rpx 20rpx;
 	align-items: center;
-	background-color: white;
+	background: white;
 	white-space: nowrap;
+	border-radius: 20rpx;
+	box-sizing: border-box;
 
 	&:hover {
 		background-color: $im-bg-active;

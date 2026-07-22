@@ -43,7 +43,7 @@ export default {
 		},
 		onCreateNewGroup() {
 			uni.navigateTo({
-				url: "/pages/group/group-edit"
+				url: "/pages/group/group-invite?mode=create"
 			})
 		}
 	},

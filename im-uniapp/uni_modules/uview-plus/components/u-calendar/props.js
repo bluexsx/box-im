@@ -133,6 +133,26 @@ export const props = defineMixin({
             type: Boolean,
             default: () => defProps.calendar.allowSameDay
         },
+        // 区间模式下确认返回值格式，all-返回区间内所有日期，boundary-仅返回起止日期
+        rangeResultMode: {
+            type: String,
+            default: () => defProps.calendar.rangeResultMode
+        },
+        // 是否开启时分秒选择
+        enableTime: {
+            type: Boolean,
+            default: () => defProps.calendar.enableTime
+        },
+        // 时间精度：hour-仅时，minute-时分，second-时分秒
+        timePrecision: {
+            type: String,
+            default: () => defProps.calendar.timePrecision
+        },
+        // 默认时间，格式支持 HH / HH:mm / HH:mm:ss
+        defaultTime: {
+            type: String,
+            default: () => defProps.calendar.defaultTime
+        },
 		// 圆角值
 		round: {
 		    type: [Boolean, String, Number],
@@ -142,6 +162,43 @@ export const props = defineMixin({
 		monthNum: {
 			type: [Number, String],
 			default: 3
-		}	
+		},
+		// 是否启用非滚动的单月切换模式
+		monthSwitch: {
+			type: Boolean,
+			default: () => defProps.calendar.monthSwitch
+		},
+		// 是否显示今天按钮
+		showToday: {
+			type: Boolean,
+			default: () => defProps.calendar.showToday
+		},
+		// 今天日期的独立高亮颜色，默认跟随主题色
+		todayColor: {
+			type: String,
+			default: () => defProps.calendar.todayColor
+		},
+        // 星期文案
+        weekText: {
+			type: Array,
+			default: defProps.calendar.weekText
+		},
+        forbidDays: {
+			type: Array,
+			default: defProps.calendar.forbidDays
+		},
+        forbidDaysToast:{
+			type: String,
+			default: defProps.calendar.forbidDaysToast
+		},
+        monthFormat:{
+			type: String,
+			default: defProps.calendar.monthFormat
+		},
+        // 是否页面内展示
+        pageInline:{
+			type: Boolean,
+			default: defProps.calendar.pageInline
+		}
     }
 })

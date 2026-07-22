@@ -3,7 +3,8 @@
 		<view class="u-steps-item__line" v-if="index + 1 < childLength"
 			:class="[`u-steps-item__line--${parentData.direction}`]" :style="[lineStyle]"></view>
 		<view class="u-steps-item__wrapper"
-			:class="[`u-steps-item__wrapper--${parentData.direction}`, parentData.dot && `u-steps-item__wrapper--${parentData.direction}--dot`]">
+			:class="[`u-steps-item__wrapper--${parentData.direction}`, parentData.dot && `u-steps-item__wrapper--${parentData.direction}--dot`]"
+			:style="[itemStyleInner]">
 			<slot name="icon">
 				<view class="u-steps-item__wrapper__dot" v-if="parentData.dot" :style="{
 						backgroundColor: statusColor
@@ -11,10 +12,10 @@
 
 				</view>
 				<view class="u-steps-item__wrapper__icon" v-else-if="parentData.activeIcon || parentData.inactiveIcon">
-					<u-icon :name="index <= parentData.current ? parentData.activeIcon : parentData.inactiveIcon"
+					<up-icon :name="index <= parentData.current ? parentData.activeIcon : parentData.inactiveIcon"
 						:size="iconSize"
 						:color="index <= parentData.current ? parentData.activeColor : parentData.inactiveColor">
-					</u-icon>
+					</up-icon>
 				</view>
 				<view v-else :style="{
 						backgroundColor: statusClass === 'process' ? parentData.activeColor : 'transparent',
@@ -22,20 +23,32 @@
 					}" class="u-steps-item__wrapper__circle">
 					<text v-if="statusClass === 'process' || statusClass === 'wait'"
 						class="u-steps-item__wrapper__circle__text" :style="{
-							color: index == parentData.current ? '#ffffff' : parentData.inactiveColor
+							color: index == parentData.current ? activeStepTextColor : parentData.inactiveColor
 						}">{{ index + 1}}</text>
-					<u-icon v-else :color="statusClass === 'error' ? 'error' : parentData.activeColor" size="12"
-						:name="statusClass === 'error' ? 'close' : 'checkmark'"></u-icon>
+					<up-icon v-else :color="statusClass === 'error' ? 'error' : parentData.activeColor" size="12"
+						:name="statusClass === 'error' ? 'close' : 'checkmark'"></up-icon>
 				</view>
 			</slot>
 		</view>
-		<view class="u-steps-item__content" :class="[`u-steps-item__content--${parentData.direction}`]"
+		<view class="u-steps-item__content" :class="[`u-steps-item__content--${parentData.direction}`,
+			parentData.current == index ? 'u-steps-item__content--current' : '']"
 			:style="[contentStyle]">
-			<up-text :text="title" :type="parentData.current == index ? 'main' : 'content'" lineHeight="20px"
-				:size="parentData.current == index ? 14 : 13"></up-text>
-			<slot name="desc">
-				<up-text :text="desc" type="tips" size="12"></up-text>
+			<slot name="content" :index="index">
 			</slot>
+			<template v-if="!$slots['content']">
+				<view class="u-steps-item__content__title">
+					<slot name="title">
+					</slot>
+					<up-text v-if="!$slots['title']" :text="title" lineHeight="20px"
+						:type="parentData.current == index ? 'main' : 'content'"
+						:size="parentData.current == index ? 14 : 13"></up-text>
+				</view>
+				<view class="u-steps-item__content__desc">
+					<slot name="desc">
+					</slot>
+					<up-text v-if="!$slots['desc']" :text="desc" type="tips" size="12"></up-text>
+				</view>
+			</template>
 		</view>
 		<!-- <view
 		    class="u-steps-item__line"
@@ -95,6 +108,11 @@
 		created() {
 			this.init()
 		},
+		// #ifdef MP-TOUTIAO
+		options: {
+			virtualHost: false
+		},
+		// #endif
 		computed: {
 			lineStyle() {
 				const style = {}
@@ -110,6 +128,11 @@
 					.parentData
 					.current ? this.parentData.activeColor : this.parentData.inactiveColor
 				return style
+			},
+			itemStyleInner() {
+				return {
+					...this.itemStyle
+				}
 			},
 			statusClass() {
 				const {
@@ -158,6 +181,9 @@
 				}
 
 				return style
+			},
+			activeStepTextColor() {
+				return this.upThemeVar('--up-white', '#ffffff')
 			}
 		},
 		mounted() {
@@ -206,7 +232,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 
 	.u-steps-item {
 		flex: 1;
@@ -230,11 +255,12 @@
 			justify-content: center;
 			align-items: center;
 			position: relative;
-			background-color: #fff;
+			background-color: var(--up-card-bg-color, #fff);
+			border-radius: 50px;
 
 			&--column {
 				width: 20px;
-				height: 32px;
+				height: 20px;
 
 				&--dot {
 					height: 20px;
@@ -243,7 +269,7 @@
 			}
 
 			&--row {
-				width: 32px;
+				width: 20px;
 				height: 20px;
 
 				&--dot {
@@ -290,6 +316,12 @@
 		&__content {
 			@include flex;
 			flex: 1;
+
+			&__title {
+				// #ifdef H5
+				cursor: pointer;
+				// #endif
+			}
 
 			&--row {
 				flex-direction: column;

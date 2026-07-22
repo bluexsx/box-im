@@ -68,8 +68,8 @@
 	// #endif
 	/**
 	 * loading 加载动画
-	 * @description 警此组件为一个小动画，目前用在uView的loadmore加载更多和switch开关等组件的正在加载状态场景。
-	 * @tutorial https://ijry.github.io/uview-plus/components/loading.html
+	 * @description 此组件为一个小动画，目前用在uView的loadmore加载更多和switch开关等组件的正在加载状态场景。
+	 * @tutorial https://uview-plus.jiangruyi.com/components/loading.html
 	 * @property {Boolean}			show			是否显示组件  (默认 true)
 	 * @property {String}			color			动画活动区域的颜色，只对 mode = flower 模式有效（默认color['u-tips-color']）
 	 * @property {String}			textColor		提示文本的颜色（默认color['u-tips-color']）
@@ -193,7 +193,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 	$u-loading-icon-color: #c8c9cc !default;
 	$u-loading-icon-text-margin-left:4px !default;
 	$u-loading-icon-text-color:$u-content-color !default;
@@ -315,7 +314,9 @@
 			height: $u-loading-icon-dot-height;
 
 			&:before {
+				/* #ifndef APP-NVUE */
 				display: block;
+				/* #endif */
 				width: $u-loading-icon-dot-before-width;
 				height: $u-loading-icon-dot-before-height;
 				margin: $u-loading-icon-dot-before-margin;
@@ -345,3 +346,4 @@
 
 	/* #endif */
 </style>
+

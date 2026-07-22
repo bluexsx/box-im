@@ -1,5 +1,1998 @@
+## 3.8.55（2026-06-12）
+fix: 完善日历今天按钮的区间模式表现及修复小程序多输入框切换时 blur 格式化视图不刷新
+
+- 问题出现在小程序真机多个输入框切换场景中，A 输入框在 blur 回调里完成格式化后，点击 B 输入框会导致数据已更新但 A 的显示值未及时同步。本次修改在 u-input 内部记录 blur 时的原始值，并在 modelValue 回流阶段识别 blur 后的外部格式化结果，允许该结果覆盖 innerValue，避免被 changeFromInner 保护逻辑拦截。这样在点击其他输入框触发 blur 时，格式化结果也能正确更新到视图。
+- 避免日期区间模式点击今天时清空已有选中范围，同时提供今天日期的独立高亮能力。新增 todayColor 配置、组件透传与类型声明，并调整 range 模式下今天按钮仅定位不选中。single 模式保持点击今天直接选中，range 模式保留原区间并定位到今天。
+
+## 3.8.54（2026-06-11）
+fix(calendar): 修复今天按钮点击后未选中日期的问题
+
+今天按钮在跳转到今天所在月份后，会复用日历原有日期点击逻辑选中今天，并按 showConfirm 配置保持确认行为一致。
+
+## 3.8.53（2026-06-11）
+feat(calendar): 日历顶部增加时分秒选择能力
+
+新增 enableTime、timePrecision、defaultTime 配置，支持单选与区间首尾模式在顶部点击时间区域后弹出居中 picker 进行时间编辑。
+确认返回仍为字符串数组：单选与区间首尾模式返回日期时间字符串；区间 all 模式按约定不展示时间选择并保持原日期数组返回；同日区间增加结束时间不能早于开始时间的校验。
+
+## 3.8.52（2026-06-10）
+fix(table2): 修复微信小程序中重复 slot name="cell" 导致的报错 (#839)
+
+在固定列浮动视图（u-table-fixed-shadow）的 MP-WEIXIN 条件编译块中，
+将 <slot name="cell"> 改为直接内联渲染，消除同组件内同名 slot 的冲突。
+微信小程序不允许单个组件实例中出现多个同名 slot，而主表体已占用 "cell"，
+固定列视图区仅用于视觉叠加，直接渲染 item.row[col.key] 即可满足需求。
+
+## 3.8.51（2026-06-09）
+fix(picker): 修复异步columns加载时defaultIndex位置不更新的问题 (#841)
+
+问题：当columns从接口动态返回时（初始为空数组，延迟后赋值），
+defaultIndex已提前设置好innerIndex，columns变化时innerIndex值未改变，
+picker-view的:value绑定不触发重新渲染，导致滚动位置停留在第0项。
+
+修复：在setColumns中检测是否有列从空变为有数据，若是则先清空innerIndex，
+再在$nextTick中恢复目标值，强制picker-view重新滚动到defaultIndex指定位置。
+
+## 3.8.50（2026-06-08）
+fix: 修复 pageInline 日历隐藏挂载时首日偏移异常
+
+问题原因：u-calendar 在隐藏容器中挂载时可能获取到 width=0，导致首日 margin-left 计算为 0。
+改动内容：
+1) 非 APP-NVUE 场景首日偏移改为百分比计算，避免依赖运行时宽度。
+2) 宽度获取增加 windowWidth 兜底，降低隐藏挂载导致的布局异常风险。
+影响范围：仅调整 u-calendar/month.vue 的首日偏移与宽度兜底逻辑，不改变选择交互行为。
+
+## 3.8.49（2026-06-05）
+fix(datetime-picker): 修复hasInput模式下点击遮罩无法关闭弹窗的问题
+
+- 在close()方法中补充将showByClickInput置为false的逻辑，
+- 与cancel()和confirm()的处理保持一致，修复issue #759
+
+## 3.8.48（2026-06-04）
+feat(calendar): 新增区间模式返回值格式配置
+
+- 新增 rangeResultMode 配置项，支持 range 模式在 confirm 时返回全部区间日期或仅返回起止日期。
+- 本次改动覆盖默认配置、组件 props、确认回调返回逻辑与 TypeScript 类型声明，默认值为 all 以保持现有行为兼容。
+
+## 3.8.47（2026-06-03）
+扩展 u-datetime-picker 支持小时与秒级时间选择
+
+- 新增 datehour、timesecond、datetimesecond 三种模式，覆盖年月日时与秒级场景\n- 增加 minSecond/maxSecond 配置，并同步列生成、边界计算、回显与变更事件处理\n- 更新 TypeScript 类型定义，确保新模式和秒级属性在项目中可被正确约束
+
+## 3.8.46（2026-06-02）
+fix: 修复DatetimePicker在pageInline模式下无法滚动到默认值问题 #941
+
+pageInline模式下picker-view原生组件常驻显示，Android/HarmonyOS端
+原生组件尚未完成初始化时已渲染为索引0位置，后续更新无法可靠触发滚动。
+
+- updateColumnValue改用$nextTick+条件延时：pageInline时等待100ms
+- mounted新增pageInline兜底：200ms后再次设置索引确保原生组件就绪
+
+## 3.8.45（2026-06-01）
+fix: 修复NumberBox最小值限制导致无法输入新值问题 #914
+
+## 3.8.44（2026-05-31）
+fix: 修复up-tooltip未暴露open/close方法及manual模式失效问题 #1021
+
+- 新增 show prop，支持 triggerMode="manual" 时通过 :show 控制显示
+- 新增 open() / close() 方法并对外暴露
+- 监听 show prop 变化，manual 模式下自动调用 open/close
+- 新增 open / close emit 事件，u-popover 的 @open @close 监听可正常工作
+- 统一内部显示/隐藏逻辑均走 open()/close() 方法
+
+## 3.8.43（2026-05-30）
+fix: 修复小程序中 tabbar midButton 模式图标不显示问题
+
+- 使用 :deep() 选择器替代普通后代选择器，解决 virtualHost:true 导致
+- 父组件 scoped 样式无法传播到子组件根元素的问题。
+
+## 3.8.42（2026-05-29）
+feat: 新增单行日历组件并支持下拉展开完整月历及修复签名组件 clear 方法实现
+
+-新增 up-calendar-strip 组件，支持单行横向滚动日期、前后切月、选中态与今天高亮，并受 minDate/maxDate 约束。
+-完整模式复用内嵌 up-calendar（pageInline + monthSwitch），支持下拉展开、上拉收起与完整月历选中回写，降低重复代码与维护复杂度。
+-同步接入全局默认 props 与 TypeScript 类型声明，并在 calendar 示例页增加可直接验证的演示入口。
+- 修复 Signature 组件对外 clear 方法缺失导致 ref 调用报错的问题。
+- 在 u-signature 中新增 clear 公共方法，统一重置路径与绘制状态并清空画布，同时触发 clear 事件，保持工具栏清空与外部调用行为一致。
+
+## 3.8.41（2026-05-29）
+feat: tabs新增多形态模式并优化示例页吸顶展示
+
+- 新增shapeMode能力，支持capsule/card/pill-arrow/tag四种模式，并补齐props默认配置与类型声明。
+- 完善各模式样式细节与尺寸，优化圆角矩形箭头视觉表现，卡片模式使用轻量阴影增强层次。
+
+## 3.8.40（2026-05-28）
+feat: 新增 up-guide 首屏全屏引导组件，支持开箱即用的一次性引导能力。
+
+## 3.8.39（2026-05-27）
+feat: 新增 tabbar 风格体系与动态图标表现
+
+- 为 tabbar 增加多种内置风格、轻量选中动画与双态图标支持。
+- 扩展示例页覆盖普通场景、NVUE 场景及中间按钮组合用法。
+
+## 3.8.38（2026-05-25）
+add: uni-ku/root上游组建的协议原文
+
+## 3.8.37（2026-05-22）
+feat: 日历组件新增今天按钮并支持快速回到当月
+
+在日历头部增加今天按钮与禁用态，点击后可跳转到今天所在月份；为今天日期增加独立高亮样式且不覆盖用户当前已选日期。同时补充 showToday 配置、类型声明与多语言文案键，保证不同语言和模式下行为一致。
+
+## 3.8.36（2026-05-20）
+fix: 修复 u-parse 链接点击在 iOS 端可能闪退的问题
+
+- 在 u-parse 的两个链接点击入口统一增加 href 规范化与外链判断，避免空值或非法值传入 plus.runtime.openWeb/openURL。
+- 同时将原生外链打开封装为受保护调用并添加异常兜底，降低 APP-PLUS 与 APP-HARMONY 下点击链接导致崩溃的风险。
+
+## 3.8.35（2026-05-19）
+fix: 修复up-input在confirm阶段可能丢失扫码内容
+
+- 问题背景：issue #1011 反馈外接扫码枪场景下，up-input 的 confirm 回调偶发丢码，连续0更明显。
+- 原因分析：组件 onConfirm 直接返回 innerValue，当扫码输入与回车触发节奏接近时，confirm 可能早于最后一次 input 同步，导致取到旧值。
+- 改动说明：onConfirm 优先使用 event.detail.value，若平台未提供该字段再回退到 innerValue，兼容原有行为并降低扫码场景丢码风险。
+## 3.8.34（2026-05-18）
+fix: 仅在 TabBar 页面同步 TabBar 样式
+
+- 在 libs/theme/runtime.js 新增 isTabBarPage 与 trySetTabBarStyle，统一封装 TabBar 页面判断与安全调用。
+- 在 runtime/theme/common mixin 的原生主题同步路径中，全部改为调用 trySetTabBarStyle，不再直接调用 uni.setTabBarStyle。
+
+## 3.8.33（2026-05-17）
+fix: 修复主题变量桥接与 nvue 按钮取色问题
+
+- 调整主题 bridge 的导出位置，避免 legacy light 变量在样式注入后覆盖用户自定义 CSS 变量。
+- 修复 up-button 在 nvue 下的主题取色与 info/plain 样式问题，补充运行时取色兜底，避免按钮颜色错误或主题方法缺失时报错。
+- 同步更新示例接入、版本号与变更记录，保持主题改造后的行为与文档一致。
+
+## 3.8.32（2026-05-14）
+feat: 新增二维码静区配置
+
+- 为 up-qrcode 增加 quietZone 属性，默认值调整为 0。
+- 同步更新二维码绘制逻辑与类型声明，支持按静区宽度控制外层留白。
+
+## 3.8.31（2026-05-14）
+fix: 修复toast组件overlay设置为false时不显示toast的问题 (#1016)
+
+
+## 3.8.30（2026-05-14）
+fix(tooltip): 修复tooltip组件字体大小(size)属性未生效的问题
+
+## 3.8.29（2026-05-13）
+style: 将 Toast 组件硬编码颜色替换为主题变量
+
+- 替换 primary、success、error、warning 类型的背景与边框硬编码颜色
+- 统一接入 $u-{type}-light 与 $u-{type}-disabled 主题变量
+- 增强组件在不同主题下的样式一致性与可维护性
+
+## 3.8.28（2026-05-12）
+style: 优化 up-textarea 组件主题变量与边框样式
+
+- 字数统计区域新增文本颜色主题变量支持
+- 输入框区域重构样式计算，补充背景色、文本色与光标色主题变量
+- 移除原有边框 CSS 类名依赖，改为通过计算属性动态注入边框样式
+- 新增边框颜色计算逻辑，根据亮暗色模式自动适配主题色
+- 修复 H5 端 uni-app 默认包装器样式冲突，统一背景、边框与占位符颜色
+
+## 3.8.27（2026-05-11）
+feat: 新增 nativeThemeSync 配置控制原生UI主题同步
+
+- 在 config 中新增 nativeThemeSync 选项，默认值为 false
+- 在 theme.js 与 runtime.js 的 applyNativeThemeUI 中增加配置拦截，未开启时跳过原生导航栏、页面背景及 tabBar 的样式同步
+- 补充 TypeScript 类型定义，明确默认关闭以避免升级覆盖项目已有的 pages.json 或 theme.json 全局样式
+- 更新验证脚本，增加对该配置开关行为的断言测试
+## 3.8.26（2026-05-11）
+fix: 修复海报组件多行文本截断与省略号渲染问题
+
+- 提取省略号宽度计算与截断逻辑为独立辅助函数，提升代码可维护性
+- 修正达到最大行数时的截断流程，确保末行正确计算宽度并添加省略号
+- 调整换行后当前行字符的赋值时机，避免首字符丢失或渲染状态错乱
+- 补充文件末尾缺失的换行符以符合代码规范
+
+## 3.8.25（2026-05-10）
+fix: 修复H5安装时写入页面背景
+
+- 移除主题初始化时对html、body和#app背景色的内联写入，避免use(uviewPlus)覆盖业务页面背景。
+- 补充运行时主题回归断言，确保H5仍同步data-up-theme但不再改写宿主页面背景样式。
+
+## 3.8.24（2026-05-09）
+fix: 合并 up-slider 组件重复的 mounted 生命周期钩子
+
+- 将原本分散的两个 mounted 钩子合并为单个 async mounted
+- 确保高度/尺寸赋值与滑块 DOM 尺寸获取逻辑在同一钩子内顺序执行
+- 移除底部重复的生命周期代码块，修复因 Vue 钩子执行顺序不确定导致的 init 初始化异常
+
+## 3.8.23（2026-05-09）
+style: 弹窗组件支持主题变量动态设置指示器与关闭图标颜色
+
+- 将底部横条指示器背景色替换为 --up-light-color 主题变量
+- 将关闭图标颜色替换为 --up-content-color 主题变量
+- 新增 indicatorStyle 与 closeIconColor 计算属性实现动态绑定
+- 同步更新 CSS 与内联样式，移除硬编码颜色值以提升多主题适配能力
+
+## 3.8.22（2026-05-08）
+style: 优化 up-input 组件边框样式与主题变量适配
+
+- 移除原有的 u-border 和 u-border-bottom 工具类，改为通过内联样式动态控制边框
+- 新增 inputBorderColor 计算属性，支持通过 --up-input-border-color 主题变量自定义边框颜色
+- 适配深色模式，默认边框颜色根据主题状态自动切换为半透明白色或浅色边框
+- 统一将边框宽度设置为 0.5px，提升多端显示的一致性
+
+## 3.8.21（2026-05-07）
+fix: 修正索引锚点默认背景色识别逻辑
+
+- 扩展默认背景色判断条件，兼容 #f1f1f1 与 #dedede
+- 更新主题变量回退默认值为 #f1f1f1 以匹配新版设计
+
+## 3.8.20（2026-05-06）
+feat: 表单标签颜色支持主题变量动态适配
+
+- 新增 labelDynamicStyle 计算属性，动态读取 --up-main-color 主题变量
+- 将动态样式注入标签元素，实现表单标签颜色随主题配置自动切换
+
+## 3.8.19（2026-04-30）
+feat: 为日期时间选择器遮罩层添加暗色模式自适应样式
+
+- 新增 resolvedMaskStyle 计算属性，优先返回外部传入的 maskStyle
+- 未传入自定义样式且处于暗色主题时，自动注入渐变背景以适配深色模式
+- 替换模板中的遮罩样式绑定，避免硬编码并提升主题切换兼容性
+
+## 3.8.18（2026-04-29）
+fix: 规避 H5 主题切换时的导航栏 page not found 报错
+
+为主题系统中的 setNavigationBarColor 调用增加活动页面判断，并对调用失败做静默兜底，避免 H5 启动或路由切换早期抛出 page not found。背景色与 tabBar 同步逻辑保持不变。
+## 3.8.17（2026-04-29）
+refactor: 将 Cell 组件颜色引用替换为主题变量
+
+- up-cell-group 标题文本颜色改用 upThemeVar 动态获取
+- up-cell 禁用态、标题、描述及值颜色统一替换为主题变量
+- 点击态背景色 SCSS 变量改为依赖 CSS 变量 --up-hover-bg-color
+- 移除对 $u.color 的直接依赖，提升主题切换兼容性
+
+## 3.8.16（2026-04-28）
+style: 统一下拉刷新组件与示例页的文本及图标颜色
+
+- 为示例页列表项、提示文本及表情图标补充对应样式类名
+- 组件下拉与释放状态的箭头图标显式指定内容色 CSS 变量
+- 将组件提示文本颜色由内容色变量调整为主色变量以统一视觉
+
+## 3.8.15（2026-04-28）
+style: 统一协议组件文本颜色为主题变量
+
+- 为协议页面标题、自定义内容及正文应用主色变量
+- 将协议内联链接颜色替换为主题主色变量
+- 为 up-agreement 组件容器设置默认文本主色
+
+## 3.8.14（2026-04-27）
+refactor: up-action-sheet 组件样式适配主题变量
+
+- 模板中硬编码颜色替换为动态计算属性，统一通过 upThemeVar 获取主题色
+- 新增标题、描述、关闭图标、分割线及取消按钮区域的颜色动态样式绑定
+- 修复 SCSS 变量 description-color 误赋值为字号的缺陷
+- 样式层全面迁移至 CSS 变量，确保组件在暗黑模式与自定义主题下正确渲染
+
+## 3.8.13（2026-04-26）
+feat: 重构 up-tree 组件并新增手风琴、高亮及复选框控制
+
+- 移除独立子组件，采用扁平化 visibleNodes 计算属性重构渲染逻辑
+- 新增手风琴模式、当前节点高亮及自定义缩进/展开图标配置
+- 完善复选框联动机制，支持半选状态、父子级联与严格模式切换
+- 暴露 setCheckedKeys、getCheckedKeys 等实例方法支持编程式控制
+- 补充 node-expand、current-change 等事件以增强交互反馈
+- 同步更新示例页，覆盖基础展示、自定义插槽、复选框及手风琴场景
+
+## 3.8.12（2026-04-24）
+style: 添加骨架屏演示区块标题样式
+
+## 3.8.11（2026-04-24）
+refactor: 新增日历组件单月模式演示并重构示例页主题逻辑
+
+- 统一示例页主题适配逻辑，移除旧版事件监听，改用 upThemeIsDark 与 upThemeVar 动态计算样式
+- 组件列表页增加 page-meta 导航栏配置，实现状态栏与导航栏颜色随主题自动切换
+- 日历组件示例新增单月切换模式，覆盖单选、日期区间及多选三种场景
+- 加载页示例补充 color 属性配置，完善自定义加载动画演示
+- 个人中心页增加 applyNativeThemeUI 方法存在性校验，提升原生主题调用安全性
+
+## 3.8.10（2026-04-24）
+refactor: 重构主题系统并扩展深浅色模式变量
+
+- 统一主题状态管理，引入版本号机制与运行时同步函数，优化组件主题切换响应
+- 扩展 CSS 变量体系，新增 hover、表格、骨架屏等组件专属背景色及主色深浅变体
+- 优化 NVUE 平台兼容性，分离样式导入逻辑并动态计算页面最小高度
+- 重构全局 Mixin 与页面导航组件，抽离主题计算逻辑至独立运行时模块
+- 完善原生 UI 主题适配，支持 TabBar 与导航栏随深浅色模式自动切换
+
+## 3.8.9（2026-04-23）
+feat: 新增 nvue 运行时主题支持与全局主题 API
+
+- 新增 runtime.js 模块，提供主题变量动态解析、本地存储同步及原生 UI 样式应用逻辑
+- 重构 Vite 插件转换逻辑，为 nvue 页面自动注入主题根组件及响应式 Mixin/Composables
+- 在 Vue 全局属性中注册 upThemeIsDark、upThemeVar 等辅助方法，简化组件内主题调用
+- 优化主题构建逻辑，新增导航栏背景色变量支持及 TabBar 样式动态适配
+- 新增 nvue-root.vue 根组件，统一处理 nvue 页面主题刷新与系统主题变更事件监听
+
+## 3.8.8（2026-04-23）
+fix: 修复nvue下白屏报错URL is not defined和 Cannot set property 'getRect' of undefined
+
+## 3.8.7（2026-04-22）
+feat: 日历组件新增单月切换模式并适配主题变量
+
+- 新增 monthSwitch 属性，支持非滚动的单月切换展示模式
+- 头部新增上/下一月及上/下一年切换按钮，并实现越界禁用逻辑
+- 重构组件样式，将硬编码颜色替换为 CSS 变量以完善主题适配
+- 优化单月模式下的月份索引计算与容器高度动态调整逻辑
+- 调整日期范围选中背景色透明度，提升暗黑模式下的视觉对比度
+
+## 3.8.6（2026-04-22）
+fix: 修复商品SKU未完全选择时仍可购买的问题
+
+- 修改 canBuy 计算属性中已选SKU数量的统计逻辑
+- 过滤值为空字符串的SKU选项，仅统计实际已选择的规格
+- 避免初始化空值导致购买按钮状态判断错误
+
+## 3.8.5（2026-04-21）
+fix: 修复 up-choose 组件 modelValue 更新不同步问题
+
+- 移除 created 生命周期中的初始赋值逻辑
+- 新增 watch 监听 modelValue 并设置 immediate: true
+- 确保外部传入的 modelValue 变化时能实时同步至 currentIndex
+- 补充文件末尾换行符以符合规范
+
+## 3.8.4（2026-04-20）
+fix(u-rate): 增强数值校验与边界处理，修复计算异常
+
+- 新增 normalizeActiveIndex 等辅助方法，统一处理评分值的类型转换与 minCount/count 边界限制
+- 对 DOM 节点获取的 left 和 width 增加 Number.isFinite 校验，避免 NaN 导致布局计算崩溃
+- 优化 emitEvent 逻辑，在触发 change 及双向绑定更新前进行值归一化，防止无效值传播
+- 在触摸与点击事件处理前调用 ensureRateMetrics，确保尺寸数据有效后再执行坐标计算
+- 移除直接读取 prop 的硬编码逻辑，提升组件在异常传参或异步渲染场景下的稳定性
+
+## 3.8.3（2026-04-19）
+fix: 修复日期时间选择器快速滚动越界与空值异常
+
+- 新增 safeColumnValue 与 toInt 辅助方法，安全读取滚动列数据并统一类型转换
+- 优化 change 事件处理逻辑，使用 range 严格限制年月日时分在合法区间内，防止越界
+- 增强 intercept 方法容错性，处理 undefined/null 输入并转为字符串匹配，避免正则报错
+- 补充列数据生成兜底逻辑，快速滚动导致日列范围异常时自动回退至当月天数或默认 31 天
+- 完善 show 监听与 close 方法，在含输入框模式下关闭选择器时同步重置 showByClickInput 状态
+
+## 3.8.2（2026-04-17）
+fix: 修复级联选择器仅回显未改动时确认返回空数组的问题
+
+- 提取 getSelectedValues 方法统一处理选中值获取逻辑，消除重复代码
+- 初始化时若 modelValue 为空则显式清空 confirmValues，避免状态残留
+- 数据回显后同步更新 confirmValues，确保未手动修改直接确认时能正确返回默认值
+- 优化 handleConfirm 逻辑，优先使用已同步的确认值，提升事件触发准确性
+
+## 3.8.1（2026-04-16）
+feat(select): 增强下拉框样式能力并补充 100% 宽度示例
+
+- 新增 up-select 的边框样式能力与下拉面板宽度配置，便于构建接近 PC Select 的交互样式。 
+- 新增 border 属性：支持为触发区显示边框、圆角和内边距（默认关闭，保持兼容） 
+- 新增 optionsWidth 属性：支持 String/Number，允许 px/rpx/% 等宽度控制 
+- 优化下拉面板定位逻辑，保留溢出时左右对齐修正行为 
+- 更新 select 示例页：新增“边框与下拉宽度”示例，并改为 100% 宽度展示
+
+## 3.8.0（2026-04-16）
+feat: 新增暗黑模式支持完成全链路适配与主题能力统一
+
+【架构设计】
+1. 建立主题变量分层：新增核心令牌层 theme-vars-core（统一定义亮/暗主题语义变量），并通过 theme-vars 进行聚合输出。
+2. 建立组件主题扩展层：为 navbar/notice-bar/subsection/switch/tag 等组件新增独立 theme-vars 文件，按组件边界管理主题差异，降低跨组件耦合。
+3. 建立运行时主题层：新增 libs/theme/theme.js，结合全局 mixin 与入口注入实现主题状态读取、切换与分发，形成“变量定义 -> 运行时注入 -> 组件消费”的闭环。
+
+【关键改动范围】
+1. 基础设施：App.up.vue、common/mixin.js、pages.json、manifest.json、theme.json 及全局样式入口同步调整。
+2. 组件库：大规模修复表单、导航、反馈、布局、展示类组件在暗黑模式下的背景、文字、边框、占位符、选中态对比度问题。
+3. 示例页与模板页：对示例与业务模板页进行暗黑联调，减少页面级重复 pageStyle 覆盖，统一回归到主题变量驱动。
+
+【兼容性与收益】
+1. 保持组件 API 行为不变，主要为样式与主题渲染层升级。
+2. 统一暗黑适配策略，减少页面散落样式补丁，后续新增组件可按统一主题规范快速接入。
+3. 提升微信小程序/H5 场景下暗色模式的一致性与可维护性。
+
+## 3.7.38（2026-04-16）
+feat(root): 支持全局Toast/Notify注入与调用及新增 root 模块构建缓存兼容垫片
+
+- Root 注入宿主统一承载 up-toast 与 up-notify，并注册 upGlobalToastRef/upGlobalNotifyRef
+- 新增 uni..rootNotify / setRootNotifyRef，并完善 rootToast 全局调用链路
+- Root 模板注入改为 -root-toast-host，避免 easycom 干扰
+- 补充 TypeScript 声明与 App.up.vue 全局调用示例
+- 提供透传函数 createGlobalUpRoot 以兼容旧版缓存引用
+- 防止增量构建缓存残留导致模块加载异常
+- 明确新架构已不再依赖该文件，仅作为过渡期保留
+
+## 3.7.37（2026-04-16）
+feat：新增全局root-view组件接入全局根容器注入并完善页面匹配
+
+ - 新增 App.up 根容器与 libs/root 插件链路，自动注册 global-up-root 并包裹页面模板。
+ - 支持 pages.json 页面按真实文件扩展名匹配（.vue/.nvue/.uvue），避免 nvue 页面漏注入。
+ - 修复模板起始偏移为 0 时的注入边界判断，确保首行 template 也能正确注入。
+ - 在 vite.config.ts 接入 UniUpRoot 插件默认配置。
+
+## 3.7.36（2026-04-15）
+fix: stepsItem.d.ts ts插槽name更新 #940
+
+## 3.7.35（2026-04-14）
+fix: timeFormat方法支持多种ISO格式
+
+## 3.7.34（2026-04-14）
+fix: up-waterfall组件告警void app logic that relies on enumerating keys on a component instance #993
+
+## 3.7.33（2026-04-14）
+fix: up-waterfall组件告警void app logic that relies on enumerating keys on a component instance #993
+
+## 3.7.32（2026-04-12）
+fix: up-picker添加默认背景色 防止其他使用该组件的没有配置背景色导致奇怪的样式
+
+## 3.7.31（2026-04-10）
+fix: up-cascader垂直头部点击节点切换
+
+
+## 3.7.30（2026-03-31）
+fix: pagination分页组件小程序上展示问题
+
+## 3.7.29（2026-03-23）
+fix: 修复 popup 弹出层背景色修改后，在小程序端默认背景色还存在
+
+## 3.7.28（2026-03-21）
+feat: 添加 up-switch 组件的圆点颜色属性
+
+## 3.7.27（2026-03-12）
+improvment: 优化up-form的错误提示message字段类型
+
+## 3.7.26（2026-03-09）
+add: up-select增加禁用功能
+
+## 3.7.25（2026-03-07）
+fix: 优化up-coupon规范化scss
+
+## 3.7.24（2026-03-06）
+fix: 修复up-table2 组件在小程序不显示单元格内容的问题
+
+## 3.7.23（2026-03-06）
+fix: up-cascader在开启auto-close时最后层级选择后未触发confirm
+
+## 3.7.22（2026-03-05）
+improvment: floatButton组件示例改为组合式API
+
+## 3.7.21（2026-03-05）
+feat: 新增禁用 iOS Safari 下拉刷新工具类、移除 H5 端图标复制限制、优化 u-copy 组件注释
+
+## 3.7.20（2026-02-26）
+improvement：box组件示例改为组合式API
+
+## 3.7.19（2026-02-25）
+improvement：agreement组件示例改为组合式API
+
+## 3.7.18（2026-02-24）
+improvement：barcode组件示例改为组合式API
+
+## 3.7.17（2026-02-11）
+fix: 修复steps组件current失效
+
+## 3.7.16（2026-02-09）
+improvment: choose组件示例改为组合式API
+
+## 3.7.14（2026-02-08）
+refactor: up-signature组件改用up-canvas组件
+
+## 3.7.13（2026-02-07）
+add: 新增up-canvas组件
+
+## 3.7.12（2026-02-07）
+improvment: 优化签名组件兼容性修复微信小程序支持
+
+## 3.7.11（2026-02-06）
+add: action-sheet组件新增nameKey和subnameKey属性
+
+## 3.7.10（2026-02-06）
+add: checkbox-group组件的change事件增加第二个返回参数为当前触发变化的checkbox组件name信息等
+
+## 3.7.9（2026-02-06）
+fix: 修复align-self属性值缺少d导致样式不生效的问题
+
+## 3.7.8（2026-02-05）
+improvment: 优化card组件示例
+
+## 3.7.7（2026-02-05）
+add: select组件新增closeSelect方法用于自定义控制关闭
+
+
+## 3.7.6（2026-02-04）
+add: picker组件示例onLoad后加载数据
+
+## 3.7.5（2026-02-03）
+add: up-slider组件新增垂直模式
+
+## 3.7.4（2026-02-03）
+add: box组件props优化及新增leftIcon/leftTitle/rightTopIcon/rightTopTitle/rightBottomIcon/rightBottomTitle参数
+
+## 3.7.3（2026-02-03）
+improvment: city-locate组件示例改为组合式API
+
+## 3.7.2（2026-02-02）
+improvment: color-picker组件示例改为组合式API
+
+## 3.7.1（2026-02-02）
+fix:修复qrcode缺失的preview定义emit
+
+## 3.7.0（2026-02-01）
+fix: 修复up-qrcode二维码在微信小程序报错
+
+## 3.6.134（2026-01-30）
+chore: dragsort可通过参数控制是否可震动
+
+## 3.6.132（2026-01-30）
+feat: dragsort支持自定义拖动句柄
+
+## 3.6.131（2026-01-29）
+fix: 优化dragdort组件
+
+## 3.6.130（2026-01-28）
+improvment: cropper组件示例改为组合式API
+
+## 3.6.129（2026-01-28）
+improvment: drag组件示例改为组合式API
+
+## 3.6.128（2026-01-27）
+improvment: tooltip组件示例改为组合式API
+
+## 3.6.127（2026-01-27）
+improvment: textarea组件示例改为组合式API
+
+## 3.6.126（2026-01-27）
+improvment: text组件示例改为组合式API
+
+## 3.6.125（2026-01-27）
+fix: 修复Cascader级联选择器设置默认值显示问题
+
+修复在传入默认值时多列只会显示第一列bug
+
+## 3.6.124（2026-01-27）
+improvment: tabs组件示例改为组合式API
+
+## 3.6.123（2026-01-27）
+improvment: swiper组件示例改为组合式API
+
+## 3.6.122（2026-01-26）
+fix: 🐛 修复u-input在change事件里无法获取value的异常情况 #950
+
+## 3.6.120（2026-01-26）
+improvment: 增加Cascader级联选择器的取消事件
+
+## 3.6.119（2026-01-26）
+improvment: skeleton组件示例改为组合式API
+
+## 3.6.118（2026-01-26）
+improvment: steps组件示例改为组合式API
+
+## 3.6.117（2026-01-24）
+improvment: subsection组就示例改为组合式API
+
+## 3.6.116（2026-01-24）
+improvment: 优化Cascader级联选择器右上角关闭图标的显示控制
+
+如果在级联文本过长或者类目过多时关闭图标会与类目文字重合，现在增加控制关闭图标的控制可以控制是否需要显示关闭图标，底部有取消按钮，关闭图标不是必须的
+
+## 3.6.115（2026-01-23）
+improvment: scroll-list组就示例改为组合式API
+
+## 3.6.114（2026-01-23）
+improvment: readmore组就示例改为组合式API
+
+## 3.6.113（2026-01-23）
+improvment: popover组就示例改为组合式API
+
+## 3.6.112（2026-01-23）
+improvment: picker组件示例改为组合式API
+
+## 3.6.111（2026-01-23）
+improvment: no-network组件示例改为组合式API
+
+## 3.6.110（2026-01-22）
+improvment: navbar组件示例改为组合式API
+
+## 3.6.109（2026-01-22）
+improvment: modal组件示例改为组合式API
+
+## 3.6.108（2026-01-22）
+improvment: loadmore组件示例改为组合式API
+
+## 3.6.107（2026-01-21）
+improvment: list组件示例改为组合式API
+
+## 3.6.106（2026-01-21）
+improvment: index-list2组件示例改为组合式API
+
+## 3.6.105（2026-01-21）
+improvment: index-list组件示例改为组合式API
+
+## 3.6.104（2026-01-21）
+improvment: layout组件示例改为组合式API
+
+## 3.6.103（2026-01-21）
+improvment: input组件示例改为组合式API
+
+## 3.6.102（2026-01-20）
+fix: 修复cascader缺少emits申明
+
+## 3.6.101（2026-01-20）
+improvment: form组件示例改为组合式API
+
+## 3.6.100（2026-01-20）
+improvment: datetimepicker组件示例改为组合式API
+
+## 3.6.99（2026-01-20）
+fix: 修复cate-tab组件设置默认current不生效
+
+## 3.6.98（2026-01-20）
+improvment: code-input组件示例改为组合式API
+
+## 3.6.97（2026-01-20）
+improvment: calendar组件示例改为组合式API
+
+## 3.6.96（2026-01-20）
+improvment: avatar组件示例改为组合式API
+
+## 3.6.95（2026-01-20）
+improvment: album组件示例改为组合式API
+
+## 3.6.94（2026-01-19）
+improvment: waterfall组件示例改为组合式API
+
+## 3.6.93（2026-01-19）
+improvment: upload组件示例改为组合式API
+
+## 3.6.92（2026-01-17）
+improvment: toast组件示例改为组合式API
+
+## 3.6.91（2026-01-16）
+improvment: tag组件示例改为组合式API
+
+## 3.6.90（2026-01-16）
+improvment: table2组件示例改为组合式API
+
+## 3.6.89（2026-01-16）
+add: 增加鸿蒙Next已上架二维码
+
+## 3.6.88（2026-01-16）
+improvment: table组件示例改为组合式API
+
+## 3.6.87（2026-01-15）
+tabbar2组件示例改为组合式API
+## 3.6.86（2026-01-15）
+improvment: tabbar组件示例改为组合式API
+## 3.6.85（2026-01-15）
+improvment: switch组件示例改为组合式API
+
+## 3.6.84（2026-01-15）
+improvment: slider组件示例改为组合式API
+
+## 3.6.83（2026-01-15）
+improvment: search组件示例改为组合式API
+
+## 3.6.82（2026-01-15）
+improvment: progress组件示例改为组合式API
+
+## 3.6.81（2026-01-15）
+improvment: parse组件示例改为组合式API
+
+
+## 3.6.80（2026-01-15）
+improvment: number-box组件示例改为组合式API
+
+## 3.6.78（2026-01-15）
+improvment: notify组件示例改为组合式API
+
+## 3.6.77（2026-01-15）
+improvment: notice-bar组件示例改为组合式API
+
+## 3.6.76（2026-01-15）
+ improvment: keyborad组件示例改为组合式API
+
+## 3.6.75（2026-01-15）
+improvment: dropdown组件示例改为组合式API
+
+## 3.6.74（2026-01-15）
+fix: 修复parse组件props缺少)
+
+## 3.6.73（2026-01-15）
+improvment: count-to组件示例改为组合式API
+
+## 3.6.72（2026-01-15）
+improvment: count-down组件示例改为组合式API
+
+## 3.6.71（2026-01-14）
+improvment: collapse组件示例改为组合式API
+
+## 3.6.70（2026-01-14）
+improvment: code组件示例改为组合式API
+
+## 3.6.69（2026-01-14）
+improvment: card组件示例改为组合式API
+
+## 3.6.68（2026-01-13）
+fix: 修复list组件在支付宝小程序下scrolltolower无法触发 #422
+## 3.6.67（2026-01-13）
+fix: 删除经典下拉框的打印
+
+## 3.6.66（2026-01-12）
+fix: 修正 RadioSlots 类型定义
+
+## 3.6.65（2026-01-12）
+fix: 修复u-picker在hasInput下回显异常和vue报错
+
+## 3.6.64（2026-01-12）
+fix: 解决cropper在ios小程序中底部操作栏被遮挡的问题
+
+## 3.6.63（2026-01-10）
+improvment: badge组建示例改为组合式API
+
+## 3.6.62（2026-01-10）
+improvment: alert组件示例改为组合式API
+
+## 3.6.61（2026-01-09）
+improvment: action-sheet组件示例改为组合式API
+
+## 3.6.60（2026-01-09）
+improvment: transition组件示例改为组合式API
+
+## 3.6.59（2026-01-09）
+improvment: swipe-action组件示例改为组合式API
+
+## 3.6.58（2026-01-09）
+improvment: sticky组件示例改为组合式API
+
+## 3.6.57（2026-01-08）
+improvment: 优化完善no-nerwork组件细节
+
+## 3.6.56（2026-01-08）
+fix: 修复signature的t方法
+
+## 3.6.55（2026-01-08）
+perf：补充多处TS声明提示信息 #953
+
+## 3.6.54（2026-01-08）
+fix: 修复slider示例页面变量重复
+## 3.6.53（2026-01-08）
+fix: 修复qrcode组件鸿蒙兼容
+
+## 3.6.52（2026-01-08）
+fix: nvue下采用webview支持二维码显示logo(因为gcanvas不支持图片渲染)
+
+## 3.6.51（2026-01-08）
+fix: 修复qrcode组件在App不显示logo
+
+improvment: qrcode逻辑优化封装
+
+## 3.6.50（2026-01-06）
+improvment: rate组件示例改为组合式API
+
+## 3.6.49（2026-01-06）
+improvment: radio组件示例改为组合式API
+
+## 3.6.48（2026-01-06）
+improvment: popup组件示例改为组合式API
+
+## 3.6.47（2026-01-06）
+improvment: overlay示例改为组合式API
+
+## 3.6.46（2026-01-05）
+improvment: loading-page组建示例改为组合式API
+
+## 3.6.45（2026-01-05）
+improvment: loading-icon组件示例改为组合式API
+
+## 3.6.44（2026-01-05）
+improvment: link组件示例改为组合式API
+
+## 3.6.43（2026-01-05）
+improvment: line组件示例改为组合式API
+
+## 3.6.42（2026-01-04）
+improvment: layzload组件示例改为组合式API
+
+## 3.6.41（2026-01-04）
+fix: 修复select组件缺少mixin
+
+## 3.6.40（2026-01-04）
+improvment: 去除ReadmeQQ群链接
+
+## 3.6.39（2026-01-04）
+improvment: image组件示例改为组合式API
+
+## 3.6.38（2026-01-03）
+improvment:  icon示例改为组合式API
+
+## 3.6.37（2025-12-31）
+improvment: 静态资源修复
+
+## 3.6.36（2025-12-30）
+improvment: grid示例改为组合式API
+
+## 3.6.35（2025-12-25）
+fix: 修复grid布局由于内容溢出导致形变
+
+## 3.6.34（2025-12-24）
+fix: modal组件asyncCloseTip多语言key未对应
+
+## 3.6.33（2025-12-23）
+fix: 提升$parent方法兼容性修复表单验证失效
+
+## 3.6.32（2025-12-21）
+improvment: 优化slider、search、steps等组件细节
+
+## 3.6.31（2025-12-19）
+improvment: 优化search组件等
+
+## 3.6.30（2025-12-19）
+improvment:  优化完善部分文件注释
+
+## 3.6.29（2025-12-18）
+fix: 修复语法错
+## 3.6.28（2025-12-18）
+fix: 优化$parent方法兼容性
+
+## 3.6.27（2025-12-17）
+add: datetimepicker增加maskClass和maskStyle属性
+
+## 3.6.26（2025-12-16）
+add: picker增加maskClass/maskStyle属性
+
+## 3.6.25（2025-12-15）
+fix: 修复cascader对列表数据层级差异的兼容问题
+
+## 3.6.24（2025-12-14）
+fix: 修复将empty组件的mode设置为wifi后图标不能显示的问题 #928
+
+## 3.6.23（2025-12-13）
+fix: 修复cascader已选中三级菜单后再选择二级菜单时tabs报错问题
+
+## 3.6.22（2025-12-12）
+fix: dragsort组件拖动抖动的问题
+
+## 3.6.21（2025-12-09）
+ fix: form-item初始化时机优化
+
+## 3.6.20（2025-12-08）
+improvment: 优化form组件语法普适性
+
+## 3.6.19（2025-12-01）
+fix: 修复商品SKU组件i18n
+
+fix: Choose组件会有width警告提示 #915
+
+## 3.6.18（2025-11-30）
+feature: upload组件file模式支持微信小程序chooseMessageFile的extension属性 #913
+
+## 3.6.17（2025-11-18）
+add: picker-data支持表单验证
+
+## 3.6.16（2025-11-18）
+improvment: 优化下拉菜单示例
+
+## 3.6.15（2025-11-10）
+fix: 修复tabs添加activeStyle切换后滑块无法居中
+
+## 3.6.14（2025-11-07）
+fix: 修复引用拼写
+
+## 3.6.13（2025-11-06）
+improvment: 组合式API升级之gap示例改造
+
+## 3.6.12（2025-11-05）
+improvment: empty示例改为组合式API
+
+## 3.6.11（2025-11-05）
+improvment: divider示例改为组合式API
+
+## 3.6.10（2025-11-04）
+improvment: checkbox示例改为组合式API
+
+## 3.6.9（2025-10-21）
+improvment: cell示例改为组合式API
+
+## 3.6.8（2025-10-20）
+imporvment: button示例改为组合式API
+
+## 3.6.7（2025-10-17）
+fix: 优化picker当前列判断
+
+## 3.6.6（2025-10-13）
+fix: 修复getWindowInfo微信小程序下报警告
+
+## 3.6.5（2025-10-11）
+🐛fix: 修复picker双向绑定 #753
+
+## 3.6.4（2025-10-09）
+🐛fix: import rpx2px function and add to exports in index.js
+
+## 3.6.3（2025-10-09）
+fix: 修复getWindowInfo微信小程序下报警告
+
+## 3.6.2（2025-10-05）
+fix: 修复picker双向绑定 #753
+
+## 3.6.1（2025-10-01）
+fix: 修复poster海报组件微信小程序图片绘制失败
+
+## 3.6.0（2025-09-30）
+fix: 修复parse事件报错及统一事件名称小写
+
+## 3.5.57（2025-09-30）
+improvment: 更换部分资源域名提升访问速度
+
+## 3.5.56（2025-09-29）
+fix: 修复picker和datetime-picker在部分原生渲染时hasInput触发键盘弹起
+
+## 3.5.55（2025-09-29）
+feat: waterfall新增after-add-one和after-add-all事件
+
+## 3.5.54（2025-09-25）
+🐞 fix: 解决索引列表初始化时获取不到高度导致的字母列表异常
+
+## 3.5.53（2025-09-19）
+improvment: back-top示例组合式API改造
+
+## 3.5.52（2025-09-19）
+fix: 优化tabbar的borderColor优先级
+
+## 3.5.51（2025-09-19）
+fix: 微信小程序下u-transition包裹的内容因为没有默认flex column而出现布局错误
+
+## 3.5.50（2025-09-18）
+fix: 修复tabbar组件borderColor类型
+
+## 3.5.49（2025-09-18）
+fix: 修复action-sheet列表中第一个item的hover style
+
+## 3.5.48（2025-09-17）
+fix: 修复table2的fixedHeader参数生效
+
+## 3.5.47（2025-09-16）
+fix: 修复modelValue类型
+
+## 3.5.46（2025-09-15）
+feat: table2新增支持span-method合并单元格
+
+## 3.5.45（2025-09-13）
+fix: 修复数据分配时未等待获取元素后再执行下一次循环导致数据插入错误，addTime属性未使用修改。
+
+## 3.5.44（2025-09-12）
+fix: 单选快捷组件作为受控组件，当modelValue清除选择时，组件状态未被清除。
+
+## 3.5.43（2025-09-10）
+fix: 增加subsection兼容性索引转为数字
+
+## 3.5.42（2025-09-09）
+feat: index-list增加下边距高度
+
+## 3.5.41（2025-09-08）
+fix: 修复cascader方法引用位置
+
+## 3.5.40（2025-09-08）
+feat: goods-sku组件支持多语言
+
+## 3.5.39（2025-09-07）
+fix: 修复cascader多语言问题
+
+## 3.5.38（2025-09-07）
+improvment: 完善演示图标
+
+## 3.5.37（2025-09-05）
+feat: cascader支持多语言
+
+## 3.5.36（2025-09-04）
+improvment: 补充图标
+
+## 3.5.35（2025-09-04）
+feat: cascader级联组件增加垂直头部与单列选项支持
+
+## 3.5.34（2025-09-03）
+improvement: 优化steps-item
+
+## 3.5.33（2025-09-02）
+升级uni-app至最新版
+## 3.5.32（2025-09-01）
+feat: cate-tab支持非联动跟随的单一切换模式
+
+feat: choose组件示例使用cate-tab的单一切换模式
+
+
+## 3.5.31（2025-09-01）
+feat: 新增choose通用选项选择器组件
+
+## 3.5.30（2025-08-31）
+fix: 修复缺失cascader级联选择器
+
+## 3.5.29（2025-08-30）
+feat: 新增cascader级联选择器
+
+## 3.5.28（2025-08-29）
+feat: 多语言增加泰语
+
+## 3.5.27（2025-08-29）
+feat: 新增基于tooltip的popover组件
+
+## 3.5.26（2025-08-29）
+improvment: 增强多语言兼容性
+
+## 3.5.25（2025-08-28）
+fix: 修复左侧与右侧弹出时页面打开闪现问题
+
+## 3.5.24（2025-08-28）
+feat: 优化tooltip弹窗定位
+
+feat: tooltip组件新增forcePosition支持强制精确定位
+
+## 3.5.23（2025-08-28）
+improvment: 调整pdf阅读器默认高度
+
+## 3.5.22（2025-08-28）
+feat: 新增goods-sku商品SKU选购组件
+
+## 3.5.21（2025-08-27）
+fix: 修复popup组件手势控制参数注释
+
+## 3.5.20（2025-08-27）
+improvement: 提升checkbox条件编译兼容性
+
+## 3.5.19（2025-08-27）
+feat: popup新增iOS风格手势控制上下高度及下滑关闭
+
+## 3.5.18（2025-08-26）
+feat: 新增coupon优惠券组件
+
+## 3.5.17（2025-08-26）
+fix: 分支合并冲突修复
+
+feat: picker-data组件新增cancel/close/confirm事件支持
+
+## 3.5.16（2025-08-26）
+feat: tabbar新增支持中间凸起按钮
+
+## 3.5.15（2025-08-25）
+feat: 之前的color-picker颜色选择器按计划上线
+
+## 3.5.14（2025-08-25）
+feat: 新增PDF阅读器组件
+
+## 3.5.13（2025-08-24）
+fix: 修复短视频示例https
+
+## 3.5.12（2025-08-23）
+feat: short-video短视频组件增加视频播放示例
+
+## 3.5.11（2025-08-23）
+feat: 新增short-video短视频切换组件
+
+feat: tabbar支持backgroundColor和borderColor属性
+
+feat: slider支持innerStyle样式属性
+
+## 3.5.10（2025-08-22）
+feat: 新增poster海报生成组件
+
+
+## 3.5.9（2025-08-22）
+feat: 优化qrcode组件支持toTempFilePath方法
+
+## 3.5.8（2025-08-22）
+fix: 优化rpx下calendar高度计算强制px
+
+## 3.5.7（2025-08-22）
+feat: input和search新增onlyClearableOnFocused参数支持控制是否仅聚焦时显示清除按钮
+
+## 3.5.6（2025-08-21）
+feat: picker弹窗及datetime-picker组件支持页面内模式
+
+## 3.5.5（2025-08-21）
+feat: popup弹窗及canlendar组件支持页面内插入无弹窗模式
+
+## 3.5.4（2025-08-21）
+feat: popup弹窗及canlendar组件支持页面内插入无弹窗模式
+
+## 3.5.3（2025-08-21）
+fix: 修复下拉刷新多语言key
+
+## 3.5.2（2025-08-20）
+fix: 修复非cli模式下引入的三方库报An error occurred while trying to read the map file错误
+
+fix: 去除i18n多语言多余console
+
+## 3.5.1（2025-08-20）
+feat: calendar组件月份标题自动适配多语言
+
+## 3.5.0（2025-08-20）
+feat: 组件库新增多语言支持且无侵入无依赖内置八种语言
+
+## 3.4.107（2025-08-20）
+feat: input组件支持密码显示切换
+
+## 3.4.106（2025-08-20）
+feat: tooltip组件支持左右方向弹窗
+
+## 3.4.105（2025-08-19）
+feat: 增加markdown解析器组件AI对话流式响应示例
+
+## 3.4.104（2025-08-19）
+feat: tooltip支持自定义触发器
+
+feat: tooltip支持插槽自定义内容
+
+feat: tooltip支持单击触发
+
+feat: tooltip支持设置弹窗背景色
+
+## 3.4.103（2025-08-19）
+feat: 内置一份dayjs库
+
+fix: 删除个别组件多余重复方法
+
+fix: 修复marked库App打包时报错
+
+## 3.4.102（2025-08-19）
+fix: 小程序下cate-tab动态加载数据后尺寸获取及联动异常
+
+## 3.4.101（2025-08-18）
+improvment: 增加一些涉及触摸组件PC端需要仿真模式提示
+
+## 3.4.100（2025-08-18）
+feat: 新增markdown解析器组件
+
+## 3.4.99（2025-08-18）
+fix: 修复parse富文本组件可能导致无限循环的问题
+
+## 3.4.98（2025-08-17）
+feat: alert组件新增transitionMode/icon/duration/modelValue等参数
+
+improvment:  完善alert组件注释
+
+## 3.4.97（2025-08-16）
+improvment: 完善album组件注释
+
+## 3.4.96（2025-08-16）
+improvment: 完善action-sheet注释
+
+## 3.4.95（2025-08-16）
+del: 去除不再需要的重复组件
+
+## 3.4.94（2025-08-15）
+improvment: 组件库内部icon前缀统一
+
+## 3.4.93（2025-08-15）
+fix: 修复dropdown组件在打开下拉菜单时content高度为NANpx的问题
+
+## 3.4.92（2025-08-14）
+fix: 修复多余空格导致cropper编译出错 #830
+
+## 3.4.91（2025-08-14）
+feat: 新增agreement弹窗协议组件
+
+## 3.4.90（2025-08-13）
+feat: datetimepicker新增datehour类型
+
+## 3.4.89（2025-08-13）
+fix: 修复u-form-item组件缺少对labelPosition的判断
+
+## 3.4.88（2025-08-13）
+fix: subsection组件的disabled属性应为Boolean类型
+
+## 3.4.87（2025-08-12）
+improvment: 签名组件示例前缀改为up
+
+## 3.4.86（2025-08-12）
+feat: 新增signature签名签字组件
+
+## 3.4.85（2025-08-11）
+feat: 完善图片裁剪功能支持props及JS两种方式
+
+fix: 修复H5下裁剪后图片黑屏
+
+## 3.4.84（2025-08-11）
+feat: 新增cropper图片裁剪组件
+
+## 3.4.83（2025-08-11）
+feat: 新增barcode无三方依赖条码组
+
+## 3.4.82（2025-08-11）
+improvment: 优化table2递归组件逻辑
+
+feat: 支持树状列表复选框
+
+## 3.4.81（2025-08-10）
+feat: table2新增树状结构递归支持
+
+## 3.4.80（2025-08-10）
+feat: 新增table2固定列对树状支持
+
+## 3.4.79（2025-08-09）
+feat: table2组件支持左侧固定列功能
+
+## 3.4.78（2025-08-09）
+fix: 修复table2在popup弹窗中无法横向滚动
+
+## 3.4.77（2025-08-08）
+feat: 优化waterfall瀑布流组件逻辑
+
+feat: waterfall瀑布流组件支持多列
+
+feat: waterfall瀑布流组件支持响应式列数
+
+## 3.4.76（2025-08-08）
+feat: 取消props中tabs组件默认颜色影响主题色生效
+
+fix: 修复parse富文本组件报错$options
+
+feat: timeFormat时间格式化方法支持UTC格式时间 #596
+
+## 3.4.75（2025-08-07）
+feat: 新增loadFontOnce参数控制是否全局只加载一次字体图标
+
+## 3.4.74（2025-08-07）
+feat: input组件新增cursorColor属性
+
+## 3.4.73（2025-08-05）
+improvment: 优化下拉刷新默认图标
+
+## 3.4.72（2025-08-05）
+improvment: 优化virtual-list虚拟列表样式
+
+feat: 新增virtual-list虚拟列表演示
+
+## 3.4.71（2025-08-05）
+feat: 新增virtual-list虚拟列表组件
+
+feat: 新增pull-refresh下拉刷新结合虚拟列表使用
+
+## 3.4.70（2025-08-05）
+fix: 修复qrcode组件长按事件传入错误cid导致的报错
+
+fix: 修复index-list组件key为undefined导致的索引报错消失
+
+## 3.4.69（2025-08-04）
+feat: pull-refresh下拉刷新新增上拉加载特性
+
+## 3.4.68（2025-08-03）
+feat: 新增pull-refresh下拉刷新组件
+
+## 3.4.67（2025-08-02）
+feat: number-box支持disabledBgColor参数
+
+## 3.4.66（2025-08-01）
+improvment: 增加组件图标
+
+feat: table2组件新增列排序插槽
+
+fix: 分段器组件onWindowResize使用条件编译
+
+fix: 修复u-line-1单行省略样式
+
+## 3.4.65（2025-07-26）
+fix: 修复部分环境下字体图标全局加载问题
+
+## 3.4.64（2025-07-25）
+feat: 新增dragsort拖动排序组件
+
+## 3.4.63（2025-07-24）
+feat: count-down支持slot传递时间参数
+
+## 3.4.62（2025-07-24）
+feat: divider支持默认插槽
+
+## 3.4.61（2025-07-24）
+feat: divider支持默认插槽
+
+## 3.4.60（2025-07-23）
+fix: 修复use阶段全局加载图标引起App端不明$page报错
+
+## 3.4.59（2025-07-23）
+fix: 修复album组件和CateTab组件watch和emits重复
+
+fix: 修复样式优先级导致form表单labelPosition属性top失效
+
+## 3.4.58（2025-07-22）
+fix: 修复样式优先级影响grid宫格组件布局
+
+## 3.4.57（2025-07-22）
+feat: 新增title标题组件
+
+## 3.4.56（2025-07-21）
+fix: 去除多余hotCity参数
+
+## 3.4.55（2025-07-21）
+feat: 新增city-locate城市定位选择组件
+
+feat: 优化index-list组件索引
+
+## 3.4.54（2025-07-18）
+feat: dropdown组件的highlight方法支持同时高亮多个菜单项
+
+feat: 支持一次性全局加载icon字体
+
+## 3.4.53（2025-07-18）
+feat: dropdown组件的highlight方法支持同时高亮多个菜单项 感谢@keeplearning66
+
+## 3.4.52（2025-07-16）
+fix: 修复底部安全区域组件兼容性
+
+## 3.4.51（2025-07-14）
+fix: 修复u-slider在click后没有触发change事件
+
+## 3.4.50（2025-07-13）
+feat: subsection分段器添加禁用参数
+
+## 3.4.49（2025-07-11）
+feat: picker支持bgColor、round、duration和overlayOpacity属性
+
+## 3.4.48（2025-07-10）
+fix: 官方文档Card示例组件多行显示省略号样式异常
+
+feat: album组件支持自定义preview事件
+
+## 3.4.47（2025-07-09）
+fix: 修复datetime-picker打开时，数值可能出现对不上的问题
+
+feat: Subsection 分段器添加支持从 list中读取激活文字颜色和未激活文字颜色
+
+fix: 修复modal定义confirmButton
+
+fix: safe-bottom底部安全距离在小程序优先用JS计算
+
+feat: 新增tree树形组件
+
+## 3.4.46（2025-07-08）
+feat: 上传组件预览视频支持videoPreviewObjectFit参数
+
+feat: td增加多个样式props
+
+fix: 修复noticeBar字号增大时文字遮挡
+
+feat: 项目工程增加pinia
+
+## 3.4.45（2025-07-01）
+fix: 修复picker-data组件缺少name
+
+fix: 优化picker高度单位
+
+## 3.4.44（2025-06-30）
+fix: 修复indexList中stikcy属性写死的问题(always true)
+
+feat: 搜索框添加新的右侧插槽
+
+fix: 修复indexList中丢失的select event
+
+fix: 解决因为层级问题导致点击picker选择器无法正常弹出
+
+## 3.4.43（2025-06-16）
+feat: table2支持header插槽
+
+## 3.4.42（2025-06-12）
+fix: 修复qrcode中默认id问题及canvas2时App无法绘制二维码 感谢@jiaruiyan
+
+## 3.4.41（2025-06-11）
+feat: qrcode支持 新参数useRootHeightAndWidth 是否使用根节点的宽高 感谢@YJR
+
+feat: toast支持设置zIndex层级
+
+
+
+## 3.4.40（2025-06-06）
+fix: 升级二维码 canvas -> canvas2 感谢@yjr
+
+## 3.4.39（2025-05-31）
+fix: 修改步骤条微信小程序下的布局 感谢@jiaruiyan
+
+fix: u-tabs在屏幕尺寸发生变化时滑块位置没有发生变化 感谢@aqzhft
+
+fix: 鸿蒙平台不支持plus.runtime.openWeb 感谢@aqzhft
+
+## 3.4.38（2025-05-30）
+fix: 修复picker-data快捷组件缺少index
+
+fix: 修复picker组件双向绑定初始化及取消后复原再次打开后的当前项目
+
+## 3.4.37（2025-05-29）
+feat: modal支持设置动画时间
+
+fix: DatetimePicker v-model 绑定异步设置无效 (#803)
+
+## 3.4.36（2025-05-28）
+fix: lazy-load图片为空时显示错误
+
+## 3.4.35（2025-05-28）
+feat: 进度条支持从右往左加载
+
+## 3.4.34（2025-05-28）
+feat: table2支持自定义标题和单元格样式
+
+## 3.4.33（2025-05-27）
+fix: 修复小程序cate-tab第一次切换时没反应 感谢@jiaruiyan
+
+fix: 修复datetimepicker传入空字符串时导致组件崩溃 感谢@jiaruiyan
+
+fix: 修复album带单位的字符串参与计算导致的计算数据错误 感谢@jiaruiyan
+
+## 3.4.32（2025-05-26）
+feat: 增加状态栏独立颜色配置支持支付宝小程序状态栏对背景色识别的不友好的情况
+
+fix: 抖音二维码兼容修复
+
+feat: cate-tab组件增加rightTop插槽 #715
+
+fix: 修改 test.promise(res) 预期结果不一致
+
+## 3.4.31（2025-05-17）
+fix: 修复parse富文本组件导致鸿蒙运行白屏
+
+fix: 去除演示项目中uni.$u用法便于兼容鸿蒙
+
+feat: modal新增popupBottom插槽适用类似关闭按钮与内容区域分离的场景
+
+## 3.4.30（2025-05-16）
+feat: 新增pagination分页器组件
+
+feat: popup新增bottom插槽适用类似关闭按钮与内容区域分离的场景
+
+## 3.4.29（2025-05-15）
+fix: 修复table2横向滚动样式
+
+fix: 修复table2组件宽度兼容
+
+fix: 修复image显示png图片时默认背景色问题
+
+feat: cate-tab新增height参数便于设置组件高度
+
+feat: 在index.js种导出digit.js便于使用
+
+fix: 修复tag组件缺失iconColor属性
+
+fix: 优化index-list的setValueForTouch方法逻辑 #708
+
+feat: number-box支持change事件返回变动是点击了增加还是减少按钮
+
+fix: 修复table2在小程序下部分情形不显示表格
+
+## 3.4.28（2025-05-12）
+feat: 新增table表格组件
+
+feat: 新增element-plus风格的table2组件
+
+## 3.4.27（2025-05-06）
+fix: 修复card组件props
+
+## 3.4.26（2025-05-06）
+fix: 修复test工具引入
+
+feat: card组件支持全局设置props默认值
+
+fix: 修复image在加载错误情况下高度和宽度不正确问题
+
+fix: 修复picker-data快捷组件默认picker选中
+
+fix: 修复日历month子组件缺失emits定义
+
+## 3.4.25（2025-04-27）
+fix: up-form编译在微信小程序里样式缺失 #640
+
+fix: number-box输入为空时自动设为最小值
+
+feat: picker与datetimepicke组件hasInput模式支持inputProps属性
+
+## 3.4.24（2025-04-25）
+fix: 修复upload上传逻辑(感谢@semdy)
+
+## 3.4.23（2025-04-24）
+chore: 补全chooseFile TS类型(感谢@semdy)
+
+feat: u-search组件的图标支持显示在右边(感谢@semdy)
+
+chore: 修正chooseFile返回的数据TS类型(感谢@semdy)
+
+fix: PR导致缺失name影响uplad自动上传扩展名
+
+
+## 3.4.22（2025-04-22）
+fix: 修复自动上传偶发的success被覆盖为uploading
+
+fix: float-button缺少key #677
+
+fix: upload组件完善优化(感谢@semdy)
+
+fix: toolbar组件confirmColor属性默认改为空，以便默认使用主题色、标题字体加粗(感谢@semdy)
+
+## 3.4.21（2025-04-21）
+feat: subsection分段器支持双向绑定current
+
+feat: select组件支持maxHeight属性
+
+feat: datetime-picker支持inputBorder属性
+
+## 3.4.20（2025-04-17）
+fix: 修复navbar-mini提示border不存在
+
+feat: status-bar支持对外暴露状态栏高度值
+
+feat: upload支持自定义自动上传后处理逻辑便于对接不同规范后端
+
+feat: 优化tag组件插槽
+
+
+## 3.4.19（2025-04-14）
+fix: 修复model组件增加contentStyle带来的语法问题
+
+## 3.4.18（2025-04-14）
+fix: upload组件支持所有文件类型的onClickPreview事件
+
+## 3.4.17（2025-04-11）
+feat: select组件text插槽增加scope传递currentLabel
+
+## 3.4.16（2025-04-10）
+fix: 修复安卓新加载字体方式导致Cannot read property '$page' of undefined
+
+## 3.4.15（2025-04-10）
+improvment: 优化移步加载数据时swiper组件displayMultipleItems报错
+
+feat: modal增加contentStyle属性
+
+fix: 修复下拉菜单收起动画缺失
+
+fix: 修复sticky的offset属性值为响应式数据时失效 #237
+
+
+## 3.4.14（2025-04-09）
+feat: 支持自托管内置图标及扩展自定义图标
+
+## 3.4.13（2025-04-08）
+fix: tabs点击当前tab触发change事件
+
+## 3.4.12（2025-04-02）
+fix: dropdown关闭后遮挡页面内容 #653
+
+fix u-sticky.vue Uncaught TypeError: e.querySelector is not a function at uni-app-view.umd.js
+
+## 3.4.11（2025-03-31）
+fix: 优化upload组件预览视频的弹窗占位
+
+## 3.4.10（2025-03-28）
+feat: select组件新增多个props属性及优化
+
+fix: 修复cate-tab报错index is not defined #661
+
+
+## 3.4.9（2025-03-27）
+fix: 修复upload组件split报错
+
+fix: 修复float-button缺少flex样式
+
+## 3.4.8（2025-03-27）
+fix: 修复upload组件split报错
+
+fix: 移除mapState
+
+## 3.4.7（2025-03-26）
+fix: 修复action-sheet-data和picker-data数据回显
+
+fix:  优化upload组件视频封面兼容
+
+## 3.4.6（2025-03-25）
+feat: checkbox触发change时携带name参数
+
+feat: upload组件支持服务器本机和阿里云OSS自动上传功能及上传进度条
+
+feat: upload组件支持视频预览及oss上传时获取视频封面图
+
+feat: 新增up-action-sheet-data快捷组件
+
+feat: 新增up-picker-data快捷组件
+
+## 3.4.5（2025-03-24）
+feat: tag组件新增textSize/height/padding/borderRadius属性
+
+feat: 新增genLightColor自动计算浅色方法及tag组件支持autoBgColor自动计算背景色
+
+## 3.4.4（2025-03-13）
+feat: modal增加异步操作进行中点击取消弹出提示特性防止操作被中断
+
+fix: 修复toast组件show方法类型声明
+
+## 3.4.3（2025-03-12）
+fix: 修复textarea自动增高时在输入时高度异常
+
+## 3.4.2（2025-03-11）
+feat: step组件增加title插槽及增加辅助class便于自定义样式
+
+## 3.4.1（2025-03-11）
+feat: 新机制确保setConfig与http在nvue等环境下生效
+
+## 3.3.74（2025-03-06）
+fix: CateTab语法问题
+
+## 3.3.73（2025-03-06）
+feat: CateTab新增v-model:current属性
+
+## 3.3.72（2025-02-28）
+feat: tabs组件支持icon图标及插槽
+
+## 3.3.71（2025-02-27）
+feat: 折叠面板collapse增加titileStyle/iconStyle/rightIconStyle属性
+
+feat: 折叠面板组件新增cellCustomStyle/cellCustomClass属性
+
+fix: select组件盒模型
+
+## 3.3.70（2025-02-24）
+fix: 修改u-checkbox-group组件changes事件发生位置
+
+## 3.3.69（2025-02-19）
+picker允许传递禁用颜色props
+
+slider组件isRange状态下增加min max插槽分开显示内容
+
+feat: 新增经典下拉框组件up-select
+
+## 3.3.68（2025-02-12）
+fix: 修复weekText类型
+
+feat: 日历增加单选与多选指定禁止选中的日期功能
+
+fix: NumberBox删除数字时取值有误 #613
+
+## 3.3.67（2025-02-11）
+feat: navbar支持返回全局拦截器配置
+
+feat: 表单-校验-支持无提示-得到校验结果
+
+feat: picker传递hasInput属性时候，可以禁用输入框点击
+
+## 3.3.66（2025-02-09）
+feat: steps-item增加content插槽
+
+## 3.3.65（2025-02-05）
+feat: number-box组件新增按钮圆角/按钮宽度/数据框背景色/迷你模式
+## 3.3.64（2025-01-18）
+feat: 日历组件支持自定义星期文案
+
+## 3.3.63（2025-01-13）
+fix: cate-tab支持支付宝小程序
+
+fix: textarea 修复 placeholder-style
+
+fix: 修复在图片加载及加载失败时容器宽度
+
+fix: waterfall组件报错Maximum recursive updates
+
+## 3.3.62（2025-01-10）
+feat: sleder滑动选择器双滑块增加外层触发值的变动功能
+
+fix: picker支持hasInput优化
+
+## 3.3.61（2024-12-31）
+fix: 修复微信getSystemInfoSync接口废弃警告
+
+fix: 'u-status-bar' symbol missing
+
+## 3.3.60（2024-12-30）
+feat: 日期组件支持禁用
+
+fix: ts定义修复 #600
+
+feat: Tabs组件选中时增加一个active的class #595
+
+## 3.3.59（2024-12-30）
+fix: Property "isH5" was accessed during render
+
+## 3.3.58（2024-12-26）
+fix: slider组件change事件传参
+
+## 3.3.57（2024-12-23）
+fix: slider组件change事件传参
+
+feat: 更新u-picker组件增加当前选中class类名
+
+## 3.3.56（2024-12-18）
+feat: 在u-alert组件中添加关闭事件
+
+## 3.3.55（2024-12-17）
+add: swiper增加双向绑定
+
+## 3.3.54（2024-12-11）
+add: qrcode支持props控制是否开启点击预览
+
+add: 新增cate-tab垂直分类组件
+
+## 3.3.53（2024-12-10）
+fix: 修复popup居中模式点击内容区域触发关闭
+
+## 3.3.52（2024-12-09）
+add: notice-bar支持justifyContent属性
+
+## 3.3.51（2024-12-09）
+add: radio增加label插槽
+
+## 3.3.50（2024-12-05）
+fix: 优化popup等对禁止背景滚动机制
+
+add: slider在弹窗使用示例
+
+fix: card组件类名问题
+
+## 3.3.49（2024-12-02）
+fix: 去除album多余的$u引用
+
+fix: 优化图片组件兼容性
+
+add: picker组件增加zIndex属性
+
+add: text增加是否占满剩余空间属性
+
+add: input颜色示例
+
+## 3.3.48（2024-11-29）
+add: 文本行数限制样式提高到10行
+
+del: 去除不跨端的inputmode
+## 3.3.47（2024-11-28）
+fix: 时间选择器在hasInput模式下部分机型键盘弹出
+
+## 3.3.46（2024-11-26）
+fix: 修复text传递事件参数
+
+## 3.3.45（2024-11-24）
+add: navbar组件支持配置标题颜色
+
+fix: 边框按钮警告类型下颜色变量使用错误
+
+## 3.3.43（2024-11-18）
+fix: 支持瀑布流组件v-model置为[]
+
+add: 新增字符串路径访问工具方法getValueByPath
+
+add: 新增float-button悬浮按钮组件
+
+## 3.3.42（2024-11-15）
+add: button组件支持stop参数阻止冒泡
+
+## 3.3.41（2024-11-13）
+fix: u-radio-group invalid import
+
+improvement: 优化图片组件宽高及修复事件event传递
+
+## 3.3.40（2024-11-11）
+add: 组件radioGroup增加gap属性用于设置item间隔 
+
+fix: 修复H5全局导入
+
+## 3.3.39（2024-11-04）
+fix: 修复相册组件
+
+## 3.3.38（2024-11-04）
+fix: 修复视频预览报错 #510
+
+add: album组件增加stop参数支持阻止事件冒泡
+
+## 3.3.37（2024-10-21）
+fix: 修复因为修改组件名称前缀，导致h5打包后$parent方法内找不到父组件的问题
+
+fix: 修复datetime-picker选择2000年以前日期出错
+
+## 3.3.36（2024-10-09）
+fix: toast 自动关闭
+
+feat: 增加微信小程序用户昵称审核完毕回调及修改 ts 定义文件
+
+## 3.3.35（2024-10-08）
+feat: modal和picker支持v-model:show双向绑定
+
+feat: 支持checkbox使用slot自定义label后自带点击事件 #522
+
+feat: swipe-action支持自动关闭特性及初始化打开状态
+
+## 3.3.34（2024-09-23）
+feat: 支持toast设置duration值为-1时不自动关闭
+
+## 3.3.33（2024-09-18）
+fix: 修复test.date('008')等验证结果不准确
+
+## 3.3.32（2024-09-09）
+fix: u-keyboard名称冲突warning
+
+## 3.3.31（2024-08-31）
+feat: qrcode初步支持nvue
+
+## 3.3.30（2024-08-30）
+fix: slider兼容step为字符串类型
+
+## 3.3.29（2024-08-30）
+fix: 修复tabs组件current参数为字符串处理逻辑
+
+## 3.3.28（2024-08-26）
+fix: list组件滑动偏移量不一样取绝对值导致iOS下拉偏移量计算错误
+
+## 3.3.27（2024-08-22）
+fix: 修复up-datetime-picker组件toolbarRightSlot定义缺失
+
+fix: 修复FormItem的rules更新错误的问题
+
+## 3.3.26（2024-08-22）
+fix: 批量注册全局组件优化
+
+## 3.3.25（2024-08-21）
+fix: 修复slider在app-vue下样式问题
+
+## 3.3.24（2024-08-19）
+fix: 修复时间选择器hasInput模式小程序不生效
+
+feat: 支持H5导入所有组件
+
+## 3.3.23（2024-08-17）
+feat: swipe-action增加closeAll方法
+
+fix: 兼容tabs在某些场景下index小于0时自动设置为0
+
+add: 通用mixin新增navTo页面跳转方法
+
+## 3.3.21（2024-08-15）
+improvement: 优化二维码组件loading及支持预览与长按事件 #351
+
+fix: 修复swipe-action自动关闭其它功能及组件卸载自动关闭
+
+## 3.3.20（2024-08-15）
+refactor: props默认值文件移至组件文件夹内便于查找
+## 3.3.19（2024-08-14）
+fix: 修复2被rpx兼容处理只在数字值生效
+
+add: 增加swiper自定义插槽示例
+
+## 3.3.18（2024-08-13）
+feat: 新增支持datetime-picker工具栏插槽及picker插槽支持修复
+## 3.3.17（2024-08-12）
+feat: swiper组件增加默认slot便于自定义
+
+feat: grid新增间隔参数
+
+feat: picker新增toolbar-right和toolbar-bottom插槽
+
+## 3.3.16（2024-08-12）
+fix: 解决swiper中title换行后多余的内容未被遮挡问题
+
+fix: 修复迷你导航适配异形屏
+
+## 3.3.15（2024-08-09）
+fix: 修复默认单位设置为rpx时一些组件高度间距异常
+
+fix: 修复日历在rpx单位下布局异常
+
+feat: code-input支持App端展示输入光标
+
+## 3.3.14（2024-08-09）
+add: 增加box组件
+
+add: 增加card卡片组件
+
+
+## 3.3.13（2024-08-08）
+feat: input支持调用原生组件的focus和blur方法
+
+improvement: grid-item条件编译优化
+
+add: 新增迷你导航组件
+
+## 3.3.12（2024-08-06）
+improvement: $u挂载时机调整便于打包分离chunk
+
+fix: steps新增itemStyle属性名称冲突
+
+## 3.3.11（2024-08-05）
+feat: 新增支持upload组件的deletable/maxCount/accept变更监听 #333
+
+feat: 新增支持tabs在swiper中使用
+
+feat: 新增FormItem支持独立设置验证规则rules
+
+fix: 修复index-list未设置$slots.header时索引高亮失效
+
+## 3.3.10（2024-08-02）
+fix: 修复index-list偶发的滑动最后一个索引报错top不存在
+
+fix: 修复gird在QQ、抖音小程序下布局
+
+feat: 优化step支持自定义样式prop
+
+feat: action-sheet组件支持v-model:show双向绑定
+
+fix: 小程序下steps和grid都统一采用grid布局
+
+fix: 修复支付宝小程序下input类型为数字时双向绑定失效
+
+feat : form 表单 validate 校验不通过后 error增加字段prop信息  #304
+
+fix: form组件异步校异常验问题 #393
+
+## 3.3.9（2024-08-01）
+fix: 优化获取nvue元素
+
+feat: modal新增contentTextAlign设置文案对齐方式
+
+fix: 修复NVUE下tabbar文字不显示  #458
+
+feat: loading-page增加zIndex属性
+
+fix: 相册在宽度较小时换行问题
+
+feat: album相册增加自适应自动换行模式
+
+feat: album相册增加图片尺寸单位prop
+
+fix: 修复calendar日历月份居中
+
+## 3.3.8（2024-07-31）
+feat: slider支持进度条任意位置触发按钮拖动
+
+fix: 修复app-vue下modal标题不居中
+
+fix: #459 TS setConfig 声明异常
+
+feat: tabs组件增加longPress长按事件
+
+feat: 新增showRight属性控制collapse右侧图标显隐
+
+fix: 优化nvue下css警告
+
+## 3.3.7（2024-07-29）
+feat: 支持IndexList组件支持在弹窗等场景下使用及联动优化
+
+feat: popup组件支持v-model:show双向绑定
+
+feat: 优化tabs的current双向绑定
+
+fix: checkbox独立使用时checked赋初始值可以，但是手动切换时值没有做双向绑定！ #455
+
+feat: slider组件支持区间双滑块
+
+fix: toast 支持自定义图标？可传入了决对路径的 icon也没有用 #409
+
+feat: form-item校验失败时 增加class方便自定义显示错误的展示方式 #394
+
+fix: up-cell的required配置不生效 #395
+
+fix: 横向滚动组件，微信小程序编译后会有警告 #415
+
+fix: u-picker内部对默认值defaultIndex的监听 #425
+
+feat: toast 组件支持遮掩层穿透  #417
+
+fix: 兼容vue的slot编译bug #423
+
+fix: upload 微信小程序 点击预览视频报错 #424
+
+fix: u-number-box 组件修改【integer, decimalLength, min, max 】props时没有触发绑定值更新 #429
+
+feat: Tabs组件能否支持自定义插槽 #439
+
+feat: ActionSheet 可以配置最大高度吗， 我当做select使用了。 #445
+
+fix: cursor-pointer优化
+
+feat: 新版slider组件兼容NVUE改造
+
+feat: 新增slider组件手动实现以支持样式自定义
+
+perf：补充TS声明提示信息
+
+修复：ActionSheet 操作菜单cancelText属性为空DOM节点还存在并且可以点击问题
+
+fix: 去除预留的beforeDestroy兼容容易在某些sdk下不识别条件编译
+
+## 3.3.6（2024-07-23）
+feat: u-album组件添加radius,shape参数，定义参考当前u-image参数
+
+fix: 修复了calendar组件title和日期title未垂直居中的问题
+
+fix: update:modelValue缺失emit定义
+
 ## 3.3.5（2024-07-10）
 picker组件支持hasInput模式
+
 ## 3.3.4（2024-07-07）
 fix: input组件双向绑定问题 #419
 
@@ -240,3 +2233,7 @@ fix: #261u-input在直接修改v-model的绑定值时，每隔一次会无法出
 增加插件市场地址
 ## 3.0.0（2022-07-09）
 # uview-plus(vue3)初步发布
+## 3.8.39
+
+- feat: tabbar 新增多种风格预设、动态图标切换与轻量选中动画
+- improvment: tabbar 补充高颜值本地图标示例并优化发布型底栏视觉

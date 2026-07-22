@@ -1,8 +1,8 @@
 <template>
-    <view :style="[addStyle(customStyle)]" :class="[customClass]" class="u-cell-group">
+    <view :style="[groupStyle, addStyle(customStyle)]" :class="[customClass]" class="u-cell-group">
         <view v-if="title" class="u-cell-group__title">
             <slot name="title">
-				<text class="u-cell-group__title__text">{{ title }}</text>
+				<text class="u-cell-group__title__text" :style="{ color: upThemeVar('--up-main-color', '#303133') }">{{ title }}</text>
 			</slot>
         </view>
         <view class="u-cell-group__wrapper">
@@ -32,6 +32,14 @@
 	export default {
 		name: 'u-cell-group',
 		mixins: [mpMixin, mixin, props],
+		computed: {
+			groupStyle() {
+				const fallbackBg = this.upThemeIsDark ? '#1c1c1e' : '#ffffff'
+				return {
+					backgroundColor: this.upThemeVar('--up-card-bg-color', fallbackBg)
+				}
+			}
+		},
 		methods: {
 			addStyle
 		}
@@ -39,7 +47,6 @@
 </script>
 
 <style lang="scss" scoped>
-	@import "../../libs/css/components.scss";
 	
 	$u-cell-group-title-padding: 16px 16px 8px !default;
 	$u-cell-group-title-font-size: 15px !default;
@@ -64,4 +71,3 @@
 		}
     }
 </style>
-

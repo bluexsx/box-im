@@ -1,0 +1,11 @@
+{
+  "module": {
+    "name": "uni_modules__harmony_sqlite",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ]
+  }
+}

@@ -10,13 +10,19 @@
       <!-- #endif -->
       <!-- #ifndef H5 || (APP-PLUS && VUE2) -->
       <!-- 表格中的图片，使用 rich-text 防止大小不正确 -->
-      <rich-text v-if="n.name==='img'&&n.t" :style="'display:'+n.t" :nodes="'<img class=\'_img\' style=\''+n.attrs.style+'\' src=\''+n.attrs.src+'\'>'" :data-i="i" @tap.stop="imgTap" />
+      <rich-text v-if="n.name==='img'&&n.t" :style="'display:'+n.t" :nodes="[{attrs:{style:n.attrs.style||'',src:n.attrs.src},name:'img'}]" :data-i="i" @tap.stop="imgTap" />
       <!-- #endif -->
-      <!-- #ifndef H5 || APP-PLUS -->
-      <image v-else-if="n.name==='img'" :id="n.attrs.id" :class="'_img '+n.attrs.class" :style="(ctrl[i]===-1?'display:none;':'')+'width:'+(ctrl[i]||1)+'px;height:1px;'+n.attrs.style" :src="n.attrs.src" :mode="!n.h?'widthFix':(!n.w?'heightFix':'')" :lazy-load="opts[0]" :webp="n.webp" :show-menu-by-longpress="opts[3]&&!n.attrs.ignore" :image-menu-prevent="!opts[3]||n.attrs.ignore" :data-i="i" @load="imgLoad" @error="mediaError" @tap.stop="imgTap" @longpress="imgLongTap" />
+      <!-- #ifdef APP-HARMONY -->
+      <image v-else-if="n.name==='img'" :id="n.attrs.id" :class="'_img '+n.attrs.class" :style="(ctrl[i]===-1?'display:none;':'')+'width:'+ctrl[i]+'px;'+n.attrs.style" :src="n.attrs.src||(ctrl.load?n.attrs['data-src']:'')" :mode="!n.h?'widthFix':(!n.w?'heightFix':(n.m||'scaleToFill'))" :data-i="i" @load="imgLoad" @error="mediaError" @tap.stop="imgTap" @longpress="imgLongTap" />
+      <!-- #endif -->
+      <!-- #ifndef H5 || APP-PLUS || MP-KUAISHOU -->
+      <image v-else-if="n.name==='img'" :id="n.attrs.id" :class="'_img '+n.attrs.class" :style="(ctrl[i]===-1?'display:none;':'')+'width:'+(ctrl[i]||1)+'px;height:1px;'+n.attrs.style" :src="n.attrs.src" :mode="!n.h?'widthFix':(!n.w?'heightFix':(n.m||'scaleToFill'))" :lazy-load="opts[0]" :webp="n.webp" :show-menu-by-longpress="opts[3]&&!n.attrs.ignore" :image-menu-prevent="!opts[3]||n.attrs.ignore" :data-i="i" @load="imgLoad" @error="mediaError" @tap.stop="imgTap" @longpress="imgLongTap" />
+      <!-- #endif -->
+      <!-- #ifdef MP-KUAISHOU -->
+      <image v-else-if="n.name==='img'" :id="n.attrs.id" :class="'_img '+n.attrs.class" :style="(ctrl[i]===-1?'display:none;':'')+n.attrs.style" :src="n.attrs.src" :lazy-load="opts[0]" :data-i="i" @load="imgLoad" @error="mediaError" @tap.stop="imgTap"></image>
       <!-- #endif -->
       <!-- #ifdef APP-PLUS && VUE3 -->
-      <image v-else-if="n.name==='img'" :id="n.attrs.id" :class="'_img '+n.attrs.class" :style="(ctrl[i]===-1?'display:none;':'')+'width:'+(ctrl[i]||1)+'px;'+n.attrs.style" :src="n.attrs.src||(ctrl.load?n.attrs['data-src']:'')" :mode="!n.h?'widthFix':(!n.w?'heightFix':'')" :data-i="i" @load="imgLoad" @error="mediaError" @tap.stop="imgTap" @longpress="imgLongTap" />
+      <image v-else-if="n.name==='img'" :id="n.attrs.id" :class="'_img '+n.attrs.class" :style="(ctrl[i]===-1?'display:none;':'')+'width:'+(ctrl[i]||1)+'px;'+n.attrs.style" :src="n.attrs.src||(ctrl.load?n.attrs['data-src']:'')" :mode="!n.h?'widthFix':(!n.w?'heightFix':(n.m||''))" :data-i="i" @load="imgLoad" @error="mediaError" @tap.stop="imgTap" @longpress="imgLongTap" />
       <!-- #endif -->
       <!-- 文本 -->
       <!-- #ifdef MP-WEIXIN -->
@@ -25,14 +31,14 @@
       <!-- #ifndef MP-WEIXIN || MP-BAIDU || MP-ALIPAY || MP-TOUTIAO -->
       <text v-else-if="n.text" decode>{{n.text}}</text>
       <!-- #endif -->
-      <text v-else-if="n.name==='br'">\n</text>
+      <text v-else-if="n.name==='br'">{{'\n'}}</text>
       <!-- 链接 -->
       <view v-else-if="n.name==='a'" :id="n.attrs.id" :class="(n.attrs.href?'_a ':'')+n.attrs.class" hover-class="_hover" :style="'display:inline;'+n.attrs.style" :data-i="i" @tap.stop="linkTap">
         <node name="span" :childs="n.children" :opts="opts" style="display:inherit" />
       </view>
       <!-- 视频 -->
       <!-- #ifdef APP-PLUS -->
-      <view v-else-if="n.html" :id="n.attrs.id" :class="'_video '+n.attrs.class" :style="n.attrs.style" v-html="n.html" @vplay.stop="play" />
+      <view v-else-if="n.html" :id="n.attrs.id" :class="'_video '+n.attrs.class" :style="n.attrs.style" v-html="n.html" :data-i="i" @vplay.stop="play" />
       <!-- #endif -->
       <!-- #ifndef APP-PLUS -->
       <video v-else-if="n.name==='video'" :id="n.attrs.id" :class="n.attrs.class" :style="n.attrs.style" :autoplay="n.attrs.autoplay" :controls="n.attrs.controls" :loop="n.attrs.loop" :muted="n.attrs.muted" :object-fit="n.attrs['object-fit']" :poster="n.attrs.poster" :src="n.src[ctrl[i]||0]" :data-i="i" @play="play" @error="mediaError" />
@@ -61,13 +67,13 @@
           </block>
         </view>
       </view>
-
+      <!-- insert -->
       <!-- 富文本 -->
       <!-- #ifdef H5 || ((MP-WEIXIN || MP-QQ || APP-PLUS || MP-360) && VUE2) -->
       <rich-text v-else-if="!n.c&&!handler.isInline(n.name, n.attrs.style)" :id="n.attrs.id" :style="n.f" :user-select="opts[4]" :nodes="[n]" />
       <!-- #endif -->
       <!-- #ifndef H5 || ((MP-WEIXIN || MP-QQ || APP-PLUS || MP-360) && VUE2) -->
-      <rich-text v-else-if="!n.c" :id="n.attrs.id" :style="n.f+';display:inline'" :preview="false" :selectable="opts[4]" :user-select="opts[4]" :nodes="[n]" />
+      <rich-text v-else-if="!n.c" :id="n.attrs.id" :style="'display:inline;'+n.f" :preview="false" :selectable="opts[4]" :user-select="opts[4]" :nodes="[n]" />
       <!-- #endif -->
       <!-- 继续递归 -->
       <view v-else-if="n.c===2" :id="n.attrs.id" :class="'_block _'+n.name+' '+n.attrs.class" :style="n.f+';'+n.attrs.style">
@@ -106,7 +112,6 @@ module.exports = {
 }
 </script>
 <script>
-
 import node from './node'
 export default {
   name: 'node',
@@ -138,14 +143,14 @@ export default {
     opts: Array
   },
   components: {
-
-    // #ifndef (H5 || APP-PLUS) && VUE3
+    // #ifndef ((H5 || APP-PLUS) && VUE3) || APP-HARMONY
     node
     // #endif
   },
   mounted () {
     this.$nextTick(() => {
-      for (this.root = this.$parent; this.root.$options.name !== 'u-parse'; this.root = this.root.$parent);
+      // 修复可能导致死循环的问题
+      for (this.root = this?.$parent; this.root && this.root?.$options.name !== 'up-parse'; this.root = this.root?.$parent);
     })
     // #ifdef H5 || APP-PLUS
     if (this.opts[0]) {
@@ -175,16 +180,72 @@ export default {
     }
     // #endif
   },
-  methods:{
+  emits: ['linktap', 'imgtap', 'play', 'ready', 'error'],
+  methods: {
     // #ifdef MP-WEIXIN
     toJSON () { return this },
     // #endif
+    /**
+     * @description 规范化链接地址
+     * @param {any} href
+     * @return {String}
+     */
+    normalizeHref (href) {
+      return typeof href === 'string' ? href.trim() : ''
+    },
+
+    /**
+     * @description 判断是否为外部链接
+     * @param {String} href
+     * @return {Boolean}
+     */
+    isExternalLink (href) {
+      return href.split('?')[0].includes('://')
+    },
+
+    /**
+     * @description 打开外部链接
+     * @param {String} href
+     */
+    openExternalLink (href) {
+      // #ifdef H5
+      window.open(href)
+      // #endif
+      // #ifdef MP
+      uni.setClipboardData({
+        data: href,
+        success: () =>
+          uni.showToast({
+            title: '链接已复制'
+          })
+      })
+      // #endif
+      // #ifdef APP-PLUS
+      try {
+        plus.runtime.openWeb(href)
+      } catch (e) { }
+      // #endif
+      // #ifdef APP-HARMONY
+      try {
+        plus.runtime.openURL(href)
+      } catch (e) { }
+      // #endif
+    },
+
     /**
      * @description 播放视频事件
      * @param {Event} e
      */
     play (e) {
-      this.root.$emit('play')
+      const i = e.currentTarget.dataset.i
+      const node = this.childs[i]
+      this.root.$emit('play', {
+        source: node.name,
+        attrs: {
+          ...node.attrs,
+          src: node.src[this.ctrl[i] || 0]
+        }
+      })
       // #ifndef APP-PLUS
       if (this.root.pauseVideo) {
         let flag = false
@@ -227,7 +288,14 @@ export default {
       // #ifdef H5 || APP-PLUS
       node.attrs.src = node.attrs.src || node.attrs['data-src']
       // #endif
-      this.root.$emit('imgTap', node.attrs)
+      // #ifndef APP-HARMONY
+      this.root.$emit('imgtap', node.attrs)
+      // #endif
+      // #ifdef APP-HARMONY
+      this.root.$emit('imgtap', {
+        ...node.attrs
+      })
+      // #endif
       // 自动预览图片
       if (this.root.previewImg) {
         uni.previewImage({
@@ -299,7 +367,7 @@ export default {
      * @description 检查是否所有图片加载完毕
      */
     checkReady () {
-      if (!this.root.lazyLoad) {
+      if (this.root && !this.root.lazyLoad) {
         this.root._unloadimgs -= 1
         if (!this.root._unloadimgs) {
           setTimeout(() => {
@@ -320,32 +388,18 @@ export default {
     linkTap (e) {
       const node = e.currentTarget ? this.childs[e.currentTarget.dataset.i] : {}
       const attrs = node.attrs || e
-      const href = attrs.href
-      this.root.$emit('linkTap', Object.assign({
+      const href = this.normalizeHref(attrs.href)
+      this.root.$emit('linktap', Object.assign({
         innerText: this.root.getText(node.children || []) // 链接内的文本内容
       }, attrs))
       if (href) {
         if (href[0] === '#') {
           // 跳转锚点
           this.root.navigateTo(href.substring(1)).catch(() => { })
-        } else if (href.split('?')[0].includes('://')) {
+        } else if (this.isExternalLink(href)) {
           // 复制外部链接
           if (this.root.copyLink) {
-            // #ifdef H5
-            window.open(href)
-            // #endif
-            // #ifdef MP
-            uni.setClipboardData({
-              data: href,
-              success: () =>
-                uni.showToast({
-                  title: '链接已复制'
-                })
-            })
-            // #endif
-            // #ifdef APP-PLUS
-            plus.runtime.openWeb(href)
-            // #endif
+            this.openExternalLink(href)
           }
         } else {
           // 跳转页面

@@ -1,0 +1,151 @@
+import { dirname, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import process from 'node:process'
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs'
+
+import { createFilter, normalizePath } from 'vite'
+
+import { transformNvuePage, transformPage } from './page.js'
+import { rebuildUpApp, registerUpApp } from './root.js'
+import { loadPagesJson, normalizePlatformPath, toArray } from './utils.js'
+
+const rootLibPath = normalizePath(dirname(fileURLToPath(import.meta.url)))
+
+export default function UniUpRoot(options = {}) {
+  const rootOptions = {
+    enabledVirtualHost: false,
+    enabledGlobalRef: false,
+    rootFileName: 'App.up',
+    autoCreateRootFile: true,
+    excludePages: [],
+    ...options,
+  }
+  const rootFileName = String(rootOptions.rootFileName || 'App.up').replace(/\.vue$/i, '')
+
+  const detectProjectRoot = () => {
+    const cwd = normalizePath(process.env.INIT_CWD || process.cwd())
+    const envInputDir = process.env.UNI_INPUT_DIR ? normalizePath(process.env.UNI_INPUT_DIR) : ''
+    const cliRootPath = normalizePath(resolve(cwd, 'src'))
+    const hbuilderRootPath = cwd
+
+    const isPageRoot = (path) => existsSync(resolve(path, 'pages.json'))
+
+    if (envInputDir && isPageRoot(envInputDir)) {
+      const projectType = envInputDir.endsWith('/src') ? 'cli' : 'hbuilder'
+      return { rootPath: envInputDir, projectType }
+    }
+
+    if (isPageRoot(cliRootPath)) {
+      return { rootPath: cliRootPath, projectType: 'cli' }
+    }
+
+    if (isPageRoot(hbuilderRootPath)) {
+      return { rootPath: hbuilderRootPath, projectType: 'hbuilder' }
+    }
+
+    return {
+      rootPath: envInputDir || cliRootPath,
+      projectType: envInputDir && !envInputDir.endsWith('/src') ? 'hbuilder' : 'cli',
+    }
+  }
+
+  const projectInfo = detectProjectRoot()
+  const rootPath = normalizePath(projectInfo.rootPath)
+  const appUpPath = normalizePath(resolve(rootPath, `${rootFileName}.vue`))
+  const rootToastHostPath = normalizePath(resolve(rootLibPath, 'root-toast-host.vue'))
+  const nvueRootPath = normalizePath(resolve(rootPath, 'uni_modules/uview-plus/libs/root/nvue-root.vue'))
+  const themeRuntimePath = normalizePath(resolve(rootPath, 'uni_modules/uview-plus/libs/theme/runtime.js'))
+  const pagesPath = normalizePath(resolve(rootPath, 'pages.json'))
+  const excludedPaths = toArray(rootOptions.excludePages)
+    .filter(Boolean)
+    .map(path => normalizePath(resolve(rootPath, path)))
+
+  const mainFiles = [
+    normalizePath(resolve(rootPath, 'main.ts')),
+    normalizePath(resolve(rootPath, 'main.js')),
+  ]
+
+  const getRelativeImportPath = (fromFile, toFile) => {
+    let importPath = normalizePath(relative(dirname(fromFile), toFile))
+    if (!importPath.startsWith('.')) {
+      importPath = `./${importPath}`
+    }
+    return importPath
+  }
+
+  let pagesJson = []
+  let pagesJsonMtimeMs = 0
+  let hasPlatformPlugin = false
+
+  const ensureRootFile = () => {
+    if (!rootOptions.autoCreateRootFile) return
+    if (existsSync(appUpPath)) return
+
+    const defaultRootSfc = `<template>
+\t<UpRootView />
+</template>
+`
+
+    mkdirSync(dirname(appUpPath), { recursive: true })
+    writeFileSync(appUpPath, defaultRootSfc, 'utf-8')
+  }
+
+  const refreshPagesJson = () => {
+    if (!existsSync(pagesPath)) return
+    const mtimeMs = statSync(pagesPath).mtimeMs
+    if (mtimeMs === pagesJsonMtimeMs && pagesJson.length) return
+    pagesJson = loadPagesJson(pagesPath, rootPath)
+    pagesJsonMtimeMs = mtimeMs
+  }
+
+  return {
+    name: 'vite-plugin-uni-up-root',
+    enforce: 'pre',
+    configResolved({ plugins }) {
+      hasPlatformPlugin = plugins.some(v => v.name === 'vite-plugin-uni-platform')
+    },
+    buildStart() {
+      ensureRootFile()
+      refreshPagesJson()
+    },
+    async transform(code, id) {
+      let ms = null
+      const isSfcBlock = id.includes('?')
+      const cleanId = normalizePath(id.split('?')[0])
+
+      const filterMain = createFilter(mainFiles)
+      if (filterMain(cleanId)) {
+        ms = await registerUpApp(code, rootFileName, getRelativeImportPath(cleanId, rootToastHostPath))
+      }
+
+      const filterUpRoot = createFilter(appUpPath)
+      if (filterUpRoot(cleanId)) {
+        ms = await rebuildUpApp(code, rootOptions.enabledVirtualHost)
+      }
+
+      refreshPagesJson()
+      const pageId = hasPlatformPlugin ? normalizePlatformPath(cleanId) : cleanId
+      const filterPage = createFilter(pagesJson, excludedPaths)
+      if (!isSfcBlock && filterPage(pageId)) {
+        if (cleanId.endsWith('.nvue')) {
+          ms = await transformNvuePage(
+            code,
+            getRelativeImportPath(cleanId, nvueRootPath),
+            getRelativeImportPath(cleanId, themeRuntimePath),
+            rootOptions.enabledGlobalRef
+          )
+        } else {
+          ms = await transformPage(code, rootOptions.enabledGlobalRef)
+        }
+      }
+
+      if (ms) {
+        return {
+          code: ms.toString(),
+          map: ms.generateMap({ hires: true }),
+        }
+      }
+      return null
+    },
+  }
+}

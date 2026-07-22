@@ -114,7 +114,7 @@ export default {
 		},
 		customNavHeight() {
 			let h = 50;
-			// #ifdef APP-PLUS
+			// #ifdef APP
 			h += uni.getSystemInfoSync().statusBarHeight;
 			// #endif
 			return h;

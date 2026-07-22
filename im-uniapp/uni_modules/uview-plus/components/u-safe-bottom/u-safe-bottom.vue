@@ -11,11 +11,11 @@
 	import { props } from "./props.js";
 	import { mpMixin } from '../../libs/mixin/mpMixin';
 	import { mixin } from '../../libs/mixin/mixin';
-	import { addStyle, deepMerge, addUnit, sys } from '../../libs/function/index';
+	import { addStyle, deepMerge, addUnit, getWindowInfo } from '../../libs/function/index';
 	/**
 	 * SafeBottom 底部安全区
 	 * @description 这个适配，主要是针对IPhone X等一些底部带指示条的机型，指示条的操作区域与页面底部存在重合，容易导致用户误操作，因此我们需要针对这些机型进行底部安全区适配。
-	 * @tutorial https://ijry.github.io/uview-plus/components/safeAreaInset.html
+	 * @tutorial https://uview-plus.jiangruyi.com/components/safeAreaInset.html
 	 * @property {type}		prop_name
 	 * @property {Object}	customStyle	定义需要用到的外部样式
 	 *
@@ -34,15 +34,15 @@
 		computed: {
 			style() {
 				const style = {};
-				// #ifdef APP-NVUE || MP-TOUTIAO
+				// #ifdef APP-NVUE || MP-TOUTIAO || MP-WEIXIN
 				// nvue下，高度使用js计算填充
-				style.height = addUnit(sys().safeAreaInsets.bottom, 'px');
+				style.height = addUnit(getWindowInfo().safeAreaInsets.bottom, 'px');
 				// #endif
 				return deepMerge(style, addStyle(this.customStyle));
 			},
 		},
 		mounted() {
-			// #ifdef APP-NVUE
+			// #ifdef APP-NVUE || MP-TOUTIAO || MP-WEIXIN
 			// 标识为是否nvue
 			this.isNvue = true;
 			// #endif

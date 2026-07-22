@@ -12,8 +12,8 @@
             <i class="el-icon-plus"></i>
           </div>
           <div class="tool-text">邀请</div>
-          <add-group-member ref="addGroupMember" :groupId="group.id" :members="groupMembers"
-            @reload="$emit('reload')"></add-group-member>
+          <group-member-invite ref="groupMemberInvite" :groupId="group.id" :members="groupMembers"
+            @reload="$emit('reload')"></group-member-invite>
         </div>
         <div class="member-tools" v-if="isOwner">
           <div class="tool-btn" title="选择成员移出群聊" @click="onRemove()">
@@ -55,14 +55,14 @@
 </template>
 
 <script>
-import AddGroupMember from '../group/AddGroupMember.vue';
+import GroupMemberInvite from '../group/GroupMemberInvite.vue';
 import GroupMember from '../group/GroupMember.vue';
 import GroupMemberSelector from '../group/GroupMemberSelector.vue';
 
 export default {
   name: "chatGroupSide",
   components: {
-    AddGroupMember,
+    GroupMemberInvite,
     GroupMember,
     GroupMemberSelector
   },
@@ -86,7 +86,7 @@ export default {
       this.$emit('close');
     },
     onInvite() {
-      this.$refs.addGroupMember.open()
+      this.$refs.groupMemberInvite.open()
     },
     onRemove() {
       // 群主不显示

@@ -5,12 +5,12 @@
 		    @tap.stop="clickHandler('minus')"
 		    @touchstart="onTouchStart('minus')"
 		    @touchend.stop="clearTimeout"
-		    v-if="showMinus && $slots.minus"
+		    v-if="showMinus && !hideMinus && $slots.minus"
 		>
 			<slot name="minus" />
 		</view>
 		<view
-		    v-else-if="showMinus"
+		    v-else-if="showMinus && !hideMinus"
 		    class="u-number-box__minus cursor-pointer"
 		    @tap.stop="clickHandler('minus')"
 		    @touchstart="onTouchStart('minus')"
@@ -20,45 +20,47 @@
 		    :class="{ 'u-number-box__minus--disabled': isDisabled('minus') }"
 		    :style="[buttonStyle('minus')]"
 		>
-			<u-icon
+			<up-icon
 			    name="minus"
-			    :color="isDisabled('minus') ? '#c8c9cc' : '#323233'"
+			    :color="isDisabled('minus') ? resolvedDisabledIconColor : resolvedColor"
 			    size="15"
 			    bold
 				:customStyle="iconStyle"
-			></u-icon>
+			></up-icon>
 		</view>
 
-		<slot name="input">
-			<!-- #ifdef MP-WEIXIN -->
-			<input
-			    :disabled="disabledInput || disabled"
-			    :cursor-spacing="getCursorSpacing"
-			    :class="{ 'u-number-box__input--disabled': disabled || disabledInput }"
-			    :value="currentValue"
-			    class="u-number-box__input"
-			    @blur="onBlur"
-			    @focus="onFocus"
-			    @input="onInput"
-			    type="number"
-			    :style="[inputStyle]"
-			/>
-			<!-- #endif -->
-			<!-- #ifndef MP-WEIXIN -->
-			<input
-			    :disabled="disabledInput || disabled"
-			    :cursor-spacing="getCursorSpacing"
-			    :class="{ 'u-number-box__input--disabled': disabled || disabledInput }"
-			    v-model="currentValue"
-			    class="u-number-box__input"
-			    @blur="onBlur"
-			    @focus="onFocus"
-			    @input="onInput"
-			    type="number"
-			    :style="[inputStyle]"
-			/>
-			<!-- #endif -->
-		</slot>
+		<template v-if="!hideMinus">
+			<slot name="input">
+				<!-- #ifdef MP-WEIXIN -->
+				<input
+					:disabled="disabledInput || disabled"
+					:cursor-spacing="getCursorSpacing"
+					:class="{ 'u-number-box__input--disabled': disabled || disabledInput }"
+					:value="currentValue"
+					class="u-number-box__input"
+					@blur="onBlur"
+					@focus="onFocus"
+					@input="onInput"
+					type="number"
+					:style="[inputStyle]"
+				/>
+				<!-- #endif -->
+				<!-- #ifndef MP-WEIXIN -->
+				<input
+					:disabled="disabledInput || disabled"
+					:cursor-spacing="getCursorSpacing"
+					:class="{ 'u-number-box__input--disabled': disabled || disabledInput }"
+					v-model="currentValue"
+					class="u-number-box__input"
+					@blur="onBlur"
+					@focus="onFocus"
+					@input="onInput"
+					type="number"
+					:style="[inputStyle]"
+				/>
+				<!-- #endif -->
+			</slot>
+		</template>
 		<view
 		    class="u-number-box__slot cursor-pointer"
 		    @tap.stop="clickHandler('plus')"
@@ -79,13 +81,13 @@
 		    :class="{ 'u-number-box__minus--disabled': isDisabled('plus') }"
 		    :style="[buttonStyle('plus')]"
 		>
-			<u-icon
+			<up-icon
 			    name="plus"
-			    :color="isDisabled('plus') ? '#c8c9cc' : '#323233'"
+			    :color="isDisabled('plus') ? resolvedDisabledIconColor : resolvedColor"
 			    size="15"
 			    bold
 				:customStyle="iconStyle"
-			></u-icon>
+			></up-icon>
 		</view>
 	</view>
 </template>
@@ -164,6 +166,24 @@
 			// #endif
 		},
 		computed: {
+			resolvedColor() {
+				return this.color || this.upThemeVar('--up-main-color', '#303133')
+			},
+			resolvedDisabledIconColor() {
+				return this.upThemeVar('--up-disabled-color', '#c8c9cc')
+			},
+			resolvedBgColor() {
+				return this.bgColor || this.upThemeVar('--up-bg-color', '#EBECEE')
+			},
+			resolvedDisabledBgColor() {
+				return this.disabledBgColor || this.upThemeVar('--up-card-bg-color', '#f7f8fa')
+			},
+			resolvedInputBgColor() {
+				return this.inputBgColor || this.resolvedBgColor
+			},
+			hideMinus() {
+				return this.currentValue == 0 && this.miniMode == true
+			},
 			getCursorSpacing() {
 				// 判断传入的单位，如果为px单位，需要转成px
 				return getPx(this.cursorSpacing)
@@ -172,22 +192,23 @@
 			buttonStyle() {
 				return (type) => {
 					const style = {
-						backgroundColor: this.bgColor,
+						backgroundColor: this.resolvedBgColor,
+						width: addUnit(this.buttonWidth),
 						height: addUnit(this.buttonSize),
-						color: this.color
+						color: this.resolvedColor,
+						borderRadius: this.buttonRadius
 					}
 					if (this.isDisabled(type)) {
-						style.backgroundColor = '#f7f8fa'
+						style.backgroundColor = this.resolvedDisabledBgColor
 					}
 					return style
 				}
 			},
 			// 输入框的样式
 			inputStyle() {
-				const disabled = this.disabled || this.disabledInput
 				const style = {
-					color: this.color,
-					backgroundColor: this.bgColor,
+					color: this.resolvedColor,
+					backgroundColor: this.resolvedInputBgColor,
 					height: addUnit(this.buttonSize),
 					width: addUnit(this.inputWidth)
 				}
@@ -259,6 +280,7 @@
 				const val = this.format(this.currentValue);
 				if (val !== this.currentValue) {
 					this.currentValue = val
+					this.emitChange(val)
 				}
 			},
 			// 判断是否出于禁止操作状态
@@ -287,8 +309,12 @@
 			},
 			// 输入框失去焦点
 			onBlur(event) {
-				// 对输入值进行格式化
-				const value = this.format(event.detail.value)
+				// 对输入值进行格式化，失焦时强制修正到合法范围（如最小值）
+				const raw = event.detail.value
+				const value = (raw === '' || raw === null || raw === undefined)
+					? this.min
+					: this.format(raw)
+				this.emitChange(value)
 				// 发出blur事件
 				this.$emit(
 					'blur',{
@@ -302,12 +328,17 @@
 				const {
 					value = ''
 				} = e.detail || {}
-				// 为空返回
-				if (value === '') return
+				// 为空时不立即修正，等失焦时再处理，允许用户清空后输入新值
+				if (value === '') {
+					this.currentValue = ''
+					return
+				}
 				let formatted = this.filter(value)
+				// https://github.com/ijry/uview-plus/issues/613
+				this.emitChange(value);
 				// 最大允许的小数长度
 				if (this.decimalLength !== null && formatted.indexOf('.') !== -1) {
-					const pair = formatted.split('.');
+					const pair = formatted.split('.')
 					formatted = `${pair[0]}.${pair[1].slice(0, this.decimalLength)}`
 				}
 				formatted = this.format(formatted)
@@ -317,8 +348,8 @@
 				// #endif 
 			
 			},
-			// 发出change事件
-			emitChange(value) {
+			// 发出change事件，type目前只支持点击时有值，手动输入不支持。
+			emitChange(value, type = '') {
 				// 如果开启了异步变更值，则不修改内部的值，需要用户手动在外部通过v-model变更
 				if (!this.asyncChange) {
 					this.$nextTick(() => {
@@ -335,6 +366,7 @@
 				this.$emit('change', {
 					value,
 					name: this.name,
+					type: type // 当前变更类型
 				});
 			},
 			onChange() {
@@ -346,7 +378,7 @@
 				}
 				const diff = type === 'minus' ? -this.step : +this.step
 				const value = this.format(this.add(+this.currentValue, diff))
-				this.emitChange(value)
+				this.emitChange(value, type)
 				this.$emit(type)
 			},
 			// 对值扩大后进行四舍五入，再除以扩大因子，避免出现浮点数操作的精度问题
@@ -392,19 +424,17 @@
 </script>
 
 <style lang="scss" scoped>
-	@import '../../libs/css/components.scss';
-
-	$u-numberBox-hover-bgColor: #E6E6E6 !default;
-	$u-numberBox-disabled-color: #c8c9cc !default;
-	$u-numberBox-disabled-bgColor: #f7f8fa !default;
+	$u-numberBox-hover-bgColor: var(--up-border-color, #E6E6E6) !default;
+	$u-numberBox-disabled-color: var(--up-disabled-color, #c8c9cc) !default;
+	$u-numberBox-disabled-bgColor: var(--up-card-bg-color, #f7f8fa) !default;
 	$u-numberBox-plus-radius: 4px !default;
 	$u-numberBox-minus-radius: 4px !default;
 	$u-numberBox-input-text-align: center !default;
 	$u-numberBox-input-font-size: 15px !default;
 	$u-numberBox-input-padding: 0 !default;
 	$u-numberBox-input-margin: 0 2px !default;
-	$u-numberBox-input-disabled-color: #c8c9cc !default;
-	$u-numberBox-input-disabled-bgColor: #f2f3f5 !default;
+	$u-numberBox-input-disabled-color: var(--up-disabled-color, #c8c9cc) !default;
+	$u-numberBox-input-disabled-bgColor: var(--up-bg-color, #f2f3f5) !default;
 
 	.u-number-box {
 		@include flex(row);

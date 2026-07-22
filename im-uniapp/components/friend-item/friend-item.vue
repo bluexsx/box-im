@@ -7,8 +7,8 @@
 				<image v-show="friend.onlineWeb" class="online" src="/static/image/online_web.png" title="电脑设备在线" />
 				<image v-show="friend.onlineApp" class="online" src="/static/image/online_app.png" title="移动设备在线" />
 			</view>
-			<slot></slot>
 		</view>
+		<slot></slot>
 	</view>
 </template>
 
@@ -37,19 +37,20 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style scope lang="scss">
 .friend-item {
-	height: 90rpx;
+	height: 120rpx;
 	display: flex;
 	margin-bottom: 1rpx;
 	position: relative;
-	padding: 10rpx;
-	padding-left: 20rpx;
+	padding: 10rpx 40rpx 10rpx 20rpx;
 	align-items: center;
 	background-color: white;
 	white-space: nowrap;
+	box-sizing: border-box;
 
 	&:hover {
 		background-color: $im-bg;
@@ -82,4 +83,5 @@ export default {
 		}
 	}
 }
+
 </style>
