@@ -1,7 +1,10 @@
 import { isIndexedDBAvailable } from '@/common/browser'
 import ImStorageDB from './storageDb'
 import ImIndexedDB from './indexedDb'
+// #ifdef APP
 import ImSqliteDB from './sqliteDb'
+// #endif
+
 
 
 // 单例
