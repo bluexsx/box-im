@@ -26,7 +26,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <mybatisplus.version>3.5.7</mybatisplus.version>
-        <fastjson.version>1.2.83</fastjson.version>
+        <fastjson.version>1.2.83_noneautotype</fastjson.version>
         <knife4j.version>4.5.0</knife4j.version>
         <hutool.version>5.8.28</hutool.version>
         <druid.version>1.1.22</druid.version>
