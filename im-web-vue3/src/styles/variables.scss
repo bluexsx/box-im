@@ -1,0 +1,34 @@
+// 主题色（对齐 im-web/thems.scss）
+$im-color-primary: #2830d3;
+$im-color-primary-rgb: 40, 48, 211;
+$im-color-success: #18bc37;
+$im-color-danger: #ff4757;
+$im-color-warning: #f3a73f;
+$im-color-info: #909399;
+$im-color-text-regular: #000000;
+$im-font-size-base: 14px;
+$im-font-size-small: 13px;
+$im-font-size-extra-small: 12px;
+$im-font-size-medium: 16px;
+$im-font-size-large: 18px;
+$im-font-family:
+
+  microsoft yahei,
+  'Avenir',
+  helvetica,
+  arial,
+  sans-serif;
+$im-box-shadow-base:
+  0 2px 4px rgba(0, 0, 0, 0.12),
+  0 0 6px rgba(0, 0, 0, 0.04);
+$im-box-shadow-light: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+// 由主色混合出的浅色阶（对齐 Element UI mix(#fff, primary, n*10%)）
+$im-color-primary-light-1: #3e45d7;
+$im-color-primary-light-2: #535adb;
+$im-color-primary-light-3: #696fdf;
+$im-color-primary-light-4: #7e84e3;
+$im-color-primary-light-5: #9499e7;
+$im-color-primary-light-6: #a9afeb;
+$im-color-primary-light-7: #bfc4ef;
+$im-color-primary-light-8: #d4d9f3;
+$im-color-primary-light-9: #eaedf9;

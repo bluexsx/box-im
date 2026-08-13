@@ -1,0 +1,46 @@
+{
+  "name": "boxim",
+  "private": true,
+  "version": "4.0.0",
+  "type": "module",
+  "homepage": "https://www.boxim.online",
+  "author": "boxim",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --fix --cache",
+    "prettier": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "axios": "^1.7.7",
+    "dexie": "^3.2.7",
+    "element-plus": "^2.14.3",
+    "js-audio-recorder": "^1.0.7",
+    "js-base64": "^3.7.7",
+    "mitt": "^3.0.1",
+    "pinia": "^2.3.1",
+    "pinyin-pro": "^3.26.0",
+    "sass": "^1.83.4",
+    "vue": "^3.5.39",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "~10.9.2",
+    "prettier": "^3.9.6",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.1.10"
+  }
+}

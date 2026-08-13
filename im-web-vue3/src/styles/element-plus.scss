@@ -1,0 +1,367 @@
+@use './variables.scss' as *;
+
+// Element Plus 主题与组件统一覆盖（唯一入口，避免与 im.scss 重复）
+
+:root {
+  --el-color-primary: var(--im-color-primary);
+  --el-color-primary-light-3: var(--im-color-primary-light-3);
+  --el-color-primary-light-5: var(--im-color-primary-light-5);
+  --el-color-primary-light-7: var(--im-color-primary-light-7);
+  --el-color-primary-light-8: var(--im-color-primary-light-8);
+  --el-color-primary-light-9: var(--im-color-primary-light-9);
+  --el-color-success: var(--im-color-success);
+  --el-color-warning: var(--im-color-warning);
+  --el-color-danger: var(--im-color-danger);
+  --el-color-info: var(--im-color-info);
+  --el-font-family: var(--im-font-family);
+}
+
+// ---------- Message ----------
+
+.el-message {
+  z-index: 99999999 !important;
+  background: #fff !important;
+  box-shadow: 0 4px 12px 0 rgb(0 0 0 / 15%);
+  border: none !important;
+  min-width: unset !important;
+  border-radius: 3px !important;
+  padding: 14px 18px 14px 16px !important;
+
+  .el-message__content {
+    color: #000 !important;
+  }
+}
+
+// ---------- Scrollbar ----------
+
+.el-scrollbar__thumb {
+  border-radius: 4px;
+  background: var(--im-color-primary-light-6) !important;
+}
+
+// ---------- Dialog ----------
+
+.el-dialog {
+  padding: 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  animation: dialogFadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.el-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--im-text-color);
+  letter-spacing: 0.5px;
+}
+
+.el-dialog__header {
+  padding: 12px 18px !important;
+  position: relative;
+  text-align: center;
+}
+
+.el-dialog__body {
+  padding: 10px 20px !important;
+}
+
+.el-dialog__footer {
+  padding: 10px 20px 16px;
+}
+
+.el-dialog__headerbtn {
+  top: 16px;
+  right: 20px;
+  width: auto;
+  height: auto;
+  font-size: 18px;
+
+  .el-dialog__close {
+    color: #666;
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: var(--im-color-danger);
+      transform: rotate(90deg) scale(1.1);
+    }
+  }
+}
+
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// ---------- Button ----------
+
+.el-button {
+  height: auto;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.el-button--primary:not(.is-plain) {
+    color: #fff !important;
+    background: linear-gradient(135deg, var(--im-color-primary) 0%, var(--im-color-primary-light-2) 100%) !important;
+    border: none !important;
+
+    &:hover {
+      background: linear-gradient(135deg, var(--im-color-primary-light-2) 0%, var(--im-color-primary) 100%) !important;
+    }
+  }
+
+  &.el-button--primary.is-plain {
+    color: var(--im-color-primary) !important;
+    background: var(--im-color-primary-light-9) !important;
+    border: 1px solid var(--im-color-primary-light-5) !important;
+
+    &:hover,
+    &:focus {
+      color: #fff !important;
+      background: var(--im-color-primary) !important;
+      border-color: var(--im-color-primary) !important;
+    }
+  }
+
+  &.el-button--danger {
+    background: linear-gradient(135deg, var(--im-color-danger) 0%, #ff5868 100%);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #ff5868 0%, var(--im-color-danger) 100%);
+    }
+
+    &.is-plain {
+      color: var(--im-color-danger);
+      background: #ffedee;
+
+      &:hover {
+        background: var(--im-color-danger);
+        color: #fff;
+      }
+    }
+  }
+
+  &.el-button--success {
+    background: linear-gradient(135deg, var(--im-color-success) 0%, #38ca37 100%);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #38ca37 0%, var(--im-color-success) 100%);
+    }
+
+    &.is-plain {
+      color: var(--im-color-success);
+      background: #e8f8eb;
+
+      &:hover {
+        background: var(--im-color-success);
+        color: #fff;
+      }
+    }
+  }
+
+  &.is-round {
+    padding: 12px 23px;
+  }
+
+  &.el-button--small {
+    padding: 10px 18px;
+  }
+}
+
+// ---------- Checkbox / Radio / Switch / Tabs（主色联动） ----------
+
+.el-checkbox {
+  display: flex;
+  align-items: center;
+
+  .el-checkbox__inner {
+    width: 16px;
+    height: 16px;
+    border-radius: 50% !important;
+  }
+
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: #333;
+  }
+
+  .el-checkbox__label {
+    line-height: 20px;
+    padding-left: 8px;
+  }
+}
+
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-checkbox__input.is-indeterminate .el-checkbox__inner,
+.el-radio__input.is-checked .el-radio__inner {
+  background-color: var(--im-color-primary) !important;
+  border-color: var(--im-color-primary) !important;
+}
+
+.el-switch.is-checked .el-switch__core {
+  border-color: var(--im-color-primary) !important;
+  background-color: var(--im-color-primary) !important;
+}
+
+.el-tabs__item.is-active,
+.el-tabs__item:hover {
+  color: var(--im-color-primary) !important;
+}
+
+.el-tabs__active-bar {
+  background-color: var(--im-color-primary) !important;
+}
+
+// ---------- Form / Input ----------
+
+.el-form-item {
+  margin-bottom: 15px !important;
+}
+
+.el-form-item__content {
+  text-align: left;
+}
+
+.el-input__wrapper {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #e4e7ed inset;
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
+
+  &:has(input:-webkit-autofill) {
+    background: #e8f0fe !important;
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--im-color-primary-light-3) inset;
+  }
+
+  &.is-focus {
+    box-shadow:
+      0 0 0 1px var(--im-color-primary) inset,
+      0 0 0 2px rgba(var(--im-color-primary-rgb), 0.1);
+  }
+}
+
+.el-textarea__inner {
+  padding: 5px 10px;
+  font-family: $im-font-family;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #e4e7ed inset;
+  border: none;
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--im-color-primary-light-3) inset;
+  }
+
+  &:focus {
+    box-shadow:
+      0 0 0 1px var(--im-color-primary) inset,
+      0 0 0 2px rgba(var(--im-color-primary-rgb), 0.1);
+  }
+
+  &::placeholder {
+    color: #c0c4cc;
+    font-size: 14px;
+  }
+}
+
+.el-form-item.is-error {
+  .el-input__wrapper {
+    box-shadow: 0 0 0 1px var(--im-color-danger) inset;
+
+    &.is-focus {
+      box-shadow:
+        0 0 0 1px var(--im-color-danger) inset,
+        0 0 0 2px rgba(245, 108, 108, 0.1);
+    }
+  }
+
+  .el-textarea__inner {
+    box-shadow: 0 0 0 1px var(--im-color-danger) inset;
+
+    &:focus {
+      box-shadow:
+        0 0 0 1px var(--im-color-danger) inset,
+        0 0 0 2px rgba(245, 108, 108, 0.1);
+    }
+  }
+}
+
+.el-input.is-disabled {
+  .el-input__wrapper {
+    background-color: #f5f7fa;
+    box-shadow: 0 0 0 1px #e4e7ed inset;
+    cursor: not-allowed;
+  }
+
+  .el-input__inner {
+    color: #c0c4cc;
+    cursor: not-allowed;
+  }
+}
+
+.el-textarea.is-disabled .el-textarea__inner {
+  background-color: #f5f7fa;
+  box-shadow: 0 0 0 1px #e4e7ed inset;
+  color: #c0c4cc;
+  cursor: not-allowed;
+}
+
+// ---------- Tag ----------
+
+.el-tag {
+  font-size: 10px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 5px;
+  border: 0;
+  margin-left: 3px;
+  padding: 0 3px !important;
+  color: #fff !important;
+
+  &.el-tag--primary {
+    background: var(--im-color-primary-light-3);
+  }
+
+  &.el-tag--warning {
+    background: var(--im-color-warning);
+  }
+
+  &.el-tag--danger {
+    background: var(--im-color-danger);
+  }
+
+  &.el-tag--info {
+    background: var(--im-color-info);
+  }
+
+  &.el-tag--small {
+    font-size: 9px;
+    height: 14px;
+    line-height: 14px;
+  }
+}

@@ -1,0 +1,241 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 3791506 */
+  src: url('iconfont.ttf?t=1785481038605') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-film:before {
+  content: "\e601";
+}
+
+.icon-microphone:before {
+  content: "\e7fb";
+}
+
+.icon-rtc-voice:before {
+  content: "\e7e2";
+}
+
+.icon-floder:before {
+  content: "\e628";
+}
+
+.icon-picture:before {
+  content: "\e623";
+}
+
+.icon-rtc-video:before {
+  content: "\e6a3";
+}
+
+.icon-message-file:before {
+  content: "\e718";
+}
+
+.icon-fav:before {
+  content: "\e6b6";
+}
+
+.icon-pause:before {
+  content: "\e669";
+}
+
+.icon-voice-play:before {
+  content: "\e675";
+}
+
+.icon-play:before {
+  content: "\e622";
+}
+
+.icon-fixed:before {
+  content: "\e715";
+}
+
+.icon-fav-fill:before {
+  content: "\e612";
+}
+
+.icon-fav-all:before {
+  content: "\e6b9";
+}
+
+.icon-arrow-right:before {
+  content: "\e779";
+}
+
+.icon-chat-history:before {
+  content: "\e6ef";
+}
+
+.icon-love:before {
+  content: "\e613";
+}
+
+.icon-search:before {
+  content: "\e62e";
+}
+
+.icon-pwd-hide:before {
+  content: "\e60e";
+}
+
+.icon-pwd-show:before {
+  content: "\e621";
+}
+
+.icon-scan:before {
+  content: "\e8b5";
+}
+
+.icon-share-screen:before {
+  content: "\e8aa";
+}
+
+.icon-share-screen-cancel:before {
+  content: "\e8ae";
+}
+
+.icon-dnd:before {
+  content: "\e691";
+}
+
+.icon-screenshot:before {
+  content: "\e61c";
+}
+
+.icon-close:before {
+  content: "\e609";
+}
+
+.icon-minimize:before {
+  content: "\e650";
+}
+
+.icon-maximize:before {
+  content: "\e651";
+}
+
+.icon-unmaximize:before {
+  content: "\e611";
+}
+
+.icon-man:before {
+  content: "\e615";
+}
+
+.icon-girl:before {
+  content: "\e602";
+}
+
+.icon-phone:before {
+  content: "\e692";
+}
+
+.icon-email:before {
+  content: "\e610";
+}
+
+.icon-username:before {
+  content: "\e60f";
+}
+
+.icon-chat-unmuted:before {
+  content: "\ec44";
+}
+
+.icon-chat-muted:before {
+  content: "\e634";
+}
+
+.icon-modify:before {
+  content: "\e60d";
+}
+
+.icon-invite-rtc:before {
+  content: "\e65f";
+}
+
+.icon-quit:before {
+  content: "\e606";
+}
+
+.icon-camera-off:before {
+  content: "\e6b5";
+}
+
+.icon-speaker-off:before {
+  content: "\ea3c";
+}
+
+.icon-microphone-on:before {
+  content: "\e63b";
+}
+
+.icon-speaker-on:before {
+  content: "\e6a4";
+}
+
+.icon-camera-on:before {
+  content: "\e627";
+}
+
+.icon-microphone-off:before {
+  content: "\efe5";
+}
+
+.icon-chat:before {
+  content: "\e600";
+}
+
+.icon-setting:before {
+  content: "\e620";
+}
+
+.icon-friend:before {
+  content: "\e604";
+}
+
+.icon-exit:before {
+  content: "\e9e4";
+}
+
+.icon-chat-video:before {
+  content: "\e73b";
+}
+
+.icon-chat-voice:before {
+  content: "\e633";
+}
+
+.icon-ok:before {
+  content: "\e6ac";
+}
+
+.icon-receipt:before {
+  content: "\e61a";
+}
+
+.icon-emoji:before {
+  content: "\e60c";
+}
+
+.icon-group:before {
+  content: "\e7f4";
+}
+
+.icon-phone-reject:before {
+  content: "\e605";
+}
+
+.icon-phone-accept:before {
+  content: "\e8be";
+}
+
