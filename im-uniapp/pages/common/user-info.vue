@@ -28,6 +28,9 @@
 			<switch-bar title="消息免打扰" :checked="friendInfo.isDnd" @change="onDndChange"></switch-bar>
 		</bar-group>
 		<bar-group v-if="isExistHistory">
+			<arrow-bar title="查找聊天记录" @tap="onChatHistory()"></arrow-bar>
+		</bar-group>
+		<bar-group v-if="isExistHistory">
 			<arrow-bar title="清空聊天记录" @tap="onCleanMessage()"></arrow-bar>
 		</bar-group>
 		<bar-group>
@@ -118,6 +121,11 @@ export default {
 						icon: 'none'
 					})
 				}
+			})
+		},
+		onChatHistory() {
+			uni.navigateTo({
+				url: '/pages/chat/chat-history?convKey=' + this.convKey
 			})
 		},
 		onCleanMessage() {

@@ -41,13 +41,13 @@
 								<custom-loading v-if="sending"></custom-loading>
 							</view>
 						</view>
-
-						<view v-else-if="message.type == $enums.MESSAGE_TYPE.AUDIO" class="message-audio message-text"
-							@click="onPlayAudio()">
-							<text class="iconfont icon-voice-play"></text>
-							<text class="chat-audio-text">{{ contentData.duration + '"' }}</text>
-							<text v-if="audioPlayState == 'PAUSE'" class="iconfont icon-play"></text>
-							<text v-if="audioPlayState == 'PLAYING'" class="iconfont icon-pause"></text>
+						<view v-else-if="message.type == $enums.MESSAGE_TYPE.AUDIO">
+							<view class="message-audio message-text" @click="onPlayAudio()">
+								<text class="iconfont icon-voice-play"></text>
+								<text class="audio-text">{{ contentData.duration + '"' }}</text>
+								<text v-if="audioPlayState == 'PAUSE'" class="iconfont icon-play"></text>
+								<text v-if="audioPlayState == 'PLAYING'" class="iconfont icon-pause"></text>
+							</view>
 						</view>
 						<view v-if="isAction" class="chat-realtime message-text" @click="$emit('call')">
 							<text v-if="message.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE" class="iconfont icon-chat-voice"></text>
@@ -258,24 +258,29 @@ export default {
 
 <style scoped lang="scss">
 .chat-message-item {
-	padding: 2rpx 20rpx;
+	padding: 15rpx 20rpx;
+	border-radius: 20rpx;
 
 	&.active {
 		background: $im-bg-active-dark;
 	}
 
 	.message-tip {
-		line-height: 60rpx;
+		display: table;
+		margin: 8rpx auto;
+		padding: 6rpx 20rpx;
+		line-height: 36rpx;
+		max-width: 80%;
+		border-radius: 10rpx;
+		background: rgba(255, 255, 255, 0.3);
 		text-align: center;
 		color: $im-text-color-lighter;
-		font-size: $im-font-size-smaller-extra;
-		padding: 10rpx;
+		font-size: $im-font-size-smaller;
 	}
 
 	.message-normal {
 		position: relative;
-		margin-bottom: 22rpx;
-		padding-left: 110rpx;
+		padding-left: 105rpx;
 		min-height: 80rpx;
 
 		.avatar {
@@ -293,7 +298,7 @@ export default {
 				align-items: center;
 
 				.name {
-					color: $im-text-color-lighter;
+					color: $im-text-color-light;
 					font-size: $im-font-size-smaller;
 					line-height: $im-font-size-smaller;
 					height: $im-font-size-smaller;
@@ -306,16 +311,16 @@ export default {
 			.bottom {
 				display: inline-block;
 				padding-right: 80rpx;
-				margin-top: 5rpx;
+				margin-top: 10rpx;
 
 				.message-body {
 					position: relative;
-					display: flex;
+					display: inline-flex;
 					align-items: center;
 
 					.sending {
 						position: relative;
-						margin: 0 6rpx;
+						margin: 0 20rpx;
 
 						.icon-loading {
 							color: $im-color-primary;
@@ -331,28 +336,30 @@ export default {
 					.message-text {
 						position: relative;
 						line-height: 1.6;
-						margin-top: 10rpx;
-						padding: 16rpx 24rpx;
-						background-color: $im-bg;
-						border-radius: 20rpx;
+						padding: 16rpx 20rpx 16rpx 16rpx;
+						background: white;
 						color: $im-text-color;
 						font-size: $im-font-size;
 						text-align: left;
-						display: block;
+						display: inline-flex;
+						flex-wrap: wrap;
+						align-items: baseline;
 						word-break: break-word;
 						white-space: pre-line;
+						overflow: visible;
+						border-radius: 20rpx;
+						margin-left: 8rpx;
 
 						&:after {
 							content: "";
 							position: absolute;
-							left: -20rpx;
-							top: 26rpx;
-							width: 6rpx;
-							height: 6rpx;
-							border-style: solid dashed dashed;
-							border-color: $im-bg transparent transparent;
-							overflow: hidden;
-							border-width: 18rpx;
+							left: -10rpx;
+							top: 20rpx;
+							width: 0;
+							height: 0;
+							border-style: solid;
+							border-color: transparent white transparent transparent;
+							border-width: 12rpx 12rpx 12rpx 0;
 						}
 					}
 
@@ -375,13 +382,6 @@ export default {
 								vertical-align: top;
 							}
 						}
-
-						.send-fail {
-							color: $im-color-danger;
-							font-size: $im-font-size;
-							cursor: pointer;
-							margin: 0 20px;
-						}
 					}
 
 					.message-file {
@@ -390,28 +390,32 @@ export default {
 						flex-direction: row;
 						align-items: center;
 						cursor: pointer;
+						background: white;
+						border-radius: 20rpx;
+						min-height: 120rpx;
+						padding: 30rpx;
+						box-shadow: $im-box-shadow;
+						overflow: hidden;
 
 						.file-box {
 							position: relative;
 							display: flex;
 							flex-wrap: nowrap;
 							align-items: center;
-							min-height: 60px;
-							border-radius: 4px;
-							padding: 10px 15px;
-							box-shadow: $im-box-shadow-dark;
 
 							.file-info {
 								flex: 1;
 								height: 100%;
 								text-align: left;
-								font-size: 14px;
+								font-size: 28rpx;
 								width: 300rpx;
 
 								.file-name {
 									font-weight: 600;
-									margin-bottom: 15px;
+									margin-bottom: 20rpx;
 									word-break: break-all;
+									color: #007BFF;
+									font-size: $im-font-size-small;
 								}
 							}
 
@@ -420,26 +424,19 @@ export default {
 								color: #d42e07;
 							}
 						}
-
-						.send-fail {
-							color: #e60c0c;
-							font-size: 50rpx;
-							cursor: pointer;
-							margin: 0 20rpx;
-						}
 					}
 
 					.message-audio {
 						display: flex;
 						align-items: center;
 
-						.chat-audio-text {
-							padding-right: 8px;
+						.audio-text {
+							padding-right: 15rpx;
 						}
 
 						.icon-voice-play {
-							font-size: 18px;
-							padding-right: 8px;
+							font-size: 34rpx;
+							padding-right: 16rpx;
 						}
 					}
 				}
@@ -449,19 +446,18 @@ export default {
 					align-items: center;
 
 					.iconfont {
-						font-size: 20px;
-						padding-right: 8px;
+						font-size: 40rpx;
+						padding-right: 16rpx;
 					}
 				}
 
 				.message-status {
 					line-height: $im-font-size-smaller-extra;
 					font-size: $im-font-size-smaller-extra;
-					padding-top: 2rpx;
+					margin-top: 5rpx;
 
 					.chat-readed {
-						display: block;
-						padding-top: 2rpx;
+						padding-top: 20rpx;
 						color: $im-text-color-lighter;
 					}
 
@@ -474,6 +470,7 @@ export default {
 					font-size: $im-font-size-smaller;
 					color: $im-text-color-lighter;
 					font-weight: 600;
+					margin-top: 5rpx;
 
 					.icon-ok {
 						font-size: 20px;
@@ -486,7 +483,7 @@ export default {
 		&.message-mine {
 			text-align: right;
 			padding-left: 0;
-			padding-right: 110rpx;
+			padding-right: 105rpx;
 
 			.avatar {
 				left: auto;
@@ -505,21 +502,28 @@ export default {
 					}
 
 					.message-text {
-						margin-left: 10px;
-						background-color: $im-color-primary-light-2;
-						color: #fff;
+						margin-left: 10rpx;
+						margin-right: 8rpx;
+						padding: 16rpx 16rpx 16rpx 20rpx;
+						background: $im-color-primary-light-2;
+						color: white;
 
 						&:after {
 							left: auto;
-							right: -9px;
-							border-top-color: $im-color-primary-light-2;
+							right: -10rpx;
+							top: 20rpx;
+							width: 0;
+							height: 0;
+							border-style: solid;
+							border-color: transparent transparent transparent $im-color-primary-light-2;
+							border-width: 12rpx 0 12rpx 12rpx;
 						}
 					}
 
 					.message-audio {
 						flex-direction: row-reverse;
 
-						.chat-audio-text {
+						.audio-text {
 							padding-right: 0;
 							padding-left: 8px;
 						}
@@ -542,5 +546,4 @@ export default {
 		}
 	}
 }
-
 </style>

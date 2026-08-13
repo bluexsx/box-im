@@ -1133,11 +1133,17 @@ export default {
 			// 上面获取的windowHeight可能不准，重新计算一次聊天窗口高度
 			this.windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.reCalChatMainHeight();
-			// 消息拉到底部
-			await chatStore.resetMessages(this.conversation.key)
-			this.scrollToBottom();
-			// 有时页面渲染得慢，会导致无法正常滚到底部，这里再滚一次
-			setTimeout(() => this.scrollToBottom(), 100);
+			// 定位消息
+			if (options.locateId) {
+				// 从消息记录页面定位过来
+				this.locateMessage(options.locateId);
+			} else {
+				// 正常进入,消息拉到底部
+				await chatStore.resetMessages(this.conversation.key)
+				this.scrollToBottom();
+				// 有时页面渲染得慢，会导致无法正常滚到底部，这里再滚一次
+				setTimeout(() => this.scrollToBottom(), 100);
+			}
 			// #ifdef H5
 			this.initHeight = window.innerHeight;
 			// 兼容ios的h5:禁止页面滚动

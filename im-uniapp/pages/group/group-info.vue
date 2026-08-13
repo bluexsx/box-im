@@ -55,6 +55,9 @@
 		<bar-group v-if="!group.quit">
 			<switch-bar title="消息免打扰" :checked="group.isDnd" @change="onDndChange"></switch-bar>
 		</bar-group>
+		<bar-group v-if="isExistHistory">
+			<arrow-bar title="查找聊天记录" @tap="onChatHistory()"></arrow-bar>
+		</bar-group>
 		<bar-group v-if="!group.quit && isExistHistory ">
 			<arrow-bar title="清空聊天记录" @tap="onCleanMessage()"></arrow-bar>
 		</bar-group>
@@ -197,6 +200,11 @@ export default {
 			}).then(() => {
 				groupStore.setDnd(groupId, isDnd);
 				chatStore.setDnd(convKey, isDnd)
+			})
+		},
+		onChatHistory() {
+			uni.navigateTo({
+				url: '/pages/chat/chat-history?convKey=' + this.convKey
 			})
 		},
 		onCleanMessage() {
