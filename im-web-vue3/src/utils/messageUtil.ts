@@ -6,8 +6,6 @@ export const previewContent = (m: ChatMessage) => {
   try {
     if (m.type == MESSAGE_TYPE.IMAGE) {
       content = '[图片]';
-    } else if (m.type == MESSAGE_TYPE.VIDEO) {
-      content = '[视频]';
     } else if (m.type == MESSAGE_TYPE.FILE) {
       content = '[文件] ' + JSON.parse(m.content).name;
     } else if (m.type == MESSAGE_TYPE.AUDIO) {

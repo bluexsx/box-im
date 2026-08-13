@@ -88,24 +88,6 @@
             </el-scrollbar>
             <NoDataTip v-else :style="tabPaneStyle" />
           </el-tab-pane>
-          <el-tab-pane :label="'视频'" name="video">
-            <el-scrollbar v-if="messageSize > 0" ref="videoScrollBoxRef" :style="tabPaneStyle">
-              <div v-if="tabName == 'video'" class="chat-image-video-list">
-                <div v-for="(message, idx) in showMessages" :key="showMinIdx + idx">
-                  <div
-                    class="chat-image-video"
-                    :class="activeIdx == showMinIdx + idx ? 'active' : ''"
-                    @contextmenu.prevent="onRclickItem($event, showMinIdx + idx)"
-                    @dblclick="onDblclickItem(showMinIdx + idx)"
-                    @click="onClickItem(showMinIdx + idx)">
-                    <video class="video" controls preload="none" :poster="parseContent(message).coverUrl" :src="parseContent(message).videoUrl" />
-                    <span class="upload-text">{{ showName(message) }} {{ '上传于' }} {{ toTimeText(Number(message.sendTime), true) }}</span>
-                  </div>
-                </div>
-              </div>
-            </el-scrollbar>
-            <NoDataTip v-else-if="!loading" :style="tabPaneStyle" />
-          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -161,7 +143,6 @@ const textScrollBoxRef = ref();
 const imageScrollBoxRef = ref();
 const fileScrollBoxRef = ref();
 const voiceScrollBoxRef = ref();
-const videoScrollBoxRef = ref();
 const rightMenuRef = ref<InstanceType<typeof RightMenu>>();
 const menuItemKeys = [{ key: 'LOCATE_IN_CHAT', name: '在聊天中定位' }];
 const mine = computed(() => userStore.userInfo);
@@ -169,7 +150,6 @@ const isGroup = computed(() => props.conversation.type == CONVERSATION_TYPE.GROU
 const allMessage = computed(() => messages.value.filter((m) => isNormal(m.type) || isAction(m.type)));
 const imageMessage = computed(() => messages.value.filter((m) => m.type == MESSAGE_TYPE.IMAGE));
 const fileMessage = computed(() => messages.value.filter((m) => m.type == MESSAGE_TYPE.FILE));
-const videoMessage = computed(() => messages.value.filter((m) => m.type == MESSAGE_TYPE.VIDEO));
 const voiceMessage = computed(() => messages.value.filter((m) => m.type == MESSAGE_TYPE.AUDIO));
 const textMessage = computed(() => messages.value.filter((m) => m.type == MESSAGE_TYPE.TEXT));
 
@@ -179,8 +159,7 @@ const tabMessages = computed(() => {
     text: textMessage.value,
     image: imageMessage.value,
     file: fileMessage.value,
-    voice: voiceMessage.value,
-    video: videoMessage.value
+    voice: voiceMessage.value
   };
   const list = listMap[tabName.value] || allMessage.value;
   const keyword = searchText.value.toLowerCase();
@@ -224,8 +203,7 @@ const getScrollRef = () => {
     text: textScrollBoxRef,
     image: imageScrollBoxRef,
     file: fileScrollBoxRef,
-    voice: voiceScrollBoxRef,
-    video: videoScrollBoxRef
+    voice: voiceScrollBoxRef
   };
   return refMap[tabName.value]?.value;
 };
@@ -401,13 +379,6 @@ defineExpose({ open, close });
         cursor: pointer;
 
         .image {
-          width: 140px;
-          height: 140px;
-          border-radius: 5px;
-          object-fit: cover;
-        }
-
-        .video {
           width: 140px;
           height: 140px;
           border-radius: 5px;

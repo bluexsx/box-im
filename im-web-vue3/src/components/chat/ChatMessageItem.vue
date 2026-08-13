@@ -24,9 +24,6 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="message.type == MESSAGE_TYPE.VIDEO" class="message-video">
-              <video class="send-video" :style="imageStyle" controls preload="none" :poster="contentData.coverUrl" :src="contentData.videoUrl" />
-            </div>
             <div v-else-if="message.type == MESSAGE_TYPE.FILE" class="message-file">
               <div v-loading="sending" class="file-box">
                 <div class="file-info">
@@ -526,30 +523,6 @@ defineExpose({ stopPlayAudio });
                 opacity: 1;
               }
             }
-          }
-        }
-
-        .message-video {
-          border-radius: 12px;
-          overflow: hidden;
-          background: var(--im-background);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-          transition: all 0.3s ease;
-
-          &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-          }
-
-          .send-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-          }
-
-          &:hover .send-video {
-            transform: scale(1.02);
           }
         }
 

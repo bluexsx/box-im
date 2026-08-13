@@ -17,9 +17,6 @@
                 <img class="send-image" :src="contentData.thumbUrl" loading="lazy" @click="showFullImageBox" />
               </div>
             </div>
-            <div v-else-if="message.type == MESSAGE_TYPE.VIDEO" class="message-video">
-              <video class="send-video" controls preload="none" :poster="contentData.coverUrl" :src="contentData.videoUrl" />
-            </div>
             <div v-else-if="message.type == MESSAGE_TYPE.FILE" class="message-file">
               <div v-loading="sending" class="chat-file-box">
                 <div class="chat-file-info">
@@ -176,23 +173,6 @@ const showFullImageBox = () => {
             max-width: 200px;
             max-height: 150px;
             border-radius: 8px;
-          }
-        }
-
-        .message-video {
-          display: flex;
-          flex-wrap: nowrap;
-          flex-direction: row;
-          align-items: center;
-
-          .send-video {
-            min-width: 100px;
-            min-height: 75px;
-            max-width: 200px;
-            max-height: 150px;
-            border-radius: 8px;
-            overflow: hidden;
-            object-fit: contain;
           }
         }
 
