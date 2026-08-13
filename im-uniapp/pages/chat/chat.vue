@@ -46,7 +46,7 @@ export default {
 	methods: {
 		onScrollToBottom() {
 			// 多显示一页数据
-			if (this.showMaxIdx < chatStore.chats.length) {
+			if (this.showMaxIdx < chatStore.conversations.length) {
 				this.showMaxIdx += 30
 			}
 		},
@@ -237,7 +237,7 @@ export default {
 			if (!chatStore) {
 				return [];
 			}
-			return chatStore.conversations.filter(conv => this.isShow(conv));
+			return chatStore.conversations.filter(conv => this.isShow(conv)).slice(0, this.showMaxIdx);
 		},
 	},
 	watch: {

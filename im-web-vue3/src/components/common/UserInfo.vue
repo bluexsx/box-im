@@ -84,7 +84,8 @@ const onSendMessage = async () => {
     targetId: u.id,
     showName: u.nickName,
     headImage: u.headImageThumb,
-    isDnd: friendInfo.value?.isDnd
+    isDnd: friendInfo.value?.isDnd,
+    isTop: friendInfo.value?.isTop
   });
   await chatStore.moveTop(convKey);
   chatStore.setActive(convKey);

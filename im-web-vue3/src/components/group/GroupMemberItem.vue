@@ -115,7 +115,9 @@ const sendMessage = async () => {
     type: CONVERSATION_TYPE.PRIVATE,
     targetId: friend.id,
     showName: friend.nickName,
-    headImage: friend.headImage
+    headImage: friend.headImage,
+    isDnd: friend.isDnd,
+    isTop: friend.isTop
   });
   await chatStore.moveTop(convKey);
   chatStore.setActive(convKey);

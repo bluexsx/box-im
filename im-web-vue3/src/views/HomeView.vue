@@ -401,7 +401,8 @@ const insertPrivateMessage = async (friend: FriendVO, m: ChatMessage) => {
     targetId: friend.id,
     showName: friend.nickName,
     headImage: friend.headImage,
-    isDnd: friend.isDnd
+    isDnd: friend.isDnd,
+    isTop: friend.isTop
   });
   // 插入消息
   await chatStore.insertMessage(convKey, m as ChatMessage);
@@ -423,7 +424,8 @@ const insertGroupMessage = async (group: GroupVO, m: ChatMessage) => {
     targetId: group.id,
     showName: group.showGroupName,
     headImage: group.headImageThumb,
-    isDnd: group.isDnd
+    isDnd: group.isDnd,
+    isTop: group.isTop
   });
   // 插入消息
   await chatStore.insertMessage(convKey, m as ChatMessage);

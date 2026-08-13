@@ -187,6 +187,9 @@ export default {
 			})
 		},
 		updateFriendInfo() {
+			if (!this.isFriend || !this.friendInfo) {
+				return;
+			}
 			// store的数据不能直接修改，深拷贝一份store的数据
 			const friend = JSON.parse(JSON.stringify(this.friendInfo));
 			friend.headImage = this.userInfo.headImageThumb;
@@ -203,7 +206,9 @@ export default {
 			}).then((user) => {
 				this.userInfo = user;
 				// 如果发现好友的头像和昵称改了，进行更新
-				this.updateFriendInfo()
+				if (this.isFriend) {
+					this.updateFriendInfo()
+				}
 			})
 		}
 	},

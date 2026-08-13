@@ -516,31 +516,6 @@ export default {
 				this.exit();
 			}
 		},
-		async insertGroupMessage(group, m) {
-			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, group.id);
-			const chatInfo = {
-				type: this.$enums.CONVERSATION_TYPE.GROUP,
-				targetId: group.id,
-				showName: group.showGroupName,
-				headImage: group.headImageThumb,
-				isDnd: group.isDnd
-			};
-			// 打开会话
-			await chatStore.openChat(chatInfo);
-			// 插入消息
-			await chatStore.insertMessage(convKey, m);
-			// 通知chat-box组件
-			if (chatStore.isActive(convKey)) {
-				uni.$emit("newMessage", m);
-			}
-			// 提示音和消息提醒
-			if (!group.isDnd && !chatStore.loading &&
-				!m.selfSend && this.$msgType.isNormal(m.type) &&
-				m.status != this.$enums.MESSAGE_STATUS.READED) {
-				// 播放提示音
-				this.playAudioTip();
-			}
-		},
 		loadFriendInfo(id, callback) {
 			let friend = friendStore.findFriend(id);
 			if (!friend) {
@@ -548,7 +523,9 @@ export default {
 				friend = {
 					id: id,
 					showNickName: "未知用户",
-					headImage: ""
+					headImage: "",
+					isDnd: false,
+					isTop: false
 				}
 			}
 			return friend;
@@ -559,7 +536,9 @@ export default {
 				group = {
 					id: id,
 					showGroupName: "未知群聊",
-					headImageThumb: ""
+					headImageThumb: "",
+					isDnd: false,
+					isTop: false
 				}
 			}
 			return group;

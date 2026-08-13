@@ -69,7 +69,8 @@ export default {
 					targetId: group.id,
 					showName: group.showGroupName,
 					headImage: group.headImageThumb,
-					isDnd: group.isDnd
+					isDnd: group.isDnd,
+					isTop: group.isTop
 				};
 				await chatStore.openChat(chatInfo);
 				await chatStore.moveTop(convKey);
