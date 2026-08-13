@@ -72,6 +72,11 @@ export default defineStore('friendStore', {
 			friend.isDnd = isDnd;
 			await getDB().saveFriend(toRaw(friend));
 		},
+		async setTop(id, isTop) {
+			const friend = this.findFriend(id);
+			friend.isTop = isTop;
+			await getDB().saveFriend(toRaw(friend));
+		},
 		clear() {
 			this.friends = [];
 			this.friendMap.clear();

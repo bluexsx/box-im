@@ -26,6 +26,7 @@
 		</uni-card>
 		<bar-group v-if="isFriend">
 			<switch-bar title="消息免打扰" :checked="friendInfo.isDnd" @change="onDndChange"></switch-bar>
+			<switch-bar title="置顶聊天" :checked="friendInfo.isTop" @change="onTopChange"></switch-bar>
 		</bar-group>
 		<bar-group v-if="isExistHistory">
 			<arrow-bar title="查找聊天记录" @tap="onChatHistory()"></arrow-bar>
@@ -68,7 +69,8 @@ export default {
 				targetId: this.userInfo.id,
 				showName: this.userInfo.nickName,
 				headImage: this.userInfo.headImageThumb,
-				isDnd: this.friendInfo.isDnd
+				isDnd: this.friendInfo.isDnd,
+				isTop: this.friendInfo.isTop
 			};
 			await chatStore.openChat(chatInfo);
 			await chatStore.moveTop(this.convKey)
@@ -165,6 +167,23 @@ export default {
 			}).then(() => {
 				friendStore.setDnd(friendId, isDnd);
 				chatStore.setDnd(convKey, isDnd);
+			})
+		},
+		onTopChange(e) {
+			const convKey = this.convKey;
+			const isTop = e.detail.value;
+			const friendId = this.userInfo.id;
+			const formData = {
+				friendId: friendId,
+				isTop: isTop
+			}
+			this.$http({
+				url: '/friend/top',
+				method: 'PUT',
+				data: formData
+			}).then(() => {
+				friendStore.setTop(friendId, isTop);
+				chatStore.setTop(convKey, isTop);
 			})
 		},
 		updateFriendInfo() {

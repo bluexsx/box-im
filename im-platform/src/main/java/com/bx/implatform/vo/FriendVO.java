@@ -23,6 +23,8 @@ public class FriendVO {
     @Schema(description = "是否开启免打扰")
     private Boolean isDnd;
 
+    @Schema(description = "是否置顶会话")
+    private Boolean isTop;
 
     @Schema(description = "是否已删除")
     private Boolean deleted;

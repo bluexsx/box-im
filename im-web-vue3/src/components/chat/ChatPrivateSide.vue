@@ -53,7 +53,7 @@
 import { computed, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowRight, Bell, CopyDocument, Female, Male, Top } from '@element-plus/icons-vue';
-import { deleteFriend, setFriendDnd } from '@/api/friend';
+import { deleteFriend, setFriendDnd, setFriendTop } from '@/api/friend';
 import { deletePrivateChat } from '@/api/privateMessage';
 import type { UserVO } from '@/api/user/types';
 import CleanMessageConfirm from '@/components/common/CleanMessageConfirm.vue';
@@ -99,12 +99,12 @@ const onDndChange = async (value: boolean) => {
 };
 
 const onTopChange = async (value: boolean) => {
-  // 开源版置顶仅本地生效，不调后端接口
   if (!props.userInfo?.id) {
     return;
   }
   try {
     const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.PRIVATE, props.userInfo.id);
+    await setFriendTop({ friendId: props.userInfo.id, isTop: value });
     if (friendStore.isFriend(props.userInfo.id)) {
       await friendStore.setTop(props.userInfo.id, value);
     }

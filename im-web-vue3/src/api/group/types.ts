@@ -14,7 +14,6 @@ export interface GroupVO {
   dissolve?: boolean;
   quit?: boolean;
   isDnd?: boolean;
-  /** 会话置顶（仅本地） */
   isTop?: boolean;
   isBanned?: boolean;
   reason?: string;
@@ -49,4 +48,9 @@ export interface GroupMemberRemoveDTO {
 export interface GroupDndDTO {
   groupId: number;
   isDnd: boolean;
+}
+
+export interface GroupTopDTO {
+  groupId: number;
+  isTop: boolean;
 }

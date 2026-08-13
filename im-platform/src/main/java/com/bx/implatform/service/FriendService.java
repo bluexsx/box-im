@@ -2,6 +2,7 @@ package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bx.implatform.dto.FriendDndDTO;
+import com.bx.implatform.dto.FriendTopDTO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.vo.FriendVO;
 import com.bx.implatform.vo.UserOnlineVO;
@@ -102,6 +103,12 @@ public interface FriendService extends IService<Friend> {
      * @param dto
      */
     void setDnd(FriendDndDTO dto);
+
+    /**
+     * 设置好友会话置顶状态
+     * @param dto
+     */
+    void setTop(FriendTopDTO dto);
 
     /**
      * 查询好友在线的终端列表

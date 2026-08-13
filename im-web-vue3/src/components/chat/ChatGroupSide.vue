@@ -160,7 +160,7 @@ import { computed, nextTick, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowRight, Minus, Plus } from '@element-plus/icons-vue';
-import { deleteGroup, modifyGroup, quitGroup, removeGroupMembers, setGroupDnd } from '@/api/group';
+import { deleteGroup, modifyGroup, quitGroup, removeGroupMembers, setGroupDnd, setGroupTop } from '@/api/group';
 import type { GroupMemberVO, GroupVO } from '@/api/group/types';
 import { deleteGroupChat } from '@/api/groupMessage';
 import ChatGroupMember from '@/components/chat/ChatGroupMember.vue';
@@ -241,9 +241,9 @@ const onDndChange = async (value: boolean) => {
 };
 
 const onTopChange = async (value: boolean) => {
-  // 开源版置顶仅本地生效，不调后端接口
   try {
     const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, props.groupId);
+    await setGroupTop({ groupId: props.groupId, isTop: value });
     await groupStore.setTop(props.groupId, value);
     await chatStore.setTop(convKey, value);
     ElMessage.success(value ? '已置顶' : '已取消置顶');

@@ -16,6 +16,7 @@ import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.dto.GroupNewDTO;
+import com.bx.implatform.dto.GroupTopDTO;
 import com.bx.implatform.entity.*;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
@@ -366,6 +367,14 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         sendSyncDndMessage(dto.getGroupId(), dto.getIsDnd());
     }
 
+    @Override
+    public void setTop(GroupTopDTO dto) {
+        UserSession session = SessionContext.getSession();
+        groupMemberService.setTop(dto.getGroupId(), session.getUserId(), dto.getIsTop());
+        // 推送同步消息
+        sendSyncTopMessage(dto.getGroupId(), dto.getIsTop());
+    }
+
     private void sendTipMessage(Long groupId, List<Long> recvIds, String content) {
         UserSession session = SessionContext.getSession();
         // 消息入库
@@ -398,11 +407,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
             vo.setQuit(member.getQuit());
             vo.setIsDnd(member.getIsDnd());
+            vo.setIsTop(member.getIsTop());
             vo.setVersion(member.getVersion());
         } else {
             vo.setShowGroupName(group.getName());
             vo.setQuit(true);
             vo.setIsDnd(false);
+            vo.setIsTop(false);
             vo.setVersion(0L);
         }
         return vo;
@@ -449,6 +460,21 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         msgInfo.setGroupId(groupId);
         msgInfo.setSendId(session.getUserId());
         msgInfo.setContent(isDnd.toString());
+        IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendResult(false);
+        imClient.sendGroupMessage(sendMessage);
+    }
+
+    private void sendSyncTopMessage(Long groupId, Boolean isTop) {
+        UserSession session = SessionContext.getSession();
+        GroupMessageVO msgInfo = new GroupMessageVO();
+        msgInfo.setType(MessageType.GROUP_TOP.code());
+        msgInfo.setSendTime(new Date());
+        msgInfo.setGroupId(groupId);
+        msgInfo.setSendId(session.getUserId());
+        msgInfo.setContent(isTop.toString());
         IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setData(msgInfo);

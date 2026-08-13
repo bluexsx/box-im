@@ -15,6 +15,7 @@ import com.bx.imcommon.model.IMUserInfo;
 import com.bx.implatform.annotation.RedisLock;
 import com.bx.implatform.contant.RedisKey;
 import com.bx.implatform.dto.FriendDndDTO;
+import com.bx.implatform.dto.FriendTopDTO;
 import com.bx.implatform.entity.Friend;
 import com.bx.implatform.entity.PrivateMessage;
 import com.bx.implatform.entity.User;
@@ -222,6 +223,19 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         sendSyncDndMessage(dto.getFriendId(), dto.getIsDnd());
     }
 
+    @Override
+    public void setTop(FriendTopDTO dto) {
+        UserSession session = SessionContext.getSession();
+        LambdaUpdateWrapper<Friend> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(Friend::getUserId, session.getUserId());
+        wrapper.eq(Friend::getFriendId, dto.getFriendId());
+        wrapper.set(Friend::getIsTop, dto.getIsTop());
+        wrapper.set(Friend::getVersion, getNextVersion());
+        this.update(wrapper);
+        // 推送同步消息
+        sendSyncTopMessage(dto.getFriendId(), dto.getIsTop());
+    }
+
     /**
      * 单向解除好友关系
      *
@@ -304,6 +318,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         vo.setNickName(f.getFriendNickName());
         vo.setDeleted(f.getDeleted());
         vo.setIsDnd(f.getIsDnd());
+        vo.setIsTop(f.getIsTop());
         vo.setVersion(f.getVersion());
         return vo;
     }
@@ -396,6 +411,22 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
         msgInfo.setSendTime(new Date());
         msgInfo.setType(MessageType.FRIEND_DND.code());
         msgInfo.setContent(isDnd.toString());
+        IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendToSelf(true);
+        imClient.sendPrivateMessage(sendMessage);
+    }
+
+    void sendSyncTopMessage(Long friendId, Boolean isTop) {
+        // 同步置顶状态到其他终端
+        UserSession session = SessionContext.getSession();
+        PrivateMessageVO msgInfo = new PrivateMessageVO();
+        msgInfo.setSendId(session.getUserId());
+        msgInfo.setRecvId(friendId);
+        msgInfo.setSendTime(new Date());
+        msgInfo.setType(MessageType.FRIEND_TOP.code());
+        msgInfo.setContent(isTop.toString());
         IMPrivateMessage<PrivateMessageVO> sendMessage = new IMPrivateMessage<>();
         sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
         sendMessage.setData(msgInfo);

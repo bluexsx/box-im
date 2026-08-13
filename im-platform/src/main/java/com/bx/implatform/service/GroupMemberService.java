@@ -113,6 +113,14 @@ public interface GroupMemberService extends IService<GroupMember> {
     void setDnd(Long groupId, Long userId, Boolean isDnd);
 
     /**
+     * 设置会话置顶状态
+     * @param groupId 群id
+     * @param userId 用户id
+     * @param isTop 是否置顶
+     */
+    void setTop(Long groupId, Long userId, Boolean isTop);
+
+    /**
      * 获取群内成员最大版本号
      *
      * @return

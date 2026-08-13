@@ -168,7 +168,7 @@ export default {
 							showName: friend.nickName,
 							headImage: friend.headImage,
 							isDnd: friend.isDnd,
-							isTop: false,
+							isTop: friend.isTop,
 							lastContent: "",
 							lastSendTime: new Date().getTime(),
 							optTime: new Date().getTime(),
@@ -390,6 +390,12 @@ export default {
 				await chatStore.setDnd(convKey, JSON.parse(m.content));
 				return;
 			}
+			// 对好友设置会话置顶
+			if (m.type == this.$enums.MESSAGE_TYPE.FRIEND_TOP) {
+				friendStore.setTop(friendId, JSON.parse(m.content));
+				await chatStore.setTop(convKey, JSON.parse(m.content));
+				return;
+			}
 			// 消息插入
 			if (this.$msgType.isNormal(m.type) || this.$msgType.isTip(m.type) || this.$msgType.isAction(m.type)) {
 				const friend = this.loadFriendInfo(friendId);
@@ -458,7 +464,13 @@ export default {
 			// 对群设置免打扰
 			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_DND) {
 				groupStore.setDnd(m.groupId, JSON.parse(m.content));
-				chatStore.setDnd(chatInfo, JSON.parse(m.content));
+				await chatStore.setDnd(convKey, JSON.parse(m.content));
+				return;
+			}
+			// 对群设置会话置顶
+			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_TOP) {
+				groupStore.setTop(m.groupId, JSON.parse(m.content));
+				await chatStore.setTop(convKey, JSON.parse(m.content));
 				return;
 			}
 			// 插入群聊消息

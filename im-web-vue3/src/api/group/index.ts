@@ -5,6 +5,7 @@ import type {
   GroupMemberRemoveDTO,
   GroupMemberVO,
   GroupNewDTO,
+  GroupTopDTO,
   GroupVO
 } from './types';
 
@@ -65,4 +66,9 @@ export const quitGroup = (groupId: number) => {
 /** 开启/关闭免打扰 */
 export const setGroupDnd = (data: GroupDndDTO) => {
   return request<void>({ url: '/group/dnd', method: 'put', data });
+};
+
+/** 开启/关闭会话置顶 */
+export const setGroupTop = (data: GroupTopDTO) => {
+  return request<void>({ url: '/group/top', method: 'put', data });
 };

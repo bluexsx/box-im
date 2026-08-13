@@ -215,7 +215,7 @@ const handlePrivateOfflineMessage = async (messages: PrivateMessageVO[]) => {
           showName: friend.nickName,
           headImage: friend.headImage,
           isDnd: friend.isDnd,
-          isTop: false,
+          isTop: friend.isTop,
           lastContent: '',
           lastSendTime: Date.now(),
           optTime: Date.now(),
@@ -309,7 +309,7 @@ const handleGroupOfflineMessage = async (messages: GroupMessageVO[]) => {
           showName: group.showGroupName,
           headImage: group.headImageThumb,
           isDnd: group.isDnd,
-          isTop: false,
+          isTop: group.isTop,
           lastContent: '',
           lastSendTime: Date.now(),
           optTime: Date.now(),
@@ -485,6 +485,13 @@ const handlePrivateMessage = async (m: ChatMessage) => {
     await chatStore.setDnd(convKey, isDnd);
     return;
   }
+  // 对好友设置会话置顶
+  if (m.type == MESSAGE_TYPE.FRIEND_TOP) {
+    const isTop = JSON.parse(m.content as string);
+    await friendStore.setTop(friendId, isTop);
+    await chatStore.setTop(convKey, isTop);
+    return;
+  }
   // 单人webrtc 信令
   if (m.type != null && isRtcPrivate(m.type)) {
     rtcPrivateVideoRef.value?.onRTCMessage(m as never);
@@ -539,6 +546,13 @@ const handleGroupMessage = async (m: ChatMessage) => {
     const isDnd = JSON.parse(m.content as string);
     await groupStore.setDnd(m.groupId!, isDnd);
     await chatStore.setDnd(convKey, isDnd);
+    return;
+  }
+  // 对群设置会话置顶
+  if (m.type == MESSAGE_TYPE.GROUP_TOP) {
+    const isTop = JSON.parse(m.content as string);
+    await groupStore.setTop(m.groupId!, isTop);
+    await chatStore.setTop(convKey, isTop);
     return;
   }
   // 群视频信令（开源版仅占位，不处理）

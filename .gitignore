@@ -10,5 +10,7 @@
 /im-common/target/
 /im-web/node_modules/
 /im-web/dist/
+/im-web-vue3/node_modules/
+/im-web-vue3/dist/
 /im-uniapp/node_modules/
 /im-uniapp/package-lock.json

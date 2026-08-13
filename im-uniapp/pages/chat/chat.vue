@@ -129,7 +129,41 @@ export default {
 			})
 		},
 		onTop(conv) {
-			chatStore.setTop(conv.key, !conv.isTop)
+			if (this.isPrivate(conv)) {
+				this.setFriendTop(conv, conv.targetId, !conv.isTop)
+			} else if (this.isGroup(conv)) {
+				this.setGroupTop(conv, conv.targetId, !conv.isTop)
+			} else {
+				chatStore.setTop(conv.key, !conv.isTop)
+			}
+		},
+		setFriendTop(conv, friendId, isTop) {
+			const formData = {
+				friendId: friendId,
+				isTop: isTop
+			}
+			this.$http({
+				url: '/friend/top',
+				method: 'put',
+				data: formData
+			}).then(() => {
+				friendStore.setTop(friendId, isTop)
+				chatStore.setTop(conv.key, isTop)
+			})
+		},
+		setGroupTop(conv, groupId, isTop) {
+			const formData = {
+				groupId: groupId,
+				isTop: isTop
+			}
+			this.$http({
+				url: '/group/top',
+				method: 'put',
+				data: formData
+			}).then(() => {
+				groupStore.setTop(groupId, isTop)
+				chatStore.setTop(conv.key, isTop)
+			})
 		},
 		isShow(conv) {
 			return !this.searchText || conv.showName.includes(this.searchText)

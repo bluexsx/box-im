@@ -2,6 +2,7 @@ package com.bx.implatform.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bx.implatform.dto.GroupDndDTO;
+import com.bx.implatform.dto.GroupTopDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.dto.GroupNewDTO;
@@ -102,4 +103,10 @@ public interface GroupService extends IService<Group> {
      * @param dto
      */
     void setDnd(GroupDndDTO dto);
+
+    /**
+     * 开启/关闭会话置顶
+     * @param dto
+     */
+    void setTop(GroupTopDTO dto);
 }

@@ -63,6 +63,10 @@ public class GroupMember extends Model<GroupMember> {
      */
     private Boolean isDnd;
 
+    /**
+     * 是否置顶会话
+     */
+    private Boolean isTop;
 
     /**
      * 是否已退出

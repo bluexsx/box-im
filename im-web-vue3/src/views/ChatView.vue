@@ -53,8 +53,8 @@ import ChatItem from '@/components/chat/ChatItem.vue';
 import ChatBox from '@/components/chat/ChatBox.vue';
 import AddFriend from '@/components/friend/AddFriend.vue';
 import GroupMemberInvite from '@/components/group/GroupMemberInvite.vue';
-import { setFriendDnd } from '@/api/friend';
-import { setGroupDnd } from '@/api/group';
+import { setFriendDnd, setFriendTop } from '@/api/friend';
+import { setGroupDnd, setGroupTop } from '@/api/group';
 import type { GroupVO } from '@/api/group/types';
 import { deletePrivateChat } from '@/api/privateMessage';
 import { deleteGroupChat } from '@/api/groupMessage';
@@ -321,13 +321,13 @@ const onTop = (conv: Conversation) => {
 };
 
 const doSetFriendTop = async (conv: Conversation, friendId: number, isTop: boolean) => {
-  // 开源版置顶仅本地生效
+  await setFriendTop({ friendId, isTop });
   await friendStore.setTop(friendId, isTop);
   await chatStore.setTop(conv.key, isTop);
 };
 
 const doSetGroupTop = async (conv: Conversation, groupId: number, isTop: boolean) => {
-  // 开源版置顶仅本地生效
+  await setGroupTop({ groupId, isTop });
   await groupStore.setTop(groupId, isTop);
   await chatStore.setTop(conv.key, isTop);
 };

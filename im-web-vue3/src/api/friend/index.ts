@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import type { FriendDndDTO, FriendVO, UserOnlineVO } from './types';
+import type { FriendDndDTO, FriendTopDTO, FriendVO, UserOnlineVO } from './types';
 
 /** 好友列表 */
 export const listFriend = (version = 0) => {
@@ -29,4 +29,9 @@ export const deleteFriend = (friendId: number) => {
 /** 开启/关闭免打扰 */
 export const setFriendDnd = (data: FriendDndDTO) => {
   return request<void>({ url: '/friend/dnd', method: 'put', data });
+};
+
+/** 开启/关闭会话置顶 */
+export const setFriendTop = (data: FriendTopDTO) => {
+  return request<void>({ url: '/friend/top', method: 'put', data });
 };

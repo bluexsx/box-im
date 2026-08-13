@@ -9,7 +9,7 @@ export interface FriendVO {
   headImage?: string;
   /** 是否开启免打扰 */
   isDnd?: boolean;
-  /** 会话置顶（仅本地） */
+  /** 是否置顶会话 */
   isTop?: boolean;
   /** 是否已删除 */
   deleted?: boolean;
@@ -26,6 +26,13 @@ export interface FriendDndDTO {
   friendId: number;
   /** 消息免打扰状态 */
   isDnd: boolean;
+}
+
+export interface FriendTopDTO {
+  /** 好友用户id */
+  friendId: number;
+  /** 置顶状态 */
+  isTop: boolean;
 }
 
 export interface UserOnlineVO {
