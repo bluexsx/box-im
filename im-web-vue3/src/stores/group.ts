@@ -71,13 +71,15 @@ export const useGroupStore = defineStore('group', () => {
   };
 
   const setDnd = async (id: number, isDnd: boolean) => {
-    const group = findGroup(id)!;
+    const group = findGroup(id);
+    if (!group) return;
     group.isDnd = isDnd;
     await getDB().saveGroup(group);
   };
 
   const setTop = async (id: number, isTop: boolean) => {
-    const group = findGroup(id)!;
+    const group = findGroup(id);
+    if (!group) return;
     group.isTop = isTop;
     await getDB().saveGroup(group);
   };

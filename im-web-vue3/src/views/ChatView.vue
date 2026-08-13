@@ -299,15 +299,23 @@ const onDnd = (conv: Conversation) => {
 };
 
 const doSetFriendDnd = async (conv: Conversation, friendId: number, isDnd: boolean) => {
-  await setFriendDnd({ friendId, isDnd });
-  await friendStore.setDnd(friendId, isDnd);
-  await chatStore.setDnd(conv.key, isDnd);
+  try {
+    await setFriendDnd({ friendId, isDnd });
+    await friendStore.setDnd(friendId, isDnd);
+    await chatStore.setDnd(conv.key, isDnd);
+  } catch {
+    ElMessage.error('操作失败');
+  }
 };
 
 const doSetGroupDnd = async (conv: Conversation, groupId: number, isDnd: boolean) => {
-  await setGroupDnd({ groupId, isDnd });
-  await groupStore.setDnd(groupId, isDnd);
-  await chatStore.setDnd(conv.key, isDnd);
+  try {
+    await setGroupDnd({ groupId, isDnd });
+    await groupStore.setDnd(groupId, isDnd);
+    await chatStore.setDnd(conv.key, isDnd);
+  } catch {
+    ElMessage.error('操作失败');
+  }
 };
 
 const onTop = (conv: Conversation) => {
@@ -321,15 +329,23 @@ const onTop = (conv: Conversation) => {
 };
 
 const doSetFriendTop = async (conv: Conversation, friendId: number, isTop: boolean) => {
-  await setFriendTop({ friendId, isTop });
-  await friendStore.setTop(friendId, isTop);
-  await chatStore.setTop(conv.key, isTop);
+  try {
+    await setFriendTop({ friendId, isTop });
+    await friendStore.setTop(friendId, isTop);
+    await chatStore.setTop(conv.key, isTop);
+  } catch {
+    ElMessage.error('操作失败');
+  }
 };
 
 const doSetGroupTop = async (conv: Conversation, groupId: number, isTop: boolean) => {
-  await setGroupTop({ groupId, isTop });
-  await groupStore.setTop(groupId, isTop);
-  await chatStore.setTop(conv.key, isTop);
+  try {
+    await setGroupTop({ groupId, isTop });
+    await groupStore.setTop(groupId, isTop);
+    await chatStore.setTop(conv.key, isTop);
+  } catch {
+    ElMessage.error('操作失败');
+  }
 };
 </script>
 

@@ -85,13 +85,15 @@ export const useFriendStore = defineStore('friend', () => {
   };
 
   const setDnd = async (id: number, isDnd: boolean) => {
-    const friend = findFriend(id)!;
+    const friend = findFriend(id);
+    if (!friend) return;
     friend.isDnd = isDnd;
     await getDB().saveFriend(friend);
   };
 
   const setTop = async (id: number, isTop: boolean) => {
-    const friend = findFriend(id)!;
+    const friend = findFriend(id);
+    if (!friend) return;
     friend.isTop = isTop;
     await getDB().saveFriend(friend);
   };

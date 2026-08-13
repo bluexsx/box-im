@@ -41,6 +41,8 @@ export const useChatStore = defineStore('chat', () => {
     conv.minSeqNo = conv.minSeqNo ?? 0;
     conv.maxSeqNo = conv.maxSeqNo ?? 0;
     conv.maxReadedId = conv.maxReadedId ?? 0;
+    conv.isDnd = !!conv.isDnd;
+    conv.isTop = !!conv.isTop;
   };
 
   const findIdx = (convKey: string) => {
@@ -650,6 +652,7 @@ export const useChatStore = defineStore('chat', () => {
 
   const remove = async (convKey: string) => {
     const idx = findIdx(convKey);
+    if (idx < 0) return;
     conversations.value.splice(idx, 1);
     conversationMap.value.delete(convKey);
     if (isActive(convKey)) {
@@ -684,7 +687,8 @@ export const useChatStore = defineStore('chat', () => {
 
   const moveTop = async (convKey: string) => {
     const idx = findIdx(convKey);
-    const conv = conversationMap.value.get(convKey)!;
+    const conv = conversationMap.value.get(convKey);
+    if (idx < 0 || !conv) return;
     const insertIdx = conv.isTop ? 0 : findTopSize();
     if (idx != insertIdx) {
       conversations.value.splice(idx, 1);

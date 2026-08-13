@@ -147,7 +147,9 @@ const loadFriendInfo = (id: number): FriendVO => {
     return {
       id,
       nickName: '未知用户',
-      headImage: ''
+      headImage: '',
+      isDnd: false,
+      isTop: false
     };
   }
   return friend;
@@ -160,7 +162,9 @@ const loadGroupInfo = (id: number): GroupVO => {
       id,
       name: '未知群聊',
       showGroupName: '未知群聊',
-      headImageThumb: ''
+      headImageThumb: '',
+      isDnd: false,
+      isTop: false
     };
   }
   return group;
