@@ -1,5 +1,5 @@
 <template>
-	<view class="page mine">
+	<view class="tab-page mine">
 		<nav-bar>我的</nav-bar>
 		<view class="user-info" @click="onModifyInfo()">
 			<head-image :name="userInfo.nickName" :url="userInfo.headImage" :size="160"></head-image>
@@ -23,6 +23,8 @@
 			</view>
 		</view>
 		<bar-group>
+			<arrow-bar title="个人资料" icon="icon-personal-info" icon-color="#6561a4"
+				@tap="onModifyInfo()"></arrow-bar>
 			<arrow-bar title="修改密码" icon="icon-modify-pwd" icon-color="#5daa31"
 				@tap="onModifyPassword()"></arrow-bar>
 		</bar-group>
