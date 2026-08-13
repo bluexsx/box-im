@@ -391,12 +391,20 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
     private GroupVO convert(Group group, GroupMember member) {
         GroupVO vo = BeanUtils.copyProperties(group, GroupVO.class);
-        vo.setRemarkGroupName(member.getRemarkGroupName());
-        vo.setRemarkNickName(member.getRemarkNickName());
-        vo.setShowNickName(member.getShowNickName());
-        vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
-        vo.setQuit(member.getQuit());
-        vo.setIsDnd(member.getIsDnd());
+        if (!Objects.isNull(member)) {
+            vo.setRemarkGroupName(member.getRemarkGroupName());
+            vo.setRemarkNickName(member.getRemarkNickName());
+            vo.setShowNickName(member.getShowNickName());
+            vo.setShowGroupName(StrUtil.blankToDefault(member.getRemarkGroupName(), group.getName()));
+            vo.setQuit(member.getQuit());
+            vo.setIsDnd(member.getIsDnd());
+            vo.setVersion(member.getVersion());
+        } else {
+            vo.setShowGroupName(group.getName());
+            vo.setQuit(true);
+            vo.setIsDnd(false);
+            vo.setVersion(0L);
+        }
         return vo;
     }
 

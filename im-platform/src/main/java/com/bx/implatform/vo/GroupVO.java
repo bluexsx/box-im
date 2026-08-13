@@ -59,5 +59,9 @@ public class GroupVO {
     @Schema(description = "是否开启免打扰")
     private Boolean isDnd;
 
+    @Schema(description = "版本号")
+    private Long version;
+
+
 
 }
