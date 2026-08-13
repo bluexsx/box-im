@@ -34,10 +34,10 @@
               <div>{{ '用户名(ID)' }}:{{ user.userName }}</div>
             </div>
           </div>
-          <el-button v-if="!isFriend(user.id)" type="primary" size="small" @click="onAddFriend(user)">
-            {{ '加为好友' }}
+          <el-button v-if="isFriend(user.id)" type="primary" size="small" :icon="Position" @click="onSendMessage(user)">
+            发消息
           </el-button>
-          <el-button v-else type="info" size="small" plain disabled>{{ '已添加' }}</el-button>
+          <el-button v-else type="primary" plain size="small" @click="onAddFriend(user)">加为好友</el-button>
         </div>
       </div>
     </el-scrollbar>
@@ -46,14 +46,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Search } from '@element-plus/icons-vue';
+import { Position, Search } from '@element-plus/icons-vue';
 import HeadImage from '@/components/common/HeadImage.vue';
 import { addFriend } from '@/api/friend';
 import { searchUser } from '@/api/user';
 import type { UserVO } from '@/api/user/types';
+import { getDB } from '@/db';
+import { useChatStore } from '@/stores/chat';
 import { useFriendStore } from '@/stores/friend';
 import { useUserStore } from '@/stores/user';
+import { CONVERSATION_TYPE } from '@/utils/enums';
 
 defineProps({
   dialogVisible: {
@@ -62,8 +66,10 @@ defineProps({
   }
 });
 const emit = defineEmits(['close']);
+const router = useRouter();
 const userStore = useUserStore();
 const friendStore = useFriendStore();
+const chatStore = useChatStore();
 const users = ref<UserVO[]>([]);
 const searchText = ref('');
 const onClose = () => {
@@ -76,6 +82,26 @@ const onSearch = async () => {
     return;
   }
   users.value = await searchUser(searchText.value);
+};
+
+const onSendMessage = async (user: UserVO) => {
+  const friend = friendStore.findFriend(user.id);
+  if (!friend) return;
+  const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.PRIVATE, friend.id);
+  await chatStore.openChat({
+    type: CONVERSATION_TYPE.PRIVATE,
+    targetId: friend.id,
+    showName: friend.nickName,
+    headImage: friend.headImage,
+    isDnd: friend.isDnd,
+    isTop: friend.isTop
+  });
+  await chatStore.moveTop(convKey);
+  chatStore.setActive(convKey);
+  if (router.currentRoute.value.path != '/home/chat') {
+    await router.push('/home/chat');
+  }
+  onClose();
 };
 
 const onAddFriend = async (user: UserVO) => {
