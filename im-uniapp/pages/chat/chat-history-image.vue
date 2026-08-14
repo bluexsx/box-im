@@ -1,7 +1,7 @@
 <template>
 	<view class="page chat-history-image none-pointer-events">
 		<nav-bar title="图片" back></nav-bar>
-		<scroll-view v-if="messageMap.size>0" class="chat-message-box" scroll-y="true" upper-threshold="200"
+		<scroll-view v-if="messages.length>0" class="chat-message-box" scroll-y="true" lower-threshold="200"
 			@scrolltolower="onScrollToBottom">
 			<view v-for="[timeText, ms] of messageMap.entries()" :key="timeText">
 				<view class="time-tip">{{timeText}}</view>
@@ -25,12 +25,18 @@
 <script>
 import { chatStore } from '@/store/stores.js'
 
+const DB_BATCH_SIZE = 1000;
+const MEDIA_PAGE_SIZE = 30;
+
 export default {
 	data() {
 		return {
 			conversation: {},
 			messages: [],
-			showMaxIdx: 30,
+			convMinSeqNo: 1,
+			scannedMinSeqNo: 0,
+			hasMore: true,
+			loading: false,
 			activeMessage: null,
 			menuItems: [{
 				key: 'LOCATE_MESSAGE',
@@ -50,7 +56,7 @@ export default {
 			})
 		},
 		onScrollToBottom() {
-			this.showMaxIdx += 20;
+			this.loadMoreMedia(MEDIA_PAGE_SIZE);
 		},
 		onLongPress(m) {
 			if (!this.isTouchMove) {
@@ -82,14 +88,47 @@ export default {
 			} else {
 				return this.$date.formatDateTime(dateTime).substr(0, 7);
 			}
+		},
+		isImageMessage(m) {
+			return m.type == this.$enums.MESSAGE_TYPE.IMAGE && !m.deleted &&
+				m.status != this.$enums.MESSAGE_STATUS.RECALL
+		},
+		async loadMoreMedia(minCount) {
+			if (this.loading || !this.hasMore) {
+				return;
+			}
+			this.loading = true;
+			try {
+				let added = 0;
+				let cursor = this.scannedMinSeqNo - 1;
+				while (added < minCount && cursor >= this.convMinSeqNo) {
+					const min = Math.max(this.convMinSeqNo, cursor - DB_BATCH_SIZE + 1);
+					const batch = await this.$db.findPageMessage(this.conversation.key, min, cursor);
+					this.scannedMinSeqNo = min;
+					const media = batch.filter((m) => this.isImageMessage(m)).reverse();
+					if (media.length) {
+						this.messages = this.messages.concat(media);
+						added += media.length;
+					}
+					if (min <= this.convMinSeqNo) {
+						this.hasMore = false;
+						break;
+					}
+					cursor = min - 1;
+					await new Promise((resolve) => setTimeout(resolve, 0));
+				}
+				if (this.scannedMinSeqNo <= this.convMinSeqNo) {
+					this.hasMore = false;
+				}
+			} finally {
+				this.loading = false;
+			}
 		}
 	},
 	computed: {
 		messageMap() {
 			const map = new Map();
-			const messages = this.messages.slice(0, this.showMaxIdx);
-			// 按时间分组
-			messages.forEach(m => {
+			this.messages.forEach(m => {
 				const timeText = this.timeText(m.sendTime);
 				if (map.has(timeText)) {
 					map.get(timeText).push(m);
@@ -102,9 +141,10 @@ export default {
 	},
 	async onLoad(options) {
 		this.conversation = chatStore.conversationMap.get(options.convKey);
-		const messages = await this.$db.findMessageByConvKey(this.conversation.key);
-		this.messages = messages.filter(m => m.type == this.$enums.MESSAGE_TYPE.IMAGE && !m.deleted &&
-			m.status != this.$enums.MESSAGE_STATUS.RECALL).reverse();
+		this.convMinSeqNo = Math.max(1, this.conversation.minSeqNo);
+		this.scannedMinSeqNo = this.conversation.maxSeqNo + 1;
+		this.hasMore = this.conversation.maxSeqNo >= this.convMinSeqNo;
+		await this.loadMoreMedia(MEDIA_PAGE_SIZE);
 	}
 }
 </script>

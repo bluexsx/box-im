@@ -7,8 +7,9 @@
 					cancelButton="none"></uni-search-bar>
 			</view>
 		</view>
-		<scroll-view v-if="showMessages.length>0" class="chat-message-list" :style="{height: scrollbarHeight+'px'}"
-			scroll-y="true" upper-threshold="200" @scrolltolower="onScrollToBottom">
+		<view v-if="initializing" class="loading-tip">加载中...</view>
+		<scroll-view v-else-if="showMessages.length>0" class="chat-message-list"
+			:style="{height: scrollbarHeight+'px'}" scroll-y="true" upper-threshold="200" @scrolltolower="onScrollToBottom">
 			<view v-for="(m, idx) in showMessages" :key="m.localId">
 				<view class="chat-message" @longpress.prevent.stop="onLongPress(m)" @touchmove="onTouchMove"
 					@touchend="onTouchEnd">
@@ -36,7 +37,8 @@ export default {
 			showMaxIdx: 30,
 			navBarHeight: 0,
 			activeMessage: null,
-			isTouchMove: false
+			isTouchMove: false,
+			initializing: true
 		}
 	},
 	methods: {
@@ -130,12 +132,16 @@ export default {
 	},
 	async onLoad(options) {
 		this.conversation = chatStore.conversationMap.get(options.convKey);
-		const messages = await this.$db.findMessageByConvKey(this.conversation.key);
-		this.messages = messages.filter(m => this.$enums.MESSAGE_TYPE.FILE == m.type && !m.deleted &&
-			m.status != this.$enums.MESSAGE_STATUS.RECALL).reverse();
-		if (this.isGroup) {
-			const members = groupStore.findGroup(this.conversation.targetId).members;
-			this.groupMemberMap = new Map(members.map(m => [m.userId, m]));
+		try {
+			const messages = await this.$db.findMessageByConvKey(this.conversation.key);
+			this.messages = messages.filter(m => this.$enums.MESSAGE_TYPE.FILE == m.type && !m.deleted &&
+				m.status != this.$enums.MESSAGE_STATUS.RECALL).reverse();
+			if (this.isGroup) {
+				const members = groupStore.findGroup(this.conversation.targetId).members;
+				this.groupMemberMap = new Map(members.map(m => [m.userId, m]));
+			}
+		} finally {
+			this.initializing = false;
 		}
 	},
 	mounted() {
@@ -156,6 +162,15 @@ export default {
 	.chat-message-list {
 		flex: 1;
 		height: 100%;
+	}
+
+	.loading-tip {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: $im-text-color-light;
+		font-size: $im-font-size;
 	}
 
 	.tip {
