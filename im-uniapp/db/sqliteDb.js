@@ -101,6 +101,7 @@ class ImSqliteDB extends DB {
 	}
 
 	async saveConversationAndMessage(conversations, messages) {
+		const MESSAGE_BATCH_SIZE = 1000;
 		await this._begin();
 		try {
 			if (conversations.length) {
@@ -113,15 +114,18 @@ class ImSqliteDB extends DB {
 				`);
 			}
 			if (messages.length) {
-				const msgValues = messages.map((message) => {
-					return `(${this._text(message.localId)}, ${this._number(message.id)}, 
-							${this._text(message.convKey)}, ${message.sendTime}, 
+				for (let i = 0; i < messages.length; i += MESSAGE_BATCH_SIZE) {
+					const batch = messages.slice(i, i + MESSAGE_BATCH_SIZE);
+					const msgValues = batch.map((message) => {
+						return `(${this._text(message.localId)}, ${this._number(message.id)},
+							${this._text(message.convKey)}, ${message.sendTime},
 							${this._number(message.seqNo)}, ${this._text(JSON.stringify(message))})`;
-				}).join(',');
-				await this._executeSql(`
-					INSERT OR REPLACE INTO messages("localId", "id", "convKey", "sendTime", "seqNo", "data")
-					VALUES ${msgValues}
-				`);
+					}).join(',');
+					await this._executeSql(`
+						INSERT OR REPLACE INTO messages("localId", "id", "convKey", "sendTime", "seqNo", "data")
+						VALUES ${msgValues}
+					`);
+				}
 			}
 			await this._commit();
 		} catch (e) {
