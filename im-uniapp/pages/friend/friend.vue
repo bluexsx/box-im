@@ -135,16 +135,6 @@ export default {
 	display: flex;
 	flex-direction: column;
 
-	:deep(.u-index-anchor) {
-		height: 60rpx !important;
-		background-color: unset !important;
-		border-bottom: none !important;
-	}
-
-	:deep(.u-index-anchor__text) {
-		color: $im-text-color !important;
-	}
-
 	.friend-tip {
 		position: absolute;
 		top: 50%;
@@ -197,6 +187,26 @@ export default {
 		padding: 0;
 		overflow: hidden;
 		position: relative;
+
+		:deep(.u-index-anchor) {
+			height: 60rpx !important;
+			background-color: unset !important;
+			border-bottom: none !important;
+		}
+
+		:deep(.u-index-anchor__text) {
+			color: $im-text-color !important;
+		}
+
+		:deep(.u-index-list) {
+			height: 100%;
+			position: relative;
+		}
+
+		:deep(.u-index-list__letter) {
+			top: 50% !important;
+			transform: translateY(-50%);
+		}
 
 		.friend-loading {
 			display: block;

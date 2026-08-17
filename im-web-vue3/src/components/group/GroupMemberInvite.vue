@@ -7,20 +7,20 @@
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
-        <el-scrollbar style="height: 400px">
-          <div v-for="friend in friends" :key="friend.id">
-            <FriendItem v-show="friend.nickName.includes(searchText)" :menu="false" :friend="friend" size="small" @click="onSwitchCheck(friend)">
-              <el-checkbox v-model="friend.isCheck" :disabled="friend.disabled" class="checkbox" @click.stop />
+        <VirtualScroller class="scroll-box" :items="filteredFriends">
+          <template #default="{ item }">
+            <FriendItem :menu="false" :friend="item" size="small" @click="onSwitchCheck(item)">
+              <el-checkbox v-model="item.isCheck" :disabled="item.disabled" class="checkbox" @click.stop />
             </FriendItem>
-          </div>
-        </el-scrollbar>
+          </template>
+        </VirtualScroller>
       </div>
       <div class="arrow">
         <el-icon><DArrowRight /></el-icon>
       </div>
       <div class="right-box">
         <div class="tip">{{ `已勾选${checkCount}位好友` }}</div>
-        <el-scrollbar style="height: 400px">
+        <el-scrollbar class="scroll-box">
           <div v-for="friend in friends" :key="friend.id">
             <FriendItem v-if="friend.isCheck && !friend.disabled" :friend="friend" size="small" :menu="false" @del="onRemoveFriend(friend)" />
           </div>
@@ -41,6 +41,7 @@ import { computed, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { DArrowRight, Search } from '@element-plus/icons-vue';
 import FriendItem from '@/components/friend/FriendItem.vue';
+import VirtualScroller from '@/components/common/VirtualScroller.vue';
 import { inviteGroup, newGroup } from '@/api/group';
 import type { GroupVO } from '@/api/group/types';
 import { useFriendStore } from '@/stores/friend';
@@ -75,6 +76,7 @@ const maxSelectSize = 50;
 const isCreate = computed(() => mode.value === 'create');
 const dialogTitle = computed(() => (isCreate.value ? '发起群聊' : '邀请好友进群'));
 const checkCount = computed(() => friends.value.filter((f) => f.isCheck && !f.disabled).length);
+const filteredFriends = computed(() => friends.value.filter((f) => f.nickName.includes(searchText.value)));
 
 const openCreate = () => {
   mode.value = 'create';
@@ -180,6 +182,10 @@ defineExpose({ open, openCreate, close });
 <style lang="scss" scoped>
 .group-member-invite {
   display: flex;
+
+  .scroll-box {
+    height: 400px;
+  }
 
   .left-box {
     flex: 1;

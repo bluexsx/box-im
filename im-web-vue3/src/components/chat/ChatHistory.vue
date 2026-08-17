@@ -9,7 +9,7 @@
         </el-input>
       </div>
       <div ref="chatTabsRef" class="chat-tabs">
-        <el-tabs v-model="tabName" @tab-click="onTabClick">
+        <el-tabs v-model="tabName" @tab-change="onTabChange">
           <el-tab-pane :label="'全部'" name="all">
             <el-scrollbar v-if="messageSize > 0" ref="allScrollBoxRef" :style="tabPaneStyle">
               <div v-for="(message, idx) in showMessages" :key="showMinIdx + idx">
@@ -304,7 +304,7 @@ const close = () => {
   onDrawerClose();
 };
 
-const onTabClick = () => {
+const onTabChange = () => {
   resetShowMinIdx();
   initEvent();
   scrollToBottom();

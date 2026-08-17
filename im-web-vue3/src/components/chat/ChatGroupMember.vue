@@ -94,11 +94,11 @@ const onShowUserInfo = async (e: MouseEvent, member: GroupMemberVO) => {
         color: var(--im-color-primary);
         cursor: pointer;
         border-radius: 50%;
-        transition: all 0.3s ease;
+        box-sizing: content-box;
+        padding: 10px;
 
         &:hover {
           background: var(--im-background-active);
-          transform: translateX(-2px);
         }
       }
 
