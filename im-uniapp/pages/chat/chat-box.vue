@@ -1167,7 +1167,7 @@ export default {
 	async onShow() {
 		// 防止热更新时出现白屏
 		if (!this.isPageReady) {
-			uni.navigateBack();
+			uni.switchTab({ url: "/pages/chat/chat" })
 			return;
 		}
 		// #ifdef APP-PLUS
