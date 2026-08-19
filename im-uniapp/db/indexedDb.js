@@ -105,6 +105,15 @@ class ImIndexedDB extends DB {
 		return this.db.messages.where("convKey").equals(convKey).toArray();
 	}
 
+	async findRecentMessagesByConvKey(convKey, limit) {
+		const messages = await this.db.messages
+			.where('[convKey+seqNo+sendTime]')
+			.between([convKey, Dexie.minKey, 0], [convKey, Dexie.maxKey, Infinity], true, true)
+			.reverse()
+			.limit(limit)
+			.toArray();
+		return messages.reverse();
+	}
 
 	async findAllFriends() {
 		return await this.db.friends.toArray();

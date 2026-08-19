@@ -194,6 +194,16 @@ class ImSqliteDB extends DB {
 		return rows.map((row) => JSON.parse(row.data));
 	}
 
+	async findRecentMessagesByConvKey(convKey, limit) {
+		const rows = await this._selectSql(`
+			SELECT data FROM messages
+			WHERE "convKey" = ${this._text(convKey)}
+			ORDER BY "seqNo" DESC, "sendTime" DESC, "localId" DESC
+			LIMIT ${this._number(limit)}
+		`);
+		return rows.map((row) => JSON.parse(row.data)).reverse();
+	}
+
 	async findAllFriends() {
 		const rows = await this._selectSql('SELECT data FROM friends');
 		return rows.map((row) => JSON.parse(row.data));

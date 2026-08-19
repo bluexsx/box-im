@@ -96,6 +96,17 @@ class ImMemoryDB extends BaseDB {
     return this._convMessages(convKey);
   }
 
+  async findRecentMessagesByConvKey(convKey: string, limit: number) {
+    return this._convMessages(convKey)
+      .sort((a, b) => {
+        if (a.seqNo !== b.seqNo) {
+          return Number(a.seqNo) - Number(b.seqNo);
+        }
+        return Number(a.sendTime) - Number(b.sendTime);
+      })
+      .slice(-limit);
+  }
+
   async findPageMessage(convKey: string, minSeqNo: number, maxSeqNo: number) {
     return this._convMessages(convKey)
       .filter((m) => Number(m.seqNo) >= minSeqNo && Number(m.seqNo) <= maxSeqNo)

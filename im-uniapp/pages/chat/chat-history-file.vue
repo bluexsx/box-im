@@ -133,7 +133,7 @@ export default {
 	async onLoad(options) {
 		this.conversation = chatStore.conversationMap.get(options.convKey);
 		try {
-			const messages = await this.$db.findMessageByConvKey(this.conversation.key);
+			const messages = await this.$db.findRecentMessagesByConvKey(this.conversation.key, 50000);
 			this.messages = messages.filter(m => this.$enums.MESSAGE_TYPE.FILE == m.type && !m.deleted &&
 				m.status != this.$enums.MESSAGE_STATUS.RECALL).reverse();
 			if (this.isGroup) {

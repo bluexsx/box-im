@@ -280,7 +280,7 @@ const open = async () => {
   searchText.value = '';
   tabName.value = 'all';
   loading.value = true;
-  const localMessages = await getDB().findMessageByConvKey(props.conversation.key);
+  const localMessages = await getDB().findRecentMessagesByConvKey(props.conversation.key, 100000);
   messages.value = filterInvalidMessage(localMessages);
   loading.value = false;
   resetShowMinIdx();

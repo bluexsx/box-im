@@ -127,7 +127,7 @@ export default {
 	},
 	async onLoad(options) {
 		this.conversation = chatStore.conversationMap.get(options.convKey);
-		const messages = await this.$db.findMessageByConvKey(this.conversation.key);
+		const messages = await this.$db.findRecentMessagesByConvKey(this.conversation.key, 50000);
 		this.messages = this.filterInvalidMessage(messages);
 		if (this.isGroup) {
 			const members = groupStore.findGroup(this.conversation.targetId).members;

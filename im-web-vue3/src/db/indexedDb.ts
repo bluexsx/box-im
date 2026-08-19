@@ -140,6 +140,17 @@ class ImIndexedDB extends BaseDB {
     return this.table<ChatMessage>('messages').where('convKey').equals(convKey).toArray();
   }
 
+  /** 按 seqNo 倒序取会话最近 limit 条，返回时间正序 */
+  async findRecentMessagesByConvKey(convKey: string, limit: number) {
+    const messages = await this.table<ChatMessage>('messages')
+      .where('[convKey+seqNo+sendTime]')
+      .between([convKey, Dexie.minKey, 0], [convKey, Dexie.maxKey, Infinity], true, true)
+      .reverse()
+      .limit(limit)
+      .toArray();
+    return messages.reverse();
+  }
+
   async findAllFriends() {
     return this.table<FriendVO>('friends').toArray();
   }
