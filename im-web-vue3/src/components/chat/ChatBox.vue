@@ -30,7 +30,8 @@
                       @resend="onResendMessage"
                       @delete="onDeleteMessage"
                       @recall="onRecallMessage"
-                      @download="onDownloadFile"
+                      @downloadFile="onDownloadFile"
+                      @downloadImage="onDownloadImage"
                       @call="onCall(m.type)"
                       @atMember="onAtMember"
                       @audioStateChange="onAudioStateChange" />
@@ -608,14 +609,47 @@ const onDownloadFile = (message: ChatMessage) => {
   const data = JSON.parse(String(message.content || '{}'));
   const url = data.url;
   const name = data.name;
+  download(url, name);
+};
+
+const genFileName = (fileUrl: string) => {
+  try {
+    const path = fileUrl.split('?')[0];
+    const name = path.substring(path.lastIndexOf('/') + 1);
+    if (name && /\.(png|jpe?g|gif|webp|bmp)$/i.test(name)) {
+      return name;
+    }
+  } catch {
+    // ignore
+  }
+  return `image_${Date.now()}.jpg`;
+};
+
+const download = (href: string, fileName: string) => {
   const a = document.createElement('a');
-  a.download = name;
-  a.style.display = 'none';
-  a.href = url;
+  a.href = href;
+  a.download = fileName;
   a.target = '_blank';
+  a.rel = 'noopener';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+};
+
+const onDownloadImage = async (message: ChatMessage) => {
+  const data = JSON.parse(String(message.content || '{}'));
+  const fileUrl = data.originUrl;
+  const fileName = genFileName(fileUrl);
+  try {
+    const res = await fetch(fileUrl);
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    download(objectUrl, fileName);
+    URL.revokeObjectURL(objectUrl);
+  } catch {
+    download(fileUrl, fileName);
+  }
 };
 
 const scrollToAtMessage = async () => {

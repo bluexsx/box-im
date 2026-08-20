@@ -124,7 +124,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['resend', 'delete', 'recall', 'download', 'call', 'audioStateChange', 'copy', 'atMember']);
+const emit = defineEmits(['resend', 'delete', 'recall', 'downloadFile', 'downloadImage', 'call', 'audioStateChange', 'copy', 'atMember']);
 
 const userStore = useUserStore();
 const configStore = useConfigStore();
@@ -292,7 +292,10 @@ const showMessageMenu = (e: MouseEvent) => {
     menuItems.push({ key: 'RECALL', name: '撤回' });
   }
   if (props.message.type == MESSAGE_TYPE.FILE) {
-    menuItems.push({ key: 'DOWNLOAD', name: '下载' });
+    menuItems.push({ key: 'DOWNLOAD_FILE', name: '下载' });
+  }
+  if (props.message.type == MESSAGE_TYPE.IMAGE) {
+    menuItems.push({ key: 'DOWNLOAD_IMAGE', name: '下载' });
   }
   if (sendFail.value) {
     menuItems.push({ key: 'RESEND', name: '重新发送' });
