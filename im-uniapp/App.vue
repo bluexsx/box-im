@@ -592,21 +592,15 @@ export default {
 			}
 			// 记录标志
 			this.reconnecting = true;
-			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			userStore.loadUser().then((userInfo) => {
-				uni.showToast({
-					title: '连接已断开，尝试重新连接...',
-					icon: 'none'
-				})
-				// 重新连接
-				let loginInfo = uni.getStorageSync("loginInfo")
-				wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
-			}).catch(() => {
-				// 5s后重试
+			// 直接用本地token重连，不阻塞等HTTP探活
+			let loginInfo = uni.getStorageSync("loginInfo")
+			if (!loginInfo || !loginInfo.accessToken) {
 				setTimeout(() => {
 					this.reconnectWs();
-				}, 5000)
-			})
+				}, 1000)
+				return;
+			}
+			wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
 		},
 		onReconnectWs() {
 			this.reconnecting = false;
@@ -615,10 +609,6 @@ export default {
 			promises.push(friendStore.loadFriend());
 			promises.push(groupStore.loadGroup());
 			Promise.all(promises).then(() => {
-				uni.showToast({
-					title: "已重新连接",
-					icon: 'none'
-				})
 				// 加载离线消息
 				this.pullOfflineMessage();
 			}).catch((e) => {
@@ -626,12 +616,10 @@ export default {
 				this.exit();
 			})
 		},
-		closeSplashscreen(delay) {
+		closeSplashscreen() {
 			// #ifdef APP-PLUS
 			// 关闭开机动画
-			setTimeout(() => {
-				plus.navigator.closeSplashscreen()
-			}, delay)
+			plus.navigator.closeSplashscreen();
 			// #endif
 		}
 	},
@@ -642,24 +630,23 @@ export default {
 	},
 	async onLaunch() {
 		await this.$mountDb();
-		// 延迟1s，避免用户看到页面跳转
-		this.closeSplashscreen(1000);
 		// 登录状态校验
 		let loginInfo = uni.getStorageSync("loginInfo")
 		this.refreshToken(loginInfo).then(() => {
+			this.closeSplashscreen();
 			// #ifdef H5
 			// 跳转到聊天页
 			uni.switchTab({
 				url: "/pages/chat/chat"
 			})
-			// #endif			
+			// #endif
 			// 初始化
 			this.init();
-			this.closeSplashscreen(0);
 		}).catch(() => {
 			// 跳转到登录页
 			uni.navigateTo({
-				url: "/pages/login/login"
+				url: "/pages/login/login",
+				complete: () => this.closeSplashscreen()
 			})
 		})
 	}

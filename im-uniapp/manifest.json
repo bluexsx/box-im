@@ -12,7 +12,7 @@
         "compilerVersion" : 3,
         "splashscreen" : {
             "alwaysShowBeforeRender" : false,
-            "waiting" : false,
+            "waiting" : true,
             "autoclose" : false,
             "delay" : 0
         },
