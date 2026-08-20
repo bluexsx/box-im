@@ -160,16 +160,13 @@ export default {
 		reconnectWs() {
 			// 记录标志
 			this.reconnecting = true;
-			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			this.userStore.loadUser().then(() => {
-				// 断线重连
-				this.$message.error("连接断开，正在尝试重新连接...");
-				this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, sessionStorage.getItem(
-					"accessToken"));
-			}).catch(() => {
-				// 10s后重试
-				setTimeout(() => this.reconnectWs(), 10000)
-			})
+			const accessToken = sessionStorage.getItem("accessToken");
+			if (!accessToken) {
+				this.onExit();
+				return;
+			}
+			// 直接用本地token重连，不阻塞等HTTP探活
+			this.$wsApi.reconnect(process.env.VUE_APP_WS_URL, accessToken);
 		},
 		onReconnectWs() {
 			// 重连成功
@@ -181,7 +178,6 @@ export default {
 			Promise.all(promises).then(() => {
 				// 加载离线消息
 				this.pullOfflineMessage();
-				this.$message.success("重新连接成功");
 			}).catch(() => {
 				this.$message.error("初始化失败");
 				this.onExit();

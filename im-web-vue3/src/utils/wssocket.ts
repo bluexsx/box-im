@@ -2,10 +2,9 @@ type WsCallback = (...args: unknown[]) => void;
 type MessageCallback = (cmd: number, data: unknown) => void;
 
 let websock: WebSocket | null = null;
-// 断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
 let rec: ReturnType<typeof setTimeout> | null = null;
-// 连接标识 避免重复连接
 let isConnect = false;
+let lastConnectTime = 0;
 let connectCallBack: WsCallback | null = null;
 let messageCallBack: MessageCallback | null = null;
 let closeCallBack: WsCallback | null = null;
@@ -35,6 +34,7 @@ export const connect = (wsurl: string, accessToken: string) => {
     if (isConnect) {
       return;
     }
+    lastConnectTime = Date.now();
     websock = new WebSocket(wsurl);
     websock.onmessage = (e) => {
       const sendInfo = JSON.parse(e.data as string) as { cmd: number; data: unknown };
@@ -51,7 +51,8 @@ export const connect = (wsurl: string, accessToken: string) => {
       }
     };
     websock.onclose = (e) => {
-      isConnect = false; // 断开后修改标识
+      console.log('onclose');
+      isConnect = false;
       closeCallBack?.(e);
     };
     websock.onopen = () => {
@@ -69,7 +70,7 @@ export const connect = (wsurl: string, accessToken: string) => {
     };
     // 连接发生错误的回调方法
     websock.onerror = (e) => {
-      close(3000);
+      close();
       isConnect = false;
       closeCallBack?.(e);
     };
@@ -82,20 +83,25 @@ export const connect = (wsurl: string, accessToken: string) => {
 // 定义重连函数
 export const reconnect = (wsurl: string, accessToken: string) => {
   if (isConnect) {
-    // 如果已经连上就不在重连了
     return;
   }
   if (rec) {
     clearTimeout(rec);
   }
-  // 延迟5秒重连  避免过多次过频繁请求重连
+  // 1s内最多重连一次
+  const wait = Math.max(0, 1000 - (Date.now() - lastConnectTime));
   rec = setTimeout(() => {
     connect(wsurl, accessToken);
-  }, 15000);
+  }, wait);
 };
 
 // 设置关闭连接
 export const close = (code?: number) => {
+  // 清掉预约重连，避免退出后仍 connect
+  if (rec) {
+    clearTimeout(rec);
+    rec = null;
+  }
   if (!isConnect) {
     return;
   }

@@ -6,20 +6,25 @@
 				<view>消息接收中...</view>
 			</custom-loading>
 		</view>
+		<view v-else-if="reconnecting" class="chat-loading">
+			<custom-loading :size="50" :mask="false">
+				<view>连接已断开，正在重新连接...</view>
+			</custom-loading>
+		</view>
 		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
 				<uni-search-bar focus="true" radius="100" v-model="searchText" cancelButton="none"
 					placeholder="搜索"></uni-search-bar>
 			</view>
 		</view>
-		<view class="chat-tip" v-if="!loading && showConversations.length == 0">
+		<view class="chat-tip" v-if="!loading && !reconnecting && showConversations.length == 0">
 			<view class="tip-icon">
 				<text class="iconfont icon-chat"></text>
 			</view>
 			<view class="tip-title">还没有聊天</view>
 			<view class="tip-content">添加好友或创建群聊，开始精彩的对话吧</view>
 		</view>
-		<scroll-view class="scroll-bar" v-else scroll-with-animation="true" scroll-y="true"
+		<scroll-view class="scroll-bar" v-else-if="!loading && !reconnecting" scroll-with-animation="true" scroll-y="true"
 			@scrolltolower="onScrollToBottom">
 			<long-press-menu ref="longPressMenu" @select="onSelectChatMenu">
 				<view v-for="conv in showConversations" :key="conv.key">
@@ -232,6 +237,9 @@ export default {
 		},
 		loading() {
 			return chatStore && chatStore.loading;
+		},
+		reconnecting() {
+			return getApp().$vm.reconnecting;
 		},
 		showConversations() {
 			if (!chatStore) {

@@ -9,6 +9,14 @@
         </el-input>
         <el-button plain class="add-btn" :icon="Plus" :title="'更多'" @click="onClickAddMenu" />
       </div>
+      <div v-if="reconnecting" class="chat-status-bar is-reconnect">
+        <el-icon class="is-loading"><Loading /></el-icon>
+        <span>连接断开，正在尝试重新连接...</span>
+      </div>
+      <div v-else-if="loading" class="chat-status-bar is-loading">
+        <el-icon class="is-loading"><Loading /></el-icon>
+        <span>消息接收中...</span>
+      </div>
       <div v-if="!loading" class="chat-filter-bar">
         <div v-for="(item, idx) in menuItems" :key="idx" class="filter-item" :class="{ active: menuIdx === idx }" @click="onMenuChange(idx)">
           <span class="filter-label">{{ item.label }}</span>
@@ -17,8 +25,7 @@
           </span>
         </div>
       </div>
-      <div v-if="loading" v-loading="true" class="chat-loading" :element-loading-text="'消息接收中...'" element-loading-background="#F9F9F9" />
-      <VirtualScroller v-else class="scroll-box" :items="showConversations">
+      <VirtualScroller class="scroll-box" :items="showConversations">
         <template #default="{ item }">
           <ChatItem
             :conversation="item"
@@ -41,11 +48,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, inject, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Plus, Search } from '@element-plus/icons-vue';
+import { Plus, Search, Loading } from '@element-plus/icons-vue';
 import ResizableAside from '@/components/common/ResizableAside.vue';
 import VirtualScroller from '@/components/common/VirtualScroller.vue';
 import RightMenu, { type RightMenuItem } from '@/components/common/RightMenu.vue';
@@ -82,6 +89,7 @@ const chatStore = useChatStore();
 const friendStore = useFriendStore();
 const groupStore = useGroupStore();
 const { activeConversation, conversations, loading } = storeToRefs(chatStore);
+const reconnecting = inject<Ref<boolean>>('wsReconnecting', ref(false));
 const searchText = ref('');
 const menuIdx = ref(0);
 // 未读/@我 tab 快照：{ menuIdx, keys }，进入 tab 时记录会话 key，切换 tab 时刷新
@@ -456,18 +464,32 @@ const doSetGroupTop = async (conv: Conversation, groupId: number, isTop: boolean
     min-height: 0;
   }
 
-  .chat-loading {
-    height: 50px;
-    background-color: #eee;
-
-    :deep(.el-loading-spinner) {
-      .circular {
-        width: 24px;
-        height: 24px;
+  .chat-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+    height: 36px;
+    padding: 0 12px;
+    font-size: 12px;
+    line-height: 1;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    .el-icon {
+      font-size: 14px;
+    }
+    &.is-loading {
+      color: var(--im-text-color-light);
+      background: var(--im-color-primary-light-9, #f5f7fa);
+      .el-icon {
+        color: var(--im-color-primary);
       }
-
-      .el-loading-text {
-        color: var(--im-text-color-light);
+    }
+    &.is-reconnect {
+      color: var(--im-color-danger);
+      background: color-mix(in srgb, var(--im-color-danger) 8%, #fff);
+      .el-icon {
+        color: var(--im-color-danger);
       }
     }
   }

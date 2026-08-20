@@ -19,10 +19,9 @@ let connect = (wsurl, token) => {
 		success: (res) => {},
 		fail: (e) => {
 			console.log(e);
-			console.log("WebSocket连接失败，10s后重连");
-			setTimeout(() => {
-				connect();
-			}, 10000)
+			console.log("WebSocket连接失败");
+			isConnect = false;
+			closeCallBack && closeCallBack(e);
 		}
 	});
 
@@ -78,9 +77,9 @@ let reconnect = (wsurl, accessToken) => {
 	if (isConnect) {
 		return;
 	}
-	// 延迟10秒重连  避免过多次过频繁请求重连
+	// 避免过多次过频繁请求重连，1s内最多重连一次
 	let timeDiff = new Date().getTime() - lastConnectTime.getTime()
-	let delay = timeDiff < 10000 ? 10000 - timeDiff : 0;
+	let delay = timeDiff < 1000 ? 1000 - timeDiff : 0;
 	rec && clearTimeout(rec);
 	rec = setTimeout(function() {
 		connect(wsurl, accessToken);
@@ -89,6 +88,9 @@ let reconnect = (wsurl, accessToken) => {
 
 //设置关闭连接
 let close = (code) => {
+	// 清掉预约重连，避免退出后仍 connect
+	rec && clearTimeout(rec);
+	rec = null;
 	if (!isConnect) {
 		return;
 	}

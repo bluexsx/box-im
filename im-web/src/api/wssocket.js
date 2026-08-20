@@ -1,6 +1,7 @@
 var websock = null;
-let rec; //断线重连后，延迟5秒重新创建WebSocket连接  rec用来存储延迟请求的代码
+let rec; //断线重连后，延迟重新创建WebSocket连接  rec用来存储延迟请求的代码
 let isConnect = false; //连接标识 避免重复连接
+let lastConnectTime = 0;
 let connectCallBack = null;
 let messageCallBack = null;
 let closeCallBack = null
@@ -13,6 +14,7 @@ let connect = (wsurl, accessToken) => {
 			return;
 		}
 		console.log("连接WebSocket");
+		lastConnectTime = Date.now();
 		websock = new WebSocket(wsurl);
 		websock.onmessage = function (e) {
 			let sendInfo = JSON.parse(e.data)
@@ -52,7 +54,7 @@ let connect = (wsurl, accessToken) => {
 		// 连接发生错误的回调方法
 		websock.onerror = function (e) {
 			console.log('WebSocket连接发生错误:{}', e)
-			close(3000);
+			close();
 			isConnect = false;
 			closeCallBack && closeCallBack(e);
 		}
@@ -70,12 +72,20 @@ let reconnect = (wsurl, accessToken) => {
 		return;
 	}
 	rec && clearTimeout(rec);
-	rec = setTimeout(function () { // 延迟5秒重连  避免过多次过频繁请求重连
+	// 1s内最多重连一次
+	let wait = Math.max(0, 1000 - (Date.now() - lastConnectTime));
+	rec = setTimeout(function () {
 		connect(wsurl, accessToken);
-	}, 15000);
+	}, wait);
 };
 //设置关闭连接
 let close = (code) => {
+	// 清掉预约重连，避免退出后仍 connect
+	rec && clearTimeout(rec);
+	rec = null;
+	if (!isConnect) {
+		return;
+	}
 	websock && websock.close(code);
 };
 

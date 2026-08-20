@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -102,6 +102,7 @@ const { fullScreen } = storeToRefs(configStore);
 const { userInfo } = storeToRefs(userStore);
 const mine = computed(() => userInfo.value);
 const reconnecting = ref(false);
+provide('wsReconnecting', reconnecting);
 const privateMessagesBuffer = ref<ChatMessage[]>([]);
 const groupMessagesBuffer = ref<ChatMessage[]>([]);
 let audio: HTMLAudioElement | null = null;
@@ -613,7 +614,6 @@ const onReconnectWs = () => {
       pullOfflineMessage();
       // 刷新好友在线状态
       void friendStore.refreshOnline();
-      ElMessage.success('重新连接成功');
     })
     .catch(() => {
       ElMessage.error('初始化失败');
@@ -624,18 +624,13 @@ const onReconnectWs = () => {
 const reconnectWs = () => {
   // 记录标志
   reconnecting.value = true;
-  // 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-  userStore
-    .loadUser()
-    .then(() => {
-      // 断线重连
-      ElMessage.error('连接断开，正在尝试重新连接...');
-      wsApi.reconnect(import.meta.env.VITE_APP_WS_URL, sessionStorage.getItem('accessToken') || '');
-    })
-    .catch(() => {
-      // 10s后重试
-      setTimeout(() => reconnectWs(), 10000);
-    });
+  const accessToken = sessionStorage.getItem('accessToken');
+  if (!accessToken) {
+    onExit();
+  } else {
+    // 断线重连（提示展示在会话列表顶部）
+    wsApi.reconnect(import.meta.env.VITE_APP_WS_URL, accessToken);
+  }
 };
 
 const loadStore = async () => {
