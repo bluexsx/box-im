@@ -21,7 +21,7 @@ function previewContent(m) {
         } else if (m.type == MESSAGE_TYPE.TEXT || m.type == MESSAGE_TYPE.RECALL) {
             content = m.content;
         } else if (m.type == MESSAGE_TYPE.TIP_TEXT) {
-            content = m.content;
+            content = previewTip(m.content);
         }
     } catch (e) {
         console.log("message:", m, e);
@@ -29,6 +29,11 @@ function previewContent(m) {
     return content;
 }
 
+function previewTip(messageTip) {
+    return messageTip || '';
+}
+
 export {
-    previewContent
+    previewContent,
+    previewTip
 };

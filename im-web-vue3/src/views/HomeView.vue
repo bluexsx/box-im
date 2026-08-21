@@ -88,7 +88,7 @@ import eventBus, { type EventBusEvents, type FullImagePayload } from '@/utils/ev
 import * as wsApi from '@/utils/wssocket';
 import { MESSAGE_TYPE, MESSAGE_STATUS, CONVERSATION_TYPE } from '@/utils/enums';
 import { isNormal, isTip, isAction, isRtcPrivate, isRtcGroup } from '@/utils/messageType';
-import { previewContent } from '@/utils/messageUtil';
+import { previewContent, previewTip } from '@/utils/messageUtil';
 import { setTitleTip } from '@/utils/title';
 import tipAudioUrl from '@/assets/audio/tip.mp3';
 
@@ -254,6 +254,10 @@ const handlePrivateOfflineMessage = async (messages: PrivateMessageVO[]) => {
       const recallPayload = JSON.parse(m.content as string);
       const recallMessageId = Number(recallPayload.id);
       const recallMessageTip = recallPayload.tip || '';
+      // 会话提示语
+      conversation.lastContent = previewTip(recallMessageTip);
+      conversation.sendNickName = '';
+      // 被撤回的消息
       let recallMessage = messageMap.get(recallMessageId);
       if (!recallMessage) {
         recallMessage = await getDB().findMessageById(recallMessageId, convKey);
@@ -266,9 +270,6 @@ const handlePrivateOfflineMessage = async (messages: PrivateMessageVO[]) => {
       recallMessage.status = MESSAGE_STATUS.PENDING;
       recallMessage.content = recallMessageTip;
       recallMessage.type = MESSAGE_TYPE.TIP_TEXT;
-      // 会话提示语
-      conversation.lastContent = previewContent(recallMessage);
-      conversation.sendNickName = '';
     } else if (m.status != MESSAGE_STATUS.RECALL) {
       // 会话列表内容
       conversation.lastContent = previewContent(m);
@@ -365,6 +366,10 @@ const handleGroupOfflineMessage = async (messages: GroupMessageVO[]) => {
       const recallPayload = JSON.parse(m.content as string);
       const recallMessageId = Number(recallPayload.id);
       const recallMessageTip = recallPayload.tip || '';
+      // 会话提示语
+      conversation.lastContent = previewTip(recallMessageTip);
+      conversation.sendNickName = '';
+      // 被撤回的消息
       let recallMessage = messageMap.get(recallMessageId);
       if (!recallMessage) {
         recallMessage = await getDB().findMessageById(recallMessageId, convKey);
@@ -383,9 +388,6 @@ const handleGroupOfflineMessage = async (messages: GroupMessageVO[]) => {
       recallMessage.status = MESSAGE_STATUS.PENDING;
       recallMessage.content = recallMessageTip;
       recallMessage.type = MESSAGE_TYPE.TIP_TEXT;
-      // 会话提示语
-      conversation.lastContent = previewContent(recallMessage);
-      conversation.sendNickName = '';
     } else if (m.status != MESSAGE_STATUS.RECALL) {
       // 会话列表内容
       conversation.lastContent = previewContent(m);

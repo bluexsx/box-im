@@ -197,6 +197,10 @@ export default {
 				if (m.type == this.$enums.MESSAGE_TYPE.RECALL) {
 					const recallMessageId = Number(JSON.parse(m.content).id);
 					const recallMessageTip = JSON.parse(m.content).tip || '';
+					// 会话提示语
+					conversation.lastContent = this.$msgUtil.previewTip(recallMessageTip);
+					conversation.sendNickName = "";
+					// 被撤回的消息
 					let recallMessage = messageMap.get(recallMessageId);
 					if (!recallMessage) {
 						recallMessage = await this.$db.findMessageById(convKey, recallMessageId);
@@ -209,9 +213,6 @@ export default {
 					recallMessage.status = this.$enums.MESSAGE_STATUS.PENDING;
 					recallMessage.content = recallMessageTip;
 					recallMessage.type = this.$enums.MESSAGE_TYPE.TIP_TEXT
-					// 会话提示语
-					conversation.lastContent = this.$msgUtil.previewContent(recallMessage);
-					conversation.sendNickName = "";
 				} else {
 					// 会话内容
 					conversation.lastContent = this.$msgUtil.previewContent(m);
@@ -300,6 +301,10 @@ export default {
 				if (m.type == this.$enums.MESSAGE_TYPE.RECALL) {
 					const recallMessageId = Number(JSON.parse(m.content).id);
 					const recallMessageTip = JSON.parse(m.content).tip || '';
+					// 会话提示语
+					conversation.lastContent = this.$msgUtil.previewTip(recallMessageTip);
+					conversation.sendNickName = "";
+					// 被撤回的消息
 					let recallMessage = messageMap.get(recallMessageId);
 					if (!recallMessage) {
 						recallMessage = await this.$db.findMessageById(convKey, recallMessageId);
@@ -318,9 +323,6 @@ export default {
 					recallMessage.status = this.$enums.MESSAGE_STATUS.PENDING;
 					recallMessage.content = recallMessageTip;
 					recallMessage.type = this.$enums.MESSAGE_TYPE.TIP_TEXT
-					// 会话提示语
-					conversation.lastContent = this.$msgUtil.previewContent(recallMessage);
-					conversation.sendNickName = "";
 				} else {
 					// 会话列表内容
 					conversation.lastContent = this.$msgUtil.previewContent(m);

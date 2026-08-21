@@ -17,10 +17,14 @@ export const previewContent = (m: ChatMessage) => {
     } else if (m.type == MESSAGE_TYPE.TEXT || m.type == MESSAGE_TYPE.RECALL) {
       content = m.content;
     } else if (m.type == MESSAGE_TYPE.TIP_TEXT) {
-      content = m.content;
+      content = previewTip(m.content);
     }
   } catch (e) {
     console.log('message:', m, e);
   }
   return content;
+};
+
+export const previewTip = (messageTip: string) => {
+  return messageTip || '';
 };
