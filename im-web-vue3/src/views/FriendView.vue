@@ -211,23 +211,21 @@ const onActiveItem = (friend: FriendVO) => {
   loadUserInfo(friend.id);
 };
 
-const onDelFriend = (friend: FriendVO) => {
-  cleanMessageConfirmRef.value
-    ?.open({
+const onDelFriend = async (friend: FriendVO) => {
+  try {
+    const isCleanMessage = await cleanMessageConfirmRef.value!.open({
       title: '确认解除?',
       message: `确认删除'${friend.nickName}'吗?`
-    })
-    .then(async (isCleanMessage) => {
-      await deleteFriend(friend.id);
-      await friendStore.removeFriend(friend.id);
-      if (isCleanMessage) {
-        await deletePrivateChat({ chatId: friend.id });
-        const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.PRIVATE, friend.id);
-        await chatStore.remove(convKey);
-      }
-      ElMessage.success('删除好友成功');
-    })
-    .catch(() => {});
+    });
+    await deleteFriend(friend.id);
+    await friendStore.removeFriend(friend.id);
+    if (isCleanMessage) {
+      await deletePrivateChat({ chatId: friend.id });
+      const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.PRIVATE, friend.id);
+      await chatStore.remove(convKey);
+    }
+    ElMessage.success('删除好友成功');
+  } catch {}
 };
 
 const onAddFriend = async () => {
@@ -284,17 +282,16 @@ const showFullImage = () => {
   }
 };
 
-const selectByRouteId = () => {
+onActivated(() => {
   const userId = route.query.id;
-  if (!userId) return;
-  const friend = friendStore.findFriend(parseInt(String(userId)));
-  if (!friend) return;
-  onActiveItem(friend);
-  nextTick(() => locateItem(friend.id));
-};
-
-onMounted(selectByRouteId);
-onActivated(selectByRouteId);
+  if (userId) {
+    const friend = friendStore.findFriend(parseInt(String(userId)));
+    if (friend) {
+      onActiveItem(friend);
+      locateItem(friend.id);
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>

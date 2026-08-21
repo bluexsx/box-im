@@ -116,45 +116,42 @@ const onTopChange = async (value: boolean) => {
   }
 };
 
-const onCleanMessage = () => {
+const onCleanMessage = async () => {
   if (!props.userInfo?.id || !props.conversation) {
     return;
   }
-  ElMessageBox.confirm(`确认清空与'${props.userInfo.nickName}'的聊天记录吗?`, '清空聊天记录', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(async () => {
-      await deletePrivateChat({ chatId: props.userInfo!.id });
-      await chatStore.cleanMessage(props.conversation!.key);
-      ElMessage.success(`与'${props.userInfo!.nickName}'的聊天记录已清空`);
-    })
-    .catch(() => {});
+  try {
+    await ElMessageBox.confirm(`确认清空与'${props.userInfo.nickName}'的聊天记录吗?`, '清空聊天记录', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await deletePrivateChat({ chatId: props.userInfo.id });
+    await chatStore.cleanMessage(props.conversation.key);
+    ElMessage.success(`与'${props.userInfo.nickName}'的聊天记录已清空`);
+  } catch {}
 };
 
-const onDeleteFriend = () => {
+const onDeleteFriend = async () => {
   if (!props.userInfo?.id) {
     return;
   }
-  cleanMessageConfirmRef.value
-    ?.open({
+  try {
+    const isCleanMessage = await cleanMessageConfirmRef.value!.open({
       title: '删除好友',
       message: `确认删除'${props.userInfo.nickName}'吗?`
-    })
-    .then(async (isCleanMessage) => {
-      const userId = props.userInfo!.id;
-      await deleteFriend(userId);
-      await friendStore.removeFriend(userId);
-      if (isCleanMessage) {
-        await deletePrivateChat({ chatId: userId });
-        const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.PRIVATE, userId);
-        await chatStore.remove(convKey);
-      }
-      ElMessage.success('删除好友成功');
-      emit('close');
-    })
-    .catch(() => {});
+    });
+    const userId = props.userInfo.id;
+    await deleteFriend(userId);
+    await friendStore.removeFriend(userId);
+    if (isCleanMessage) {
+      await deletePrivateChat({ chatId: userId });
+      const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.PRIVATE, userId);
+      await chatStore.remove(convKey);
+    }
+    ElMessage.success('删除好友成功');
+    emit('close');
+  } catch {}
 };
 
 const onSearchChatHistory = () => {

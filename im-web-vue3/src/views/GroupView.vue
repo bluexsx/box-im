@@ -340,44 +340,40 @@ const onSaveGroup = () => {
   });
 };
 
-const onDissolve = (group: GroupVO) => {
-  cleanMessageConfirmRef.value
-    ?.open({
+const onDissolve = async (group: GroupVO) => {
+  try {
+    const isCleanMessage = await cleanMessageConfirmRef.value!.open({
       title: '确认解散?',
       message: `确认要解散'${group.name}'吗?`
-    })
-    .then(async (isCleanMessage) => {
-      await deleteGroup(group.id);
-      await groupStore.removeGroup(group.id);
-      if (isCleanMessage) {
-        await deleteGroupChat({ chatId: group.id });
-        const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.id);
-        await chatStore.remove(convKey);
-      }
-      ElMessage.success(`群聊'${group.name}'已解散`);
-      reset();
-    })
-    .catch(() => {});
+    });
+    await deleteGroup(group.id);
+    await groupStore.removeGroup(group.id);
+    if (isCleanMessage) {
+      await deleteGroupChat({ chatId: group.id });
+      const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.id);
+      await chatStore.remove(convKey);
+    }
+    ElMessage.success(`群聊'${group.name}'已解散`);
+    reset();
+  } catch {}
 };
 
-const onQuit = (group: GroupVO) => {
-  cleanMessageConfirmRef.value
-    ?.open({
+const onQuit = async (group: GroupVO) => {
+  try {
+    const isCleanMessage = await cleanMessageConfirmRef.value!.open({
       title: '确认退出?',
       message: `确认退出'${group.showGroupName}'吗？`
-    })
-    .then(async (isCleanMessage) => {
-      await quitGroup(group.id);
-      await groupStore.removeGroup(group.id);
-      if (isCleanMessage) {
-        await deleteGroupChat({ chatId: group.id });
-        const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.id);
-        await chatStore.remove(convKey);
-      }
-      ElMessage.success(`您已退出'${group.name}'`);
-      reset();
-    })
-    .catch(() => {});
+    });
+    await quitGroup(group.id);
+    await groupStore.removeGroup(group.id);
+    if (isCleanMessage) {
+      await deleteGroupChat({ chatId: group.id });
+      const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.id);
+      await chatStore.remove(convKey);
+    }
+    ElMessage.success(`您已退出'${group.name}'`);
+    reset();
+  } catch {}
 };
 
 const onSendMessage = async (group: GroupVO | GroupVO) => {
@@ -413,17 +409,17 @@ const openMemberDialog = () => {
   groupMemberDialogRef.value?.open();
 };
 
-const selectByRouteId = () => {
+onActivated(() => {
+  // 选中群聊
   const groupId = route.query.id;
-  if (!groupId) return;
-  const group = groupStore.findGroup(parseInt(String(groupId)));
-  if (!group) return;
-  onActiveItem(group);
-  nextTick(() => locateItem(group.id));
-};
-
-onMounted(selectByRouteId);
-onActivated(selectByRouteId);
+  if (groupId) {
+    const group = groupStore.findGroup(parseInt(String(groupId)));
+    if (group) {
+      onActiveItem(group);
+      locateItem(group.id);
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>

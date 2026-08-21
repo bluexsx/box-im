@@ -131,21 +131,21 @@ const applyFriend = async () => {
   ElMessage.success(`添加成功，'${props.member.showNickName}'已成为您的好友`);
 };
 
-const kick = () => {
+const kick = async () => {
   const member = props.member;
-  ElMessageBox.confirm(`确定将成员'${member.showNickName}'移出群聊吗？`, '确认移出?', {
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    removeGroupMembers({
+  try {
+    await ElMessageBox.confirm(`确定将成员'${member.showNickName}'移出群聊吗？`, '确认移出?', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await removeGroupMembers({
       groupId: props.group.id,
       userIds: [member.userId]
-    }).then(() => {
-      ElMessage.success(`您将'${member.showNickName}'移出了群聊`);
-      member.quit = true;
     });
-  });
+    ElMessage.success(`您将'${member.showNickName}'移出了群聊`);
+    member.quit = true;
+  } catch {}
 };
 
 const showUserInfo = () => {

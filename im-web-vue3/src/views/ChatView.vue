@@ -268,20 +268,20 @@ const onActiveItem = (conv: Conversation) => {
   chatStore.setActive(conv.key);
 };
 
-const onDelItem = (conv: Conversation) => {
-  void ElMessageBox.confirm(`删除后记录将清空,确认删除与'${conv.showName}'的聊天 ?`, '删除会话', {
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
+const onDelItem = async (conv: Conversation) => {
+  try {
+    await ElMessageBox.confirm(`删除后记录将清空,确认删除与'${conv.showName}'的聊天 ?`, '删除会话', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
     if (isPrivate(conv)) {
       await deletePrivateChat({ chatId: conv.targetId });
     } else if (isGroup(conv)) {
       await deleteGroupChat({ chatId: conv.targetId });
-    } else {
     }
     await chatStore.remove(conv.key);
-  });
+  } catch {}
 };
 
 const onShowInfo = (conv: Conversation) => {

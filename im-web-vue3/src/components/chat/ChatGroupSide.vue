@@ -277,41 +277,38 @@ const onShowMoreMember = () => {
   showAllMembers.value = true;
 };
 
-const onQuit = () => {
-  cleanMessageConfirmRef.value
-    ?.open({
+const onQuit = async () => {
+  try {
+    const isCleanMessage = await cleanMessageConfirmRef.value!.open({
       title: '确认退出?',
       message: `确认退出'${group.value.showGroupName}'吗？`
-    })
-    .then(async (isCleanMessage) => {
-      await quitGroup(group.value.id);
-      await groupStore.removeGroup(group.value.id);
-      if (isCleanMessage) {
-        await deleteGroupChat({ chatId: group.value.id });
-        const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.value.id);
-        await chatStore.remove(convKey);
-      }
-      ElMessage.success(`您已退出'${group.value.name}'`);
-      emit('close');
-    })
-    .catch(() => {});
-};
-
-const onDissolve = () => {
-  ElMessageBox.confirm(`确认解散'${group.value.name}'吗？`, '确认解散?', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(async () => {
-      await deleteGroup(group.value.id);
-      await groupStore.removeGroup(group.value.id);
+    });
+    await quitGroup(group.value.id);
+    await groupStore.removeGroup(group.value.id);
+    if (isCleanMessage) {
+      await deleteGroupChat({ chatId: group.value.id });
       const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.value.id);
       await chatStore.remove(convKey);
-      ElMessage.success(`群聊'${group.value.name}'已解散`);
-      emit('close');
-    })
-    .catch(() => {});
+    }
+    ElMessage.success(`您已退出'${group.value.name}'`);
+    emit('close');
+  } catch {}
+};
+
+const onDissolve = async () => {
+  try {
+    await ElMessageBox.confirm(`确认解散'${group.value.name}'吗？`, '确认解散?', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await deleteGroup(group.value.id);
+    await groupStore.removeGroup(group.value.id);
+    const convKey = getDB().buildConversationKey(CONVERSATION_TYPE.GROUP, group.value.id);
+    await chatStore.remove(convKey);
+    ElMessage.success(`群聊'${group.value.name}'已解散`);
+    emit('close');
+  } catch {}
 };
 
 const startEditGroupName = () => {
@@ -414,21 +411,20 @@ const saveGroupInfo = async () => {
   }
 };
 
-const onCleanMessage = () => {
+const onCleanMessage = async () => {
   if (!props.conversation) {
     return;
   }
-  ElMessageBox.confirm(`确认清空与'${group.value.name}'的聊天记录吗?`, '清空聊天记录', {
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(async () => {
-      await deleteGroupChat({ chatId: group.value.id });
-      await chatStore.cleanMessage(props.conversation!.key);
-      ElMessage.success(`与'${group.value.name}'的聊天记录已清空`);
-    })
-    .catch(() => {});
+  try {
+    await ElMessageBox.confirm(`确认清空与'${group.value.name}'的聊天记录吗?`, '清空聊天记录', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await deleteGroupChat({ chatId: group.value.id });
+    await chatStore.cleanMessage(props.conversation.key);
+    ElMessage.success(`与'${group.value.name}'的聊天记录已清空`);
+  } catch {}
 };
 
 const onSearchChatHistory = () => {
