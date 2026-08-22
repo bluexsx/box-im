@@ -20,11 +20,11 @@
                 radius="50%"
                 :name="userInfo.nickName || userInfo.userName"
                 :is-show-user-info="false" />
+              <div class="upload-overlay">
+                <el-icon><Camera /></el-icon>
+                <span>{{ '更换头像' }}</span>
+              </div>
             </FileUpload>
-            <div class="upload-overlay">
-              <el-icon><Camera /></el-icon>
-              <span>{{ '更换头像' }}</span>
-            </div>
           </div>
         </div>
         <div class="user-basic-info">
@@ -138,25 +138,33 @@ defineExpose({ init });
       gap: 16px;
 
       .avatar-container {
-        position: relative;
-        cursor: pointer;
-
-        .upload-overlay {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          background: rgba(0, 0, 0, 0.45);
-          color: #fff;
-          border-radius: 50%;
-          opacity: 0;
-          font-size: 12px;
-        }
-
-        &:hover .upload-overlay {
-          opacity: 1;
+        .avatar-uploader {
+          position: relative;
+          display: inline-block;
+          cursor: pointer;
+          :deep(.el-upload) {
+            border: none !important;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+          }
+          .upload-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            font-size: 12px;
+          }
+          &:hover .upload-overlay {
+            opacity: 1;
+          }
         }
       }
 
