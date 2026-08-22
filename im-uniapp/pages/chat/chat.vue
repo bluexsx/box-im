@@ -254,6 +254,12 @@ export default {
 		}
 	},
 	onShow() {
+		// 防止小程序通过home键在未登录的情况直接进入首页
+		const loginInfo = getLoginInfo()
+		if (!loginInfo || !loginInfo.accessToken) {
+			uni.reLaunch({ url: '/pages/login/login' })
+			return
+		}
 		this.refreshUnreadBadge();
 	}
 }
