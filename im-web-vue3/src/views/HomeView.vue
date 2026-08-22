@@ -5,7 +5,7 @@
         <div class="navi-bar-box">
           <div class="top">
             <div class="avater">
-              <HeadImage :name="mine.nickName" :size="42" :url="mine.headImageThumb" :is-show-user-info="false" @click="goSetting" />
+              <HeadImage :id="mine.id" :name="mine.nickName" :size="42" :url="mine.headImageThumb" :is-show-user-info="false" @click="goSetting" />
             </div>
             <div class="menu">
               <router-link class="link" to="/home/chat">

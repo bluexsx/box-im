@@ -33,6 +33,7 @@
           <div class="avatar-section">
             <HeadImage
               :size="120"
+              :id="userInfo.id"
               :name="userInfo.nickName"
               :url="userInfo.headImage"
               radius="50%"

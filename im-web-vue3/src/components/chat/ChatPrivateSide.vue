@@ -3,7 +3,7 @@
     <div v-if="userInfo" class="friend-info-section">
       <div class="friend-card">
         <div class="friend-avatar">
-          <HeadImage :size="80" :url="userInfo.headImageThumb" radius="50%" :name="userInfo.nickName" />
+          <HeadImage :size="80" :id="userInfo.id" :url="userInfo.headImageThumb" radius="50%" :name="userInfo.nickName" />
         </div>
         <div class="friend-details">
           <div class="friend-name-row">
