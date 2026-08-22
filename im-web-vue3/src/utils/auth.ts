@@ -75,9 +75,20 @@ export const clearLoginSession = (clearAutoLogin = true): void => {
   }
 };
 
-/** 使用本地 refreshToken 自动登录（直接调 request，避免 api/login ↔ auth 循环依赖） */
+/** accessToken 是否已过期 */
+export const isAccessTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+    if (!payload.exp) return true;
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+};
+
+/** 使用 refreshToken 刷新会话 */
 export const refreshLogin = (): Promise<LoginVO> => {
-  const token = getPersistedRefreshToken();
+  const token = getRefreshToken();
   if (!token) {
     return Promise.reject(new Error('no refresh token'));
   }

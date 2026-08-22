@@ -4,6 +4,7 @@ import http from './common/request';
 import * as msgType from './common/messageType';
 import * as enums from './common/enums';
 import * as wsApi from './common/wssocket';
+import { isAccessTokenExpired } from './common/auth';
 import UNI_APP from '@/.env.js'
 
 export default {
@@ -588,21 +589,29 @@ export default {
 			})
 		},
 		reconnectWs() {
-			// 已退出则不再重连
 			if (this.isExit) {
 				return;
 			}
-			// 记录标志
 			this.reconnecting = true;
-			// 直接用本地token重连，不阻塞等HTTP探活
-			let loginInfo = uni.getStorageSync("loginInfo")
+			const loginInfo = uni.getStorageSync("loginInfo");
 			if (!loginInfo || !loginInfo.accessToken) {
-				setTimeout(() => {
-					this.reconnectWs();
-				}, 1000)
+				this.exit();
 				return;
 			}
-			wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
+			const doReconnect = (token) => wsApi.reconnect(UNI_APP.WS_URL, token);
+			if (!isAccessTokenExpired(loginInfo.accessToken)) {
+				doReconnect(loginInfo.accessToken);
+				return;
+			}
+			if (!loginInfo.refreshToken) {
+				this.exit();
+				return;
+			}
+			this.refreshToken(loginInfo).then(() => {
+				doReconnect(uni.getStorageSync("loginInfo").accessToken);
+			}).catch(() => {
+				setTimeout(() => this.reconnectWs(), 3000);
+			});
 		},
 		onReconnectWs() {
 			this.reconnecting = false;

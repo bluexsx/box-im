@@ -629,10 +629,22 @@ const reconnectWs = () => {
   const accessToken = sessionStorage.getItem('accessToken');
   if (!accessToken) {
     onExit();
-  } else {
-    // 断线重连（提示展示在会话列表顶部）
-    wsApi.reconnect(import.meta.env.VITE_APP_WS_URL, accessToken);
+    return;
   }
+  if (!auth.isAccessTokenExpired(accessToken)) {
+    wsApi.reconnect(import.meta.env.VITE_APP_WS_URL, accessToken);
+    return;
+  }
+  if (!auth.getRefreshToken()) {
+    onExit();
+    return;
+  }
+  auth
+    .refreshLogin()
+    .then((data) => wsApi.reconnect(import.meta.env.VITE_APP_WS_URL, data.accessToken))
+    .catch(() => {
+      setTimeout(() => reconnectWs(), 3000);
+    });
 };
 
 const loadStore = async () => {
