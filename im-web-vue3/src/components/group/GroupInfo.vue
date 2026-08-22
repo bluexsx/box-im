@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="group-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
+  <div v-if="show" ref="rootRef" class="group-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
     <div class="container">
       <div class="avatar">
         <HeadImage :name="group.name" :url="group.headImageThumb" :size="60" radius="10%" @click="showFullImage()" />
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Position } from '@element-plus/icons-vue';
 import HeadImage from '@/components/common/HeadImage.vue';
@@ -55,6 +55,7 @@ const show = ref(false);
 const group = ref<GroupVO>({ id: 0, name: '', showGroupName: '' });
 const groupMembers = ref<GroupMemberVO[]>([]);
 const pos = reactive({ x: 0, y: 0 });
+const rootRef = ref<HTMLElement>();
 const maxPreviewCount = 6; // 最多显示6个成员头像
 
 const isInGroup = computed(() => groupStore.isGroup(group.value.id));
@@ -72,10 +73,17 @@ const open = (g: GroupVO, p: { x: number; y: number }) => {
   show.value = true;
   group.value = g;
   groupMembers.value = [];
-  const w = document.documentElement.clientWidth;
-  const h = document.documentElement.clientHeight;
-  pos.x = Math.min(p.x, w - 350);
-  pos.y = Math.min(p.y, h - 200);
+  pos.x = p.x;
+  pos.y = p.y;
+  nextTick(() => {
+    const el = rootRef.value;
+    if (!el) return;
+    const pad = 8;
+    const w = document.documentElement.clientWidth;
+    const h = document.documentElement.clientHeight;
+    pos.x = Math.max(pad, Math.min(p.x, w - el.offsetWidth - pad));
+    pos.y = Math.max(pad, Math.min(p.y, h - el.offsetHeight - pad));
+  });
   loadGroupMembers();
 };
 

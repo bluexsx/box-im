@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="user-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
+  <div v-if="show" ref="rootRef" class="user-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
     <div class="user-card">
       <div class="user-header">
         <div class="avatar-section" @click="showFullImage">
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { CopyDocument, Female, Male, Plus, Position } from '@element-plus/icons-vue';
@@ -60,16 +60,23 @@ const { userInfo: mine } = storeToRefs(userStore);
 const show = ref(false);
 const user = ref<UserVO>({ id: 0, nickName: '' });
 const pos = ref<Pos>({ x: 0, y: 0 });
+const rootRef = ref<HTMLElement>();
 const isFriend = computed(() => friendStore.isFriend(user.value.id));
 const friendInfo = computed(() => friendStore.findFriend(user.value.id));
 
 const open = (u: UserVO, position: Pos) => {
   show.value = true;
   user.value = u;
-  const w = document.documentElement.clientWidth;
-  const h = document.documentElement.clientHeight;
-  pos.value.x = Math.min(position.x, w - 350);
-  pos.value.y = Math.min(position.y, h - 200);
+  pos.value = { x: position.x, y: position.y };
+  nextTick(() => {
+    const el = rootRef.value;
+    if (!el) return;
+    const pad = 8;
+    const w = document.documentElement.clientWidth;
+    const h = document.documentElement.clientHeight;
+    pos.value.x = Math.max(pad, Math.min(position.x, w - el.offsetWidth - pad));
+    pos.value.y = Math.max(pad, Math.min(position.y, h - el.offsetHeight - pad));
+  });
 };
 
 const close = () => {
