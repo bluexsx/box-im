@@ -21,7 +21,7 @@
       <div v-for="user in users" :key="user.id" v-show="user.id != userStore.userInfo.id">
         <div class="item">
           <div class="avatar">
-            <HeadImage :name="user.nickName" :url="user.headImage" :online="user.online" />
+            <HeadImage :id="user.id" :name="user.nickName" :url="user.headImage" :online="user.online" />
           </div>
           <div class="friend-info">
             <div class="nick-name">

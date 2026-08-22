@@ -3,7 +3,7 @@
     <div class="user-card">
       <div class="user-header">
         <div class="avatar-section" @click="showFullImage">
-          <HeadImage :name="user.nickName" :url="user.headImageThumb" :size="70" :online="user.online" :is-show-user-info="false" radius="50%" />
+          <HeadImage :id="user.id" :name="user.nickName" :url="user.headImageThumb" :size="70" :online="user.online" :is-show-user-info="false" radius="50%" />
         </div>
         <div class="user-basic-info">
           <div class="user-name-row">
