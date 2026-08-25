@@ -17,9 +17,10 @@
 详细文档: https://www.yuque.com/u1475064/mufu2a   
 后台管理: https://gitee.com/bluexsx/box-im-admin
 
-#### 近期更新
-- 全面兼容鸿蒙app
-
+#### 近期重大更新
+- 网页端技术框架升级至: vue3+vite+ts
+- 正式兼容纯血华为鸿蒙app
+- 本地消息重构，采用indexeddb/sqlite存储本地消息
 
 #### 在线体验
 web端: https://www.boximchat.com
