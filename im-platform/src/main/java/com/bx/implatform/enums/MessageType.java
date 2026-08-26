@@ -32,7 +32,6 @@ public enum MessageType {
     LOADING(30,"加载中标记"),
     ACT_RT_VOICE(40,"语音通话"),
     ACT_RT_VIDEO(41,"视频通话"),
-    USER_BANNED(50,"用户封禁"),
     GROUP_BANNED(51,"群聊封禁"),
     GROUP_UNBAN(52,"群聊解封"),
     FRIEND_NEW(80, "新增好友"),

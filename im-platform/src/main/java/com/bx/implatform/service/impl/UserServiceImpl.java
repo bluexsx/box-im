@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bx.imclient.IMClient;
+import com.bx.imcommon.contant.IMRedisKey;
 import com.bx.imcommon.enums.IMTerminalType;
 import com.bx.imcommon.util.JwtUtil;
 import com.bx.implatform.config.props.JwtProperties;
@@ -31,6 +32,7 @@ import com.bx.implatform.vo.OnlineTerminalVO;
 import com.bx.implatform.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +51,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final JwtProperties jwtProperties;
     private final IMClient imClient;
     private final SensitiveFilterUtil sensitiveFilterUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public LoginVO login(LoginDTO dto) {
@@ -63,6 +66,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new GlobalException(ResultCode.PASSWOR_ERROR);
         }
+        // 清除拒绝访问标记
+        redisTemplate.delete(StrUtil.join(":", IMRedisKey.IM_USER_DENIED, user.getId()));
         // 生成token
         UserSession session = BeanUtils.copyProperties(user, UserSession.class);
         session.setUserId(user.getId());
@@ -96,6 +101,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String tip = String.format("您的账号因'%s'被管理员封禁,请联系客服!",user.getReason());
             throw new GlobalException(tip);
         }
+        // 清除残留的拒绝访问标记（解封后可能漏删）
+        redisTemplate.delete(StrUtil.join(":", IMRedisKey.IM_USER_DENIED, user.getId()));
         String accessToken =
             JwtUtil.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
         String newRefreshToken = JwtUtil.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(),

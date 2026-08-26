@@ -77,7 +77,7 @@ import type { GroupMessageVO } from '@/api/groupMessage/types';
 import type { GroupVO } from '@/api/group/types';
 import { initDB, getDB } from '@/db';
 import { useChatStore } from '@/stores/chat';
-import type { ChatMessage, Conversation } from '@/types';
+import type { ChatMessage, Conversation, ForceLogoutData } from '@/types';
 import type { FriendVO } from '@/api/friend/types';
 import { useFriendStore } from '@/stores/friend';
 import { useGroupStore } from '@/stores/group';
@@ -86,7 +86,7 @@ import { useConfigStore } from '@/stores/config';
 import * as auth from '@/utils/auth';
 import eventBus, { type EventBusEvents, type FullImagePayload } from '@/utils/eventBus';
 import * as wsApi from '@/utils/wssocket';
-import { MESSAGE_TYPE, MESSAGE_STATUS, CONVERSATION_TYPE } from '@/utils/enums';
+import { MESSAGE_TYPE, MESSAGE_STATUS, CONVERSATION_TYPE, FORCE_LOGOUT_TYPE } from '@/utils/enums';
 import { isNormal, isTip, isAction, isRtcPrivate, isRtcGroup } from '@/utils/messageType';
 import { previewContent, previewTip } from '@/utils/messageUtil';
 import { setTitleTip } from '@/utils/title';
@@ -673,13 +673,7 @@ const initRealtime = () => {
   wsApi.onMessage((cmd, data) => {
     const message = data as ChatMessage;
     if (cmd === 2) {
-      // 关闭ws
-      wsApi.close(3000);
-      // 异地登录，强制下线
-      void ElMessageBox.alert('您已在其他地方登录，将被强制下线', '强制下线通知', {
-        confirmButtonText: '确定',
-        callback: () => onExit()
-      });
+      handleForceLogout(data as ForceLogoutData);
     } else if (cmd === 3) {
       if (chatStore.loading) {
         // 如果正在拉取离线消息，先放进缓存区，等待消息拉取完成再处理，防止消息乱序
@@ -745,15 +739,30 @@ const onOpenGroupVideo = () => {
   nextTick(() => rtcGroupVideoRef.value?.open());
 };
 
-const handleSystemMessage = (msg: ChatMessage) => {
-  // 用户被封禁
-  if (msg.type == MESSAGE_TYPE.USER_BANNED) {
-    wsApi.close(3000);
-    void ElMessageBox.alert(`您的账号已被管理员封禁,原因:${msg.content || ''}`, '账号被封禁', {
+const handleForceLogout = (data: ForceLogoutData) => {
+  wsApi.close(3000);
+  if (data.type === FORCE_LOGOUT_TYPE.BANNED) {
+    void ElMessageBox.alert(`您的账号已被管理员封禁,原因:${data.reason || ''}`, '账号被封禁', {
       confirmButtonText: '确定',
       callback: () => onExit()
     });
+    return;
   }
+  if (data.type === FORCE_LOGOUT_TYPE.UNREG) {
+    void ElMessageBox.alert('您的账号已注销', '提示', {
+      confirmButtonText: '确定',
+      callback: () => onExit()
+    });
+    return;
+  }
+  void ElMessageBox.alert('您已在其他地方登录，将被强制下线', '强制下线通知', {
+    confirmButtonText: '确定',
+    callback: () => onExit()
+  });
+};
+
+const handleSystemMessage = (_msg: ChatMessage) => {
+  // 系统消息（封禁改走 cmd=2 FORCE_LOGOUT）
 };
 
 const onSwitchFullScreen = () => {

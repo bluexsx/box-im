@@ -3,26 +3,10 @@ package com.bx.imcommon.model;
 import lombok.Data;
 
 /**
- * @author Blue
- * @version 1.0
+ * 强制下线推送给客户端的数据
  */
 @Data
-public class IMForceLogoutInfo {
-
-    /**
-     * 用户id
-     */
-    private Long userId;
-
-    /**
-     * 用户终端类型 IMTerminalType
-     */
-    private Integer terminal;
-
-    /**
-     * 设备id
-     */
-    private String devId;
+public class IMForceLogoutData {
 
     /**
      * 下线类型，见 {@link com.bx.imcommon.enums.IMForceLogoutType}

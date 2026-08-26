@@ -45,12 +45,7 @@ export default {
 			});
 			wsApi.onMessage((cmd, msgInfo) => {
 				if (cmd == 2) {
-					// 异地登录，强制下线
-					uni.showModal({
-						content: '您已在其他地方登录，将被强制下线',
-						showCancel: false,
-					})
-					this.exit();
+					this.handleForceLogout(msgInfo);
 				} else if (cmd == 3) {
 					if (chatStore.loading) {
 						// 如果正在拉取离线消息，先存入缓存区，等待消息拉取完成再处理，防止消息乱序
@@ -508,16 +503,28 @@ export default {
 				this.playAudioTip();
 			}
 		},
-		handleSystemMessage(msg) {
-			if (msg.type == enums.MESSAGE_TYPE.USER_BANNED) {
-				// 用户被封禁
-				wsApi.close(3099);
+		handleForceLogout(data) {
+			wsApi.close(3099);
+			if (data && data.type === enums.FORCE_LOGOUT_TYPE.BANNED) {
 				uni.showModal({
-					content: '您的账号已被管理员封禁，原因:' + msg.content,
+					content: '您的账号已被管理员封禁，原因:' + (data.reason || ''),
 					showCancel: false,
 				})
-				this.exit();
+			} else if (data && data.type === enums.FORCE_LOGOUT_TYPE.UNREG) {
+				uni.showModal({
+					content: '您的账号已注销',
+					showCancel: false,
+				})
+			} else {
+				uni.showModal({
+					content: '您已在其他地方登录，将被强制下线',
+					showCancel: false,
+				})
 			}
+			this.exit();
+		},
+		handleSystemMessage(msg) {
+			// 系统消息
 		},
 		loadFriendInfo(id, callback) {
 			let friend = friendStore.findFriend(id);

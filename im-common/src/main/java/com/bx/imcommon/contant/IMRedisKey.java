@@ -55,5 +55,10 @@ public final class IMRedisKey {
      */
     public static final String IM_USER_FORCE_LOGOUT_QUEUE = "im:user:force_logout";
 
+    /**
+     * 用户拒绝访问标记（封禁/注销等，鉴权与 WS 登录拦截用）
+     * value 为 {@link com.bx.imcommon.enums.IMForceLogoutType} 的 code
+     */
+    public static final String IM_USER_DENIED = "im:user:denied";
 
 }

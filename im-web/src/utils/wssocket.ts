@@ -1,3 +1,5 @@
+import type { WsSendInfo } from '@/types';
+
 type WsCallback = (...args: unknown[]) => void;
 type MessageCallback = (cmd: number, data: unknown) => void;
 
@@ -37,7 +39,7 @@ export const connect = (wsurl: string, accessToken: string) => {
     lastConnectTime = Date.now();
     websock = new WebSocket(wsurl);
     websock.onmessage = (e) => {
-      const sendInfo = JSON.parse(e.data as string) as { cmd: number; data: unknown };
+      const sendInfo = JSON.parse(e.data as string) as WsSendInfo;
       if (sendInfo.cmd === 0) {
         heartCheck.start();
         // 登录成功才算真正完成连接

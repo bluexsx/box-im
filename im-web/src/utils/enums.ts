@@ -13,7 +13,6 @@ export const MESSAGE_TYPE = {
   LOADING: 30,
   ACT_RT_VOICE: 40,
   ACT_RT_VIDEO: 41,
-  USER_BANNED: 50,
   FRIEND_NEW: 80,
   FRIEND_DEL: 81,
   FRIEND_ONLINE: 82,
@@ -63,4 +62,11 @@ export const CONVERSATION_TYPE = {
   PRIVATE: 1,
   GROUP: 2,
   SYSTEM: 3
+} as const;
+
+/** 强制下线类型 */
+export const FORCE_LOGOUT_TYPE = {
+  KICKED: 1,
+  BANNED: 2,
+  UNREG: 3
 } as const;

@@ -60,6 +60,17 @@ public class IMClient {
     }
 
     /**
+     * 强制用户所有在线终端下线
+     *
+     * @param userId 用户id
+     * @param type   下线类型，见 IMForceLogoutType
+     * @param reason 原因说明
+     */
+    public void forceLogout(Long userId, Integer type, String reason){
+        imSender.forceLogout(userId, type, reason);
+    }
+
+    /**
      * 发送系统消息（发送结果通过MessageListener接收）
      *
      * @param message 私有消息
