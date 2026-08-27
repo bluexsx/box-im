@@ -2,14 +2,12 @@
 	<view class="tab-page">
 		<nav-bar search @search="onSearch()">消息</nav-bar>
 		<view v-if="loading" class="chat-loading">
-			<custom-loading :size="50" :mask="false">
-				<view>消息接收中...</view>
-			</custom-loading>
+			<view class="rotate iconfont icon-loading"></view>
+			<view>消息接收中...</view>
 		</view>
 		<view v-else-if="reconnecting" class="chat-loading">
-			<custom-loading :size="50" :mask="false">
-				<view>连接已断开，正在重新连接...</view>
-			</custom-loading>
+			<view class="icon iconfont icon-loading"></view>
+			<view>连接已断开，正在重新连接...</view>
 		</view>
 		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
@@ -17,14 +15,14 @@
 					placeholder="搜索"></uni-search-bar>
 			</view>
 		</view>
-		<view class="chat-tip" v-if="!loading && !reconnecting && showConversations.length == 0">
+		<view class="chat-tip" v-if="!loading && chatStore.conversations.length == 0">
 			<view class="tip-icon">
 				<text class="iconfont icon-chat"></text>
 			</view>
 			<view class="tip-title">还没有聊天</view>
 			<view class="tip-content">添加好友或创建群聊，开始精彩的对话吧</view>
 		</view>
-		<scroll-view class="scroll-bar" v-else-if="!loading && !reconnecting" scroll-with-animation="true" scroll-y="true"
+		<scroll-view v-else class="chat-scroll-box" scroll-with-animation="true" scroll-y="true"
 			@scrolltolower="onScrollToBottom">
 			<long-press-menu ref="longPressMenu" @select="onSelectChatMenu">
 				<view v-for="conv in showConversations" :key="conv.key">
@@ -41,6 +39,7 @@ import { chatStore, friendStore, groupStore } from '@/store/stores.js'
 export default {
 	data() {
 		return {
+			chatStore,
 			showMaxIdx: 30,
 			showSearch: false,
 			searchText: "",
@@ -317,20 +316,36 @@ export default {
 	}
 
 	.chat-loading {
-		display: block;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		width: 100%;
-		height: 120rpx;
 		background: white;
 		color: $im-text-color-lighter;
-
-		.loading-box {
-			position: relative;
+		padding: 30rpx 0;
+		.icon {
+			font-size: 50rpx;
+			animation: rotate 2s ease-in-out infinite;
+		}
+		.rotate {
+			font-size: 50rpx;
+			animation: rotate 2s ease-in-out infinite;
+		}
+		@keyframes rotate {
+			from {
+				transform: rotate(0deg)
+			}
+			to {
+				transform: rotate(360deg)
+			}
 		}
 	}
 
-	.scroll-bar {
+	.chat-scroll-box {
+		position: relative;
 		flex: 1;
-		height: 100%;
+		overflow: hidden;
 	}
 }
 

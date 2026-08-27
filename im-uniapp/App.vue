@@ -70,9 +70,7 @@ export default {
 			wsApi.onClose((res) => {
 				console.log("ws断开", res);
 				// 重新连接
-				if (!this.reconnecting) {
-					this.reconnectWs();
-				}
+				this.reconnectWs();
 			})
 		},
 		async loadStore() {
@@ -622,13 +620,15 @@ export default {
 		},
 		onReconnectWs() {
 			this.reconnecting = false;
-			// 重新加载好友和群聊
+			// 增量同步好友和群聊
 			const promises = [];
-			promises.push(friendStore.loadFriend());
-			promises.push(groupStore.loadGroup());
+			promises.push(friendStore.pullFriends());
+			promises.push(groupStore.pullGroups());
 			Promise.all(promises).then(() => {
 				// 加载离线消息
 				this.pullOfflineMessage();
+				// 刷新好友在线状态
+				friendStore.refreshOnline();
 			}).catch((e) => {
 				console.log(e);
 				this.exit();
