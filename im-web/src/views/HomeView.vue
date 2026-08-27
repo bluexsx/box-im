@@ -102,6 +102,7 @@ const { fullScreen } = storeToRefs(configStore);
 const { userInfo } = storeToRefs(userStore);
 const mine = computed(() => userInfo.value);
 const reconnecting = ref(false);
+const isExit = ref(false);
 provide('wsReconnecting', reconnecting);
 const privateMessagesBuffer = ref<ChatMessage[]>([]);
 const groupMessagesBuffer = ref<ChatMessage[]>([]);
@@ -131,6 +132,7 @@ const unloadStore = () => {
 };
 
 const onExit = () => {
+  isExit.value = true;
   unloadStore();
   wsApi.close(3000);
   auth.clearLoginSession(true);
@@ -624,6 +626,9 @@ const onReconnectWs = () => {
 };
 
 const reconnectWs = () => {
+  if (isExit.value) {
+    return;
+  }
   // 记录标志
   reconnecting.value = true;
   const accessToken = sessionStorage.getItem('accessToken');
@@ -660,6 +665,7 @@ const loadStore = async () => {
 };
 
 const initRealtime = () => {
+  isExit.value = false;
   const token = sessionStorage.getItem('accessToken') || '';
   // ws初始化
   wsApi.onConnect(() => {
@@ -740,6 +746,7 @@ const onOpenGroupVideo = () => {
 };
 
 const handleForceLogout = (data: ForceLogoutData) => {
+  isExit.value = true;
   wsApi.close(3000);
   if (data.type === FORCE_LOGOUT_TYPE.BANNED) {
     void ElMessageBox.alert(`您的账号已被管理员封禁,原因:${data.reason || ''}`, '账号被封禁', {

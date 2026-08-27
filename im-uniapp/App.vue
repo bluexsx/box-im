@@ -502,6 +502,7 @@ export default {
 			}
 		},
 		handleForceLogout(data) {
+			this.isExit = true;
 			wsApi.close(3099);
 			if (data && data.type === enums.FORCE_LOGOUT_TYPE.BANNED) {
 				uni.showModal({
