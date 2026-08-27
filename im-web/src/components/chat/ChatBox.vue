@@ -899,8 +899,6 @@ const initConversation = async () => {
   await chatStore.resetMessages(props.conversation.key);
   // 滚到底部
   await scrollToBottom();
-  // 有时页面渲染得慢，会导致无法正常滚到底部，这里再滚一次
-  setTimeout(() => scrollToBottom(), 100);
   // 消息已读
   await readedMessage();
 };
@@ -911,9 +909,9 @@ watch(
     await initConversation();
     const locateMsg = pendingLocateMessage.value;
     if (locateMsg && locateMsg.convKey == newKey) {
+      chatStore.removePendingLocateMessage();
       await locateMessage(locateMsg);
     }
-    chatStore.removePendingLocateMessage();
   },
   { immediate: true }
 );
@@ -940,8 +938,8 @@ onActivated(async () => {
   await scrollToBottom();
   const locateMsg = pendingLocateMessage.value;
   if (locateMsg && locateMsg.convKey == props.conversation.key) {
-    await locateMessage(locateMsg);
     chatStore.removePendingLocateMessage();
+    await locateMessage(locateMsg);
   }
 });
 
