@@ -469,7 +469,7 @@ export default {
 			await this.processSendMessage(file.conversation, message, file.localMessage);
 		},
 		async onUploadImageFail(file, err) {
-			const localMessage = file.localMessage;
+			const localMessage = JSON.parse(JSON.stringify(file.localMessage));
 			localMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
 			await chatStore.updateMessage(this.conversation.key, localMessage);
 		},
@@ -509,7 +509,7 @@ export default {
 			await this.processSendMessage(file.conversation, message, file.localMessage);
 		},
 		async onUploadFileFail(file, res) {
-			const localMessage = file.localMessage;
+			const localMessage = JSON.parse(JSON.stringify(file.localMessage));
 			localMessage.status = this.$enums.MESSAGE_STATUS.FAILED;
 			await chatStore.updateMessage(this.conversation.key, localMessage);
 		},

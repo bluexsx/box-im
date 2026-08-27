@@ -52,13 +52,12 @@ export default {
 				count: this.maxCount, //最多可以选择的图片张数，默认9
 				sourceType: [this.sourceType], //album 从相册选图，camera 使用相机，默认二者都有。如需直接开相机或直接选相册，请只使用一个选项
 				sizeType: ['original'], //original 原图，compressed 压缩图，默认二者都有
-				success: (res) => {
-					res.tempFiles.forEach((file) => {
-						if (!this.onBefore || this.onBefore(file)) {
-							// 调用上传图片的接口
+				success: async (res) => {
+					for (const file of res.tempFiles) {
+						if (!this.onBefore || await this.onBefore(file)) {
 							this.uploadImage(file);
 						}
-					})
+					}
 				}
 			})
 		},
