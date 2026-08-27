@@ -87,6 +87,7 @@ import { toTimeText } from '@/utils/date';
 import * as msgType from '@/utils/messageType';
 import { transform } from '@/utils/emotion';
 import { html2Escape } from '@/utils/str';
+import { replaceURLWithHTMLLinks } from '@/utils/url';
 import eventBus from '@/utils/eventBus';
 
 const props = defineProps({
@@ -177,7 +178,9 @@ const parsedTipContent = computed(() => {
 });
 
 const htmlText = computed(() => {
+  const color = props.mine ? 'white' : '';
   let text = html2Escape(props.message.content);
+  text = replaceURLWithHTMLLinks(text, color);
   text = transform(text, 'emoji-normal');
   const atUserIds = props.message.atUserIds;
   if (atUserIds && atUserIds.length > 0) {
