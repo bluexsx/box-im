@@ -2,6 +2,7 @@ package com.bx.implatform.controller;
 
 import com.bx.implatform.annotation.RepeatSubmit;
 import com.bx.implatform.dto.FriendDndDTO;
+import com.bx.implatform.dto.FriendTopDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.FriendService;
@@ -65,6 +66,13 @@ public class FriendController {
     @Operation(summary = "开启/关闭免打扰状态", description = "开启/关闭免打扰状态")
     public Result setFriendDnd(@Valid @RequestBody FriendDndDTO dto) {
         friendService.setDnd(dto);
+        return ResultUtils.success();
+    }
+
+    @PutMapping("/top")
+    @Operation(summary = "开启/关闭会话置顶", description = "开启/关闭会话置顶")
+    public Result setFriendTop(@Valid @RequestBody FriendTopDTO dto) {
+        friendService.setTop(dto);
         return ResultUtils.success();
     }
 

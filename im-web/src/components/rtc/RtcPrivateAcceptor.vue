@@ -1,127 +1,175 @@
 <template>
-	<div class="rtc-private-acceptor">
-		<head-image :id="friend.id" :name="friend.nickName" :url="friend.headImage" :size="100"
-			:isShowUserInfo="false"></head-image>
-		<div class="acceptor-text">
-			{{ tip }}
-		</div>
-		<div class="btn-group">
-			<div class="icon iconfont icon-phone-accept accept" @click="$emit('accept')" title="接受"></div>
-			<div class="icon iconfont icon-phone-reject reject" @click="$emit('reject')" title="拒绝"></div>
-		</div>
-	</div>
+  <div class="rtc-private-acceptor">
+    <div class="acceptor-container">
+      <!-- 头像区域 -->
+      <div class="avatar-section">
+        <div class="avatar-container">
+          <HeadImage :id="friend.id" :name="friend.nickName" :url="friend.headImage" :size="80" :is-show-user-info="false" radius="50%" />
+          <div class="avatar-pulse" />
+        </div>
+      </div>
+      <div class="info-section">
+        <div class="caller-name">{{ friend.nickName }}</div>
+        <div class="call-type">{{ modeText }}</div>
+        <div class="call-status">{{ '来电中...' }}</div>
+      </div>
+      <div class="button-section">
+        <div class="action-buttons">
+          <div class="action-btn accept-btn iconfont icon-phone-accept" :title="'接受'" @click="emit('accept')" />
+          <div class="action-btn reject-btn iconfont icon-phone-reject" :title="'拒绝'" @click="emit('reject')" />
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
-<script>
-import HeadImage from '../common/HeadImage.vue';
+<script setup lang="ts">
+import { computed } from 'vue';
+import HeadImage from '@/components/common/HeadImage.vue';
+import type { FriendVO } from '@/api/friend/types';
 
-export default {
-	name: "rtcPrivateAcceptor",
-	components: {
-		HeadImage
-	},
-	data() {
-		return {}
-	},
-	props: {
-		mode: {
-			type: String
-		},
-		friend: {
-			type: Object
-		}
-	},
-	computed: {
-		tip() {
-			let modeText = this.mode == "video" ? "视频" : "语音"
-			return `${this.friend.nickName} 请求和您进行${modeText}通话...`
-		}
-	}
-}
+const props = defineProps<{
+  mode?: string;
+  friend: FriendVO;
+}>();
+
+const emit = defineEmits<{
+  accept: [];
+  reject: [];
+}>();
+
+const modeText = computed(() => (props.mode == 'video' ? '视频通话' : '语音通话'));
 </script>
 
 <style scoped lang="scss">
 .rtc-private-acceptor {
-	position: absolute;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	right: 5px;
-	bottom: 5px;
-	width: 250px;
-	height: 250px;
-	padding: 20px;
-	background-color: #fff;
-	box-shadow: var(--im-box-shadow-dark);
-	border-radius: 4px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 10000;
+  width: 320px;
 
-	.acceptor-text {
-		padding: 10px;
-		text-align: center;
-		font-size: 16px;
-	}
+  .acceptor-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px 25px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
 
-	.btn-group {
-		display: flex;
-		justify-content: space-around;
-		margin-top: 20px;
-		width: 100%;
+    .avatar-section {
+      margin-bottom: 25px;
 
-		.icon {
-			font-size: 60px;
-			cursor: pointer;
-			border-radius: 50%;
+      .avatar-container {
+        position: relative;
+        display: inline-block;
 
-			&.accept {
-				color: green;
-				animation: anim 2s ease-in infinite, vibration 2s ease-in infinite;
+        .avatar-pulse {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          background: rgba(76, 175, 80, 0.2);
+          animation: pulse-ring 2s infinite;
 
-				@keyframes anim {
-					0% {
-						box-shadow: 0 1px 0 4px #ffffff;
-					}
+          &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.1);
+            animation: pulse-ring 2s infinite 0.5s;
+          }
+        }
+      }
+    }
 
-					10% {
-						box-shadow: 0 1px 0 8px rgba(255, 165, 0, 1);
-					}
+    .info-section {
+      margin-bottom: 30px;
 
-					25% {
-						box-shadow: 0 1px 0 12px rgba(255, 210, 128, 1), 0 1px 0 16px rgba(255, 201, 102, 1);
-					}
+      .caller-name {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--im-text-color-primary);
+        margin-bottom: 8px;
+      }
 
-					50% {
-						box-shadow: 0 2px 5px 10px rgba(255, 184, 51, 1), 0 2px 5px 23px rgba(248, 248, 255, 1);
-					}
-				}
+      .call-type {
+        font-size: 16px;
+        color: var(--im-text-color);
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
 
-				@keyframes vibration {
-					0% {
-						transform: rotate(0deg);
-					}
+      .call-status {
+        font-size: 14px;
+        color: var(--im-text-color-light);
+        font-weight: 500;
+      }
+    }
 
-					25% {
-						transform: rotate(20deg);
-					}
+    .button-section {
+      .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
 
-					50% {
-						transform: rotate(0deg);
-					}
+        .action-btn {
+          border-radius: 50%;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 60px;
 
-					75% {
-						transform: rotate(-15deg);
-					}
+          &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+          }
 
-					100% {
-						transform: rotate(0deg);
-					}
-				}
+          &.reject-btn {
+            color: var(--im-color-danger);
+          }
 
-			}
+          &.accept-btn {
+            color: var(--im-color-success);
+            animation: accept-pulse 1.5s infinite;
+          }
+        }
+      }
+    }
+  }
+}
 
-			&.reject {
-				color: red;
-			}
-		}
-	}
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0;
+  }
+}
+
+@keyframes accept-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 20px rgba(76, 175, 80, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
 }
 </style>

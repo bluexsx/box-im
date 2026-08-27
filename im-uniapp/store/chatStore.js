@@ -669,11 +669,13 @@ export default defineStore('chatStore', {
 					const friend = friendStore.findFriend(conv.targetId);
 					if (friend) {
 						conv.isDnd = friend.isDnd;
+						conv.isTop = friend.isTop;
 					}
 				} else if (conv.type == CONVERSATION_TYPE.GROUP) {
 					const group = groupStore.findGroup(conv.targetId);
 					if (group) {
 						conv.isDnd = group.isDnd;
+						conv.isTop = group.isTop;
 					}
 				}
 			})

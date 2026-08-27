@@ -1,137 +1,131 @@
 <template>
-	<div class="head-image" @click="showUserInfo($event)" :style="{ cursor: isShowUserInfo ? 'pointer' : null }">
-		<img class="avatar-image" v-show="url" :src="url" :style="avatarImageStyle" loading="lazy" />
-		<div class="avatar-text" v-show="!url" :style="avatarTextStyle">
-			{{ avaterText }}</div>
-		<div v-show="online" class="online" title="用户当前在线"></div>
-		<slot></slot>
-	</div>
+  <div class="head-image" :style="{ cursor: isShowUserInfo ? 'pointer' : undefined }" @click="showUserInfo">
+    <img v-show="url" class="avatar-image" :src="url" :style="avatarImageStyle" loading="lazy" />
+    <div v-show="!url" class="avatar-text" :style="avatarTextStyle">{{ avatarText }}</div>
+    <div v-show="online" class="online" :title="'用户当前在线'" />
+    <slot />
+  </div>
 </template>
 
-<script>
-export default {
-	name: "headImage",
-	data() {
-		return {
-			colors: ["#5daa31", "#c7515a", "#e03697", "#85029b",
-				"#c9b455", "#326eb6"]
-		}
-	},
-	props: {
-		id: {
-			type: Number
-		},
-		size: {
-			type: Number,
-			default: 42
-		},
-		width: {
-			type: Number
-		},
-		height: {
-			type: Number
-		},
-		radius: {
-			type: String,
-			default: "50%"
-		},
-		url: {
-			type: String
-		},
-		name: {
-			type: String,
-			default: null
-		},
-		online: {
-			type: Boolean,
-			default: false
-		},
-		isShowUserInfo: {
-			type: Boolean,
-			default: true
-		}
-	},
-	methods: {
-		showUserInfo(e) {
-			if (!this.isShowUserInfo) return;
-			if (this.id && this.id > 0) {
-				this.$http({
-					url: `/user/find/${this.id}`,
-					method: 'get'
-				}).then((user) => {
-					let pos = {
-						x: e.x + 30,
-						y: e.y
-					}
-					this.$eventBus.$emit("openUserInfo", user, pos);
-				})
-			}
-		},
-		isChinese(charCode) {
-			return charCode >= 0x4e00 && charCode <= 0x9fa5;
-		}
-	},
-	computed: {
-		avatarImageStyle() {
-			let w = this.width ? this.width : this.size;
-			let h = this.height ? this.height : this.size;
-			return `width:${w}px; height:${h}px;
-					border-radius: ${this.radius};`
-		},
-		avatarTextStyle() {
-			let w = this.width ? this.width : this.size;
-			let h = this.height ? this.height : this.size;
-			return `width: ${w}px;height:${h}px;
-				background: linear-gradient(145deg,#ffffff20 25%,#00000060),${this.textColor};
-				font-size:${w * 0.4}px;
-				border-radius: ${this.radius};`
-		},
-		avaterText() {
-			if (!this.name) return '';
-			if (this.isChinese(this.name.charCodeAt(0))) {
-				return this.name.charAt(0)
-			} else {
-				return this.name.charAt(0).toUpperCase() + this.name.charAt(1)
-			}
-		},
-		textColor() {
-			if (!this.name) return 'fff';
-			let hash = 0;
-			for (var i = 0; i < this.name.length; i++) {
-				hash += this.name.charCodeAt(i);
-			}
-			return this.colors[hash % this.colors.length];
-		}
-	}
-}
+<script setup lang="ts">
+import { computed } from 'vue';
+import { findUser } from '@/api/user';
+import eventBus from '@/utils/eventBus';
+
+const props = defineProps({
+  id: {
+    type: Number
+  },
+  size: {
+    type: Number,
+    default: 42
+  },
+  width: {
+    type: Number
+  },
+  height: {
+    type: Number
+  },
+  radius: {
+    type: String,
+    default: '50%'
+  },
+  url: {
+    type: String
+  },
+  name: {
+    type: String
+  },
+  online: {
+    type: Boolean,
+    default: false
+  },
+  isShowUserInfo: {
+    type: Boolean,
+    default: true
+  }
+});
+
+const colors = ['#5daa31', '#c7515a', '#e03697', '#85029b', '#c9b455', '#326eb6'];
+
+const isChinese = (charCode: number) => {
+  return charCode >= 0x4e00 && charCode <= 0x9fa5;
+};
+
+const avatarImageStyle = computed(() => {
+  const w = props.width ?? props.size;
+  const h = props.height ?? props.size;
+  return `width:${w}px;height:${h}px;border-radius:${props.radius};`;
+});
+
+const avatarTextStyle = computed(() => {
+  const w = props.width ?? props.size;
+  const h = props.height ?? props.size;
+  return `width:${w}px;height:${h}px;background:linear-gradient(145deg,#ffffff20 25%,#00000060),${textColor.value};font-size:${w * 0.4}px;border-radius:${props.radius};`;
+});
+
+const avatarText = computed(() => {
+  if (!props.name) {
+    return '';
+  }
+  if (isChinese(props.name.charCodeAt(0))) {
+    return props.name.charAt(0);
+  }
+  return props.name.charAt(0).toUpperCase() + props.name.charAt(1);
+});
+
+const textColor = computed(() => {
+  if (!props.name) {
+    return '#fff';
+  }
+  let hash = 0;
+  for (let i = 0; i < props.name.length; i++) {
+    hash += props.name.charCodeAt(i);
+  }
+  return colors[hash % colors.length];
+});
+
+const showUserInfo = async (e: MouseEvent) => {
+  if (!props.isShowUserInfo) {
+    return;
+  }
+  if (props.id && props.id > 0) {
+    const user = await findUser(props.id);
+    const pos = { x: e.x + 30, y: e.y };
+    eventBus.emit('openUserInfo', { user, pos });
+  }
+};
 </script>
 
 <style scoped lang="scss">
 .head-image {
-	position: relative;
+  position: relative;
 
-	.avatar-image {
-		position: relative;
-		overflow: hidden;
-		display: block;
-	}
+  .avatar-image {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    cursor: pointer;
+  }
 
-	.avatar-text {
-		color: white;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+  .avatar-text {
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-	.online {
-		position: absolute;
-		right: -5px;
-		bottom: 0;
-		width: 12px;
-		height: 12px;
-		background: limegreen;
-		border-radius: 50%;
-		border: 2px solid white;
-	}
+  .online {
+    position: absolute;
+    right: -4px;
+    bottom: 0;
+    width: 22%;
+    height: 22%;
+    min-width: 10px;
+    min-height: 10px;
+    background: var(--im-color-success);
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 }
 </style>

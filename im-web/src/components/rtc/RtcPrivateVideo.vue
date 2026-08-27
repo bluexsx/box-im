@@ -1,438 +1,425 @@
 <template>
   <div>
-    <el-dialog v-dialogDrag top="5vh" custom-class="rtc-private-video-dialog" :title="title" :width="width"
-      :visible.sync="showRoom" :close-on-click-modal="false" :close-on-press-escape="false" :before-close="onQuit">
+    <el-dialog
+      v-model="showRoom"
+      class="rtc-private-video-dialog"
+      :title="title"
+      :width="width"
+      top="5vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      draggable
+      destroy-on-close
+      :before-close="onQuit">
       <div class="rtc-private-video">
         <div v-show="isVideo" class="rtc-video-box">
-          <div class="rtc-video-friend" v-loading="!isChating" element-loading-text="等待对方接听..."
+          <div
+            v-loading="!isChating"
+            class="rtc-video-friend"
+            :element-loading-text="'等待对方接听...'"
             element-loading-background="rgba(0, 0, 0, 0.1)">
-            <head-image class="friend-head-image" :id="friend.id" :size="80" :name="friend.nickName"
-              :url="friend.headImage" :isShowUserInfo="false" radius="0">
-            </head-image>
-            <video ref="remoteVideo" autoplay=""></video>
+            <HeadImage
+              class="friend-head-image"
+              :id="friend.id"
+              :size="80"
+              :name="friend.nickName"
+              :url="friend.headImage"
+              :is-show-user-info="false"
+              radius="0" />
+            <video ref="remoteVideoRef" autoplay />
           </div>
           <div class="rtc-video-mine">
-            <video ref="localVideo" autoplay=""></video>
+            <video ref="localVideoRef" autoplay />
           </div>
         </div>
-        <div v-show="!isVideo" class="rtc-voice-box" v-loading="!isChating" element-loading-text="等待对方接听..."
+        <div
+          v-show="!isVideo"
+          v-loading="!isChating"
+          class="rtc-voice-box"
+          :element-loading-text="'等待对方接听...'"
           element-loading-background="rgba(0, 0, 0, 0.1)">
-          <head-image class="friend-head-image" :id="friend.id" :size="200" :name="friend.nickName"
-            :url="friend.headImage" :isShowUserInfo="false">
+          <HeadImage class="friend-head-image" :id="friend.id" :size="200" :name="friend.nickName" :url="friend.headImage" :is-show-user-info="false">
             <div class="rtc-voice-name">{{ friend.nickName }}</div>
-          </head-image>
+          </HeadImage>
         </div>
         <div class="rtc-control-bar">
-          <div title="取消" class="icon iconfont icon-phone-reject reject" style="color: red;" @click="onQuit()"></div>
+          <div class="icon iconfont icon-phone-reject reject" style="color: red" :title="'挂断'" @click="onQuit()" />
         </div>
       </div>
     </el-dialog>
-    <rtc-private-acceptor v-if="!isHost && isWaiting" ref="acceptor" :friend="friend" :mode="mode" @accept="onAccept"
-      @reject="onReject"></rtc-private-acceptor>
+    <RtcPrivateAcceptor v-if="!isHost && isWaiting" :friend="friend" :mode="mode" @accept="onAccept" @reject="onReject" />
   </div>
 </template>
 
-<script>
-import HeadImage from '../common/HeadImage.vue';
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import HeadImage from '@/components/common/HeadImage.vue';
 import RtcPrivateAcceptor from './RtcPrivateAcceptor.vue';
-import ImWebRtc from '@/api/webrtc';
-import ImCamera from '@/api/camera';
-import RtcPrivateApi from '@/api/rtcPrivateApi'
+import ImWebRtc from '@/utils/webrtc';
+import ImCamera from '@/utils/camera';
+import {
+  callPrivate,
+  acceptPrivate,
+  rejectPrivate,
+  cancelPrivate,
+  failedPrivate,
+  handupPrivate,
+  candidatePrivate,
+  heartbeatPrivate
+} from '@/api/webrtcPrivate';
+import { findFriend } from '@/api/friend';
+import type { FriendVO } from '@/api/friend/types';
+import { useConfigStore } from '@/stores/config';
+import { MESSAGE_TYPE } from '@/utils/enums';
+import type { ChatMessage } from '@/types';
+import callWav from '@/assets/audio/call.wav';
 
-export default {
-  name: 'rtcPrivateVideo',
-  components: {
-    HeadImage,
-    RtcPrivateAcceptor
-  },
-  data() {
-    return {
-      camera: new ImCamera(), // 摄像头和麦克风
-      webrtc: new ImWebRtc(), // webrtc相关
-      API: new RtcPrivateApi(), // API
-      audio: new Audio(), // 呼叫音频
-      showRoom: false,
-      friend: {},
-      isHost: false, // 是否发起人
-      state: "CLOSE", // CLOSE:关闭  WAITING:等待呼叫或接听 CHATING:聊天中  ERROR:出现异常
-      mode: 'video', // 模式 video:视频聊 voice:语音聊天
-      localStream: null, // 本地视频流
-      remoteStream: null, // 对方视频流
-      videoTime: 0,
-      videoTimer: null,
-      heartbeatTimer: null,
-      candidates: [],
-    }
-  },
-  methods: {
-    open(rtcInfo) {
-      this.showRoom = true;
-      this.mode = rtcInfo.mode;
-      this.isHost = rtcInfo.isHost;
-      this.friend = rtcInfo.friend;
-      if (this.isHost) {
-        this.onCall();
-      }
-    },
-    initAudio() {
-      let url = require(`@/assets/audio/call.wav`);
-      this.audio.src = url;
-      this.audio.loop = true;
-    },
-    initRtc() {
-      this.webrtc.init(this.configuration)
-      this.webrtc.setupPeerConnection((stream) => {
-        this.$refs.remoteVideo.srcObject = stream;
-        this.remoteStream = stream;
-      })
-      // 监听候选信息
-      this.webrtc.onIcecandidate((candidate) => {
-        if (this.state == "CHATING") {
-          // 连接已就绪,直接发送
-          this.API.sendCandidate(this.friend.id, candidate);
-        } else {
-          // 连接未就绪,缓存起来，连接后再发送
-          this.candidates.push(candidate)
-        }
-      })
-      // 监听连接成功状态
-      this.webrtc.onStateChange((state) => {
-        if (state == "connected") {
-          console.log("webrtc连接成功")
-        } else if (state == "disconnected") {
-          console.log("webrtc连接断开")
-        }
-      })
-    },
-    onCall() {
-      if (!this.checkDevEnable()) {
-        this.close();
-      }
-      // 初始化webrtc
-      this.initRtc();
-      // 启动心跳
-      this.startHeartBeat();
-      // 打开摄像头
-      this.openStream().then(() => {
-        this.webrtc.setStream(this.localStream);
-        this.webrtc.createOffer().then((offer) => {
-          // 发起呼叫
-          this.API.call(this.friend.id, this.mode, offer).then(() => {
-            // 直接进入聊天状态
-            this.state = "WAITING";
-            // 播放呼叫铃声
-            this.audio.play();
-          }).catch(() => {
-            this.close();
-          })
-        })
-      }).catch(() => {
-        // 呼叫方必须能打开摄像头，否则无法正常建立连接
-        this.close();
-      })
-    },
-    onAccept() {
-      if (!this.checkDevEnable()) {
-        this.API.failed(this.friend.id, "对方设备不支持通话")
-        this.close();
-        return;
-      }
-      // 进入房间
-      this.showRoom = true;
-      this.state = "CHATING";
-      // 停止呼叫铃声
-      this.audio.pause();
-      // 初始化webrtc
-      this.initRtc();
-      // 打开摄像头
-      this.openStream().finally(() => {
-        this.webrtc.setStream(this.localStream);
-        this.webrtc.createAnswer(this.offer).then((answer) => {
-          this.API.accept(this.friend.id, answer);
-          // 记录时长
-          this.startChatTime();
-          // 清理定时器
-          this.waitTimer && clearTimeout(this.waitTimer);
-        })
-      })
-    },
-    onReject() {
-      // 退出通话
-      this.API.reject(this.friend.id);
-      // 退出
-      this.close();
-    },
-    onHandup() {
-      this.API.handup(this.friend.id)
-      this.$message.success("您已挂断,通话结束")
-      this.close();
-    },
-    onCancel() {
-      this.API.cancel(this.friend.id)
-      this.$message.success("已取消呼叫,通话结束")
-      this.close();
-    },
-    onRTCMessage(msg) {
-      // 除了发起通话，如果在关闭状态就无需处理
-      if (msg.type != this.$enums.MESSAGE_TYPE.RTC_CALL_VOICE &&
-        msg.type != this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO &&
-        this.isClose) {
-        return;
-      }
-      // RTC信令处理
-      switch (msg.type) {
-        case this.$enums.MESSAGE_TYPE.RTC_CALL_VOICE:
-          this.onRTCCall(msg, 'voice')
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_CALL_VIDEO:
-          this.onRTCCall(msg, 'video')
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_ACCEPT:
-          this.onRTCAccept(msg)
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_REJECT:
-          this.onRTCReject(msg)
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_CANCEL:
-          this.onRTCCancel(msg)
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_FAILED:
-          this.onRTCFailed(msg)
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_HANDUP:
-          this.onRTCHandup(msg)
-          break;
-        case this.$enums.MESSAGE_TYPE.RTC_CANDIDATE:
-          this.onRTCCandidate(msg)
-          break;
-      }
-    },
-    onRTCCall(msg, mode) {
-      this.offer = JSON.parse(msg.content);
-      this.isHost = false;
-      this.mode = mode;
-      this.$http({
-        url: `/friend/find/${msg.sendId}`,
-        method: 'get'
-      }).then((friend) => {
-        this.friend = friend;
-        this.state = "WAITING";
-        this.audio.play();
-        this.startHeartBeat();
-        // 30s未接听自动挂掉
-        this.waitTimer = setTimeout(() => {
-          this.API.failed(this.friend.id, "对方无应答");
-          this.$message.error("您未接听");
-          this.close();
-        }, 30000)
-      })
-    },
-    onRTCAccept(msg) {
-      if (msg.selfSend) {
-        // 在其他设备接听
-        this.$message.success("已在其他设备接听");
-        this.close();
-      } else {
-        // 对方接受了的通话
-        let offer = JSON.parse(msg.content);
-        this.webrtc.setRemoteDescription(offer);
-        // 状态为聊天中
-        this.state = 'CHATING'
-        // 停止播放语音
-        this.audio.pause();
-        // 发送candidate
-        this.candidates.forEach((candidate) => {
-          this.API.sendCandidate(this.friend.id, candidate);
-        })
-        // 开始计时
-        this.startChatTime()
-      }
-    },
-    onRTCReject(msg) {
-      if (msg.selfSend) {
-        this.$message.success("已在其他设备拒绝");
-        this.close();
-      } else {
-        this.$message.error("对方拒绝了您的通话请求");
-        this.close();
-      }
-    },
-    onRTCFailed(msg) {
-      // 呼叫失败
-      this.$message.error(msg.content)
-      this.close();
-    },
-    onRTCCancel() {
-      // 对方取消通话
-      this.$message.success("对方取消了呼叫");
-      this.close();
-    },
-    onRTCHandup() {
-      // 对方挂断
-      this.$message.success("对方已挂断");
-      this.close();
-    },
-    onRTCCandidate(msg) {
-      let candidate = JSON.parse(msg.content);
-      this.webrtc.addIceCandidate(candidate);
-    },
+export type PrivateRtcInfo = {
+  mode: string;
+  isHost: boolean;
+  friend: FriendVO;
+};
 
-    openStream() {
-      return new Promise((resolve, reject) => {
-        if (this.isVideo) {
-          // 打开摄像头+麦克风
-          this.camera.openVideo().then((stream) => {
-            this.localStream = stream;
-            this.$nextTick(() => {
-              this.$refs.localVideo.srcObject = stream;
-              this.$refs.localVideo.muted = true;
-            })
-            resolve(stream);
-          }).catch((e) => {
-            this.$message.error("打开摄像头失败")
-            console.log("本摄像头打开失败:" + e.message)
-            reject(e);
-          })
-        } else {
-          // 打开麦克风
-          this.camera.openAudio().then((stream) => {
-            this.localStream = stream;
-            this.$refs.localVideo.srcObject = stream;
-            this.$refs.localVideo.muted = true;
-            resolve(stream);
-          }).catch((e) => {
-            this.$message.error("打开麦克风失败")
-            console.log("打开麦克风失败:" + e.message)
-            reject(e);
-          })
-        }
-      })
-    },
-    startChatTime() {
-      this.videoTime = 0;
-      this.videoTimer && clearInterval(this.videoTimer);
-      this.videoTimer = setInterval(() => {
-        this.videoTime++;
-      }, 1000)
-    },
-    checkDevEnable() {
-      // 检测摄像头
-      if (!this.camera.isEnable()) {
-        this.message.error("访问摄像头失败");
-        return false;
-      }
-      // 检测webrtc
-      if (!this.webrtc.isEnable()) {
-        this.message.error("初始化RTC失败，原因可能是: 1.服务器缺少ssl证书 2.您的设备不支持WebRTC");
-        return false;
-      }
-      return true;
-    },
-    startHeartBeat() {
-      // 每15s推送一次心跳
-      this.heartbeatTimer && clearInterval(this.heartbeatTimer);
-      this.heartbeatTimer = setInterval(() => {
-        this.API.heartbeat(this.friend.id);
-      }, 15000)
-    },
-    close() {
-      this.showRoom = false;
-      this.camera.close();
-      this.webrtc.close();
-      this.audio.pause();
-      this.videoTime = 0;
-      this.videoTimer && clearInterval(this.videoTimer);
-      this.heartbeatTimer && clearInterval(this.heartbeatTimer);
-      this.waitTimer && clearTimeout(this.waitTimer);
-      this.videoTimer = null;
-      this.heartbeatTimer = null;
-      this.waitTimer = null;
-      this.state = 'CLOSE';
-      this.candidates = [];
-    },
-    onQuit() {
-      if (this.isChating) {
-        this.onHandup()
-      } else if (this.isWaiting) {
-        this.onCancel();
-      } else {
-        this.close();
-      }
-    }
-  },
-  computed: {
-    width() {
-      return this.isVideo ? '960px' : '360px'
-    },
-    title() {
-      let strTitle = `${this.modeText}通话-${this.friend.nickName}`;
-      if (this.isChating) {
-        strTitle += `(${this.currentTime})`;
-      } else if (this.isWaiting) {
-        strTitle += `(呼叫中)`;
-      }
-      return strTitle;
-    },
-    currentTime() {
-      let min = Math.floor(this.videoTime / 60);
-      let sec = this.videoTime % 60;
-      let strTime = min < 10 ? "0" : "";
-      strTime += min;
-      strTime += ":"
-      strTime += sec < 10 ? "0" : "";
-      strTime += sec;
-      return strTime;
-    },
-    configuration() {
-      const iceServers = this.configStore.webrtc.iceServers;
-      return {
-        iceServers: iceServers
-      }
-    },
-    isVideo() {
-      return this.mode == "video"
-    },
-    modeText() {
-      return this.isVideo ? "视频" : "语音";
-    },
-    isChating() {
-      return this.state == "CHATING";
-    },
-    isWaiting() {
-      return this.state == "WAITING";
-    },
-    isClose() {
-      return this.state == "CLOSE";
-    }
-  },
-  mounted() {
-    // 初始化音频文件
-    this.initAudio();
-  },
-  created() {
-    // 监听页面刷新事件
-    window.addEventListener('beforeunload', () => {
-      this.onQuit();
-    });
-  },
-  beforeUnmount() {
-    this.onQuit();
+const configStore = useConfigStore();
+const camera = new ImCamera();
+const webrtc = new ImWebRtc();
+const audio = new Audio();
+const remoteVideoRef = ref<HTMLVideoElement>();
+const localVideoRef = ref<HTMLVideoElement>();
+const showRoom = ref(false);
+const friend = ref<FriendVO>({ id: 0, nickName: '' });
+const isHost = ref(false);
+const state = ref<'CLOSE' | 'WAITING' | 'CHATING' | 'ERROR'>('CLOSE');
+const mode = ref('video');
+const localStream = ref<MediaStream | null>(null);
+const videoTime = ref(0);
+const candidates = ref<RTCIceCandidate[]>([]);
+const offer = ref<RTCSessionDescriptionInit | null>(null);
+let videoTimer: ReturnType<typeof setInterval> | null = null;
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+let waitTimer: ReturnType<typeof setTimeout> | null = null;
+const isVideo = computed(() => mode.value == 'video');
+const isChating = computed(() => state.value == 'CHATING');
+const isWaiting = computed(() => state.value == 'WAITING');
+const isClose = computed(() => state.value == 'CLOSE');
+const modeText = computed(() => (isVideo.value ? '视频通话' : '语音通话'));
+const width = computed(() => (isVideo.value ? '960px' : '360px'));
+
+const configuration = computed(() => {
+  const iceServers = (configStore.webrtc as { iceServers?: RTCIceServer[] }).iceServers;
+  return { iceServers };
+});
+
+const currentTime = computed(() => {
+  const min = Math.floor(videoTime.value / 60);
+  const sec = videoTime.value % 60;
+  return `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
+});
+
+const title = computed(() => {
+  let strTitle = `${modeText.value}-${friend.value.nickName}`;
+  if (isChating.value) {
+    strTitle += `(${currentTime.value})`;
+  } else if (isWaiting.value) {
+    strTitle += `(${'呼叫中'})`;
   }
-}
+  return strTitle;
+});
+
+const initAudio = () => {
+  audio.src = callWav;
+  audio.loop = true;
+};
+
+const initRtc = () => {
+  webrtc.init(configuration.value);
+  webrtc.setupPeerConnection((stream) => {
+    if (remoteVideoRef.value) {
+      remoteVideoRef.value.srcObject = stream;
+    }
+  });
+  webrtc.onIcecandidate((candidate) => {
+    if (state.value == 'CHATING') {
+      void candidatePrivate(friend.value.id, candidate);
+    } else {
+      candidates.value.push(candidate);
+    }
+  });
+  webrtc.onStateChange((s) => {
+    console.log('ICE连接状态变化:', s);
+  });
+};
+
+const openStream = () => {
+  return new Promise<MediaStream>((resolve, reject) => {
+    if (isVideo.value) {
+      camera
+        .openVideo()
+        .then((stream) => {
+          localStream.value = stream;
+          nextTick(() => {
+            if (localVideoRef.value) {
+              localVideoRef.value.srcObject = stream;
+              localVideoRef.value.muted = true;
+            }
+          });
+          resolve(stream);
+        })
+        .catch((e) => {
+          ElMessage.error('打开摄像头失败');
+          reject(e);
+        });
+    } else {
+      camera
+        .openAudio()
+        .then((stream) => {
+          localStream.value = stream;
+          if (localVideoRef.value) {
+            localVideoRef.value.srcObject = stream;
+            localVideoRef.value.muted = true;
+          }
+          resolve(stream);
+        })
+        .catch((e) => {
+          ElMessage.error('打开麦克风失败');
+          reject(e);
+        });
+    }
+  });
+};
+
+const checkDevEnable = () => {
+  if (!camera.isEnable()) {
+    ElMessage.error('访问摄像头失败');
+    return false;
+  }
+  if (!webrtc.isEnable()) {
+    ElMessage.error('初始化RTC失败，原因可能是: 1.服务器缺少ssl证书 2.您的设备不支持WebRTC');
+    return false;
+  }
+  return true;
+};
+
+const startHeartBeat = () => {
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = setInterval(() => {
+    void heartbeatPrivate(friend.value.id);
+  }, 15000);
+};
+
+const startChatTime = () => {
+  videoTime.value = 0;
+  if (videoTimer) clearInterval(videoTimer);
+  videoTimer = setInterval(() => {
+    videoTime.value++;
+  }, 1000);
+};
+
+const close = () => {
+  showRoom.value = false;
+  camera.close();
+  webrtc.close();
+  audio.pause();
+  videoTime.value = 0;
+  if (videoTimer) clearInterval(videoTimer);
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  if (waitTimer) clearTimeout(waitTimer);
+  videoTimer = null;
+  heartbeatTimer = null;
+  waitTimer = null;
+  state.value = 'CLOSE';
+  candidates.value = [];
+  offer.value = null;
+};
+
+const onCall = () => {
+  if (!checkDevEnable()) {
+    close();
+    return;
+  }
+  initRtc();
+  startHeartBeat();
+  openStream()
+    .then(() => {
+      webrtc.setStream(localStream.value);
+      return webrtc.createOffer();
+    })
+    .then((sdp) => callPrivate(friend.value.id, mode.value, sdp))
+    .then(() => {
+      state.value = 'WAITING';
+      void audio.play();
+    })
+    .catch(() => {
+      close();
+    });
+};
+
+const open = (rtcInfo: PrivateRtcInfo) => {
+  showRoom.value = true;
+  mode.value = rtcInfo.mode;
+  isHost.value = rtcInfo.isHost;
+  friend.value = rtcInfo.friend;
+  if (isHost.value) {
+    onCall();
+  }
+};
+
+const onAccept = () => {
+  if (!checkDevEnable()) {
+    void failedPrivate(friend.value.id, '对方设备不支持通话');
+    close();
+    return;
+  }
+  showRoom.value = true;
+  state.value = 'CHATING';
+  audio.pause();
+  initRtc();
+  openStream().finally(() => {
+    webrtc.setStream(localStream.value);
+    if (!offer.value) return;
+    webrtc.createAnswer(offer.value).then((answer) => {
+      void acceptPrivate(friend.value.id, answer);
+      startChatTime();
+      if (waitTimer) clearTimeout(waitTimer);
+    });
+  });
+};
+
+const onReject = () => {
+  void rejectPrivate(friend.value.id);
+  close();
+};
+
+const onHandup = () => {
+  void handupPrivate(friend.value.id);
+  ElMessage.success('您已挂断,通话结束');
+  close();
+};
+
+const onCancel = () => {
+  void cancelPrivate(friend.value.id);
+  ElMessage.success('已取消呼叫,通话结束');
+  close();
+};
+
+const onQuit = () => {
+  if (isChating.value) {
+    onHandup();
+  } else if (isWaiting.value) {
+    onCancel();
+  } else {
+    close();
+  }
+};
+
+const onRTCCall = (msg: ChatMessage, callMode: string) => {
+  offer.value = JSON.parse(String(msg.content));
+  isHost.value = false;
+  mode.value = callMode;
+  findFriend(msg.sendId!).then((f) => {
+    friend.value = f;
+    state.value = 'WAITING';
+    void audio.play();
+    startHeartBeat();
+    waitTimer = setTimeout(() => {
+      void failedPrivate(friend.value.id, '对方无应答');
+      ElMessage.error('您未接听');
+      close();
+    }, 30000);
+  });
+};
+
+const onRTCAccept = (msg: ChatMessage) => {
+  if (msg.selfSend) {
+    ElMessage.success('已在其他设备接听');
+    close();
+  } else {
+    const answer = JSON.parse(String(msg.content));
+    webrtc.setRemoteDescription(answer);
+    state.value = 'CHATING';
+    audio.pause();
+    candidates.value.forEach((c) => {
+      void candidatePrivate(friend.value.id, c);
+    });
+    startChatTime();
+  }
+};
+
+const onRTCReject = (msg: ChatMessage) => {
+  if (msg.selfSend) {
+    ElMessage.success('已在其他设备拒绝');
+  } else {
+    ElMessage.error('对方拒绝了您的通话请求');
+  }
+  close();
+};
+
+const onRTCFailed = (msg: ChatMessage) => {
+  ElMessage.error(String(msg.content));
+  close();
+};
+
+const onRTCCancel = () => {
+  ElMessage.success('对方取消了呼叫');
+  close();
+};
+
+const onRTCHandup = () => {
+  ElMessage.success('对方已挂断');
+  close();
+};
+
+const onRTCCandidate = (msg: ChatMessage) => {
+  const candidate = JSON.parse(String(msg.content));
+  webrtc.addIceCandidate(candidate);
+};
+
+const onRTCMessage = (msg: ChatMessage) => {
+  if (msg.type != MESSAGE_TYPE.RTC_CALL_VOICE && msg.type != MESSAGE_TYPE.RTC_CALL_VIDEO && isClose.value) {
+    return;
+  }
+  switch (msg.type) {
+    case MESSAGE_TYPE.RTC_CALL_VOICE:
+      onRTCCall(msg, 'voice');
+      break;
+    case MESSAGE_TYPE.RTC_CALL_VIDEO:
+      onRTCCall(msg, 'video');
+      break;
+    case MESSAGE_TYPE.RTC_ACCEPT:
+      onRTCAccept(msg);
+      break;
+    case MESSAGE_TYPE.RTC_REJECT:
+      onRTCReject(msg);
+      break;
+    case MESSAGE_TYPE.RTC_CANCEL:
+      onRTCCancel();
+      break;
+    case MESSAGE_TYPE.RTC_FAILED:
+      onRTCFailed(msg);
+      break;
+    case MESSAGE_TYPE.RTC_HANDUP:
+      onRTCHandup();
+      break;
+    case MESSAGE_TYPE.RTC_CANDIDATE:
+      onRTCCandidate(msg);
+      break;
+  }
+};
+onMounted(() => {
+  initAudio();
+  window.addEventListener('beforeunload', onQuit);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', onQuit);
+  onQuit();
+});
+defineExpose({ open, onRTCMessage });
 </script>
 
 <style lang="scss" scoped>
 .rtc-private-video {
   position: relative;
-
-  .el-loading-text {
-    color: white !important;
-    font-size: 16px !important;
-  }
-
-  .path {
-    stroke: white !important;
-  }
 
   .rtc-video-box {
     position: relative;

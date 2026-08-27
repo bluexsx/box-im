@@ -69,6 +69,9 @@ public class IMChannelHandler extends SimpleChannelInboundHandler<IMSendInfo> {
         Long userId = ctx.channel().attr(userIdAttr).get();
         AttributeKey<Integer> terminalAttr = AttributeKey.valueOf(ChannelAttrKey.TERMINAL_TYPE);
         Integer terminal = ctx.channel().attr(terminalAttr).get();
+        if (Objects.isNull(userId) || Objects.isNull(terminal)) {
+            return;
+        }
         ChannelHandlerContext context = UserChannelCtxMap.getChannelCtx(userId, terminal);
         String key = IMRedisKey.userServerIdKey(userId, terminal);
         RedisMQTemplate redisTemplate = SpringContextHolder.getBean(RedisMQTemplate.class);

@@ -110,6 +110,17 @@ class ImStorageDB extends DB {
 		return this._convMessages(convKey);
 	}
 
+	async findRecentMessagesByConvKey(convKey, limit) {
+		return this._convMessages(convKey)
+			.sort((a, b) => {
+				if (a.seqNo !== b.seqNo) {
+					return a.seqNo - b.seqNo;
+				}
+				return a.sendTime - b.sendTime;
+			})
+			.slice(-limit);
+	}
+
 	async findPageMessage(convKey, minSeqNo, maxSeqNo) {
 		return this._convMessages(convKey)
 			.filter((m) => m.seqNo >= minSeqNo && m.seqNo <= maxSeqNo)

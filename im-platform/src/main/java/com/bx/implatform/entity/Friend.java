@@ -51,6 +51,11 @@ public class Friend{
     private Boolean isDnd;
 
     /**
+     * 是否置顶会话
+     */
+    private Boolean isTop;
+
+    /**
      * 是否已删除
      */
     private Boolean deleted;

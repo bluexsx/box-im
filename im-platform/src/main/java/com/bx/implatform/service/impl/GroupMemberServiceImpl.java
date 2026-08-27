@@ -157,6 +157,17 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         this.update(wrapper);
     }
 
+    @Override
+    public void setTop(Long groupId, Long userId, Boolean isTop) {
+        Long version = getNextVersion();
+        LambdaUpdateWrapper<GroupMember> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(GroupMember::getGroupId, groupId);
+        wrapper.eq(GroupMember::getUserId, userId);
+        wrapper.set(GroupMember::getIsTop, isTop);
+        wrapper.set(GroupMember::getVersion, version);
+        this.update(wrapper);
+    }
+
     @CacheEvict(key = "#member.getGroupId()")
     @Override
     public boolean saveOrUpdate(GroupMember member) {

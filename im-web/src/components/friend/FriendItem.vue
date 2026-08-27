@@ -1,132 +1,156 @@
 <template>
-	<div class="friend-item" :class="active ? 'active' : ''" @contextmenu.prevent="showRightMenu($event)">
-		<div class="friend-avatar">
-			<head-image :size="42" :name="friend.nickName" :url="friend.headImage" :online="friend.online">
-			</head-image>
-		</div>
-		<div class="friend-info">
-			<div class="friend-name">{{ friend.nickName }}</div>
-			<div class="friend-online">
-				<i class="el-icon-monitor online" v-show="friend.onlineWeb" title="电脑设备在线">
-					<span class="online-icon"></span>
-				</i>
-				<i class="el-icon-mobile-phone online" v-show="friend.onlineApp" title="移动设备在线">
-					<span class="online-icon"></span>
-				</i>
-			</div>
-		</div>
-		<right-menu ref="rightMenu" @select="onSelectMenu"></right-menu>
-		<slot></slot>
-	</div>
+  <div>
+    <div class="friend-item" :class="itemClass" @contextmenu.prevent="showRightMenu($event)">
+      <div class="friend-avatar">
+        <HeadImage :size="headImageSize" :id="friend.id" :name="friend.nickName" :url="friend.headImage" :online="friend.online" />
+      </div>
+      <div class="friend-info">
+        <div class="friend-name">
+          <div class="friend-name-text" :title="friend.nickName">{{ friend.nickName }}</div>
+        </div>
+        <div class="friend-online">
+          <el-icon v-show="friend.onlineWeb" class="online" :title="'电脑设备在线'">
+            <Monitor />
+            <span class="online-icon" />
+          </el-icon>
+          <el-icon v-show="friend.onlineApp" class="online" :title="'移动设备在线'">
+            <Iphone />
+            <span class="online-icon" />
+          </el-icon>
+        </div>
+      </div>
+      <slot />
+    </div>
+    <RightMenu ref="rightMenuRef" @select="onSelectMenu" />
+  </div>
 </template>
 
-<script>
-import HeadImage from '../common/HeadImage.vue';
-import RightMenu from "../common/RightMenu.vue";
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { Iphone, Monitor } from '@element-plus/icons-vue';
+import HeadImage from '@/components/common/HeadImage.vue';
+import RightMenu, { type RightMenuItem } from '@/components/common/RightMenu.vue';
+import type { FriendVO } from '@/api/friend/types';
 
-export default {
-	name: "frinedItem",
-	components: {
-		HeadImage,
-		RightMenu
-	},
-	data() {
-		return {
-			menuItems: [{
-				key: 'CHAT',
-				name: '发送消息',
-				icon: 'el-icon-chat-dot-round'
-			}, {
-				key: 'DELETE',
-				name: '删除好友',
-				icon: 'el-icon-delete'
-			}]
-		}
-	},
-	methods: {
-		showRightMenu(e) {
-			if (this.menu) {
-				this.$refs.rightMenu.open(e, this.menuItems);
-			}
-		},
-		onSelectMenu(item) {
-			this.$emit(item.key.toLowerCase());
-		}
-	},
-	props: {
-		active: {
-			type: Boolean
-		},
-		friend: {
-			type: Object
-		},
-		menu: {
-			type: Boolean,
-			default: true
-		}
-	}
+const props = defineProps({
+  active: {
+    type: Boolean,
+    default: false
+  },
+  friend: {
+    type: Object as () => FriendVO,
+    required: true
+  },
+  menu: {
+    type: Boolean,
+    default: true
+  },
+  size: {
+    type: String,
+    default: 'normal'
+  }
+});
 
-}
+const emit = defineEmits(['chat', 'card', 'delete', 'del']);
+
+const rightMenuRef = ref<InstanceType<typeof RightMenu>>();
+
+const menuItems = computed<RightMenuItem[]>(() => [
+  { key: 'CHAT', name: '发消息' },
+  { key: 'CARD', name: '分享名片' },
+  { key: 'DELETE', name: '删除好友', danger: true }
+]);
+
+const headImageSize = computed(() => (props.size == 'small' ? 36 : 42));
+
+const itemClass = computed(() => {
+  let clz = '';
+  if (props.active) clz += 'active';
+  if (props.size == 'small') clz += ' small';
+  return clz;
+});
+
+const showRightMenu = (e: MouseEvent) => {
+  if (props.menu) {
+    rightMenuRef.value?.open(e, menuItems.value);
+  }
+};
+
+const onSelectMenu = (item: RightMenuItem) => {
+  emit(String(item.key).toLowerCase() as 'chat' | 'card' | 'delete');
+};
 </script>
 
-<style scope lang="scss">
+<style scoped lang="scss">
 .friend-item {
-	height: 50px;
-	display: flex;
-	position: relative;
-	align-items: center;
-	white-space: nowrap;
-	border-radius: 10px;
-	margin: 0 3px;
-	padding: 5px 8px;
-	cursor: pointer;
+  height: 60px;
+  display: flex;
+  position: relative;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 10px;
+  margin: 0 3px;
+  padding: 5px 8px;
+  cursor: pointer;
 
-	&:hover {
-		background-color: var(--im-background-active);
-	}
+  &:hover {
+    background-color: var(--im-background-active);
+  }
 
-	&.active {
-		background-color: var(--im-background-active-dark);
-	}
+  &.active {
+    background-color: var(--im-background-active-dark);
+  }
 
-	.friend-avatar {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+  &.small {
+    height: 48px;
+    padding: 3px 10px;
+  }
 
-	.friend-info {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		padding-left: 10px;
-		text-align: left;
+  .friend-avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-		.friend-name {
-			font-size: var(--im-font-size);
-			white-space: nowrap;
-			overflow: hidden;
-		}
+  .friend-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    text-align: left;
+    overflow: hidden;
 
-		.friend-online {
-			.online {
-				font-weight: bold;
-				padding-right: 2px;
-				font-size: 16px;
-				position: relative;
-			}
+    .friend-name {
+      display: flex;
+      align-items: center;
 
-			.online-icon {
-				position: absolute;
-				right: 0;
-				bottom: 0;
-				width: 6px;
-				height: 6px;
-				background: limegreen;
-				border-radius: 50%;
-				border: 1px solid white;
-			}
-		}
-	}
+      .friend-name-text {
+        font-size: var(--im-font-size);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .friend-online {
+      .online {
+        font-weight: bold;
+        padding-right: 2px;
+        font-size: 16px;
+        position: relative;
+      }
+
+      .online-icon {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 6px;
+        height: 6px;
+        background: limegreen;
+        border-radius: 50%;
+        border: 1px solid white;
+      }
+    }
+  }
 }
 </style>

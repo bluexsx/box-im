@@ -5,6 +5,7 @@ import com.bx.implatform.dto.GroupDndDTO;
 import com.bx.implatform.dto.GroupInviteDTO;
 import com.bx.implatform.dto.GroupMemberRemoveDTO;
 import com.bx.implatform.dto.GroupNewDTO;
+import com.bx.implatform.dto.GroupTopDTO;
 import com.bx.implatform.result.Result;
 import com.bx.implatform.result.ResultUtils;
 import com.bx.implatform.service.GroupService;
@@ -106,6 +107,13 @@ public class GroupController {
     @PutMapping("/dnd")
     public Result setGroupDnd(@Valid @RequestBody GroupDndDTO dto) {
         groupService.setDnd(dto);
+        return ResultUtils.success();
+    }
+
+    @Operation(summary = "开启/关闭会话置顶", description = "开启/关闭会话置顶")
+    @PutMapping("/top")
+    public Result setGroupTop(@Valid @RequestBody GroupTopDTO dto) {
+        groupService.setTop(dto);
         return ResultUtils.success();
     }
 

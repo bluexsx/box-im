@@ -68,6 +68,11 @@ export default defineStore('groupStore', {
 			group.isDnd = isDnd;
 			await getDB().saveGroup(toRaw(group));
 		},
+		async setTop(id, isTop) {
+			const group = this.findGroup(id);
+			group.isTop = isTop;
+			await getDB().saveGroup(toRaw(group));
+		},
 		async refreshMember(id) {
 			const group = this.findGroup(id);
 			// 成员最大版本号

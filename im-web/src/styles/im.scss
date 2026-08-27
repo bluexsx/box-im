@@ -1,0 +1,95 @@
+@use './variables.scss' as *;
+
+// 产品全局：CSS 变量、布局、业务工具类（不含 Element 覆盖）
+
+:root {
+  --im-color-primary: #{$im-color-primary};
+  --im-color-primary-rgb: #{$im-color-primary-rgb};
+  --im-color-primary-light-1: #{$im-color-primary-light-1};
+  --im-color-primary-light-2: #{$im-color-primary-light-2};
+  --im-color-primary-light-3: #{$im-color-primary-light-3};
+  --im-color-primary-light-4: #{$im-color-primary-light-4};
+  --im-color-primary-light-5: #{$im-color-primary-light-5};
+  --im-color-primary-light-6: #{$im-color-primary-light-6};
+  --im-color-primary-light-7: #{$im-color-primary-light-7};
+  --im-color-primary-light-8: #{$im-color-primary-light-8};
+  --im-color-primary-light-9: #{$im-color-primary-light-9};
+  --im-color-success: #{$im-color-success};
+  --im-color-warning: #{$im-color-warning};
+  --im-color-danger: #{$im-color-danger};
+  --im-color-info: #{$im-color-info};
+  --im-text-color: #{$im-color-text-regular};
+  --im-text-color-light: #808080;
+  --im-text-color-lighter: #c0c4cc;
+  --im-font-size: #{$im-font-size-base};
+  --im-font-size-small: #{$im-font-size-small};
+  --im-font-size-smaller: #{$im-font-size-extra-small};
+  --im-font-size-large: #{$im-font-size-medium};
+  --im-font-size-larger: #{$im-font-size-large};
+  --im-font-family: #{$im-font-family};
+  --im-border: 1px solid #ebeef5;
+  --im-box-shadow: #{$im-box-shadow-base};
+  --im-box-shadow-light: #{$im-box-shadow-light};
+  --im-box-shadow-lighter: 0 0 6px rgba(0, 0, 0, 0.12);
+  --im-box-shadow-dark: 0 16px 48px 16px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.12), 0 8px 16px -8px rgba(0, 0, 0, 0.16);
+  --im-background: #fff;
+  --im-background-active: var(--im-color-primary-light-9);
+  --im-background-active-dark: var(--im-color-primary-light-9);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--im-font-family);
+  color: var(--im-text-color);
+  background: var(--im-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+section {
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 1px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: hsla(0, 0%, 73%, .5);
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 4px;
+}
+
+.emoji-large {
+  width: 26px;
+  height: 26px;
+  vertical-align: -5px;
+}
+
+.emoji-normal {
+  width: 20px;
+  height: 20px;
+  vertical-align: -4px;
+}
+
+.emoji-small {
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+}

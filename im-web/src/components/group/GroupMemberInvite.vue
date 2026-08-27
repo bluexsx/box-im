@@ -1,230 +1,221 @@
 <template>
-	<el-dialog v-dialogDrag :title="dialogTitle" :visible.sync="show" width="620px" :before-close="close">
-		<div class="group-member-invite">
-			<div class="left-box">
-				<div class="search">
-					<el-input placeholder="搜索好友" v-model="searchText" size="small">
-						<i class="el-icon-search el-input__icon" slot="suffix"> </i>
-					</el-input>
-				</div>
-				<el-scrollbar style="height:400px;">
-					<div v-for="friend in friends" :key="friend.id">
-						<friend-item v-show="friend.nickName.includes(searchText)" :showDelete="false"
-							@click.native="onSwitchCheck(friend)" :menu="false" :friend="friend" :active="false">
-							<el-checkbox :disabled="friend.disabled" @click.native.stop="" class="checkbox"
-								v-model="friend.isCheck" size="medium"></el-checkbox>
-						</friend-item>
-					</div>
-				</el-scrollbar>
-			</div>
-			<div class="arrow el-icon-d-arrow-right"></div>
-			<div class="right-box">
-				<div class="tip">已勾选{{ checkCount }}位好友</div>
-				<el-scrollbar style="height:400px;">
-					<div v-for="friend in friends" :key="friend.id">
-						<friend-item v-if="friend.isCheck && !friend.disabled" :friend="friend" :active="false"
-							@del="onRemoveFriend(friend)" :menu="false">
-						</friend-item>
-					</div>
-				</el-scrollbar>
-			</div>
-		</div>
-		<span slot="footer" class="dialog-footer">
-			<el-button @click="close()">取 消</el-button>
-			<el-button type="primary" :disabled="checkCount === 0 || loading" :loading="loading" @click="onOk()">完
-				成</el-button>
-		</span>
-	</el-dialog>
+  <el-dialog v-model="show" :title="dialogTitle" width="620px" draggable destroy-on-close :before-close="close">
+    <div class="group-member-invite">
+      <div class="left-box">
+        <el-input v-model="searchText" :placeholder="'搜索好友'">
+          <template #suffix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <VirtualScroller class="scroll-box" :items="filteredFriends">
+          <template #default="{ item }">
+            <FriendItem :menu="false" :friend="item" size="small" @click="onSwitchCheck(item)">
+              <el-checkbox v-model="item.isCheck" :disabled="item.disabled" class="checkbox" @click.stop />
+            </FriendItem>
+          </template>
+        </VirtualScroller>
+      </div>
+      <div class="arrow">
+        <el-icon><DArrowRight /></el-icon>
+      </div>
+      <div class="right-box">
+        <div class="tip">{{ `已勾选${checkCount}位好友` }}</div>
+        <el-scrollbar class="scroll-box">
+          <div v-for="friend in friends" :key="friend.id">
+            <FriendItem v-if="friend.isCheck && !friend.disabled" :friend="friend" size="small" :menu="false" @del="onRemoveFriend(friend)" />
+          </div>
+        </el-scrollbar>
+      </div>
+    </div>
+    <template #footer>
+      <el-button @click="close()">{{ '取消' }}</el-button>
+      <el-button type="primary" :disabled="checkCount === 0 || loading" :loading="loading" @click="onOk()">
+        {{ '确定' }}
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
-<script>
-import FriendItem from '../friend/FriendItem.vue';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { DArrowRight, Search } from '@element-plus/icons-vue';
+import FriendItem from '@/components/friend/FriendItem.vue';
+import VirtualScroller from '@/components/common/VirtualScroller.vue';
+import { inviteGroup, newGroup } from '@/api/group';
+import type { GroupVO } from '@/api/group/types';
+import { useFriendStore } from '@/stores/friend';
+import type { FriendVO } from '@/api/friend/types';
+import type { GroupMemberVO } from '@/api/group/types';
 
-export default {
-	name: "groupMemberInvite",
-	components: {
-		FriendItem
-	},
-	data() {
-		return {
-			show: false,
-			loading: false,
-			mode: 'invite',
-			searchText: "",
-			friends: [],
-			maxSelectSize: 50
-		}
-	},
-	methods: {
-		openCreate() {
-			this.mode = 'create';
-			this.initDialog();
-		},
-		open() {
-			this.mode = 'invite';
-			this.initDialog();
-		},
-		initDialog() {
-			this.show = true;
-			this.loading = false;
-			this.searchText = "";
-			this.friends = [];
-			this.friendStore.friends.forEach((f) => {
-				if (f.deleted) {
-					return;
-				}
-				let friend = JSON.parse(JSON.stringify(f));
-				if (this.isCreate) {
-					friend.disabled = false;
-					friend.isCheck = false;
-				} else {
-					let m = this.members.filter((m) => !m.quit).find((m) => m.userId == f.id);
-					if (m) {
-						friend.disabled = true;
-						friend.isCheck = true;
-					} else {
-						friend.disabled = false;
-						friend.isCheck = false;
-					}
-				}
-				this.friends.push(friend);
-			})
-		},
-		close() {
-			this.show = false;
-		},
-		onOk() {
-			if (this.isCreate) {
-				this.onCreateGroup();
-			} else {
-				this.onInviteFriends();
-			}
-		},
-		onCreateGroup() {
-			const userIds = this.friends.filter(f => f.isCheck).map(f => f.id);
-			if (userIds.length === 0) {
-				this.$message.warning('请至少选择1位好友');
-				return;
-			}
-			this.loading = true;
-			this.$http({
-				url: "/group/new",
-				method: 'post',
-				data: { userIds }
-			}).then((group) => {
-				this.$emit("success", group);
-				this.close();
-			}).finally(() => {
-				this.loading = false;
-			})
-		},
-		onInviteFriends() {
-			let inviteVO = {
-				groupId: this.groupId,
-				friendIds: []
-			}
-			this.friends.forEach((f) => {
-				if (f.isCheck && !f.disabled) {
-					inviteVO.friendIds.push(f.id);
-				}
-			})
-			if (inviteVO.friendIds.length > 0) {
-				this.loading = true;
-				this.$http({
-					url: "/group/invite",
-					method: 'post',
-					data: inviteVO
-				}).then(() => {
-					this.$message.success("邀请成功");
-					this.$emit("reload");
-					this.close();
-				}).finally(() => {
-					this.loading = false;
-				})
-			}
-		},
-		onRemoveFriend(friend) {
-			friend.isCheck = false;
-		},
-		onSwitchCheck(friend) {
-			if (friend.disabled) {
-				return;
-			}
-			if (!friend.isCheck && this.checkCount >= this.maxSelectSize) {
-				this.$message.warning(`最多只能选择${this.maxSelectSize}位好友`);
-				return;
-			}
-			friend.isCheck = !friend.isCheck;
-		}
-	},
-	props: {
-		groupId: {
-			type: Number
-		},
-		members: {
-			type: Array,
-			default: () => []
-		}
-	},
-	computed: {
-		isCreate() {
-			return this.mode === 'create';
-		},
-		dialogTitle() {
-			return this.isCreate ? '发起群聊' : '邀请好友进群';
-		},
-		checkCount() {
-			return this.friends.filter((f) => f.isCheck && !f.disabled).length;
-		}
-	}
+interface InviteFriend extends FriendVO {
+  disabled?: boolean;
+  isCheck?: boolean;
 }
+
+const props = defineProps({
+  groupId: {
+    type: Number
+  },
+  members: {
+    type: Array as () => GroupMemberVO[],
+    default: () => []
+  }
+});
+
+const emit = defineEmits(['reload', 'success']);
+
+const friendStore = useFriendStore();
+const show = ref(false);
+const loading = ref(false);
+const mode = ref<'invite' | 'create'>('invite');
+const searchText = ref('');
+const friends = ref<InviteFriend[]>([]);
+const maxSelectSize = 50;
+
+const isCreate = computed(() => mode.value === 'create');
+const dialogTitle = computed(() => (isCreate.value ? '发起群聊' : '邀请好友进群'));
+const checkCount = computed(() => friends.value.filter((f) => f.isCheck && !f.disabled).length);
+const filteredFriends = computed(() => friends.value.filter((f) => f.nickName.includes(searchText.value)));
+
+const openCreate = () => {
+  mode.value = 'create';
+  initDialog();
+};
+
+const open = () => {
+  mode.value = 'invite';
+  initDialog();
+};
+
+const initDialog = () => {
+  show.value = true;
+  loading.value = false;
+  searchText.value = '';
+  friends.value = [];
+  friendStore.friends.forEach((f) => {
+    if (f.deleted) return;
+    const friend: InviteFriend = JSON.parse(JSON.stringify(f));
+    if (isCreate.value) {
+      friend.disabled = false;
+      friend.isCheck = false;
+    } else {
+      const m = props.members.filter((m) => !m.quit).find((m) => m.userId == f.id);
+      if (m) {
+        friend.disabled = true;
+        friend.isCheck = true;
+      } else {
+        friend.disabled = false;
+        friend.isCheck = false;
+      }
+    }
+    friends.value.push(friend);
+  });
+};
+
+const close = () => {
+  show.value = false;
+};
+
+const onOk = () => {
+  if (isCreate.value) {
+    onCreateGroup();
+  } else {
+    onInviteFriends();
+  }
+};
+
+const onCreateGroup = () => {
+  const userIds = friends.value.filter((f) => f.isCheck).map((f) => f.id);
+  if (userIds.length === 0) {
+    ElMessage.warning('请至少选择1位好友');
+    return;
+  }
+  loading.value = true;
+  newGroup({ userIds })
+    .then((group: GroupVO) => {
+      emit('success', group);
+      close();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
+const onInviteFriends = () => {
+  const friendIds: number[] = [];
+  friends.value.forEach((f) => {
+    if (f.isCheck && !f.disabled && f.id != null) {
+      friendIds.push(f.id);
+    }
+  });
+  if (friendIds.length > 0 && props.groupId != null) {
+    loading.value = true;
+    inviteGroup({ groupId: props.groupId, friendIds })
+      .then(() => {
+        ElMessage.success('邀请成功');
+        emit('reload');
+        close();
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  }
+};
+
+const onRemoveFriend = (friend: InviteFriend) => {
+  friend.isCheck = false;
+};
+
+const onSwitchCheck = (friend: InviteFriend) => {
+  if (friend.disabled) return;
+  if (!friend.isCheck && checkCount.value >= maxSelectSize) {
+    ElMessage.warning(`最多只能选择${maxSelectSize}位好友`);
+    return;
+  }
+  friend.isCheck = !friend.isCheck;
+};
+
+defineExpose({ open, openCreate, close });
 </script>
 
 <style lang="scss" scoped>
 .group-member-invite {
-	display: flex;
+  display: flex;
 
-	.left-box {
-		flex: 1;
-		overflow: hidden;
-		border: var(--im-border);
+  .scroll-box {
+    height: 400px;
+  }
 
-		.search {
-			height: 40px;
-			display: flex;
-			align-items: center;
+  .left-box {
+    flex: 1;
+    overflow: hidden;
+    border: var(--im-border);
 
-			.el-input__inner {
-				border: unset;
-				border-bottom: var(--im-border);
-			}
-		}
+    .checkbox {
+      margin-right: 10px;
+    }
+  }
 
-		.checkbox {
-			margin-right: 20px;
-		}
-	}
+  .arrow {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    padding: 10px;
+    color: var(--im-color-primary);
+  }
 
-	.arrow {
-		display: flex;
-		align-items: center;
-		font-size: 18px;
-		padding: 10px;
-		font-weight: 600;
-		color: var(--im-color-primary);
-	}
+  .right-box {
+    flex: 1;
+    border: var(--im-border);
 
-	.right-box {
-		flex: 1;
-		border: var(--im-border);
-
-		.tip {
-			text-align: left;
-			height: 40px;
-			line-height: 40px;
-			text-indent: 10px;
-			color: var(--im-text-color-light)
-		}
-	}
+    .tip {
+      text-align: left;
+      height: 32px;
+      line-height: 32px;
+      text-indent: 10px;
+      color: var(--im-text-color-light);
+    }
+  }
 }
 </style>

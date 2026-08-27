@@ -12,6 +12,6 @@ export default {
 
 <style lang="scss" scoped>
 .bar-group {
-	margin: 20rpx 0;
+	margin-bottom: 20rpx;
 }
 </style>

@@ -1,178 +1,171 @@
 <template>
-	<el-dialog v-dialogDrag :title="title" :visible.sync="isShow" width="700px">
-		<div class="group-member-selector">
-			<div class="left-box">
-				<el-input placeholder="搜索" v-model="searchText">
-					<i class="el-icon-search el-input__icon" slot="suffix"> </i>
-				</el-input>
-				<virtual-scroller class="scroll-box" :items="showMembers">
-					<template v-slot="{ item }">
-						<group-member-item :group="group" :groupMembers="showMembers" :member="item" :menu="false"
-							@click.native="onClickMember(item)">
-							<el-checkbox :disabled="item.locked" v-model="item.checked" @change="onChange(item)"
-								@click.native.stop=""></el-checkbox>
-						</group-member-item>
-					</template>
-				</virtual-scroller>
-			</div>
-			<div class="arrow el-icon-d-arrow-right"></div>
-			<div class="right-box">
-				<div class="select-tip"> 已勾选{{ checkedMembers.length }}位成员</div>
-				<el-scrollbar class="scroll-box">
-					<div class="member-items">
-						<div v-for="m in members" :key="m.userId">
-							<group-member class="member-item" v-if="m.checked" :member="m"></group-member>
-						</div>
-					</div>
-				</el-scrollbar>
-			</div>
-		</div>
-		<span slot="footer" class="dialog-footer">
-			<el-button @click="close()">取 消</el-button>
-			<el-button type="primary" @click="ok()">确 定</el-button>
-		</span>
-	</el-dialog>
+  <el-dialog v-model="show" :title="displayTitle" width="700px" draggable destroy-on-close>
+    <div class="group-member-selector">
+      <div class="left-box">
+        <el-input v-model="searchText" :placeholder="'搜索'">
+          <template #suffix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <VirtualScroller class="scroll-box" :items="showMembers">
+          <template #default="{ item }">
+            <GroupMemberBar :group="group" :member="item" @click="onClickMember(item)">
+              <el-checkbox v-model="item.checked" :disabled="item.locked" @change="onChange(item)" @click.stop />
+            </GroupMemberBar>
+          </template>
+        </VirtualScroller>
+      </div>
+      <div class="arrow">
+        <el-icon><DArrowRight /></el-icon>
+      </div>
+      <div class="right-box">
+        <div class="tip">{{ `已勾选${checkedMembers.length}位成员` }}</div>
+        <el-scrollbar class="scroll-box">
+          <div class="member-items">
+            <div v-for="m in members" :key="m.userId">
+              <GroupMemberCard v-if="m.checked" class="member-item" :member="m" />
+            </div>
+          </div>
+        </el-scrollbar>
+      </div>
+    </div>
+    <template #footer>
+      <el-button @click="close()">{{ '取消' }}</el-button>
+      <el-button type="primary" @click="ok()">{{ '确定' }}</el-button>
+    </template>
+  </el-dialog>
 </template>
 
-<script>
-import VirtualScroller from '../common/VirtualScroller.vue';
-import GroupMemberItem from './GroupMemberItem.vue';
-import GroupMember from './GroupMember.vue';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { DArrowRight, Search } from '@element-plus/icons-vue';
+import VirtualScroller from '@/components/common/VirtualScroller.vue';
+import GroupMemberBar from './GroupMemberBar.vue';
+import GroupMemberCard from './GroupMemberCard.vue';
+import { listGroupMembers } from '@/api/group';
+import type { GroupVO, GroupMemberVO } from '@/api/group/types';
 
-export default {
-	name: "addGroupMember",
-	components: {
-		GroupMemberItem,
-		GroupMember,
-		VirtualScroller
-	},
-	data() {
-		return {
-			isShow: false,
-			searchText: "",
-			maxSize: -1,
-			members: []
-		}
-	},
-	props: {
-		group: {
-			type: Object
-		},
-		title: {
-			type: String,
-			default: "选择成员"
-		}
-	},
-	methods: {
-		open(maxSize, checkedIds, lockedIds, hideIds) {
-			this.maxSize = maxSize;
-			this.isShow = true;
-			this.loadGroupMembers(checkedIds, lockedIds, hideIds);
-		},
-		loadGroupMembers(checkedIds, lockedIds, hideIds) {
-			this.$http({
-				url: `/group/members/${this.group.id}`,
-				method: 'get'
-			}).then((members) => {
-				members.forEach((m) => {
-					// 默认选择和锁定的用户
-					m.checked = checkedIds.indexOf(m.userId) >= 0;
-					m.locked = lockedIds.indexOf(m.userId) >= 0;
-					m.hide = hideIds.indexOf(m.userId) >= 0;
-				});
-				this.members = members;
-			});
-		},
-		onClickMember(m) {
-			if (!m.locked) {
-				m.checked = !m.checked;
-			}
-			if (this.maxSize > 0 && this.checkedMembers.length > this.maxSize) {
-				this.$message.error(`最多选择${this.maxSize}位成员`)
-				m.checked = false;
-			}
-		},
-		onChange(m) {
-			if (this.maxSize > 0 && this.checkedMembers.length > this.maxSize) {
-				this.$message.error(`最多选择${this.maxSize}位成员`)
-				m.checked = false;
-			}
-		},
-		ok() {
-			this.$emit("complete", this.checkedMembers);
-			this.isShow = false;
-		},
-		close() {
-			this.isShow = false;
-		}
-	},
-	computed: {
-		checkedMembers() {
-			let ids = [];
-			this.members.forEach((m) => {
-				if (m.checked) {
-					ids.push(m);
-				}
-			})
-			return ids;
-		},
-		showMembers() {
-			return this.members.filter((m) => !m.hide && !m.quit && m.showNickName.includes(this.searchText))
-		}
-	}
+interface SelectableMember extends GroupMemberVO {
+  checked?: boolean;
+  locked?: boolean;
+  hide?: boolean;
 }
+
+const props = defineProps({
+  group: {
+    type: Object as () => GroupVO,
+    required: true
+  },
+  title: {
+    type: String,
+    default: ''
+  }
+});
+
+const emit = defineEmits(['complete']);
+
+const show = ref(false);
+const searchText = ref('');
+const maxSize = ref(-1);
+const members = ref<SelectableMember[]>([]);
+
+const displayTitle = computed(() => props.title || '选择成员');
+const checkedMembers = computed(() => members.value.filter((m) => m.checked));
+const showMembers = computed(() => members.value.filter((m) => !m.hide && !m.quit && m.showNickName.includes(searchText.value)));
+
+const open = (size: number, checkedIds: number[], lockedIds: number[], hideIds: number[]) => {
+  maxSize.value = size;
+  show.value = true;
+  loadGroupMembers(checkedIds, lockedIds, hideIds);
+};
+
+const loadGroupMembers = (checkedIds: number[], lockedIds: number[], hideIds: number[]) => {
+  listGroupMembers(props.group.id).then((list) => {
+    list.forEach((m) => {
+      const member = m as SelectableMember;
+      // 默认选择和锁定的用户
+      member.checked = checkedIds.indexOf(m.userId) >= 0;
+      member.locked = lockedIds.indexOf(m.userId) >= 0;
+      member.hide = hideIds.indexOf(m.userId) >= 0;
+    });
+    members.value = list as SelectableMember[];
+  });
+};
+
+const onClickMember = (m: SelectableMember) => {
+  if (!m.locked) {
+    m.checked = !m.checked;
+  }
+  if (maxSize.value > 0 && checkedMembers.value.length > maxSize.value) {
+    ElMessage.error(`最多选择${maxSize.value}位成员`);
+    m.checked = false;
+  }
+};
+
+const onChange = (m: SelectableMember) => {
+  if (maxSize.value > 0 && checkedMembers.value.length > maxSize.value) {
+    ElMessage.error(`最多选择${maxSize.value}位成员`);
+    m.checked = false;
+  }
+};
+
+const ok = () => {
+  emit('complete', checkedMembers.value);
+  show.value = false;
+};
+
+const close = () => {
+  show.value = false;
+};
+
+defineExpose({ open, close });
 </script>
 
 <style lang="scss" scoped>
 .group-member-selector {
-	display: flex;
+  display: flex;
 
-	.scroll-box {
-		height: 400px;
-	}
+  .scroll-box {
+    height: 400px;
+  }
 
-	.left-box {
-		width: 48%;
-		overflow: hidden;
-		border: var(--im-border);
+  .left-box {
+    width: 48%;
+    overflow: hidden;
+    border: var(--im-border);
+  }
 
-		.el-input__inner {
-			border: none;
-			border-bottom: var(--im-border);
-		}
-	}
+  .arrow {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    padding: 10px;
+    color: var(--im-color-primary);
+  }
 
-	.arrow {
-		display: flex;
-		align-items: center;
-		font-size: 20px;
-		padding: 10px;
-		font-weight: 600;
-		color: var(--im-color-primary);
-	}
+  .right-box {
+    width: 48%;
+    border: var(--im-border);
 
-	.right-box {
-		width: 48%;
-		border: var(--im-border);
+    .tip {
+      text-align: left;
+      height: 32px;
+      line-height: 32px;
+      text-indent: 10px;
+      color: var(--im-text-color-light);
+    }
 
-		.select-tip {
-			text-align: left;
-			height: 40px;
-			line-height: 40px;
-			text-indent: 5px;
-			color: var(--im-text-color-light)
-		}
+    .member-items {
+      padding: 10px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
 
-		.member-items {
-			padding: 10px;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-
-			.member-item {
-				padding: 2px;
-			}
-		}
-	}
+      .member-item {
+        padding: 2px;
+      }
+    }
+  }
 }
 </style>

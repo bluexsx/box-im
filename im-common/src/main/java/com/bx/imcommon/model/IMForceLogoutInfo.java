@@ -24,5 +24,14 @@ public class IMForceLogoutInfo {
      */
     private String devId;
 
+    /**
+     * 下线类型，见 {@link com.bx.imcommon.enums.IMForceLogoutType}
+     */
+    private Integer type;
+
+    /**
+     * 原因说明（封禁时由管理端传入）
+     */
+    private String reason;
 
 }

@@ -1,494 +1,686 @@
 <template>
-	<div class="chat-message-item" :class="active ? 'active' : ''">
-		<div class="message-tip" v-if="message.type == $enums.MESSAGE_TYPE.TIP_TEXT">
-			{{ message.content }}
-		</div>
-		<div class="message-tip" v-else-if="message.type == $enums.MESSAGE_TYPE.TIP_TIME">
-			{{ $date.toTimeText(message.sendTime) }}
-		</div>
-		<div class="message-normal" v-else-if="isNormal" :class="{ 'message-mine': mine }">
-			<div class="head-image">
-				<head-image :name="showName" :size="38" :url="headImage" :id="message.sendId"></head-image>
-			</div>
-			<div class="content">
-				<div v-show="mode == 1 && message.groupId && !message.selfSend" class="message-top">
-					<span>{{ showName }}</span>
-				</div>
-				<div v-show="mode == 2" class="message-top">
-					<span>{{ showName }}</span>
-					<span>{{ $date.toTimeText(message.sendTime) }}</span>
-				</div>
-				<div class="message-bottom" @contextmenu.prevent="showRightMenu($event)">
-					<div ref="chatMsgBox" class="message-content-wrapper">
-						<span class="message-text" v-if="isTextMessage" v-html="htmlText"></span>
-						<div class="message-image" v-else-if="message.type == $enums.MESSAGE_TYPE.IMAGE"
-							@click="showFullImageBox()">
-							<img :style="imageStyle" :src="contentData.thumbUrl" loading="lazy" />
-						</div>
-						<div class="message-file" v-else-if="message.type == $enums.MESSAGE_TYPE.FILE">
-							<div class="chat-file-box" v-loading="sending">
-								<div class="chat-file-info">
-									<el-link class="chat-file-name" :underline="true" target="_blank" type="primary"
-										:href="contentData.url" :download="contentData.name">{{ contentData.name
-										}}</el-link>
-									<div class="chat-file-size">{{ fileSize }}</div>
-								</div>
-								<div class="chat-file-icon">
-									<span type="primary" class="el-icon-document"></span>
-								</div>
-							</div>
-						</div>
-						<div class="message-voice" v-else-if="message.type == $enums.MESSAGE_TYPE.AUDIO"
-							@click="onPlayVoice()">
-							<audio controls :src="JSON.parse(message.content).url"></audio>
-						</div>
-						<div title="发送中" v-if="sending" class="sending" v-loading="'true'"></div>
-						<div title="发送失败" v-else-if="sendFail" @click="onSendFail" class="send-fail el-icon-warning">
-						</div>
-					</div>
-					<div class="chat-action message-text" v-if="isAction">
-						<span v-if="message.type == $enums.MESSAGE_TYPE.ACT_RT_VOICE" title="重新呼叫"
-							@click="$emit('call')" class="iconfont icon-chat-voice"></span>
-						<span v-if="message.type == $enums.MESSAGE_TYPE.ACT_RT_VIDEO" title="重新呼叫"
-							@click="$emit('call')" class="iconfont icon-chat-video"></span>
-						<span>{{ message.content }}</span>
-					</div>
-					<div class="message-status" v-if="!isAction && message.selfSend && !isGroupMessage">
-						<span class="chat-readed" v-if="isReaded">已读</span>
-						<span class="chat-unread" v-else>未读</span>
-					</div>
-					<div class="chat-receipt" v-show="message.receipt && message.selfSend" @click="onShowReadedBox">
-						<span v-if="message.receiptOk" class="icon iconfont icon-ok" title="全体已读"></span>
-						<span v-else>{{ message.readedCount }}人已读</span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<right-menu ref="rightMenu" @select="onSelectMenu"></right-menu>
-		<chat-group-readed ref="chatGroupReadedBox" :message="message" :group="group"></chat-group-readed>
-	</div>
+  <div class="chat-message-item" :class="active ? 'active' : ''">
+    <div v-if="message.type == MESSAGE_TYPE.TIP_TEXT" class="message-tip" v-html="parsedTipContent" @click="onClickTipMessage" />
+    <div v-else-if="message.type == MESSAGE_TYPE.TIP_TIME" class="message-tip">
+      {{ toTimeText(Number(message.sendTime)) }}
+    </div>
+    <div v-else-if="isNormal || isAction" class="message-normal" :class="{ 'message-mine': mine }">
+      <div class="avatar" @contextmenu.prevent.stop="showAvatarMenu">
+        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId" />
+      </div>
+      <div class="content">
+        <div v-if="message.groupId && !message.selfSend" class="top">
+          <div class="show-name">{{ showName }}</div>
+          <el-tag v-if="isGroupOwner(message.sendId)" size="small" type="danger">{{ '群主' }}</el-tag>
+        </div>
+        <div class="bottom" :class="{ fullscreen: configStore.fullScreen }" @contextmenu.prevent="showMessageMenu">
+          <div ref="chatMsgBoxRef" class="message-content-wrapper">
+            <div v-if="isTextMessage" class="message-text" v-html="htmlText" @click="onClickTextMessage" />
+            <div v-else-if="message.type == MESSAGE_TYPE.IMAGE" class="message-image" @click="showFullImage">
+              <div class="image-container" :style="imageStyle">
+                <img class="send-image" :src="contentData.thumbUrl" loading="lazy" />
+                <div class="image-overlay">
+                  <el-icon><ZoomIn /></el-icon>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="message.type == MESSAGE_TYPE.FILE" class="message-file">
+              <div v-loading="sending" class="file-box">
+                <div class="file-info">
+                  <el-link class="file-name" :underline="true" type="primary" target="_blank" :href="contentData.url" :download="contentData.name">
+                    {{ contentData.name }}
+                  </el-link>
+                  <div class="file-size">{{ fileSize }}</div>
+                </div>
+                <div class="file-icon icon iconfont icon-message-file" />
+              </div>
+            </div>
+            <ChatVoiceMessage
+              v-else-if="message.type == MESSAGE_TYPE.AUDIO"
+              ref="voiceMessageRef"
+              mode="chat"
+              :url="contentData.url"
+              :duration="contentData.duration"
+              :mine="mine"
+              @audioStateChange="onVoiceStateChange" />
+            <div v-else-if="isAction" class="chat-action message-text">
+              <span v-if="message.type == MESSAGE_TYPE.ACT_RT_VOICE" :title="'重新呼叫'" class="iconfont icon-chat-voice" @click="emit('call')" />
+              <span v-if="message.type == MESSAGE_TYPE.ACT_RT_VIDEO" :title="'重新呼叫'" class="iconfont icon-chat-video" @click="emit('call')" />
+              <span>{{ displayContentText }}</span>
+            </div>
+            <div v-else class="message-text">{{ '[暂不支持该消息类型]' }}</div>
+            <div v-if="sending" class="sending" v-loading="sending" :title="'发送中'" />
+            <div v-else-if="sendFail" class="send-fail" :title="'发送失败'" @click="emit('resend', message)">
+              <el-icon><WarningFilled /></el-icon>
+            </div>
+          </div>
+          <div v-if="!isAction && message.selfSend && !isGroupMessage" class="message-status">
+            <span v-if="isReaded" class="chat-readed">{{ '已读' }}</span>
+            <span v-else class="chat-unread">{{ '未读' }}</span>
+          </div>
+          <div v-if="message.receipt && message.selfSend" class="chat-receipt" @click="onShowReadedBox">
+            <span v-if="message.receiptOk" class="icon iconfont icon-ok" :title="'全体已读'" />
+            <span v-else>{{ `${message.readedCount}人已读` }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <RightMenu ref="rightMenuRef" @select="onSelectMenu" />
+    <ChatGroupReaded v-if="group" ref="chatGroupReadedRef" :message="message" :group="group" />
+  </div>
 </template>
 
-<script>
-import HeadImage from "../common/HeadImage.vue";
-import RightMenu from '../common/RightMenu.vue';
-import ChatGroupReaded from './ChatGroupReaded.vue';
-export default {
-	name: "messageItem",
-	components: {
-		HeadImage,
-		RightMenu,
-		ChatGroupReaded
-	},
-	props: {
-		active: {
-			type: Boolean,
-			default: false
-		},
-		mode: {
-			type: Number,
-			default: 1
-		},
-		mine: {
-			type: Boolean,
-			required: true
-		},
-		headImage: {
-			type: String,
-			required: true
-		},
-		showName: {
-			type: String,
-			required: true
-		},
-		conversation: {
-			type: Object,
-			required: true
-		},
-		group: {
-			type: Object,
-		},
-		message: {
-			type: Object,
-			required: true
-		},
-		menu: {
-			type: Boolean,
-			default: true
-		}
-	},
-	data() {
-		return {
-			audioPlayState: 'STOP'
-		}
-	},
-	methods: {
-		onSendFail() {
-			this.$emit("resend", this.message);
-		},
-		showFullImageBox() {
-			let imageUrl = JSON.parse(this.message.content).originUrl;
-			if (imageUrl) {
-				this.$eventBus.$emit("openFullImage", imageUrl);
-			}
-		},
-		onPlayVoice() {
-			if (!this.audio) {
-				this.audio = new Audio();
-			}
-			this.audio.src = JSON.parse(this.message.content).url;
-			this.audio.play();
-			this.onPlayVoice = 'RUNNING';
-		},
-		showRightMenu(e) {
-			this.$refs.rightMenu.open(e, this.menuItems);
-		},
-		onSelectMenu(item) {
-			this.$emit(item.key.toLowerCase(), this.message);
-		},
-		onShowReadedBox() {
-			let rect = this.$refs.chatMsgBox.getBoundingClientRect();
-			this.$refs.chatGroupReadedBox.open(rect);
-		}
-	},
-	computed: {
-		sending() {
-			return this.message.status == this.$enums.MESSAGE_STATUS.SENDING;
-		},
-		sendFail() {
-			return this.message.status == this.$enums.MESSAGE_STATUS.FAILED;
-		},
-		contentData() {
-			return JSON.parse(this.message.content)
-		},
-		fileSize() {
-			let size = this.contentData.size;
-			if (size > 1024 * 1024) {
-				return Math.round(size / 1024 / 1024) + "M";
-			}
-			if (size > 1024) {
-				return Math.round(size / 1024) + "KB";
-			}
-			return size + "B";
-		},
-		menuItems() {
-			let items = [];
-			if (this.isTextMessage) {
-				items.push({
-					key: 'COPY',
-					name: '复制'
-				});
-			}
-			items.push({
-				key: 'DELETE',
-				name: '删除',
-				danger: true
-			});
-			if (this.message.selfSend && this.message.id > 0) {
-				items.push({
-					key: 'RECALL',
-					name: '撤回'
-				});
-			}
-			return items;
-		},
-		isTextMessage() {
-			return this.message.type == this.$enums.MESSAGE_TYPE.TEXT
-		},
-		isAction() {
-			return this.$msgType.isAction(this.message.type);
-		},
-		isNormal() {
-			const type = this.message.type;
-			return this.$msgType.isNormal(type) || this.$msgType.isAction(type)
-		},
-		isReaded() {
-			return this.message.status == this.$enums.MESSAGE_STATUS.READED || this.conversation.maxReadedId >= this.message.id
-		},
-		htmlText() {
-			let color = this.message.selfSend ? 'white' : '';
-			let text = this.$str.html2Escape(this.message.content)
-			text = this.$url.replaceURLWithHTMLLinks(text, color)
-			return this.$emo.transform(text, 'emoji-normal')
-		},
-		isGroupMessage() {
-			return !!this.message.groupId;
-		},
-		imageStyle() {
-			// 计算图片的显示宽高，要求：任意边不能高于360px,不能低于60px,不能拉伸图片比例
-			let maxSize = this.configStore.fullScreen ? 360 : 240;
-			let minSize = 60;
-			let width = this.contentData.width;
-			let height = this.contentData.height;
-			if (width && height) {
-				let ratio = Math.min(width, height) / Math.max(width, height);
-				let w = Math.max(Math.min(width > height ? maxSize : ratio * maxSize, width), minSize);
-				let h = Math.max(Math.min(width > height ? ratio * maxSize : maxSize, height), minSize);
-				return `width: ${w}px;height:${h}px;object-fit: cover;`
-			} else {
-				// 兼容历史版本，历史数据没有记录宽高
-				return `max-width: ${maxSize}px;min-width:60px;max-height: ${maxSize}px;min-height:60px;`
-			}
-		}
-	}
-}
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { WarningFilled, ZoomIn } from '@element-plus/icons-vue';
+import HeadImage from '@/components/common/HeadImage.vue';
+import RightMenu, { type RightMenuItem } from '@/components/common/RightMenu.vue';
+import ChatGroupReaded from '@/components/chat/ChatGroupReaded.vue';
+import ChatVoiceMessage from '@/components/chat/ChatVoiceMessage.vue';
+import { findUser } from '@/api/user';
+import type { ChatMessage, Conversation } from '@/types';
+import type { GroupVO, GroupMemberVO } from '@/api/group/types';
+import { useConfigStore } from '@/stores/config';
+import { useUserStore } from '@/stores/user';
+import { MESSAGE_STATUS, MESSAGE_TYPE } from '@/utils/enums';
+import { toTimeText } from '@/utils/date';
+import * as msgType from '@/utils/messageType';
+import { transform } from '@/utils/emotion';
+import { html2Escape } from '@/utils/str';
+import eventBus from '@/utils/eventBus';
+
+const props = defineProps({
+  active: {
+    type: Boolean,
+    default: false
+  },
+  mine: {
+    type: Boolean,
+    required: true
+  },
+  headImage: {
+    type: String,
+    default: ''
+  },
+  showName: {
+    type: String,
+    required: true
+  },
+  conversation: {
+    type: Object as () => Conversation,
+    required: true
+  },
+  message: {
+    type: Object as () => ChatMessage,
+    required: true
+  },
+  group: {
+    type: Object as () => GroupVO,
+    default: undefined
+  },
+  groupMemberMap: {
+    type: Object as () => Map<number, GroupMemberVO>,
+    default: () => new Map<number, GroupMemberVO>()
+  }
+});
+
+const emit = defineEmits(['resend', 'delete', 'recall', 'downloadFile', 'downloadImage', 'call', 'audioStateChange', 'copy', 'atMember']);
+
+const userStore = useUserStore();
+const configStore = useConfigStore();
+const chatMsgBoxRef = ref<HTMLElement>();
+const rightMenuRef = ref<InstanceType<typeof RightMenu>>();
+const chatGroupReadedRef = ref<InstanceType<typeof ChatGroupReaded>>();
+const voiceMessageRef = ref<InstanceType<typeof ChatVoiceMessage>>();
+const avatarMenuEvent = ref<MouseEvent>();
+
+const contentData = computed(() => {
+  try {
+    return JSON.parse(props.message.content || '{}');
+  } catch {
+    return {};
+  }
+});
+
+const isTextMessage = computed(() => props.message.type == MESSAGE_TYPE.TEXT);
+const isNormal = computed(() => msgType.isNormal(props.message.type));
+const isAction = computed(() => msgType.isAction(props.message.type));
+const isGroupMessage = computed(() => !!(props.message as ChatMessage & { groupId?: number }).groupId);
+const sending = computed(() => props.message.status == MESSAGE_STATUS.SENDING);
+const sendFail = computed(() => props.message.status == MESSAGE_STATUS.FAILED);
+const isReaded = computed(() => props.message.status == MESSAGE_STATUS.READED || props.conversation.maxReadedId >= (props.message.id ?? 0));
+const displayContentText = computed(() => props.message.content);
+
+const parsedTipContent = computed(() => {
+  const content = displayContentText.value;
+  // 匹配格式：#{displayName:userId},正则表达式：#\{([^:]+):(\d+)\}
+  const userMarkPattern = /#\{([^:]+):(\d+)\}/g;
+  let lastIndex = 0;
+  let result = '';
+  let match: RegExpExecArray | null;
+  while ((match = userMarkPattern.exec(content)) !== null) {
+    // 添加匹配前的文本
+    result += html2Escape(content.substring(lastIndex, match.index));
+    let displayName = match[1];
+    const userId = match[2];
+    // 如果是当前登录用户，用"你"代替用户昵称
+    if (userId == String(userStore.userInfo.id)) {
+      displayName = '你';
+    }
+    // 渲染为可点击元素
+    result += `<span class="tip-user-name" data-user-id="${userId}">${html2Escape(displayName)}</span>`;
+    lastIndex = match.index + match[0].length;
+  }
+  // 添加剩余文本
+  result += html2Escape(content.substring(lastIndex));
+  return result;
+});
+
+const htmlText = computed(() => {
+  let text = html2Escape(props.message.content);
+  text = transform(text, 'emoji-normal');
+  const atUserIds = props.message.atUserIds;
+  if (atUserIds && atUserIds.length > 0) {
+    let atIndex = 0;
+    text = text.replace(/@([^\s@]+)/g, (match, nick) => {
+      if (atIndex < atUserIds.length) {
+        const userId = atUserIds[atIndex++];
+        return `<span class="at-user-name" data-user-id="${userId}">@${nick}</span>`;
+      }
+      return match;
+    });
+  }
+  return text;
+});
+
+const fileSize = computed(() => {
+  const size = contentData.value.size || 0;
+  if (size > 1024 * 1024) {
+    return Math.round(size / 1024 / 1024) + 'M';
+  }
+  if (size > 1024) {
+    return Math.round(size / 1024) + 'KB';
+  }
+  return size + 'B';
+});
+
+const imageStyle = computed(() => {
+  // 计算图片的显示宽高，要求：任意边不能高于360px,不能低于60px,不能拉伸图片比例
+  const maxSize = configStore.fullScreen ? 360 : 240;
+  const minSize = 60;
+  const width = contentData.value.width;
+  const height = contentData.value.height;
+  if (width && height) {
+    const ratio = Math.min(width, height) / Math.max(width, height);
+    const w = Math.max(Math.min(width > height ? maxSize : ratio * maxSize, width), minSize);
+    const h = Math.max(Math.min(width > height ? ratio * maxSize : maxSize, height), minSize);
+    return `width: ${w}px;height:${h}px;object-fit: cover;`;
+  }
+  // 兼容历史版本，历史数据没有记录宽高
+  return `max-width: ${maxSize}px;min-width:60px;max-height: ${maxSize}px;min-height:60px;`;
+});
+
+const isGroupOwner = (userId?: number) => {
+  return props.group?.ownerId == userId;
+};
+
+const openUserInfoCard = (event: MouseEvent, userId: number) => {
+  findUser(userId).then((user) => {
+    eventBus.emit('openUserInfo', {
+      user,
+      pos: { x: event.clientX + 30, y: event.clientY }
+    });
+  });
+};
+
+const onClickTipMessage = (event: MouseEvent) => {
+  // 检查点击的是否是用户名元素
+  const target = event.target as HTMLElement;
+  const usernameEl = target.closest('.tip-user-name');
+  if (usernameEl) {
+    const userId = usernameEl.getAttribute('data-user-id');
+    if (userId) {
+      event.stopPropagation();
+      openUserInfoCard(event, parseInt(userId));
+    }
+  }
+};
+
+const onClickTextMessage = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  const usernameEl = target.closest('.at-user-name');
+  if (usernameEl) {
+    const userId = usernameEl.getAttribute('data-user-id');
+    if (userId && Number(userId) > 0) {
+      event.stopPropagation();
+      openUserInfoCard(event, parseInt(userId));
+    }
+  }
+};
+
+const showFullImage = () => {
+  const imageUrl = contentData.value.originUrl;
+  if (!imageUrl) {
+    return;
+  }
+  eventBus.emit('openFullImage', {
+    convKey: props.conversation.key,
+    url: imageUrl,
+    seqNo: props.message.seqNo,
+    localId: props.message.localId
+  });
+};
+
+const onVoiceStateChange = (state: string) => {
+  emit('audioStateChange', state, props.message);
+};
+
+const onShowReadedBox = () => {
+  const rect = chatMsgBoxRef.value?.getBoundingClientRect();
+  if (rect) {
+    chatGroupReadedRef.value?.open(rect);
+  }
+};
+
+const showMessageMenu = (e: MouseEvent) => {
+  const menuItems: RightMenuItem[] = [];
+  if (isTextMessage.value) {
+    menuItems.push({ key: 'COPY', name: '复制' });
+  }
+  menuItems.push({ key: 'DELETE', name: '删除', danger: true });
+  if (props.message.selfSend && props.message.id && props.message.id > 0) {
+    menuItems.push({ key: 'RECALL', name: '撤回' });
+  }
+  if (props.message.type == MESSAGE_TYPE.FILE) {
+    menuItems.push({ key: 'DOWNLOAD_FILE', name: '下载' });
+  }
+  if (props.message.type == MESSAGE_TYPE.IMAGE) {
+    menuItems.push({ key: 'DOWNLOAD_IMAGE', name: '下载' });
+  }
+  if (sendFail.value) {
+    menuItems.push({ key: 'RESEND', name: '重新发送' });
+  }
+  rightMenuRef.value?.open({ x: e.clientX, y: e.clientY }, menuItems);
+};
+
+const showAvatarMenu = (e: MouseEvent) => {
+  if (!props.message.groupId || props.message.selfSend) {
+    return;
+  }
+  avatarMenuEvent.value = e;
+  rightMenuRef.value?.open({ x: e.clientX, y: e.clientY }, [
+    { key: 'AT_MEMBER', name: '@' + props.showName },
+    { key: 'USER_INFO', name: '查看资料' }
+  ]);
+};
+
+const onSelectMenu = (item: RightMenuItem) => {
+  if (item.key === 'AT_MEMBER') {
+    emit('atMember', { userId: props.message.sendId, showNickName: props.showName });
+    return;
+  }
+  if (item.key === 'USER_INFO' && avatarMenuEvent.value) {
+    openUserInfoCard(avatarMenuEvent.value, props.message.sendId!);
+    return;
+  }
+  if (item.key === 'RESEND') {
+    emit('resend', props.message);
+    return;
+  }
+  // 菜单id转驼峰作为事件key
+  const eventKey = String(item.key)
+    .toLowerCase()
+    .replace(/_([a-z])/g, (_g, c: string) => c.toUpperCase());
+  emit(eventKey as 'copy', props.message);
+};
+
+const stopPlayAudio = () => {
+  voiceMessageRef.value?.stopPlayAudio?.();
+};
+
+defineExpose({ stopPlayAudio });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .chat-message-item {
-	padding: 3px 10px;
-	border-radius: 10px;
+  padding: 3px 10px;
+  border-radius: 10px;
 
-	&.active {
-		background: var(--im-background-active-dark);
-	}
+  &.active {
+    background: var(--im-background-active-dark);
+  }
 
-	.message-tip {
-		line-height: 50px;
-		font-size: var(--im-font-size-small);
-		color: var(--im-text-color-light);
-	}
+  .message-tip {
+    display: table;
+    margin: 8px auto;
+    padding: 4px 12px;
+    line-height: 22px;
+    max-width: 80%;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    font-size: var(--im-font-size-small);
+    color: var(--im-text-color-light);
+    text-align: center;
+    word-break: break-word;
 
-	.message-normal {
-		position: relative;
-		font-size: 0;
-		padding-left: 48px;
-		min-height: 50px;
-		margin-top: 10px;
+    :deep(.tip-user-name) {
+      color: var(--im-color-primary);
+      cursor: pointer;
+      padding: 2px 5px;
+    }
+  }
 
-		.head-image {
-			position: absolute;
-			width: 40px;
-			height: 40px;
-			top: 0;
-			left: 0;
-		}
+  .message-normal {
+    position: relative;
+    font-size: 0;
+    padding-left: 53px;
+    min-height: 50px;
+    margin: 5px 0;
 
-		.content {
-			text-align: left;
+    .avatar {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 0;
+      left: 0;
+    }
 
-			.message-top {
-				display: flex;
-				flex-wrap: nowrap;
-				color: var(--im-text-color-light);
-				font-size: var(--im-font-size);
-				line-height: 20px;
+    .content {
+      text-align: left;
 
-				span {
-					margin-right: 12px;
-				}
-			}
+      .top {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 4px;
 
-			.message-bottom {
-				display: inline-block;
-				padding-right: 300px;
-				padding-left: 5px;
+        .show-name {
+          white-space: nowrap;
+          max-width: 400px;
+          overflow: hidden;
+          line-height: 18px;
+          font-size: var(--im-font-size-small);
+          color: #888;
+        }
+      }
 
+      .bottom {
+        display: inline-block;
+        padding-right: 30px;
+        margin-top: 2px;
 
-				.message-content-wrapper {
-					position: relative;
-					display: flex;
-					align-items: flex-end;
+        &.fullscreen {
+          padding-right: 240px;
+        }
 
-					.sending {
-						width: 25px;
-						height: 25px;
+        .message-content-wrapper {
+          position: relative;
+          display: inline-flex;
+          align-items: flex-end;
 
-						.circular {
-							width: 25px;
-							height: 25px;
-						}
-					}
+          .sending {
+            width: 40px;
+            height: 40px;
 
-					.send-fail {
-						color: #e45050;
-						font-size: 30px;
-						cursor: pointer;
-						margin: 0 5px;
-					}
-				}
+            :deep(.el-loading-mask) {
+              background: inherit;
+            }
 
-				.message-text {
-					flex: 1;
-					display: inline-block;
-					position: relative;
-					line-height: 26px;
-					padding: 6px 10px;
-					background-color: var(--im-background);
-					border-radius: 10px;
-					font-size: var(--im-font-size);
-					text-align: left;
-					white-space: pre-wrap;
-					word-break: break-word;
+            :deep(.circular) {
+              width: 35px;
+              height: 35px;
+            }
 
-				}
+            :deep(.el-loading-spinner) {
+              margin-top: -15px;
+            }
+          }
 
-				.message-image {
-					border-radius: 8px;
-					border: 2px solid var(--im-color-primary-light-9);
-					overflow: hidden;
-					cursor: pointer;
-					background: var(--im-background);
-				}
+          .send-fail {
+            color: #e45050;
+            font-size: 25px;
+            cursor: pointer;
+            margin: 0 5px;
+            display: flex;
+            align-items: center;
+          }
+        }
 
-				.message-file {
-					display: flex;
-					flex-wrap: nowrap;
-					flex-direction: row;
-					align-items: center;
-					cursor: pointer;
-					margin-bottom: 2px;
-					background: var(--im-background);
+        .message-text {
+          flex: 1;
+          display: inline-block;
+          position: relative;
+          line-height: 26px;
+          padding: 6px 10px;
+          background: var(--im-background);
+          border-radius: 10px;
+          font-size: var(--im-font-size);
+          text-align: left;
+          white-space: pre-wrap;
+          word-break: break-word;
 
-					.chat-file-box {
-						display: flex;
-						flex-wrap: nowrap;
-						align-items: center;
-						min-height: 60px;
-						box-shadow: var(--im-box-shadow-light);
-						border-radius: 4px;
-						padding: 10px 15px;
+          :deep(.at-user-name) {
+            color: var(--im-color-primary);
+            font-size: var(--im-font-size-small);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px;
+            opacity: 0.9;
 
-						.chat-file-info {
-							flex: 1;
-							height: 100%;
-							text-align: left;
-							font-size: 14px;
-							margin-right: 10px;
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
 
-							.chat-file-name {
-								display: inline-block;
-								min-width: 160px;
-								max-width: 220px;
-								font-size: 14px;
-								margin-bottom: 4px;
-								white-space: pre-wrap;
-								word-break: break-all;
-							}
+        .message-image {
+          border-radius: 12px;
+          overflow: hidden;
+          cursor: pointer;
+          background: var(--im-background);
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
+          position: relative;
 
-							.chat-file-size {
-								font-size: var(--im-font-size-smaller);
-								color: var(--im-text-color-light);
-							}
-						}
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          }
 
-						.chat-file-icon {
-							font-size: 44px;
-							color: #d42e07;
-						}
-					}
+          .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 12px;
 
-					.send-fail {
-						color: #e60c0c;
-						font-size: 30px;
-						cursor: pointer;
-						margin: 0 20px;
-					}
+            .send-image {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              transition: transform 0.3s ease;
+            }
 
-				}
+            .image-overlay {
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(0, 0, 0, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              opacity: 0;
+              transition: opacity 0.3s ease;
+              color: white;
+              font-size: 24px;
+            }
 
-				.message-voice {
-					font-size: 14px;
-					cursor: pointer;
+            &:hover {
+              .send-image {
+                transform: scale(1.05);
+              }
 
-					audio {
-						height: 45px;
-						padding: 5px 0;
-					}
-				}
+              .image-overlay {
+                opacity: 1;
+              }
+            }
+          }
+        }
 
-				.chat-action {
-					display: flex;
-					align-items: center;
+        .message-file {
+          display: flex;
+          flex-wrap: nowrap;
+          flex-direction: row;
+          align-items: center;
+          cursor: pointer;
+          margin-bottom: 2px;
+          background: var(--im-background);
 
-					.iconfont {
-						cursor: pointer;
-						font-size: 22px;
-						padding-right: 8px;
-					}
-				}
+          .file-box {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            min-height: 60px;
+            box-shadow: var(--im-box-shadow-light);
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #eee;
+            transition: all 0.3s ease;
+            background: white;
 
-				.message-status {
-					margin-top: 3px;
-					display: block;
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            }
 
-					.chat-readed {
-						font-size: 12px;
-						color: var(--im-text-color-light);
-					}
+            .file-info {
+              flex: 1;
+              height: 100%;
+              text-align: left;
+              font-size: 14px;
+              margin-right: 10px;
 
-					.chat-unread {
-						font-size: var(--im-font-size-smaller);
-						color: var(--im-color-danger);
-					}
-				}
+              .file-name {
+                display: inline-block;
+                min-width: 160px;
+                max-width: 200px;
+                font-size: 14px;
+                margin-bottom: 4px;
+                white-space: pre-wrap;
+                word-break: break-all;
+                color: #2830d3;
 
-				.chat-receipt {
-					font-size: var(--im-font-size-smaller);
-					cursor: pointer;
-					color: var(--im-text-color-light);
+                &:hover {
+                  text-decoration: underline;
+                }
+              }
 
-					.icon-ok {
-						font-size: 20px;
-						color: var(--im-color-success);
-					}
-				}
+              .file-size {
+                font-size: var(--im-font-size-smaller);
+                color: var(--im-text-color-light);
+              }
+            }
 
-				.chat-at-user {
-					padding: 2px 5px;
-					border-radius: 3px;
-					cursor: pointer;
-				}
-			}
-		}
+            .file-icon {
+              font-size: 36px;
+              color: #d42e07;
+              transition: transform 0.3s ease;
+            }
 
+            &:hover .file-icon {
+              transform: scale(1.1);
+            }
+          }
+        }
 
-		&.message-mine {
-			text-align: right;
-			padding-left: 0;
-			padding-right: 48px;
+        .chat-action {
+          display: flex;
+          align-items: center;
 
-			.head-image {
-				left: auto;
-				right: 0;
-			}
+          .iconfont {
+            cursor: pointer;
+            font-size: 22px;
+            padding-right: 8px;
+          }
+        }
 
-			.content {
-				text-align: right;
+        .message-status {
+          margin-top: 3px;
+          display: block;
+          font-size: 11px;
 
-				.message-top {
-					flex-direction: row-reverse;
+          .chat-readed {
+            color: var(--im-text-color-light);
+          }
 
-					span {
-						margin-left: 12px;
-						margin-right: 0;
-					}
-				}
+          .chat-unread {
+            color: var(--im-color-danger);
+          }
+        }
 
-				.message-bottom {
-					padding-left: 180px;
-					padding-right: 5px;
+        .chat-receipt {
+          font-size: var(--im-font-size-smaller);
+          cursor: pointer;
+          color: var(--im-text-color-light);
 
-					.message-content-wrapper {
-						flex-direction: row-reverse;
-					}
+          .icon-ok {
+            font-size: 20px;
+            color: var(--im-color-success);
+          }
+        }
+      }
+    }
 
-					.message-text {
-						background-color: var(--im-color-primary-light-2);
-						color: #fff;
-					}
+    &.message-mine {
+      text-align: right;
+      padding-left: 0;
+      padding-right: 53px;
 
-					.chat-action {
-						flex-direction: row-reverse;
+      .avatar {
+        left: auto;
+        right: 0;
+      }
 
-						.iconfont {
-							transform: rotateY(180deg);
-						}
-					}
-				}
-			}
-		}
+      .content {
+        text-align: right;
 
-	}
+        .top {
+          flex-direction: row-reverse;
+        }
+
+        .bottom {
+          padding-left: 30px;
+          padding-right: 0;
+
+          &.fullscreen {
+            padding-left: 240px;
+          }
+
+          .message-content-wrapper {
+            flex-direction: row-reverse;
+          }
+
+          .message-text {
+            background: var(--im-color-primary-light-2);
+            color: white;
+
+            :deep(.at-user-name) {
+              color: white;
+            }
+          }
+
+          .chat-action {
+            flex-direction: row-reverse;
+
+            .iconfont {
+              transform: rotateY(180deg);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 </style>

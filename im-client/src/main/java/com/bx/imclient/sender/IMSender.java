@@ -308,6 +308,26 @@ public class IMSender {
         return new LinkedList<>(getOnlineTerminal(userIds).keySet());
     }
 
+    /**
+     * 强制用户所有在线终端下线
+     */
+    public void forceLogout(Long userId, Integer type, String reason) {
+        for (Integer terminal : IMTerminalType.codes()) {
+            String key = IMRedisKey.userServerIdKey(userId, terminal);
+            Object serverId = redisMQTemplate.opsForValue().get(key);
+            if (Objects.isNull(serverId)) {
+                continue;
+            }
+            IMForceLogoutInfo logoutInfo = new IMForceLogoutInfo();
+            logoutInfo.setUserId(userId);
+            logoutInfo.setTerminal(terminal);
+            logoutInfo.setType(type);
+            logoutInfo.setReason(reason);
+            String queueKey = String.join(":", IMRedisKey.IM_USER_FORCE_LOGOUT_QUEUE, serverId.toString());
+            redisMQTemplate.opsForList().rightPush(queueKey, logoutInfo);
+        }
+    }
+
     /** 封装私聊 {@link IMRecvInfo} 并入对应 IM-server 的 Redis 私聊队列 */
     private <T> void pushPrivateMessage(Integer serverId, IMUserInfo sender, List<IMUserInfo> receivers,
                                         Boolean sendResult, T data) {

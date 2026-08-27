@@ -6,8 +6,6 @@ const previewContent = (m) => {
     try {
         if (m.type == MESSAGE_TYPE.IMAGE) {
             content = '[图片]';
-        } else if (m.type == MESSAGE_TYPE.VIDEO) {
-            content = '[视频]';
         } else if (m.type == MESSAGE_TYPE.FILE) {
             content = '[文件] ' + JSON.parse(m.content).name;
         } else if (m.type == MESSAGE_TYPE.AUDIO) {
@@ -21,7 +19,7 @@ const previewContent = (m) => {
         } else if (m.type == MESSAGE_TYPE.TEXT || m.type == MESSAGE_TYPE.RECALL) {
             content = m.content;
         } else if (m.type == MESSAGE_TYPE.TIP_TEXT) {
-            content = m.content;
+            content = previewTip(m.content);
         }
     } catch (e) {
         console.log("message:", m, e);
@@ -29,6 +27,11 @@ const previewContent = (m) => {
     return content;
 }
 
+const previewTip = (messageTip) => {
+    return messageTip || '';
+}
+
 export {
-    previewContent
+    previewContent,
+    previewTip
 };

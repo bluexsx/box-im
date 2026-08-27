@@ -54,6 +54,10 @@
 		</view>
 		<bar-group v-if="!group.quit">
 			<switch-bar title="消息免打扰" :checked="group.isDnd" @change="onDndChange"></switch-bar>
+			<switch-bar title="置顶聊天" :checked="group.isTop" @change="onTopChange"></switch-bar>
+		</bar-group>
+		<bar-group v-if="isExistHistory">
+			<arrow-bar title="查找聊天记录" @tap="onChatHistory()"></arrow-bar>
 		</bar-group>
 		<bar-group v-if="!group.quit && isExistHistory ">
 			<arrow-bar title="清空聊天记录" @tap="onCleanMessage()"></arrow-bar>
@@ -125,7 +129,8 @@ export default {
 				targetId: this.groupId,
 				showName: this.group.showGroupName,
 				headImage: this.group.headImageThumb,
-				isDnd: this.group.isDnd
+				isDnd: this.group.isDnd,
+				isTop: this.group.isTop
 			};
 			await chatStore.openChat(chatInfo);
 			await chatStore.moveTop(this.convKey)
@@ -197,6 +202,28 @@ export default {
 			}).then(() => {
 				groupStore.setDnd(groupId, isDnd);
 				chatStore.setDnd(convKey, isDnd)
+			})
+		},
+		onTopChange(e) {
+			const isTop = e.detail.value;
+			const convKey = this.convKey;
+			const groupId = this.group.id;
+			const formData = {
+				groupId: groupId,
+				isTop: isTop
+			}
+			this.$http({
+				url: '/group/top',
+				method: 'put',
+				data: formData
+			}).then(() => {
+				groupStore.setTop(groupId, isTop);
+				chatStore.setTop(convKey, isTop)
+			})
+		},
+		onChatHistory() {
+			uni.navigateTo({
+				url: '/pages/chat/chat-history?convKey=' + this.convKey
 			})
 		},
 		onCleanMessage() {

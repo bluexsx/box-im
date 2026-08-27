@@ -1,137 +1,142 @@
 <template>
-	<el-dialog v-dialogDrag class="chat-record" title="语音录制" :visible.sync="visible" width="600px" :before-close="onClose">
-		<div v-show="mode == 'RECORD'">
-			<div class="tip">{{ stateTip }}</div>
-			<div>时长: {{ state == 'STOP' ? 0 : parseInt(rc.duration) }}s</div>
-		</div>
-		<audio v-show="mode == 'PLAY'" :src="url" controls ref="audio" @ended="onStopAudio()"></audio>
-		<el-divider content-position="center"></el-divider>
-		<el-row class="btn-group">
-			<el-button round type="primary" v-show="state == 'STOP'" @click="onStartRecord()">开始录音</el-button>
-			<el-button round type="warning" v-show="state == 'RUNNING'" @click="onPauseRecord()">暂停录音</el-button>
-			<el-button round type="primary" v-show="state == 'PAUSE'" @click="onResumeRecord()">继续录音</el-button>
-			<el-button round type="danger" v-show="state == 'RUNNING' || state == 'PAUSE'" @click="onCompleteRecord()">
-				结束录音</el-button>
-			<el-button round type="success" v-show="state == 'COMPLETE' && mode != 'PLAY'" @click="onPlayAudio()">播放录音
-			</el-button>
-			<el-button round type="warning" v-show="state == 'COMPLETE' && mode == 'PLAY'" @click="onStopAudio()">停止播放
-			</el-button>
-			<el-button round type="primary" v-show="state == 'COMPLETE'" @click="onRestartRecord()">重新录音</el-button>
-			<el-button round type="primary" v-show="state == 'COMPLETE'" @click="onSendRecord()">立即发送</el-button>
-		</el-row>
-	</el-dialog>
+  <el-dialog v-model="show" class="chat-record" :title="'语音录制'" width="600px" draggable destroy-on-close :before-close="onBeforeClose">
+    <div v-show="mode == 'RECORD'">
+      <div class="tip">{{ stateTip }}</div>
+      <div>{{ '时长' }}: {{ state == 'STOP' ? 0 : parseInt(String(rc.duration)) }}s</div>
+    </div>
+    <audio v-show="mode == 'PLAY'" ref="audioRef" :src="url" controls @ended="onStopAudio"></audio>
+    <el-divider content-position="center"></el-divider>
+    <el-row class="btn-group" justify="center">
+      <el-button v-show="state == 'STOP'" round type="primary" @click="onStartRecord">{{ '开始录音' }}</el-button>
+      <el-button v-show="state == 'RUNNING'" round type="warning" @click="onPauseRecord">{{ '暂停录音' }}</el-button>
+      <el-button v-show="state == 'PAUSE'" round type="primary" @click="onResumeRecord">{{ '继续录音' }}</el-button>
+      <el-button v-show="state == 'RUNNING' || state == 'PAUSE'" round type="danger" @click="onCompleteRecord">{{ '结束录音' }}</el-button>
+      <el-button v-show="state == 'COMPLETE' && mode != 'PLAY'" round type="success" @click="onPlayAudio">{{ '播放录音' }}</el-button>
+      <el-button v-show="state == 'COMPLETE' && mode == 'PLAY'" round type="warning" @click="onStopAudio">{{ '停止播放' }}</el-button>
+      <el-button v-show="state == 'COMPLETE'" round type="primary" @click="onRestartRecord">{{ '重新录音' }}</el-button>
+      <el-button v-show="state == 'COMPLETE'" round type="primary" @click="onSendRecord">{{ '立即发送' }}</el-button>
+    </el-row>
+  </el-dialog>
 </template>
-
-<script>
+<script setup lang="ts">
+import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import Recorder from 'js-audio-recorder';
+import { uploadFile } from '@/api/file';
+const emit = defineEmits<{ send: [data: { duration: number; url: string }] }>();
+const show = ref(false);
+const rc = ref(new Recorder());
+const state = ref<'STOP' | 'RUNNING' | 'PAUSE' | 'COMPLETE'>('STOP');
+const stateTip = ref('');
+const mode = ref<'RECORD' | 'PLAY'>('RECORD');
+const url = ref('');
+const audioRef = ref<HTMLAudioElement>();
 
-export default {
-	name: 'chatRecord',
-	props: {
-		visible: {
-			type: Boolean
-		}
-	},
-	data() {
-		return {
-			rc: new Recorder(),
-			audio: new Audio(),
-			state: 'STOP', // STOP、RUNNING、PAUSE、COMPLETE
-			stateTip: "未开始",
-			mode: 'RECORD', // RECORD 、PLAY
-			duration: 0,
-			url: ""
-		}
-	},
-	methods: {
-		onClose() {
-			// 关闭前清除数据
-			this.rc.destroy();
-			this.rc = new Recorder();
-			this.audio.pause();
-			this.mode = 'RECORD';
-			this.state = 'STOP';
-			this.stateTip = '未开始';
-			this.$emit("close");
-		},
-		onStartRecord() {
-			this.rc.start().then((stream) => {
-				this.state = 'RUNNING';
-				this.stateTip = "正在录音...";
-			}).catch(error => {
-				this.$message.error(error);
-			});
+const resetRecorder = () => {
+  rc.value.destroy();
+  rc.value = new Recorder();
+};
 
+const cleanup = () => {
+  resetRecorder();
+  audioRef.value?.pause();
+  mode.value = 'RECORD';
+  state.value = 'STOP';
+  stateTip.value = '未开始';
+};
 
-		},
-		onPauseRecord() {
-			this.rc.pause();
-			this.state = 'PAUSE';
-			this.stateTip = "已暂停录音";
-		},
-		onResumeRecord() {
-			this.rc.resume();
-			this.state = 'RUNNING';
-			this.stateTip = "正在录音...";
-		},
-		onCompleteRecord() {
-			this.rc.pause();
-			this.state = 'COMPLETE';
-			this.stateTip = "已结束录音";
-		},
-		onPlayAudio() {
-			let wav = this.rc.getWAVBlob();
-			let url = URL.createObjectURL(wav);
-			this.$refs.audio.src = url;
-			this.$refs.audio.play();
-			this.mode = 'PLAY';
-		},
-		onStopAudio() {
-			this.$refs.audio.pause();
-			this.mode = 'RECORD';
-		},
-		onRestartRecord() {
-			this.rc.destroy();
-			this.rc = new Recorder()
-			this.rc.start();
-			this.state = 'RUNNING';
-			this.mode = 'RECORD';
-			this.stateTip = "正在录音...";
-		},
-		onSendRecord() {
-			let wav = this.rc.getWAVBlob();
-			let name = new Date().getDate() + '.wav';
-			var formData = new window.FormData()
-			formData.append('file', wav, name);
-			this.$http({
-				url: '/file/upload',
-				data: formData,
-				method: 'post',
-				headers: {
-					'Content-Type': 'multipart/form-data'
-				}
-			}).then((url) => {
-				let data = {
-					duration: parseInt(this.rc.duration),
-					url: url
-				}
-				this.$emit("send", data);
-				this.onClose();
-			})
-		}
-	}
-}
+const open = () => {
+  stateTip.value = '未开始';
+  show.value = true;
+};
+
+const close = () => {
+  cleanup();
+  show.value = false;
+};
+
+const onBeforeClose = (done: () => void) => {
+  // 关闭前清除数据
+  cleanup();
+  done();
+};
+
+const onStartRecord = () => {
+  rc.value
+    .start()
+    .then(() => {
+      state.value = 'RUNNING';
+      stateTip.value = '正在录音...';
+    })
+    .catch((error: Error) => {
+      ElMessage.error(error.message || String(error));
+    });
+};
+
+const onPauseRecord = () => {
+  rc.value.pause();
+  state.value = 'PAUSE';
+  stateTip.value = '已暂停录音';
+};
+
+const onResumeRecord = () => {
+  rc.value.resume();
+  state.value = 'RUNNING';
+  stateTip.value = '正在录音...';
+};
+
+const onCompleteRecord = () => {
+  rc.value.pause();
+  state.value = 'COMPLETE';
+  stateTip.value = '已结束录音';
+};
+
+const onPlayAudio = () => {
+  const wav = rc.value.getWAVBlob();
+  const blobUrl = URL.createObjectURL(wav);
+  if (audioRef.value) {
+    audioRef.value.src = blobUrl;
+    audioRef.value.play();
+  }
+  mode.value = 'PLAY';
+};
+
+const onStopAudio = () => {
+  audioRef.value?.pause();
+  mode.value = 'RECORD';
+};
+
+const onRestartRecord = () => {
+  resetRecorder();
+  rc.value.start();
+  state.value = 'RUNNING';
+  mode.value = 'RECORD';
+  stateTip.value = '正在录音...';
+};
+
+const onSendRecord = async () => {
+  const wav = rc.value.getWAVBlob();
+  const name = new Date().getDate() + '.wav';
+  const file = new File([wav], name, { type: 'audio/wav' });
+  const fileUrl = await uploadFile(file);
+  const data = {
+    duration: parseInt(String(rc.value.duration)),
+    url: fileUrl
+  };
+  emit('send', data);
+  close();
+};
+
+defineExpose({ open, close });
 </script>
-
 <style lang="scss" scoped>
 .chat-record {
+  .tip {
+    font-size: 18px;
+  }
 
-	.tip {
-		font-size: 18px;
-	}
-
-	.btn-group {
-		margin-bottom: 20px;
-	}
+  .btn-group {
+    margin-bottom: 20px;
+  }
 }
 </style>

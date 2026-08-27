@@ -4,6 +4,7 @@ import http from './common/request';
 import * as msgType from './common/messageType';
 import * as enums from './common/enums';
 import * as wsApi from './common/wssocket';
+import { isAccessTokenExpired } from './common/auth';
 import UNI_APP from '@/.env.js'
 
 export default {
@@ -44,12 +45,7 @@ export default {
 			});
 			wsApi.onMessage((cmd, msgInfo) => {
 				if (cmd == 2) {
-					// 异地登录，强制下线
-					uni.showModal({
-						content: '您已在其他地方登录，将被强制下线',
-						showCancel: false,
-					})
-					this.exit();
+					this.handleForceLogout(msgInfo);
 				} else if (cmd == 3) {
 					if (chatStore.loading) {
 						// 如果正在拉取离线消息，先存入缓存区，等待消息拉取完成再处理，防止消息乱序
@@ -74,9 +70,7 @@ export default {
 			wsApi.onClose((res) => {
 				console.log("ws断开", res);
 				// 重新连接
-				if (!this.reconnecting) {
-					this.reconnectWs();
-				}
+				this.reconnectWs();
 			})
 		},
 		async loadStore() {
@@ -168,7 +162,7 @@ export default {
 							showName: friend.nickName,
 							headImage: friend.headImage,
 							isDnd: friend.isDnd,
-							isTop: false,
+							isTop: friend.isTop,
 							lastContent: "",
 							lastSendTime: new Date().getTime(),
 							optTime: new Date().getTime(),
@@ -197,6 +191,10 @@ export default {
 				if (m.type == this.$enums.MESSAGE_TYPE.RECALL) {
 					const recallMessageId = Number(JSON.parse(m.content).id);
 					const recallMessageTip = JSON.parse(m.content).tip || '';
+					// 会话提示语
+					conversation.lastContent = this.$msgUtil.previewTip(recallMessageTip);
+					conversation.sendNickName = "";
+					// 被撤回的消息
 					let recallMessage = messageMap.get(recallMessageId);
 					if (!recallMessage) {
 						recallMessage = await this.$db.findMessageById(convKey, recallMessageId);
@@ -209,9 +207,6 @@ export default {
 					recallMessage.status = this.$enums.MESSAGE_STATUS.PENDING;
 					recallMessage.content = recallMessageTip;
 					recallMessage.type = this.$enums.MESSAGE_TYPE.TIP_TEXT
-					// 会话提示语
-					conversation.lastContent = this.$msgUtil.previewContent(recallMessage);
-					conversation.sendNickName = "";
 				} else {
 					// 会话内容
 					conversation.lastContent = this.$msgUtil.previewContent(m);
@@ -300,6 +295,10 @@ export default {
 				if (m.type == this.$enums.MESSAGE_TYPE.RECALL) {
 					const recallMessageId = Number(JSON.parse(m.content).id);
 					const recallMessageTip = JSON.parse(m.content).tip || '';
+					// 会话提示语
+					conversation.lastContent = this.$msgUtil.previewTip(recallMessageTip);
+					conversation.sendNickName = "";
+					// 被撤回的消息
 					let recallMessage = messageMap.get(recallMessageId);
 					if (!recallMessage) {
 						recallMessage = await this.$db.findMessageById(convKey, recallMessageId);
@@ -318,9 +317,6 @@ export default {
 					recallMessage.status = this.$enums.MESSAGE_STATUS.PENDING;
 					recallMessage.content = recallMessageTip;
 					recallMessage.type = this.$enums.MESSAGE_TYPE.TIP_TEXT
-					// 会话提示语
-					conversation.lastContent = this.$msgUtil.previewContent(recallMessage);
-					conversation.sendNickName = "";
 				} else {
 					// 会话列表内容
 					conversation.lastContent = this.$msgUtil.previewContent(m);
@@ -388,6 +384,12 @@ export default {
 			if (m.type == this.$enums.MESSAGE_TYPE.FRIEND_DND) {
 				friendStore.setDnd(friendId, JSON.parse(m.content));
 				await chatStore.setDnd(convKey, JSON.parse(m.content));
+				return;
+			}
+			// 对好友设置会话置顶
+			if (m.type == this.$enums.MESSAGE_TYPE.FRIEND_TOP) {
+				friendStore.setTop(friendId, JSON.parse(m.content));
+				await chatStore.setTop(convKey, JSON.parse(m.content));
 				return;
 			}
 			// 消息插入
@@ -458,7 +460,13 @@ export default {
 			// 对群设置免打扰
 			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_DND) {
 				groupStore.setDnd(m.groupId, JSON.parse(m.content));
-				chatStore.setDnd(chatInfo, JSON.parse(m.content));
+				await chatStore.setDnd(convKey, JSON.parse(m.content));
+				return;
+			}
+			// 对群设置会话置顶
+			if (m.type == this.$enums.MESSAGE_TYPE.GROUP_TOP) {
+				groupStore.setTop(m.groupId, JSON.parse(m.content));
+				await chatStore.setTop(convKey, JSON.parse(m.content));
 				return;
 			}
 			// 插入群聊消息
@@ -493,41 +501,28 @@ export default {
 				this.playAudioTip();
 			}
 		},
-		handleSystemMessage(msg) {
-			if (msg.type == enums.MESSAGE_TYPE.USER_BANNED) {
-				// 用户被封禁
-				wsApi.close(3099);
+		handleForceLogout(data) {
+			wsApi.close(3099);
+			if (data && data.type === enums.FORCE_LOGOUT_TYPE.BANNED) {
 				uni.showModal({
-					content: '您的账号已被管理员封禁，原因:' + msg.content,
+					content: '您的账号已被管理员封禁，原因:' + (data.reason || ''),
 					showCancel: false,
 				})
-				this.exit();
+			} else if (data && data.type === enums.FORCE_LOGOUT_TYPE.UNREG) {
+				uni.showModal({
+					content: '您的账号已注销',
+					showCancel: false,
+				})
+			} else {
+				uni.showModal({
+					content: '您已在其他地方登录，将被强制下线',
+					showCancel: false,
+				})
 			}
+			this.exit();
 		},
-		async insertGroupMessage(group, m) {
-			const convKey = this.$db.buildConversationKey(this.$enums.CONVERSATION_TYPE.GROUP, group.id);
-			const chatInfo = {
-				type: this.$enums.CONVERSATION_TYPE.GROUP,
-				targetId: group.id,
-				showName: group.showGroupName,
-				headImage: group.headImageThumb,
-				isDnd: group.isDnd
-			};
-			// 打开会话
-			await chatStore.openChat(chatInfo);
-			// 插入消息
-			await chatStore.insertMessage(convKey, m);
-			// 通知chat-box组件
-			if (chatStore.isActive(convKey)) {
-				uni.$emit("newMessage", m);
-			}
-			// 提示音和消息提醒
-			if (!group.isDnd && !chatStore.loading &&
-				!m.selfSend && this.$msgType.isNormal(m.type) &&
-				m.status != this.$enums.MESSAGE_STATUS.READED) {
-				// 播放提示音
-				this.playAudioTip();
-			}
+		handleSystemMessage(msg) {
+			// 系统消息
 		},
 		loadFriendInfo(id, callback) {
 			let friend = friendStore.findFriend(id);
@@ -536,7 +531,9 @@ export default {
 				friend = {
 					id: id,
 					showNickName: "未知用户",
-					headImage: ""
+					headImage: "",
+					isDnd: false,
+					isTop: false
 				}
 			}
 			return friend;
@@ -547,7 +544,9 @@ export default {
 				group = {
 					id: id,
 					showGroupName: "未知群聊",
-					headImageThumb: ""
+					headImageThumb: "",
+					isDnd: false,
+					isTop: false
 				}
 			}
 			return group;
@@ -595,52 +594,50 @@ export default {
 			})
 		},
 		reconnectWs() {
-			// 已退出则不再重连
 			if (this.isExit) {
 				return;
 			}
-			// 记录标志
 			this.reconnecting = true;
-			// 重新加载一次个人信息，目的是为了保证网络已经正常且token有效
-			userStore.loadUser().then((userInfo) => {
-				uni.showToast({
-					title: '连接已断开，尝试重新连接...',
-					icon: 'none'
-				})
-				// 重新连接
-				let loginInfo = uni.getStorageSync("loginInfo")
-				wsApi.reconnect(UNI_APP.WS_URL, loginInfo.accessToken);
+			const loginInfo = uni.getStorageSync("loginInfo");
+			if (!loginInfo || !loginInfo.accessToken) {
+				this.exit();
+				return;
+			}
+			const doReconnect = (token) => wsApi.reconnect(UNI_APP.WS_URL, token);
+			if (!isAccessTokenExpired(loginInfo.accessToken)) {
+				doReconnect(loginInfo.accessToken);
+				return;
+			}
+			if (!loginInfo.refreshToken) {
+				this.exit();
+				return;
+			}
+			this.refreshToken(loginInfo).then(() => {
+				doReconnect(uni.getStorageSync("loginInfo").accessToken);
 			}).catch(() => {
-				// 5s后重试
-				setTimeout(() => {
-					this.reconnectWs();
-				}, 5000)
-			})
+				setTimeout(() => this.reconnectWs(), 3000);
+			});
 		},
 		onReconnectWs() {
 			this.reconnecting = false;
-			// 重新加载好友和群聊
+			// 增量同步好友和群聊
 			const promises = [];
-			promises.push(friendStore.loadFriend());
-			promises.push(groupStore.loadGroup());
+			promises.push(friendStore.pullFriends());
+			promises.push(groupStore.pullGroups());
 			Promise.all(promises).then(() => {
-				uni.showToast({
-					title: "已重新连接",
-					icon: 'none'
-				})
 				// 加载离线消息
 				this.pullOfflineMessage();
+				// 刷新好友在线状态
+				friendStore.refreshOnline();
 			}).catch((e) => {
 				console.log(e);
 				this.exit();
 			})
 		},
-		closeSplashscreen(delay) {
+		closeSplashscreen() {
 			// #ifdef APP-PLUS
 			// 关闭开机动画
-			setTimeout(() => {
-				plus.navigator.closeSplashscreen()
-			}, delay)
+			plus.navigator.closeSplashscreen();
 			// #endif
 		}
 	},
@@ -651,24 +648,23 @@ export default {
 	},
 	async onLaunch() {
 		await this.$mountDb();
-		// 延迟1s，避免用户看到页面跳转
-		this.closeSplashscreen(1000);
 		// 登录状态校验
 		let loginInfo = uni.getStorageSync("loginInfo")
 		this.refreshToken(loginInfo).then(() => {
+			this.closeSplashscreen();
 			// #ifdef H5
 			// 跳转到聊天页
 			uni.switchTab({
 				url: "/pages/chat/chat"
 			})
-			// #endif			
+			// #endif
 			// 初始化
 			this.init();
-			this.closeSplashscreen(0);
 		}).catch(() => {
 			// 跳转到登录页
 			uni.navigateTo({
-				url: "/pages/login/login"
+				url: "/pages/login/login",
+				complete: () => this.closeSplashscreen()
 			})
 		})
 	}
