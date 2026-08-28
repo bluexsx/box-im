@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onActivated, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Loading, MoreFilled, Promotion, Warning } from '@element-plus/icons-vue';
@@ -899,8 +899,6 @@ const initConversation = async () => {
   await chatStore.resetMessages(props.conversation.key);
   // 滚到底部
   await scrollToBottom();
-  // 有时页面渲染得慢，会导致无法正常滚到底部，这里再滚一次
-  setTimeout(() => scrollToBottom(), 100);
   // 消息已读
   await readedMessage();
 };
@@ -911,9 +909,9 @@ watch(
     await initConversation();
     const locateMsg = pendingLocateMessage.value;
     if (locateMsg && locateMsg.convKey == newKey) {
+      chatStore.removePendingLocateMessage();
       await locateMessage(locateMsg);
     }
-    chatStore.removePendingLocateMessage();
   },
   { immediate: true }
 );
@@ -934,15 +932,6 @@ watch(loading, async (newLoading) => {
 onMounted(() => {
   eventBus.on('newMessage', onNewMessage);
   eventBus.on('locateChatMessage', locateMessage);
-});
-
-onActivated(async () => {
-  await scrollToBottom();
-  const locateMsg = pendingLocateMessage.value;
-  if (locateMsg && locateMsg.convKey == props.conversation.key) {
-    await locateMessage(locateMsg);
-    chatStore.removePendingLocateMessage();
-  }
 });
 
 onUnmounted(() => {
