@@ -350,8 +350,9 @@ const sendMessageRequest = (message: SendMessageDTO) => {
 const processSendMessage = async (conv: Conversation, message: SendMessageDTO, localMessage: ChatMessage) => {
   // 发送
   const m = await sendMessageRequest(message).catch(async () => {
-    localMessage.status = MESSAGE_STATUS.FAILED;
-    await chatStore.updateMessage(conv.key, localMessage);
+    const updateMessage = JSON.parse(JSON.stringify(localMessage));
+    updateMessage.status = MESSAGE_STATUS.FAILED;
+    await chatStore.updateMessage(conv.key, updateMessage);
     return null;
   });
   if (m) {
@@ -420,8 +421,9 @@ const onImageBefore = async (file: UploadFile) => {
   // 更新图片尺寸
   data.width = size.width;
   data.height = size.height;
-  localMessage.content = JSON.stringify(data);
-  await chatStore.updateMessage(props.conversation.key, localMessage);
+  const updateMessage = JSON.parse(JSON.stringify(localMessage)) as ChatMessage;
+  updateMessage.content = JSON.stringify(data);
+  await chatStore.updateMessage(props.conversation.key, updateMessage);
 };
 
 const onImageSuccess = async (data: Record<string, unknown>, file: UploadFile) => {
@@ -436,8 +438,9 @@ const onImageFail = async (_e: unknown, file: UploadFile) => {
   if (!file.localMessage) {
     return;
   }
-  file.localMessage.status = MESSAGE_STATUS.FAILED;
-  await chatStore.updateMessage(props.conversation.key, file.localMessage);
+  const updateMessage = JSON.parse(JSON.stringify(file.localMessage));
+  updateMessage.status = MESSAGE_STATUS.FAILED;
+  await chatStore.updateMessage(props.conversation.key, updateMessage);
 };
 
 const onFileBefore = async (file: UploadFile) => {
@@ -475,8 +478,9 @@ const onFileFail = async (_e: unknown, file: UploadFile) => {
   if (!file.localMessage) {
     return;
   }
-  file.localMessage.status = MESSAGE_STATUS.FAILED;
-  await chatStore.updateMessage(props.conversation.key, file.localMessage);
+  const updateMessage = JSON.parse(JSON.stringify(file.localMessage));
+  updateMessage.status = MESSAGE_STATUS.FAILED;
+  await chatStore.updateMessage(props.conversation.key, updateMessage);
 };
 
 const sendFileMessage = async (file: File) => {
