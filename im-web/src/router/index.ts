@@ -39,13 +39,13 @@ const router = createRouter({
           path: 'friend',
           name: 'Friend',
           component: () => import('@/views/FriendView.vue'),
-          meta: { title: '好友' }
+          meta: { title: '好友', keepAlive: true }
         },
         {
           path: 'group',
           name: 'Group',
           component: () => import('@/views/GroupView.vue'),
-          meta: { title: '群聊' }
+          meta: { title: '群聊', keepAlive: true }
         },
         {
           path: 'setting',

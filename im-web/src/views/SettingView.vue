@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onActivated, ref, type Component } from 'vue';
+import { computed, nextTick, onMounted, ref, type Component } from 'vue';
 import { useRoute } from 'vue-router';
 import { Lock, Setting, User } from '@element-plus/icons-vue';
 import ModifyPassword from '@/components/setting/ModifyPassword.vue';
@@ -91,7 +91,7 @@ const init = () => {
   }
   nextTick(() => onClickTab());
 };
-onActivated(() => {
+onMounted(() => {
   init();
 });
 </script>
