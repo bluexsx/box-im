@@ -4,7 +4,7 @@
       <!-- 头像区域 -->
       <div class="avatar-section">
         <div class="avatar-container">
-          <HeadImage :id="friend.id" :name="friend.nickName" :url="friend.headImage" :size="80" :is-show-user-info="false" radius="50%" />
+          <HeadImage :id="friend.id" :name="friend.nickName" :url="friend.headImage" :size="80" />
           <div class="avatar-pulse" />
         </div>
       </div>

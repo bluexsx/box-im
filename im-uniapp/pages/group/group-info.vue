@@ -6,7 +6,7 @@
 				<view v-for="(member, idx) in groupMembers" :key="idx">
 					<view class="member-item" v-if="idx < showMaxIdx">
 						<head-image :id="member.userId" :name="member.showNickName" :url="member.headImage" size="small"
-							:online="member.online"></head-image>
+							:online="member.online" :is-show-user-info="true"></head-image>
 						<view class="member-name">
 							{{ member.showNickName }}
 						</view>

@@ -9,7 +9,7 @@
 					<virtual-scroller :items="readedMembers">
 						<template v-slot="{ item }">
 							<view class="member-item">
-								<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
+								<head-image :id="item.userId" :name="item.showNickName" :online="item.online" :url="item.headImage"
 									:size="90"></head-image>
 								<view class="member-name">{{ item.showNickName }}</view>
 							</view>
@@ -20,7 +20,7 @@
 					<virtual-scroller :items="unreadMembers">
 						<template v-slot="{ item }">
 							<view class="member-item">
-								<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
+								<head-image :id="item.userId" :name="item.showNickName" :online="item.online" :url="item.headImage"
 									:size="90"></head-image>
 								<view class="member-name">{{ item.showNickName }}</view>
 							</view>

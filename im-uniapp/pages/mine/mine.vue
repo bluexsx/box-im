@@ -2,7 +2,7 @@
 	<view class="tab-page mine">
 		<nav-bar>我的</nav-bar>
 		<view class="user-info" @click="onModifyInfo()">
-			<head-image :name="userInfo.nickName" :url="userInfo.headImage" :size="160"></head-image>
+			<head-image :id="userInfo.id" :name="userInfo.nickName" :url="userInfo.headImage" :size="160"></head-image>
 			<view class="user-info-area">
 				<view class="primary-info">
 					<view class="nick-name">{{userInfo.nickName}}

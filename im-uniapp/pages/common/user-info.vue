@@ -3,7 +3,7 @@
 		<nav-bar back>用户信息</nav-bar>
 		<uni-card :is-shadow="false" is-full :border="false">
 			<view class="content">
-				<head-image :name="userInfo.nickName" :url="userInfo.headImageThumb" :size="160"
+				<head-image :id="userInfo.id" :name="userInfo.nickName" :url="userInfo.headImageThumb" :size="160"
 					@click="onShowFullImage()"></head-image>
 				<view class="info-item">
 					<view class="info-primary">

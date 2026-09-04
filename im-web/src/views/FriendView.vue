@@ -36,8 +36,6 @@
               :id="userInfo.id"
               :name="userInfo.nickName"
               :url="userInfo.headImage"
-              radius="50%"
-              :is-show-user-info="false"
               @click="showFullImage()" />
           </div>
           <div class="info-section">

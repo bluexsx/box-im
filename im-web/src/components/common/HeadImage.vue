@@ -14,7 +14,8 @@ import eventBus from '@/utils/eventBus';
 
 const props = defineProps({
   id: {
-    type: Number
+    type: Number,
+    required: true
   },
   size: {
     type: Number,
@@ -42,7 +43,7 @@ const props = defineProps({
   },
   isShowUserInfo: {
     type: Boolean,
-    default: true
+    default: false
   }
 });
 
@@ -75,14 +76,7 @@ const avatarText = computed(() => {
 });
 
 const textColor = computed(() => {
-  if (!props.name) {
-    return '#fff';
-  }
-  let hash = 0;
-  for (let i = 0; i < props.name.length; i++) {
-    hash += props.name.charCodeAt(i);
-  }
-  return colors[hash % colors.length];
+  return colors[props.id % colors.length];
 });
 
 const showUserInfo = async (e: MouseEvent) => {

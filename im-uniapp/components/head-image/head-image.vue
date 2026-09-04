@@ -22,7 +22,8 @@ export default {
 	},
 	props: {
 		id: {
-			type: Number
+			type: Number,
+			required: true
 		},
 		size: {
 			type: [Number, String],
@@ -44,9 +45,16 @@ export default {
 			type: Boolean,
 			default: false
 		},
+		isShowUserInfo: {
+			type: Boolean,
+			default: false
+		},
 	},
 	methods: {
 		showUserInfo(e) {
+			if (!this.isShowUserInfo) {
+				return;
+			}
 			if (this.id && this.id > 0) {
 				uni.navigateTo({
 					url: "/pages/common/user-info?id=" + this.id
@@ -83,14 +91,7 @@ export default {
 					`
 		},
 		textColor() {
-			if (!this.name) {
-				return '#fff';
-			}
-			let hash = 0;
-			for (var i = 0; i < this.name.length; i++) {
-				hash += this.name.charCodeAt(i);
-			}
-			return this.colors[hash % this.colors.length];
+			return this.colors[this.id % this.colors.length];
 		}
 	}
 }

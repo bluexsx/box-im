@@ -8,7 +8,7 @@
 		</view>
 		<view class="message-normal" v-else-if="isNormal" :class="{ 'message-mine': message.selfSend }">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="message.sendId" :url="headImage"
-				:name="showName" size="small"></head-image>
+				:name="showName" size="small" :is-show-user-info="true"></head-image>
 			<view class="content">
 				<view v-if="message.groupId && !message.selfSend" class="top">
 					<text class="name">{{ showName }}</text>

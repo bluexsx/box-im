@@ -7,8 +7,7 @@
           :name="conversation.showName"
           :size="45"
           :online="online"
-          :id="isPrivate ? conversation.targetId : 0"
-          :is-show-user-info="false" />
+          :id="conversation.targetId" />
         <div v-show="!conversation.isDnd && conversation.unreadCount > 0" class="unread-text">
           {{ conversation.unreadCount }}
         </div>

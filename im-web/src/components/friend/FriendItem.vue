@@ -2,7 +2,7 @@
   <div>
     <div class="friend-item" :class="itemClass" @contextmenu.prevent="showRightMenu($event)">
       <div class="friend-avatar">
-        <HeadImage :size="headImageSize" :id="friend.id" :name="friend.nickName" :url="friend.headImage" :online="friend.online" />
+        <HeadImage :size="headImageSize" :id="friend.id" :name="friend.nickName" :url="friend.headImage" :online="friend.online" :is-show-user-info="true" />
       </div>
       <div class="friend-info">
         <div class="friend-name">

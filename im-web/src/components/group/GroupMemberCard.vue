@@ -1,6 +1,6 @@
 <template>
   <div class="group-member-card">
-    <HeadImage :id="member.userId" :name="member.showNickName" :url="member.headImage" :size="40" :online="member.online" />
+    <HeadImage :id="member.userId" :name="member.showNickName" :url="member.headImage" :size="40" :online="member.online" :is-show-user-info="true" />
     <div class="name">{{ member.showNickName }}</div>
   </div>
 </template>

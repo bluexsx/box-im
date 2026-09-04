@@ -1,6 +1,6 @@
 <template>
 	<view class="friend-item" @click="showFriendInfo()">
-		<head-image :name="friend.nickName" :online="friend.online" :url="friend.headImage" size="small"></head-image>
+		<head-image :id="friend.id" :name="friend.nickName" :online="friend.online" :url="friend.headImage" size="small"></head-image>
 		<view class="friend-info">
 			<view class="friend-name">{{ friend.nickName }}</view>
 			<view class="friend-online">

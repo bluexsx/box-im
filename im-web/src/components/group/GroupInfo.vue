@@ -2,7 +2,7 @@
   <div v-if="show" ref="rootRef" class="group-info" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
     <div class="container">
       <div class="avatar">
-        <HeadImage :name="group.name" :url="group.headImageThumb" :size="60" radius="10%" @click="showFullImage()" />
+        <HeadImage :name="group.name" :url="group.headImageThumb" :size="60" :id="group.id" radius="15%" @click="showFullImage()" />
       </div>
       <div class="info-card">
         <div class="header">
@@ -20,7 +20,7 @@
       </div>
       <div class="member-avatars">
         <div v-for="member in previewMembers" :key="member.userId" class="member-avatar" :title="member.showNickName">
-          <HeadImage :id="member.userId" :name="member.showNickName" :url="member.headImage" :size="32" radius="50%" />
+          <HeadImage :id="member.userId" :name="member.showNickName" :url="member.headImage" :size="32" :is-show-user-info="true" />
         </div>
         <div v-if="memberSize > maxPreviewCount" class="more-members">
           <span class="more-count">+{{ memberSize - maxPreviewCount }}</span>

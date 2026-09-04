@@ -2,7 +2,7 @@
   <div>
     <div class="group-item" :class="itemClass" @contextmenu.prevent="showRightMenu($event)">
       <div class="group-avatar">
-        <HeadImage :size="headImageSize" :name="group.showGroupName" :url="group.headImageThumb" />
+        <HeadImage :size="headImageSize" :id="group.id" :name="group.showGroupName" :url="group.headImageThumb" />
       </div>
       <div class="group-name">{{ group.showGroupName }}</div>
       <slot />
