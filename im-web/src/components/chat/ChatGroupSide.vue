@@ -262,15 +262,21 @@ const onRemove = () => {
   removeSelectorRef.value?.open(50, [], [], hideIds);
 };
 
-const onRemoveComplete = (members: GroupMemberVO[]) => {
+const onRemoveComplete = async (members: GroupMemberVO[]) => {
   const userIds = members.map((m) => m.userId);
-  removeGroupMembers({
-    groupId: group.value.id,
-    userIds
-  }).then(() => {
+  try {
+    await ElMessageBox.confirm(`确定将选中的 ${userIds.length} 位成员移出群聊吗？`, '确认移出?', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await removeGroupMembers({
+      groupId: group.value.id,
+      userIds
+    });
     emit('reload');
     ElMessage.success(`已移除${userIds.length}位成员`);
-  });
+  } catch {}
 };
 
 const onShowMoreMember = () => {

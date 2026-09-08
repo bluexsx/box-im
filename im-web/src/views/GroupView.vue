@@ -154,7 +154,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onActivated, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, type FormInstance } from 'element-plus';
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
 import { ArrowRight, Camera, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
 import { pinyin } from 'pinyin-pro';
 import { storeToRefs } from 'pinia';
@@ -313,15 +313,21 @@ const onRemoveMember = () => {
   removeSelectorRef.value?.open(50, [], [], hideIds);
 };
 
-const onRemoveComplete = (members: GroupMemberVO[]) => {
+const onRemoveComplete = async (members: GroupMemberVO[]) => {
   const userIds = members.map((m) => m.userId);
-  removeGroupMembers({
-    groupId: activeGroup.value.id,
-    userIds
-  }).then(() => {
+  try {
+    await ElMessageBox.confirm(`确定将选中的 ${userIds.length} 位成员移出群聊吗？`, '确认移出?', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await removeGroupMembers({
+      groupId: activeGroup.value.id,
+      userIds
+    });
     reloadMembers();
     ElMessage.success(`您移除了${userIds.length}位成员`);
-  });
+  } catch {}
 };
 
 const onUploadSuccess = (data: UploadImageVO) => {
