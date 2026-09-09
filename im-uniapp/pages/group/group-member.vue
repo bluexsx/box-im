@@ -11,7 +11,7 @@
 			<virtual-scroller height="100%" class="scroll-bar" :items="showMembers">
 				<template v-slot="{ item }">
 					<view class="member-item" @click="onShowUserInfo(item.userId)">
-						<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"></head-image>
+						<head-image :id="item.userId" :name="item.showNickName" :online="item.online" :url="item.headImage"></head-image>
 						<view class="member-name">{{ item.showNickName }}
 							<uni-tag v-if="item.userId == group.ownerId" text="群主" size="small" circle type="error"></uni-tag>
 							<uni-tag v-if="item.userId == userStore.userInfo.id" text="我" size="small" circle></uni-tag>

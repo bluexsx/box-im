@@ -4,14 +4,14 @@
 			<div class="group-rtc-join">
 				<div class="host-info">
 					<div>发起人</div>
-					<head-image :name="rtcInfo.host.nickName" :url="rtcInfo.host.headImage" :size="80"></head-image>
+					<head-image :id="rtcInfo.host.id" :name="rtcInfo.host.nickName" :url="rtcInfo.host.headImage" :size="80"></head-image>
 				</div>
 				<div class="user-info">
 					<div>{{ rtcInfo.userInfos.length + '人正在通话中' }}</div>
 					<scroll-view scroll-x="true" scroll-left="120">
 						<view class="user-list">
 							<view v-for="user in rtcInfo.userInfos" class="user-item" :key="user.id">
-								<head-image :name="user.nickName" :url="user.headImage" :size="80"></head-image>
+								<head-image :id="user.id" :name="user.nickName" :url="user.headImage" :size="80"></head-image>
 							</view>
 						</view>
 					</scroll-view>

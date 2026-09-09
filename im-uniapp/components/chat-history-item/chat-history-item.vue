@@ -2,7 +2,7 @@
 	<view class="chat-history-item">
 		<view class="chat-message">
 			<view @click.stop="onShowUserInfo">
-				<head-image class="avatar" :url="headImage" :name="showName" size="small"></head-image>
+				<head-image class="avatar" :id="message.sendId" :url="headImage" :name="showName" size="small"></head-image>
 			</view>
 			<view class="chat-content">
 				<view class="chat-top">

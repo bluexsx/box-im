@@ -2,7 +2,7 @@
   <div class="chat-history-item" :class="active ? 'active' : ''">
     <div class="message-normal">
       <div class="avatar">
-        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId" />
+        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId" :is-show-user-info="true" />
       </div>
       <div class="content">
         <div class="top">

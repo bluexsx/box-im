@@ -17,9 +17,7 @@
                 :size="60"
                 :id="userInfo.id"
                 :url="userInfo.headImageThumb"
-                radius="50%"
-                :name="userInfo.nickName || userInfo.userName"
-                :is-show-user-info="false" />
+                :name="userInfo.nickName || userInfo.userName" />
               <div class="upload-overlay">
                 <el-icon><Camera /></el-icon>
                 <span>{{ '更换头像' }}</span>

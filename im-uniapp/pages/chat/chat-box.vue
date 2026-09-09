@@ -29,7 +29,7 @@
 					<scroll-view v-if="atUserIds.length > 0" class="chat-at-scroll-box" scroll-x="true" scroll-left="120">
 						<view class="chat-at-items">
 							<view v-for="m in atUserItems" class="chat-at-item" :key="m.userId">
-								<head-image :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
+								<head-image :id="m.userId" :name="m.showNickName" :url="m.headImage" size="minier"></head-image>
 							</view>
 						</view>
 					</scroll-view>

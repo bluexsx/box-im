@@ -53,13 +53,13 @@
                 :max-size="5 * 1024 * 1024"
                 :file-types="['image/jpeg', 'image/png', 'image/jpg', 'image/webp']"
                 @success="onUploadSuccess">
-                <HeadImage class="avatar" :size="80" :url="activeGroup.headImageThumb" radius="50%" :name="activeGroup.showGroupName" />
+                <HeadImage class="avatar" :size="80" :id="activeGroup.id" :url="activeGroup.headImageThumb" :name="activeGroup.showGroupName" />
                 <div class="upload-overlay">
                   <el-icon><Camera /></el-icon>
                   <span>{{ '更换头像' }}</span>
                 </div>
               </FileUpload>
-              <HeadImage v-else class="avatar" :size="80" :url="activeGroup.headImageThumb" radius="50%" :name="activeGroup.showGroupName" />
+              <HeadImage v-else class="avatar" :size="80" :id="activeGroup.id" :url="activeGroup.headImageThumb" :name="activeGroup.showGroupName" />
               <div class="group-info">
                 <div class="group-header">
                   <div class="group-name">
@@ -74,7 +74,7 @@
                 <div class="members-preview">
                   <div class="members-avatars">
                     <div v-for="member in previewMembers" :key="member.userId" class="member-avatar">
-                      <HeadImage :size="36" :url="member.headImage" radius="50%" :name="member.showNickName" :id="member.userId" />
+                      <HeadImage :size="36" :url="member.headImage" :name="member.showNickName" :id="member.userId" :is-show-user-info="true" />
                     </div>
                     <div v-if="showMembers.length > 6" class="more-members-btn" @click="openMemberDialog">
                       <span>+{{ showMembers.length - 6 }}</span>
@@ -154,7 +154,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onActivated, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, type FormInstance } from 'element-plus';
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
 import { ArrowRight, Camera, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
 import { pinyin } from 'pinyin-pro';
 import { storeToRefs } from 'pinia';
@@ -313,15 +313,21 @@ const onRemoveMember = () => {
   removeSelectorRef.value?.open(50, [], [], hideIds);
 };
 
-const onRemoveComplete = (members: GroupMemberVO[]) => {
+const onRemoveComplete = async (members: GroupMemberVO[]) => {
   const userIds = members.map((m) => m.userId);
-  removeGroupMembers({
-    groupId: activeGroup.value.id,
-    userIds
-  }).then(() => {
+  try {
+    await ElMessageBox.confirm(`确定将选中的 ${userIds.length} 位成员移出群聊吗？`, '确认移出?', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    await removeGroupMembers({
+      groupId: activeGroup.value.id,
+      userIds
+    });
     reloadMembers();
     ElMessage.success(`您移除了${userIds.length}位成员`);
-  });
+  } catch {}
 };
 
 const onUploadSuccess = (data: UploadImageVO) => {

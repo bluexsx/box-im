@@ -24,7 +24,6 @@
               :size="80"
               :name="friend.nickName"
               :url="friend.headImage"
-              :is-show-user-info="false"
               radius="0" />
             <video ref="remoteVideoRef" autoplay />
           </div>
@@ -38,7 +37,7 @@
           class="rtc-voice-box"
           :element-loading-text="'等待对方接听...'"
           element-loading-background="rgba(0, 0, 0, 0.1)">
-          <HeadImage class="friend-head-image" :id="friend.id" :size="200" :name="friend.nickName" :url="friend.headImage" :is-show-user-info="false">
+          <HeadImage class="friend-head-image" :id="friend.id" :size="200" :name="friend.nickName" :url="friend.headImage">
             <div class="rtc-voice-name">{{ friend.nickName }}</div>
           </HeadImage>
         </div>

@@ -3,7 +3,7 @@
 		<!--rich-text中的表情包会屏蔽事件，所以这里用一个遮罩层捕获点击事件 -->
 		<view class="mask" @tap="showChatBox()"></view>
 		<view class="left">
-			<head-image :url="conversation.headImage" :name="conversation.showName" :online="online"></head-image>
+			<head-image :id="conversation.targetId" :url="conversation.headImage" :name="conversation.showName" :online="online"></head-image>
 		</view>
 		<view class="chat-right">
 			<view class="chat-name">

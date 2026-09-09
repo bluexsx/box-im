@@ -11,7 +11,8 @@
 			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
 				<view v-for="(user) in users" :key="user.id" v-show="user.id != userStore.userInfo.id">
 					<view class="user-item">
-						<head-image :id="user.id" :name="user.nickName" :online="user.online" :url="user.headImage"></head-image>
+						<head-image :id="user.id" :name="user.nickName" :online="user.online" :url="user.headImage"
+							:is-show-user-info="true"></head-image>
 						<view class="user-info">
 							<view class="nick-name">
 								<view>{{ user.nickName }}</view>

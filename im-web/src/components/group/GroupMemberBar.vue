@@ -1,6 +1,6 @@
 <template>
   <div ref="itemRef" class="group-member-bar" :class="active ? 'active' : ''" :style="{ height: height + 'px' }">
-    <HeadImage :size="headImageSize" :id="member.userId" :name="member.showNickName" :url="member.headImage" :online="member.online" />
+    <HeadImage :size="headImageSize" :id="member.userId" :name="member.showNickName" :url="member.headImage" :online="member.online" :is-show-user-info="true" />
     <div class="name" :style="{ 'line-height': height + 'px' }">
       <div class="name-text" :title="member.showNickName">{{ member.showNickName }}</div>
       <el-tag v-if="mine.id == member.userId" type="primary">{{ '我' }}</el-tag>

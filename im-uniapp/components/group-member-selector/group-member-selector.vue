@@ -10,7 +10,7 @@
 			<scroll-view v-show="checkedIds.length > 0" scroll-x="true" scroll-left="120">
 				<view class="checked-users">
 					<view v-for="m in checkedMembers" class="user-item" :key="m.userId">
-						<head-image :name="m.showNickName" :url="m.headImage" :size="60"></head-image>
+						<head-image :id="m.userId" :name="m.showNickName" :url="m.headImage" :size="60"></head-image>
 					</view>
 				</view>
 			</scroll-view>
@@ -21,7 +21,7 @@
 				<virtual-scroller :items="showMembers">
 					<template v-slot="{ item }">
 						<view class="member-item" @click="onSwitchChecked(item)">
-							<head-image :name="item.showNickName" :online="item.online" :url="item.headImage"
+							<head-image :id="item.userId" :name="item.showNickName" :online="item.online" :url="item.headImage"
 								:size="90"></head-image>
 							<view class="member-name">{{ item.showNickName }}
 							</view>

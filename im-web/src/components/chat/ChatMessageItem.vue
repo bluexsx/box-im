@@ -6,7 +6,7 @@
     </div>
     <div v-else-if="isNormal || isAction" class="message-normal" :class="{ 'message-mine': mine }">
       <div class="avatar" @contextmenu.prevent.stop="showAvatarMenu">
-        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId" />
+        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId" :is-show-user-info="true" />
       </div>
       <div class="content">
         <div v-if="message.groupId && !message.selfSend" class="top">

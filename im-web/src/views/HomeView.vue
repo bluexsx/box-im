@@ -5,7 +5,7 @@
         <div class="navi-bar-box">
           <div class="top">
             <div class="avater">
-              <HeadImage :id="mine.id" :name="mine.nickName" :size="42" :url="mine.headImageThumb" :is-show-user-info="false" @click="goSetting" />
+              <HeadImage :id="mine.id" :name="mine.nickName" :size="42" :url="mine.headImageThumb" @click="goSetting" />
             </div>
             <div class="menu">
               <router-link class="link" to="/home/chat">
@@ -35,7 +35,7 @@
             <div class="bottom-item" @click="onSwitchFullScreen">
               <el-icon><FullScreen /></el-icon>
             </div>
-            <div class="bottom-item" :title="'退出'" @click="onExit">
+            <div class="bottom-item" :title="'退出'" @click="onLogout">
               <span class="icon iconfont icon-exit" />
             </div>
           </div>
@@ -143,6 +143,17 @@ const onExit = () => {
     // DB 未初始化时忽略
   }
   void router.push('/login');
+};
+
+const onLogout = async () => {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '退出登录', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    onExit();
+  } catch {}
 };
 
 const loadFriendInfo = (id: number): FriendVO => {

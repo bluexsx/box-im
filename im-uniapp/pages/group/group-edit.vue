@@ -8,7 +8,7 @@
 				<image-upload v-if="isOwner" :isPermanent="true" :thumbSize="20" :onSuccess="onUnloadImageSuccess">
 					<image :src="group.headImageThumb" class="group-image"></image>
 				</image-upload>
-				<head-image v-else class="group-image" :name="group.showGroupName" :url="group.headImageThumb"
+				<head-image v-else class="group-image" :id="group.id" :name="group.showGroupName" :url="group.headImageThumb"
 					:size="120" @click="onShowFullImage()"></head-image>
 			</view>
 			<view class="form-item">
