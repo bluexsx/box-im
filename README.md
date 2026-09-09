@@ -13,8 +13,14 @@
 - 后端采用 Spring Boot + Netty，网页端用 Vue，移动端用 uniapp
 - 服务器支持集群化部署，具备良好的横向扩展能力
 
-后台源码仓库: [Gitee](https://gitee.com/bluexsx/box-im-admin) \| [GitHub](https://github.com/bluexsx/box-im-admin)  
-详细技术文档: https://www.yuque.com/u1475064/mufu2a  
+技术文档：https://www.yuque.com/u1475064/mufu2a
+
+## 管理后台
+
+管理后台为**独立仓库**，提供用户、群组、消息、敏感词等后台能力。建议先完成本仓库业务服务的启动，再按后台仓库文档搭建管理端。
+
+- Gitee：https://gitee.com/bluexsx/box-im-admin
+- GitHub：https://github.com/bluexsx/box-im-admin
 
 ## 近期重大更新
 
