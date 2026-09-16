@@ -2,10 +2,12 @@ import DB, { RECENT_EMOJI_MAX } from "./db.js";
 
 const DB_NAME_PREFIX = 'im-app-';
 const MAX_MESSAGES_PER_CONV = 50;
+const MAX_CONVERSATIONS = 30;
 
 /**
  * storage版会话与消息存储，API 与 Dexie 版 indexDb 一致
  * 每个会话消息独立存储，key = dbName + '-' + convKey，最多保留50条
+ * 会话最多保留最新50个（按 lastSendTime）
  */
 class ImStorageDB extends DB {
 	constructor() {
@@ -204,9 +206,29 @@ class ImStorageDB extends DB {
 			});
 			this.convMessageMap.set(conv.key, convMessages);
 		});
+		if (this.conversationMap.size > MAX_CONVERSATIONS) {
+			this._saveConversations();
+		}
+	}
+
+	_trimConversations() {
+		if (this.conversationMap.size <= MAX_CONVERSATIONS) {
+			return;
+		}
+		const sorted = Array.from(this.conversationMap.values()).sort((a, b) => {
+			const ta = a.lastSendTime || a.optTime || 0;
+			const tb = b.lastSendTime || b.optTime || 0;
+			return tb - ta;
+		});
+		const remove = sorted.slice(MAX_CONVERSATIONS);
+		for (const c of remove) {
+			this.conversationMap.delete(c.key);
+			this._removeConvMessages(c.key);
+		}
 	}
 
 	_saveConversations() {
+		this._trimConversations();
 		uni.setStorageSync(this.dbName, Array.from(this.conversationMap.values()));
 	}
 
@@ -241,13 +263,12 @@ class ImStorageDB extends DB {
 
 	_removeConvMessages(convKey) {
 		const convMessages = this.convMessageMap.get(convKey);
-		if (!convMessages) {
-			return;
+		if (convMessages) {
+			for (const localId of convMessages.keys()) {
+				this.messageMap.delete(localId);
+			}
+			this.convMessageMap.delete(convKey);
 		}
-		for (const localId of convMessages.keys()) {
-			this.messageMap.delete(localId);
-		}
-		this.convMessageMap.delete(convKey);
 		uni.removeStorageSync(this._convStorageKey(convKey));
 	}
 

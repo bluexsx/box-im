@@ -125,8 +125,9 @@ export default {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		justify-content: flex-start;
 		padding-left: 20rpx;
+		padding-top: 8rpx;
 		text-align: left;
 		overflow: hidden;
 
@@ -158,6 +159,7 @@ export default {
 			padding-top: 8rpx;
 			align-items: center;
 			line-height: 36rpx;
+			min-height: 36rpx;
 
 			.chat-at-text {
 				color: $im-color-danger;

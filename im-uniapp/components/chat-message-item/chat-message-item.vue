@@ -443,11 +443,20 @@ export default {
 
 				.chat-realtime {
 					display: flex;
+					flex-wrap: nowrap;
 					align-items: center;
+					line-height: 1.2;
+					gap: 16rpx;
+
+					&.message-text {
+						align-items: center;
+					}
 
 					.iconfont {
 						font-size: 40rpx;
-						padding-right: 16rpx;
+						line-height: 1;
+						position: relative;
+						top: 2rpx;
 					}
 				}
 
@@ -534,8 +543,8 @@ export default {
 					}
 
 					.chat-realtime {
-						display: flex;
 						flex-direction: row-reverse;
+						align-items: center;
 
 						.iconfont {
 							transform: rotateY(180deg);
@@ -546,4 +555,5 @@ export default {
 		}
 	}
 }
+
 </style>
