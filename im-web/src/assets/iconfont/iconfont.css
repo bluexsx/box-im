@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3791506 */
-  src: url('iconfont.ttf?t=1785481038605') format('truetype');
+  src: url('iconfont.ttf?t=1789555055427') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,50 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-tab-contact:before {
+  content: "\e66d";
+}
+
+.icon-tab-contact-fill:before {
+  content: "\e625";
+}
+
+.icon-tab-fav-fill:before {
+  content: "\e981";
+}
+
+.icon-tab-fav:before {
+  content: "\e982";
+}
+
+.icon-tab-setting-fill:before {
+  content: "\e983";
+}
+
+.icon-tab-setting:before {
+  content: "\e984";
+}
+
+.icon-tab-group:before {
+  content: "\e753";
+}
+
+.icon-tab-chat-fill:before {
+  content: "\e603";
+}
+
+.icon-tab-chat:before {
+  content: "\e607";
+}
+
+.icon-locate-down:before {
+  content: "\ec0b";
+}
+
+.icon-locate-up:before {
+  content: "\ec0c";
 }
 
 .icon-film:before {
@@ -227,7 +271,7 @@
   content: "\e60c";
 }
 
-.icon-group:before {
+.icon-tab-group-fill:before {
   content: "\e7f4";
 }
 

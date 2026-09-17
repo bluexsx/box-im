@@ -1065,14 +1065,11 @@ onUnmounted(() => {
           &.chat-tool-active {
             color: var(--im-color-primary);
             background: var(--im-background-active-dark);
-            transform: scale(1.02);
           }
 
           &:hover {
             color: var(--im-color-primary);
             background: var(--im-background-active);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           }
 
           .el-icon,

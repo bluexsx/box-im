@@ -4,38 +4,42 @@
       <div class="navi-bar">
         <div class="navi-bar-box">
           <div class="top">
-            <div class="avater">
-              <HeadImage :id="mine.id" :name="mine.nickName" :size="42" :url="mine.headImageThumb" @click="goSetting" />
+            <div class="avatar" :title="mine.nickName" @click="goSetting">
+              <HeadImage :id="mine.id" :name="mine.nickName" :size="42" :url="mine.headImageThumb" />
             </div>
-            <div class="menu">
-              <router-link class="link" to="/home/chat">
+            <nav class="menu">
+              <router-link v-slot="{ isActive }" class="link" to="/home/chat">
                 <div class="menu-item">
-                  <span class="icon iconfont icon-chat" />
-                  <div v-show="unreadCount > 0" class="unread-text">{{ unreadCount }}</div>
+                  <span class="icon iconfont" :class="isActive ? 'icon-tab-chat-fill' : 'icon-tab-chat'" />
+                  <span class="label">消息</span>
+                  <div v-show="unreadCount > 0" class="unread-text">{{ formatBadge(unreadCount) }}</div>
                 </div>
               </router-link>
-              <router-link class="link" to="/home/friend">
+              <router-link v-slot="{ isActive }" class="link" to="/home/friend">
                 <div class="menu-item">
-                  <span class="icon iconfont icon-friend" />
+                  <span class="icon iconfont" :class="isActive ? 'icon-tab-contact-fill' : 'icon-tab-contact'" />
+                  <span class="label">联系人</span>
                 </div>
               </router-link>
-              <router-link class="link" to="/home/group">
+              <router-link v-slot="{ isActive }" class="link" to="/home/group">
                 <div class="menu-item">
-                  <span class="icon iconfont icon-group" style="font-size: 28px" />
+                  <span class="icon iconfont" :class="isActive ? 'icon-tab-group-fill' : 'icon-tab-group'" />
+                  <span class="label">群聊</span>
                 </div>
               </router-link>
-              <router-link class="link" to="/home/setting">
+              <router-link v-slot="{ isActive }" class="link" to="/home/setting">
                 <div class="menu-item">
-                  <span class="icon iconfont icon-setting" style="font-size: 20px" />
+                  <span class="icon iconfont" :class="isActive ? 'icon-tab-setting-fill' : 'icon-tab-setting'" />
+                  <span class="label">设置</span>
                 </div>
               </router-link>
-            </div>
+            </nav>
           </div>
           <div class="bottom">
-            <div class="bottom-item" @click="onSwitchFullScreen">
+            <div class="bottom-item" title="全屏" @click="onSwitchFullScreen">
               <el-icon><FullScreen /></el-icon>
             </div>
-            <div class="bottom-item" :title="'退出'" @click="onLogout">
+            <div class="bottom-item" title="退出" @click="onLogout">
               <span class="icon iconfont icon-exit" />
             </div>
           </div>
@@ -124,6 +128,8 @@ const unreadCount = computed(() => {
   });
   return count;
 });
+
+const formatBadge = (count: number) => (count > 99 ? '99+' : String(count));
 
 const unloadStore = () => {
   friendStore.clear();
@@ -854,144 +860,95 @@ onUnmounted(() => {
   }
 
   .navi-bar {
-    --icon-font-size: 22px;
-    --width: 70px;
-    width: var(--width);
+    width: 70px;
+    flex-shrink: 0;
     background: linear-gradient(180deg, var(--im-color-primary-light-1) 0%, var(--im-color-primary-light-2) 100%);
     padding-top: 25px;
-    position: relative;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-    // 添加顶部装饰线
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--im-color-primary) 0%, var(--im-color-primary-light-3) 50%, var(--im-color-primary) 100%);
-    }
 
     .navi-bar-box {
       height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      align-items: center;
 
       .bottom {
         margin-bottom: 25px;
       }
     }
 
-    .avater {
+    .link {
+      text-decoration: none;
+      outline: none;
+
+      &.router-link-active .menu-item {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      &:not(.router-link-active) .menu-item:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .menu-item {
+      position: relative;
+      width: 50px;
+      min-height: 50px;
+      padding: 6px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      border-radius: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+
+      .icon {
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      .label {
+        font-size: 10px;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .unread-text {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: var(--im-color-danger);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 16px;
+        text-align: center;
+        white-space: nowrap;
+        box-sizing: border-box;
+      }
+    }
+
+    .avatar {
       display: flex;
       justify-content: center;
       margin-bottom: 10px;
-      // 为头像添加容器样式
-
-      :deep(.head-image) {
-        border: 3px solid rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-        cursor: pointer;
-
-        &:hover {
-          border-color: rgba(255, 255, 255, 0.4);
-          transform: scale(1.05);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        }
-      }
+      cursor: pointer;
     }
 
     .menu {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-content: center;
-      flex-wrap: wrap;
-      margin-top: 25px;
-      gap: 8px;
-
-      .link {
-        text-decoration: none;
-        display: flex;
-        justify-content: center;
-      }
-
-      .router-link-active .menu-item {
-        color: white;
-        background: linear-gradient(135deg, var(--im-color-primary-light-2) 0%, var(--im-color-primary) 100%);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        transform: translateX(2px);
-
-        &::before {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .link:not(.router-link-active) .menu-item:hover {
-        background: linear-gradient(135deg, var(--im-color-primary) 0%, var(--im-color-primary-light-2) 100%);
-        transform: scale(1.08) translateX(2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-        color: white;
-      }
-
-      .menu-item {
-        position: relative;
-        color: rgba(255, 255, 255, 0.8);
-        width: 50px;
-        height: 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 10px;
-        border-radius: 12px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
-        // 添加左侧指示条
-
-        &::before {
-          content: '';
-          position: absolute;
-          left: -5px;
-          width: 3px;
-          height: 20px;
-          background: white;
-          border-radius: 2px;
-          opacity: 0;
-          transition: all 0.3s ease;
-        }
-
-        .icon {
-          font-size: var(--icon-font-size);
-          transition: all 0.3s ease;
-        }
-
-        .unread-text {
-          position: absolute;
-          background: var(--im-color-danger);
-          left: 32px;
-          top: 3px;
-          color: white;
-          border-radius: 10px;
-          padding: 1px 6px;
-          font-size: 10px;
-          font-weight: 600;
-          text-align: center;
-          white-space: nowrap;
-          border: 1px solid rgba(255, 255, 255, 0.9);
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-          min-width: 16px;
-          height: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1;
-        }
-      }
+      align-items: center;
+      margin-top: 32px;
+      gap: 24px;
     }
 
     .bottom-item {
@@ -1002,28 +959,15 @@ onUnmounted(() => {
       width: 100%;
       cursor: pointer;
       color: rgba(255, 255, 255, 0.7);
-      font-size: var(--icon-font-size);
-      border-radius: 8px;
-      margin: 4px 0;
-      transition: all 0.3s ease;
+      font-size: 22px;
 
-      .icon {
-        font-size: var(--icon-font-size);
-        transition: all 0.3s ease;
+      .icon,
+      .el-icon {
+        font-size: 22px;
       }
 
       &:hover {
-        color: white;
-        background: rgba(255, 255, 255, 0.1);
-        transform: scale(1.05);
-
-        .icon {
-          transform: scale(1.1);
-        }
-      }
-
-      &:active {
-        transform: scale(0.95);
+        color: #fff;
       }
     }
   }

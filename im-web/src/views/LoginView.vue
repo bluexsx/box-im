@@ -264,13 +264,6 @@ onMounted(() => {
     font-size: var(--im-font-size-larger);
     font-weight: 600;
     letter-spacing: 2px;
-
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-    &:hover {
-      transform: translateY(-1px);
-    }
   }
 
   .footer-links {

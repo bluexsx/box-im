@@ -526,7 +526,7 @@ onMounted(() => {
             border-color: var(--im-color-primary-light-2);
             color: var(--im-color-primary-light-2);
             background: var(--im-background-active);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(var(--im-color-primary-rgb), 0.2);
           }
         }
@@ -713,10 +713,6 @@ onMounted(() => {
         position: relative;
         font-style: italic;
         background: var(--im-background-active);
-
-        &:hover {
-          transform: translateY(-2px);
-        }
 
         .notice-text {
           font-size: var(--im-font-size-small);

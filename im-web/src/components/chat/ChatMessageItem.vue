@@ -6,7 +6,7 @@
     </div>
     <div v-else-if="isNormal || isAction" class="message-normal" :class="{ 'message-mine': mine }">
       <div class="avatar" @contextmenu.prevent.stop="showAvatarMenu">
-        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId" :is-show-user-info="true" />
+        <HeadImage :name="showName" :size="38" :url="headImage" :id="message.sendId || 0" :is-show-user-info="true" />
       </div>
       <div class="content">
         <div v-if="message.groupId && !message.selfSend" class="top">
@@ -486,7 +486,7 @@ defineExpose({ stopPlayAudio });
           position: relative;
 
           &:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
           }
 
@@ -554,7 +554,7 @@ defineExpose({ stopPlayAudio });
             background: white;
 
             &:hover {
-              transform: translateY(-2px);
+              transform: translateY(-1px);
               box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             }
 

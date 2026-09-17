@@ -43,7 +43,7 @@ import { DArrowRight, Search } from '@element-plus/icons-vue';
 import VirtualScroller from '@/components/common/VirtualScroller.vue';
 import GroupMemberBar from './GroupMemberBar.vue';
 import GroupMemberCard from './GroupMemberCard.vue';
-import { listGroupMembers } from '@/api/group';
+import { listGroupMembers, listGroupOnlineMembers } from '@/api/group';
 import type { GroupVO, GroupMemberVO } from '@/api/group/types';
 
 interface SelectableMember extends GroupMemberVO {
@@ -80,17 +80,25 @@ const open = (size: number, checkedIds: number[], lockedIds: number[], hideIds: 
   loadGroupMembers(checkedIds, lockedIds, hideIds);
 };
 
-const loadGroupMembers = (checkedIds: number[], lockedIds: number[], hideIds: number[]) => {
-  listGroupMembers(props.group.id).then((list) => {
-    list.forEach((m) => {
-      const member = m as SelectableMember;
-      // 默认选择和锁定的用户
-      member.checked = checkedIds.indexOf(m.userId) >= 0;
-      member.locked = lockedIds.indexOf(m.userId) >= 0;
-      member.hide = hideIds.indexOf(m.userId) >= 0;
-    });
-    members.value = list as SelectableMember[];
+const loadGroupMembers = async (checkedIds: number[], lockedIds: number[], hideIds: number[]) => {
+  const [list, onlineIds] = await Promise.all([listGroupMembers(props.group.id), listGroupOnlineMembers(props.group.id)]);
+  const onlineSet = new Set(onlineIds);
+  list.forEach((m) => {
+    const member = m as SelectableMember;
+    member.online = onlineSet.has(m.userId);
+    member.checked = checkedIds.indexOf(m.userId) >= 0;
+    member.locked = lockedIds.indexOf(m.userId) >= 0;
+    member.hide = hideIds.indexOf(m.userId) >= 0;
   });
+  // 在线优先，其次群主
+  list.sort((m1, m2) => {
+    if (m1.online && !m2.online) return -1;
+    if (!m1.online && m2.online) return 1;
+    if (m1.userId == props.group.ownerId) return -1;
+    if (m2.userId == props.group.ownerId) return 1;
+    return 0;
+  });
+  members.value = list as SelectableMember[];
 };
 
 const onClickMember = (m: SelectableMember) => {

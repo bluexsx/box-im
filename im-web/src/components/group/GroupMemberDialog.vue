@@ -119,11 +119,6 @@ defineExpose({ open, close });
       padding: 8px;
       border-radius: 12px;
 
-      &:hover {
-        background: rgba(0, 0, 0, 0.04);
-        transform: translateY(-2px);
-      }
-
       .tool-btn {
         width: 44px;
         height: 44px;
@@ -135,7 +130,6 @@ defineExpose({ open, close });
         font-size: 20px;
         cursor: pointer;
         border-radius: 12px;
-        transition: all 0.3s ease;
         color: var(--im-color-primary);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
@@ -144,10 +138,9 @@ defineExpose({ open, close });
         }
 
         &:hover {
-          background: var(--im-color-primary-light-2);
-          color: white;
-          transform: scale(1.05);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+          background: var(--im-background-active);
+          border-color: var(--im-color-primary-light-6);
+          color: var(--im-color-primary);
         }
       }
 
@@ -186,10 +179,9 @@ defineExpose({ open, close });
       justify-content: center;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
+        background: var(--im-background-active);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        border-color: var(--im-color-primary-light-3);
+        border-color: var(--im-color-primary-light-6);
       }
     }
   }
