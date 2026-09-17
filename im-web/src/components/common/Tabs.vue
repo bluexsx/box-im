@@ -61,7 +61,6 @@ const onClickItem = (idx: number) => {
       background: var(--im-background-active-dark);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       font-weight: 600;
-      transform: translateY(-1px);
       // 添加下划线指示器
 
       &::after {
@@ -79,7 +78,7 @@ const onClickItem = (idx: number) => {
     }
 
     &:active {
-      transform: translateY(0) scale(0.98);
+      transform: scale(0.98);
       transition: transform 0.1s ease;
     }
 

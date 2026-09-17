@@ -486,7 +486,7 @@ defineExpose({ stopPlayAudio });
           position: relative;
 
           &:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
           }
 
@@ -554,7 +554,7 @@ defineExpose({ stopPlayAudio });
             background: white;
 
             &:hover {
-              transform: translateY(-2px);
+              transform: translateY(-1px);
               box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             }
 
