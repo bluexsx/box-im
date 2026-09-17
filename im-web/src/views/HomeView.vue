@@ -948,7 +948,7 @@ onUnmounted(() => {
       flex-direction: column;
       align-items: center;
       margin-top: 32px;
-      gap: 20px;
+      gap: 24px;
     }
 
     .bottom-item {
