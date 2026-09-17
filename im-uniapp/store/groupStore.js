@@ -119,13 +119,6 @@ export default defineStore('groupStore', {
 				if (m2.userId == group.ownerId) {
 					return 1;
 				}
-				// 管理员在前面
-				if (m1.isManager && !m2.isManager) {
-					return -1;
-				}
-				if (!m1.isManager && m2.isManager) {
-					return 1;
-				}
 				return 0;
 			})
 		},

@@ -90,14 +90,12 @@ const loadGroupMembers = async (checkedIds: number[], lockedIds: number[], hideI
     member.locked = lockedIds.indexOf(m.userId) >= 0;
     member.hide = hideIds.indexOf(m.userId) >= 0;
   });
-  // 在线优先，其次群主、管理员
+  // 在线优先，其次群主
   list.sort((m1, m2) => {
     if (m1.online && !m2.online) return -1;
     if (!m1.online && m2.online) return 1;
     if (m1.userId == props.group.ownerId) return -1;
     if (m2.userId == props.group.ownerId) return 1;
-    if (m1.isManager && !m2.isManager) return -1;
-    if (!m1.isManager && m2.isManager) return 1;
     return 0;
   });
   members.value = list as SelectableMember[];
