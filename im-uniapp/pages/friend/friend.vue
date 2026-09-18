@@ -38,7 +38,7 @@
 <script>
 import { friendStore } from '@/store/stores.js'
 
-import { pinyin } from 'pinyin-pro';
+import pinyin from 'tiny-pinyin'
 export default {
 	data() {
 		return {
@@ -54,13 +54,14 @@ export default {
 			})
 		},
 		firstLetter(strText) {
-			// 使用pinyin-pro库将中文转换为拼音
-			let pinyinOptions = {
-				toneType: 'none', // 无声调
-				type: 'normal' // 普通拼音
-			};
-			let pyText = pinyin(strText, pinyinOptions);
-			return pyText[0];
+			if (!strText) {
+				return '#'
+			}
+			if (pinyin.isSupported()) {
+				const py = pinyin.convertToPinyin(String(strText), '', true)
+				return py[0] || '#'
+			}
+			return String(strText)[0]
 		},
 		isEnglish(character) {
 			return /^[A-Za-z]+$/.test(character);

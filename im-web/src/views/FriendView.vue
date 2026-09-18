@@ -91,7 +91,7 @@ import { computed, nextTick, onActivated, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Delete, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
-import { pinyin } from 'pinyin-pro';
+import pinyin from 'tiny-pinyin';
 import AddFriend from '@/components/friend/AddFriend.vue';
 import FriendItem from '@/components/friend/FriendItem.vue';
 import CleanMessageConfirm from '@/components/common/CleanMessageConfirm.vue';
@@ -131,11 +131,14 @@ const friends = computed(() => friendStore.friends.filter((f) => !f.deleted));
 const isFriend = computed(() => friendStore.isFriend(userInfo.value.id));
 
 const firstLetter = (strText: string) => {
-  const pyText = pinyin(strText, {
-    toneType: 'none',
-    type: 'array'
-  } as never);
-  return pyText[0];
+  if (!strText) {
+    return '#';
+  }
+  if (pinyin.isSupported()) {
+    const py = pinyin.convertToPinyin(strText, '', true);
+    return py[0] || '#';
+  }
+  return strText[0];
 };
 
 const isEnglish = (character: string) => /^[A-Za-z]+$/.test(character);
