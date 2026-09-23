@@ -1,11 +1,11 @@
-import { isIndexedDBAvailable } from '@/common/browser'
 import ImStorageDB from './storageDb'
+// #ifdef H5
+import { isIndexedDBAvailable } from '@/common/browser'
 import ImIndexedDB from './indexedDb'
+// #endif
 // #ifdef APP
 import ImSqliteDB from './sqliteDb'
 // #endif
-
-
 
 // 单例
 let dbInstance = null

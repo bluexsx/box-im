@@ -217,8 +217,11 @@ const isOwner = computed(() => activeGroup.value.ownerId == mine.value.id);
 const imageAction = '/image/upload?thumbSize=20';
 
 const firstLetter = (strText: string) => {
-  // 使用pinyin-pro库将中文转换为拼音
-  const pyText = pinyin(strText, { toneType: 'none' }); // 无声调
+  const pinyinOptions = {
+    toneType: 'none' as const,
+    type: 'string' as const
+  };
+  const pyText = pinyin(strText, pinyinOptions);
   return pyText[0];
 };
 

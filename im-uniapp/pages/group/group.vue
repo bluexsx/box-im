@@ -16,12 +16,11 @@
 			<button type="primary" @click="onCreateNewGroup">创建群聊</button>
 		</view>
 		<view class="group-items" v-else>
-			<scroll-view class="scroll-bar" scroll-with-animation="true" scroll-y="true">
-				<view v-for="group in groupStore.groups" :key="group.id">
-					<group-item v-if="!group.quit && group.showGroupName.includes(searchText)"
-						:group="group"></group-item>
-				</view>
-			</scroll-view>
+			<virtual-scroller class="scroll-bar" height="100%" :items="groupItems">
+				<template v-slot="{ item }">
+					<group-item :group="item"></group-item>
+				</template>
+			</virtual-scroller>
 		</view>
 	</view>
 </template>
@@ -32,15 +31,11 @@ import { groupStore } from '@/store/stores.js'
 export default {
 	data() {
 		return {
-			groupStore,
 			showSearch: false,
 			searchText: ""
 		}
 	},
 	methods: {
-		onFocusSearch() {
-
-		},
 		onCreateNewGroup() {
 			uni.navigateTo({
 				url: "/pages/group/group-invite?mode=create"
@@ -50,6 +45,9 @@ export default {
 	computed: {
 		hasGroups() {
 			return groupStore.groups.some((g) => !g.quit);
+		},
+		groupItems() {
+			return groupStore.groups.filter(g => !g.quit && g.showGroupName.includes(this.searchText));
 		}
 	}
 }

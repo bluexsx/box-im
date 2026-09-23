@@ -131,10 +131,11 @@ const friends = computed(() => friendStore.friends.filter((f) => !f.deleted));
 const isFriend = computed(() => friendStore.isFriend(userInfo.value.id));
 
 const firstLetter = (strText: string) => {
-  const pyText = pinyin(strText, {
-    toneType: 'none',
-    type: 'array'
-  } as never);
+  const pinyinOptions = {
+    toneType: 'none' as const,
+    type: 'string' as const
+  };
+  const pyText = pinyin(strText, pinyinOptions);
   return pyText[0];
 };
 

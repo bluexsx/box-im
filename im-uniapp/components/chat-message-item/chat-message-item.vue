@@ -1,10 +1,10 @@
 <template>
 	<view class="chat-message-item" :class="active?'active':''">
 		<view class="message-tip" v-if="message.type == $enums.MESSAGE_TYPE.TIP_TEXT">
-			{{ message.content }}
+			<view class="message-tip-inner">{{ message.content }}</view>
 		</view>
 		<view class="message-tip" v-else-if="message.type == $enums.MESSAGE_TYPE.TIP_TIME">
-			{{ $date.toTimeText(message.sendTime) }}
+			<view class="message-tip-inner">{{ $date.toTimeText(message.sendTime) }}</view>
 		</view>
 		<view class="message-normal" v-else-if="isNormal" :class="{ 'message-mine': message.selfSend }">
 			<head-image class="avatar" @longpress.prevent="$emit('longPressHead')" :id="message.sendId" :url="headImage"
@@ -266,16 +266,21 @@ export default {
 	}
 
 	.message-tip {
-		display: table;
-		margin: 8rpx auto;
-		padding: 6rpx 20rpx;
-		line-height: 36rpx;
-		max-width: 80%;
-		border-radius: 10rpx;
-		background: rgba(255, 255, 255, 0.3);
-		text-align: center;
-		color: $im-text-color-lighter;
-		font-size: $im-font-size-smaller;
+		display: flex;
+		justify-content: center;
+		margin: 8rpx 0;
+
+		.message-tip-inner {
+			max-width: 80%;
+			padding: 6rpx 20rpx;
+			line-height: 36rpx;
+			border-radius: 10rpx;
+			background: rgba(255, 255, 255, 0.3);
+			text-align: center;
+			word-break: break-word;
+			color: $im-text-color-lighter;
+			font-size: $im-font-size-smaller;
+		}
 	}
 
 	.message-normal {
