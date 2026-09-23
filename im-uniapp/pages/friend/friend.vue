@@ -19,8 +19,13 @@
 			<view v-if="!isReady" class="friend-loading">
 				<custom-loading :size="50" :mask="false">
 					<view>正在加载...</view>
-				</custom-loading> 
+				</custom-loading>
 			</view>
+			<virtual-scroller v-else-if="useVirtual" class="scroll-bar" height="100%" :items="friendItems">
+				<template v-slot="{ item }">
+					<friend-item :friend="item"></friend-item>
+				</template>
+			</virtual-scroller>
 			<up-index-list v-else :index-list="friendIdx" :sticky="false" :custom-nav-height="customNavHeight">
 				<template v-for="(friends, i) in friendGroups">
 					<up-index-item>
@@ -30,6 +35,9 @@
 						</view>
 					</up-index-item>
 				</template>
+				<template #footer>
+					<view class="list-bottom-space"></view>
+				</template>
 			</up-index-list>
 		</view>
 	</view>
@@ -37,8 +45,9 @@
 
 <script>
 import { friendStore } from '@/store/stores.js'
-
-import pinyin from 'tiny-pinyin'
+// #ifndef MP
+import { pinyin } from 'pinyin-pro'
+// #endif
 export default {
 	data() {
 		return {
@@ -54,14 +63,12 @@ export default {
 			})
 		},
 		firstLetter(strText) {
-			if (!strText) {
-				return '#'
-			}
-			if (pinyin.isSupported()) {
-				const py = pinyin.convertToPinyin(String(strText), '', true)
-				return py[0] || '#'
-			}
-			return String(strText)[0]
+			let pinyinOptions = {
+				toneType: "none",
+				type: "string"
+			};
+			let pyText = pinyin(strText, pinyinOptions);
+			return pyText[0];
 		},
 		isEnglish(character) {
 			return /^[A-Za-z]+$/.test(character);
@@ -107,8 +114,23 @@ export default {
 		friendGroups() {
 			return Array.from(this.friendGroupMap.values());
 		},
+		friendItems() {
+			// #ifdef MP
+			if (this.searchText) {
+				return this.friends.filter(f => f.nickName.includes(this.searchText));
+			}
+			return this.friends;
+			// #endif
+			return this.friendGroups.flat();
+		},
 		friends() {
 			return friendStore.friends.filter(f => !f.deleted);
+		},
+		useVirtual() {
+			// #ifdef MP
+			return true;
+			// #endif
+			return false;
 		},
 		hasFriends() {
 			return friendStore.friends.some(f => !f.deleted);
@@ -218,6 +240,11 @@ export default {
 
 		.scroll-bar {
 			height: 100%;
+		}
+
+		.list-bottom-space {
+			// 底部 tabBar 会挡住最后几条，留出可滚动空白
+			height: 80px;
 		}
 	}
 }

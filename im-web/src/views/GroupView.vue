@@ -156,7 +156,7 @@ import { computed, nextTick, onActivated, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
 import { ArrowRight, Camera, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
-import pinyin from 'tiny-pinyin';
+import { pinyin } from 'pinyin-pro';
 import { storeToRefs } from 'pinia';
 import CleanMessageConfirm from '@/components/common/CleanMessageConfirm.vue';
 import FileUpload from '@/components/common/FileUpload.vue';
@@ -217,14 +217,12 @@ const isOwner = computed(() => activeGroup.value.ownerId == mine.value.id);
 const imageAction = '/image/upload?thumbSize=20';
 
 const firstLetter = (strText: string) => {
-  if (!strText) {
-    return '#';
-  }
-  if (pinyin.isSupported()) {
-    const py = pinyin.convertToPinyin(strText, '', true);
-    return py[0] || '#';
-  }
-  return strText[0];
+  const pinyinOptions = {
+    toneType: 'none' as const,
+    type: 'string' as const
+  };
+  const pyText = pinyin(strText, pinyinOptions);
+  return pyText[0];
 };
 
 const isEnglish = (character: string) => /^[A-Za-z]+$/.test(character);
