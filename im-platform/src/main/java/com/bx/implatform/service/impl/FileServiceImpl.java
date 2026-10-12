@@ -1,10 +1,9 @@
 package com.bx.implatform.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bx.implatform.config.props.MinioProperties;
+import com.bx.implatform.config.props.StorageProperties;
 import com.bx.implatform.contant.Constant;
 import com.bx.implatform.entity.FileInfo;
 import com.bx.implatform.enums.FileType;
@@ -12,7 +11,7 @@ import com.bx.implatform.enums.ResultCode;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.FileInfoMapper;
 import com.bx.implatform.service.FileService;
-import com.bx.implatform.thirdparty.MinioService;
+import com.bx.implatform.thirdparty.storage.FileStorageAPI;
 import com.bx.implatform.util.FileUtil;
 import com.bx.implatform.util.ImageUtil;
 import com.bx.implatform.vo.UploadImageVO;
@@ -41,18 +40,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> implements FileService {
 
-    private final MinioService minioSerivce;
+    private final FileStorageAPI fileStorageAPI;
 
-    private final MinioProperties minioProps;
+    private final StorageProperties storageProps;
 
     @PostConstruct
     public void init() {
-        if (!minioSerivce.bucketExists(minioProps.getBucketName())) {
-            // 创建bucket
-            minioSerivce.makeBucket(minioProps.getBucketName());
-            // 公开bucket
-            minioSerivce.setBucketPublic(minioProps.getBucketName());
-        }
+        fileStorageAPI.ensureBucket();
     }
 
     @Override
@@ -75,7 +69,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 return fileInfo.getFilePath();
             }
             // 上传
-            String fileName = minioSerivce.upload(minioProps.getBucketName(), minioProps.getFilePath(), file);
+            String fileName = fileStorageAPI.upload(storageProps.getFilePath(), file);
             if (StringUtils.isEmpty(fileName)) {
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "文件上传失败");
             }
@@ -92,7 +86,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
 
     @Transactional
     @Override
-    public UploadImageVO uploadImage(MultipartFile file, Boolean isPermanent,Long thumbSize) {
+    public UploadImageVO uploadImage(MultipartFile file, Boolean isPermanent, Long thumbSize) {
         try {
             // 文件名长度校验
             checkFileNameLength(file);
@@ -106,8 +100,8 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
             }
             UploadImageVO vo = new UploadImageVO();
             // 获取图片长度和宽度
-            BufferedImage bufferedImage =  ImageIO.read(file.getInputStream());
-            if(!Objects.isNull(bufferedImage)){
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            if (!Objects.isNull(bufferedImage)) {
                 vo.setWidth(bufferedImage.getWidth());
                 vo.setHeight(bufferedImage.getHeight());
             }
@@ -125,15 +119,15 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 return vo;
             }
             // 上传原图
-            String fileName = minioSerivce.upload(minioProps.getBucketName(), minioProps.getImagePath(), file);
+            String fileName = fileStorageAPI.upload(storageProps.getImagePath(), file);
             if (StringUtils.isEmpty(fileName)) {
                 throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
             }
             vo.setOriginUrl(generUrl(FileType.IMAGE, fileName));
             if (file.getSize() > thumbSize * 1024) {
-                // 大于50K的文件需上传缩略图
+                // 大于缩略图阈值的文件需上传缩略图
                 byte[] imageByte = ImageUtil.compressForScale(file.getBytes(), thumbSize);
-                String thumbFileName = minioSerivce.upload(minioProps.getBucketName(), minioProps.getImagePath(),
+                String thumbFileName = fileStorageAPI.upload(storageProps.getImagePath(),
                     file.getOriginalFilename(), imageByte, file.getContentType());
                 if (StringUtils.isEmpty(thumbFileName)) {
                     throw new GlobalException(ResultCode.PROGRAM_ERROR, "图片上传失败");
@@ -142,7 +136,7 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
                 // 保存文件信息
                 saveImageFileInfo(file, md5, vo.getOriginUrl(), vo.getThumbUrl(), isPermanent);
             } else {
-                // 小于50k，用原图充当缩略图
+                // 小于阈值，用原图充当缩略图
                 vo.setThumbUrl(generUrl(FileType.IMAGE, fileName));
                 // 保存文件信息,由于缩略图不允许删除，此时原图也不允许删除
                 saveImageFileInfo(file, md5, vo.getOriginUrl(), vo.getThumbUrl(), true);
@@ -156,14 +150,14 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
     }
 
     private String generUrl(FileType fileType, String fileName) {
-        return StrUtil.join("/", minioProps.getDomain(), minioProps.getBucketName(), getBucketPath(fileType), fileName);
+        return fileStorageAPI.getFileUrl(getBucketPath(fileType), fileName);
     }
 
     private String getBucketPath(FileType fileType) {
         return switch (fileType) {
-            case FILE -> minioProps.getFilePath();
-            case IMAGE -> minioProps.getImagePath();
-            case VIDEO -> minioProps.getVideoPath();
+            case FILE -> storageProps.getFilePath();
+            case IMAGE -> storageProps.getImagePath();
+            case VIDEO -> storageProps.getVideoPath();
         };
     }
 
@@ -201,8 +195,8 @@ public class FileServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo> imple
         this.save(fileInfo);
     }
 
-    private void checkFileNameLength(MultipartFile file){
-        if(file.getOriginalFilename().length() > Constant.MAX_FILE_NAME_LENGTH){
+    private void checkFileNameLength(MultipartFile file) {
+        if (file.getOriginalFilename().length() > Constant.MAX_FILE_NAME_LENGTH) {
             throw new GlobalException("文件名长度不能超过" + Constant.MAX_FILE_NAME_LENGTH);
         }
     }

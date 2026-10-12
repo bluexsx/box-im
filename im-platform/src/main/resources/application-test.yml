@@ -10,16 +10,32 @@ spring:
       port: 6379
       password: PmEpfRjpBnTN6CgW
 
-minio:
-  endpoint: http://127.0.0.1:9001 #内网地址
-  domain: https://www.boxim.online/file  #外网访问地址
-  accessKey: admin
-  secretKey: 3fBSt6AkgFuD77D6
-  bucketName: box-im
-  imagePath: image
-  filePath: file
-  videoPath: video
-  expireIn: 180 # 文件过期时间,单位:天
+storage:
+  platform: minio # 存储厂商：minio | aliyun | tencent | huawei | qiniu
+  domain: https://www.boxim.online/file # 对外访问根地址（拼文件 URL）
+  bucket-name: box-im
+  image-path: image
+  file-path: file
+  video-path: video
+  expire-in: 180 # 非永久文件过期天数
+  access-key: admin
+  secret-key: 3fBSt6AkgFuD77D6
+  # MinIO（platform: minio）
+  endpoint: http://127.0.0.1:9001 # SDK 内网地址；外网用 domain
+  # 阿里云 OSS（platform: aliyun）
+  # endpoint: oss-cn-shanghai.aliyuncs.com
+  # domain: https://box-im.oss-cn-shanghai.aliyuncs.com  # 或 CDN 域名
+  # 腾讯云 COS（platform: tencent）
+  # region: ap-guangzhou
+  # domain: https://box-im-xxxxx.cos.ap-guangzhou.myqcloud.com  # 或 CDN 域名
+  # bucket-name: box-im-xxxxx # 格式一般为 bucket-appid
+  # 华为云 OBS（platform: huawei）
+  # endpoint: https://obs.cn-north-4.myhuaweicloud.com
+  # domain: https://box-im.obs.cn-north-4.myhuaweicloud.com  # 或 CDN 域名
+  # 七牛云（platform: qiniu）
+  # region: huadong # huadong | huabei | huanan | beimei | xinjiapo | auto
+  # domain: https://cdn.yourdomain.com  # 绑定的访问域名（必填，勿用 s3.*.qiniucs.com）
+  # bucket-name: box-im
 
 webrtc:
   max-channel: 9 # 多人通话最大通道数量，最大不能超过16,建议值:4,9,16
