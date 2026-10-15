@@ -1,5 +1,4 @@
 <template>
-
 	<view class="tab-page friend">
 		<nav-bar add search @add="onAddNewFriends" @search="showSearch = !showSearch">好友</nav-bar>
 		<view class="nav-bar" v-if="showSearch">
@@ -248,4 +247,5 @@ export default {
 		}
 	}
 }
+
 </style>

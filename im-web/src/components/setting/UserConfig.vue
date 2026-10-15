@@ -7,7 +7,6 @@
       </h4>
       <div class="setting-item theme-accent-item">
         <div class="setting-label">
-          <el-icon><Opportunity /></el-icon>
           <span>{{ '自定义界面主色' }}</span>
         </div>
         <div class="setting-content accent-list">
@@ -29,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Check, Opportunity, Sunny } from '@element-plus/icons-vue';
+import { Check, Sunny } from '@element-plus/icons-vue';
 import { useConfigStore } from '@/stores/config';
 import { themeAccents, themeDefaultColor } from '@/utils/theme';
 
@@ -62,6 +61,12 @@ defineExpose({ init });
       gap: 6px;
       margin: 0 0 12px;
       font-size: 15px;
+      text-align: left;
+
+      .el-icon {
+        color: var(--im-color-primary);
+        font-size: 16px;
+      }
     }
 
     .setting-item {
@@ -72,7 +77,6 @@ defineExpose({ init });
       .setting-label {
         display: flex;
         align-items: center;
-        gap: 6px;
       }
     }
 

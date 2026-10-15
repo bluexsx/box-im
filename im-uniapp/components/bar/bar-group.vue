@@ -8,10 +8,12 @@
 export default {
 	name: "bar-group"
 }
+
 </script>
 
 <style lang="scss" scoped>
 .bar-group {
-	margin-bottom: 20rpx;
+	margin-bottom: 16rpx;
 }
+
 </style>

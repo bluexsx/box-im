@@ -19,7 +19,7 @@ export default {
 
 	.iconfont {
 		font-size: 32rpx;
-		color: $im-text-color-lighter;
+		color: $im-text-color-lighter-extra;
 		line-height: 1;
 	}
 }

@@ -19,7 +19,6 @@
                 :url="userInfo.headImageThumb"
                 :name="userInfo.nickName || userInfo.userName" />
               <div class="upload-overlay">
-                <el-icon><Camera /></el-icon>
                 <span>{{ '更换头像' }}</span>
               </div>
             </FileUpload>
@@ -74,7 +73,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-import { Camera, Edit, User } from '@element-plus/icons-vue';
+import { Edit, User } from '@element-plus/icons-vue';
 import FileUpload from '@/components/common/FileUpload.vue';
 import HeadImage from '@/components/common/HeadImage.vue';
 import { updateUser } from '@/api/user';
@@ -190,6 +189,12 @@ defineExpose({ init });
       gap: 6px;
       margin: 0 0 12px;
       font-size: 15px;
+      text-align: left;
+
+      .el-icon {
+        color: var(--im-color-primary);
+        font-size: 16px;
+      }
     }
   }
 

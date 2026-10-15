@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3791506 */
-  src: url('iconfont.ttf?t=1789555055427') format('truetype');
+  src: url('iconfont.ttf?t=1792048563996') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-screenshot:before {
+  content: "\e608";
+}
+
+.icon-tab-group:before {
+  content: "\e60b";
+}
+
+.icon-tab-group-fill:before {
+  content: "\e8f6";
 }
 
 .icon-tab-contact:before {
@@ -33,10 +45,6 @@
 
 .icon-tab-setting:before {
   content: "\e984";
-}
-
-.icon-tab-group:before {
-  content: "\e753";
 }
 
 .icon-tab-chat-fill:before {
@@ -149,10 +157,6 @@
 
 .icon-dnd:before {
   content: "\e691";
-}
-
-.icon-screenshot:before {
-  content: "\e61c";
 }
 
 .icon-close:before {
@@ -269,10 +273,6 @@
 
 .icon-emoji:before {
   content: "\e60c";
-}
-
-.icon-tab-group-fill:before {
-  content: "\e7f4";
 }
 
 .icon-phone-reject:before {
