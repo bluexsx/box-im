@@ -3,8 +3,7 @@
 		<nav-bar add search @add="onCreateNewGroup" @search="showSearch = !showSearch">群聊</nav-bar>
 		<view class="nav-bar" v-if="showSearch">
 			<view class="nav-search">
-				<uni-search-bar v-model="searchText" cancelButton="none" radius="100"
-					placeholder="点击搜索群聊"></uni-search-bar>
+				<uni-search-bar v-model="searchText" cancelButton="none" radius="100" placeholder="点击搜索群聊"></uni-search-bar>
 			</view>
 		</view>
 		<view class="group-tip" v-if="!hasGroups">
@@ -27,7 +26,6 @@
 
 <script>
 import { groupStore } from '@/store/stores.js'
-
 export default {
 	data() {
 		return {
@@ -51,6 +49,7 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
@@ -117,4 +116,5 @@ export default {
 		}
 	}
 }
+
 </style>

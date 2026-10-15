@@ -25,7 +25,6 @@
 
 <script>
 import { chatStore, friendStore, groupStore } from '@/store/stores.js'
-
 export default {
 	data() {
 		return {
@@ -165,6 +164,7 @@ export default {
 		this.initFriendItems();
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
@@ -188,4 +188,5 @@ export default {
 		width: 100%;
 	}
 }
+
 </style>

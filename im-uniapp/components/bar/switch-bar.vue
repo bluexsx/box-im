@@ -38,22 +38,23 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
 .switch-bar {
-	height: 100rpx;
+	height: 106rpx;
 	font-size: $im-font-size;
 	color: $im-text-color;
-	background-color: white;
-	line-height: 100rpx;
+	background-color: #fff;
 	display: flex;
-	padding: 0 20rpx;
-	margin-bottom: 3rpx;
+	align-items: center;
+	padding: 0 32rpx;
 
 	.title {
 		flex: 1;
-		margin-left: 20rpx;
+		line-height: 1.3;
 	}
 }
+
 </style>

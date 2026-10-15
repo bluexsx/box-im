@@ -30,46 +30,47 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
 .arrow-bar {
-	height: 100rpx;
+	height: 106rpx;
 	font-size: $im-font-size;
 	color: $im-text-color;
 	background-color: white;
 	display: flex;
 	align-items: center;
-	padding: 0 20rpx;
-	margin-bottom: 3rpx;
+	padding: 0 32rpx;
 
 	&:active {
 		background-color: $im-bg-active;
 	}
 
 	.icon {
-		margin-left: 20rpx;
-		font-size: 36rpx;
+		font-size: 40rpx;
+		margin-right: 24rpx;
 	}
 
 	.title {
 		flex: 1;
-		margin: 0 20rpx;
+		line-height: 1.3;
 	}
 
 	.content {
+		font-size: $im-font-size-small;
 		color: $im-text-color-lighter;
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
-		padding: 0 10rpx;
+		padding: 0 12rpx;
 		text-align: right;
 		max-width: 400rpx;
 	}
 
 	.arrow {
-		margin-right: 20rpx;
-		margin-left: 10rpx;
+		margin-left: 8rpx;
 	}
 }
+
 </style>

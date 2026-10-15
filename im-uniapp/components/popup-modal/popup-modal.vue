@@ -1,14 +1,14 @@
 <template>
 	<uni-popup ref="popup" type="center">
 		<view class="popup-modal">
-			<view class="title">{{title}}</view>
-			<view class="middle">
+			<view class="body">
+				<view v-if="title" class="title">{{title}}</view>
 				<view v-if="content" class="content">{{content}}</view>
 				<slot></slot>
 			</view>
-			<view class="bottom">
-				<view v-if="showCancel" class="cancel" @click="onCancel">{{cancelText}}</view>
-				<view class="confirm" @click="onConfirm">{{confirmText}}</view>
+			<view class="footer" :class="{ 'footer--single': !showCancel }">
+				<view v-if="showCancel" class="btn btn-cancel" @click="onCancel">{{cancelText}}</view>
+				<view class="btn btn-confirm" @click="onConfirm">{{confirmText}}</view>
 			</view>
 		</view>
 	</uni-popup>
@@ -64,50 +64,58 @@ export default {
 
 <style lang="scss" scoped>
 .popup-modal {
-	position: relative;
-	background-color: white;
-	border-radius: 15rpx;
+	width: 560rpx;
+	background: #fff;
+	border-radius: 24rpx;
 	overflow: hidden;
-	margin: 0 80rpx;
-	padding: 15rpx;
-
-	.title {
-		text-align: center;
-		line-height: 60rpx;
-		font-size: $im-font-size;
-		font-weight: 600;
-	}
-
-	.middle {
-		padding: 20rpx 30rpx;
-		min-width: 400rpx;
-
-		.content {
-			font-size: $im-font-size-small;
-			margin-bottom: 15rpx;
-		}
-	}
-
-	.bottom {
+	box-shadow: $im-box-shadow-light;
+	.body {
 		display: flex;
-		justify-content: space-around;
-		line-height: 80rpx;
-		border-top: 1rpx solid #ccc;
-
-		.cancel {
-			font-size: $im-font-size;
-			color: $im-color-danger;
-			width: 50%;
-			border-right: 1px solid #ccc;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 20rpx;
+		padding: 48rpx 40rpx 36rpx;
+		.title {
 			text-align: center;
-
+			font-size: $im-font-size-large;
+			font-weight: 600;
+			color: $im-text-color;
+			line-height: 1.4;
 		}
-
-		.confirm {
-			font-size: $im-font-size;
-			color: $im-color-primary;
-			width: 50%;
+		.content {
 			text-align: center;
+			font-size: $im-font-size-small;
+			color: $im-text-color-light;
+			line-height: 1.6;
+			word-break: break-word;
+		}
+	}
+	.footer {
+		display: flex;
+		align-items: stretch;
+		border-top: 1rpx solid $im-border;
+		.btn {
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 96rpx;
+			font-size: $im-font-size;
+			line-height: 1;
+			&:active {
+				background: $im-bg-active;
+			}
+		}
+		.btn-cancel {
+			color: $im-text-color-light;
+			border-right: 1rpx solid $im-border;
+		}
+		.btn-confirm {
+			color: $im-color-primary;
+			font-weight: 600;
+		}
+		&--single .btn-confirm {
+			width: 100%;
 		}
 	}
 }

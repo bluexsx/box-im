@@ -23,18 +23,17 @@ export default {
 		}
 	}
 }
+
 </script>
 
 <style lang="scss" scoped>
 .btn-bar {
-	height: 100rpx;
-	background-color: white;
-	line-height: 100rpx;
-	text-align: center;
+	height: 106rpx;
+	background-color: #fff;
 	display: flex;
+	align-items: center;
 	justify-content: center;
 	color: $im-text-color;
-	margin-bottom: 3rpx;
 
 	&:active {
 		background-color: $im-bg-active;
@@ -47,16 +46,17 @@ export default {
 	}
 
 	.title {
-		font-size: $im-font-size-large;
+		font-size: $im-font-size;
 		font-weight: 600;
 	}
 
 	&.primary {
-		color: $im-color-primary
+		color: $im-color-primary;
 	}
 
 	&.danger {
 		color: $im-color-danger;
 	}
 }
+
 </style>

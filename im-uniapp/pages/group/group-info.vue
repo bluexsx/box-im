@@ -75,7 +75,6 @@
 
 <script>
 import { chatStore, groupStore, userStore } from '@/store/stores.js'
-
 export default {
 	data() {
 		return {
