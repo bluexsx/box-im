@@ -89,8 +89,8 @@ onBeforeUnmount(() => {
 .resizable-aside {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
   position: relative;
   // 拖拽条样式
 
@@ -108,16 +108,17 @@ onBeforeUnmount(() => {
     transition: background-color 0.2s ease;
 
     .resize-line {
-      width: 2px;
+      width: 1px;
       height: 100%;
-      background-color: var(--im-background-active-dark);
+      background-color: transparent;
       border-radius: 1px;
       transition: all 0.2s ease;
     }
 
     &:hover .resize-line,
     &.resizing .resize-line {
-      width: 3px;
+      width: 2px;
+      background-color: var(--im-background-active-dark);
     }
   }
 }

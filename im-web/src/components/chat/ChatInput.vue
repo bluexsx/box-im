@@ -351,8 +351,8 @@ const onKeydown = (e: KeyboardEvent) => {
     setTimeout(() => {
       const s = contentRef.value?.innerHTML.trim() || '';
       // 空dom时，需要刷新dom
-      if (s === '' || s === '<br>' || s === '<div>&nbsp;</div>') {
-        // 拼接随机长度的空格，以刷新dom
+      const normalized = s.replace(/\u200B/g, '').replace(/&nbsp;/gi, '');
+      if (normalized === '' || normalized === '<br>' || normalized === '<div></div>' || normalized === '<div><br></div>') {
         empty();
         isEmpty.value = true;
         if (contentRef.value) {
@@ -640,7 +640,8 @@ const empty = () => {
   }
   contentRef.value.innerHTML = '';
   const line = newLine();
-  const after = document.createTextNode('\u00A0');
+  // 使用零宽度空格占位，避免空状态双击选中可见空格
+  const after = document.createTextNode('\u200B');
   line.appendChild(after);
   nextTick(() => selectElement(after));
 };
@@ -803,8 +804,8 @@ defineExpose({
 
   .input-placeholder {
     position: absolute;
-    top: 5px;
-    left: 5px;
+    top: 0;
+    left: 14px;
     color: gray;
     pointer-events: none;
     font-size: var(--im-font-size);
@@ -818,16 +819,16 @@ defineExpose({
     right: 0;
     bottom: 0;
     outline: none;
-    padding: 5px;
+    padding: 0 14px;
     line-height: 26px;
     font-size: var(--im-font-size);
     text-align: left;
     overflow-y: auto;
     white-space: pre-wrap;
-    // 单独一行时，无法在前面输入的bug
 
+    // 单独一行时，无法在前面输入的bug
     > div::before {
-      content: '\00a0';
+      content: '\200B';
       font-size: 14px;
       position: absolute;
       top: 0;
@@ -839,6 +840,7 @@ defineExpose({
       max-width: 200px;
       max-height: 100px;
       border: 1px solid #e6e6e6;
+      border-radius: 5px;
       cursor: pointer;
     }
 
