@@ -1,4 +1,4 @@
-import UNI_APP from '@/.env.js';
+import { uploadRequest } from '@/common/request';
 
 const rc = uni.getRecorderManager();
 // 录音开始时间
@@ -34,28 +34,17 @@ let close = () => {
 let upload = () => {
 	return new Promise((resolve, reject) => {
 		rc.onStop((wavFile, a, b) => {
-			uni.uploadFile({
-				url: UNI_APP.BASE_URL + '/file/upload',
-				header: {
-					accessToken: uni.getStorageSync("loginInfo").accessToken
-				},
+			uploadRequest({
+				url: '/file/upload',
 				filePath: wavFile.tempFilePath,
-				name: 'file',
-				success: (res) => {
-					let r = JSON.parse(res.data);
-					if (r.code != 200) {
-						reject(r.message);
-					} else {
-						const data = {
-							duration: Math.round(duration),
-							url: r.data
-						}
-						resolve(data);
-					}
-				},
-				fail: (e) => {
-					reject(e);
-				}
+				name: 'file'
+			}).then((r) => {
+				resolve({
+					duration: Math.round(duration),
+					url: r.data
+				});
+			}).catch((e) => {
+				reject(e && e.message ? e.message : e);
 			})
 		});
 	})
