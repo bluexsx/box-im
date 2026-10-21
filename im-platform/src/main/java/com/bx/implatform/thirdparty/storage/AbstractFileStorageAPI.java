@@ -29,6 +29,11 @@ public abstract class AbstractFileStorageAPI implements FileStorageAPI {
         return path + "/" + objectName;
     }
 
+    /** 危险后缀/MIME 强制为 octet-stream */
+    protected String resolveContentType(String fileName, String clientContentType) {
+        return FileUtil.resolveContentType(fileName, clientContentType);
+    }
+
     /**
      * MinIO path-style：domain/bucket/path/file
      */

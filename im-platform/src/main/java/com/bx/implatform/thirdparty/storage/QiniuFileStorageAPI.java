@@ -69,7 +69,8 @@ public class QiniuFileStorageAPI extends AbstractFileStorageAPI {
         String objectKey = fullObjectKey(path, objectName);
         try (InputStream stream = file.getInputStream()) {
             String token = auth.uploadToken(props.getBucketName(), objectKey);
-            Response response = uploadManager.put(stream, objectKey, token, null, file.getContentType());
+            Response response = uploadManager.put(stream, objectKey, token, null,
+                resolveContentType(originalFilename, file.getContentType()));
             if (response == null || !response.isOK()) {
                 log.error("七牛云上传失败, body:{}", response == null ? null : response.bodyString());
                 return null;
@@ -87,7 +88,8 @@ public class QiniuFileStorageAPI extends AbstractFileStorageAPI {
         String objectKey = fullObjectKey(path, objectName);
         try {
             String token = auth.uploadToken(props.getBucketName(), objectKey);
-            Response response = uploadManager.put(data, objectKey, token, null, contentType, false);
+            Response response = uploadManager.put(data, objectKey, token, null,
+                resolveContentType(name, contentType), false);
             if (response == null || !response.isOK()) {
                 log.error("七牛云上传失败, body:{}", response == null ? null : response.bodyString());
                 return null;

@@ -62,7 +62,7 @@ public class MinioFileStorageAPI extends AbstractFileStorageAPI {
                 .bucket(props.getBucketName())
                 .object(fullObjectKey(path, objectName))
                 .stream(stream, file.getSize(), -1)
-                .contentType(file.getContentType())
+                .contentType(resolveContentType(originalFilename, file.getContentType()))
                 .build();
             minioClient.putObject(objectArgs);
             return objectName;
@@ -80,7 +80,7 @@ public class MinioFileStorageAPI extends AbstractFileStorageAPI {
                 .bucket(props.getBucketName())
                 .object(fullObjectKey(path, objectName))
                 .stream(stream, data.length, -1)
-                .contentType(contentType)
+                .contentType(resolveContentType(name, contentType))
                 .build();
             minioClient.putObject(objectArgs);
             return objectName;
