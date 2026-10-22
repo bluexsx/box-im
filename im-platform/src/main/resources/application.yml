@@ -36,7 +36,6 @@ auth-interceptor:
     - /logout
     - /register
     - /refreshToken
-    - /*/upload
     - /swagger/**
     - /v3/api-docs/**
     - /swagger-resources/**

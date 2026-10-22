@@ -9,33 +9,39 @@
         </el-input>
         <el-button plain class="add-btn" :icon="Plus" :title="'创建群聊'" @click="onCreateGroup()" />
       </div>
-      <VirtualScroller v-if="useVirtual" class="group-items" :items="groupItems">
-        <template #default="{ item }">
-          <GroupItem
-            :id="String(item.id)"
-            :group="item"
-            :active="item.id == activeGroup.id"
-            @chat="onSendMessage(item)"
-            @quit="onQuit(item)"
-            @dissolve="onDissolve(item)"
-            @click="onActiveItem(item)" />
-        </template>
-      </VirtualScroller>
-      <el-scrollbar v-else class="group-items">
-        <div v-for="(groupList, i) in groupValues" :key="i">
-          <div class="letter">{{ groupKeys[i] }}</div>
-          <div v-for="group in groupList" :key="group.id">
+      <div v-if="!isReady" class="group-list-loading">
+        <el-icon class="is-loading"><Loading /></el-icon>
+        <span>加载中...</span>
+      </div>
+      <template v-else>
+        <VirtualScroller v-if="useVirtual" class="group-items" :items="groupItems">
+          <template #default="{ item }">
             <GroupItem
-              :id="String(group.id)"
-              :group="group"
-              :active="group.id == activeGroup.id"
-              @chat="onSendMessage(group)"
-              @quit="onQuit(group)"
-              @dissolve="onDissolve(group)"
-              @click="onActiveItem(group)" />
+              :id="String(item.id)"
+              :group="item"
+              :active="item.id == activeGroup.id"
+              @chat="onSendMessage(item)"
+              @quit="onQuit(item)"
+              @dissolve="onDissolve(item)"
+              @click="onActiveItem(item)" />
+          </template>
+        </VirtualScroller>
+        <el-scrollbar v-else class="group-items">
+          <div v-for="(groupList, i) in groupValues" :key="i">
+            <div class="letter">{{ groupKeys[i] }}</div>
+            <div v-for="group in groupList" :key="group.id">
+              <GroupItem
+                :id="String(group.id)"
+                :group="group"
+                :active="group.id == activeGroup.id"
+                @chat="onSendMessage(group)"
+                @quit="onQuit(group)"
+                @dissolve="onDissolve(group)"
+                @click="onActiveItem(group)" />
+            </div>
           </div>
-        </div>
-      </el-scrollbar>
+        </el-scrollbar>
+      </template>
     </ResizableAside>
     <el-container v-show="activeGroup.id" class="container">
       <div class="header" >{{ activeGroup.showGroupName }}</div>
@@ -152,10 +158,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onActivated, onMounted, ref } from 'vue';
+import { computed, nextTick, onActivated, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
-import { ArrowRight, Camera, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
+import { ArrowRight, Camera, Loading, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
 import { pinyin } from 'pinyin-pro';
 import { storeToRefs } from 'pinia';
 import CleanMessageConfirm from '@/components/common/CleanMessageConfirm.vue';
@@ -188,6 +194,7 @@ const configStore = useConfigStore();
 const { userInfo: mine } = storeToRefs(userStore);
 
 const searchText = ref('');
+const isReady = ref(false);
 const activeGroup = ref<GroupVO>({ id: 0, name: '', showGroupName: '' });
 const groupFormRef = ref<FormInstance>();
 const rightMenuRef = ref<InstanceType<typeof RightMenu>>();
@@ -418,16 +425,31 @@ const openMemberDialog = () => {
   groupMemberDialogRef.value?.open();
 };
 
-onActivated(() => {
-  // 选中群聊
+const applyRouteQuery = () => {
   const groupId = route.query.id;
-  if (groupId) {
-    const group = groupStore.findGroup(parseInt(String(groupId)));
-    if (group) {
-      onActiveItem(group);
-      locateItem(group.id);
-    }
+  if (!groupId) {
+    return;
   }
+  const group = groupStore.findGroup(parseInt(String(groupId)));
+  if (group) {
+    onActiveItem(group);
+    nextTick(() => locateItem(group.id));
+  }
+};
+
+const scheduleGroupList = () => {
+  if (isReady.value) {
+    applyRouteQuery();
+    return;
+  }
+  setTimeout(() => {
+    isReady.value = true;
+    nextTick(() => applyRouteQuery());
+  }, 10);
+};
+
+onActivated(() => {
+  scheduleGroupList();
 });
 </script>
 
@@ -462,6 +484,17 @@ onActivated(() => {
         transform: scale(1.05);
       }
     }
+  }
+
+  .group-list-loading {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 0;
+    font-size: var(--im-font-size-smaller);
+    color: var(--im-text-color-light);
   }
 
   .group-items {

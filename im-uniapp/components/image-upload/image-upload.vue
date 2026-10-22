@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import UNI_APP from '@/.env.js'
+import { uploadRequest } from '@/common/request'
 
 export default {
 	name: "image-upload",
@@ -61,29 +61,18 @@ export default {
 				}
 			})
 		},
-		uploadImage(file) {
-			let action = `/image/upload?isPermanent=${this.isPermanent}&thumbSize=${this.thumbSize}`
-			uni.uploadFile({
-				url: UNI_APP.BASE_URL + action,
-				filePath: file.path, // 要上传文件资源的路径
-				name: 'file',
-				success: (res) => {
-					let data = JSON.parse(res.data);
-					if (data.code != 200) {
-						uni.showToast({
-							icon: "none",
-							title: data.message,
-						})
-						this.onError && this.onError(file, data);
-					} else {
-						this.onSuccess && this.onSuccess(file, data);
-					}
-				},
-				fail: (err) => {
-					console.log(err);
-					this.onError && this.onError(file, err);
-				}
-			})
+		async uploadImage(file) {
+			try {
+				const data = await uploadRequest({
+					url: `/image/upload?isPermanent=${this.isPermanent}&thumbSize=${this.thumbSize}`,
+					filePath: file.path,
+					name: 'file'
+				})
+				this.onSuccess && this.onSuccess(file, data)
+			} catch (err) {
+				console.log(err)
+				this.onError && this.onError(file, err)
+			}
 		}
 	}
 }

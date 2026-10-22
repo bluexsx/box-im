@@ -1,4 +1,4 @@
-import UNI_APP from '@/.env.js';
+import { uploadRequest } from '@/common/request';
 
 let rc = null;
 let duration = 0;
@@ -56,32 +56,20 @@ let upload = () => {
 			const newbolb = new Blob(chunks, { 'type': 'audio/mpeg' });
 			const name = new Date().getDate() + '.mp3';
 			const file = new File([newbolb], name)
-			uni.uploadFile({
-				url: UNI_APP.BASE_URL + '/file/upload',
-				header: {
-					accessToken: uni.getStorageSync("loginInfo").accessToken
-				},
+			// 最新版本(4.85)的hbuilderx有bug,如果filePath为空会直接触发fail回调
+			uploadRequest({
+				url: '/file/upload',
 				file: file,
 				name: 'file',
-				// 最新版本(4.85)的hbuilderx有bug,如果filePath为空会直接触发fail回调
-				filePath: 'x', 
-				success: (res) => {
-					let r = JSON.parse(res.data);
-					if (r.code != 200) {
-						console.log(res)
-						reject(r.message);
-					} else {
-						const data = {
-							duration: parseInt(duration),
-							url: r.data
-						}
-						resolve(data);
-					}
-				},
-				fail: (e) => {
-					console.log(e)
-					reject(e);
-				}
+				filePath: 'x'
+			}).then((r) => {
+				resolve({
+					duration: parseInt(duration),
+					url: r.data
+				});
+			}).catch((e) => {
+				console.log(e)
+				reject(e && e.message ? e.message : e);
 			})
 		}
 	})

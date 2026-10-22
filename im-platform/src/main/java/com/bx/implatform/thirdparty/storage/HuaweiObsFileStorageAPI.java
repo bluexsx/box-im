@@ -47,11 +47,9 @@ public class HuaweiObsFileStorageAPI extends AbstractFileStorageAPI {
         String objectKey = fullObjectKey(path, objectName);
         try (InputStream stream = file.getInputStream()) {
             PutObjectRequest request = new PutObjectRequest(props.getBucketName(), objectKey, stream);
-            if (StringUtils.isNotBlank(file.getContentType())) {
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(file.getContentType());
-                request.setMetadata(metadata);
-            }
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(resolveContentType(originalFilename, file.getContentType()));
+            request.setMetadata(metadata);
             obsClient.putObject(request);
             return objectName;
         } catch (Exception e) {
@@ -66,11 +64,9 @@ public class HuaweiObsFileStorageAPI extends AbstractFileStorageAPI {
         String objectKey = fullObjectKey(path, objectName);
         try (InputStream stream = new ByteArrayInputStream(data)) {
             PutObjectRequest request = new PutObjectRequest(props.getBucketName(), objectKey, stream);
-            if (StringUtils.isNotBlank(contentType)) {
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(contentType);
-                request.setMetadata(metadata);
-            }
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(resolveContentType(name, contentType));
+            request.setMetadata(metadata);
             obsClient.putObject(request);
             return objectName;
         } catch (Exception e) {

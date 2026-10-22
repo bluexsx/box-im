@@ -55,9 +55,7 @@ public class TencentCosFileStorageAPI extends AbstractFileStorageAPI {
         try (InputStream stream = file.getInputStream()) {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
-            if (StringUtils.isNotBlank(file.getContentType())) {
-                metadata.setContentType(file.getContentType());
-            }
+            metadata.setContentType(resolveContentType(originalFilename, file.getContentType()));
             cosClient.putObject(new PutObjectRequest(props.getBucketName(), objectKey, stream, metadata));
             return objectName;
         } catch (Exception e) {
@@ -73,9 +71,7 @@ public class TencentCosFileStorageAPI extends AbstractFileStorageAPI {
         try (InputStream stream = new ByteArrayInputStream(data)) {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(data.length);
-            if (StringUtils.isNotBlank(contentType)) {
-                metadata.setContentType(contentType);
-            }
+            metadata.setContentType(resolveContentType(name, contentType));
             cosClient.putObject(new PutObjectRequest(props.getBucketName(), objectKey, stream, metadata));
             return objectName;
         } catch (Exception e) {

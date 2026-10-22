@@ -43,41 +43,43 @@
             <div v-else-if="!chatStore.isInBottom" class="locate-tip" @click="onScrollToBottom">
               {{ chatStore.newMessageSize > 0 ? `${chatStore.newMessageSize}条新消息` : '回到底部' }}
             </div>
-            <el-footer height="220px" class="im-chat-footer">
-              <div class="chat-tool-bar">
-                <div ref="emotionRef" title="表情" class="icon iconfont icon-emoji" @click.stop="showEmotionBox" />
-                <div title="发送图片">
-                  <FileUpload
-                    action="/image/upload"
-                    :max-size="5 * 1024 * 1024"
-                    :file-types="['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif']"
-                    @before="onImageBefore"
-                    @success="onImageSuccess"
-                    @fail="onImageFail">
-                    <div class="icon iconfont icon-picture" />
-                  </FileUpload>
+            <el-footer height="250px" class="im-chat-footer">
+              <div class="chat-composer">
+                <div class="chat-tool-bar">
+                  <div ref="emotionRef" title="表情" class="icon iconfont icon-emoji" @click.stop="showEmotionBox" />
+                  <div title="发送图片">
+                    <FileUpload
+                      action="/image/upload"
+                      :max-size="5 * 1024 * 1024"
+                      :file-types="['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif']"
+                      @before="onImageBefore"
+                      @success="onImageSuccess"
+                      @fail="onImageFail">
+                      <div class="icon iconfont icon-picture" />
+                    </FileUpload>
+                  </div>
+                  <div title="发送文件">
+                    <FileUpload action="/file/upload" :max-size="10 * 1024 * 1024" @before="onFileBefore" @success="onFileSuccess" @fail="onFileFail">
+                      <div class="icon iconfont icon-floder" />
+                    </FileUpload>
+                  </div>
+                  <div title="发送语音" class="icon iconfont icon-microphone" @click="showRecordBox" />
+                  <div
+                    v-show="isGroup"
+                    title="回执消息"
+                    class="icon iconfont icon-receipt"
+                    :class="{ 'chat-tool-active': isReceipt }"
+                    @click="onSwitchReceipt" />
+                  <div v-show="isPrivate" title="语音通话" class="icon iconfont icon-rtc-voice" @click="showPrivateVideo('voice')" />
+                  <div v-show="isGroup" title="多人通话" class="icon iconfont icon-rtc-video" @click="onGroupVideo" />
+                  <div v-show="isPrivate" title="视频通话" class="icon iconfont icon-rtc-video" @click="showPrivateVideo('video')" />
+                  <div title="聊天记录" class="icon iconfont icon-chat-history" @click="showHistoryBox" />
                 </div>
-                <div title="发送文件">
-                  <FileUpload action="/file/upload" :max-size="10 * 1024 * 1024" @before="onFileBefore" @success="onFileSuccess" @fail="onFileFail">
-                    <div class="icon iconfont icon-floder" />
-                  </FileUpload>
-                </div>
-                <div title="发送语音" class="icon iconfont icon-microphone" @click="showRecordBox" />
-                <div
-                  v-show="isGroup"
-                  title="回执消息"
-                  class="icon iconfont icon-receipt"
-                  :class="{ 'chat-tool-active': isReceipt }"
-                  @click="onSwitchReceipt" />
-                <div v-show="isPrivate" title="语音通话" class="icon iconfont icon-rtc-voice" @click="showPrivateVideo('voice')" />
-                <div v-show="isGroup" title="多人通话" class="icon iconfont icon-rtc-video" @click="onGroupVideo" />
-                <div v-show="isPrivate" title="视频通话" class="icon iconfont icon-rtc-video" @click="showPrivateVideo('video')" />
-                <div title="聊天记录" class="icon iconfont icon-chat-history" @click="showHistoryBox" />
-              </div>
-              <div class="send-content-area">
-                <ChatInput ref="chatInputRef" :group="isGroup ? group : undefined" :group-members="groupMembers" @submit="sendMessage" />
-                <div class="send-btn-area">
-                  <el-button type="primary" :icon="Promotion" @click="notifySend">发送</el-button>
+                <div class="send-content-area">
+                  <ChatInput ref="chatInputRef" :group="isGroup ? group : undefined" :group-members="groupMembers" @submit="sendMessage" />
+                  <div class="send-btn-area">
+                    <el-button type="primary" :icon="Promotion" @click="notifySend">发送</el-button>
+                  </div>
                 </div>
               </div>
               <div v-if="notAllowInputTip" class="chat-editer-mask">
@@ -1008,7 +1010,7 @@ onUnmounted(() => {
       text-align: center;
       position: absolute;
       right: 20px;
-      bottom: 230px;
+      bottom: 260px;
       color: var(--im-color-primary);
       font-size: var(--im-font-size);
       font-weight: 600;
@@ -1031,22 +1033,35 @@ onUnmounted(() => {
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: 0;
+      padding: 4px 6px 6px;
+      background: #f6f7f8;
+      box-sizing: border-box;
+
+      .chat-composer {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+      }
 
       .chat-tool-bar {
         display: flex;
         position: relative;
         width: 100%;
-        height: 44px;
+        height: 46px;
         text-align: left;
         box-sizing: border-box;
-        border-top: 2px solid #ebeef5;
-        padding: 6px 8px;
+        border-top: none;
+        padding: 6px 12px;
         align-items: center;
-        background: var(--im-background-active);
-        color: black;
-        gap: 14px;
-        opacity: 0.85;
+        background: #fff;
+        color: #4a4a4a;
+        gap: 10px;
+
         > div,
         > .el-icon {
           font-size: 19px;
@@ -1063,15 +1078,16 @@ onUnmounted(() => {
           position: relative;
 
           &.chat-tool-active {
-            color: var(--im-color-primary);
             background: var(--im-background-active-dark);
+            transform: translateY(-1px);
+            color: black;
           }
 
           &:hover {
-            color: var(--im-color-primary);
             background: var(--im-background-active);
+            transform: translateY(-1px);
+            color: black;
           }
-
           .el-icon,
           .iconfont {
             font-size: inherit;
@@ -1093,7 +1109,7 @@ onUnmounted(() => {
         flex-direction: column;
         flex: 1;
         background-color: white !important;
-        min-height: 140px;
+        min-height: 170px;
 
         .send-btn-area {
           padding: 10px;
@@ -1105,17 +1121,19 @@ onUnmounted(() => {
 
       .chat-editer-mask {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 4px;
+        left: 6px;
+        right: 6px;
+        bottom: 6px;
+        width: auto;
+        height: auto;
         background: #f8f8f8d0;
         font-size: var(--im-font-size-large);
         color: var(--im-text-color-light);
         display: flex;
         justify-content: center;
         align-items: center;
-        border-radius: 10px;
+        border-radius: 12px;
         border: 1px solid #ddd;
         z-index: 10;
 

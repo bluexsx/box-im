@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import UNI_APP from '@/.env.js'
+import { uploadRequest } from '@/common/request'
 export default {
 	name: 'file-upload',
 	props: {
@@ -87,14 +87,6 @@ export default {
 				size: raw.size
 			}
 		},
-		getUploadHeader() {
-			const header = {}
-			const loginInfo = uni.getStorageSync('loginInfo')
-			if (loginInfo) {
-				header.accessToken = loginInfo.accessToken
-			}
-			return header
-		},
 		async processFile(file) {
 			if (file.size > this.maxSize * 1024 * 1024) {
 				uni.showToast({
@@ -108,39 +100,21 @@ export default {
 			}
 			await this.doUpload(file, file.path)
 		},
-		doUpload(file, filePath) {
-			return new Promise((resolve) => {
-				uni.uploadFile({
-					url: UNI_APP.BASE_URL + '/file/upload',
+		async doUpload(file, filePath) {
+			try {
+				const data = await uploadRequest({
+					url: '/file/upload',
 					filePath,
-					name: 'file',
-					header: this.getUploadHeader(),
-					success: async (res) => {
-						try {
-							const data = JSON.parse(res.data)
-							if (data.code != 200) {
-								uni.showToast({ icon: 'none', title: data.message })
-								if (this.onError) {
-									await this.onError(file, data)
-								}
-							} else if (this.onSuccess) {
-								await this.onSuccess(file, data)
-							}
-						} catch (e) {
-							if (this.onError) {
-								await this.onError(file, e)
-							}
-						}
-						resolve()
-					},
-					fail: async (err) => {
-						if (this.onError) {
-							await this.onError(file, err)
-						}
-						resolve()
-					}
+					name: 'file'
 				})
-			})
+				if (this.onSuccess) {
+					await this.onSuccess(file, data)
+				}
+			} catch (e) {
+				if (this.onError) {
+					await this.onError(file, e)
+				}
+			}
 		},
 		// #ifdef APP-PLUS
 		async onNativeFiles(list) {

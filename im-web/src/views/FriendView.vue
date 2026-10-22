@@ -11,17 +11,23 @@
         <AddFriend :dialog-visible="showAddFriend" @close="onCloseAddFriend" />
       </div>
       <el-scrollbar class="friend-items">
-        <div v-for="(friends, i) in friendValues" :key="friendKeys[i]">
-          <div class="letter">{{ friendKeys[i] }}</div>
-          <div v-for="friend in friends" :id="String(friend.id)" :key="friend.id">
-            <FriendItem
-              :friend="friend"
-              :active="friend.id === activeFriend.id"
-              @chat="onSendMessage(friend)"
-              @delete="onDelFriend(friend)"
-              @click="onActiveItem(friend)" />
-          </div>
+        <div v-if="!isReady" class="friend-list-loading">
+          <el-icon class="is-loading"><Loading /></el-icon>
+          <span>加载中...</span>
         </div>
+        <template v-else>
+          <div v-for="(friends, i) in friendValues" :key="friendKeys[i]">
+            <div class="letter">{{ friendKeys[i] }}</div>
+            <div v-for="friend in friends" :id="String(friend.id)" :key="friend.id">
+              <FriendItem
+                :friend="friend"
+                :active="friend.id === activeFriend.id"
+                @chat="onSendMessage(friend)"
+                @delete="onDelFriend(friend)"
+                @click="onActiveItem(friend)" />
+            </div>
+          </div>
+        </template>
       </el-scrollbar>
     </ResizableAside>
     <el-container v-show="userInfo.id" class="container">
@@ -87,10 +93,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onActivated, onMounted, ref } from 'vue';
+import { computed, nextTick, onActivated, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Delete, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
+import { Delete, Loading, MoreFilled, Plus, Position, Search } from '@element-plus/icons-vue';
 import { pinyin } from 'pinyin-pro';
 import AddFriend from '@/components/friend/AddFriend.vue';
 import FriendItem from '@/components/friend/FriendItem.vue';
@@ -117,6 +123,7 @@ const chatStore = useChatStore();
 
 const searchText = ref('');
 const showAddFriend = ref(false);
+const isReady = ref(false);
 const activeFriend = ref<FriendVO>({ id: 0, nickName: '' });
 const userInfo = ref<UserVO>({ id: 0, nickName: '' });
 const rightMenuRef = ref<InstanceType<typeof RightMenu>>();
@@ -282,15 +289,31 @@ const showFullImage = () => {
   }
 };
 
-onActivated(() => {
+const applyRouteQuery = () => {
   const userId = route.query.id;
-  if (userId) {
-    const friend = friendStore.findFriend(parseInt(String(userId)));
-    if (friend) {
-      onActiveItem(friend);
-      locateItem(friend.id);
-    }
+  if (!userId) {
+    return;
   }
+  const friend = friendStore.findFriend(parseInt(String(userId)));
+  if (friend) {
+    onActiveItem(friend);
+    nextTick(() => locateItem(friend.id));
+  }
+};
+
+const scheduleFriendList = () => {
+  if (isReady.value) {
+    applyRouteQuery();
+    return;
+  }
+  setTimeout(() => {
+    isReady.value = true;
+    nextTick(() => applyRouteQuery());
+  }, 10);
+};
+
+onActivated(() => {
+  scheduleFriendList();
 });
 </script>
 
@@ -329,6 +352,16 @@ onActivated(() => {
 
   .friend-items {
     flex: 1;
+
+    .friend-list-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 24px 0;
+      font-size: var(--im-font-size-smaller);
+      color: var(--im-text-color-light);
+    }
 
     .top-item {
       height: 60px;
