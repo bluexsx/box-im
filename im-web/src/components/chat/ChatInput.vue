@@ -217,57 +217,72 @@ const hasDragFiles = (e: DragEvent) => {
   return Array.from(types).includes('Files');
 };
 
+const ensureRange = (): Range | undefined => {
+  const selection = window.getSelection();
+  if (selection?.rangeCount && contentRef.value?.contains(selection.anchorNode)) {
+    return selection.getRangeAt(0);
+  }
+  if (!blurRange.value) {
+    focus();
+    updateRange();
+  }
+  return blurRange.value;
+};
+
+const insertAtCursor = (node: Node) => {
+  const range = ensureRange();
+  if (!range) {
+    return;
+  }
+  if (range.startContainer !== range.endContainer || range.startOffset !== range.endOffset) {
+    range.deleteContents();
+  }
+  range.insertNode(node);
+  range.collapse(false);
+  const after = document.createTextNode('\u200B');
+  range.insertNode(after);
+  range.collapse(false);
+  selectElement(after, 1);
+  isEmpty.value = false;
+};
+
+const createImageNode = (imagePush: ImagePush) => {
+  const el = document.createElement('img');
+  el.className = 'chat-image no-text';
+  el.src = imagePush.url;
+  el.dataset.imgId = String(imagePush.fileId);
+  return el;
+};
+
 const insertMediaFile = (file: File) => {
   if (!file) {
     return;
   }
-  isEmpty.value = false;
-  if (file.type && file.type.indexOf('image') !== -1) {
+  if (file.type?.includes('image')) {
     const imagePush: ImagePush = {
       fileId: generateId(),
       file,
       url: URL.createObjectURL(file)
     };
     imageList.value[imagePush.fileId] = imagePush;
-    const line = newLine();
-    const imageElement = document.createElement('img');
-    imageElement.className = 'chat-image no-text';
-    imageElement.src = imagePush.url;
-    imageElement.dataset.imgId = String(imagePush.fileId);
-    line.appendChild(imageElement);
-    const after = document.createTextNode('\u00A0');
-    line.appendChild(after);
-    selectElement(after, 1);
+    insertAtCursor(createImageNode(imagePush));
   } else {
     const filePush: FilePush = { fileId: generateId(), file };
     fileList.value[filePush.fileId] = filePush;
-    const line = newLine();
-    const fileElement = createFile(filePush);
-    line.appendChild(fileElement);
-    const after = document.createTextNode('\u00A0');
-    line.appendChild(after);
-    selectElement(after, 1);
+    insertAtCursor(createFile(filePush));
   }
 };
 
 const pasteScreenShot = (buffer: Blob) => {
   const id = generateId();
-  const file = new File([buffer], `screenShot-${id}.png`, { type: 'image/png' }); //type为图片的格式
+  const file = new File([buffer], `screenShot-${id}.png`, { type: 'image/png' });
   const imagePush: ImagePush = {
     fileId: id,
     file,
     url: URL.createObjectURL(file)
   };
   imageList.value[imagePush.fileId] = imagePush;
-  const line = newLine();
-  const imageElement = document.createElement('img');
-  imageElement.className = 'chat-image no-text';
-  imageElement.src = imagePush.url;
-  imageElement.dataset.imgId = String(imagePush.fileId);
-  line.appendChild(imageElement);
-  const after = document.createTextNode('\u00A0');
-  line.appendChild(after);
-  selectElement(after, 1);
+  insertAtCursor(createImageNode(imagePush));
 };
 
 const selectElement = (element: Node, endOffset?: number) => {
@@ -498,59 +513,35 @@ const insertEmoji = (emojiText: string) => {
   emojiElement.className = 'emoji-normal no-text';
   emojiElement.dataset.emojiCode = emojiText;
   emojiElement.src = textToUrl(emojiText);
-  let range = blurRange.value;
-  if (!range) {
-    focus();
-    updateRange();
-    range = blurRange.value;
-  }
-  if (!range) {
-    return;
-  }
-  if (range.startContainer !== range.endContainer || range.startOffset !== range.endOffset) {
-    range.deleteContents();
-  }
-  range.insertNode(emojiElement);
-  range.collapse();
-  const textNode = document.createTextNode('\u200B');
-  range.insertNode(textNode);
-  range.collapse();
-  selectElement(textNode);
-  isEmpty.value = false;
+  insertAtCursor(emojiElement);
 };
 
 const insertEmotion = (html: string) => {
   if (!html) {
     return;
   }
-  if (html.startsWith('<')) {
-    let range = blurRange.value;
-    if (!range) {
-      focus();
-      updateRange();
-      range = blurRange.value;
-    }
-    if (!range || !contentRef.value) {
-      return;
-    }
-    if (range.startContainer !== range.endContainer || range.startOffset !== range.endOffset) {
-      range.deleteContents();
-    }
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    const nodes = Array.from(temp.childNodes);
-    nodes.forEach((node) => {
-      range!.insertNode(node);
-      range!.collapse(false);
-    });
-    const textNode = document.createTextNode('\u200B');
-    range.insertNode(textNode);
-    range.collapse();
-    selectElement(textNode);
-    isEmpty.value = false;
+  if (!html.startsWith('<')) {
+    insertEmoji(html);
     return;
   }
-  insertEmoji(html);
+  const range = ensureRange();
+  if (!range || !contentRef.value) {
+    return;
+  }
+  if (range.startContainer !== range.endContainer || range.startOffset !== range.endOffset) {
+    range.deleteContents();
+  }
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  Array.from(temp.childNodes).forEach((node) => {
+    range.insertNode(node);
+    range.collapse(false);
+  });
+  const after = document.createTextNode('\u200B');
+  range.insertNode(after);
+  range.collapse(false);
+  selectElement(after, 1);
+  isEmpty.value = false;
 };
 
 const generateId = () => {
@@ -661,11 +652,22 @@ const showAtBox = () => {
   updateRange();
 };
 
+// 去掉编辑器占位符后再判断是否为空，避免发出空消息气泡
+const normalizeEditorText = (s: string) => s.replace(/\u200B/g, '').replace(/\u00A0/g, '').trim();
+
 const parseContent = (): ChatInputSubmitItem[] => {
   const nodes = contentRef.value?.childNodes;
   const fullList: ChatInputSubmitItem[] = [];
   let tempText = '';
   let atUserIds: string[] = [];
+  const flushText = () => {
+    const text = normalizeEditorText(tempText);
+    if (text) {
+      fullList.push({ type: 'text', content: text, atUserIds: [...atUserIds] });
+    }
+    tempText = '';
+    atUserIds = [];
+  };
   const each = (nodeList: NodeListOf<ChildNode>) => {
     for (let i = 0; i < nodeList.length; i++) {
       const node = nodeList[i];
@@ -680,16 +682,11 @@ const parseContent = (): ChatInputSubmitItem[] => {
       if (nodeName === 'script') {
         continue;
       }
-      const text = tempText.trim();
       if (nodeName === 'img') {
         const imgEl = node as HTMLImageElement;
         const imgId = imgEl.dataset.imgId;
         if (imgId) {
-          if (text) {
-            fullList.push({ type: 'text', content: text, atUserIds: [...atUserIds] });
-            tempText = '';
-            atUserIds = [];
-          }
+          flushText();
           fullList.push({ type: 'image', content: imageList.value[Number(imgId)] });
         } else {
           tempText += imgEl.dataset.emojiCode || '';
@@ -699,11 +696,7 @@ const parseContent = (): ChatInputSubmitItem[] => {
         const fileId = divEl.dataset.fileId;
         // 文件
         if (fileId) {
-          if (text) {
-            fullList.push({ type: 'text', content: text, atUserIds: [...atUserIds] });
-            tempText = '';
-            atUserIds = [];
-          }
+          flushText();
           fullList.push({ type: 'file', content: fileList.value[Number(fileId)] });
         } else {
           tempText += '\n';
@@ -723,10 +716,7 @@ const parseContent = (): ChatInputSubmitItem[] => {
   if (nodes) {
     each(nodes);
   }
-  const text = tempText.replace(/\u200B/g, '').trim();
-  if (text !== '') {
-    fullList.push({ type: 'text', content: text, atUserIds: [...atUserIds] });
-  }
+  flushText();
   return fullList;
 };
 
@@ -836,9 +826,11 @@ defineExpose({
     }
 
     .chat-image {
-      display: block;
+      display: inline-block;
+      vertical-align: bottom;
       max-width: 200px;
       max-height: 100px;
+      margin: 4px 8px 4px 0;
       border: 1px solid #e6e6e6;
       border-radius: 5px;
       cursor: pointer;
@@ -846,9 +838,11 @@ defineExpose({
 
     .chat-file-container {
       max-width: 65%;
+      margin: 4px 8px 4px 0;
       padding: 10px;
       border: 2px solid #587ff0;
-      display: flex;
+      display: inline-flex;
+      vertical-align: bottom;
       background: #eeec;
       border-radius: 10px;
 
