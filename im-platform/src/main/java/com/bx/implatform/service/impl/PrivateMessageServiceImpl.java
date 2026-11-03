@@ -21,12 +21,14 @@ import com.bx.implatform.dto.PrivateMessageDTO;
 import com.bx.implatform.dto.PrivateMessageHistoryDTO;
 import com.bx.implatform.entity.MessageDeletion;
 import com.bx.implatform.entity.PrivateMessage;
+import com.bx.implatform.entity.User;
 import com.bx.implatform.enums.ChatType;
 import com.bx.implatform.enums.DeleteType;
 import com.bx.implatform.enums.MessageStatus;
 import com.bx.implatform.enums.MessageType;
 import com.bx.implatform.exception.GlobalException;
 import com.bx.implatform.mapper.PrivateMessageMapper;
+import com.bx.implatform.mapper.UserMapper;
 import com.bx.implatform.service.FriendService;
 import com.bx.implatform.service.MessageDeletionService;
 import com.bx.implatform.service.PrivateMessageService;
@@ -62,6 +64,7 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private final SensitiveFilterUtil sensitiveFilterUtil;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedissonClient redissonClient;
+    private final UserMapper userMapper;
 
     @Override
     public PrivateMessageVO sendMessage(PrivateMessageDTO dto) {
@@ -113,7 +116,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             throw new GlobalException("消息已发送超过5分钟，无法撤回");
         }
         // 记录撤回提示语到扩展字段(用于前端展示)
-        String recallTip = String.format("%s 撤回了一条消息", session.getNickName());
+        User user = userMapper.selectById(session.getUserId());
+        if (Objects.isNull(user)) {
+            throw new GlobalException("用户不存在");
+        }
+        String recallTip = String.format("%s 撤回了一条消息", user.getNickName());
         recallMessage.setStatus(MessageStatus.RECALL.code());
         this.updateById(recallMessage);
         // 生成一条撤回消息

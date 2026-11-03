@@ -91,7 +91,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!JwtUtil.checkSign(refreshToken, jwtProperties.getRefreshTokenSecret())) {
             throw new GlobalException("您的登录信息已过期，请重新登录");
         }
-        String strJson = JwtUtil.getInfo(refreshToken);
+        UserSession oldSession = JSON.parseObject(JwtUtil.getInfo(refreshToken), UserSession.class);
         Long userId = JwtUtil.getUserId(refreshToken);
         User user = this.getById(userId);
         if (Objects.isNull(user)) {
@@ -103,6 +103,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 清除残留的拒绝访问标记（解封后可能漏删）
         redisTemplate.delete(StrUtil.join(":", IMRedisKey.IM_USER_DENIED, user.getId()));
+        // 用户资料使用数据库中的最新值，终端沿用已验证的刷新凭证。
+        UserSession session = BeanUtils.copyProperties(user, UserSession.class);
+        session.setUserId(user.getId());
+        session.setTerminal(oldSession.getTerminal());
+        String strJson = JSON.toJSONString(session);
         String accessToken =
             JwtUtil.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
         String newRefreshToken = JwtUtil.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(),

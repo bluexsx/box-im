@@ -12,6 +12,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.bx</groupId>
             <artifactId>im-client</artifactId>
             <version>4.0.0</version>
