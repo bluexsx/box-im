@@ -84,7 +84,7 @@
 - Node：v18.19.0
 - JDK：17
 - Maven：3.9.6
-- MySQL：8.0（账号密码均为 `root` / `root`），创建名为 `im_platform` 的数据库，并执行 `db/im_platfrom.sql` 脚本
+- MySQL：8.0（账号密码均为 `root` / `root`），创建名为 `im_platform` 的数据库，并执行 `db/im-platfrom.sql` 脚本
 - Redis：6.2
 - MinIO：RELEASE.2024-xx，使用默认账号、密码、端口
 
@@ -101,7 +101,7 @@ java -jar ./im-server/target/im-server.jar
 ```bash
 cd im-web
 npm install
-npm run serve
+npm run dev
 ```
 
 访问 http://localhost:8080

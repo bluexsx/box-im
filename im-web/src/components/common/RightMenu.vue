@@ -1,18 +1,16 @@
 <template>
-  <div v-if="show" class="right-menu-mask" @click.stop="close" @contextmenu.prevent="close">
-    <div class="right-menu" :style="{ left: pos.x + 'px', top: pos.y + 'px' }">
-      <div class="menu-container">
-        <div v-for="item in items" :key="item.key" class="menu-item" :class="{ danger: item.danger }" @click.stop="onSelectMenu(item)">
-          <i v-if="item.icon" :class="item.icon" class="menu-icon" />
-          <span class="menu-text">{{ item.name }}</span>
-        </div>
+  <div v-if="show" ref="menuRef" class="right-menu" :style="{ left: pos.x + 'px', top: pos.y + 'px' }" @click.stop>
+    <div class="menu-container">
+      <div v-for="item in items" :key="item.key" class="menu-item" :class="{ danger: item.danger }" @click.stop="onSelectMenu(item)">
+        <i v-if="item.icon" :class="item.icon" class="menu-icon" />
+        <span class="menu-text">{{ item.name }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { nextTick, onUnmounted, reactive, ref } from 'vue';
 
 export type RightMenuItem = {
   key: string | number;
@@ -26,6 +24,8 @@ const emit = defineEmits(['select']);
 const show = ref(false);
 const pos = reactive({ x: 0, y: 0 });
 const items = ref<RightMenuItem[]>([]);
+const menuRef = ref<HTMLElement>();
+let listening = false;
 
 const rejustPos = () => {
   const menuH = items.value.length * 40 + 16; // 增加内边距
@@ -38,16 +38,40 @@ const rejustPos = () => {
   }
 };
 
+const onDocPointer = (e: Event) => {
+  const el = menuRef.value;
+  if (el && !el.contains(e.target as Node)) {
+    close();
+  }
+};
+
+const bindDocListeners = () => {
+  if (listening) return;
+  document.addEventListener('mousedown', onDocPointer, true);
+  document.addEventListener('contextmenu', onDocPointer, true);
+  listening = true;
+};
+
+const unbindDocListeners = () => {
+  if (!listening) return;
+  document.removeEventListener('mousedown', onDocPointer, true);
+  document.removeEventListener('contextmenu', onDocPointer, true);
+  listening = false;
+};
+
 const open = (p: { x: number; y: number }, menuItems: RightMenuItem[]) => {
   pos.x = p.x;
   pos.y = p.y;
   items.value = menuItems;
   show.value = true;
   rejustPos();
+  // 延后绑定，避免触发本次右键的 contextmenu 立刻关闭菜单
+  nextTick(() => bindDocListeners());
 };
 
 const close = () => {
   show.value = false;
+  unbindDocListeners();
 };
 
 const onSelectMenu = (item: RightMenuItem) => {
@@ -55,21 +79,14 @@ const onSelectMenu = (item: RightMenuItem) => {
   close();
 };
 
+onUnmounted(() => {
+  unbindDocListeners();
+});
+
 defineExpose({ open, close });
 </script>
 
 <style lang="scss">
-.right-menu-mask {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999;
-}
-
 .right-menu {
   position: fixed;
   border-radius: 12px;
